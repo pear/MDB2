@@ -298,7 +298,8 @@ class MDB2
                 'unable to load driver class: '.$file_name);
         }
 
-        return new $class_name();
+        $obj =& new $class_name();
+        return $obj;
     }
 
     // }}}
@@ -2093,7 +2094,8 @@ class MDB2_Driver_Common extends PEAR
             }
         }
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        return new $class_name($this, $positions, $query, $types, $result_types);
+        $obj =& new $class_name($this, $positions, $query, $types, $result_types);
+        return $obj;
     }
 
     // }}}
@@ -2376,65 +2378,6 @@ class MDB2_Driver_Common extends PEAR
         $all = $result->fetchAll($fetchmode, $rekey, $force_array, $group);
         $result->free();
         return $all;
-    }
-
-    // }}}
-    // {{{ executeParams()
-
-    /**
-     * Executes a prepared SQL query
-     * With executeParams() the generic query of prepare is assigned with the given
-     * data array. The values of the array inserted into the query in the same
-     * order like the array order
-     *
-     * @param resource $prepared_query query handle from prepare()
-     * @param array $types array that contains the types of the columns in
-     *        the result set
-     * @param array $params numeric array containing the data to insert into
-     *        the query
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed MDB2_OK or a new result handle or a MDB2 Error Object when fail
-     * @access public
-     * @see prepare()
-     */
-    function &executeParams($prepared_query, $types = null, $params = false,
-        $result_class = true, $result_wrap_class = false)
-    {
-        $this->bindParamArray($prepared_query, $params);
-
-        return $this->execute($prepared_query, $types, $result_class, $result_wrap_class);
-    }
-
-    // }}}
-    // {{{ executeMultiple()
-
-    /**
-     * This function does several executeParams() calls on the same statement handle.
-     * $params must be an array indexed numerically from 0, one execute call is
-     * done for every 'row' in the array.
-     *
-     * If an error occurs during executeParams(), executeMultiple() does not execute
-     * the unfinished rows, but rather returns that error.
-     *
-     * @param resource $prepared_query query handle from prepare()
-     * @param array $types array that contains the types of the columns in
-     *        the result set
-     * @param array $params numeric array containing the
-     *        data to insert into the query
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     * @see prepare(), executeParams()
-     */
-    function executeMultiple($prepared_query, $types = null, $params = null)
-    {
-        for ($i = 0, $j = count($params); $i < $j; $i++) {
-            $result = $this->executeParams($prepared_query, $types, $params[$i]);
-            if (MDB2::isError($result)) {
-                return $result;
-            }
-        }
-        return MDB2_OK;
     }
 
     // }}}
@@ -2877,7 +2820,7 @@ class MDB2_Statement_Common
     function bindParamArray(&$values, $types = null)
     {
         $this->values =& $values;
-        if (!is_null($types)) {
+        if (is_array($types)) {
             $this->types = $types;
         }
         return MDB2_OK;
