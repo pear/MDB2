@@ -303,46 +303,48 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        if (function_exists('pg_cmdtuples')) {
-            $connection = $this->_doConnect('template1', 0);
-            if (!MDB2::isError($connection)) {
-                if (($result = @pg_exec($connection, 'BEGIN'))) {
-                    $error_reporting = error_reporting(63);
-                    @pg_cmdtuples($result);
-                    if (!isset($php_errormsg)
-                        || strcmp($php_errormsg, 'This compilation does not support pg_cmdtuples()')
-                    ) {
-                        $this->supported['affected_rows'] = true;
+        if ($this->database_name) {
+            if (function_exists('pg_cmdtuples')) {
+                $connection = $this->_doConnect('template1', 0);
+                if (!MDB2::isError($connection)) {
+                    if (($result = @pg_exec($connection, 'BEGIN'))) {
+                        $error_reporting = error_reporting(63);
+                        @pg_cmdtuples($result);
+                        if (!isset($php_errormsg)
+                            || strcmp($php_errormsg, 'This compilation does not support pg_cmdtuples()')
+                        ) {
+                            $this->supported['affected_rows'] = true;
+                        }
+                        error_reporting($error_reporting);
+                    } else {
+                        $err = $this->raiseError($result);
                     }
-                    error_reporting($error_reporting);
+                    @pg_close($connection);
                 } else {
-                    $err = $this->raiseError($result);
+                    $err = $this->raiseError(MDB2_ERROR, null, null,
+                        'connect: could not execute BEGIN');
                 }
-                @pg_close($connection);
-            } else {
-                $err = $this->raiseError(MDB2_ERROR, null, null,
-                    'connect: could not execute BEGIN');
+                if (isset($err) && MDB2::isError($err)) {
+                    return $err;
+                }
             }
-            if (isset($err) && MDB2::isError($err)) {
-                return $err;
+            $connection = $this->_doConnect($this->database_name, $this->options['persistent']);
+            if (MDB2::isError($connection)) {
+                return $connection;
             }
-        }
-        $connection = $this->_doConnect($this->database_name, $this->options['persistent']);
-        if (MDB2::isError($connection)) {
-            return $connection;
-        }
-        $this->connection = $connection;
-        $this->connected_dsn = $this->dsn;
-        $this->connected_database_name = $this->database_name;
-        $this->opened_persistent = $this->options['persistent'];
+            $this->connection = $connection;
+            $this->connected_dsn = $this->dsn;
+            $this->connected_database_name = $this->database_name;
+            $this->opened_persistent = $this->options['persistent'];
 
-        if (!$this->auto_commit
-            && MDB2::isError($trans_result = $this->_doQuery('BEGIN'))
-        ) {
-            @pg_close($this->connection);
-            $this->connection = 0;
-            $this->affected_rows = -1;
-            return $trans_result;
+            if (!$this->auto_commit
+                && MDB2::isError($trans_result = $this->_doQuery('BEGIN'))
+            ) {
+                @pg_close($this->connection);
+                $this->connection = 0;
+                $this->affected_rows = -1;
+                return $trans_result;
+            }
         }
         return MDB2_OK;
     }
