@@ -1,17 +1,16 @@
 2.0.0 stable:
-- use constants that we can apply bit operators on for the types internally ..
+- use constants for types so that we can apply bit operators on types internally
   this would allow people to define complex types that know that they are text
 - move all datatype related code into the datatype module (especially from the
   manager class and the reverse module)
 - move all code that is left from the reverse module into the manager module
   as per the patches that Matt send in a while ago
-- more PDI API fixes (especially the fetch object needs to be merged with the
+- more PDO API fixes (especially the fetch object needs to be merged with the
   statement object
-- separate the manager into a separate table
+- separate the manager into a separate package
 - write basic Docbook documentation
 - test stored procedures
 - fix up PEAR::DB wrapper (especially !/& support and error handling)
-- add named parameters (thereby also streamlining LOB support)
 - clean up manager and reverse module
 - explore usage of interceptors for modules
 - fix up tutorial
