@@ -7,6 +7,11 @@ $version = '2.0.0alpha2';
 $notes = <<<EOT
 Please note that currently only the MySQL, the PostGreSQL and the Oracle driver
 have been tested to pass the test suite.
+
+- fixed bug in MDB2::singleton
+- fixed minor bugs in prepare/execute
+- added PEAR::DB wrapper
+- fixed several bugs in the ibase driver
 EOT;
 
 $description =<<<EOT
