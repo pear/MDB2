@@ -1781,7 +1781,8 @@ class MDB2_Tools_Manager extends PEAR
                                 if (!is_array($data[$row])) {
                                     break;
                                 }
-                                $table['initialization']['insert'][] = $data[$row];
+                                $instruction = array('type' => 'insert', 'fields' => $data[$row]);
+                                $this->database_definition['tables'][$table_name]['initialization'][] = $instruction;
                             }
                         }
                     }
