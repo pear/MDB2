@@ -2067,13 +2067,13 @@ class MDB2_Driver_Common extends PEAR
                     $question = $colon = $placeholder_type;
                 }
                 if ($placeholder_type == ':') {
-                    $name = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/i', '\\1', $query);
-                    if ($name === '') {
+                    $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/i', '\\1', $query);
+                    if ($parameter === '') {
                         return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'prepare: named parameter with an empty name');
                     }
-                    $positions[$name] = $p_position;
-                    $query = substr_replace($query, '?', $position, strlen($name)+1);
+                    $positions[$parameter] = $p_position;
+                    $query = substr_replace($query, '?', $position, strlen($parameter)+1);
                 } else {
                     $positions[] = $p_position;
                 }
