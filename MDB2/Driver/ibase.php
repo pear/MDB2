@@ -111,12 +111,17 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function errorInfo($error = null)
     {
         $native_msg = @ibase_errmsg();
-        // memo for the interbase php module hackers: we need something similar
-        // to mysql_errno() to retrieve error codes instead of this ugly hack
-        if (preg_match('/^([^0-9\-]+)([0-9\-]+)\s+(.*)$/', $native_msg, $m)) {
-            $native_code = (int)$m[2];
+
+        if (function_exists('ibase_errcode')) {
+            $native_code = @ibase_errcode();
         } else {
-            $native_code = null;
+            // memo for the interbase php module hackers: we need something similar
+            // to mysql_errno() to retrieve error codes instead of this ugly hack
+            if (preg_match('/^([^0-9\-]+)([0-9\-]+)\s+(.*)$/', $native_msg, $m)) {
+                $native_code = (int)$m[2];
+            } else {
+                $native_code = null;
+            }
         }
         if (is_null($error)) {
             $error = MDB2_ERROR;
@@ -520,11 +525,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function affectedRows()
     {
-        $affected_rows = @ibase_affected_rows($this->connection);
-        if ($affected_rows === false) {
-            return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+        if (function_exists('ibase_affected_rows')) { //PHP5 only
+            $affected_rows = @ibase_affected_rows($this->connection);
+            if ($affected_rows === false) {
+                return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            }
+            return $affected_rows;
         }
-        return $affected_rows;
+        return parent::affectedRows();
     }
 
     // }}}
@@ -847,7 +855,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             return false;
         }
 
-        $row = true;
+        //$row = true;
         while ((is_null($rownum) || $this->buffer_rownum < $rownum)
             && (!isset($this->limits) || ($this->buffer_rownum + 1) < $this->limits['limit'])
             && ($buffer = @ibase_fetch_assoc($this->result))
