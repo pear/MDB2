@@ -41,6 +41,10 @@ $notes = <<<EOT
 - added default implementation for quoteCLOB() and quoteBLOB()
 - moved prepare/execute API towards PDO (mysql and sqlite tested only)
 - use MDB2_ERROR_UNSUPPORTED instead of MDB2_ERROR_NOT_CAPABLE in common implementations
+- reworked quote handling: moved all implementation details into the extension,
+  made all quote methods private except for quote() itself, honor portability
+  MDB2_PORTABILITY_EMPTY_TO_NULL in quote(), removed MDB2_TYPE_* constants
+- added serialize datatype but commented it out for now
 EOT;
 
 $description =<<<EOT
