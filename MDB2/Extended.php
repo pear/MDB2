@@ -90,17 +90,17 @@ class MDB2_Extended
      *
      * @param string $table name of the table
      * @param array $table_fields ordered array containing the fields names
-     * @param mixed   $types  array that contains the types of the placeholders
-     * @param mixed   $result_types  array that contains the types of the columns in
-     *                        the result set
      * @param int $mode type of query to make (MDB2_AUTOQUERY_INSERT or MDB2_AUTOQUERY_UPDATE)
      * @param string $where in case of update queries, this string will be put after the sql WHERE statement
      * @return resource handle for the query
+     * @param mixed   $types  array that contains the types of the placeholders
+     * @param mixed   $result_types  array that contains the types of the columns in
+     *                        the result set
      * @see buildManipSQL
      * @access public
      */
-    function autoPrepare($table, $table_fields, $types = null, $result_types = null,
-        $mode = MDB2_AUTOQUERY_INSERT, $where = false)
+    function autoPrepare($table, $table_fields, $mode = MDB2_AUTOQUERY_INSERT,
+        $where = false, $types = null, $result_types = null)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = $this->buildManipSQL($table, $table_fields, $mode, $where);
@@ -115,13 +115,11 @@ class MDB2_Extended
      *
      * @param string $table name of the table
      * @param array $fields_values assoc ($key=>$value) where $key is a field name and $value its value
+     * @param int $mode type of query to make (MDB2_AUTOQUERY_INSERT or MDB2_AUTOQUERY_UPDATE)
+     * @param string $where in case of update queries, this string will be put after the sql WHERE statement
      * @param mixed   $types  array that contains the types of the placeholders
      * @param mixed   $result_types  array that contains the types of the columns in
      *                        the result set
-     * @param int $mode type of query to make (MDB2_AUTOQUERY_INSERT or MDB2_AUTOQUERY_UPDATE)
-     * @param array $param_types array that contains the types of the values
-     *        defined in $params
-     * @param string $where in case of update queries, this string will be put after the sql WHERE statement
      * @param mixed $result_class string which specifies which result class to use
      * @return mixed  a new MDB2_Result or a MDB2 Error Object when fail
      * @see buildManipSQL
@@ -132,7 +130,7 @@ class MDB2_Extended
         $where = false, $types = null, $result_types = null, $result_class = true)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $stmt = $this->autoPrepare($table, array_keys($fields_values), $types, $result_types, $mode, $where);
+        $stmt = $this->autoPrepare($table, array_keys($fields_values), $mode, $where, $types, $result_types);
         $params = array_values($fields_values);
         $stmt->bindParamArray($params);
         $result =& $stmt->execute($result_class);
@@ -163,44 +161,24 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (count($table_fields) == 0) {
-            $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
-        $first = true;
         switch ($mode) {
         case MDB2_AUTOQUERY_INSERT:
-            $values = '';
-            $names = '';
-            while (list(, $value) = each($table_fields)) {
-                if ($first) {
-                    $first = false;
-                } else {
-                    $names .= ',';
-                    $values .= ',';
-                }
-                $names .= $value;
-                $values .= '?';
-            }
-            return "INSERT INTO $table ($names) VALUES ($values)";
+            $cols = implode(', ', array_keys($table_fields));
+            $values = '?'.str_repeat(', ?', count($table_fields)-1);
+            return 'INSERT INTO '.$table.' ('.$cols.') VALUES ('.$values.')';
             break;
         case MDB2_AUTOQUERY_UPDATE:
-            $set = '';
-            while (list(, $value) = each($table_fields)) {
-                if ($first) {
-                    $first = false;
-                } else {
-                    $set .= ',';
-                }
-                $set .= "$value = ?";
+            $set = implode(' = ?, ', array_keys($table_fields)).' = ?';
+            $sql = 'UPDATE '.$table.' SET '.$set;
+            if ($where !== false) {
+                $sql .= ' WHERE '.$where;
             }
-            $query = "UPDATE $table SET $set";
-            if ($where) {
-                $query .= " WHERE $where";
-            }
-            return $query;
+            return $sql;
             break;
-        default:
-            $db->raiseError(MDB2_ERROR_SYNTAX);
         }
+        return $db->raiseError(MDB2_ERROR_SYNTAX);
     }
 
     // {{{
