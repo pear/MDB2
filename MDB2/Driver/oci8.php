@@ -93,11 +93,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->options['default_text_field_length'] = 4000;
     }
 
-    function MDB2_Driver_oci8()
-    {
-        $this->__construct();
-    }
-
     // }}}
     // {{{ errorInfo()
 
@@ -251,7 +246,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         if (version_compare(phpversion(), '5.0.0', '>=')) {
             $function = $persistent ? 'oci_pconnect' : 'oci_connect';
-            $charset = empty($dsninfo['charset']) ? null : $dsninfo['charset'];
+            $charset = empty($this->dsn['charset']) ? null : $this->dsn['charset'];
             $connection = @$function($username, $password, $sid, $charset);
             $error = OCIError();
             if (!empty($error) && $error['code'] == 12541) {
@@ -304,18 +299,22 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
         $this->opened_persistent = $this->options['persistent'];
+        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
+
         $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-        $error = $this->_doQuery($query);
+        $error = $this->_doQuery($query, true);
         if (MDB2::isError($error)) {
             $this->disconnect(false);
             return $error;
         }
+
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
-        $error = $this->_doQuery($query);
+        $error = $this->_doQuery($query, true);
         if (MDB2::isError($error)) {
             $this->disconnect(false);
             return $error;
         }
+
         return MDB2_OK;
     }
 
@@ -331,17 +330,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if (($this->opened_persistent || $force)
-            && $this->connection != 0
-        ) {
-            if (version_compare(phpversion(), '5.0.0', '>=')) {
-                $ret = @oci_close($this->connection);
-            } else {
-                $ret = @OCILogOff($this->connection);
+        if ($this->connection != 0) {
+            if (!$this->opened_persistent || $force) {
+                if (version_compare(phpversion(), '5.0.0', '>=')) {
+                    @oci_close($this->connection);
+                } else {
+                    @OCILogOff($this->connection);
+                }
             }
-            $this->connection = 0;
-            $this->uncommitedqueries = 0;
-        } else {
             $this->connection = 0;
             $this->uncommitedqueries = 0;
         }
@@ -614,7 +610,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
-                $this->loadModule('manager');
+                $this->loadModule('Manager');
                 $result = $this->manager->createSequence($seq_name, 1);
                 if (MDB2::isError($result)) {
                     return $result;
@@ -1025,39 +1021,36 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         $result = MDB2_OK;
         $lobs = $descriptors = array();
         foreach ($this->values as $parameter => $value) {
-            if (!isset($value)) {
-                $descriptors[$parameter] = 'NULL';
-            } else {
-                $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
-                if ($type == 'clob' || $type == 'blob') {
-                    $lobs[$parameter]['file'] = true;
-                    if (is_resource($value)) {
-                        while (!feof($value)) {
-                            $data .= fread($value, 1024);
-                        }
-                        $value = $data;
-                        $lobs[$parameter]['file'] = false;
-                    } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
-                        if ($match[1] == 'file://') {
-                            $value = $match[2];
-                        }
-                    } else {
-                        $lobs[$parameter]['file'] = false;
+            $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
+            if ($type == 'clob' || $type == 'blob') {
+                $lobs[$parameter]['file'] = true;
+                if (is_resource($value)) {
+                    $fp = $value;
+                    $value = '';
+                    while (!feof($fp)) {
+                        $value.= fread($fp, 8192);
                     }
-                    $lobs[$parameter]['value'] = $value;
-                    $descriptors[$parameter] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
-                    if (!is_object($descriptors[$parameter])) {
-                        $result = $this->db->raiseError();
-                        break;
+                    $lobs[$parameter]['file'] = false;
+                } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+                    if ($match[1] == 'file://') {
+                        $value = $match[2];
                     }
                 } else {
-                    $descriptors[$parameter] = $this->db->quote($value, $type);
-                    if (MDB2::isError($descriptors[$parameter])) {
-                        return $descriptors[$parameter];
-                    }
+                    $lobs[$parameter]['file'] = false;
+                }
+                $lobs[$parameter]['value'] = $value;
+                $descriptors[$parameter] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
+                if (!is_object($descriptors[$parameter])) {
+                    $result = $this->db->raiseError();
+                    break;
+                }
+            } else {
+                $descriptors[$parameter] = $this->db->quote($value, $type);
+                if (MDB2::isError($descriptors[$parameter])) {
+                    return $descriptors[$parameter];
                 }
             }
-            if (is_object($descriptors[$parameter])) {
+            if ($type == 'clob' || $type == 'blob') {
                 $lob_type = ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB);
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1, $lob_type)) {
                     $result = $this->db->raiseError($this->statement);
@@ -1082,14 +1075,16 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
 
         if (!empty($lobs)) {
             foreach ($lobs as $parameter => $stream) {
-                if ($stream['file']) {
-                    $result = @$descriptors[$parameter]->savefile($stream['value']);
-                } else {
-                    $result = @$descriptors[$parameter]->save($stream['value']);
-                }
-                if (!$result) {
-                    $result = $this->db->raiseError();
-                    break;
+                if (!is_null($stream['value']) && $stream['value'] !== '') {
+                    if ($stream['file']) {
+                        $result = @$descriptors[$parameter]->savefile($stream['value']);
+                    } else {
+                        $result = @$descriptors[$parameter]->save($stream['value']);
+                    }
+                    if (!$result) {
+                        $result = $this->db->raiseError();
+                        break;
+                    }
                 }
             }
 
