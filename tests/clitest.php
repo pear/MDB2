@@ -73,14 +73,6 @@ require_once 'testUtils.php';
 require_once 'MDB2.php';
 require_once 'Console_TestListener.php';
 
-PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'handle_pear_error');
-function handle_pear_error ($error_obj)
-{
-    print "\n";
-    echo $error_obj->getMessage().': '.$error_obj->getUserinfo();
-    print "------------------------------------\n\n";
-}
-
 MDB2::loadFile('Date');
 
 foreach ($testcases as $testcase) {
@@ -90,12 +82,21 @@ foreach ($testcases as $testcase) {
 $database = 'driver_test';
 
 $inputMethods = $argv;
-array_shift($inputMethods);
 
 if ($argc > 1) {
+    array_shift($inputMethods);
+    $exclude = false;
+    if ($inputMethods[0] == '-exclude') {
+        array_shift($inputMethods);
+        $exclude = true;
+    }
     foreach ($testcases as $testcase) {
         $possibleMethods = getTests($testcase);
-        $intersect = array_intersect($possibleMethods, $inputMethods);
+        if ($exclude) {
+            $intersect = array_diff($possibleMethods, $inputMethods);
+        } else {
+            $intersect = array_intersect($possibleMethods, $inputMethods);
+        }
         if (count($intersect) > 0) {
             $testmethods[$testcase] = array_flip($intersect);
         }
@@ -113,6 +114,7 @@ if (!isset($testmethods) || !is_array($testmethods)) {
 foreach ($dbarray as $db) {
     $dsn = $db['dsn'];
     $options = isset($db['options']) ? $db['options'] : null;
+    $GLOBALS['_show_silenced'] = isset($options['debug']) ? $options['debug'] :false;
 
     $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":" . $dsn['password'] . "@" . $dsn['hostspec'] . "/" . $database;
     echo "=== Start test of $display_dsn ===\n";
