@@ -1306,7 +1306,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function escape($text)
     {
-        if (strcmp($this->escape_quotes, "'")) {
+        if ($this->escape_quotes !== "'") {
             $text = str_replace($this->escape_quotes, $this->escape_quotes.$this->escape_quotes, $text);
         }
         return str_replace("'", $this->escape_quotes . "'", $text);
@@ -1547,6 +1547,7 @@ class MDB2_Driver_Common extends PEAR
         ) {
             $this->in_transaction = false;
         }
+        unset($GLOBALS['_MDB2_databases'][$this->db_index]);
         return $this->_close();
     }
 
@@ -1560,7 +1561,6 @@ class MDB2_Driver_Common extends PEAR
      */
     function _close()
     {
-        unset($GLOBALS['_MDB2_databases'][$this->db_index]);
         return MDB2_OK;
     }
 
@@ -1784,6 +1784,7 @@ class MDB2_Driver_Common extends PEAR
             $result_class = $this->options['result_buffering']
                 ? $this->options['buffered_result_class'] : $this->options['result_class'];
         }
+
         if ($result_class) {
             $class_name = sprintf($result_class, $this->phptype);
             if (!class_exists($class_name)) {
@@ -1791,7 +1792,7 @@ class MDB2_Driver_Common extends PEAR
                     '_wrapResult: result class does not exist '.$class_name);
             }
             $result =& new $class_name($this, $result, $limit, $offset);
-            if ($types) {
+            if (!empty($types)) {
                 $error = $result->setResultTypes($types);
                 if (MDB2::isError($error)) {
                     $result->free();
@@ -2507,23 +2508,6 @@ class MDB2_Result_Common extends MDB2_Result
     }
 
     // }}}
-    // {{{ bindColumn()
-
-    /**
-     * Set the value of a parameter of a prepared query.
-     *
-     * @param string $column name of the column.
-     * @param mixed $variable variable to which the data should be bound
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function bindColumn($column, &$variable)
-    {
-        $this->columns[$column] =& $variable;
-        return MDB2_OK;
-    }
-
-    // }}}
     // {{{ fetchRow()
 
     /**
@@ -2578,7 +2562,7 @@ class MDB2_Result_Common extends MDB2_Result
         $row = $this->fetchRow($fetchmode);
         if (is_array($row)) {
             if (!array_key_exists($colnum, $row)) {
-                return($this->db->raiseError(MDB2_ERROR_TRUNCATED));
+                return $this->db->raiseError(MDB2_ERROR_TRUNCATED);
             }
             do {
                 $column[] = $row[$colnum];
