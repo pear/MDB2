@@ -327,12 +327,14 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
         $params[] = $this->dsn['username'] ? $this->dsn['username'] : null;
         $params[] = $this->dsn['password'] ? $this->dsn['password'] : null;
-        if (isset($this->dsn['new_link'])
-            && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true))
-        {
-            $params[] = true;
-        } else {
-            $params[] = false;
+        if (!$this->options['persistent']) {
+            if (isset($dsn['new_link'])
+                && ($dsn['new_link'] == 'true' || $dsn['new_link'] === true))
+            {
+                $params[] = true;
+            } else {
+                $params[] = false;
+            }
         }
         if (version_compare(phpversion(), '4.3.0', '>=')) {
             $params[] = isset($this->dsn['client_flags'])
