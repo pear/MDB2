@@ -1,10 +1,14 @@
-In order of importance:
+2.0.0 stable:
 - Fix the rest of the drivers (currently only MySQL, PostGreSQL and Oracle have been tested)
-- Expand the test suite to cover the entire API and all possible cases
+- Expand the test suite
 - Write Docbook documentation
-- Add mysqli driver
-- Add call to EXPLAIN method to the default debug output handler
+- test stored procedures
 
-The Future:
+near future:
+- Add call to EXPLAIN method to the default debug output handler
+- Add mysqli driver
+- Expand the test suite to cover the entire API and all possible cases
+
+far future:
 - SQL Funtion Abstraction Module (for example SUBSTRING() and SUBSTR())
 - move MDB2_Manager functionaloty into DB_Schema
