@@ -481,8 +481,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function &prepare($query, $types = null, $result_types = null)
     {
         $this->debug($query, 'prepare');
-        // todo clean up ? to :X replacement
-        for ($position = 0;
+        $query = $this->db->_modifyQuery($query);
+        for ($position = $parameter = 0;
             $position < strlen($query) && is_int($question = strpos($query, '?', $position));
         ) {
             if (is_int($quote = strpos($query, "'", $position)) && $quote < $question) {
@@ -507,22 +507,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     }
                     break;
                 }
+            } elseif($position) {
+                ++$parameter;
+                $query = substr_replace($query, ':'.$parameter, $question, 1);
+                $position = $question + strlen($parameter);
             } else {
-                $positions[] = $question;
-                $position = $question + 1;
+                $position = $question;
             }
         }
-        $newquery = '';
-        $last_position;
-        foreach ($positions as $parameter => $position) {
-            $current_position = $position;
-            $newquery .= substr($query,
-                $last_position, $current_position - $last_position);
-            $newquery .= ':'.$parameter;
-            $last_position = $current_position + 1;
-            ++$parameter_num;
-        }
-        $newquery .= substr($query, $last_position);
         if (is_array($types)) {
             $columns = '';
             $variables = '';
@@ -532,16 +524,16 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $variables.= ($columns ? ' INTO ' : ',').':'.$parameter;
                 }
             }
-            $newquery.= $columns.$variables;
+            $query.= $columns.$variables;
         }
-        $statement = @OCIParse($this->connection, $newquery);
+        $statement = @OCIParse($this->connection, $query);
         if (!$statement) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        return new $class_name($this, $newquery, $positions, $types, $result_types, $statement);
+        return new $class_name($this, $statement, $query, $types, $result_types);
     }
 
     // }}}
@@ -960,9 +952,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
     function &execute($result_class = true, $result_wrap_class = false)
     {
         $isManip = MDB2::isManip($this->query);
-        $query = $this->db->_modifyQuery($this->query);
-        $this->db->last_query = $query;
-        $this->db->debug($query, 'query');
+        $this->db->last_query = $this->query;
+        $this->db->debug($this->query, 'query');
         if ($this->db->getOption('disable_query')) {
             if ($isManip) {
                 return MDB2_OK;
