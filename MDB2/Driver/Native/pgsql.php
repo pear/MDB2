@@ -83,7 +83,7 @@ class MDB2_Driver_Native_pgsql
     function deleteOID($OID)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (!@pg_lounlink($db->connection, $OID)) {
+        if (!@pg_lo_unlink($db->connection, $OID)) {
             return $db->raiseError();
         }
         return MDB2_OK;

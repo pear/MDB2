@@ -392,7 +392,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (MDB2::isError($connect)) {
             return $connect;
         }
-        if (!$db->in_transaction && !@pg_exec($db->connection, 'BEGIN')) {
+        if (!$db->in_transaction && !@pg_query($db->connection, 'BEGIN')) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'error starting transaction');
         }
@@ -414,14 +414,14 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         }
         $result = false;
         if (is_resource($value)) {
-            if (($lo = @pg_locreate($db->connection))) {
-                if (($handle = @pg_loopen($db->connection, $lo, 'w'))) {
+            if (($lo = @pg_lo_create($db->connection))) {
+                if (($handle = @pg_lo_open($db->connection, $lo, 'w'))) {
                     while (!@feof($value)) {
                         $data = @fread($value, $db->options['lob_buffer_length']);
                         if ($data === '') {
                             break;
                         }
-                        if (!@pg_lowrite($handle, $data)) {
+                        if (!@pg_lo_write($handle, $data)) {
                             $result = $db->raiseError();
                             break;
                         }
@@ -429,10 +429,10 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                     if (!PEAR::isError($result)) {
                         $result = strval($lo);
                     }
-                    @pg_loclose($handle);
+                    @pg_lo_close($handle);
                 } else {
                     $result = $db->raiseError();
-                    @pg_lounlink($db->connection, $lo);
+                    @pg_lo_unlink($db->connection, $lo);
                 }
             }
             if ($close) {
@@ -445,9 +445,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         }
         if (!$db->in_transaction) {
             if (PEAR::isError($result)) {
-                @pg_exec($db->connection, 'ROLLBACK');
+                @pg_query($db->connection, 'ROLLBACK');
             } else {
-                @pg_exec($db->connection, 'COMMIT');
+                @pg_query($db->connection, 'COMMIT');
             }
         }
         return $result;
@@ -560,16 +560,16 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         }
         if (!isset($db->lobs[$lob]['handle'])) {
             if (!$db->in_transaction) {
-                if (!pg_exec($db->connection, 'BEGIN')) {
+                if (!pg_query($db->connection, 'BEGIN')) {
                     return $db->raiseError();
                 }
                 $db->lobs[$lob]['in_transaction'] = true;
             }
             $db->lobs[$lob]['handle'] =
-                @pg_loopen($db->connection, $db->lobs[$lob]['value'], 'r');
+                @pg_lo_open($db->connection, $db->lobs[$lob]['value'], 'r');
             if (!$db->lobs[$lob]['handle']) {
                 if (isset($db->lobs[$lob]['in_transaction'])) {
-                    @pg_Exec($db->connection, 'END');
+                    @pg_query($db->connection, 'END');
                     unset($db->lobs[$lob]['in_transaction']);
                 }
                 unset($db->lobs[$lob]['value']);
@@ -621,7 +621,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (MDB2::isError($lobresult)) {
             return $lobresult;
         }
-        $data = @pg_loread($db->lobs[$lob]['handle'], $length);
+        $data = @pg_lo_read($db->lobs[$lob]['handle'], $length);
         if (!is_string($data)) {
              return $db->raiseError();
         }
@@ -646,9 +646,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($db->lobs[$lob])) {
             if (isset($db->lobs[$lob]['value'])) {
-                @pg_loclose($db->lobs[$lob]['handle']);
+                @pg_lo_close($db->lobs[$lob]['handle']);
                 if (isset($db->lobs[$lob]['in_transaction'])) {
-                    @pg_Exec($db->connection, 'END');
+                    @pg_query($db->connection, 'END');
                 }
             }
             $db->lobs[$lob] = '';

@@ -100,7 +100,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if (is_resource($error)) {
             $native_msg = @pg_result_error($error);
         } elseif ($this->connection) {
-            $native_msg = @pg_errormessage($this->connection);
+            $native_msg = @pg_last_error($this->connection);
         }
 
         // Fall back to MDB2_ERROR if there was no mapping.
@@ -451,7 +451,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $connection = $this->connection;
         }
 
-        $result = @pg_exec($connection, $query);
+        $result = @pg_query($connection, $query);
         if (!$result) {
             return $this->raiseError();
         }

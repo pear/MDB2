@@ -321,7 +321,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
             $case_func = 'strval';
         }
 
-        $count = @pg_numfields($id);
+        $count = @pg_num_fields($id);
         $res   = array();
 
         if ($mode) {
@@ -331,9 +331,9 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
                 'table' => $got_string ? $case_func($result) : '',
-                'name'  => $case_func(@pg_fieldname($id, $i)),
-                'type'  => @pg_fieldtype($id, $i),
-                'len'   => @pg_fieldsize($id, $i),
+                'name'  => $case_func(@pg_field_name($id, $i)),
+                'type'  => @pg_field_type($id, $i),
+                'len'   => @pg_field_size($id, $i),
                 'flags' => $got_string
                            ? $this->_pgFieldFlags($id, $i, $result)
                            : '',
@@ -348,7 +348,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
 
         // free the result only if we were called on a table
         if ($got_string) {
-            @pg_freeresult($id);
+            @pg_free_result($id);
         }
         return $res;
     }
@@ -373,20 +373,20 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
     function _pgFieldFlags($resource, $num_field, $table_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $field_name = @pg_fieldname($resource, $num_field);
+        $field_name = @pg_field_name($resource, $num_field);
 
-        $result = @pg_exec($db->connection, "SELECT f.attnotnull, f.atthasdef
+        $result = @pg_query($db->connection, "SELECT f.attnotnull, f.atthasdef
                                 FROM pg_attribute f, pg_class tab, pg_type typ
                                 WHERE tab.relname = typ.typname
                                 AND typ.typrelid = f.attrelid
                                 AND f.attname = '$field_name'
                                 AND tab.relname = '$table_name'");
-        if (@pg_numrows($result) > 0) {
+        if (@pg_num_rows($result) > 0) {
             $row = @pg_fetch_row($result, 0);
             $flags  = ($row[0] == 't') ? 'not_null ' : '';
 
             if ($row[1] == 't') {
-                $result = @pg_exec($db->connection, "SELECT a.adsrc
+                $result = @pg_query($db->connection, "SELECT a.adsrc
                                     FROM pg_attribute f, pg_class tab, pg_type typ, pg_attrdef a
                                     WHERE tab.relname = typ.typname AND typ.typrelid = f.attrelid
                                     AND f.attrelid = a.adrelid AND f.attname = '$field_name'
@@ -398,14 +398,14 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         } else {
             $flags = '';
         }
-        $result = @pg_exec($db->connection, "SELECT i.indisunique, i.indisprimary, i.indkey
+        $result = @pg_query($db->connection, "SELECT i.indisunique, i.indisprimary, i.indkey
                                 FROM pg_attribute f, pg_class tab, pg_type typ, pg_index i
                                 WHERE tab.relname = typ.typname
                                 AND typ.typrelid = f.attrelid
                                 AND f.attrelid = i.indrelid
                                 AND f.attname = '$field_name'
                                 AND tab.relname = '$table_name'");
-        $count = @pg_numrows($result);
+        $count = @pg_num_rows($result);
 
         for ($i = 0; $i < $count ; $i++) {
             $row = @pg_fetch_row($result, $i);
