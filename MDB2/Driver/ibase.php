@@ -570,7 +570,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $statement = ibase_prepare($connection, $query);
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        return new $class_name($this, $statement, $query, $types, $result_types);
+        $obj =& new $class_name($this, $statement, $query, $types, $result_types);
+        return $obj;
     }
 
     // }}}
@@ -588,9 +589,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $sequence_name = strtoupper($this->getSequenceName($seq_name));
         $this->pushErrorHandling(PEAR_ERROR_RETURN);
-        $query = "SELECT GEN_ID($sequence_name, 1) as the_value FROM RDB\$DATABASE";
+        $query = 'SELECT GEN_ID('.strtoupper($seq_name).', 1) as the_value FROM RDB$DATABASE';
         $result = @$this->queryOne($query);
         $this->popErrorHandling();
         if (MDB2::isError($result)) {
@@ -626,8 +626,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function currID($seq_name)
     {
-        $sequence_name = strtoupper($this->getSequenceName($seq_name));
-        $query = "SELECT GEN_ID($sequence_name, 0) as the_value FROM RDB\$DATABASE";
+        $query = 'SELECT GEN_ID('.strtoupper($seq_name).', 0) as the_value FROM RDB$DATABASE';
         $value = @$this->queryOne($query);
         if (MDB2::isError($value)) {
             return $this->raiseError(MDB2_ERROR, null, null,
