@@ -76,9 +76,9 @@ require_once 'Console_TestListener.php';
 PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'handle_pear_error');
 function handle_pear_error ($error_obj)
 {
-    print '<pre><b>PEAR-Error</b><br />';
+    print "\n";
     echo $error_obj->getMessage().': '.$error_obj->getUserinfo();
-    print '</pre>';
+    print "------------------------------------\n\n";
 }
 
 MDB2::loadFile('Date');
