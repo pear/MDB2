@@ -830,6 +830,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
      */
     function testAffectedRows() {
         if (!$this->supported('affected_rows')) {
+            $this->assertTrue(false, 'Affected row fetching not supported');
             return;
         }
 
