@@ -216,22 +216,6 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         return $tables;
     }
 
-    function _getTableColumnNames($sql)
-    {
-        if (MDB2::isError($columns = $this->_getTableColumns($sql))) {
-            return $columns;
-        }
-        $count = count($columns);
-        if ($count == 0) {
-            return $db->raiseError('table did not return any columns');
-        }
-        $column_names=array();
-        for ($i=0;$i<$count;++$i) {
-            $column_names[] = $columns[$i]['name'];
-        }
-        return $column_names;
-    }
-
     function _getTableColumns($sql)
     {
         $start_pos = strpos($sql,"(");
@@ -285,17 +269,16 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'";
-        $sql = $db->queryCol($query);
-        if (MDB2::isError($sql)) {
-            return $sql;
+        $result = $db->queryCol($query);
+        if (MDB2::isError($result)) {
+            return $result;
         }
-        if (MDB2::isError($fields = $this->_getTableColumnNames($sql))) {
-            return $fields;
+        $columns = $result->getColumnNames();
+        $result->free();
+        if (MDB2::isError($columns)) {
+            return $columns;
         }
-        if (!is_array($fields)) {
-            return array();
-        }
-        return $fields;
+        return array_flip($columns);
     }
 
     // }}}

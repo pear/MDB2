@@ -365,16 +365,14 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $table = strtoupper($table);
         $query = "SELECT column_name FROM user_tab_columns WHERE table_name='$table' ORDER BY column_id";
-        $columns = $db->queryCol($query);
+        $fields = $db->queryCol($query);
         if (MDB::isError($result)) {
             return($result);
         }
-        if ($db->options['optimize'] == 'portability') {
-            $columns = array_flip($columns);
-            $columns = array_change_key_case($columns, CASE_LOWER);
-            $columns = array_flip($columns);
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $fields = array_flip(array_change_key_case(array_flip($fields), CASE_LOWER));
         }
-        return($columns);
+        return $fields;
     }
 
     // }}}

@@ -328,8 +328,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $result;
         }
         $columns = $result->getColumnNames();
-        $columns->free();
-        return $columns;
+        $result->free();
+        if (MDB2::isError($columns)) {
+            return $columns;
+        }
+        return array_flip($columns);
     }
 
     // }}}

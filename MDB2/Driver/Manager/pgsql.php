@@ -375,7 +375,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
         $columns = $result->getColumnNames();
         $result->free();
         if (MDB2::isError($columns)) {
-            return array();
+            return $columns;
         }
         return array_flip($columns);
     }

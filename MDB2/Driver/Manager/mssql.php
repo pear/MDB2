@@ -283,12 +283,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if (MDB::isError($result)) {
             return($result);
         }
-        $columns = $db->getColumnNames($result);
-        if (MDB::isError($columns)) {
-            $db->freeResult($columns);
+        $columns = $result->getColumnNames();
+        $result->free();
+        if (MDB2::isError($columns)) {
             return $columns;
         }
-        return(array_flip($columns));
+        return array_flip($columns);
     }
 
     // }}}

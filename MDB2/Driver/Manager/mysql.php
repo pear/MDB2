@@ -497,6 +497,9 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         if (MDB2::isError($fields)) {
             return $fields;
         }
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $fields = array_flip(array_change_key_case(array_flip($fields), CASE_LOWER));
+        }
         if (is_array($fields)) {
             return array_diff($fields, array($db->dummy_primary_key));
         }
