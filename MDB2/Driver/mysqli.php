@@ -310,14 +310,15 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 empty($dsninfo['capath']) ? null : $dsninfo['capath'],
                 empty($dsninfo['cipher']) ? null : $dsninfo['cipher']
             );
-            if ($connection = @mysqli_real_connect($init,
-                                             $dsninfo['hostspec'],
-                                             $dsninfo['username'],
-                                             $dsninfo['password'],
-                                             $dsninfo['database'],
-                                             $dsninfo['port'],
-                                             $dsninfo['socket']))
-            {
+            if ($connection = @mysqli_real_connect(
+                $init,
+                $dsninfo['hostspec'],
+                $dsninfo['username'],
+                $dsninfo['password'],
+                $dsninfo['database'],
+                $dsninfo['port'],
+                $dsninfo['socket'])
+            ) {
                 $connection = $init;
             }
         } else {
