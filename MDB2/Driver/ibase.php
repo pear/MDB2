@@ -543,7 +543,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function affectedRows()
     {
         if (function_exists('ibase_affected_rows')) { //PHP5 only
-            $affected_rows = @ibase_affected_rows($this->connection);
+            if (MDB2::isManip($this->last_query)) {
+                $affected_rows = @ibase_affected_rows($this->connection);
+            } else {
+                $affected_rows = 0;
+            }
             if ($affected_rows === false) {
                 return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
             }

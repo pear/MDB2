@@ -486,7 +486,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function affectedRows()
     {
-        $affected_rows = @sqlite_changes($this->connection);
+        if (MDB2::isManip($this->last_query)) {
+            $affected_rows = @sqlite_changes($this->connection);
+        } else {
+            $affected_rows = 0;
+        }
         if ($affected_rows === false) {
             return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
