@@ -548,12 +548,12 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     break;
                 }
             } elseif ($query[$position] == $placeholder_type_guess) {
+                if ($placeholder_type_guess == '?') {
+                    break;
+                }
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
-                }
-                if ($placeholder_type == '?') {
-                    break;
                 }
                 $name = preg_replace('/^.{'.($position+1).'}([a-zA-Z]+).*$/', "\\1", $query);
                 if ($name === '') {
