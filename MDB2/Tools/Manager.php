@@ -91,16 +91,6 @@ class MDB2_Tools_Manager extends PEAR
         )
     );
 
-    var $default_values = array(
-        'integer' => 0,
-        'float' => 0,
-        'decimal' => 0,
-        'text' => '',
-        'timestamp' => '0001-01-01 00:00:00',
-        'date' => '0001-01-01',
-        'time' => '00:00:00'
-    );
-
     var $database_definition = array(
         'name' => '',
         'create' => 0,
@@ -435,25 +425,8 @@ class MDB2_Tools_Manager extends PEAR
                     if (isset($field_set_default['notnull']) && $field_set_default['notnull']
                         && !isset($field_set_default['default'])
                     ) {
-                        $table_field_definition[$field_set_default_name]['default']  = '';
-                        if (isset($this->default_values[$field_set_default['type']])) {
-                            $table_field_definition[$field_set_default_name]['default']
-                                = $this->default_values[$field_set_default['type']];
-                        }
-                    }
-                    if (isset($field_set_default['choices']) && is_array($field_set_default['choices'])) {
-                        foreach ($field_set_default['choices'] as $choice_name => $choice_default) {
-                            if (isset($choice_default['notnull'])
-                                && $choice_default['notnull']
-                                && !isset($choice_default['default'])
-                            ) {
-                                $table_field_definition[$field_set_default_name]['choices'][$choices_name]['default'] = '';
-                                if (isset($this->default_values[$choice_default['type']])) {
-                                    $table_field_definition[$field_set_default_name]['choices'][$choice_name]['default']
-                                        = $this->default_values[$choice_default['type']];
-                                }
-                            }
-                        }
+                        return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
+                            'missing default value for not NULL field: '.$field_set_default_name.' in table: '.$table_name);
                     }
                 }
             }
@@ -463,7 +436,9 @@ class MDB2_Tools_Manager extends PEAR
         if (MDB2::isError($sequences)) {
             return $sequences;
         }
-        if (is_array($sequences) && count($sequences) > 0 && !isset($this->database_definition['sequences'])) {
+        if (is_array($sequences) && count($sequences) > 0
+            && !isset($this->database_definition['sequences'])
+        ) {
             $this->database_definition['sequences'] = array();
         }
         for ($sequence = 0; $sequence < count($sequences); $sequence++) {
@@ -1051,7 +1026,8 @@ class MDB2_Tools_Manager extends PEAR
                             if (isset($previous_fields[$field_name])) {
                                 $defined_fields[$field_name] = true;
                                 $sorting = (isset($field['sorting']) ? $field['sorting'] : '');
-                                $previous_sorting = (isset($previous_fields[$field_name]['sorting']) ? $previous_fields[$field_name]['sorting'] : '');
+                                $previous_sorting = (isset($previous_fields[$field_name]['sorting'])
+                                    ? $previous_fields[$field_name]['sorting'] : '');
                                 if ($sorting != $previous_sorting) {
                                     $change['changed_fields'] = true;
                                 }
