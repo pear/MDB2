@@ -301,9 +301,25 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        if (isset($database_file)) {
+        $dsninfo = $this->dsn;
+        if ($database_file) {
             if (!file_exists($database_file)) {
-                return $this->raiseError(MDB2_ERROR_NOT_FOUND);
+                if (!touch($database_file)) {
+                    return $this->raiseError(MDB2_ERROR_NOT_FOUND);
+                }
+                if (!isset($dsninfo['mode'])
+                    || !is_numeric($dsninfo['mode'])
+                ) {
+                    $mode = 0644;
+                } else {
+                    $mode = octdec($dsninfo['mode']);
+                }
+                if (!chmod($database_file, $mode)) {
+                    return $this->raiseError(MDB2_ERROR_NOT_FOUND);
+                }
+                if (!file_exists($database_file)) {
+                    return $this->raiseError(MDB2_ERROR_NOT_FOUND);
+                }
             }
             if (!is_file($database_file)) {
                 return $this->raiseError(MDB2_ERROR_INVALID);
@@ -311,28 +327,26 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if (!is_readable($database_file)) {
                 return $this->raiseError(MDB2_ERROR_ACCESS_VIOLATION);
             }
-        } else {
-            return $this->raiseError(MDB2_ERROR_ACCESS_VIOLATION);
-        }
 
-        $function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
-        $connection = @$function($database_file);
-        if (!$connection) {
-            return $this->raiseError();
-        }
-        $this->connection = $connection;
-        $this->connected_dsn = $this->dsn;
-        $this->connected_database_name = $database_file;
-        $this->opened_persistent = $this->getoption('persistent');
-
-        if (isset($this->supported['transactions']) && !$this->auto_commit) {
-            $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
-            if (!@sqlite_query($query, $this->connection)) {
-                @sqlite_close($this->connection);
-                $this->connection = 0;
-                return $this->raiseError('connect: Could not start transaction');
+            $function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
+            $connection = @$function($database_file);
+            if (!$connection) {
+                return $this->raiseError();
             }
-            $this->in_transaction = true;
+            $this->connection = $connection;
+            $this->connected_dsn = $this->dsn;
+            $this->connected_database_name = $database_file;
+            $this->opened_persistent = $this->getoption('persistent');
+
+            if (!$this->auto_commit) {
+                $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
+                if (!@sqlite_query($query, $this->connection)) {
+                    @sqlite_close($this->connection);
+                    $this->connection = 0;
+                    return $this->raiseError('connect: Could not start transaction');
+                }
+                $this->in_transaction = true;
+            }
         }
         return MDB2_OK;
     }
