@@ -683,7 +683,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         if ($support_affected_rows) {
             $affected_rows = $this->db->affectedRows();
 
-            $this->assertEquals($affected_rows, 2, "replacing a row in an empty table returned $affected_rows unlike 2 as expected");
+            $this->assertEquals(2, $affected_rows, "replacing a row returned $affected_rows unlike 2 as expected");
         }
 
         $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);

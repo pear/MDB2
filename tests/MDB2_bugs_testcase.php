@@ -157,7 +157,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
 
         $value = $result->fetch();
-        $this->assertEquals($value, $data['user_name'], "The data returned ($value) does not match that expected (".$data['user_name'].")");
+        $this->assertEquals($data['user_name'], $value, "The data returned ($value) does not match that expected (".$data['user_name'].")");
         $result->free();
     }
 
@@ -171,7 +171,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $data = $result->fetchRow();
         $this->db->popErrorHandling();
-        $this->assertEquals(false, MDB2::isError($data), "Error messages for a query affect result reading of other queries");
+        $this->assertFalse(MDB2::isError($data), "Error messages for a query affect result reading of other queries");
     }
 
 
