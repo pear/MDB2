@@ -152,13 +152,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                                 -219 => MDB2_ERROR_NOSUCHTABLE,
                                 -297 => MDB2_ERROR_CONSTRAINT,
                                 -530 => MDB2_ERROR_CONSTRAINT,
-                                -607 => MDB2_ERROR_NOSUCHTABLE,
-                                -803 => MDB2_ERROR_CONSTRAINT,
                                 -551 => MDB2_ERROR_ACCESS_VIOLATION,
                                 -552 => MDB2_ERROR_ACCESS_VIOLATION,
+                                -607 => MDB2_ERROR_NOSUCHTABLE,
+                                -803 => MDB2_ERROR_CONSTRAINT,
+                                -913 => MDB2_ERROR_DEADLOCK,
                                 -922 => MDB2_ERROR_NOSUCHDB,
                                 -923 => MDB2_ERROR_CONNECT_FAILED,
-                                -924 => MDB2_ERROR_CONNECT_FAILED
+                                -924 => MDB2_ERROR_CONNECT_FAILED,
                             );
                         }
                         if (isset($ecode_map[$native_code])) {
@@ -176,7 +177,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                         '/violation of [\w ]+ constraint/' => MDB2_ERROR_CONSTRAINT,
                         '/conversion error from string/' => MDB2_ERROR_INVALID_NUMBER,
                         '/no permission for/' => MDB2_ERROR_ACCESS_VIOLATION,
-                        '/arithmetic exception, numeric overflow, or string truncation/' => MDB2_ERROR_DIVZERO
+                        '/arithmetic exception, numeric overflow, or string truncation/' => MDB2_ERROR_DIVZERO,
+                        '/deadlock/' => MDB_ERROR_DEADLOCK,
+                        '/attempt to store duplicate value/' => MDB_ERROR_CONSTRAINT,
                     );
                 }
                 foreach ($error_regexps as $regexp => $code) {
@@ -432,6 +435,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             if (ibase_errmsg() == 'Query argument missed') { //ibase_errcode() only available in PHP5
                 //connection lost, try again...
                 $this->connect();
+                //rollback the failed transaction to prevent deadlock and execute the query again
+                $this->rollback();
                 $result = @ibase_query($this->connection, $query);
             }
         }
@@ -583,8 +588,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function currID($seq_name)
     {
-        $seqname = $this->getSequenceName($seq_name);
-        $query = "SELECT RDB\$GENERATOR_ID FROM RDB\$GENERATORS WHERE RDB\$GENERATOR_NAME='$seqname'";
+        $sequence_name = $this->getSequenceName($seq_name);
+        $query = "SELECT RDB\$GENERATOR_ID FROM RDB\$GENERATORS WHERE RDB\$GENERATOR_NAME='$sequence_name'";
         $value = $this->queryOne($query);
         if (MDB2::isError($value)) {
             return $this->raiseError(MDB2_ERROR, null, null,
