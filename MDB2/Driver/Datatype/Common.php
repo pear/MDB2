@@ -228,7 +228,7 @@ class MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (is_array($types)) {
             $current_column = -1;
-            foreach($row as $key => $column) {
+            foreach ($row as $key => $column) {
                 ++$current_column;
                 if (!isset($column)
                    || !isset($types[$current_column])
@@ -1173,7 +1173,7 @@ class MDB2_Driver_Datatype_Common
             return 'NULL';
         }
         if ($type) {
-            foreach($array as $value) {
+            foreach ($array as $value) {
                 $return[] = $this->getValue($type, $value);
             }
         } else {

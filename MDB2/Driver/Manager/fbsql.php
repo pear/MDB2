@@ -107,7 +107,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $result;
         }
         if (!@fbsql_stop_db($name, $db->connection)) {
-            return($db->fbsqlRaiseError());
+            return $db->fbsqlRaiseError();
         }
         if (!@fbsql_drop_db($name, $db->connection)) {
             return $db->fbsqlRaiseError();
@@ -181,7 +181,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function dropTable(&$db, $name)
     {
-        return($db->query("DROP TABLE $name CASCADE"));
+        return $db->query("DROP TABLE $name CASCADE");
     }
 
     // }}}

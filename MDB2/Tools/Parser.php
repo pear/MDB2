@@ -191,8 +191,8 @@ class MDB2_Tools_Parser extends XML_Parser
                 $this->raiseError('tables need one or more fields', $xp);
             };
             if (isset($this->table['indexes'])) {
-                foreach($this->table['indexes'] as $index_name => $index) {
-                    foreach($index['fields'] as $field_name => $field) {
+                foreach ($this->table['indexes'] as $index_name => $index) {
+                    foreach ($index['fields'] as $field_name => $field) {
                         if (!isset($this->table['fields'][$field_name])) {
                             $this->raiseError('index field "'.$field_name.'" does not exist', $xp);
                         }
@@ -339,7 +339,7 @@ class MDB2_Tools_Parser extends XML_Parser
                 $this->raiseError('database needs a name', $xp);
             };
             if (isset($this->database_definition['sequences'])) {
-                foreach($this->database_definition['sequences'] as $seq_name => $seq) {
+                foreach ($this->database_definition['sequences'] as $seq_name => $seq) {
                     if (isset($seq['on'])
                         && !isset($this->database_definition['tables'][$seq['on']['table']]['fields'][$seq['on']['field']]))
                     {
@@ -441,7 +441,7 @@ class MDB2_Tools_Parser extends XML_Parser
             } else {
                 $error = "Parser error: \"".$msg."\"\n";
             }
-            if($xp != null) {
+            if ($xp != null) {
                 $byte = @xml_get_current_byte_index($xp);
                 $line = @xml_get_current_line_number($xp);
                 $column = @xml_get_current_column_number($xp);

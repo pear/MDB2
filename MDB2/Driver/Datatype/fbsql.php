@@ -235,7 +235,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function getBLOBDeclaration($name, $field)
     {
-        return("$name BLOB".(isset($field['notnull']) ? ' NOT NULL' : ''));
+        return "$name BLOB".(isset($field['notnull']) ? ' NOT NULL' : '');
     }
 
     // }}}

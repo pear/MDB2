@@ -105,7 +105,7 @@ class MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (is_array($fields)) {
-            foreach($fields as $field_name => $field) {
+            foreach ($fields as $field_name => $field) {
                 $query = $db->getDeclaration($field['type'], $field_name, $field);
                 if (MDB2::isError($query)) {
                     return $query;

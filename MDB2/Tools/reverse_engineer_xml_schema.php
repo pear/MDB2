@@ -60,7 +60,7 @@ echo ('
 
     if(isset($_REQUEST['submit']) && $_REQUEST['file'] != '') {
         // BC hack to define PATH_SEPARATOR for version of PHP prior 4.3
-        if(!defined('PATH_SEPARATOR')) {
+        if (!defined('PATH_SEPARATOR')) {
             if(defined('DIRECTORY_SEPARATOR') && DIRECTORY_SEPARATOR == "\\") {
                 define('PATH_SEPARATOR', ';');
             } else {
@@ -80,10 +80,10 @@ echo ('
         } else {
             $manager->captureDebugOutput(true);
             $manager->database->setOption('log_line_break', '<br>');
-            if($_REQUEST['action']) {
+            if ($_REQUEST['action']) {
                 set_time_limit(0);
             }
-            if($_REQUEST['action'] == 'dump') {
+            if ($_REQUEST['action'] == 'dump') {
                 switch ($_REQUEST['dump']) {
                     case 'structure':
                         $dump_what = MDB2_MANAGER_DUMP_STRUCTURE;
@@ -109,7 +109,7 @@ echo ('
                 } else {
                     var_dump($manager->dumpDatabase($dump_config, $dump_what));
                 }
-            } else if($_REQUEST['action'] == 'create') {
+            } else if ($_REQUEST['action'] == 'create') {
                 if (class_exists('Var_Dump')) {
                     Var_Dump::display($manager->updateDatabase($_REQUEST['file']));
                 } else {
@@ -127,7 +127,7 @@ echo ('
                     var_dump($warnings);
                 }
             }
-            if($manager->options['debug']) {
+            if ($manager->options['debug']) {
                 echo('Debug messages<br>');
                 echo($manager->debugOutput().'<br>');
             }
@@ -176,7 +176,7 @@ echo ('
             <input type="radio" name="action" value="dump" />
             <select name="dump">
                 <option value="all"');
-                if(!isset($_REQUEST['dump']) || $_REQUEST['dump'] == 'all') {echo ('selected');}
+                if (!isset($_REQUEST['dump']) || $_REQUEST['dump'] == 'all') {echo ('selected');}
                 echo ('>All</option>
                 <option value="structure"');
                 if(isset($_REQUEST['dump']) && $_REQUEST['dump'] == 'structure') {echo ('selected');}
