@@ -126,7 +126,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             }
             if (isset($ecode_map[$native_code])) {
                 $error = $ecode_map[$native_code];
-            } else if ($this->options['portability'] & DB_PORTABILITY_ERRORS) {
+            } else if ($this->options['portability'] & MDB2_PORTABILITY_ERRORS) {
                 if ($native_code == 1022) $error = MDB2_ERROR_CONSTRAINT;
                 if ($native_code == 1048) $error = MDB2_ERROR_CONSTRAINT_NOT_NULL;
                 if ($native_code == 1062) $error = MDB2_ERROR_CONSTRAINT;
