@@ -55,18 +55,6 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Driver_Reverse_pgsql($db_index)
-    {
-        $this->MDB2_Driver_Reverse_Common($db_index);
-    }
-
-    // }}}
     // {{{ getTableFieldDefinition()
 
     /**

@@ -56,18 +56,6 @@ require_once 'MDB2/Driver/Datatype/Common.php';
 
 class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Datatype_pgsql($db_index)
-    {
-        $this->MDB2_Driver_Datatype_Common($db_index);
-    }
-
-    // }}}
     // {{{ convertResult()
 
     /**

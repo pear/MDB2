@@ -75,7 +75,6 @@ class MDB2_xxx extends MDB2_Driver_Common
 
     var $escape_quotes =;
 
-    // }}}
     // {{{ constructor
 
     /**
@@ -363,17 +362,6 @@ class MDB2_xxx extends MDB2_Driver_Common
 class MDB2_Result_xxx extends MDB2_Result_Common
 {
     // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Result_xxx(&$mdb, &$result)
-    {
-        parent::MDB2_Result_Common($mdb, $result);
-    }
-
-    // }}}
     // {{{ fetch()
 
     /**
@@ -493,17 +481,6 @@ class MDB2_Result_xxx extends MDB2_Result_Common
 
 class MDB2_BufferedResult_xxx extends MDB2_Result_xxx
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_BufferedResult_xxx(&$mdb, &$result)
-    {
-        parent::MDB2_Result_xxx($mdb, $result);
-    }
-
     // }}}
     // {{{ seek()
 

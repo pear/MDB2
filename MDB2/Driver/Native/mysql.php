@@ -56,15 +56,19 @@ class MDB2_Driver_Native_mysql
 {
     var $db_index;
 
-    // }}}
     // {{{ constructor
 
     /**
      * Constructor
      */
-    function MDB2_Driver_Native_mysql($db_index)
+    function __construct($db_index)
     {
         $this->db_index = $db_index;
+    }
+
+    function MDB2_Driver_Native_mysql($db_index)
+    {
+        $this->__construct($db_index);
     }
 
     // }}}

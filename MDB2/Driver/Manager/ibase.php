@@ -53,19 +53,8 @@ require_once 'MDB2/Driver/Manager/Common.php';
  * @category Database
  * @author  Lorenzo Alberton <l.alberton@quipo.it>
  */
-class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_common
+class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Driver_Manager_ibase($db_index)
-    {
-        $this->MDB2_Driver_Manager_Common($db_index);
-    }
-
     // {{{ createDatabase()
 
     /**

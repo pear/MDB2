@@ -58,17 +58,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 {
     // {{{ properties
     var $verified_table_types = array();#
-
     // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Driver_Manager_mysql($db_index)
-    {
-        $this->MDB2_Driver_Manager_Common($db_index);
-    }
 
     // }}}
     // {{{ _verifyTableType()

@@ -55,17 +55,6 @@ require_once 'MDB2/Driver/Manager/Common.php';
  */
 class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Driver_Manager_oci8($db_index)
-    {
-        $this->MDB2_Driver_Manager_Common($db_index);
-    }
-
     // {{{ createDatabase()
 
     /**

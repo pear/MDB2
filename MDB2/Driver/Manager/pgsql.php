@@ -55,17 +55,6 @@ require_once 'MDB2/Driver/Manager/Common.php';
  */
 class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Driver_Manager_pgsql($db_index)
-    {
-        $this->MDB2_Driver_Manager_Common($db_index);
-    }
-
     // {{{ createDatabase()
 
     /**

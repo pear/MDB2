@@ -57,17 +57,6 @@ require_once 'MDB2/Driver/Manager/Common.php';
 class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 {
     // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Driver_Manager_mssql($db_index)
-    {
-        $this->MDB2_Driver_Manager_Common($db_index);
-    }
-
-    // }}}
     // {{{ createDatabase()
 
     /**

@@ -58,17 +58,6 @@ require_once 'MDB2/Driver/Datatype/Common.php';
 class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
 {
     // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Driver_Datatype_fbsql($db_index)
-    {
-        $this->MDB2_Driver_Datatype_Common($db_index);
-    }
-
-    // }}}
     // {{{ convertResult()
 
     /**

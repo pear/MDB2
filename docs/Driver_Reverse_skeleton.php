@@ -72,17 +72,6 @@ require_once 'MDB2/Driver/Reverse/Common.php';
 class MDB2_Reverse_xxx extends MDB2_Reverse_Common
 {
     // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Reverse_xxx($db_index)
-    {
-        $this->MDB2_Reverse_Common($db_index);
-    }
-
-    // }}}
     // {{{ getTableFieldDefinition()
 
     /**

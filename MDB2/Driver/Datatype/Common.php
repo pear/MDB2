@@ -87,15 +87,19 @@ class MDB2_Driver_Datatype_Common
     );
     var $db_index;
 
-    // }}}
     // {{{ constructor
 
     /**
      * Constructor
      */
-    function MDB2_Driver_Datatype_Common($db_index)
+    function __construct($db_index)
     {
         $this->db_index = $db_index;
+    }
+
+    function MDB2_Driver_Datatype_Common($db_index)
+    {
+        $this->__construct($db_index);
     }
 
     // }}}

@@ -56,18 +56,6 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Driver_Reverse_mssql($db_index)
-    {
-        $this->MDB2_Driver_Reverse_Common($db_index);
-    }
-
-    // }}}
     // {{{ tableInfo()
 
     /**
