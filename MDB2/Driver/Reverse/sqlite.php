@@ -70,7 +70,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'";
-        $result = $db->query($query, null, true, false);
+        $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
         }

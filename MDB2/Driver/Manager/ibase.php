@@ -312,7 +312,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'SELECT RDB$FIELD_SOURCE FROM RDB$RELATION_FIELDS WHERE RDB$RELATION_NAME=\'$table\'';
-        $result = $db->query($query, null, true, false);
+        $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
         }

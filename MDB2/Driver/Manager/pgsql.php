@@ -355,7 +355,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     function listTableFields($table)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $result = $db->query("SELECT * FROM $table", null, true, false);
+        $result = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result)) {
             return $result;
         }
