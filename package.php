@@ -38,6 +38,9 @@ $notes = <<<EOT
   incorrect handling of integer values (this needs to be explored in more detail)
 - several typo fixes and minor logic errors (among others a fix for bug #2057)
 - added MDB2_Driver_Common::getDatabase();
+- added default implementation for quoteCLOB() and quoteBLOB()
+- moved prepare/execute API towards PDO (mysql and sqlite tested only)
+- use MDB2_ERROR_UNSUPPORTED instead of MDB2_ERROR_NOT_CAPABLE in common implementations
 EOT;
 
 $description =<<<EOT
