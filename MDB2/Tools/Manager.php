@@ -123,7 +123,7 @@ class MDB2_Tools_Manager extends PEAR
      */
     function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
     {
-        return MDB2_Driver_Common::raiseError($code, $mode, $options, $userinfo);
+        return MDB2::raiseError($code, $mode, $options, $userinfo);
     }
 
     // }}}
@@ -416,17 +416,6 @@ class MDB2_Tools_Manager extends PEAR
                 foreach ($table_definition['indexes'] as $index_check_null) {
                     foreach ($index_check_null['fields'] as $field_name_check_null => $field_check_null) {
                         $table_definition['fields'][$field_name_check_null]['notnull'] = true;
-                    }
-                }
-            }
-            // ensure that all fields that are set to NOT NULL also have a default value
-            if (is_array($table_definition['fields']) && count($table_definition['fields'])) {
-                foreach ($table_definition['fields'] as $field_set_default_name => $field_set_default) {
-                    if (isset($field_set_default['notnull']) && $field_set_default['notnull']
-                        && !isset($field_set_default['default'])
-                    ) {
-                        return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
-                            'missing default value for not NULL field: '.$field_set_default_name.' in table: '.$table_name);
                     }
                 }
             }
