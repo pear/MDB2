@@ -277,7 +277,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             if ($this->connected_database_name) {
                 $this->_close($this->connection);
             }
-            $this->connection = 0;
+            $this->_close();
         }
 
         $connection = 1;// sim connect
@@ -320,55 +320,36 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     {
         if ($this->connection != 0) {
             if (($this->opened_persistent) && (is_resource($this->connection))) {
-                $ret = @fclose($this->connection);
+                if (!@fclose($this->connection)) {
+                    $this->raiseError();
+                }
             }
             $this->connection = 0;
             unset($GLOBALS['_MDB2_databases'][$this->db_index]);
-
-            if (!isset($ret) || !$ret) {
-                $this->raiseError();
-            }
         }
         return MDB2_OK;
     }
     // }}}
 
-    // {{{ query()
+    // {{{ _doQuery()
 
     /**
-     * Get QuerySim text from appropriate source and return
-     * the parsed text.
-     *
-     * @param string The QuerySim text
-     * @param mixed   $types  array that contains the types of the columns in
-     *                        the result set
-     *
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     *
-     * @return mixed Simulated result set as a multidimentional
-     * array if valid QuerySim text was passed in.  A MDB2 error
-     * is returned on failure.
-     *
-     * @access public
+     * Execute a query
+     * @param string $query  query
+     * @param boolean $ismanip  if the query is a manipulation query
+     * @return result or error object
+     * @access private
      */
-    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
+    function _doQuery($query, $ismanip = false)
     {
-        $ismanip = false;
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
-        if ($this->database_name) {
-            // this looks wrong
-            $query = $this->_readFile();
+        if ($ismanip) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
         }
+
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
-            if ($ismanip) {
-                return MDB2_OK;
-            }
-            return NULL;
+            return null;
         }
 
         $connected = $this->connect();
@@ -376,17 +357,27 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             return $connected;
         }
 
-        if (!$result) {
-            $error =& $this->raiseError();
-            return $error;
+        if ($this->database_name
+            && $this->database_name != $this->connected_database_name
+        ) {
+            if (!@mysql_select_db($this->database_name, $this->connection)) {
+                $error =& $this->raiseError();
+                return $error;
+            }
+            $this->connected_database_name = $this->database_name;
         }
+
+        $result = $this->_buildResult($query);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+
         if ($limit > 0) {
             $result[1] = array_slice($result[1], $offset-1, $limit);
         }
-        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
-        return $result_obj;
-    }
 
+        return $result;
+    }
     // }}}
 
     // {{{ _readFile()
