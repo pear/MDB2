@@ -16,7 +16,7 @@ similar as possible as the ext/pdo API!
 - added getBeforeId() and getAfterId()
 - added new supported feature 'auto_increment'
 - fixed Iterator module
-- use __construct() and __destruct() (PHP4 BC hacks are provided)
+- use __construct() (PHP4 BC hacks are provided)
 - added 'disable_query' option to be able to disable the execution of all queries
  (this might be useful in conjuntion with a custom debug handler to be able to
  dump all queries into a file instead of executing them)
@@ -69,7 +69,7 @@ similar as possible as the ext/pdo API!
 - added rownum handling to fetchRow()
 - MDB2::isError now also optionally accepts and error code to check for
 - readded MDB2_Error as the baseclass for all MDB2 error objects
-- lazy load PEAR destructor emulation
+- removed destructor since most RDBMS handle uncommited transaction themselves
 - allow null values to be set for options
 - added emulate_database option (default true) to the Oracle driver that handles
   if the database_name should be used for connections of the username
