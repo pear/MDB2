@@ -376,9 +376,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $connected;
         }
 
-        if ($this->database_name
-            && $this->database_name != $this->connected_database_name
-        ) {
+        if ($this->database_name) {
             if (!@mssql_select_db($this->database_name, $this->connection)) {
                 $error =& $this->raiseError();
                 return $error;

@@ -275,15 +275,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $pw = $dsninfo['password'];
 
         @ini_set('track_errors', true);
-        if ($dbhost && $user && $pw) {
-            $connection = @$function($dbhost, $user, $pw);
-        } elseif ($dbhost && $user) {
-            $connection = @$function($dbhost, $user);
-        } elseif ($dbhost) {
-            $connection = @$function($dbhost);
-        } else {
-            $connection = 0;
-        }
+        $connection = @$function($dbhost, $user, $pw, true);
         @ini_restore('track_errors');
         if ($connection <= 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,

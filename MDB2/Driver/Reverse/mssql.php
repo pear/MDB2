@@ -132,6 +132,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             if (!@mssql_select_db($db->database_name, $db->connection)) {
                 return $db->mssqlRaiseError(MDB2_ERROR_NODBSELECTED);
             }
+            $db->connected_database_name = $db->database_name;
             $id = @mssql_query("SELECT * FROM $result", $db->connection);
             if (empty($id)) {
                 return $db->mssqlRaiseError();
