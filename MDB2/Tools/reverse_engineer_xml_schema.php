@@ -102,7 +102,7 @@ echo ('
                 } else {
                     var_dump($manager->dumpDatabase($dump_config, $dump_what));
                 }
-            } else if ($_REQUEST['action'] == 'create') {
+            } elseif ($_REQUEST['action'] == 'create') {
                 if (class_exists('Var_Dump')) {
                     Var_Dump::display($manager->updateDatabase($_REQUEST['file'], 'old_'.$_REQUEST['file']));
                 } else {
