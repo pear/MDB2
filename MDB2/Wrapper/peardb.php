@@ -54,7 +54,7 @@
  */
 
 require_once 'MDB2.php';
- 
+
 /*
  * The method mapErrorCode in each MDB2_dbtype implementation maps
  * native error codes to one of these.
@@ -240,11 +240,6 @@ class DB_result extends MDB2_Result_Common
         $this->result = $result;
     }
 
-    function fetch()
-    {
-        return $this->result->fetch();
-    }
-
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         $arr = $this->result->fetchRow($fetchmode, $rownum);
@@ -323,14 +318,14 @@ class DB_row
 
 class MDB2_PEARProxy extends PEAR
 {
-    var $db2_object;
+    var $db_object;
     var $phptype;
     var $connection;
     var $dsn;
 
-    function MDB2_PEARProxy(&$db2_object)
+    function MDB2_PEARProxy(&$db_object)
     {
-        $this->db_object =& $db2_object;
+        $this->db_object =& $db_object;
         $this->PEAR('DB_Error');
         $this->db_object->setOption('seqname_col_name', 'id');
         $this->db_object->setOption('result_wrap_class', 'DB_result');
@@ -524,7 +519,7 @@ class MDB2_PEARProxy extends PEAR
     function &getOne($query, $params = array())
     {
         $result = $this->query($query, $params);
-        $one = $result->result->fetch();
+        $one = $result->result->fetchOne();
         if (is_null($one)) {
             $one = '';
         }
@@ -657,11 +652,13 @@ class MDB2_PEARProxy extends PEAR
 
     function nextId($seq_name, $ondemand = true)
     {
-        $id = $this->db_object->nextID($seq_name, $ondemand);
+        return $this->db_object->nextID($seq_name, $ondemand);
+/*
         if (MDB2::isResultCommon($id)) {
-            $id = $id->fetch();
+            $id = $id->fetchOne();
         }
         return $id;
+*/
     }
 
     function createSequence($seq_name)
