@@ -278,6 +278,10 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         if (MDB2::isError($result)) {
             return $result;
         }
+        $result = $this->_doQuery('SET AUTOCOMMIT = 1');
+        if (MDB2::isError($result)) {
+            return $result;
+        }
         $this->in_transaction = false;
         return MDB2_OK;
 
@@ -374,12 +378,10 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if (($this->opened_persistent || $force)
-            && $this->connection != 0
-        ) {
-            @mysql_close($this->connection);
-            $this->connection = 0;
-        } else {
+        if ($this->connection != 0) {
+            if (!$this->opened_persistent || $force) {
+                @mysql_close($this->connection);
+            }
             $this->connection = 0;
         }
         return MDB2_OK;
@@ -791,9 +793,9 @@ class MDB2_Result_mysql extends MDB2_Result_Common
     /**
      * Count the number of columns returned by the DBMS in a query result.
      *
-     * @access public
      * @return mixed integer value with the number of columns, a MDB2 error
      *                       on failure
+     * @access public
      */
     function numCols()
     {
