@@ -135,9 +135,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             if ($native_code) {
                 // try to interpret Interbase error code (that's why we need ibase_errno()
                 // in the interbase module to return the real error code)
-                switch ($native_errno) {
+                switch ($native_code) {
                     case -204:
-                        if (is_int(strpos($m[3], 'Table unknown'))) {
+                        if (isset($m[3]) && is_int(strpos($m[3], 'Table unknown'))) {
                             $errno = MDB2_ERROR_NOSUCHTABLE;
                         }
                     break;
@@ -373,7 +373,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        if ($database_file) {
+        //if ($database_file) {
+        if (!empty($this->database_name)) {
             $connection = $this->_doConnect($database_file, $this->options['persistent']);
             if (MDB2::isError($connection)) {
                 return $connection;
@@ -1012,4 +1013,8 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     // }}}
 }
 
+class MDB2_Statement_ibase extends MDB2_Statement_Common
+{
+
+}
 ?>
