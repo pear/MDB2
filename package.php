@@ -31,6 +31,10 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - extended MDB2::isError() to be able to handle an array or codes
 - added error handling into autoPrepare() and autoExecute()
 - migrade all MDB2::isError calls that dont check for specific errors codes to PEAR::isError
+- don't pass new_link to mysql_pconnect() (bug #3993)
+- use MDB2::raiseError() instead of MDB2_Driver_Common::raiseError()
+- do not require that not null fields have a default set in the Manager (bug #3997)
+- do not disable result wrapping when doing internal calls to query() (bug #3997)
 EOT;
 
 $description =<<<EOT
