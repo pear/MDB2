@@ -476,6 +476,12 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->row_offset = $this->row_limit = 0;
         $this->debug($query, 'query');
         $this->last_query = $query;
+        if ($this->options['disable_query']) {
+            if ($ismanip) {
+                MDB2_OK;
+            }
+            return NULL;
+        }
 
         $connect = $this->connect();
         if (MDB2::isError($connect)) {
