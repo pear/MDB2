@@ -837,7 +837,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['lob_buffer_length'] -> integer LOB buffer length
      * $options['log_line_break'] -> string line-break format
      * $options['seqname_format'] -> string pattern for sequence name
-     * $options['seqequence_col_name'] -> string sequence column name
+     * $options['sequence_col_name'] -> string sequence column name
      * $options['use_transactions'] -> boolean
      * $options['decimal_places'] -> integer
      * $options['portability'] -> portability constant
@@ -2418,15 +2418,18 @@ class MDB2_Driver_Common extends PEAR
      *        the result set
      * @param array $params numeric array containing the data to insert into
      *        the query
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed MDB2_OK or a new result handle or a MDB2 Error Object when fail
      * @access public
      * @see prepare()
      */
-    function &executeParams($prepared_query, $types = null, $params = false)
+    function &executeParams($prepared_query, $types = null, $params = false,
+        $result_class = false, $result_wrap_class = false)
     {
         $this->setParamArray($prepared_query, $params);
 
-        $result =& $this->execute($prepared_query, $types);
+        $result =& $this->execute($prepared_query, $types, $result_class, $result_wrap_class);
         return $result;
     }
 
