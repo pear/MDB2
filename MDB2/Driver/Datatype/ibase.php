@@ -483,7 +483,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _quoteCLOB($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return $this->_quoteLOB($value);
     }
 
@@ -501,7 +500,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _quoteBLOB($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return $this->_quoteLOB($value);
     }
 
@@ -519,7 +517,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _quoteFloat($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return $value;
     }
 
