@@ -402,7 +402,8 @@ class MDB2
                 'hostspec' => false,
                 'port'     => false,
                 'socket'   => false,
-                'database' => false
+                'database' => false,
+                'mode'     => false,
             );
             $dsninfo = array_merge($dsninfo_default, $dsninfo);
             $keys = array_keys($GLOBALS['_MDB2_databases']);
@@ -585,24 +586,19 @@ class MDB2
     // {{{ parseDSN()
 
     /**
-     * Parse a data source name
+     * Parse a data source name.
      *
-     * A array with the following keys will be returned:
-     *  phptype: Database backend used in PHP (mysql, odbc etc.)
-     *  dbsyntax: Database used with regards to SQL syntax etc.
-     *  protocol: Communication protocol to use (tcp, unix etc.)
-     *  hostspec: Host specification (hostname[:port])
-     *  database: Database to use on the DBMS server
-     *  username: User name for login
-     *  password: Password for login
+     * Additional keys can be added by appending a URI query string to the
+     * end of the DSN.
      *
      * The format of the supplied DSN is in its fullest form:
-     *
-     *  phptype(dbsyntax)://username:password@protocol+hostspec/database
+     * <code>
+     *  phptype(dbsyntax)://username:password@protocol+hostspec/database?option=8&another=true
+     * </code>
      *
      * Most variations are allowed:
-     *
-     *  phptype://username:password@protocol+hostspec:110//usr/db_file.db
+     * <code>
+     *  phptype://username:password@protocol+hostspec:110//usr/db_file.db?mode=0644
      *  phptype://username:password@hostspec/database_name
      *  phptype://username:password@hostspec
      *  phptype://username@hostspec
@@ -610,18 +606,23 @@ class MDB2
      *  phptype://hostspec
      *  phptype(dbsyntax)
      *  phptype
+     * </code>
      *
-     * @param   string  $dsn Data Source Name to be parsed
-     * @return  array   an associative array
-     * @access public
+     * @param string $dsn Data Source Name to be parsed
+     *
+     * @return array an associative array with the following keys:
+     *  + phptype:  Database backend used in PHP (mysql, odbc etc.)
+     *  + dbsyntax: Database used with regards to SQL syntax etc.
+     *  + protocol: Communication protocol to use (tcp, unix etc.)
+     *  + hostspec: Host specification (hostname[:port])
+     *  + database: Database to use on the DBMS server
+     *  + username: User name for login
+     *  + password: Password for login
+     *
      * @author Tomas V.V.Cox <cox@idecnet.com>
      */
     function parseDSN($dsn)
     {
-        if (is_array($dsn)) {
-            return $dsn;
-        }
-
         $parsed = array(
             'phptype'  => false,
             'dbsyntax' => false,
@@ -631,8 +632,17 @@ class MDB2
             'hostspec' => false,
             'port'     => false,
             'socket'   => false,
-            'database' => false
+            'database' => false,
+            'mode'     => false,
         );
+
+        if (is_array($dsn)) {
+            $dsn = array_merge($parsed, $dsn);
+            if (!$dsn['dbsyntax']) {
+                $dsn['dbsyntax'] = $dsn['phptype'];
+            }
+            return $dsn;
+        }
 
         // Find phptype and dbsyntax
         if (($pos = strpos($dsn, '://')) !== false) {
@@ -647,13 +657,13 @@ class MDB2
         // $str => phptype(dbsyntax)
         if (preg_match('|^(.+?)\((.*?)\)$|', $str, $arr)) {
             $parsed['phptype']  = $arr[1];
-            $parsed['dbsyntax'] = (empty($arr[2])) ? $arr[1] : $arr[2];
+            $parsed['dbsyntax'] = !$arr[2] ? $arr[1] : $arr[2];
         } else {
             $parsed['phptype']  = $str;
             $parsed['dbsyntax'] = $str;
         }
 
-        if (empty($dsn)) {
+        if (!count($dsn)) {
             return $parsed;
         }
 
@@ -675,7 +685,7 @@ class MDB2
         // $dsn => proto(proto_opts)/database
         if (preg_match('|^([^(]+)\((.*?)\)/?(.*?)$|', $dsn, $match)) {
             $proto       = $match[1];
-            $proto_opts  = (!empty($match[2])) ? $match[2] : false;
+            $proto_opts  = $match[2] ? $match[2] : false;
             $dsn         = $match[3];
 
         // $dsn => protocol+hostspec/database (old format)
@@ -696,8 +706,7 @@ class MDB2
         $proto_opts = rawurldecode($proto_opts);
         if ($parsed['protocol'] == 'tcp') {
             if (strpos($proto_opts, ':') !== false) {
-                list($parsed['hostspec'], $parsed['port']) =
-                                                     explode(':', $proto_opts);
+                list($parsed['hostspec'], $parsed['port']) = explode(':', $proto_opts);
             } else {
                 $parsed['hostspec'] = $proto_opts;
             }
@@ -707,7 +716,7 @@ class MDB2
 
         // Get dabase if any
         // $dsn => database
-        if (!empty($dsn)) {
+        if ($dsn) {
             // /database
             if (($pos = strpos($dsn, '?')) === false) {
                 $parsed['database'] = $dsn;
@@ -722,7 +731,8 @@ class MDB2
                 }
                 foreach ($opts as $opt) {
                     list($key, $value) = explode('=', $opt);
-                    if (!isset($parsed[$key])) { // don't allow params overwrite
+                    if (!isset($parsed[$key])) {
+                        // don't allow params overwrite
                         $parsed[$key] = rawurldecode($value);
                     }
                 }
@@ -1440,12 +1450,16 @@ class MDB2_Driver_Common extends PEAR
     function setDSN($dsn)
     {
         $dsn_default = array (
+            'phptype'  => false,
+            'dbsyntax' => false,
             'username' => false,
             'password' => false,
             'protocol' => false,
             'hostspec' => false,
             'port'     => false,
             'socket'   => false,
+            'database' => false,
+            'mode'     => false,
         );
         $dsn = MDB2::parseDSN($dsn);
         if (isset($dsn['database'])) {
@@ -1469,17 +1483,20 @@ class MDB2_Driver_Common extends PEAR
     function getDSN($type = 'string')
     {
         $dsn_default = array (
-            'phptype' => $this->phptype,
+            'phptype'  => $this->phptype,
+            'dbsyntax' => false,
             'username' => false,
             'password' => false,
             'protocol' => false,
             'hostspec' => false,
             'port'     => false,
             'socket'   => false,
-            'database' => $this->database_name
+            'database' => $this->database_name,
+            'mode'     => false,
         );
         $dsn = array_merge($dsn_default, $this->dsn);
         switch($type) {
+            // expand to include all possible options
             case 'string':
                 $dsn = $dsn['phptype'].'://'.$dsn['username'].':'.
                     $dsn['password'].'@'.$dsn['hostspec'].
