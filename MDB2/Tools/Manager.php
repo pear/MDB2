@@ -65,10 +65,14 @@ class MDB2_Tools_Manager
     // {{{ properties
 
     var $db;
+
+    var $warnings = array();
+
     var $options = array(
-            'fail_on_invalid_names' => 1,
-            'debug' => 0
-        );
+        'fail_on_invalid_names' => 1,
+        'debug' => 0
+    );
+
     var $invalid_names = array(
         'user' => array(),
         'is' => array(),
@@ -86,6 +90,7 @@ class MDB2_Tools_Manager
             'ibase' => array()
         )
     );
+
     var $default_values = array(
         'integer' => 0,
         'float' => 0,
@@ -95,7 +100,7 @@ class MDB2_Tools_Manager
         'date' => '0001-01-01',
         'time' => '00:00:00'
     );
-    var $warnings = array();
+
     var $database_definition = array(
         'name' => '',
         'create' => 0,
@@ -269,7 +274,7 @@ class MDB2_Tools_Manager
      */
     function disconnect()
     {
-        if (is_object($this->db) && !MDB2::isError($this->db)) {
+        if (MDB2::isConnection($this->db) && !MDB2::isError($this->db)) {
             $this->db->disconnect();
             unset($this->db);
         }
