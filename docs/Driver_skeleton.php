@@ -384,10 +384,11 @@ class MDB2_Result_xxx extends MDB2_Result_Common
      * Fetch a row and insert the data into an existing array.
      *
      * @param int       $fetchmode  how the array data should be indexed
+     * @param int    $rownum    number of the row where the data can be found
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         // take this from the corresponding Metabase driver: FetchResultArray()
         // possibly you also need to take code from Metabases FetchRow() method

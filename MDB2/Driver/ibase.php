@@ -682,10 +682,11 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      * Fetch a row and insert the data into an existing array.
      *
      * @param int       $fetchmode  how the array data should be indexed
+     * @param int    $rownum    number of the row where the data can be found
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         /*
         if ($this->result === true) {
@@ -693,12 +694,17 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             return null;
         }
         */
-
-        if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
-            $fetchmode = $this->db->fetchmode;
-        }
         if (!$this->_skipLimitOffset()) {
             return null;
+        }
+        if (!is_null($rownum)) {
+            $seek = $this->seek($rownum);
+            if (MDB2::isError($seek)) {
+                return $seek;
+            }
+        }
+        if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
+            $fetchmode = $this->db->fetchmode;
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @ibase_fetch_assoc($this->result);
@@ -889,14 +895,21 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
      * Fetch a row and insert the data into an existing array.
      *
      * @param int       $fetchmode  how the array data should be indexed
+     * @param int    $rownum    number of the row where the data can be found
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (is_null($this->result)) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'fetchRow: resultset has already been freed');
+        }
+        if (!is_null($rownum)) {
+            $seek = $this->seek($rownum);
+            if (MDB2::isError($seek)) {
+                return $seek;
+            }
         }
         $target_rownum = $this->rownum + 1;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
