@@ -57,8 +57,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 {
     // {{{ properties
     var $escape_quotes = "'";
-
-    var $decimal_factor = 1.0;
     var $database_path = '';
     var $database_extension = '';
 
@@ -92,8 +90,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->options['fixed_float'] = 0;
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '';
-
-        $this->decimal_factor = pow(10.0, $this->options['decimal_places']);
     }
 
     // }}}

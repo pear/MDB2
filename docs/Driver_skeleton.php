@@ -74,7 +74,6 @@ class MDB2_xxx extends MDB2_Common
 // Some are MDB2 specific.
 
     var $escape_quotes = "\\";
-    var $decimal_factor = 1.0;
 
     // }}}
     // {{{ constructor

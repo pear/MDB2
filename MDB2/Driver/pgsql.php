@@ -56,7 +56,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 {
     // {{{ properties
     var $escape_quotes = "\\";
-    var $decimal_factor = 1.0;
 
     // }}}
     // {{{ constructor

@@ -84,7 +84,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
             case MDB2_TYPE_DECIMAL:
-                return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/$db->decimal_factor);
+                return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
             default:
                 return $this->_baseConvertResult($value, $type);
         }
@@ -523,7 +523,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     function getDecimalValue($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (($value === null) ? 'NULL' : strval(round(doubleval($value)*$db->decimal_factor)));
+        return (($value === null) ? 'NULL' : strval(round(doubleval($value)*pow(10.0, $db->options['decimal_places']))));
     }
 }
 

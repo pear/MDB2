@@ -58,7 +58,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
 {
     // {{{ properties
     var $escape_quotes = "'";
-    var $decimal_factor = 1.0;
 
     var $max_text_length = 32768;
 
@@ -84,8 +83,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
-
-        $this->decimal_factor = pow(10.0, $this->options['decimal_places']);
     }
 
     // }}}

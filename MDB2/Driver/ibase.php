@@ -56,7 +56,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 {
     // {{{ properties
     var $escape_quotes = "'";
-    var $decimal_factor = 1.0;
 
     var $transaction_id = 0;
 
@@ -90,8 +89,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
-
-        $this->decimal_factor = pow(10.0, $this->options['decimal_places']);
 
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '.gdb';
