@@ -84,8 +84,8 @@ class MDB2_Driver_Manager_Common
      * get declaration of a number of field in bulk
      *
      * @param string $fields  a multidimensional associative array.
-             The first dimension determines the field name, while the second
-            dimension is keyed with the name of the properties
+     *      The first dimension determines the field name, while the second
+     *      dimension is keyed with the name of the properties
      *      of the field being declared as array indexes. Currently, the types
      *      of supported field properties are as follows:
      *
@@ -124,6 +124,7 @@ class MDB2_Driver_Manager_Common
 
     // }}}
     // {{{ _isSequenceName()
+
     /**
      * list all tables in the current database
      *
@@ -486,7 +487,7 @@ class MDB2_Driver_Manager_Common
      *                                Not all DBMS support index sorting direction configuration. The DBMS
      *                                 drivers of those that do not support it ignore this property. Use the
      *                                 function supports() to determine whether the DBMS driver can manage indexes.
-
+     *
      *                                 Example
      *                                    array(
      *                                        'fields' => array(
