@@ -1972,8 +1972,7 @@ class MDB2_Driver_Common extends PEAR
 
         if (!$in_transaction) {
             if (!MDB2::isError($success)) {
-                if (!MDB2::isError($success = $this->commit())
-                    && !MDB2::isError($success = $this->autoCommit(TRUE))
+                if (!MDB2::isError($success = $this->autoCommit(true))
                     && isset($this->supported['affected_rows'])
                 ) {
                     return $affected_rows;
