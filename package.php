@@ -61,6 +61,7 @@ $result = $package->setOptions(array(
     'ignore'            => array('package.php', 'package.xml'),
     'notes'             => $notes,
     'changelogoldtonew' => false,
+    'simpleoutput' => true,
     'baseinstalldir'    => '/',
     'packagedirectory'  => '',
     'dir_roles'         => array('docs' => 'doc',
