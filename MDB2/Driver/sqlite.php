@@ -445,7 +445,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
             if ($ismanip) {
-                MDB2_OK;
+                return MDB2_OK;
             }
             return NULL;
         }
