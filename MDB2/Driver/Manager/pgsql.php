@@ -383,8 +383,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     function createSequence($seq_name, $start = 1)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $seqname = $db->getSequenceName($seq_name);
-        return $db->query("CREATE SEQUENCE $seqname INCREMENT 1".
+        return $db->query("CREATE SEQUENCE $seq_name INCREMENT 1".
             ($start < 1 ? " MINVALUE $start" : '')." START $start");
     }
 
@@ -401,8 +400,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     function dropSequence($seq_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $seqname = $db->getSequenceName($seq_name);
-        return $db->query("DROP SEQUENCE $seqname");
+        return $db->query("DROP SEQUENCE $seq_name");
     }
 
     // }}}
