@@ -35,6 +35,7 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - use MDB2::raiseError() instead of MDB2_Driver_Common::raiseError()
 - do not require that not null fields have a default set in the Manager (bug #3997)
 - do not disable result wrapping when doing internal calls to query() (bug #3997)
+- _wrapResult() now ensures that the result class is an instance of MDB2_Result_Common
 EOT;
 
 $description =<<<EOT
