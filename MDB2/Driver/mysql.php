@@ -543,7 +543,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
         if ($type) {
             for ($i = 0, $j = count($col); $i < $j; ++$i) {
-                $col[$i] = $this->getValue($type, $col[$i]);
+                $col[$i] = $this->quote($col[$i], $type);
             }
         }
         return implode(', ', $col);
@@ -632,7 +632,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             if (isset($fields[$name]['null']) && $fields[$name]['null']) {
                 $value = 'NULL';
             } else {
-                $value = $this->getValue($fields[$name]['type'], $fields[$name]['value']);
+                $value = $this->quote($fields[$name]['value'], $fields[$name]['type']);
             }
             $values .= $value;
             if (isset($fields[$name]['key']) && $fields[$name]['key']) {

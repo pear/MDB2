@@ -1704,7 +1704,7 @@ class MDB2_Driver_Common extends PEAR
                 $value = 'NULL';
             } else {
                 if (isset($fields[$name]['type'])) {
-                    $value = $this->getValue($fields[$name]['type'], $fields[$name]['value']);
+                    $value = $this->quote($fields[$name]['value'], $fields[$name]['type']);
                 } else {
                     $value = $fields[$name]['value'];
                 }
@@ -1803,13 +1803,17 @@ class MDB2_Driver_Common extends PEAR
             }
         }
         if (!$types) {
-            if (count($positions)) {
-                $types = array_fill(0, count($positions), 'text');
+            if ($count = count($positions)) {
+                $types = array_fill(0, $count, null);
             } else {
                 $types = array();
             }
         } else if (!is_array($types)) {
-            $types = array($types);
+            if ($count = count($positions)) {
+                $types = array_fill(0, $count, $types);
+            } else {
+                $types = array();
+            }
         }
         $result = $this->loadModule('datatype');
         if (MDB2::isError($result)) {
@@ -2000,7 +2004,7 @@ class MDB2_Driver_Common extends PEAR
                         }
                     }
                 }
-                $value_quoted = $this->getValue($type, $value);
+                $value_quoted = $this->quote($value, $type);
                 if (MDB2::isError($value_quoted)) {
                     return $value_quoted;
                 }
@@ -2066,26 +2070,63 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ getValue()
+    // {{{ quote()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param string $type type to which the value should be converted to
      * @param string $value text string value that is intended to be converted.
+     * @param string $type type to which the value should be converted to
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access public
      */
-    function getValue($type, $value)
+    function quote($value, $type = null)
     {
+        if (is_null($value)) {
+            return 'NULL';
+        } elseif (is_null($type)) {
+            switch(gettype($value)) {
+            case 'integer':
+                $type = 'integer';
+                break;
+            case 'double':
+                // todo
+                $type = 'decimal';
+                $type = 'float';
+                break;
+            case 'boolean':
+                $type = 'boolean';
+                break;
+            case 'array':
+                // todo
+                if (true && isset($value['data'])) {
+                    $type = 'blob';
+                } else {
+                    $type = 'clob';
+                }
+                break;
+            default:
+                if (preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/', $value)) {
+                    $type = 'timestamp';
+                } elseif (preg_match('/\d{2}:\d{2}/', $value)) {
+                    $type = 'time';
+                } elseif (preg_match('/\d{4}-\d{2}-\d{2}/', $value)) {
+                    $type = 'date';
+                } else {
+                    $type = 'text';
+                }
+                break;
+            }
+        }
+
         $result = $this->loadModule('datatype');
         if (MDB2::isError($result)) {
             return $result;
         }
-        if (method_exists($this->datatype, "get{$type}Value")) {
-            return $this->datatype->{"get{$type}Value"}($value);
+        if (method_exists($this->datatype, "quote{$type}")) {
+            return $this->datatype->{"quote{$type}"}($value);
         }
         return $this->raiseError('type not defined: '.$type);
     }
@@ -2099,19 +2140,19 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param string $type type to which the value should be converted to
      * @param string  $name   name the field to be declared.
-     * @param string  $colnum  definition of the field
+     * @param string  $field  definition of the field
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
      * @access public
      */
-    function getDeclaration($type, $name, $colnum)
+    function getDeclaration($type, $name, $field)
     {
         $result = $this->loadModule('datatype');
         if (MDB2::isError($result)) {
             return $result;
         }
         if (method_exists($this->datatype, "get{$type}Declaration")) {
-            return $this->datatype->{"get{$type}Declaration"}($name, $colnum);
+            return $this->datatype->{"get{$type}Declaration"}($name, $field);
         }
         return $this->raiseError('type not defined: '.$type);
     }

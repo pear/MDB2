@@ -305,7 +305,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 }
                 if ($change_default) {
                     $default = (isset($fields[$current_name]['definition']['default']) ? $fields[$current_name]['definition']['default'] : null);
-                    $change .= ' DEFAULT '.$db->getValue($fields[$current_name]['definition']['type'], $default);
+                    $change .= ' DEFAULT '.$db->quote($default, $fields[$current_name]['definition']['type']);
                 }
                 if (isset($fields[$current_name]['changed_not_null'])) {
                     $change .= (isset($fields[$current_name]['notnull']) ? ' NOT' : '').' NULL';
@@ -343,6 +343,49 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $databases = $result->fetchCol();
         $result->free();
         return $databases;
+    }
+
+    // }}}
+    // {{{ listTables()
+
+    /**
+     * list all tables in the current database
+     *
+     * @return mixed data array on success, a MDB error on failure
+     * @access public
+     **/
+    function listTables(&$db)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $query = 'SELECT table_name FROM sys.user_tables';
+        return($db->queryCol($sql));
+    }
+
+    // }}}
+    // {{{ listTableFields()
+
+    /**
+     * list all fields in a tables in the current database
+     *
+     * @param string $table name of table that should be used in method
+     * @return mixed data array on success, a MDB error on failure
+     * @access public
+     */
+    function listTableFields(&$db, $table)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $table = strtoupper($table);
+        $query = "SELECT column_name FROM user_tab_columns WHERE table_name='$table' ORDER BY column_id";
+        $columns = $db->queryCol($query);
+        if (MDB::isError($result)) {
+            return($result);
+        }
+        if ($db->options['optimize'] == 'portability') {
+            $columns = array_flip($columns);
+            $columns = array_change_key_case($columns, CASE_LOWER);
+            $columns = array_flip($columns);
+        }
+        return($columns);
     }
 
     // }}}

@@ -177,11 +177,11 @@
     echo('tableInfo on a string:<br>');
     echo(Var_Dump::display($db->reverse->tableInfo('numbers')).'<br>');
     echo('<br>just a simple update query:<br>');
-    echo(Var_Dump::display($db->query('UPDATE numbers set trans_en ='.$db->getValue('integer', 0))).'<br>');
+    echo(Var_Dump::display($db->query('UPDATE numbers set trans_en ='.$db->quote(0, 'integer'))).'<br>');
     echo('<br>affected rows:<br>');
     echo($db->affectedRows().'<br>');
     // subselect test
-    $sub_select = $db->subSelect('SELECT test_name from test WHERE test_name = '.$db->getValue('text', 'gummihuhn'), 'text');
+    $sub_select = $db->subSelect('SELECT test_name from test WHERE test_name = '.$db->quote('gummihuhn', 'text'), 'text');
     echo(Var_Dump::display($sub_select).'<br>');
     $query_with_subselect = 'SELECT * FROM test WHERE test_name IN ('.$sub_select.')';
     // run the query and get a result handler

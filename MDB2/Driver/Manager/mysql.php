@@ -112,7 +112,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
         $not_supported = false;
         for ($i=0, $j=count($check); $i<$j; ++$i) {
-            $query = 'SHOW VARIABLES LIKE '.$db->getValue('text', $check[$i]);
+            $query = 'SHOW VARIABLES LIKE '.$db->quote($check[$i], 'text');
             $has = $db->queryRow($query, null, MDB2_FETCHMODE_ORDERED);
             if (MDB2::isError($has)) {
                 return $has;

@@ -2,29 +2,13 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0beta1';
+$version = '2.0.0beta2';
 $notes = <<<EOT
-- fixed bug in MDB2::singleton
-- fixed minor bugs in prepare/execute
-- added PEAR::DB wrapper (not working yet)
-- fixed several bugs in the ibase driver
-- fixed several PHP5 related issues
-- fixed bug in sequence creation on MySQL
-- fixed issues with nextid() ondemand handling in conjunction with currId()
-- added native currId() implementation for the Oracle driver
-- fixed sqlite driver (passes all but the REPLACE test due to a conformance issue in sqlite itself)
-- removed decimal_factor property to allow changing of decimal_places option
-- using native escape string methods in sqlite and mysql driver
-- fixed minor conformance issues in tableInfo() in the oci8 and mysql driver
-- removed optimize option and added portability option instead (ported from DB)
-- added quoteIdentifier() method (ported from DB)
-- added STATUS document to make the status of the drivers more transparent
-- fixed a few bugs in querysim driver
-- fixed issue in mysql reverse engineering: ensuring the correct case is used when
-  doing assoc fetches based on portability flag setting
-- updated reverse engineering script to the new MDB2 API
-- removed broken implementations of currId() in the mssql and fbsql driver
-- fixed a few instances of MDB_Common to the new class name of MDB_Driver_Common
+- added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
+  and MDB2_Driver_Manager_oci8
+- reversed parameter order of getValue(), type parameter is now optional and
+  will then be autodetected
+- renamed get*Value() to quote*()
 EOT;
 
 $description =<<<EOT
@@ -76,7 +60,7 @@ $result = $package->setOptions(array(
     'summary'           => 'database abstraction layer',
     'description'       => $description,
     'version'           => $version,
-    'state'             => 'alpha',
+    'state'             => 'beta',
     'license'           => 'BSD License',
     'filelistgenerator' => 'cvs',
     'ignore'            => array('package.php', 'package.xml'),

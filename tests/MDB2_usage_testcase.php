@@ -243,7 +243,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
      * Tests prepared queries, making sure they correctly deal with ?, !, and '
      */
     function testPreparedQueries() {
-        $question_value = $this->db->getValue('text', 'Does this work?');
+        $question_value = $this->db->quote('Does this work?', 'text');
 
         $prepared_query = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 1)", array('text'));
 
@@ -259,7 +259,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $this->assertTrue(!MDB2::isError($result), 'Could not execute prepared query with a text value with a question mark. Error: ');
 
-        $question_value = $this->db->getValue('text', "Wouldn't it be great if this worked too?");
+        $question_value = $this->db->quote("Wouldn't it be great if this worked too?", 'text');
 
         $prepared_query = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 2)", array('text'));
 
@@ -352,7 +352,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $value = 'NULL';
                 $is_null = true;
             } else {
-                $value = $this->db->getValue('text', $test_values[$test_value][0]);
+                $value = $this->db->quote($test_values[$test_value][0], 'text');
                 $is_null = $test_values[$test_value][1];
             }
 
@@ -409,7 +409,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         for ($string = 0; $string < count($test_strings); $string++) {
             $this->clearTables();
 
-            $value = $this->db->getValue('text', $test_strings[$string]);
+            $value = $this->db->quote($test_strings[$string], 'text');
 
             $result =& $this->db->query("INSERT INTO users (user_name,user_password,user_id) VALUES ($value,$value,0)");
 

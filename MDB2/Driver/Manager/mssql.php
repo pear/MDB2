@@ -252,6 +252,57 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ listTables()
+
+    /**
+     * list all tables in the current database
+     *
+     * @return mixed data array on success, a MDB error on failure
+     * @access public
+     **/
+    function listTables(&$db)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $query = 'EXECUTE sp_tables @table_type = "\'TABLE\'"';
+        $table_names = $db->queryCol($query, null, 2);
+        if (MDB::isError($table_names)) {
+            return($table_names);
+        }
+        $tables = array();
+        for ($i = 0, $j = count($table_names); $i <$j; ++$i) {
+            if (!$this->_isSequenceName($db, $table_names[$i])) {
+                $tables[] = $table_names[$i];
+            }
+        }
+        return($tables);
+    }
+
+    // }}}
+    // {{{ listTableFields()
+
+    /**
+     * list all fields in a tables in the current database
+     *
+     * @param string $table name of table that should be used in method
+     * @return mixed data array on success, a MDB error on failure
+     * @access public
+     */
+    function listTableFields($table)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $result = $db->query("SELECT * FROM $table");
+        if( MDB::isError($result)) {
+            return($result);
+        }
+        $columns = $db->getColumnNames($result);
+        if (MDB::isError($columns)) {
+            $db->freeResult($columns);
+            return $columns;
+        }
+        return(array_flip($columns));
+    }
+
+    // }}}
     // {{{ createSequence()
 
     /**
