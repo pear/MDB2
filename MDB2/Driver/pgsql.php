@@ -124,6 +124,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 '/ttribute [\"\'].*[\"\'] not found$|[Rr]elation [\"\'].*[\"\'] does not have attribute [\"\'].*[\"\']/' => MDB2_ERROR_NOSUCHFIELD,
                 '/parser: parse error at or near \"/'   => MDB2_ERROR_SYNTAX,
                 '/syntax error at/'                     => MDB2_ERROR_SYNTAX,
+                '/permission denied/'                   => MDB2_ERROR_ACCESS_VIOLATION,
                 '/violates not-null constraint/'        => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                 '/violates [\w ]+ constraint/'          => MDB2_ERROR_CONSTRAINT,
                 '/referential integrity violation/'     => MDB2_ERROR_CONSTRAINT
@@ -539,11 +540,18 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
      * Fetch a row and insert the data into an existing array.
      *
      * @param int       $fetchmode  how the array data should be indexed
+     * @param int    $rownum    number of the row where the data can be found
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
+        if (!is_null($rownum)) {
+            $seek = $this->seek($rownum);
+            if (MDB2::isError($seek)) {
+                return $seek;
+            }
+        }
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->db->fetchmode;
         }
