@@ -4,8 +4,9 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '2.0.0alpha2';
 $notes = <<<EOT
-Please note that currently only the MySQL, the PostGreSQL the Oracle and Firebird/Interbase driver
-have been tested to pass the test suite. Look at the STATUS document for details.
+Please note that currently only the SQLite, MySQL, the PostGreSQL the Oracle
+and Firebird/Interbase driver have been tested to pass the test suite.
+Look at the STATUS document for details.
 
 - fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
