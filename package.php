@@ -1,7 +1,6 @@
 <?php
 
 require_once 'PEAR/PackageFileManager.php';
-require_once 'Console/Getopt.php';
 
 $version = '2.0.0alpha2';
 $notes = <<<EOT
@@ -12,6 +11,8 @@ have been tested to pass the test suite.
 - fixed minor bugs in prepare/execute
 - added PEAR::DB wrapper
 - fixed several bugs in the ibase driver
+- fixed several PHP5 related issues
+- fixed bug in sequence creation on MySQL
 EOT;
 
 $description =<<<EOT
@@ -38,6 +39,9 @@ portability. Among other things MDB2 features:
 * Module Framework to load advanced functionality on demand
 * Table information interface
 * RDBMS management methods (creating, dropping, altering)
+* RDBMS independent xml based schema definition management
+* Altering of a DB from a changed xml schema
+* Reverse engineering of xml schemas from an existing DB (currently only MySQL)
 * Full integration into the PEAR Framework
 * PHPDoc API documentation
 
@@ -66,7 +70,7 @@ $result = $package->setOptions(array(
     'ignore'            => array('package.php', 'package.xml'),
     'notes'             => $notes,
     'changelogoldtonew' => false,
-    'simpleoutput' => true,
+    'simpleoutput'      => true,
     'baseinstalldir'    => '/',
     'packagedirectory'  => '',
     'dir_roles'         => array('docs' => 'doc',
@@ -85,14 +89,14 @@ $package->addMaintainer('pgc', 'contributor', 'Paul Cooper', 'pgc@ucecom.com');
 $package->addMaintainer('fmk', 'contributor', 'Frank M. Kromann', 'frank@kromann.info');
 $package->addMaintainer('quipo', 'contributor', 'Lorenzo Alberton', 'l.alberton@quipo.it');
 
-$package->addDependency('php', '4.1.0', 'ge', 'pkg', false);
+$package->addDependency('php', '4.2.0', 'ge', 'pkg', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
 $package->addDependency('XML_Parser', true, 'has', 'pkg', false);
 
-if ($_SERVER['argv'][1] == 'commit') {
-    $result = $package->writePackageFile();
+if (isset($_GET['make']) || (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] == 'make')) { 
+    $e = $package->writePackageFile();
 } else {
-    $result = $package->debugPackageFile();
+    $e = $package->debugPackageFile();
 }
 
 if (PEAR::isError($result)) {
