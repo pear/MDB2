@@ -290,8 +290,8 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
-            $key_name = strtolower($row['key_name']);
-            if (!strcmp($index_name, $key_name)) {
+            $key_name = $row['key_name'];
+            if ($index_name == $key_name) {
                 if (!$row['non_unique']) {
                     $definition[$index_name]['unique'] = true;
                 }
