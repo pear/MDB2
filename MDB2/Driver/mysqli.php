@@ -297,7 +297,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function connect()
     {
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0) {
                 return MDB2_OK;
             }
@@ -312,7 +312,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         @ini_set('track_errors', true);
         $php_errormsg = '';
 
-        if (($this->options['ssl'] === true) {
+        if ($this->options['ssl'] === true) {
             $init = @mysqli_init();
             @mysqli_ssl_set(
                 $init,
@@ -403,7 +403,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if ($force) {
                 @mysqli_close($this->connection);
             }
@@ -667,7 +667,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
             return $result;
         }
-        $value = $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
+        $value = @mysqli_insert_id($this->connection);
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value";
             $result = $this->_doQuery($query, true);
