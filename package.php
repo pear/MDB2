@@ -132,8 +132,13 @@ MySQLi driver:
 
 DB wrapper
 - fixed a large number of compatibility issues in the PEAR::DB wrapper
+
 Iterator
 - fixed several bugs and updated the interface to match the final php5 iterator API
+- buffered result sets now implements seekable
+- removed unnecessary returns
+- throw pear error on rewind in unbuffered result set
+- renamed size() to count() to match the upcoming Countable interface
 
 Extended module:
 - modified the signature of the auto*() methods to be compatible with DB (bug #3720)
