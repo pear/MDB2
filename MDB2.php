@@ -2277,7 +2277,7 @@ class MDB2_Driver_Common extends PEAR
     function queryOne($query, $type = null)
     {
         $result = $this->query($query, $type);
-        if ($result == MDB2_OK || MDB2::isError($result)) {
+        if (!MDB2::isResult($result)) {
             return $result;
         }
 
@@ -2306,7 +2306,7 @@ class MDB2_Driver_Common extends PEAR
     function queryRow($query, $types = null, $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         $result = $this->query($query, $types);
-        if ($result == MDB2_OK || MDB2::isError($result)) {
+        if (!MDB2::isResult($result)) {
             return $result;
         }
 
@@ -2334,7 +2334,7 @@ class MDB2_Driver_Common extends PEAR
     function queryCol($query, $type = null, $colnum = 0)
     {
         $result = $this->query($query, $type);
-        if ($result == MDB2_OK || MDB2::isError($result)) {
+        if (!MDB2::isResult($result)) {
             return $result;
         }
 
@@ -2372,7 +2372,7 @@ class MDB2_Driver_Common extends PEAR
         $rekey = false, $force_array = false, $group = false)
     {
         $result = $this->query($query, $types);
-        if ($result == MDB2_OK || MDB2::isError($result)) {
+        if (!MDB2::isResult($result)) {
             return $result;
         }
 

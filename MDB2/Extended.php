@@ -254,7 +254,7 @@ class MDB2_Extended
         }
 
         $result = $db->executeParams($prepared_query, $type, $params);
-        if ($result == MDB2_OK || MDB2::isError($result)) {
+        if (!MDB2::isResult($result)) {
             return $result;
         }
 
@@ -297,7 +297,7 @@ class MDB2_Extended
         }
 
         $result = $db->executeParams($prepared_query, $types, $params);
-        if ($result == MDB2_OK || MDB2::isError($result)) {
+        if (!MDB2::isResult($result)) {
             return $result;
         }
 
@@ -340,7 +340,7 @@ class MDB2_Extended
         }
 
         $result = $db->executeParams($prepared_query, $type, $params);
-        if ($result == MDB2_OK || MDB2::isError($result)) {
+        if (!MDB2::isResult($result)) {
             return $result;
         }
 
@@ -392,7 +392,7 @@ class MDB2_Extended
         }
 
         $result = $db->executeParams($prepared_query, $types, $params);
-        if ($result == MDB2_OK || MDB2::isError($result)) {
+        if (!MDB2::isResult($result)) {
             return $result;
         }
 
@@ -490,7 +490,7 @@ class MDB2_Extended
         }
 
         $result = $db->executeParams($prepared_query, $types, $params);
-        if ($result == MDB2_OK || MDB2::isError($result)) {
+        if (!MDB2::isResult($result)) {
             return $result;
         }
 
