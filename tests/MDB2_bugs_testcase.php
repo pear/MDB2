@@ -310,6 +310,17 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
+        $this->db->freePrepared($prepared_query);
+
+        $this->db->setLimit(3, 1);
+        $result = $this->db->query('SELECT * FROM users');
+        $numrows = $result->numRows();
+        while ($row = $result->fetchRow()) {
+            if (MDB2::isError($row)) {
+                $this->assertTrue(false, 'Error fetching a row'.$row->getMessage());
+            }
+        }
+        $result->free();
 
         $result = $this->db->query('SELECT * FROM users');
         $numrows = $result->numRows();
@@ -318,9 +329,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error fetching a row'.$row->getMessage());
             }
         }
-
         $result->free();
-        $this->db->freePrepared($prepared_query);
     }
 }
 
