@@ -98,6 +98,8 @@ similar as possible as the ext/pdo API!
   called by the user
 - instead of having a generic implemention of disconnect() we will rename
   _close() to disconnect() to overwrite the generic implementation
+- placed convert methods after the portability conversions to ensure that the
+  proper type is maintained after the conversion methods
 EOT;
 
 $description =<<<EOT
