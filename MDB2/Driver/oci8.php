@@ -75,6 +75,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->supported['indexes'] = true;
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
+        $this->supported['current_id'] = true;
         $this->supported['affected_rows'] = true;
         $this->supported['transactions'] = true;
         $this->supported['limit_queries'] = true;
