@@ -80,6 +80,9 @@ similar as possible as the ext/pdo API!
 - moved xml dumping in MDB2_Tools_Manager into separate Writer class
 - completely revised ibase driver, now passing all tests under php5
 - remove redundant call to commit() since setting autoCommit() already commits in MDB2::replace()
+- refactored standaloneQuery(), query(), _doQuery(), _wrapResult(); the most important change are:
+  result are only wrapped if it is explicitly requested
+  standaloneQuery() now works just as query() does but with its own connection
 EOT;
 
 $description =<<<EOT
