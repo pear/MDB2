@@ -69,7 +69,6 @@ similar as possible as the ext/pdo API!
 - added rownum handling to fetchRow()
 - MDB2::isError now also optionally accepts and error code to check for
 - readded MDB2_Error as the baseclass for all MDB2 error objects
-- removed destructor since most RDBMS handle uncommited transaction themselves
 - allow null values to be set for options
 - added emulate_database option (default true) to the Oracle driver that handles
   if the database_name should be used for connections of the username
@@ -90,9 +89,15 @@ similar as possible as the ext/pdo API!
 - fbsql: use correct error codes. Was using MySQL's codes by mistake.
 - add support for oracle style named parameters and modified test suite accordingly
 - dont convert sequence names if sequences are supported natively (BC break!)
-- removed executeParams() and executeMultiple()
+- removed executeParams() and moved executeMultiple() to extended module
 - transaction API moved over to PDO: removed autoCommit(), added beginTransaction()
   and refactored commit() (it doesn't start a new transaction automatically anymore)
+- reworked handling of uncommited transaction for persistant connections when
+  a given connection is no longer in use
+- only disconnect persistant connections if disconnect() has been explicitly
+  called by the user
+- instead of having a generic implemention of disconnect() we will rename
+  _close() to disconnect() to overwrite the generic implementation
 EOT;
 
 $description =<<<EOT
