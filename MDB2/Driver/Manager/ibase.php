@@ -415,10 +415,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function createSequence($seq_name, $start = 1)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (MDB2::isError($result = $db->query('CREATE GENERATOR '.strtoupper($seq_name)))) {
+        $seq_name = strtoupper($seq_name);
+        if (MDB2::isError($result = $db->query('CREATE GENERATOR '.$seq_name))) {
             return $result;
         }
-        if (MDB2::isError($result = $db->query('SET GENERATOR '.strtoupper($seq_name).' TO '.($start-1)))) {
+        if (MDB2::isError($result = $db->query('SET GENERATOR '.$seq_name.' TO '.($start-1)))) {
             if (MDB2::isError($err = $db->dropSequence($seq_name))) {
                 return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                     'createSequence: Could not setup sequence start value and then it was not possible to drop it: '.
