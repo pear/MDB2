@@ -1405,7 +1405,7 @@ class MDB2_Driver_Common extends PEAR
                 if (method_exists($class_name, 'factory')) {
                     $class_name_new = call_user_func(array($class_name, 'factory'), $this->db_index);
                     if ($class_name != $class_name_new) {
-                        $class_name != $class_name_new;
+                        $class_name = $class_name_new;
                         $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
                         if (!MDB2::fileExists($file_name)) {
                             $error =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
