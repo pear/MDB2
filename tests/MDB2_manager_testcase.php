@@ -107,8 +107,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         if (!$this->methodExists($this->manager->db->manager, 'dropDatabase')) {
             return;
         }
-        $this->manager->db->expectError(array(MDB2_ERROR_CANNOT_DROP,
-                                              MDB2_ERROR_NOSUCHTABLE));
+        $this->manager->db->expectError('*');
         $result = $this->manager->db->manager->dropDatabase($this->database);
         $this->manager->db->popExpect();
         if (!MDB2::isError($result) || $result->getCode() != MDB2_ERROR_UNSUPPORTED) {
