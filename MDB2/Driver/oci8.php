@@ -393,7 +393,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 $columns.= ($lobs == 0 ? ' RETURNING ' : ',').
                     $this->prepared_queries[$prepared_query-1]['fields'][$parameter-1];
                 $variables.= ($lobs == 0 ? ' INTO ' : ',').':clob'.$parameter;
-                $lobs++;
+                ++$lobs;
             }
             if (!MDB2::isError($success)) {
                 for (reset($this->blobs[$prepared_query]), $blob = 0;
@@ -411,7 +411,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $columns.= ($lobs == 0 ? ' RETURNING ' : ',').
                         $this->prepared_queries[$prepared_query-1]['fields'][$parameter-1];
                     $variables.= ($lobs == 0 ? ' INTO ' : ',').':blob'.$parameter;
-                    $lobs++;
+                    ++$lobs;
                 }
                 $query.= $columns.$variables;
             }
@@ -498,7 +498,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                                 }
                             }
                         } else {
-                            $this->uncommitedqueries++;
+                            ++$this->uncommitedqueries;
                         }
                         if (!MDB2::isError($success)) {
                             if (is_null($ismanip)) {
@@ -699,8 +699,8 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         if ($offset || $limit) {
             $this->limits = array(
                 'offset' => $offset,
-                'limit' => $limit,
-                'count' => 0
+                'count' => 0,
+                'limit' => ($limit - 1),
             );
         }
     }
@@ -718,13 +718,12 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     function _skipLimitOffset()
     {
         if (isset($this->limits) && is_array($this->limits)) {
-            if ($this->rownum >= $this->limits['limit']) {
+            if ($this->rownum > $this->limits['limit']) {
                 return false;
             }
             while ($this->limits['count'] < $this->limits['offset']) {
-                $this->limits['count']++;
-                if (!@OCIFetch($this->result)) {
-                    $this->limits['count'] = $this->limits['offset'];
+                ++$this->limits['count'];
+                if (!@OCIFetchInto($this->result, $row, OCI_RETURN_NULLS)) {
                     return false;
                 }
             }
@@ -800,9 +799,6 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->mdb->_rtrimArrayValues($row);
-        }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
-            $this->mdb->_convertNullArrayValuesToEmpty($row);
         }
         ++$this->rownum;
         return $row;
@@ -933,16 +929,17 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             && (!isset($this->limits) || $this->buffer_rownum < $this->limits['limit'])
             && ($row = @OCIFetchInto($this->result, $buffer, OCI_RETURN_NULLS))
         ) {
-            $this->buffer_rownum++;
+            ++$this->buffer_rownum;
             $this->buffer[$this->buffer_rownum] = $buffer;
         }
 
-        if ((isset($this->limits) && $this->buffer_rownum >= $this->limits['limit'])
-            || !$row
-        ) {
-            $this->buffer_rownum++;
+        if (!$row) {
+            ++$this->buffer_rownum;
             $this->buffer[$this->buffer_rownum] = false;
             return false;
+        } elseif (isset($this->limits) && $this->buffer_rownum >= $this->limits['limit']) {
+            ++$this->buffer_rownum;
+            $this->buffer[$this->buffer_rownum] = false;
         }
         return true;
     }
@@ -984,9 +981,6 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->mdb->_rtrimArrayValues($row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
-            $this->mdb->_convertNullArrayValuesToEmpty($row);
-        }
         ++$this->rownum;
         return $row;
     }
@@ -1012,7 +1006,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     }
 
     // }}}
-    // {{{ hasMore()
+    // {{{ valid()
 
     /**
      * check if the end of the result set has been reached
@@ -1020,11 +1014,11 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
      * @return mixed true or false on sucess, a MDB2 error on failure
      * @access public
      */
-    function hasMore()
+    function valid()
     {
         if (is_null($this->result)) {
             return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'hasMore: resultset has already been freed');
+                'valid: resultset has already been freed');
         }
         if ($this->_fillBuffer($this->rownum + 1)) {
             return true;

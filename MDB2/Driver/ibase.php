@@ -624,8 +624,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if ($offset || $limit) {
             $this->limits = array(
                 'offset' => $offset,
-                'limit' => $limit,
-                'count' => 0
+                'count' => 0,
+                'limit' => ($limit - 1),
             );
         }
     }
@@ -643,11 +643,11 @@ class MDB2_Result_ibase extends MDB2_Result_Common
     function _skipLimitOffset()
     {
         if (isset($this->limits) && is_array($this->limits)) {
-            if ($this->rownum >= $this->limits['limit']) {
+            if ($this->rownum > $this->limits['limit']) {
                 return false;
             }
             while ($this->limits['count'] < $this->limits['offset']) {
-                $this->limits['count']++;
+                ++$this->limits['count'];
                 if (!is_array(@ibase_fetch_row($this->result))) {
                     $this->limits['count'] = $this->limits['offset'];
                     return false;
@@ -733,8 +733,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->mdb->_rtrimArrayValues($row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
-            $this->mdb->_convertNullArrayValuesToEmpty($row);
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $this->mdb->_convertEmptyArrayValuesToNull($row);
         }
         ++$this->rownum;
         return $row;
@@ -876,16 +876,17 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             && (!isset($this->limits) || $this->buffer_rownum < $this->limits['limit'])
             && ($buffer = @ibase_fetch_row($this->result))
         ) {
-            $this->buffer_rownum++;
+            ++$this->buffer_rownum;
             $this->buffer[$this->buffer_rownum] = $buffer;
         }
 
-        if ((isset($this->limits) && $this->buffer_rownum >= $this->limits['limit'])
-            || !$buffer
-        ) {
-            $this->buffer_rownum++;
+        if (!$buffer) {
+            ++$this->buffer_rownum;
             $this->buffer[$this->buffer_rownum] = false;
             return false;
+        } elseif (isset($this->limits) && $this->buffer_rownum >= $this->limits['limit']) {
+            ++$this->buffer_rownum;
+            $this->buffer[$this->buffer_rownum] = false;
         }
         return true;
     }
@@ -927,8 +928,8 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->mdb->_rtrimArrayValues($row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
-            $this->mdb->_convertNullArrayValuesToEmpty($row);
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $this->mdb->_convertEmptyArrayValuesToNull($row);
         }
         ++$this->rownum;
         return $row;
@@ -955,7 +956,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     }
 
     // }}}
-    // {{{ hasMore()
+    // {{{ valid()
 
     /**
      * check if the end of the result set has been reached
@@ -963,11 +964,11 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
      * @return mixed true or false on sucess, a MDB2 error on failure
      * @access public
      */
-    function hasMore()
+    function valid()
     {
         if (is_null($this->result)) {
             return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'hasMore: resultset has already been freed');
+                'valid: resultset has already been freed');
         }
         if ($this->_fillBuffer($this->rownum + 1)) {
             return true;
