@@ -331,7 +331,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if (($this->opened_persisten || $force)
+        if (($this->opened_persistent || $force)
             && $this->connection != 0
         ) {
             if (version_compare(phpversion(), '5.0.0', '>=')) {
@@ -339,6 +339,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             } else {
                 $ret = @OCILogOff($this->connection);
             }
+            $this->connection = 0;
+            $this->uncommitedqueries = 0;
+        } else {
             $this->connection = 0;
             $this->uncommitedqueries = 0;
         }
