@@ -544,6 +544,7 @@ class MDB2_Tools_Manager extends PEAR
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'indexes are not supported');
         }
+        $result = MDB2_OK;
         foreach ($indexes as $index_name => $index) {
             $this->expectError(MDB2_ERROR_ALREADY_EXISTS);
             $result = $this->db->manager->createIndex($table_name, $index_name, $index);
@@ -560,7 +561,8 @@ class MDB2_Tools_Manager extends PEAR
                     } else {
                         $result = MDB2_OK;
                     }
-                } else {
+                }
+                if (MDB2::isError($result)) {
                     $this->db->debug('Create index error: '.$table_name);
                     break;
                 }
@@ -600,7 +602,8 @@ class MDB2_Tools_Manager extends PEAR
                 } else {
                     $result = MDB2_OK;
                 }
-            } else {
+            }
+            if (MDB2::isError($result)) {
                 $this->db->debug('Create table error: '.$table_name);
                 return $result;
             }
@@ -744,7 +747,8 @@ class MDB2_Tools_Manager extends PEAR
                 } else {
                     return MDB2_OK;
                 }
-            } else {
+            }
+            if (MDB2::isError($result)) {
                 $this->db->debug('Create sequence error: '.$sequence_name);
                 return $result;
             }
@@ -818,7 +822,8 @@ class MDB2_Tools_Manager extends PEAR
                     } else {
                         $result = MDB2_OK;
                     }
-                } else {
+                }
+                if (MDB2::isError($result)) {
                     $this->db->debug('Create database error.');
                     return $result;
                 }
@@ -1202,7 +1207,7 @@ class MDB2_Tools_Manager extends PEAR
                 && !$previous_definition[$table_name]['was'] == $was_table_name
             ) {
                 $was_table_name = $table_name;
-            } elseif(isset($current_definition['was'])) {
+            } elseif (isset($current_definition['was'])) {
                 $was_table_name = $current_definition['was'];
             }
             if (isset($previous_definition[$was_table_name])) {
@@ -1294,7 +1299,7 @@ class MDB2_Tools_Manager extends PEAR
                 && $previous_definition[$sequence_name]['was'] == $was_sequence_name
             ) {
                 $was_sequence_name = $sequence_name;
-            } elseif(isset($current_definition['was'])) {
+            } elseif (isset($current_definition['was'])) {
                 $was_sequence_name = $current_definition['was'];
             }
             if (isset($previous_definition[$was_sequence_name])) {
@@ -2114,15 +2119,20 @@ class MDB2_Tools_Manager extends PEAR
         $this->database_definition = $database_definition;
         $copy = false;
 
-        $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
-        $this->db->expectError(MDB2_ERROR_NOT_CAPABLE);
-        $databases = $this->db->manager->listDatabases();
-        $this->db->popExpect();
-        $this->db->popExpect();
-        if ((MDB2::isError($databases)
-                || (is_array($databases) && in_array($this->database_definition['name'], $databases)))
-            && $previous_schema_file && file_exists($previous_schema_file)
-        ) {
+        if ($previous_schema_file && file_exists($previous_schema_file)) {
+            $errorcodes = array(MDB2_ERROR_UNSUPPORTED, MDB2_ERROR_NOT_CAPABLE);
+            $this->db->expectError($errorcodes);
+            $databases = $this->db->manager->listDatabases();
+            $this->db->popExpect();
+            if (MDB2::isError($databases) && !in_array($databases->getCode(), $errorcodes)) {
+                return $database;
+            }
+            if (!MDB2::isError($databases)
+                && !is_array($databases) && !in_array($this->database_definition['name'], $databases)
+            ) {
+                return $this->raiseError(MDB2_ERROR, null, null,
+                    'database to update does not exist: '.$this->database_definition['name']);
+            }
             $previous_definition = $this->parseDatabaseDefinitionFile($previous_schema_file, $variables, 0);
             if (MDB2::isError($previous_definition)) {
                 return $previous_definition;
