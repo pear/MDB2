@@ -129,7 +129,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = isset($field['length']) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
         $default = isset($field['default']) ? ' DEFAULT TIME'.
-            $this->getTextValue($field['default']) : '';
+            $this->quoteText($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
@@ -222,7 +222,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getBooleanValue($field['default']) : '';
+            $this->quoteBoolean($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' BOOLEAN'.$default.$notnull;
     }
@@ -253,7 +253,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getDateValue($field['default']) : '';
+            $this->quoteDate($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
@@ -284,7 +284,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getTimeValue($field['default']) : '';
+            $this->quoteTime($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME without time zone'.$default.$notnull;
     }
@@ -315,7 +315,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getTimestampValue($field['default']) : '';
+            $this->quoteTimestamp($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIMESTAMP without time zone'.$default.$notnull;
     }
@@ -346,7 +346,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getFloatValue($field['default']) : '';
+            $this->quoteFloat($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' FLOAT8'.$default.$notnull;
     }
@@ -377,13 +377,13 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getFloatValue($field['default']) : '';
+            $this->quoteFloat($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' NUMERIC(18, '.$db->options['decimal_places'].')'.$default.$notnull;
     }
 
     // }}}
-    // {{{ _getLOBValue()
+    // {{{ _quoteLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -396,7 +396,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *      a DBMS specific format.
      * @access private
      */
-    function _getLOBValue($lob)
+    function _quoteLOB($lob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $connect = $db->connect();
@@ -444,7 +444,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getCLOBValue()
+    // {{{ quoteCLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -455,17 +455,17 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *      a DBMS specific format.
      * @access public
      */
-    function getCLOBValue($clob)
+    function quoteCLOB($clob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($clob === null) {
             return 'NULL';
         }
-        return $this->_getLOBValue($clob);
+        return $this->_quoteLOB($clob);
     }
 
     // }}}
-    // {{{ getBLOBValue()
+    // {{{ quoteBLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -476,17 +476,17 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *      a DBMS specific format.
      * @access public
      */
-    function getBLOBValue($blob)
+    function quoteBLOB($blob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($blob === null) {
             return 'NULL';
         }
-        return $this->_getLOBValue($blob);
+        return $this->_quoteLOB($blob);
     }
 
     // }}}
-    // {{{ getBooleanValue()
+    // {{{ quoteBoolean()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -497,14 +497,14 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *       a DBMS specific format.
      * @access public
      */
-    function getBooleanValue($value)
+    function quoteBoolean($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : ($value ? "'t'" : "'f'");
     }
 
     // }}}
-    // {{{ getFloatValue()
+    // {{{ quoteFloat()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -515,14 +515,14 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *      a DBMS specific format.
      * @access public
      */
-    function getFloatValue($value)
+    function quoteFloat($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : $value;
     }
 
     // }}}
-    // {{{ getDecimalValue()
+    // {{{ quoteDecimal()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -533,7 +533,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *      a DBMS specific format.
      * @access public
      */
-    function getDecimalValue($value)
+    function quoteDecimal($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : $value;

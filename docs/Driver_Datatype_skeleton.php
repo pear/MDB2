@@ -111,7 +111,7 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
     }
 
     // }}}
-    // {{{ get*Value()
+    // {{{ quote*()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -124,14 +124,14 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
      *                 a DBMS specific format.
      * @access public
      */
-    function get*Value($prepared_query, $parameter, $clob)
+    function quote*($prepared_query, $parameter, $clob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: Get*FieldValue()
     }
 
     // }}}
-    // {{{ getClobValue()
+    // {{{ quoteClob()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -144,7 +144,7 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
      *                 a DBMS specific format.
      * @access public
      */
-    function getClobValue($prepared_query, $parameter, $clob)
+    function quoteClob($prepared_query, $parameter, $clob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: GetCLOBFieldValue()
@@ -169,7 +169,7 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
     }
 
     // }}}
-    // {{{ getBlobValue()
+    // {{{ quoteBlob()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -182,7 +182,7 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
      *                 a DBMS specific format.
      * @access public
      */
-    function getBlobValue($prepared_query, $parameter, $blob)
+    function quoteBlob($prepared_query, $parameter, $blob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: GetBLOBFieldValue()

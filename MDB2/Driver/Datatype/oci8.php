@@ -177,7 +177,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             $db->warning = "unsigned integer field \"$name\" is being declared as signed integer";
         }
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getIntegerValue($field['default']) : '';
+            $this->quoteInteger($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
@@ -214,7 +214,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = $this->getTypeDeclaration($field);
         $default = isset($field['default']) ? ' DEFAULT TIME'.
-            $this->getTextValue($field['default']) : '';
+            $this->quoteText($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
@@ -307,7 +307,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getDateValue($field['default']) : '';
+            $this->quoteDate($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
@@ -338,7 +338,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getTimstampValue($field['default']) : '';
+            $this->quoteTimstamp($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;    }
 
@@ -368,7 +368,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $db->geTimeValue($field['default']) : '';
+            $db->quoteime($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
@@ -399,7 +399,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getFloatValue($field['default']) : '';
+            $this->quoteFloat($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
@@ -430,13 +430,13 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getDecimalValue($field['default']) : '';
+            $this->quoteDecimal($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
-    // {{{ getCLOBValue()
+    // {{{ quoteCLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -447,7 +447,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *        a DBMS specific format.
      * @access public
      */
-    function getCLOBValue($clob)
+    function quoteCLOB($clob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($clob === null) {
@@ -473,7 +473,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getBLOBValue()
+    // {{{ quoteBLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -484,7 +484,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *        a DBMS specific format.
      * @access public
      */
-    function getBLOBValue($blob)
+    function quoteBLOB($blob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($blob === null) {
@@ -510,7 +510,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getDateValue()
+    // {{{ quoteDate()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -521,14 +521,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *        a DBMS specific format.
      * @access public
      */
-    function getDateValue($value)
+    function quoteDate($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : "TO_DATE('$value','YYYY-MM-DD')";
     }
 
     // }}}
-    // {{{ getTimestampValue()
+    // {{{ quoteTimestamp()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -539,14 +539,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *        a DBMS specific format.
      * @access public
      */
-    function getTimestampValue($value)
+    function quoteTimestamp($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : "TO_DATE('$value','YYYY-MM-DD HH24:MI:SS')";
     }
 
     // }}}
-    // {{{ getTimeValue()
+    // {{{ quoteTime()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -557,14 +557,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *        a DBMS specific format.
      * @access public
      */
-    function getTimeValue($value)
+    function quoteTime($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : "TO_DATE('0001-01-01 $value','YYYY-MM-DD HH24:MI:SS')";
     }
 
     // }}}
-    // {{{ getFloatValue()
+    // {{{ quoteFloat()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -575,14 +575,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *        a DBMS specific format.
      * @access public
      */
-    function getFloatValue($value)
+    function quoteFloat($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : (float)$value;
     }
 
     // }}}
-    // {{{ getDecimalValue()
+    // {{{ quoteDecimal()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -593,7 +593,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *        a DBMS specific format.
      * @access public
      */
-    function getDecimalValue($value)
+    function quoteDecimal($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : $value;

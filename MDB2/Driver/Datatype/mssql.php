@@ -132,7 +132,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = isset($field['length']) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getTextValue($field['default']) : '';
+            $this->quoteText($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
@@ -249,7 +249,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getBooleanValue($field['default']) : '';
+            $this->quoteBoolean($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' BIT'.$default.$notnull;
     }
@@ -282,7 +282,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getFloatValue($field['default']) : '';
+            $this->quoteFloat($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' FLOAT'.$default.$notnull;
     }
@@ -316,13 +316,13 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->getDecimalValue($field['default']) : '';
+            $this->quoteDecimal($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
     // }}}
-    // {{{ getCLOBValue()
+    // {{{ quoteCLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -333,7 +333,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                 a DBMS specific format.
      * @access public
      */
-    function getCLOBValue($clob)
+    function quoteCLOB($clob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($clob === null) {
@@ -369,7 +369,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getBLOBValue()
+    // {{{ quoteBLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -380,7 +380,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                 a DBMS specific format.
      * @access public
      */
-    function getBLOBValue($blob)
+    function quoteBLOB($blob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($blob === null) {
@@ -415,7 +415,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getBooleanValue()
+    // {{{ quoteBoolean()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -426,14 +426,14 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *       a DBMS specific format.
      * @access public
      */
-    function getBooleanValue($value)
+    function quoteBoolean($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : ($value ? 1 : 0);
     }
 
     // }}}
-    // {{{ getFloatValue()
+    // {{{ quoteFloat()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -444,14 +444,14 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                 a DBMS specific format.
      * @access public
      */
-    function getFloatValue($value)
+    function quoteFloat($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : $value;
     }
 
     // }}}
-    // {{{ getDecimalValue()
+    // {{{ quoteDecimal()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -462,7 +462,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                 a DBMS specific format.
      * @access public
      */
-    function getDecimalValue($value)
+    function quoteDecimal($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value === null) ? 'NULL' : $value;
