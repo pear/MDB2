@@ -89,6 +89,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = false;
         $this->supported['sub_selects'] = true;
+        $this->supported['auto_increment'] = false;
 
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '.gdb';

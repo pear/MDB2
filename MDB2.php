@@ -2261,6 +2261,29 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ getBeforeID()
+
+    /**
+     * returns the next free id of a sequence if the RDBMS
+     * does not support auto increment
+     *
+     * @param string  $seq_name name of the sequence
+     * @param boolean $ondemand when true the seqence is
+     *                          automatic created, if it
+     *                          not exists
+     *
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function getBeforeID($seq_name, $ondemand = true)
+    {
+        if (!$this->supported['auto_increment']) {
+            return $thid->nextID($seq_name, $ondemand);
+        }
+        return;
+    }
+
+    // }}}
     // {{{ nextID()
 
     /**
@@ -2273,10 +2296,25 @@ class MDB2_Driver_Common extends PEAR
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function nextID($seq_name, $ondemand = false)
+    function nextID($seq_name, $ondemand = true)
     {
         return $this->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
             'nextID: method not implemented');
+    }
+
+    // }}}
+    // {{{ getAfterID()
+
+    /**
+     * returns the autoincrement ID if supported
+     *
+     * @param string $table name of the table
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function getAfterID($table)
+    {
+        return;
     }
 
     // }}}

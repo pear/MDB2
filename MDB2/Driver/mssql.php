@@ -81,6 +81,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
         $this->supported['transactions'] = true;
+        $this->supported['auto_increment'] = true;
 
         $db->options['database_device'] = false;
         $db->options['database_size'] = false;
@@ -508,6 +509,21 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             $this->warnings[] = 'nextID: could not delete previous sequence table values';
         }
         return $value;
+    }
+
+    // }}}
+    // {{{ getAfterID()
+
+    /**
+     * returns the autoincrement ID if supported
+     *
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function getAfterID()
+    {
+        $this->loadModule('native');
+        return $this->native->getInsertID();
     }
 }
 

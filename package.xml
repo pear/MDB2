@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta3</version>
-    <date>2004-04-30</date>
+    <date>2004-05-02</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- affectedRows() now ensures that the last query was a manipulation query
@@ -80,7 +80,9 @@ Other soon to follow.</description>
 - fixed a large number of compatibility issues in the PEAR::DB wrapper
 - added MDB2_FETCHMODE_OBJECT
 - added MDB2_Driver_Result_Common::getRowCounter()
-- explicitly specify colum name in sequence emulation queries</notes>
+- explicitly specify colum name in sequence emulation queries
+- added getBeforeId() and getAfterId()
+- added new supported feature 'auto_increment'</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -204,7 +206,7 @@ Other soon to follow.</description>
   <changelog>
     <release>
       <version>2.0.0beta3</version>
-      <date>2004-04-30</date>
+      <date>2004-05-02</date>
       <license>BSD License</license>
       <state>beta</state>
       <notes>- affectedRows() now ensures that the last query was a manipulation query
@@ -214,7 +216,9 @@ Other soon to follow.</description>
 - fixed a large number of compatibility issues in the PEAR::DB wrapper
 - added MDB2_FETCHMODE_OBJECT
 - added MDB2_Driver_Result_Common::getRowCounter()
-- explicitly specify colum name in sequence emulation queries</notes>
+- explicitly specify colum name in sequence emulation queries
+- added getBeforeId() and getAfterId()
+- added new supported feature 'auto_increment'</notes>
     </release>
     <release>
       <version>2.0.0beta2</version>

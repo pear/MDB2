@@ -236,12 +236,13 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $this->supported['affected_rows'] = true;
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
-        $this->supported['current_id'] = true;
+        $this->supported['current_id'] = false;
         $this->supported['limit_queries'] = true;// this one is real
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
-        $this->supported['transactions'] = true;
+        $this->supported['transactions'] = false;
+        $this->supported['auto_increment'] = false;
 
         $this->options['columnDelim'] = ',';
         $this->options['dataDelim'] = '|';

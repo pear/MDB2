@@ -83,6 +83,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
+        $this->supported['auto_increment'] = true;
     }
 
     // }}}
@@ -477,13 +478,26 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $result;
         }
         $value = $this->queryOne("SELECT UNIQUE FROM $sequence_name", 'integer');
-        $result = ;
         if (is_numeric($value)
             && MDB2::isError($this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
         ) {
             $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
         }
         return $value;
+    }
+
+    // }}}
+    // {{{ getAfterID()
+
+    /**
+     * @param string $table name of the table
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function getAfterID($table)
+    {
+        $this->loadModule('native');
+        return $this->native->getInsertID();
     }
 
     // }}}

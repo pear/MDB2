@@ -85,6 +85,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->supported['replace'] = true;
         $this->supported['transactions'] = true;
         $this->supported['sub_selects'] = true;
+        $this->supported['auto_increment'] = true;
 
         $this->options['base_transaction_name'] = '___php_MDB2_sqlite_auto_commit_off';
         $this->options['fixed_float'] = 0;
@@ -642,6 +643,22 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
         }
         return $value;
+    }
+
+    // }}}
+    // {{{ getAfterID()
+
+    /**
+     * returns the autoincrement ID if supported
+     *
+     * @param string $table name of the table
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function getAfterID($table)
+    {
+        $this->loadModule('native');
+        return $this->native->getInsertID();
     }
 
     // }}}

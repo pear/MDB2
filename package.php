@@ -12,6 +12,8 @@ $notes = <<<EOT
 - added MDB2_FETCHMODE_OBJECT
 - added MDB2_Driver_Result_Common::getRowCounter()
 - explicitly specify colum name in sequence emulation queries
+- added getBeforeId() and getAfterId()
+- added new supported feature 'auto_increment'
 EOT;
 
 $description =<<<EOT
