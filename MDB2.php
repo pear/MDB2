@@ -2798,7 +2798,7 @@ class MDB2_Statement_Common
 
     function MDB2_Statement_Common(&$db, &$statement, $query, $types, $result_types)
     {
-        $this->__construct($db, &$statement, $query, $types, $result_types);
+        $this->__construct($db, $statement, $query, $types, $result_types);
     }
 
     // }}}
