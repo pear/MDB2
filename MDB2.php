@@ -2559,27 +2559,40 @@ class MDB2_Result_Common extends MDB2_Result
     function fetchAll($fetchmode = MDB2_FETCHMODE_DEFAULT, $rekey = false,
         $force_array = false, $group = false)
     {
-        $all = array();
-        while (!MDB2::isError($row = $this->fetchRow($fetchmode)) && $row) {
-            if ($rekey) {
-                if ((is_array($row) && count($row) < 2)
-                    || (is_object($row) && count(get_object_vars($row)) < 2)
-                ) {
-                    return $this->db->raiseError(MDB2_ERROR_TRUNCATED);
-                }
+        $row = $this->fetchRow($fetchmode);
+        if (MDB2::isError($row) || !$row) {
+            return $row;
+        }
+
+        $shift_array = $rekey ? false : null;
+        if (is_null($shift_array)) {
+            if(is_object($row)) {
+                $colnum = count(get_object_vars($row));
+            } else {
+                $colnum = count($row);
             }
-            if ($rekey) {
-                if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
-                    $key = reset($row);
-                    unset($row[key($row)]);
-                } elseif ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+
+            if ($colnum < 2) {
+                return $this->db->raiseError(MDB2_ERROR_TRUNCATED);
+            }
+            $shift_array = (!$force_array && $colnum == 2);
+        }
+
+        $all = array();
+        if ($rekey) {
+            do {
+                if (is_object($row)) {
                     $arr = get_object_vars($row);
                     $key = reset($arr);
+                    unset($row->{$key});
                 } else {
-                    $key = array_shift($row);
-                }
-                if (!$force_array) {
-                    if (is_array($row) && count($row) == 1) {
+                    if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
+                        $key = reset($row);
+                        unset($row[key($row)]);
+                    } else {
+                        $key = array_shift($row);
+                    }
+                    if ($shift_array) {
                         $row = array_shift($row);
                     }
                 }
@@ -2588,20 +2601,19 @@ class MDB2_Result_Common extends MDB2_Result
                 } else {
                     $all[$key] = $row;
                 }
-            } else {
-                if ($fetchmode & MDB2_FETCHMODE_FLIPPED) {
-                    foreach ($row as $key => $val) {
-                        $all[$key][] = $val;
-                    }
-                } else {
-                    $all[] = $row;
+            } while (($row = $this->fetchRow($fetchmode)));
+        } elseif ($fetchmode & MDB2_FETCHMODE_FLIPPED) {
+            do {
+                foreach ($row as $key => $val) {
+                    $all[$key][] = $val;
                 }
-            }
+            } while (($row = $this->fetchRow($fetchmode)));
+        } else {
+            do {
+                $all[] = $row;
+            } while (($row = $this->fetchRow($fetchmode)));
         }
 
-        if (MDB2::isError($row)) {
-            return $row;
-        }
         return $all;
     }
 
