@@ -221,7 +221,8 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         ) {
             $query_fields .= ', dummy_primary_key INT NOT NULL AUTO_INCREMENT, PRIMARY KEY (dummy_primary_key)';
         }
-        $query = "CREATE TABLE $name ($query_fields)".(strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : '');
+        $query = "CREATE TABLE $name ($query_fields)".(strlen($db->options['default_table_type'])
+            ? ' TYPE='.$db->options['default_table_type'] : '');
 
         return $db->query($query);
     }
