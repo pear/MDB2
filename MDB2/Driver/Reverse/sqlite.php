@@ -139,7 +139,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                         preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
                         $length = 0;
                         if (is_array($matches)) {
-                            foreach($matches[0] as $value) {
+                            foreach ($matches[0] as $value) {
                                 $length = max($length, strlen($value)-2);
                             }
                         }
@@ -224,7 +224,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                         return $indexes;
                     }
                     $is_primary = false;
-                    foreach($indexes as $index) {
+                    foreach ($indexes as $index) {
                         if ($index['key_name'] == 'PRIMARY' && $index['column_name'] == $field_name) {
                             $is_primary = true;
                             break;
@@ -310,108 +310,6 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
         return $definition;
     }
-    // }}}
-    // {{{ tableInfo()
-
-    /**
-    * returns meta data about the result set
-    *
-    * @param resource    $result    result identifier
-    * @param mixed $mode depends on implementation
-    * @return array an nested array, or a MDB2 error
-    * @access public
-    */
-    function tableInfo($result, $mode = null) {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $count = 0;
-        $id     = 0;
-        $res  = array();
-
-        /*
-         * depending on $mode, metadata returns the following values:
-         *
-         * - mode is false (default):
-         * $result[]:
-         *   [0]['table']  table name
-         *   [0]['name']   field name
-         *   [0]['type']   field type
-         *   [0]['len']    field length
-         *   [0]['flags']  field flags
-         *
-         * - mode is MDB2_TABLEINFO_ORDER
-         * $result[]:
-         *   ['num_fields'] number of metadata records
-         *   [0]['table']  table name
-         *   [0]['name']   field name
-         *   [0]['type']   field type
-         *   [0]['len']    field length
-         *   [0]['flags']  field flags
-         *   ['order'][field name]  index of field named "field name"
-         *   The last one is used, if you have a field name, but no index.
-         *   Test:  if (isset($result['meta']['myfield'])) { ...
-         *
-         * - mode is MDB2_TABLEINFO_ORDERTABLE
-         *    the same as above. but additionally
-         *   ['ordertable'][table name][field name] index of field
-         *      named 'field name'
-         *
-         *      this is, because if you have fields from different
-         *      tables with the same field name * they override each
-         *      other with MDB2_TABLEINFO_ORDER
-         *
-         *      you can combine MDB2_TABLEINFO_ORDER and
-         *      MDB2_TABLEINFO_ORDERTABLE with MDB2_TABLEINFO_ORDER |
-         *      MDB2_TABLEINFO_ORDERTABLE * or with MDB2_TABLEINFO_FULL
-         */
-
-        // if $result is a string, then we want information about a
-        // table without a resultset
-        if (is_string($result)) {
-            $id = @mysql_list_fields($db->database_name, $result, $db->connection);
-            if (empty($id)) {
-                return $db->mysqlRaiseError();
-            }
-        } else { // else we want information about a resultset
-            $id = $result;
-            if (empty($id)) {
-                return $db->mysqlRaiseError();
-            }
-        }
-
-        $count = @mysql_num_fields($id);
-
-        // made this IF due to performance (one if is faster than $count if's)
-        if (empty($mode)) {
-            for ($i = 0; $i<$count; $i++) {
-                $res[$i]['table'] = @mysql_field_table ($id, $i);
-                $res[$i]['name'] = @mysql_field_name  ($id, $i);
-                $res[$i]['type'] = @mysql_field_type  ($id, $i);
-                $res[$i]['len']  = @mysql_field_len   ($id, $i);
-                $res[$i]['flags'] = @mysql_field_flags ($id, $i);
-            }
-        } else { // full
-            $res['num_fields'] = $count;
-
-            for ($i = 0; $i<$count; $i++) {
-                $res[$i]['table'] = @mysql_field_table ($id, $i);
-                $res[$i]['name'] = @mysql_field_name  ($id, $i);
-                $res[$i]['type'] = @mysql_field_type  ($id, $i);
-                $res[$i]['len']  = @mysql_field_len   ($id, $i);
-                $res[$i]['flags'] = @mysql_field_flags ($id, $i);
-                if ($mode & MDB2_TABLEINFO_ORDER) {
-                    $res['order'][$res[$i]['name']] = $i;
-                }
-                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
-                }
-            }
-        }
-
-        // free the result only if we were called on a table
-        if (is_string($result)) {
-            @mysql_free_result($id);
-        }
-        return $res;
-    }
 }
+
 ?>
