@@ -1169,12 +1169,13 @@ class MDB2_Driver_Datatype_Common
      */
     function implodeArray($array, $type = false)
     {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (!is_array($array) || count($array) == 0) {
             return 'NULL';
         }
         if ($type) {
             foreach ($array as $value) {
-                $return[] = $this->quote($value, $type);
+                $return[] = $db->quote($value, $type);
             }
         } else {
             $return = $array;
