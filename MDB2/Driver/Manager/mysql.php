@@ -477,6 +477,9 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             if (!$this->_isSequenceName($table_names[$i]))
                 $tables[] = $table_names[$i];
         }
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $tables = array_flip(array_change_key_case(array_flip($tables), CASE_LOWER));
+        }
         return $tables;
     }
 
@@ -605,6 +608,9 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 $indexes[] = $indexes_all[$index];
                 $found[$indexes_all[$index]] = true;
             }
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $indexes = array_flip(array_change_key_case(array_flip($indexes), CASE_LOWER));
         }
         return $indexes;
     }
