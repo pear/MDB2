@@ -69,6 +69,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function convertResult($value, $type)
     {
+        if (is_null($value)) {
+            return null;
+        }
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
         case 'decimal':
