@@ -391,7 +391,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     function getDecimalDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
+        $type = 'BIGINT';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->getDecimalValue($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
@@ -523,7 +523,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     function getDecimalValue($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (($value === null) ? 'NULL' : strval(round($value*$db->decimal_factor)));
+        return (($value === null) ? 'NULL' : strval(round(doubleval($value)*$db->decimal_factor)));
     }
 }
 

@@ -62,6 +62,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     var $database_path = '';
     var $database_extension = '';
 
+    var $_lasterror = '';
+
     // }}}
     // {{{ constructor
 
@@ -88,6 +90,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
         $this->options['base_transaction_name'] = '___php_MDB2_sqlite_auto_commit_off';
         $this->options['fixed_float'] = 0;
+        $this->options['database_path'] = '';
+        $this->options['database_extension'] = '';
+
+        $this->decimal_factor = pow(10.0, $this->options['decimal_places']);
     }
 
     // }}}
@@ -103,36 +109,25 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function errorInfo($error = null)
     {
         $native_code = @sqlite_last_error($this->connection);
-        $native_msg  = @sqlite_error_string($this->connection);
+        $native_msg  = @sqlite_error_string($native_code);
+
         if (is_null($error)) {
-            static $ecode_map;
-            if (empty($ecode_map)) {
-                $ecode_map = array(
-                    1  => MDB2_ERROR_SYNTAX,
-                    19 => MDB2_ERROR_CONSTRAINT,
-                    20 => MDB2_ERROR_MISMATCH,
-                    23 => MDB2_ERROR_ACCESS_VIOLATION
-                );
+            static $error_regexps;
+            if (empty($error_regexps)) {
+                $error_regexps = array(
+                    '/^no such table:/' => MDB2_ERROR_NOSUCHTABLE,
+                    '/^table .* already exists$/' => MDB2_ERROR_ALREADY_EXISTS,
+                    '/PRIMARY KEY must be unique/i' => MDB2_ERROR_CONSTRAINT,
+                    '/is not unique/' => MDB2_ERROR_CONSTRAINT,
+                    '/uniqueness constraint failed/' => MDB2_ERROR_CONSTRAINT,
+                    '/^no such column:/' => MDB2_ERROR_NOSUCHFIELD,
+                    '/^near ".*": syntax error$/' => MDB2_ERROR_SYNTAX
+                 );
             }
-            if (isset($ecode_map[$native_code])) {
-                $error = $ecode_map[$native_code];
-            } else {
-                static $error_regexps;
-                if (empty($error_regexps)) {
-                    $error_regexps = array(
-                        '/^no such table:/' => MDB2_ERROR_NOSUCHTABLE,
-                        '/^table .* already exists$/' => MDB2_ERROR_ALREADY_EXISTS,
-                        '/PRIMARY KEY must be unique/i' => MDB2_ERROR_CONSTRAINT,
-                        '/is not unique/' => MDB2_ERROR_CONSTRAINT,
-                        '/uniqueness constraint failed/' => MDB2_ERROR_CONSTRAINT,
-                        '/^no such column:/' => MDB2_ERROR_NOSUCHFIELD,
-                        '/^near ".*": syntax error$/' => MDB2_ERROR_SYNTAX
-                     );
-                }
-                foreach ($error_regexps as $regexp => $code) {
-                    if (preg_match($regexp, $errormsg)) {
-                        $error = $code;
-                    }
+            foreach ($error_regexps as $regexp => $code) {
+                if (preg_match($regexp, $this->_lasterror)) {
+                    $error = $code;
+                    break;
                 }
             }
         }
@@ -170,12 +165,14 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
         if ($this->connection) {
             if ($auto_commit) {
-                $result = $this->query('END TRANSACTION '.$this->options['base_transaction_name']);
+                $query = 'END TRANSACTION '.$this->options['base_transaction_name'];
+                $result = $this->query($query);
                 if (MDB2::isError($result)) {
                     return $result;
                 }
             } else {
-                $result = $this->query('BEGIN TRANSACTION '.$this->options['base_transaction_name']);
+                $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
+                $result = $this->query($query);
                 if (MDB2::isError($result)) {
                     return $result;
                 }
@@ -276,7 +273,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function connect()
     {
         $database_file = $this->_getDatabaseFile($this->database_name);
-
         if ($this->connection != 0) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
                 && $this->connected_database_name == $database_file
@@ -308,7 +304,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
 
         $function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
-        $connection = @$function($dsninfo['database']);
+        $connection = @$function($database_file);
         if (!$connection) {
             return $this->raiseError();
         }
@@ -318,7 +314,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->opened_persistent = $this->getoption('persistent');
 
         if (isset($this->supported['transactions']) && !$this->auto_commit) {
-            if (!@sqlite_query('BEGIN TRANSACTION '.$this->options['base_transaction_name'],$this->connection)) {
+            $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
+            if (!@sqlite_query($query, $this->connection)) {
                 @sqlite_close($this->connection);
                 $this->connection = 0;
                 return $this->raiseError('connect: Could not start transaction');
@@ -401,7 +398,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if ($ismanip) {
                 $query .= " LIMIT $limit";
             } else {
-                $query .= " LIMIT $limit OFFSET $first";
+                $query .= " LIMIT $limit OFFSET $offset";
             }
         }
         if ($this->options['optimize'] == 'portability') {
@@ -417,7 +414,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
         $function = $this->options['result_buffering']
             ? 'sqlite_query' : 'sqlite_unbuffered_query';
-        if ($result = $function($query.';', $this->connection)) {
+        ini_set('track_errors', true);
+        $result = @$function($query.';', $this->connection);
+        ini_restore('track_errors');
+        $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
+        if ($result) {
             if ($ismanip) {
                 return MDB2_OK;
             } else {
@@ -622,7 +623,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     }
 }
 
-class MDB2_Result_mysql extends MDB2_Result_Common
+class MDB2_Result_sqlite extends MDB2_Result_Common
 {
     // }}}
     // {{{ constructor

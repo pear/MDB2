@@ -84,11 +84,12 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $database_file = $db->_getDatabaseFile($name);
-        if (@file_exists($database_file)) {
-            return $db->raiseErrorError(MDB2_ERROR_CANNOT_CREATE, null, null,
+        if (file_exists($database_file)) {
+            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createDatabase: database already exists');
         }
-        $handle = @sqlite_open($database_file);
+        $php_errormsg = '';
+        $handle = @sqlite_open($database_file, 0666, $php_errormsg);
         if (!$handle) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createDatabase: '.(isset($php_errormsg) ? $php_errormsg : 'could not create the database file'));
@@ -427,8 +428,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
-        $res = $db->query("CREATE TABLE $sequence_name
-            (sequence INTEGER PRIMARY KEY DEFAULT 0 NOT NULL");
+        $query = "CREATE TABLE $sequence_name (sequence INTEGER PRIMARY KEY DEFAULT 0 NOT NULL)";
+        $res = $db->query($query);
         if (MDB2::isError($res)) {
             return $res;
         }
