@@ -772,18 +772,16 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             )
         );
 
-        $support_affected_rows = $this->db->supports('affected_rows');
-
         $result = $this->db->replace('users', $fields);
 
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Replace failed');
         }
 
-        if ($support_affected_rows) {
-            $affected_rows = $this->db->affectedRows();
+        if ($this->db->supports('affected_rows')) {
+            $affected_rows = $result;
 
-            $this->assertEquals(1, $affected_rows, "replacing a row in an empty table returned $affected_rows unlike 1 as expected");
+            $this->assertEquals(1, $result, "replacing a row in an empty table returned $result unlike 1 as expected");
         }
 
         $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
@@ -810,10 +808,8 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Replace failed');
         }
 
-        if ($support_affected_rows) {
-            $affected_rows = $this->db->affectedRows();
-
-            $this->assertEquals(2, $affected_rows, "replacing a row returned $affected_rows unlike 2 as expected");
+        if ($this->db->supports('affected_rows')) {
+            $this->assertEquals(2, $result, "replacing a row returned $result unlike 2 as expected");
         }
 
         $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
@@ -861,12 +857,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
 
-            $affected_rows = $this->db->affectedRows();
-            if (MDB2::isError($affected_rows)) {
-                $this->assertTrue(false, 'Error in affectedRows(): '.$affected_rows->getMessage());
-            } else {
-                $this->assertEquals(1, $affected_rows, "Inserting the row $row returned $affected_rows affected row count instead of 1 as expected");
-            }
+            $this->assertEquals(1, $result, "Inserting the row $row returned $result affected row count instead of 1 as expected");
         }
 
         $prepared_query->free();
@@ -886,12 +877,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
 
-            $affected_rows = $this->db->affectedRows();
-            if (MDB2::isError($affected_rows)) {
-                $this->assertTrue(false, 'Error in affectedRows(): '.$affected_rows->getMessage());
-            } else {
-                $this->assertEquals($row, $affected_rows, "Updating the $row rows returned $affected_rows affected row count");
-            }
+            $this->assertEquals($row, $result, "Updating the $row rows returned $result affected row count");
         }
 
         $prepared_query->free();
@@ -909,13 +895,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
 
-            $affected_rows = $this->db->affectedRows();
-
-            if (MDB2::isError($affected_rows)) {
-                $this->assertTrue(false, 'Error in affectedRows(): '.$affected_rows->getMessage());
-            } else {
-                $this->assertEquals(($total_rows - $row), $affected_rows, 'Deleting '.($total_rows - $row)." rows returned $affected_rows affected row count");
-            }
+            $this->assertEquals(($total_rows - $row), $result, 'Deleting '.($total_rows - $row)." rows returned $result affected row count");
 
         }
 
