@@ -117,12 +117,16 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if (empty($error_regexps)) {
                 $error_regexps = array(
                     '/^no such table:/' => MDB2_ERROR_NOSUCHTABLE,
-                    '/^table .* already exists$/' => MDB2_ERROR_ALREADY_EXISTS,
+                    '/^no such index:/' => MDB2_ERROR_NOT_FOUND,
+                    '/^(table|index) .* already exists$/' => MDB2_ERROR_ALREADY_EXISTS,
                     '/PRIMARY KEY must be unique/i' => MDB2_ERROR_CONSTRAINT,
                     '/is not unique/' => MDB2_ERROR_CONSTRAINT,
                     '/uniqueness constraint failed/' => MDB2_ERROR_CONSTRAINT,
+                    '/may not be NULL/' => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                     '/^no such column:/' => MDB2_ERROR_NOSUCHFIELD,
-                    '/^near ".*": syntax error$/' => MDB2_ERROR_SYNTAX
+                    '/column not present in both tables/i' => MDB2_ERROR_NOSUCHFIELD,
+                    '/^near ".*": syntax error$/' => MDB2_ERROR_SYNTAX,
+                    '/[0-9]+ values for [0-9]+ columns/i' => MDB2_ERROR_VALUE_COUNT_ON_ROW,
                  );
             }
             foreach ($error_regexps as $regexp => $code) {

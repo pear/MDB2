@@ -109,19 +109,46 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         static $error_regexps;
         if (empty($error_regexps)) {
             $error_regexps = array(
-                '/(([Rr]elation|[Ss]equence|[Tt]able)( [\"\'].*[\"\'])? does not exist|[Cc]lass ".+" not found)$/' => MDB2_ERROR_NOSUCHTABLE,
-                '/[Cc]olumn [\"\'].*[\"\'] .*does not exist/' => MDB2_ERROR_NOSUCHFIELD,
-                '/[Rr]elation [\"\'].*[\"\'] already exists|[Cc]annot insert a duplicate key into (a )?unique index.*/' => MDB2_ERROR_ALREADY_EXISTS,
-                '/(divide|division) by zero$/'          => MDB2_ERROR_DIVZERO,
-                '/pg_atoi: error in .*: can\'t parse /' => MDB2_ERROR_INVALID_NUMBER,
-                '/invalid input syntax for integer/'    => MDB2_ERROR_INVALID_NUMBER,
-                '/ttribute [\"\'].*[\"\'] not found$|[Rr]elation [\"\'].*[\"\'] does not have attribute [\"\'].*[\"\']/' => MDB2_ERROR_NOSUCHFIELD,
-                '/parser: parse error at or near \"/'   => MDB2_ERROR_SYNTAX,
-                '/syntax error at/'                     => MDB2_ERROR_SYNTAX,
-                '/permission denied/'                   => MDB2_ERROR_ACCESS_VIOLATION,
-                '/violates not-null constraint/'        => MDB2_ERROR_CONSTRAINT_NOT_NULL,
-                '/violates [\w ]+ constraint/'          => MDB2_ERROR_CONSTRAINT,
-                '/referential integrity violation/'     => MDB2_ERROR_CONSTRAINT
+                '/(relation|sequence|table).*does not exist|class .* not found/i'
+                    => MDB2_ERROR_NOSUCHTABLE,
+                '/index .* does not exist/'
+                    => MDB2_ERROR_NOT_FOUND,
+                '/column .* does not exist/i'
+                    => MDB2_ERROR_NOSUCHFIELD,
+                '/relation .* already exists/i'
+                    => MDB2_ERROR_ALREADY_EXISTS,
+                '/(divide|division) by zero$/i'
+                    => MDB2_ERROR_DIVZERO,
+                '/pg_atoi: error in .*: can\'t parse /i'
+                    => MDB2_ERROR_INVALID_NUMBER,
+                '/invalid input syntax for( type)? (integer|numeric)/i'
+                    => MDB2_ERROR_INVALID_NUMBER,
+                '/value .* is out of range for type \w*int/i'
+                    => MDB2_ERROR_INVALID_NUMBER,
+                '/integer out of range/i'
+                    => MDB2_ERROR_INVALID_NUMBER,
+                '/value too long for type character/i'
+                    => MDB2_ERROR_INVALID,
+                '/attribute .* not found|relation .* does not have attribute/i'
+                    => MDB2_ERROR_NOSUCHFIELD,
+                '/column .* specified in USING clause does not exist in (left|right) table/i'
+                    => MDB2_ERROR_NOSUCHFIELD,
+                '/parser: parse error at or near/i'
+                    => MDB2_ERROR_SYNTAX,
+                '/syntax error at/'
+                    => MDB2_ERROR_SYNTAX,
+                '/column reference .* is ambiguous/i'
+                    => MDB2_ERROR_SYNTAX,
+                '/permission denied/'
+                    => MDB2_ERROR_ACCESS_VIOLATION,
+                '/violates not-null constraint/'
+                    => MDB2_ERROR_CONSTRAINT_NOT_NULL,
+                '/violates [\w ]+ constraint/'
+                    => MDB2_ERROR_CONSTRAINT,
+                '/referential integrity violation/'
+                    => MDB2_ERROR_CONSTRAINT,
+                '/more expressions than target columns/i'
+                    => MDB2_ERROR_VALUE_COUNT_ON_ROW,
             );
         }
         foreach ($error_regexps as $regexp => $code) {

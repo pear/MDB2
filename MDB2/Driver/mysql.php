@@ -118,28 +118,37 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                     1007 => MDB2_ERROR_ALREADY_EXISTS,
                     1008 => MDB2_ERROR_CANNOT_DROP,
                     1022 => MDB2_ERROR_ALREADY_EXISTS,
+                    1044 => MDB2_ERROR_ACCESS_VIOLATION,
                     1046 => MDB2_ERROR_NODBSELECTED,
+                    1048 => MDB2_ERROR_CONSTRAINT,
+                    1049 => MDB2_ERROR_NOSUCHDB,
                     1050 => MDB2_ERROR_ALREADY_EXISTS,
                     1051 => MDB2_ERROR_NOSUCHTABLE,
                     1054 => MDB2_ERROR_NOSUCHFIELD,
+                    1061 => MDB2_ERROR_ALREADY_EXISTS,
                     1062 => MDB2_ERROR_ALREADY_EXISTS,
                     1064 => MDB2_ERROR_SYNTAX,
+                    1091 => MDB2_ERROR_NOT_FOUND,
                     1100 => MDB2_ERROR_NOT_LOCKED,
                     1136 => MDB2_ERROR_VALUE_COUNT_ON_ROW,
+                    1142 => MDB2_ERROR_ACCESS_VIOLATION,
                     1146 => MDB2_ERROR_NOSUCHTABLE,
-                    1048 => MDB2_ERROR_CONSTRAINT,
-                    1061 => MDB2_ERROR_ALREADY_EXISTS,
-                    1213 => MDB2_ERROR_DEADLOCK,
                     1216 => MDB2_ERROR_CONSTRAINT,
                     1217 => MDB2_ERROR_CONSTRAINT,
                 );
             }
+            if ($this->options['portability'] & MDB2_PORTABILITY_ERRORS) {
+                $ecode_map[1022] = MDB2_ERROR_CONSTRAINT;
+                $ecode_map[1048] = MDB2_ERROR_CONSTRAINT_NOT_NULL;
+                $ecode_map[1062] = MDB2_ERROR_CONSTRAINT;
+            } else {
+                // Doing this in case mode changes during runtime.
+                $ecode_map[1022] = MDB2_ERROR_ALREADY_EXISTS;
+                $ecode_map[1048] = MDB2_ERROR_CONSTRAINT;
+                $ecode_map[1062] = MDB2_ERROR_ALREADY_EXISTS;
+            }
             if (isset($ecode_map[$native_code])) {
                 $error = $ecode_map[$native_code];
-            } elseif ($this->options['portability'] & MDB2_PORTABILITY_ERRORS) {
-                if ($native_code == 1022) $error = MDB2_ERROR_CONSTRAINT;
-                if ($native_code == 1048) $error = MDB2_ERROR_CONSTRAINT_NOT_NULL;
-                if ($native_code == 1062) $error = MDB2_ERROR_CONSTRAINT;
             }
         }
         return array($error, $native_code, $native_msg);

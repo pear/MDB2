@@ -113,12 +113,15 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             static $ecode_map;
             if (empty($ecode_map)) {
                 $ecode_map = array(
+                    110   => MDB2_ERROR_VALUE_COUNT_ON_ROW,
+                    155   => MDB2_ERROR_NOSUCHFIELD,
+                    170   => MDB2_ERROR_SYNTAX,
                     207   => MDB2_ERROR_NOSUCHFIELD,
                     208   => MDB2_ERROR_NOSUCHTABLE,
                     245   => MDB2_ERROR_INVALID_NUMBER,
                     515   => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                     547   => MDB2_ERROR_CONSTRAINT,
-                    1205  => MDB2_ERROR_DEADLOCK,
+                    1913  => MDB2_ERROR_ALREADY_EXISTS,
                     2627  => MDB2_ERROR_CONSTRAINT,
                     2714  => MDB2_ERROR_ALREADY_EXISTS,
                     3701  => MDB2_ERROR_NOSUCHTABLE,
@@ -126,7 +129,13 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                 );
             }
             if (isset($ecode_map[$native_code])) {
-                $error = $ecode_map[$native_code];
+                if ($nativecode == 3701
+                    && preg_match('/Cannot drop the index/i', $msg)
+                ) {
+                   $error = MDB2_ERROR_NOT_FOUND;
+                } else {
+                    $error = $ecode_map[$native_code];
+                }
             }
         }
         return array($error, $native_code, $native_msg);

@@ -137,7 +137,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     static $ecode_map;
                     if (empty($ecode_map)) {
                         $ecode_map = array(
-                              88 => MDB2_ERROR_NOSUCHTABLE,
                             -104 => MDB2_ERROR_SYNTAX,
                             -150 => MDB2_ERROR_ACCESS_VIOLATION,
                             -151 => MDB2_ERROR_ACCESS_VIOLATION,
@@ -147,23 +146,25 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                             -170 => MDB2_ERROR_MISMATCH,
                             -171 => MDB2_ERROR_MISMATCH,
                             -172 => MDB2_ERROR_INVALID,
-                            -204 => MDB2_ERROR_INVALID,
+                            // -204 =>  // Covers too many errors, need to use regex on msg
                             -205 => MDB2_ERROR_NOSUCHFIELD,
                             -206 => MDB2_ERROR_NOSUCHFIELD,
                             -208 => MDB2_ERROR_INVALID,
                             -219 => MDB2_ERROR_NOSUCHTABLE,
                             -297 => MDB2_ERROR_CONSTRAINT,
                             -303 => MDB2_ERROR_INVALID,
+                            -413 => MDB2_ERROR_INVALID_NUMBER,
                             -530 => MDB2_ERROR_CONSTRAINT,
                             -551 => MDB2_ERROR_ACCESS_VIOLATION,
                             -552 => MDB2_ERROR_ACCESS_VIOLATION,
-                            -607 => MDB2_ERROR_NOSUCHTABLE,
+                            // -607 =>  // Covers too many errors, need to use regex on msg
+                            -625 => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                             -803 => MDB2_ERROR_CONSTRAINT,
+                            -804 => MDB2_ERROR_VALUE_COUNT_ON_ROW,
                             -904 => MDB2_ERROR_CONNECT_FAILED,
-                            -913 => MDB2_ERROR_DEADLOCK,
                             -922 => MDB2_ERROR_NOSUCHDB,
                             -923 => MDB2_ERROR_CONNECT_FAILED,
-                            -924 => MDB2_ERROR_CONNECT_FAILED,
+                            -924 => MDB2_ERROR_CONNECT_FAILED
                         );
                     }
                     if (isset($ecode_map[$native_code])) {
@@ -175,15 +176,26 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 static $error_regexps;
                 if (!isset($error_regexps)) {
                     $error_regexps = array(
-                        '/[tT]able not found/' => MDB2_ERROR_NOSUCHTABLE,
-                        '/[tT]able .* already exists/' => MDB2_ERROR_ALREADY_EXISTS,
-                        '/validation error for column .* value "\*\*\* null/' => MDB2_ERROR_CONSTRAINT_NOT_NULL,
-                        '/violation of [\w ]+ constraint/' => MDB2_ERROR_CONSTRAINT,
-                        '/conversion error from string/' => MDB2_ERROR_INVALID_NUMBER,
-                        '/no permission for/' => MDB2_ERROR_ACCESS_VIOLATION,
-                        '/arithmetic exception, numeric overflow, or string truncation/' => MDB2_ERROR_DIVZERO,
-                        '/deadlock/' => MDB2_ERROR_DEADLOCK,
-                        '/attempt to store duplicate value/' => MDB2_ERROR_CONSTRAINT,
+                        '/generator .* is not defined/'
+                            => MDB2_ERROR_SYNTAX,  // for compat. w ibase_errcode()
+                        '/table.*(not exist|not found|unknown)/i'
+                            => MDB2_ERROR_NOSUCHTABLE,
+                        '/table .* already exists/i'
+                            => MDB2_ERROR_ALREADY_EXISTS,
+                        '/unsuccessful metadata update .* failed attempt to store duplicate value/i'
+                            => MDB2_ERROR_ALREADY_EXISTS,
+                        '/unsuccessful metadata update .* not found/i'
+                            => MDB2_ERROR_NOT_FOUND,
+                        '/validation error for column .* value "\*\*\* null/i'
+                            => MDB2_ERROR_CONSTRAINT_NOT_NULL,
+                        '/violation of [\w ]+ constraint/i'
+                            => MDB2_ERROR_CONSTRAINT,
+                        '/conversion error from string/i'
+                            => MDB2_ERROR_INVALID_NUMBER,
+                        '/no permission for/i'
+                            => MDB2_ERROR_ACCESS_VIOLATION,
+                        '/arithmetic exception, numeric overflow, or string truncation/i'
+                            => MDB2_ERROR_INVALID,
                     );
                 }
                 foreach ($error_regexps as $regexp => $code) {
