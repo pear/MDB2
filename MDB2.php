@@ -2026,10 +2026,26 @@ class MDB2_Driver_Common extends PEAR
     {
         $this->debug($query, 'prepare');
         $positions = array();
-        for ($position = 0;
-            $position < strlen($query) && is_int($question = strpos($query, '?', $position));
-        ) {
-            if (is_int($quote = strpos($query, "'", $position)) && $quote < $question) {
+        $placeholder_type_guess = $placeholder_type = null;
+        $question = '?';
+        $colon = ':';
+        $position = 0;
+        while ($position < strlen($query)) {
+            $q_position = strpos($query, $question, $position);
+            $c_position = strpos($query, $colon, $position);
+            if ($q_position && $c_position) {
+                $p_position = min($q_position, $c_position);
+            } elseif($q_position) {
+                $p_position = $q_position;
+            } elseif($c_position) {
+                $p_position = $c_position;
+            } else {
+                break;
+            }
+            if (is_null($placeholder_type)) {
+                $placeholder_type_guess = $query[$p_position];
+            }
+            if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
                 if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
                     return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                         'prepare: query with an unterminated text string specified');
@@ -2051,9 +2067,25 @@ class MDB2_Driver_Common extends PEAR
                     }
                     break;
                 }
+            } elseif ($query[$position] == $placeholder_type_guess) {
+                if (is_null($placeholder_type)) {
+                    $placeholder_type = $query[$p_position];
+                    $question = $colon = $placeholder_type;
+                }
+                if ($placeholder_type == ':') {
+                    $name = preg_replace('/^.{'.($position+1).'}([a-zA-Z]+).*$/', "\\1", $query);
+                    if ($name === '') {
+                        return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                            'prepare: named parameter with an empty name');
+                    }
+                    $positions[$name] = $p_position;
+                    $query = substr_replace($query, '?', $position, strlen($name)+1);
+                } else {
+                    $positions[] = $p_position;
+                }
+                $position = $p_position + 1;
             } else {
-                $positions[] = $question;
-                $position = $question + 1;
+                $position = $p_position;
             }
         }
         $class_name = 'MDB2_Statement_'.$this->phptype;

@@ -482,9 +482,25 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     {
         $this->debug($query, 'prepare');
         $query = $this->db->_modifyQuery($query);
-        for ($position = $parameter = 0;
-            $position < strlen($query) && is_int($question = strpos($query, '?', $position));
-        ) {
+        $placeholder_type_guess = $placeholder_type = null;
+        $question = '?';
+        $colon = ':';
+        $position = $parameter = 0;
+        while ($position < strlen($query)) {
+            $q_position = strpos($query, $question, $position);
+            $c_position = strpos($query, $colon, $position);
+            if ($q_position && $c_position) {
+                $p_position = min($q_position, $c_position);
+            } elseif($q_position) {
+                $p_position = $q_position;
+            } elseif($c_position) {
+                $p_position = $c_position;
+            } else {
+                break;
+            }
+            if (is_null($placeholder_type)) {
+                $placeholder_type_guess = $query[$p_position];
+            }
             if (is_int($quote = strpos($query, "'", $position)) && $quote < $question) {
                 if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
                     return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
@@ -507,7 +523,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     }
                     break;
                 }
-            } elseif($position) {
+            } elseif ($query[$position] == $placeholder_type_guess) {
+                if ($placeholder_type == ':') {
+                    break;
+                }
                 ++$parameter;
                 $query = substr_replace($query, ':'.$parameter, $question, 1);
                 $position = $question + strlen($parameter);
