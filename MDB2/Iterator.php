@@ -49,7 +49,6 @@
  * @category Database
  * @author   Lukas Smith <smith@backendmedia.com>
  */
-
 class MDB2_Iterator extends MDB2_Result implements Iterator
 {
     private $result;
@@ -73,20 +72,12 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     * seek forward to a specific row in a result set
     *
     * @param int    $rownum    number of the row where the data can be found
-    * @return mixed MDB2_OK on success, a MDB2 error on failure
+    * @return void
     * @access public
     */
     function seek($rownum = 0)
     {
-        if ($this->result->rownum == $rownum) {
-            return true;
-        }
-        if ($this->result->rownum < $rownum) {
-            return false;
-        }
-        $this->row = null;
-        $this->buffer = null;
-        return $this->result->seek($rownum);
+        $this->result->seek($rownum);
     }
 
     // }}}
@@ -95,7 +86,7 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     /**
     * Fetch next row of data
     *
-    * @return mixed data array on success, a MDB2 error on failure
+    * @return void
     * @access public
     */
     function next()
@@ -103,15 +94,14 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
         if ($this->buffer) {
             $this->row = $this->buffer;
             $this->buffer = null;
-            return true;
+        } else {
+            $row = $this->result->fetchRow();
+            if (MDB2::isError($row)) {
+                $this->row = null;
+            } else {
+                $this->row = $row;
+            }
         }
-        $row = $this->result->fetchRow();
-        if (MDB2::isError($row)) {
-            $this->row = null;
-            return false;
-        }
-        $this->row = $row;
-        return true;
     }
 
     // }}}
@@ -120,8 +110,8 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     /**
      * return a row of data
      *
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
+    * @return void
+    * @access public
     */
     function current()
     {
@@ -187,15 +177,16 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     /**
     * seek to the first row in a result set
     *
-    * @return mixed MDB2_OK on success, a MDB2 error on failure
+    * @return void
     * @access public
     */
     function rewind()
     {
+        MDB2_Driver_Common::raiseError(MDB2_ERROR_NOT_CAPABLE);
     }
 }
 
-class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
+class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
 {
     // {{{ seek()
 
@@ -203,13 +194,13 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
     * seek to a specific row in a result set
     *
     * @param int    $rownum    number of the row where the data can be found
-    * @return mixed MDB2_OK on success, a MDB2 error on failure
+    * @return void
     * @access public
     */
-    function seek($rownum = 0)
+    function seek($rownum)
     {
         $this->row = null;
-        return $this->result->seek($rownum);
+        $this->result->seek($rownum);
     }
 
     // }}}
@@ -218,7 +209,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
     /**
     * check if the end of the result set has been reached
     *
-    * @return mixed true or false on sucess, a MDB2 error on failure
+    * @return void
     * @access public
     */
     function valid()
@@ -232,7 +223,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
     /**
     * Fetch next row of data
     *
-    * @return mixed data array on success, a MDB2 error on failure
+    * @return void
     * @access public
     */
     function next()
@@ -247,7 +238,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
     }
 
     // }}}
-    // {{{ size()
+    // {{{count()
 
     /**
      * returns the number of rows in a result object
@@ -255,7 +246,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
      * @return mixed MDB2 Error Object or the number of rows
      * @access public
      */
-    function size()
+    function count()
     {
         return $this->result->numRows();
     }
@@ -285,7 +276,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
     */
     function rewind()
     {
-        return $this->seek(0);
+        $this->seek(0);
     }
 
     // }}}
@@ -295,7 +286,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
     * move internal row point to the previous row
     * Fetch and return a row of data
     *
-    * @return mixed data array on success, a MDB2 error on failure
+    * @return void
     * @access public
     */
     function prev()
