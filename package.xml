@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta3</version>
-    <date>2004-05-06</date>
+    <date>2004-05-12</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- affectedRows() now ensures that the last query was a manipulation query
@@ -84,7 +84,15 @@ Other soon to follow.</description>
 - added getBeforeId() and getAfterId()
 - added new supported feature 'auto_increment'
 - fixed Iterator module
-- use __construct() and __destruct() (PHP4 BC hacks are provided)</notes>
+- use __construct() and __destruct() (PHP4 BC hacks are provided)
+- added 'disable_query' option to be able to disable the execution of all queries
+ (this might be useful in conjuntion with a custom debug handler to be able to
+ dump all queries into a file instead of executing them)
+- added new 'clobfile' and 'blobfile' datatypes for prepare only. they serve to
+  hint that a parameter is actually a filename
+- removed requirement for LOB inserts to pass the parameters as an array
+- placeholders are now numbered starting from 0 (BC break in setParam() !)
+- queries inside the prepared_queries property now start counting at 1 (performance tweak)</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -208,7 +216,7 @@ Other soon to follow.</description>
   <changelog>
     <release>
       <version>2.0.0beta3</version>
-      <date>2004-05-06</date>
+      <date>2004-05-12</date>
       <license>BSD License</license>
       <state>beta</state>
       <notes>- affectedRows() now ensures that the last query was a manipulation query
@@ -222,7 +230,15 @@ Other soon to follow.</description>
 - added getBeforeId() and getAfterId()
 - added new supported feature 'auto_increment'
 - fixed Iterator module
-- use __construct() and __destruct() (PHP4 BC hacks are provided)</notes>
+- use __construct() and __destruct() (PHP4 BC hacks are provided)
+- added 'disable_query' option to be able to disable the execution of all queries
+ (this might be useful in conjuntion with a custom debug handler to be able to
+ dump all queries into a file instead of executing them)
+- added new 'clobfile' and 'blobfile' datatypes for prepare only. they serve to
+  hint that a parameter is actually a filename
+- removed requirement for LOB inserts to pass the parameters as an array
+- placeholders are now numbered starting from 0 (BC break in setParam() !)
+- queries inside the prepared_queries property now start counting at 1 (performance tweak)</notes>
     </release>
     <release>
       <version>2.0.0beta2</version>

@@ -16,6 +16,14 @@ $notes = <<<EOT
 - added new supported feature 'auto_increment'
 - fixed Iterator module
 - use __construct() and __destruct() (PHP4 BC hacks are provided)
+- added 'disable_query' option to be able to disable the execution of all queries
+ (this might be useful in conjuntion with a custom debug handler to be able to
+ dump all queries into a file instead of executing them)
+- added new 'clobfile' and 'blobfile' datatypes for prepare only. they serve to
+  hint that a parameter is actually a filename
+- removed requirement for LOB inserts to pass the parameters as an array
+- placeholders are now numbered starting from 0 (BC break in setParam() !)
+- queries inside the prepared_queries property now start counting at 1 (performance tweak)
 EOT;
 
 $description =<<<EOT
