@@ -208,10 +208,6 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        if (!$this->destructor_registered && $this->opened_persistent) {
-            $this->destructor_registered = true;
-            register_shutdown_function('MDB2_closeOpenTransactions');
-        }
         $result = $this->_doQuery('SET AUTOCOMMIT = 0', true);
         if (MDB2::isError($result)) {
             return $result;
@@ -390,10 +386,10 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      *                object on error
      * @access public
      */
-    function disconnect()
+    function disconnect($force = true)
     {
         if ($this->connection != 0) {
-            if (!$this->opened_persistent || $force) {
+            if ($force) {
                 @mysqli_close($this->connection);
             }
             $this->connection = 0;
