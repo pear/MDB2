@@ -60,7 +60,7 @@ define('MDB2_MANAGER_DUMP_CONTENT',      2);
  * @category Database
  * @author  Lukas Smith <smith@backendmedia.com>
  */
-class MDB2_Tools_Manager
+class MDB2_Tools_Manager extends PEAR
 {
     // {{{ properties
 
@@ -134,7 +134,7 @@ class MDB2_Tools_Manager
     function &raiseError($code = null, $mode = null, $options = null,
                          $userinfo = null)
     {
-        $error =& MDB2_Common::raiseError($code, $mode, $options, $userinfo);
+        $error =& MDB2_Driver_Common::raiseError($code, $mode, $options, $userinfo);
         return $error;
     }
 
