@@ -399,8 +399,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $result;
         }
 
-        $result_obj =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
-        return $result_obj;
+        return $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
     }
 
     // }}}

@@ -359,8 +359,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         if ($database_name) {
             if ($database_name != $this->connected_database_name) {
                 if (!@fbsql_select_db($database_name, $connection)) {
-                    $error =& $this->raiseError();
-                    return $error;
+                    return $this->raiseError();
                 }
                 $this->connected_database_name = $database_name;
             }

@@ -221,8 +221,7 @@ class MDB2_Extended
         if (MDB2::isError($result)) {
             return $result;
         }
-        $result =& $db->query($query, $types, $result_class);
-        return $result;
+        return $db->query($query, $types, $result_class);
     }
 
     // {{{

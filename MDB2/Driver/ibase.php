@@ -475,8 +475,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $result = ibase_query($connection, $query);
 
         if ($result === false) {
-            $error =& $this->db->raiseError();
-            return $error;
+            return $this->db->raiseError();
         }
 
         if ($isManip) {
@@ -982,17 +981,15 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         $result = call_user_func_array('ibase_execute', $parameters);
 
         if ($result === false) {
-            $error =& $this->db->raiseError();
-            return $error;
+            return $this->db->raiseError();
         }
 
         if ($isManip) {
             return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
         }
 
-        $result_obj =& $this->db->_wrapResult($result, $this->types,
+        return $this->db->_wrapResult($result, $this->types,
             $result_class, $result_wrap_class, $this->row_limit, $this->row_offset);
-        return $result_obj;
     }
 
     // }}}

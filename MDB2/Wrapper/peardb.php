@@ -146,8 +146,7 @@ class DB
         if (PEAR::isError($db)) {
             return $db;
         }
-        $obj =& new MDB2_PEARProxy($db);
-        return $obj;
+        return new MDB2_PEARProxy($db);
     }
 
     function &connect($dsn, $options = false)
@@ -159,8 +158,7 @@ class DB
         if (PEAR::isError($db)) {
             return $db;
         }
-        $obj =& new MDB2_PEARProxy($db);
-        return $obj;
+        return new MDB2_PEARProxy($db);
     }
 
     function apiVersion()
@@ -448,8 +446,7 @@ class MDB2_PEARProxy extends PEAR
     {
         $this->db_object->loadModule('extended');
         // types
-        $result =& $this->db_object->extended->autoExecute($table, $fields_values, null, null, $mode, $where, false);
-        return $result;
+        return $this->db_object->extended->autoExecute($table, $fields_values, null, null, $mode, $where, false);
     }
 
     function buildManipSQL($table, $table_fields, $mode, $where = false)
@@ -460,8 +457,7 @@ class MDB2_PEARProxy extends PEAR
 
     function &execute($stmt, $data = false)
     {
-        $result = $this->db_object->executeParams($stmt, null, $data);
-        return $result;
+        return $this->db_object->executeParams($stmt, null, $data);
     }
 
     function executeMultiple($stmt, $data)
@@ -478,12 +474,9 @@ class MDB2_PEARProxy extends PEAR
             if (!is_array($params)) {
                 $params = array($params);
             }
-            $return =& $this->db_object->executeParams($sth, null, $params);
-            return $return;
-        } else {
-            $result =& $this->db_object->query($query);
-            return $result;
+            return $this->db_object->executeParams($sth, null, $params);
         }
+        return $this->db_object->query($query);
     }
 
     function simpleQuery($query) {
@@ -544,14 +537,13 @@ class MDB2_PEARProxy extends PEAR
                 $params = array();
             }
         }
-        $result = $this->query($query, $params);
-        $row = $result->result->fetchRow($fetchmode);
-        return $row;
+        $result =& $this->query($query, $params);
+        return $result->result->fetchRow($fetchmode);
     }
 
     function &getCol($query, $col = 0, $params = array())
     {
-        $result = $this->query($query, $params);
+        $result =& $this->query($query, $params);
         $col = $result->result->fetchCol($col);
         $this->_convertNullArrayValuesToEmpty($col);
         return $col;
@@ -560,7 +552,7 @@ class MDB2_PEARProxy extends PEAR
     function &getAssoc($query, $force_array = false, $params = array(),
                        $fetchmode = MDB2_FETCHMODE_ORDERED, $group = false)
     {
-        $result = $this->query($query, $params);
+        $result =& $this->query($query, $params);
         $all = $result->result->fetchAll($fetchmode, true, $force_array, $group);
         $first = reset($all);
         if (isset($first) && $this->db_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
@@ -601,7 +593,7 @@ class MDB2_PEARProxy extends PEAR
                 $params = array();
             }
         }
-        $result = $this->query($query, $params);
+        $result =& $this->query($query, $params);
         $all = $result->result->fetchAll($fetchmode);
         $first = reset($all);
         if (isset($first) && $this->db_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {

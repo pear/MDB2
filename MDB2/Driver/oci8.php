@@ -383,8 +383,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $result;
         }
 
-        $result_obj =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
-        return $result_obj;
+        return $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
     }
 
     // }}}
@@ -439,16 +438,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         $statement = @OCIParse($connection, $stmt);
         if (!$statement) {
-            $error =& $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
-            return $error;
         }
 
         $mode = $this->auto_commit ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
         $result = @OCIExecute($statement, $mode);
         if (!$result) {
-            $error =& $this->raiseError();
-            return $error;
+            return $this->raiseError();
         }
 
         if ($isManip) {
@@ -491,14 +488,12 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         $statement = @OCIParse($this->connection, $query);
         if (!$statement) {
-            $error =& $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
-            return $error;
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $statement =& new $class_name($this, $query, $positions, $types, $result_types, $statement);
-        return $statement;
+        return new $class_name($this, $query, $positions, $types, $result_types, $statement);
     }
 
     // }}}
@@ -982,8 +977,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement
         $mode = (empty($lobs) && $this->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
         $result = @OCIExecute($statement, $mode);
         if (!$result) {
-            $error =& $this->db->raiseError();
-            return $error;
+            return $this->db->raiseError();
         }
 
         if (!empty($lobs)) {
@@ -1030,9 +1024,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement
             $this->db->affected_rows = @OCIRowCount($statement);
         }
 
-        $result_obj =& $this->db->_wrapResult($result, $isManip, $this->types,
+        return $this->db->_wrapResult($result, $isManip, $this->types,
             $result_class, $result_wrap_class, $this->row_offset, $this->row_limit);
-        return $result_obj;
     }
 
     // }}}
