@@ -226,7 +226,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $field = $this->fields[$i];
             for ($row = 0; $row < $total_rows; $row++) {
                 $result =& $this->db->query('SELECT '.$field.' FROM users WHERE user_id='.$row, $this->types[$i]);
-                $value = $result->fetch();
+                $value = $result->fetchOne();
                 if (MDB2::isError($value)) {
                     $this->assertTrue(false, 'Error fetching row '.$row.' for field '.$field.' of type '.$this->types[$i]);
                 } else {
@@ -502,11 +502,9 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $error_message = 'A query result column is NULL even though it was expected to be "' . $test_values[$test_value][0] . '"';
             }
 
-            $value = $result->resultIsNull(0, 0);
-            $this->assertTrue(($value == $is_null), $error_message);
-
-            $value = $result->resultIsNull(0, 1);
-            $this->assertTrue(($value == $is_null), $error_message);
+            $row = $result->fetchRow();
+            $this->assertTrue((is_null($row[0]) == $is_null), $error_message);
+            $this->assertTrue((is_null($row[1]) == $is_null), $error_message);
 
             $result->free();
         }
@@ -549,7 +547,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->assertTrue($result->valid(), 'The query result seems to have reached the end of result earlier than expected');
 
-            $value = $result->fetch();
+            $value = $result->fetchOne();
             $result->free();
 
             $this->assertEquals($test_strings[$string], rtrim($value), "the value retrieved for field \"user_name\" (\"$value\") doesn't match what was stored (".$test_strings[$string].')');
@@ -1050,7 +1048,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
 
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1,?,?)';
-        $prepared_query = $this->db->prepare($query, array('document' => 'clobfile', 'picture' => 'blobfile'));
+        $prepared_query = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'));
 
         $character_data_file = 'character_data';
         if (($file = fopen($character_data_file, 'w'))) {
@@ -1070,8 +1068,10 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             fclose($file);
         }
 
-        $prepared_query->bindParam('document', $character_data_file);
-        $prepared_query->bindParam('picture', $binary_data_file);
+        $character_data_file_tmp = 'file://'.$character_data_file;
+        $prepared_query->bindParam('document', $character_data_file_tmp);
+        $binary_data_file_tmp = 'file://'.$binary_data_file;
+        $prepared_query->bindParam('picture', $binary_data_file_tmp);
 
         $result = $prepared_query->execute();
         $this->assertTrue(!MDB2::isError($result), 'Error executing prepared query - inserting LOB from files');
@@ -1148,8 +1148,9 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
 
-        $this->assertTrue($result->resultIsNull(0, 'document'), 'A query result large object column document is not NULL unlike what was expected');
-        $this->assertTrue($result->resultIsNull(0, 'picture'), 'A query result large object column picture is not NULL unlike what was expected');
+        $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+        $this->assertTrue(is_null($row['document']), 'A query result large object column document is not NULL unlike what was expected');
+        $this->assertTrue(is_null($row['picture']), 'A query result large object column picture is not NULL unlike what was expected');
 
         $result->free();
     }
