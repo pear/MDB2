@@ -50,7 +50,7 @@
  * @author   Lukas Smith <smith@backendmedia.com>
  */
 
-class MDB2_Iterator implements Iterator
+class MDB2_Iterator extends MDB2_Result implements Iterator
 {
     private $result;
     private $row;
