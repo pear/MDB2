@@ -238,6 +238,74 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     }
 
     /**
+     * Test fetchCol()
+     *
+     * Test fetching a column of result data. Two different columns are retrieved
+     */
+    function testFetchCol() {
+        $data = array();
+        $total_rows = 5;
+
+        $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+
+        for ($row = 0; $row < $total_rows; $row++) {
+            $data[$row]['user_name'] = "user_$row";
+            $data[$row]['user_password'] = 'somepassword';
+            $data[$row]['subscribed'] = $row % 2 ? true : false;
+            $data[$row]['user_id'] = $row;
+            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
+            $data[$row]['weight'] = sqrt($row);
+            $data[$row]['access_date'] = MDB2_Date::mdbToday();
+            $data[$row]['access_time'] = MDB2_Date::mdbTime();
+            $data[$row]['approved'] = MDB2_Date::mdbNow();
+
+            $this->insertTestValues($prepared_query, $data[$row]);
+
+            $result = $this->db->execute($prepared_query);
+
+            if (MDB2::isError($result)) {
+                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+            }
+        }
+
+        $this->db->freePrepared($prepared_query);
+
+        $first_col = array();
+        for ($row = 0; $row < $total_rows; $row++) {
+            $first_col[$row] = "user_$row";
+        }
+
+        $second_col = array();
+        for ($row = 0; $row < $total_rows; $row++) {
+            $second_col[$row] = $row;
+        }
+
+        $result =& $this->db->query('SELECT user_name, user_id FROM users', array('text', 'integer'));
+        if (MDB2::isError($result)) {
+            $this->assertTrue(false, 'Error during query');
+        }
+        $values = $result->fetchCol(0);
+        if (MDB2::isError($values)) {
+            $this->assertTrue(false, 'Error fetching first column');
+        } else {
+            $this->assertEquals($first_col, $values);
+        }
+        $result->free();
+
+        $result =& $this->db->query('SELECT user_name, user_id FROM users', array('text', 'integer'));
+        if (MDB2::isError($result)) {
+            $this->assertTrue(false, 'Error during query');
+        }
+        $values = $result->fetchCol(1);
+        if (MDB2::isError($values)) {
+            $this->assertTrue(false, 'Error fetching second column');
+        } else {
+            $this->assertEquals($second_col, $values);
+        }
+        $result->free();
+    }
+
+    /**
      * Test prepared queries
      *
      * Tests prepared queries, making sure they correctly deal with ?, !, and '
@@ -1016,7 +1084,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertEquals('string', gettype($value = fread($file, filesize($binary_data_file))), "Could not read from binary LOB file: $binary_data_file");
             fclose($file);
 
-            $this->assertEquals($binary_data, $value, 
+            $this->assertEquals($binary_data, $value,
             "retrieved binary LOB value (\"".$value."\") is different from what was stored (\"".$binary_data."\")");
         } else {
             $this->assertTrue(false, 'Error creating binary LOB in a file');
