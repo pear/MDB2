@@ -201,7 +201,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = $this->getTypeDeclaration($field);
-        $default = isset($field['default']) ? ' DEFAULT TIME'.
+        $default = isset($field['default']) ? ' DEFAULT '.
             $this->quoteText($field['default']) : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
