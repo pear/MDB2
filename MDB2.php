@@ -1001,7 +1001,7 @@ class MDB2_Driver_Common extends PEAR
 
         $this->PEAR();
     }
- 
+
     function MDB2_Driver_Common()
     {
         static $register_shutdown;
@@ -1900,7 +1900,7 @@ class MDB2_Driver_Common extends PEAR
         $this->prepared_queries[] = array(
             'query' => $query,
             'positions' => $positions,
-            'types' => $types,
+            'types' => array_values($types),
             'values' => array(),
         );
         $prepared_query = count($this->prepared_queries);
@@ -2326,7 +2326,7 @@ class MDB2_Driver_Common extends PEAR
     /**
      * returns the autoincrement ID if supported
      *
-     * @param miced id value as returned by getBeforeId()
+     * @param mixed id value as returned by getBeforeId()
      * @param string $table name of the table
      * @return mixed MDB2 Error Object or id
      * @access public
