@@ -14,8 +14,9 @@
 - fix up PEAR::DB wrapper (especially !/& support and error handling)
 - add named parameters (thereby also streamlining LOB support)
 - clean up manager and reverse module
-- more tests with php5 (explore usage of interceptors for modules)
+- explore usage of interceptors for modules
 - fix up tutorial
+- merge in DB fixes since october 5th 2004
 
 near future:
 - add call to EXPLAIN method to the default debug output handler
