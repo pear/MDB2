@@ -2299,7 +2299,7 @@ class MDB2_Driver_Common extends PEAR
     function &executeParams($prepared_query, $types = null, $params = false,
         $result_class = false, $result_wrap_class = false)
     {
-        $this->setParamArray($prepared_query, $params);
+        $this->bindParamArray($prepared_query, $params);
 
         $result =& $this->execute($prepared_query, $types, $result_class, $result_wrap_class);
         return $result;
@@ -2436,12 +2436,12 @@ class MDB2_Result_Common extends MDB2_Result
     // {{{ seek()
 
     /**
-    * seek to a specific row in a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @return mixed MDB2_OK on success, a MDB2 error on failure
-    * @access public
-    */
+     * seek to a specific row in a result set
+     *
+     * @param int    $rownum    number of the row where the data can be found
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
     function seek($rownum = 0)
     {
         $target_rownum = $rownum - 1;
@@ -2461,15 +2461,22 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Fetch and return a row of data
      *
-     * @param int $fetchmode how the array data should be indexed
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param int       $fetchmode  how the array data should be indexed
+     * @param int    $rownum    number of the row where the data can be found
+     * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         $columns = $this->numCols();
         if (MDB2::isError($columns)) {
             return $columns;
+        }
+        if (!is_null($rownum)) {
+            $seek = $this->seek($rownum);
+            if (MDB2::isError($seek)) {
+                return $seek;
+            }
         }
         $rownum = ++$this->rownum;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
@@ -2828,12 +2835,12 @@ class MDB2_Statement_Common
      * Set the values of multiple a parameter of a prepared query in bulk.
      *
      * @param array $values array thats specifies all necessary infromation
-     *       for setParam() the array elements must use keys corresponding to
+     *       for bindParam() the array elements must use keys corresponding to
      *       the number of the position of the parameter.
      * @param array $types specifies the types of the fields
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
-     * @see setParam()
+     * @see bindParam()
      */
     function bindParamArray(&$values)
     {
