@@ -186,52 +186,43 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     function alterTable($name, &$changes, $check)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($check) {
-            foreach ($changes as $change_name => $change) {
-                switch ($change_name) {
-                case 'added_fields':
-                    break;
-                case 'removed_fields':
-                    return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'alterTable: database server does not support dropping table columns');
-                case 'name':
-                case 'renamed_fields':
-                case 'changed_fields':
-                default:
-                    return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                        'alterTable: change type "'.$change_name.'\" not yet supported');
-                }
-            }
-            return MDB2_OK;
-        } else {
-            if (isset($changes[$change = 'name'])
-                || isset($changes[$change = 'renamed_fields'])
-                || isset($changes[$change = 'changed_fields'])
-            ) {
+        foreach ($changes as $change_name => $change) {
+            switch ($change_name) {
+            case 'added_fields':
+                break;
+            case 'removed_fields':
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'alterTable: change type "'.$change.'" not yet supported');
+                'alterTable: database server does not support dropping table columns');
+            case 'name':
+            case 'renamed_fields':
+            case 'changed_fields':
+            default:
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'alterTable: change type "'.$change_name.'\" not yet supported');
             }
-            $query = '';
-            if (isset($changes['added_fields'])) {
-                $fields = $changes['added_fields'];
-                foreach ($fields as $field) {
-                    $result = $db->query("ALTER TABLE $name ADD ".$field['declaration']);
-                    if (MDB2::isError($result)) {
-                        return $result;
-                    }
-                }
-            }
-            if (isset($changes['removed_fields'])) {
-                $fields = $changes['removed_fields'];
-                foreach ($fields as $field_name => $field) {
-                    $result = $db->query("ALTER TABLE $name DROP ".$field_name);
-                    if (MDB2::isError($result)) {
-                        return $result;
-                    }
-                }
-            }
+        }
+        if ($check) {
             return MDB2_OK;
         }
+        if (isset($changes['added_fields'])) {
+            $fields = $changes['added_fields'];
+            foreach ($fields as $field) {
+                $result = $db->query("ALTER TABLE $name ADD ".$field['declaration']);
+                if (MDB2::isError($result)) {
+                    return $result;
+                }
+            }
+        }
+        if (isset($changes['removed_fields'])) {
+            $fields = $changes['removed_fields'];
+            foreach ($fields as $field_name => $field) {
+                $result = $db->query("ALTER TABLE $name DROP ".$field_name);
+                if (MDB2::isError($result)) {
+                    return $result;
+                }
+            }
+        }
+        return MDB2_OK;
     }
 
     // }}}
@@ -276,6 +267,49 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
         $col = $result->fetchCol();
         $result->free();
         return $col;
+    }
+
+    // }}}
+    // {{{ listViews()
+
+    /**
+     * list the views in the database
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     **/
+    function listViews()
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $query = 'SELECT viewname FROM pg_views';
+        return $db->queryCol($query);
+    }
+
+    // }}}
+    // {{{ listFunctions()
+
+    /**
+     * list all functions in the current database
+     *
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listFunctions()
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $query = "
+            SELECT
+                proname
+            FROM
+                pg_proc pr,
+                pg_type tp
+            WHERE
+                tp.oid = pr.prorettype
+                AND pr.proisagg = FALSE
+                AND tp.typname <> 'trigger'
+                AND pr.pronamespace IN
+                    (SELECT oid FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema')";
+        return $db->queryCol($query);
     }
 
     // }}}
@@ -331,22 +365,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
             return $columns;
         }
         return array_flip($columns);
-    }
-
-    // }}}
-    // {{{ listViews()
-
-    /**
-     * list the views in the database
-     *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     **/
-    function listViews()
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        // gratuitously stolen from PEAR DB _getSpecialQuery in pgsql.php
-        return $db->queryCol('SELECT viewname FROM pg_views');
     }
 
     // }}}
