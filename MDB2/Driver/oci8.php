@@ -253,11 +253,23 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             putenv('ORACLE_HOME='.$this->options['home']);
         }
         putenv('ORACLE_SID='.$sid);
-        $function = ($persistent ? 'OCIPLogon' : 'OCINLogon');
-        $connection = @$function($username, $password, $sid);
-        if (!$connection) {
-            $connection =  $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+
+        if (version_compare(phpversion(), '5.0.0', '>=')) {
+            $connection = oci_new_connect($username, $password, $sid);
+            $error = OCIError();
+            if (!empty($error) && $error['code'] == 12541) {
+                // Couldn't find TNS listener.  Try direct connection.
+                $connection = oci_new_connect($username, $password);
+            }
+        } else {
+            $function = $persistent ? 'OCIPLogon' : 'OCILogon';
+            $connection = @$function($username, $password, $sid);
         }
+
+        if (!$connection) {
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+        }
+
         return $connection;
     }
 
