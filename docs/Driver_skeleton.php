@@ -183,12 +183,11 @@ class MDB2_xxx extends MDB2_Driver_Common
      **/
     function connect()
     {
-        // take this from the corresponding Metabase driver: Connect() and Setup()
-        if (PEAR::isError(PEAR::loadExtension($this->phptype))) {
-            return PEAR::raiseError(null, MDB2_ERROR_NOT_FOUND,
-                null, null, 'extension '.$this->phptype.' is not compiled into PHP',
-                'MDB2_Error', true);
+        if (!PEAR::loadExtension($this->phptype)) {
+            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
+        // take this from the corresponding Metabase driver: Connect() and Setup()
     }
 
     // }}}
