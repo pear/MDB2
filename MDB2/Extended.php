@@ -330,8 +330,8 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         settype($params, 'array');
-        if (count($params) > 0) {
-            $result = $db->queryCol($query, $type, $colnum);
+        if (count($params) == 0) {
+            return $db->queryCol($query, $type, $colnum);
         }
 
         $prepared_query = $db->prepare($query, $param_types);
@@ -382,7 +382,7 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         settype($params, 'array');
-        if (count($params) > 0) {
+        if (count($params) == 0) {
             return $db->queryAll($query, $types, $fetchmode, $rekey, $force_array, $group);
         }
 
@@ -480,7 +480,7 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         settype($params, 'array');
-        if (count($params) > 0) {
+        if (count($params) == 0) {
             return $db->queryAll($query, $types, $fetchmode, true, $force_array, $group);
         }
 
