@@ -261,7 +261,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $function = ($persistent ? 'pg_pconnect' : 'pg_connect');
         // catch error
         ob_start();
-        $connection = $function($connstr);
+        $connection = @$function($connstr);
         $error_msg = ob_get_contents();
         ob_end_clean();
 

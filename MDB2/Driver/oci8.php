@@ -257,7 +257,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         putenv('ORACLE_SID='.$sid);
 
         $function = ($persistent ? 'OCIPLogon' : 'OCINLogon');
-        $connection = $function($username, $password, $sid);
+        $connection = @$function($username, $password, $sid);
         if (!$connection) {
             $connection =  $this->raiseError();
         }
