@@ -146,69 +146,6 @@ class MDB2_LOB_Result extends MDB2_LOB
 }
 
 /**
- * MDB2 Large Object (BLOB/CLOB) class to read file into DB
- *
- * @package MDB2
- * @category Database
- * @access private
- * @author  Lukas Smith <smith@backendmedia.com>
- */
-/*
-class MDB2_LOB_Input_File extends MDB2_LOB
-{
-    var $file = '';
-    var $opened_file = false;
-
-    function create(&$arguments)
-    {
-        if (isset($arguments['parameter'])) {
-            $this->parameter = $arguments['parameter'];
-        }
-        if (isset($arguments['file'])) {
-            if (intval($arguments['file']) == 0) {
-                return MDB2_Driver_Common::raiseError(MDB2_ERROR_INVALID, null, null,
-                    'MDB2_LOB_Input_File::create: it was specified an invalid input file identifier');
-            }
-            $this->file = $arguments['file'];
-        } else {
-            if (isset($arguments['file_name'])) {
-                if ((!$this->file = fopen($arguments['file_name'], 'rb'))) {
-                return MDB2_Driver_Common::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                    'MDB2_LOB_Input_File::create: could not open specified input file ("'.$arguments['file_name'].'")');
-                }
-                $this->opened_file = true;
-            } else {
-                return MDB2_Driver_Common::raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'MDB2_LOB_Input_File::create: it was not specified the input file');
-            }
-        }
-        return MDB2_OK;
-    }
-
-    function destroy()
-    {
-        if ($this->opened_file) {
-            fclose($this->file);
-            $this->file = '';
-            $this->opened_file = false;
-        }
-    }
-
-    function endOfLOB() {
-        return feof($this->file);
-    }
-
-    function readLOB(&$data, $length)
-    {
-        if (!is_string($data = @fread($this->file, $length))) {
-            return MDB2_Driver_Common::raiseError(MDB2_ERROR, null, null,
-                'MDB2_LOB_Input_File::readLOB: could not read from the input file');
-        }
-        return strlen($data);
-    }
-}
-*/
-/**
  * MDB2 Large Object (BLOB/CLOB) class to read into a file from DB
  *
  * @package MDB2
