@@ -502,17 +502,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function freeLOBValue($lob, &$value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $prepared_query = $GLOBALS['_MDB2_LOBs'][$lob]->prepared_query;
-
-        $query_parameter = $db->query_parameter_values[$prepared_query][$lob];
-
-        unset($db->query_parameters[$prepared_query][$query_parameter]);
-        unset($db->query_parameter_values[$prepared_query][$lob]);
-        if (count($db->query_parameter_values[$prepared_query]) == 0) {
-            unset($db->query_parameters[$prepared_query]);
-            unset($db->query_parameter_values[$prepared_query]);
-        }
-
         unset($value);
     }
 
@@ -604,6 +593,112 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return (($value === null) ? 'NULL' : strval(round($value*pow(10.0, $db->options['decimal_places']))));
     }
-}
 
+    // }}}
+    // {{{ _retrieveLOB()
+
+    /**
+     * fetch a lob value from a result set
+     *
+     * @param int $lob handle to a lob created by the createLob() function
+     * @return mixed MDB_OK on success, a MDB error on failure
+     * @access private
+     */
+    function _retrieveLOB($lob)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+
+        if (!isset($db->lobs[$lob])) {
+            return($db->raiseError(MDB2_ERROR, NULL, NULL,
+                'Retrieve LOB: it was not specified a valid lob'));
+        }
+
+        if (!isset($db->lobs[$lob]['handle'])) {
+            $db->lobs[$lob]['handle'] =
+                @ibase_blob_open($db->lobs[$lob]['value']);
+            if (!$db->lobs[$lob]['handle']) {
+                unset($db->lobs[$lob]['value']);
+                return($db->raiseError(MDB2_ERROR, NULL, NULL,
+                    'Retrieve LOB: Could not open fetched large object field' . @ibase_errmsg()));
+            }
+        }
+
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _endOfResultLOB()
+
+    /**
+     * Determine whether it was reached the end of the large object and
+     * therefore there is no more data to be read for the its input stream.
+     *
+     * @param int    $lob handle to a lob created by the createLOB() function
+     * @return mixed true or false on success, a MDB2 error on failure
+     * @access private
+     */
+    function _endOfResultLOB($lob)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $lobresult = $this->_retrieveLOB($lob);
+        if (MDB2::isError($lobresult)) {
+            return $lobresult;
+        }
+        return isset($db->lobs[$lob]['EndOfLOB']);
+    }
+
+    // }}}
+    // {{{ _readResultLOB()
+
+    /**
+     * Read data from large object input stream.
+     *
+     * @param int $lob handle to a lob created by the createLob() function
+     * @param blob $data reference to a variable that will hold data to be
+     *      read from the large object input stream
+     * @param int $length integer value that indicates the largest ammount of
+     *      data to be read from the large object input stream.
+     * @return mixed length on success, a MDB error on failure
+     * @access private
+     */
+    function _readResultLOB($lob, &$data, $length)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if (MDB2::isError($lobresult = $this->_retrieveLOB($lob))) {
+            return $lobresult;
+        }
+        $data = @ibase_blob_get($db->lobs[$lob]['handle'], $length);
+        if (!is_string($data)) {
+            $db->raiseError(MDB2_ERROR, NULL, NULL,
+                'Read Result LOB: ' . @ibase_errmsg());
+        }
+        if (($length = strlen($data)) == 0) {
+            $db->lobs[$lob]['EndOfLOB'] = 1;
+        }
+        return $length;
+    }
+
+    // }}}
+    // {{{ _destroyResultLOB()
+
+    /**
+     * Free any resources allocated during the lifetime of the large object
+     * handler object.
+     *
+     * @param int $lob handle to a lob created by the createLob() function
+     * @access private
+     */
+    function _destroyResultLOB($lob)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if (isset($db->lobs[$lob])) {
+            if (isset($db->lobs[$lob]['value'])) {
+               @ibase_blob_close($db->lobs[$lob]['handle']);
+            }
+            $db->lobs[$lob] = '';
+        }
+    }
+
+    // }}}
+}
 ?>
