@@ -544,7 +544,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $this->pushErrorHandling(PEAR_ERROR_RETURN);
-        $query = 'SELECT GEN_ID($sequence_name, 1) as the_value FROM RDB$DATABASE';
+        $query = "SELECT GEN_ID($sequence_name, 1) as the_value FROM RDB\$DATABASE";
         $result = $this->queryOne($query);
         $this->popErrorHandling();
         if (MDB2::isError($result)) {
