@@ -83,7 +83,7 @@ class MDB2_Driver_Native_fbsql
     function getInsertID()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return fbsql_insert_id($db->connection);
+        return @fbsql_insert_id($db->connection);
     }
 }
 ?>
