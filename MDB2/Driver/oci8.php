@@ -190,7 +190,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function commit()
     {
         $this->debug('commit transaction', 'commit');
-        if (!isset($this->supported['transactions'])) {
+        if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'commit: transactions are not in use');
         }

@@ -208,7 +208,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     function autoCommit($auto_commit)
     {
         $this->debug(($auto_commit ? 'On' : 'Off'), 'autoCommit');
-        if (!isset($this->supported['transactions'])) {
+        if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'autoCommit: transactions are not in use');
         }
@@ -253,7 +253,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     function commit()
     {
         $this->debug('commit transaction', 'commit');
-        if (!isset($this->supported['transactions'])) {
+        if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'commit: transactions are not in use');
         }
@@ -280,7 +280,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     function rollback()
     {
         $this->debug('rolling back transaction', 'rollback');
-        if (!isset($this->supported['transactions'])) {
+        if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'rollback: transactions are not in use');
         }
@@ -360,7 +360,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 case 'MERGE':
                 case 'MRG_MYISAM':
                 case 'MYISAM':
-                    if (isset($this->supported['transactions'])) {
+                    if ($this->supports('transactions')) {
                         $this->warnings[] = $default_table_type.
                             ' is not a transaction-safe default table type';
                     }
@@ -371,7 +371,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             }
         }
 
-        if (isset($this->supported['transactions']) && !$this->auto_commit) {
+        if ($this->supports('transactions') && !$this->auto_commit) {
             if (!@mysql_query('SET AUTOCOMMIT = 0', $this->connection)) {
                 @mysql_close($this->connection);
                 $this->connection = 0;
@@ -393,7 +393,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if (isset($this->supported['transactions']) && !$this->auto_commit) {
+            if ($this->supports('transactions') && !$this->auto_commit) {
                 $result = $this->autoCommit(true);
             }
             @mysql_close($this->connection);
@@ -556,7 +556,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function subSelect($query, $type = false)
     {
-        if ($this->supported['sub_selects'] == true) {
+        if ($this->supports('sub_selects')) {
             return $query;
         }
         $col = $this->queryCol($query, $type);

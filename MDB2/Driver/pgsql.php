@@ -365,7 +365,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         $result = @pg_exec($this->connection, $query);
         if ($result) {
-            $this->affected_rows = (isset($this->supported['affected_rows']) ? @pg_affected_rows($result) : -1);
+            $this->affected_rows = ($this->supports('affected_rows') ? @pg_affected_rows($result) : -1);
         } else {
             return $this->raiseError($result);
         }

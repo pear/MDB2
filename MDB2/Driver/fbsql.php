@@ -160,7 +160,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function autoCommit($auto_commit)
     {
         $this->debug(($auto_commit ? 'On' : 'Off'), 'autoCommit');
-        if (!isset($this->supported['transactions'])) {
+        if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'autoCommit: transactions are not in use');
         }
@@ -202,7 +202,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function commit()
     {
         $this->debug('commit transaction', 'commit');
-        if (!isset($this->supported['transactions'])) {
+        if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'commit: transactions are not in use');
         }
@@ -229,7 +229,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function rollback()
     {
         $this->debug('rolling back transaction', 'rollback');
-        if (!isset($this->supported['transactions'])) {
+        if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'rollback: transactions are not in use');
         }
@@ -289,7 +289,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
 
-        if (isset($this->supported['transactions']) && !$this->auto_commit) {
+        if ($this->supports('transactions') && !$this->auto_commit) {
             if (!@fbsql_query('SET AUTOCOMMIT FALSE;', $this->connection)) {
                 @fbsql_close($this->connection);
                 $this->connection = 0;
@@ -311,7 +311,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if (isset($this->supported['transactions']) && !$this->auto_commit) {
+            if ($this->supports('transactions') && !$this->auto_commit) {
                 $result = $this->autoCommit(true);
             }
             @fbsql_close($this->connection);

@@ -309,7 +309,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
 
-        if (isset($this->supported['transactions'])
+        if ($this->supports('transactions')
             && !$this->auto_commit
             && MDB2::isError($this->_doQuery('BEGIN TRANSACTION'))
         ) {
@@ -332,7 +332,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if (isset($this->supported['transactions']) && !$this->auto_commit) {
+            if ($this->supports('transactions') && !$this->auto_commit) {
                 $result = $this->_doQuery('ROLLBACK TRANSACTION');
             }
             @mssql_close($this->connection);
