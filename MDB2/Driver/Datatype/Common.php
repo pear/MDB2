@@ -623,17 +623,14 @@ class MDB2_Driver_Datatype_Common
      * compose query statements.
      *
      * @param resource $prepared_query query handle from prepare()
-     * @param  $parameter
-     * @param  $clob
+     * @param  $value
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access public
      */
-    function quoteCLOB($clob)
+    function quoteCLOB($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'quoteCLOB: prepared queries with values of type "clob" are not yet supported');
+        return $this->quoteText($value);
     }
 
     // }}}
@@ -642,13 +639,13 @@ class MDB2_Driver_Datatype_Common
     /**
      * free a character large object
      *
-     * @param int $clob lob index
+     * @param int $value lob index
      * @access public
      */
-    function freeCLOBValue($clob)
+    function freeCLOBValue($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($db->lobs[$clob]);
+        unset($db->lobs[$value]);
     }
 
     // }}}
@@ -659,17 +656,14 @@ class MDB2_Driver_Datatype_Common
      * compose query statements.
      *
      * @param resource $prepared_query query handle from prepare()
-     * @param  $parameter
-     * @param  $blob
+     * @param  $value
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access public
      */
-    function quoteBLOB($blob)
+    function quoteBLOB($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'quoteBLOB: prepared queries with values of type "blob" are not yet supported');
+        return $this->quoteText($value);
     }
 
     // }}}
@@ -678,13 +672,13 @@ class MDB2_Driver_Datatype_Common
     /**
      * free a binary large object
      *
-     * @param int $blob lob index
+     * @param int $value lob index
      * @access public
      */
-    function freeBLOBValue($blob)
+    function freeBLOBValue($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($db->lobs[$blob]);
+        unset($db->lobs[$value]);
     }
 
     // }}}

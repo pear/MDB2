@@ -310,64 +310,21 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ quoteCLOB()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param           $clob
-     * @return string  text string that represents the given argument value in
-     *                 a DBMS specific format.
-     * @access public
-     */
-    function quoteCLOB($clob)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($clob === null) {
-            return 'NULL';
-        }
-        $value = "'";
-        $data = null;
-        while (!$this->endOfLOB($clob)) {
-            $result = $this->readLOB($clob, $data, $db->options['lob_buffer_length']);
-            if (MDB2::isError($result)) {
-                return $result;
-            }
-            $value .= $db->escape($data);
-        }
-        $value .= "'";
-        return $value;
-    }
-
-    // }}}
     // {{{ quoteBLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param           $blob
+     * @param           $value
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
      * @access public
      */
-    function quoteBLOB($blob)
+    function quoteBLOB($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($blob === null) {
-            return 'NULL';
-        }
-        $value = "0x";
-        $data = null;
-        while (!$this->endOfLOB($blob)) {
-        $result = $this->readLOB($blob, $data, $db->options['lob_buffer_length']);
-            if (MDB2::isError($result)) {
-                return $result;
-            }
-            $value .= bin2hex($data);
-        }
-        return $value;
+        return (is_null($value)) ? 'NULL' : "'".bin2hex($value)."'";
     }
 
     // }}}
