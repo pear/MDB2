@@ -131,6 +131,69 @@ define('MDB2_FETCHMODE_ASSOC',    2);
 
 define('MDB2_FETCHMODE_FLIPPED',  4);
 
+// }}}
+// {{{ portability modes
+
+
+/**
+ * Portability: turn off all portability features.
+ * @see MDB2_common::setOption()
+ */
+define('MDB2_PORTABILITY_NONE', 0);
+
+/**
+ * Portability: convert names of tables and fields to lower case
+ * when using the get*(), fetch*() and tableInfo() methods.
+ * @see MDB2_common::setOption()
+ */
+define('MDB2_PORTABILITY_LOWERCASE', 1);
+
+/**
+ * Portability: right trim the data output by get*() and fetch*().
+ * @see MDB2_common::setOption()
+ */
+define('MDB2_PORTABILITY_RTRIM', 2);
+
+/**
+ * Portability: force reporting the number of rows deleted.
+ * @see MDB2_common::setOption()
+ */
+define('MDB2_PORTABILITY_DELETE_COUNT', 4);
+
+/**
+ * Portability: not needed in MDB2 (just left here for compatibility to DB)
+ * @see MDB2_common::setOption()
+ */
+define('MDB2_PORTABILITY_NUMROWS', 8);
+
+/**
+ * Portability: makes certain error messages in certain drivers compatible
+ * with those from other DBMS's.
+ *
+ * + mysql, mysqli:  change unique/primary key constraints
+ *   MDB2_ERROR_ALREADY_EXISTS -> MDB2_ERROR_CONSTRAINT
+ *
+ * + odbc(access):  MS's ODBC driver reports 'no such field' as code
+ *   07001, which means 'too few parameters.'  When this option is on
+ *   that code gets mapped to MDB2_ERROR_NOSUCHFIELD.
+ *
+ * @see MDB2_common::setOption()
+ */
+define('MDB2_PORTABILITY_ERRORS', 16);
+
+/**
+ * Portability: convert null values to empty strings in data output by
+ * get*() and fetch*().
+ * @see MDB2_common::setOption()
+ */
+define('MDB2_PORTABILITY_NULL_TO_EMPTY', 32);
+
+/**
+ * Portability: turn on all portability features.
+ * @see MDB2_common::setOption()
+ */
+define('MDB2_PORTABILITY_ALL', 63);
+
 /**
  * These are global variables that are used to track the various class instances
  */
@@ -185,7 +248,7 @@ class MDB2
     function setOptions(&$db, $options)
     {
         if (is_array($options)) {
-            foreach($options as $option => $value) {
+            foreach ($options as $option => $value) {
                 $test = $db->setOption($option, $value);
                 if (MDB2::isError($test)) {
                     return $test;
@@ -739,8 +802,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['seqname_format'] -> string pattern for sequence name
      * $options['use_transactions'] -> boolean
      * $options['decimal_places'] -> integer
-     TODO: move to portability binary levels
-     * $options['optimize'] -> performance or portability (default)
+     * $options['portability'] -> portability constant
      * @var array
      * @access public
      */
@@ -756,7 +818,7 @@ class MDB2_Driver_Common extends PEAR
             'seqname_format' => '%s_seq',
             'use_transactions' => false,
             'decimal_places' => 2,
-            'optimize' => 'portability'
+            'portability' => MDB2_PORTABILITY_ALL,
         );
 
     /**
@@ -1127,10 +1189,92 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ quoteIdentifier()
+
+    /**
+     * Quote a string so it can be safely used as a table or column name
+     *
+     * Delimiting style depends on which database driver is being used.
+     *
+     * NOTE: just because you CAN use delimited identifiers doesn't mean
+     * you SHOULD use them.  In general, they end up causing way more
+     * problems than they solve.
+     *
+     * Portability is broken by using the following characters inside
+     * delimited identifiers:
+     *   + backtick (<kbd>`</kbd>) -- due to MySQL
+     *   + double quote (<kbd>"</kbd>) -- due to Oracle
+     *   + brackets (<kbd>[</kbd> or <kbd>]</kbd>) -- due to Access
+     *
+     * Delimited identifiers are known to generally work correctly under
+     * the following drivers:
+     *   + mssql
+     *   + mysql
+     *   + mysqli
+     *   + oci8
+     *   + odbc(access)
+     *   + odbc(db2)
+     *   + pgsql
+     *   + sqlite
+     *   + sybase
+     *
+     * InterBase doesn't seem to be able to use delimited identifiers
+     * via PHP 4.  They work fine under PHP 5.
+     *
+     * @param string $str  identifier name to be quoted
+     *
+     * @return string  quoted identifier string
+     *
+     * @access public
+     */
+    function quoteIdentifier($str)
+    {
+        return '"' . str_replace('"', '""', $str) . '"';
+    }
+
+    // }}}
+    // {{{ _rtrimArrayValues()
+
+    /**
+     * Right trim all strings in an array
+     *
+     * @param array  $array  the array to be trimmed (passed by reference)
+     * @return void
+     * @access private
+     */
+    function _rtrimArrayValues(&$array)
+    {
+        foreach ($array as $key => $value) {
+            if (is_string($value)) {
+                $array[$key] = rtrim($value);
+            }
+        }
+    }
+
+    // }}}
+    // {{{ _convertNullArrayValuesToEmpty()
+
+    /**
+     * Convert all null values in an array to empty strings
+     *
+     * @param array  $array  the array to be de-nullified (passed by reference)
+     * @return void
+     * @access private
+     */
+    function _convertNullArrayValuesToEmpty(&$array)
+    {
+        foreach ($array as $key => $value) {
+            if (is_null($value)) {
+                $array[$key] = '';
+            }
+        }
+    }
+
+    // }}}
     // {{{ loadModule()
 
     /**
-     * loads an module
+     * loads a module
      *
      * @param string $module name of the module that should be loaded
      *      (only used for error messages)
@@ -1527,12 +1671,12 @@ class MDB2_Driver_Common extends PEAR
                 'replace: replace query is not supported');
         }
         $count = count($fields);
-        for ($keys = 0, $condition = $insert = $values = '', reset($fields), $field = 0;
-            $field < $count;
-            next($fields), $field++)
+        for ($keys = 0, $condition = $insert = $values = '', reset($fields), $colnum = 0;
+            $colnum < $count;
+            next($fields), $colnum++)
         {
             $name = key($fields);
-            if ($field > 0) {
+            if ($colnum > 0) {
                 $insert .= ', ';
                 $values .= ', ';
             }
@@ -1936,19 +2080,19 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param string $type type to which the value should be converted to
      * @param string  $name   name the field to be declared.
-     * @param string  $field  definition of the field
+     * @param string  $colnum  definition of the field
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
      * @access public
      */
-    function getDeclaration($type, $name, $field)
+    function getDeclaration($type, $name, $colnum)
     {
         $result = $this->loadModule('datatype');
         if (MDB2::isError($result)) {
             return $result;
         }
         if (method_exists($this->datatype, "get{$type}Declaration")) {
-            return $this->datatype->{"get{$type}Declaration"}($name, $field);
+            return $this->datatype->{"get{$type}Declaration"}($name, $colnum);
         }
         return $this->raiseError('type not defined: '.$type);
     }
@@ -2460,11 +2604,11 @@ class MDB2_Result_Common
      * fetch value from a result set
      *
      * @param int $rownum number of the row where the data can be found
-     * @param int $field field number where the data can be found
+     * @param int $colnum field number where the data can be found
      * @return mixed string on success, a MDB2 error on failure
      * @access public
      */
-    function fetch($rownum = 0, $field = 0)
+    function fetch($rownum = 0, $colnum = 0)
     {
         return $this->mdb->raiseError(MDB2_ERROR_UNSUPPORTED, NULL, NULL,
             'fetch: method not implemented');
@@ -2519,7 +2663,7 @@ class MDB2_Result_Common
                 return $column_names;
             }
         }
-        for($column = 0; $column < $columns; $column++) {
+        for ($column = 0; $column < $columns; $column++) {
             // TODO: null handling needs to be fixed
             if (!$this->resultIsNull($rownum, $column)) {
                 $value = $this->fetch($rownum, $column);
@@ -2530,13 +2674,16 @@ class MDB2_Result_Common
             $row[$column] = $value;
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            $row = array_combine($column_names, $row);
-            if (is_array($row) && $this->options['optimize'] == 'portability') {
+            $column_names = $this->getColumnNames();
+            foreach ($column_names as $name => $i) {
+                $column_names[$name] = $row[$i];
+            }
+            $row = $column_names;
+            if ($this->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && is_array($row)
+            ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
-        }
-        if (isset($this->types)) {
-            $row = $this->mdb->datatype->convertResultRow($this->types, $row);
         }
         return $row;
     }
@@ -2695,15 +2842,20 @@ class MDB2_Result_Common
      *    field is a null.
      *
      * @param int $rownum number of the row where the data can be found
-     * @param int $field field number where the data can be found
+     * @param int $colnum field number where the data can be found
      * @return mixed true or false on success, a MDB2 error on failure
      * @access public
      */
-    function resultIsNull($rownum, $field)
+    function resultIsNull($rownum, $colnum)
     {
-        $value = $this->fetch($rownum, $field);
+        $value = $this->fetch($rownum, $colnum);
         if (MDB2::isError($value)) {
             return $value;
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY
+            && $value == ''
+        ) {
+            return true;
         }
         return !isset($value);
     }
