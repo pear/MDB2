@@ -114,6 +114,9 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 '/pg_atoi: error in .*: can\'t parse /' => MDB2_ERROR_INVALID_NUMBER,
                 '/ttribute [\"\'].*[\"\'] not found$|[Rr]elation [\"\'].*[\"\'] does not have attribute [\"\'].*[\"\']/' => MDB2_ERROR_NOSUCHFIELD,
                 '/parser: parse error at or near \"/'   => MDB2_ERROR_SYNTAX,
+                '/syntax error at/'                     => MDB2_ERROR_SYNTAX,
+                '/violates not-null constraint/'        => MDB2_ERROR_CONSTRAINT_NOT_NULL,
+                '/violates [\w ]+ constraint/'          => MDB2_ERROR_CONSTRAINT,
                 '/referential integrity violation/'     => MDB2_ERROR_CONSTRAINT
             );
         }
