@@ -73,7 +73,7 @@ class MDB2_xxx extends MDB2_Driver_Common
 // Few are taken from the corresponding PEAR DB driver.
 // Some are MDB2 specific.
 
-    var $escape_quotes = "\\";
+    var $escape_quotes =;
 
     // }}}
     // {{{ constructor
@@ -84,9 +84,20 @@ class MDB2_xxx extends MDB2_Driver_Common
     function MDB2_xxx()
     {
         $this->MDB2_Driver_Common();
-        $this->phptype = 'xxx';
-        $this->dbsyntax = 'xxx';
+        $this->phptype = xxx;
+        $this->dbsyntax = xxx;
 
+        $this->supported['sequences'] = ;
+        $this->supported['indexes'] = ;
+        $this->supported['affected_rows'] = ;
+        $this->supported['summary_functions'] = ;
+        $this->supported['order_by_text'] = ;
+        $this->supported['current_id'] = ;
+        $this->supported['limit_queries'] = ;
+        $this->supported['LOBs'] = ;
+        $this->supported['replace'] = ;
+        $this->supported['sub_selects'] = ;
+        $this->supported['auto_increment'] = ;
         // most of the following codes needs to be taken from the corresponding Metabase driver setup() methods
 
         // also please remember to "register" all driver specific options here like so
