@@ -1126,7 +1126,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function errorNative()
     {
-        return $this->raiseError(MDB2_ERROR_NOT_CAPABLE);
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
     }
 
     // }}}
@@ -2169,7 +2169,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function nextID($seq_name, $ondemand = true)
     {
-        return $this->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'nextID: method not implemented');
     }
 
@@ -2203,12 +2203,12 @@ class MDB2_Driver_Common extends PEAR
     {
         $this->warnings[] = 'database does not support getting current
             sequence value, the sequence value was incremented';
-        $this->expectError(MDB2_ERROR_NOT_CAPABLE);
+        $this->expectError(MDB2_ERROR_UNSUPPORTED);
         $id = $this->nextID($seq_name);
-        $this->popExpect(MDB2_ERROR_NOT_CAPABLE);
+        $this->popExpect(MDB2_ERROR_UNSUPPORTED);
         if (MDB2::isError($id)) {
-            if ($id->getCode() == MDB2_ERROR_NOT_CAPABLE) {
-                return $this->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+            if ($id->getCode() == MDB2_ERROR_UNSUPPORTED) {
+                return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'currID: getting current sequence value not supported');
             }
             return $id;

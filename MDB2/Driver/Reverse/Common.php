@@ -100,7 +100,7 @@ class MDB2_Driver_Reverse_Common
     function getTableFieldDefinition($table, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getTableFieldDefinition: table field definition is not supported');
     }
 
@@ -118,7 +118,7 @@ class MDB2_Driver_Reverse_Common
     function getTableIndexDefinition($table, $index)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getTableIndexDefinition: getting index definition is not supported');
     }
 

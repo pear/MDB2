@@ -358,7 +358,7 @@ class MDB2_Driver_Manager_Common
     function listDatabases()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listDatabases: list databases is not supported');
     }
 
@@ -374,7 +374,7 @@ class MDB2_Driver_Manager_Common
     function listUsers()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listUsers: list user is not supported');
     }
 
@@ -390,7 +390,7 @@ class MDB2_Driver_Manager_Common
     function listViews()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listViews: list view is not supported');
     }
 
@@ -406,7 +406,7 @@ class MDB2_Driver_Manager_Common
     function listFunctions()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listFunctions: list function is not supported');
     }
 
@@ -422,7 +422,7 @@ class MDB2_Driver_Manager_Common
     function listTables()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listTables: list tables is not supported');
     }
 
@@ -439,7 +439,7 @@ class MDB2_Driver_Manager_Common
     function listTableFields($table)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listTableFields: list table fields is not supported');
     }
 
@@ -457,7 +457,7 @@ class MDB2_Driver_Manager_Common
     function getTableFieldDefinition($table, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getTableFieldDefinition: table field definition is not supported');
     }
 
@@ -557,7 +557,7 @@ class MDB2_Driver_Manager_Common
     function listTableIndexes($table)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listTableIndexes: List Indexes is not supported');
     }
 
@@ -575,7 +575,7 @@ class MDB2_Driver_Manager_Common
     function getTableIndexDefinition($table, $index)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getTableIndexDefinition: getting index definition is not supported');
     }
 
@@ -593,7 +593,7 @@ class MDB2_Driver_Manager_Common
     function createSequence($name, $start = 1)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'createSequence: sequence creation not supported');
     }
 
@@ -610,7 +610,7 @@ class MDB2_Driver_Manager_Common
     function dropSequence($name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'dropSequence: sequence dropping not supported');
     }
 
@@ -626,7 +626,7 @@ class MDB2_Driver_Manager_Common
     function listSequences()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listSequences: List sequences is not supported');
     }
 }
