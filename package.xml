@@ -70,18 +70,27 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0alpha2</version>
-    <date>2004-02-18</date>
+    <date>2004-03-01</date>
     <license>BSD License</license>
     <state>alpha</state>
-    <notes>Please note that currently only the MySQL, the PostGreSQL and the Oracle driver
-have been tested to pass the test suite.
+    <notes>Please note that currently only the SQLite, the MySQL, the PostGreSQL, the Oracle
+and the Firebird/Interbase driver have been tested to pass the test suite.
+Look at the STATUS document for details.
 
 - fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
 - added PEAR::DB wrapper
 - fixed several bugs in the ibase driver
 - fixed several PHP5 related issues
-- fixed bug in sequence creation on MySQL</notes>
+- fixed bug in sequence creation on MySQL
+- fixed issues with nextid() ondemand handling in conjunction with currId()
+- added native currId() implementation for the Oracle driver
+- fixed sqlite driver (passes all but the REPLACE test due to a conformance issue in sqlite itself)
+- removed decimal_factor property to allow changing of decimal_places option
+- using native escape string methods in sqlite and mysql driver
+- fixed minor conformance issues in tableInfo() in the oci8 and mysql driver
+- removed optimize option and added portability option instead (ported from DB)
+- added quoteIdentifier method (ported from DB)</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -102,6 +111,7 @@ have been tested to pass the test suite.
         <file role="doc" name="MDB.xsl"/>
         <file role="doc" name="querysim_readme.txt"/>
         <file role="doc" name="README"/>
+        <file role="doc" name="STATUS"/>
         <file role="doc" name="TODO"/>
         <file role="doc" name="xml_schema_documentation.html"/>
         <dir name="examples">
@@ -182,6 +192,8 @@ have been tested to pass the test suite.
         <file role="test" name="MDB2_api_testcase.php"/>
         <file role="test" name="MDB2_bugs_testcase.php"/>
         <file role="test" name="MDB2_manager_testcase.php"/>
+        <file role="test" name="MDB2_native_testcase.php"/>
+        <file role="test" name="MDB2_reverse_testcase.php"/>
         <file role="test" name="MDB2_usage_testcase.php"/>
         <file role="test" name="README"/>
         <file role="test" name="test.php"/>
@@ -201,18 +213,27 @@ have been tested to pass the test suite.
   <changelog>
     <release>
       <version>2.0.0alpha2</version>
-      <date>2004-02-18</date>
+      <date>2004-03-01</date>
       <license>BSD License</license>
       <state>alpha</state>
-      <notes>Please note that currently only the MySQL, the PostGreSQL and the Oracle driver
-have been tested to pass the test suite.
+      <notes>Please note that currently only the SQLite, the MySQL, the PostGreSQL, the Oracle
+and the Firebird/Interbase driver have been tested to pass the test suite.
+Look at the STATUS document for details.
 
 - fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
 - added PEAR::DB wrapper
 - fixed several bugs in the ibase driver
 - fixed several PHP5 related issues
-- fixed bug in sequence creation on MySQL</notes>
+- fixed bug in sequence creation on MySQL
+- fixed issues with nextid() ondemand handling in conjunction with currId()
+- added native currId() implementation for the Oracle driver
+- fixed sqlite driver (passes all but the REPLACE test due to a conformance issue in sqlite itself)
+- removed decimal_factor property to allow changing of decimal_places option
+- using native escape string methods in sqlite and mysql driver
+- fixed minor conformance issues in tableInfo() in the oci8 and mysql driver
+- removed optimize option and added portability option instead (ported from DB)
+- added quoteIdentifier method (ported from DB)</notes>
     </release>
     <release>
       <version>2.0.0alpha1</version>
