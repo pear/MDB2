@@ -566,6 +566,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 $position = $p_position;
             }
         }
+        $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
         $statement = ibase_prepare($connection, $query);
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
