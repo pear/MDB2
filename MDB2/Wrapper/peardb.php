@@ -300,6 +300,7 @@ class MDB2_PEARProxy
     {
         $this->MDB2_object =& $MDB2_object;
         $this->MDB2_object->option['sequence_prefix'] = '_seq_';
+        $this->MDB2_object->option['sequence_col_name'] = 'id';
     }
 
     function connect($dsninfo, $persistent = false)
@@ -515,7 +516,7 @@ class MDB2_PEARProxy
 
     function nextId($seq_name, $ondemand = true)
     {
-        return $this->MDB2_object->nextId($seq_name, $ondemand);
+        return $this->MDB2_object->nextID($seq_name, $ondemand);
     }
 
     function createSequence($seq_name)
