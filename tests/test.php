@@ -63,13 +63,13 @@ require_once 'testUtils.php';
 require_once 'MDB2.php';
 require_once 'HTML_TestListener.php';
 
-PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'handle_pear_error');
-function handle_pear_error ($error_obj)
+function htmlErrorHandler($errno, $errstr, $errfile, $errline)
 {
-    print '<pre><b>PEAR-Error</b><br />';
-    echo $error_obj->getMessage().': '.$error_obj->getUserinfo();
-    print '</pre>';
+    echo '<pre>';
+    errorHandler($errno, $errstr, $errfile, $errline);
+    echo '</pre>';
 }
+set_error_handler('htmlErrorHandler');
 
 MDB2::loadFile('Date');
 
@@ -99,6 +99,7 @@ if (!is_array($testmethods)) {
 foreach ($dbarray as $db) {
     $dsn = $db['dsn'];
     $options = isset($db['options']) ? $db['options'] : null;
+    $GLOBALS['_show_silenced'] = isset($options['debug']) ? $options['debug'] :false;
 
     $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":" . $dsn['password'] . "@" . $dsn['hostspec'] . "/" . $database;
     echo "<div class=\"test\">\n";
