@@ -17,6 +17,11 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - added listUsers(), listViews(), listFunctions() to oracle manager
 - added listFunctions() to pgsql manager
 - updated listViews() in pgsql manager
+- fixed bug in the Manager when upgrading a database that doesnt exist
+- added __call() support for module handling
+- mysql driver now uses mysqli implementations where feasible
+- ensure that internal calls to query dont wrap the result
+- for some reason mysqli didnt like SELECT LAST_INSERT_ID()
 EOT;
 
 $description =<<<EOT
