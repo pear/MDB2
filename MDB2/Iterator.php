@@ -62,7 +62,7 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     /**
      * Constructor
      */
-    function __constructor(&$result)
+    function __construct(&$result)
     {
         $this->result =& $result;
     }
@@ -87,7 +87,7 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
         }
         $this->row = null;
         $this->buffer = null;
-        return $this->result->seek($rownum);
+        $this->result->seek($rownum);
     }
 
     // }}}
@@ -163,13 +163,40 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     /**
      * Destructor
      */
-    function __destructor()
+    function __destruct()
     {
         $this->free();
     }
+
+    // }}}
+    // {{{ key()
+
+    /**
+    * nothing, but Iterator wants to implement this.
+    *
+    * @return void
+    * @access public
+    */
+    function key()
+    {
+        $this->result->getRowCount();
+    }
+
+    // }}}
+    // {{{ rewind()
+
+    /**
+    * seek to the first row in a result set
+    *
+    * @return mixed MDB2_OK on success, a MDB2 error on failure
+    * @access public
+    */
+    function rewind()
+    {
+    }
 }
 
-class MDB2_BufferedIterator extends MDB2_Iterator implements BufferedIterator
+class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
 {
     // }}}
     // {{{ seek()
