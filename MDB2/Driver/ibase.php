@@ -481,10 +481,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($isManip) {
             return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
         }
-
-        $result_obj =& $this->db->_wrapResult($result, $this->types,
-            $result_class, $result_wrap_class, $this->row_limit, $this->row_offset);
-        return $result_obj;
+        return $result;
     }
 
     // }}}
