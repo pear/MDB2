@@ -298,6 +298,136 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
         return $definition;
     }
+
+
+    // }}}
+    // {{{ tableInfo()
+
+    /**
+     * Returns information about a table.
+     *
+     * @param string         $result  a string containing the name of a table
+     * @param int            $mode    a valid tableInfo mode
+     * @return array  an associative array with the information requested
+     *                or an error object if something is wrong
+     * @access public
+     * @internal
+     * @see DB_common::tableInfo()
+     * @since Method available since Release 1.7.0
+     */
+    function tableInfo($result, $mode = null)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $case_func = 'strtolower';
+        } else {
+            $case_func = 'strval';
+        }
+
+        if (MDB2::isResult($result)) {
+            /*
+             * Probably received a result object.
+             * Extract the result resource identifier.
+             */
+            $db->last_query = '';
+            return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null, null,
+                'This DBMS can not obtain tableInfo from result sets');
+        } elseif (is_string($result)) {
+            /*
+             * Probably received a table name.
+             * Create a result resource identifier.
+             */
+            if (MDB2::isError($connect = $db->connect())) {
+                return $connect;
+            }
+            $query = "PRAGMA table_info('$result');";
+            $id = sqlite_array_query($db->connection, $query, SQLITE_ASSOC);
+            $got_string = true;
+        } else {
+            /*
+             * Probably received a result resource identifier.
+             * Copy it.
+             * Deprecated.  Here for compatibility only.
+             */
+            $db->last_query = '';
+            return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null, null,
+                'This DBMS can not obtain tableInfo from result sets');
+        }
+
+        $count = count($id);
+
+        // made this IF due to performance (one if is faster than $count if's)
+        if (!$mode) {
+            // partial
+            for ($i=0; $i<$count; $i++) {
+                $res[$i]['table'] = $case_func($result);
+                $res[$i]['name']  = $case_func($id[$i]['name']);
+                if (strpos($id[$i]['type'], '(') !== false) {
+                    $bits = explode('(', $id[$i]['type']);
+                    $res[$i]['type'] = $bits[0];
+                    $res[$i]['len'] = rtrim($bits[1],')');
+                } else {
+                    $res[$i]['type'] = $id[$i]['type'];
+                    $res[$i]['len'] = 0;
+                }
+
+                $res[$i]['flags'] = '';
+                if ($id[$i]['pk']) {
+                    $res[$i]['flags'] .= 'primary_key ';
+                }
+                if ($id[$i]['notnull']) {
+                    $res[$i]['flags'] .= 'not_null ';
+                }
+                if ($id[$i]['dflt_value'] !== null) {
+                    $res[$i]['flags'] .= 'default_'
+                                      . rawurlencode($id[$i]['dflt_value']);
+                }
+                $res[$i]['flags'] = trim($res[$i]['flags']);
+            }
+
+        } else {
+            // full
+            $res['num_fields'] = $count;
+
+            for ($i=0; $i<$count; $i++) {
+                $res[$i]['table'] = $case_func($result);
+                $res[$i]['name']  = $case_func($id[$i]['name']);
+                if (strpos($id[$i]['type'], '(') !== false) {
+                    $bits = explode('(', $id[$i]['type']);
+                    $res[$i]['type'] = $bits[0];
+                    $res[$i]['len'] = rtrim($bits[1],')');
+                } else {
+                    $res[$i]['type'] = $id[$i]['type'];
+                    $res[$i]['len'] = 0;
+                }
+
+                $res[$i]['flags'] = '';
+                if ($id[$i]['pk']) {
+                    $res[$i]['flags'] .= 'primary_key ';
+                }
+                if ($id[$i]['notnull']) {
+                    $res[$i]['flags'] .= 'not_null ';
+                }
+                if ($id[$i]['dflt_value'] !== null) {
+                    $res[$i]['flags'] .= 'default_'
+                                      . rawurlencode($id[$i]['dflt_value']);
+                }
+                $res[$i]['flags'] = trim($res[$i]['flags']);
+
+                if ($mode & MDB2_TABLEINFO_ORDER) {
+                    $res['order'][$res[$i]['name']] = $i;
+                }
+                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
+                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
+                }
+            }
+        }
+
+        if (!isset($res)) {
+            return $db->raiseError();
+        }
+        return $res;
+    }
 }
 
 ?>
