@@ -243,11 +243,9 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
 
         $function = ($this->options['persistent'] ? 'fbsql_pconnect' : 'fbsql_connect');
 
-        $dsninfo = $this->dsn;
-
-        $dbhost = $dsninfo['hostspec'] ? $dsninfo['hostspec'] : 'localhost';
-        $user = $dsninfo['username'];
-        $pw = $dsninfo['password'];
+        $dbhost = $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost';
+        $user = $this->dsn['username'];
+        $pw = $this->dsn['password'];
 
         if ($dbhost && $user && $pw) {
             $connection = @$function($dbhost, $user, $pw);
@@ -264,7 +262,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
-        $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
+        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
         return MDB2_OK;
     }

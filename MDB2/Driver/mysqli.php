@@ -304,31 +304,31 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $init = @mysqli_init();
             @mysqli_ssl_set(
                 $init,
-                empty($dsninfo['key'])    ? null : $dsninfo['key'],
-                empty($dsninfo['cert'])   ? null : $dsninfo['cert'],
-                empty($dsninfo['ca'])     ? null : $dsninfo['ca'],
-                empty($dsninfo['capath']) ? null : $dsninfo['capath'],
-                empty($dsninfo['cipher']) ? null : $dsninfo['cipher']
+                empty($this->dsn['key'])    ? null : $this->dsn['key'],
+                empty($this->dsn['cert'])   ? null : $this->dsn['cert'],
+                empty($this->dsn['ca'])     ? null : $this->dsn['ca'],
+                empty($this->dsn['capath']) ? null : $this->dsn['capath'],
+                empty($this->dsn['cipher']) ? null : $this->dsn['cipher']
             );
             if ($connection = @mysqli_real_connect(
                 $init,
-                $dsninfo['hostspec'],
-                $dsninfo['username'],
-                $dsninfo['password'],
-                $dsninfo['database'],
-                $dsninfo['port'],
-                $dsninfo['socket'])
+                $this->dsn['hostspec'],
+                $this->dsn['username'],
+                $this->dsn['password'],
+                $this->dsn['database'],
+                $this->dsn['port'],
+                $this->dsn['socket'])
             ) {
                 $connection = $init;
             }
         } else {
             $connection = @mysqli_connect(
-                $dsninfo['hostspec'],
-                $dsninfo['username'],
-                $dsninfo['password'],
-                $dsninfo['database'],
-                $dsninfo['port'],
-                $dsninfo['socket']
+                $this->dsn['hostspec'],
+                $this->dsn['username'],
+                $this->dsn['password'],
+                $this->dsn['database'],
+                $this->dsn['port'],
+                $this->dsn['socket']
             );
         }
 
@@ -339,7 +339,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';
-        $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
+        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
         $this->supported['transactions'] = false;
         if ($this->options['default_table_type']) {

@@ -255,14 +255,13 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
         $function = ($this->options['persistent'] ? 'mssql_pconnect' : 'mssql_connect');
 
-        $dsninfo = $this->dsn;
-        $dbhost = $dsninfo['hostspec'] ? $dsninfo['hostspec'] : 'localhost';
-        if ($dsninfo['port']) {
+        $dbhost = $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost';
+        if ($this->dsn['port']) {
             $dbhost .= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':')
-                     . $dsninfo['port'];
+                     . $this->dsn['port'];
         }
-        $user = $dsninfo['username'];
-        $pw = $dsninfo['password'];
+        $user = $this->dsn['username'];
+        $pw = $this->dsn['password'];
 
         if ($dbhost && $user && $pw) {
             $connection = @$function($dbhost, $user, $pw);
@@ -279,7 +278,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
-        $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
+        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
        if ((bool) ini_get('mssql.datetimeconvert')) {
            ini_set('mssql.datetimeconvert', '0');

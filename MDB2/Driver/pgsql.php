@@ -225,41 +225,41 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if ($database_name == '') {
             $database_name = 'template1';
         }
-        $dsninfo = $this->dsn;
-        $protocol = (isset($dsninfo['protocol'])) ? $dsninfo['protocol'] : 'tcp';
+
+        $protocol = (isset($this->dsn['protocol'])) ? $this->dsn['protocol'] : 'tcp';
         $connstr = '';
 
         if ($protocol == 'tcp') {
-            if ($dsninfo['hostspec']) {
-                $connstr .= ' host=' . $dsninfo['hostspec'];
+            if ($this->dsn['hostspec']) {
+                $connstr .= ' host=' . $this->dsn['hostspec'];
             }
-            if ($dsninfo['port']) {
-                $connstr .= ' port=' . $dsninfo['port'];
+            if ($this->dsn['port']) {
+                $connstr .= ' port=' . $this->dsn['port'];
             }
         } elseif ($protocol == 'unix') {
             // Allow for pg socket in non-standard locations.
-            if ($dsninfo['socket']) {
-                $connstr .= ' host=' . $dsninfo['socket'];
+            if ($this->dsn['socket']) {
+                $connstr .= ' host=' . $this->dsn['socket'];
             }
-            if ($dsninfo['port']) {
-                $connstr .= ' port=' . $dsninfo['port'];
+            if ($this->dsn['port']) {
+                $connstr .= ' port=' . $this->dsn['port'];
             }
         }
 
         if (isset($database_name)) {
             $connstr .= ' dbname=\'' . addslashes($database_name) . '\'';
         }
-        if (!empty($dsninfo['username'])) {
-            $connstr .= ' user=\'' . addslashes($dsninfo['username']) . '\'';
+        if (!empty($this->dsn['username'])) {
+            $connstr .= ' user=\'' . addslashes($this->dsn['username']) . '\'';
         }
-        if (!empty($dsninfo['password'])) {
-            $connstr .= ' password=\'' . addslashes($dsninfo['password']) . '\'';
+        if (!empty($this->dsn['password'])) {
+            $connstr .= ' password=\'' . addslashes($this->dsn['password']) . '\'';
         }
-        if (!empty($dsninfo['options'])) {
-            $connstr .= ' options=' . $dsninfo['options'];
+        if (!empty($this->dsn['options'])) {
+            $connstr .= ' options=' . $this->dsn['options'];
         }
-        if (!empty($dsninfo['tty'])) {
-            $connstr .= ' tty=' . $dsninfo['tty'];
+        if (!empty($this->dsn['tty'])) {
+            $connstr .= ' tty=' . $this->dsn['tty'];
         }
         putenv('PGDATESTYLE=ISO');
 

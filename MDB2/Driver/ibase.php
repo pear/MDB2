@@ -306,20 +306,19 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function _doConnect($database_name, $persistent = false)
     {
-        $dsninfo = $this->dsn;
-        $user    = $dsninfo['username'];
-        $pw      = $dsninfo['password'];
-        $dbhost  = $dsninfo['hostspec'] ?
-            ($dsninfo['hostspec'].':'.$database_name) : $database_name;
+        $user    = $this->dsn['username'];
+        $pw      = $this->dsn['password'];
+        $dbhost  = $this->dsn['hostspec'] ?
+            ($this->dsn['hostspec'].':'.$database_name) : $database_name;
 
         $params = array();
         $params[] = $dbhost;
         $params[] = !empty($user) ? $user : null;
         $params[] = !empty($pw) ? $pw : null;
-        $params[] = isset($dsninfo['charset']) ? $dsninfo['charset'] : null;
-        $params[] = isset($dsninfo['buffers']) ? $dsninfo['buffers'] : null;
-        $params[] = isset($dsninfo['dialect']) ? $dsninfo['dialect'] : null;
-        $params[] = isset($dsninfo['role'])    ? $dsninfo['role'] : null;
+        $params[] = isset($this->dsn['charset']) ? $this->dsn['charset'] : null;
+        $params[] = isset($this->dsn['buffers']) ? $this->dsn['buffers'] : null;
+        $params[] = isset($this->dsn['dialect']) ? $this->dsn['dialect'] : null;
+        $params[] = isset($this->dsn['role'])    ? $this->dsn['role'] : null;
 
         $function = ($persistent ? 'ibase_pconnect' : 'ibase_connect');
         $connection = @call_user_func_array($function, $params);
@@ -373,7 +372,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $this->connected_dsn = $this->dsn;
             $this->connected_database_name = $database_file;
             $this->opened_persistent = $this->options['persistent'];
-            $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
+            $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
         }
         return MDB2_OK;
     }

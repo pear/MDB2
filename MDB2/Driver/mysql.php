@@ -308,17 +308,16 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
         $function = ($this->options['persistent'] ? 'mysql_pconnect' : 'mysql_connect');
 
-        $dsninfo = $this->dsn;
-        if (isset($dsninfo['protocol']) && $dsninfo['protocol'] == 'unix') {
-            $dbhost = ':' . $dsninfo['socket'];
+        if (isset($this->dsn['protocol']) && $this->dsn['protocol'] == 'unix') {
+            $dbhost = ':' . $this->dsn['socket'];
         } else {
-            $dbhost = $dsninfo['hostspec'] ? $dsninfo['hostspec'] : 'localhost';
-            if (!empty($dsninfo['port'])) {
-                $dbhost .= ':' . $dsninfo['port'];
+            $dbhost = $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost';
+            if (!empty($this->dsn['port'])) {
+                $dbhost .= ':' . $this->dsn['port'];
             }
         }
-        $user = $dsninfo['username'];
-        $pw = $dsninfo['password'];
+        $user = $this->dsn['username'];
+        $pw = $this->dsn['password'];
 
         $connection = @$function($dbhost, $user, $pw, true);
         if ($connection <= 0) {
@@ -328,7 +327,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
-        $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
+        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
         $this->supported['transactions'] = false;
         if ($this->options['default_table_type']) {
