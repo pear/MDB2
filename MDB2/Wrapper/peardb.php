@@ -537,14 +537,14 @@ class MDB2_PEARProxy extends PEAR
     {
         if (!is_array($params)) {
             if (is_array($fetchmode)) {
-                if ($params === null) {
+                if (is_null($params)) {
                     $tmp = DB_FETCHMODE_DEFAULT;
                 } else {
                     $tmp = $params;
                 }
                 $params = $fetchmode;
                 $fetchmode = $tmp;
-            } elseif ($params !== null) {
+            } elseif (!is_null($params)) {
                 $fetchmode = $params;
                 $params = array();
             }
@@ -569,16 +569,16 @@ class MDB2_PEARProxy extends PEAR
         $all = $result->result->fetchAll($fetchmode, true, $force_array, $group);
         $first = reset($all);
         if (isset($first) && $this->db_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
-            if(is_array($first)) {
-                foreach($all as $key => $arr) {
+            if (is_array($first)) {
+                foreach ($all as $key => $arr) {
                     $this->_convertNullArrayValuesToEmpty($all[$key]);
                 }
-            } elseif(is_object($first)) {
-                foreach($all as $key => $arr) {
+            } elseif (is_object($first)) {
+                foreach ($all as $key => $arr) {
                     $tmp = get_object_vars($all[$key]);
-                    if(is_array($tmp)) {
+                    if (is_array($tmp)) {
                         $this->_convertNullArrayValuesToEmpty($tmp);
-                        foreach($tmp as $key2 => $column) {
+                        foreach ($tmp as $key2 => $column) {
                             $all[$key]->{$key2} = $column;
                         }
                     }
@@ -594,14 +594,14 @@ class MDB2_PEARProxy extends PEAR
     {
         if (!is_array($params)) {
             if (is_array($fetchmode)) {
-                if ($params === null) {
+                if (is_null($params)) {
                     $tmp = DB_FETCHMODE_DEFAULT;
                 } else {
                     $tmp = $params;
                 }
                 $params = $fetchmode;
                 $fetchmode = $tmp;
-            } elseif ($params !== null) {
+            } elseif (!is_null($params)) {
                 $fetchmode = $params;
                 $params = array();
             }
@@ -610,16 +610,16 @@ class MDB2_PEARProxy extends PEAR
         $all = $result->result->fetchAll($fetchmode);
         $first = reset($all);
         if (isset($first) && $this->db_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
-            if(is_array($first)) {
-                foreach($all as $key => $arr) {
+            if (is_array($first)) {
+                foreach ($all as $key => $arr) {
                     $this->_convertNullArrayValuesToEmpty($all[$key]);
                 }
-            } elseif(is_object($first)) {
-                foreach($all as $key => $arr) {
+            } elseif (is_object($first)) {
+                foreach ($all as $key => $arr) {
                     $tmp = get_object_vars($all[$key]);
-                    if(is_array($tmp)) {
+                    if (is_array($tmp)) {
                         $this->_convertNullArrayValuesToEmpty($tmp);
-                        foreach($tmp as $key2 => $column) {
+                        foreach ($tmp as $key2 => $column) {
                             $all[$key]->{$key2} = $column;
                         }
                     }
