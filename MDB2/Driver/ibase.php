@@ -52,7 +52,6 @@
  * @category Database
  * @author  Lorenzo Alberton <l.alberton@quipo.it>
  */
-
 class MDB2_Driver_ibase extends MDB2_Driver_Common
 {
     // {{{ properties
@@ -121,7 +120,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
         if (is_null($error)) {
             $error = MDB2_ERROR;
-            if ($native_errno) {
+            if ($native_code) {
                 // try to interpret Interbase error code (that's why we need ibase_errno()
                 // in the interbase module to return the real error code)
                 switch ($native_errno) {
@@ -176,7 +175,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     );
                 }
                 foreach ($error_regexps as $regexp => $code) {
-                    if (preg_match($regexp, $native_errmsg, $m)) {
+                    if (preg_match($regexp, $native_msg, $m)) {
                         $error = $code;
                         break;
                     }
@@ -445,7 +444,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
-    function &_executePrepared($prepared_query, $query, $types = null)
+    function &_executePrepared($prepared_query, $query, $types = null, $result_class = false)
     {
         $ismanip = MDB2::isManip($query);
         $offset = $this->row_offset;
@@ -785,7 +784,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
     }
 }
 
-class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
+class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
 {
     var $buffer;
     var $buffer_rownum = - 1;
