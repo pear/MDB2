@@ -728,7 +728,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_info = @ibase_field_info($this->result, $column);
-            $columns[$column_info['name']] = $column;
+            $columns[$column_info['alias']] = $column;
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $columns = array_change_key_case($columns, CASE_LOWER);
