@@ -24,16 +24,16 @@ $notes = <<<EOT
 - removed requirement for LOB inserts to pass the parameters as an array
 - placeholders are now numbered starting from 0 (BC break in setParam() !)
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
-- for PHP versions lower than 4 the transaction shutdown function is registered on load of MDB2.php (used to be a BC hack in the constructor of MDB_Driver_Common)
+- for PHP versions lower than 4 the transaction shutdown function is registered
+  on load of MDB2.php (used to be a BC hack in the constructor of MDB_Driver_Common)
 - allow errorInfo() to be called when no connection has been established yet
 - cleaned up constructor handling
-- fixed various typos
-- updated raiseError method to be compatible with XML_Parser 1.1.x and return
-  useful error message (fix bug #2055)
+- updated raiseError method in the Manager to be compatible with
+  XML_Parser 1.1.x and return useful error message (fix bug #2055)
 - improved handling of MDB2_PORTABILITY_LOWERCASE in all the reverse
   methods inside the mysql driver to work coherently
 - fixed several issues in the listTablefields() method of manager drivers
-- major refactoring of MDB2_Manager
+- major refactoring of MDB2_Manager resulting in several new methods being available
 - fixed error in MDB2_Manager::_escapeSpecialCharacter() that would lead to
   incorrect handling of integer values (this needs to be explored in more detail)
 - several typo fixes and minor logic errors (among others a fix for bug #2057)
@@ -50,7 +50,7 @@ $notes = <<<EOT
 - ensure we are returning a reference in all relevant places
 - reworked dsn default handling
 - added ability to "xxx" out password in getDSN()
-- "xxx" out password in MDB2::connect()
+- "xxx" out password on connect error in MDB2::connect()
 EOT;
 
 $description =<<<EOT
