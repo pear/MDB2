@@ -977,7 +977,7 @@ class MDB2_Tools_Manager extends PEAR
                     }
                     foreach ($previous_indexes as $index_previous_name => $index_previous) {
                         if (!isset($defined_indexes[$index_previous_name])) {
-                            $this->_addDefinitionChange($changes, 'indexes', $table_name, array('removed_indexes' => array($index_previous_name => 1)));
+                            $this->_addDefinitionChange($changes, 'indexes', $table_name, array('removed_indexes' => array($index_previous_name => $was_table_name)));
                             $this->db->debug("Removed index '$index_name' from table '$table_name'");
                         }
                     }
