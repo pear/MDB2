@@ -51,6 +51,14 @@ $notes = <<<EOT
 - reworked dsn default handling
 - added ability to "xxx" out password in getDSN()
 - "xxx" out password on connect error in MDB2::connect()
+- removed affectedRows() method in favor of returning affectedRows() on query if relevant
+- added generic implementation of query() and moved driver specific code into _doQuery()
+- use _close() method in several places where they previously were not used
+- removed redundant code in _close() that dealt with transaction closing already
+  done in disconnect()
+- added _modifyQuery() to any driver that did not yet have it yet
+- added code in MDB2_Driver_mssql::connect() to better handle date values
+  independant of ini and locale settings inside the server
 EOT;
 
 $description =<<<EOT
