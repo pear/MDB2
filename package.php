@@ -76,6 +76,8 @@ similar as possible as the ext/pdo API!
 - removed fetch() and resultIsNull()
 - refactored handling of filename LOB values (prefix with 'file://')
 - standaloneQuery() now also supports SELECT querys
+- added LOAD DATA (port from DB) to MDB2::isManip()
+- moved xml dumping in MDB2_Tools_Manager into separate Writer class
 EOT;
 
 $description =<<<EOT
