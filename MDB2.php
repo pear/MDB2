@@ -969,13 +969,6 @@ class MDB2_Driver_Common extends PEAR
     var $fetchmode = MDB2_FETCHMODE_ORDERED;
 
     /**
-     * the affected rows from the last manipulation query
-     * @var integer
-     * @access private
-     */
-    var $affected_rows = -1;
-
-    /**
      * contains all LOB objects created with this MDB2 instance
     * @var array
     * @access private
@@ -1631,7 +1624,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function standaloneQuery($query)
     {
-        return $this->query($query);
+        return $this->_doQuery($query, MDB2::isManip($query));
     }
 
     // }}}
@@ -1646,8 +1639,30 @@ class MDB2_Driver_Common extends PEAR
      * @return the new (modified) query
      * @access private
      */
-    function _modifyQuery($query) {
+    function _modifyQuery($query)
+    {
         return $query;
+    }
+
+    // }}}
+    // {{{ _doQuery()
+
+    /**
+     * Execute a query
+     *
+     * @param string $query  query
+     * @param boolean $ismanip  if the query is a manipulation query
+     * @return result or error object
+     * @access private
+     */
+    function _doQuery($query, $ismanip = false)
+    {
+        $this->last_query = $query;
+        $this->debug($query, 'query');
+        $error =& $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'query: method not implemented');
+        return $error;
+
     }
 
     // }}}
@@ -1666,10 +1681,23 @@ class MDB2_Driver_Common extends PEAR
      */
     function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
     {
-        $this->debug($query, 'query');
-        $error =& $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'query: method not implemented');
-        return $error;
+        $ismanip = MDB2::isManip($query);
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
+        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+
+        $result = $this->_doQuery($query, $ismanip);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+
+        if ($ismanip) {
+            return $result;
+        }
+
+        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
+        return $result_obj;
     }
 
     // }}}
@@ -1879,11 +1907,15 @@ class MDB2_Driver_Common extends PEAR
         if (!$in_transaction && MDB2::isError($result = $this->autoCommit(false))) {
             return $result;
         }
-        $success = $this->query("DELETE FROM $table$condition");
+        $query = "DELETE FROM $table$condition";
+        $success = $this->_doQuery($query, true);
         if (!MDB2::isError($success)) {
-            $affected_rows = $this->affected_rows;
-            $success = $this->query("INSERT INTO $table ($insert) VALUES ($values)");
-            $affected_rows += $this->affected_rows;
+            $affected_rows = $success;
+            $query = "INSERT INTO $table ($insert) VALUES ($values)";
+            $success = $this->_doQuery($query, true);
+            if (!MDB2::isError($success)) {
+                $affected_rows += $success;
+            }
         }
 
         if (!$in_transaction) {
@@ -1892,13 +1924,14 @@ class MDB2_Driver_Common extends PEAR
                     && !MDB2::isError($success = $this->autoCommit(TRUE))
                     && isset($this->supported['affected_rows'])
                 ) {
-                    $this->affected_rows = $affected_rows;
+                    return $affected_rows;
                 }
             } else {
                 $this->rollback();
                 $this->autoCommit(true);
             }
         }
+
         return $success;
     }
 
@@ -1956,32 +1989,6 @@ class MDB2_Driver_Common extends PEAR
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $statement =& new $class_name($this, $query, $positions, $types, $result_types);
         return $statement;
-    }
-
-    // }}}
-    // {{{ affectedRows()
-
-    /**
-     * returns the affected rows of a query
-     *
-     * @return mixed MDB2 Error Object or number of rows
-     * @access public
-     */
-    function affectedRows()
-    {
-        if (!$this->supports('affected_rows')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'affectedRows: method not implemented');
-        }
-        if (MDB2::isManip($this->last_query)) {
-            if ($this->affected_rows == -1) {
-                return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
-            }
-        } else {
-            $affected_rows = 0;
-        }
-
-        return $this->affected_rows;
     }
 
     // }}}
@@ -2909,6 +2916,7 @@ class MDB2_Statement_Common
              $this->db->datatype->freeBLOBValue($key, $value);
         }
         unset($this->blobs);
+
         return $success;
     }
 
