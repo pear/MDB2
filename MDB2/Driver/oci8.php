@@ -88,6 +88,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;
         $this->options['database_name_prefix'] = false;
+        $this->options['emulate_database'] = true;
         $this->options['default_tablespace'] = false;
         $this->options['home'] = false;
         $this->options['default_text_field_length'] = 4000;
@@ -113,7 +114,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (is_resource($error)) {
             $error_data = @OCIError($error);
             $error = null;
-        } elseif($this->connection) {
+        } elseif ($this->connection) {
             $error_data = @OCIError($this->connection);
         } else {
             $error_data = @OCIError();
@@ -168,8 +169,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if ($this->auto_commit == $auto_commit) {
             return MDB2_OK;
         }
-        if ($this->connection && $auto_commit && MDB2::isError($commit = $this->commit())) {
-            return $commit;
+        if ($auto_commit) {
+            if ($this->connection && MDB2::isError($commit = $this->commit())) {
+                return $commit;
+            }
+        } elseif (!$this->destructor_registered) {
+            $this->destructor_registered = true;
+            $this->PEAR();
         }
         $this->auto_commit = $auto_commit;
         $this->in_transaction = !$auto_commit;
@@ -285,6 +291,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function connect()
     {
+        if ($this->database_name && $this->options['emulate_database']) {
+             $this->dsn['username'] = $this->options['database_name_prefix'].$this->database_name;
+        }
         if ($this->connection != 0) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
                 && $this->opened_persistent == $this->options['persistent'])
@@ -294,27 +303,24 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $this->_close();
         }
 
-        if ($this->database_name) {
-            $database_name = $this->options['database_name_prefix'].$this->database_name;
-            $connection = $this->_doConnect($database_name, $this->dsn['password'], $this->options['persistent']);
-            if (MDB2::isError($connection)) {
-                return $connection;
-            }
-            $this->connection = $connection;
-            $this->connected_dsn = $this->dsn;
-            $this->opened_persistent = $this->options['persistent'];
-            $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-            $doquery = $this->_doQuery($query);
-            if (MDB2::isError($doquery)) {
-                $this->_close();
-                return $doquery;
-            }
-            $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
-            $doquery = $this->_doQuery($query);
-            if (MDB2::isError($doquery)) {
-                $this->_close();
-                return $doquery;
-            }
+        $connection = $this->_doConnect($this->dsn['username'], $this->dsn['password'], $this->options['persistent']);
+        if (MDB2::isError($connection)) {
+            return $connection;
+        }
+        $this->connection = $connection;
+        $this->connected_dsn = $this->dsn;
+        $this->opened_persistent = $this->options['persistent'];
+        $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
+        $doquery = $this->_doQuery($query);
+        if (MDB2::isError($doquery)) {
+            $this->_close();
+            return $doquery;
+        }
+        $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
+        $doquery = $this->_doQuery($query);
+        if (MDB2::isError($doquery)) {
+            $this->_close();
+            return $doquery;
         }
         return MDB2_OK;
     }
@@ -756,7 +762,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
                 if (!end($this->buffer)) {
                     return false;
                 }
-            } else if (isset($this->buffer[$rownum])) {
+            } elseif (isset($this->buffer[$rownum])) {
                 return (bool)$this->buffer[$rownum];
             }
         }
@@ -952,7 +958,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement
 
         $lob = array();
         $descriptors = array();
-        foreach($this->values as $parameter => $value) {
+        foreach ($this->values as $parameter => $value) {
             $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
             $lob_type = substr($type, 0, 4);
             if ($lob_type == 'clob' || $lob_type == 'blob') {
