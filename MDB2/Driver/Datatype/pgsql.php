@@ -396,53 +396,61 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 'error starting transaction');
         }
-        $close = true;
         if (is_resource($value)) {
             $close = false;
         } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+            $close = true;
             if ($match[1] == 'file://') {
                 $value = $match[2];
             }
+            // disabled use of pg_lo_import() for now with the following line
             $value = @fopen($value, 'r');
         } else {
+            $close = true;
             $fp = @tmpfile();
             @fwrite($fp, $value);
             @rewind($fp);
             $value = $fp;
         }
-        if (($lo = @pg_locreate($db->connection))) {
-            if (($handle = @pg_loopen($db->connection, $lo, 'w'))) {
-                $result = MDB2_OK;
-                while (!@feof($value)) {
-                    $data = @fread($value, $db->options['lob_buffer_length']);
-                    if (!@pg_lowrite($handle, $data)) {
-                        $result = $db->raiseError();
-                        break;
+        $result = false;
+        if (is_resource($value)) {
+            if (($lo = @pg_locreate($db->connection))) {
+                if (($handle = @pg_loopen($db->connection, $lo, 'w'))) {
+                    while (!@feof($value)) {
+                        $data = @fread($value, $db->options['lob_buffer_length']);
+                        if ($data === '') {
+                            break;
+                        }
+                        if (!@pg_lowrite($handle, $data)) {
+                            $result = $db->raiseError();
+                            break;
+                        }
                     }
+                    if (!PEAR::isError($result)) {
+                        $result = strval($lo);
+                    }
+                    @pg_loclose($handle);
+                } else {
+                    $result = $db->raiseError();
+                    @pg_lounlink($db->connection, $lo);
                 }
-                if ($close) {
-                    @fclose($value);
-                }
-                @pg_loclose($handle);
-                if (!MDB2::isError($result)) {
-                    $value = strval($lo);
-                }
-            } else {
-                $result = $db->raiseError();
             }
-            if (MDB2::isError($result)) {
-                $result = @pg_lounlink($db->connection, $lo);
+            if ($close) {
+                @fclose($value);
             }
         } else {
-            $result = $db->raiseError();
+            if (!@pg_lo_import($db->connection, $value)) {
+                $result = $db->raiseError();
+            }
         }
         if (!$db->in_transaction) {
-            @pg_exec($db->connection, 'END');
+            if (PEAR::isError($result)) {
+                @pg_exec($db->connection, 'ROLLBACK');
+            } else {
+                @pg_exec($db->connection, 'COMMIT');
+            }
         }
-        if (MDB2::isError($result)) {
-            return $result;
-        }
-        return $value;
+        return $result;
     }
 
     // }}}
