@@ -386,7 +386,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     function createSequence($seq_name, $start = 1)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->query("CREATE SEQUENCE $seq_name START WITH $start INCREMENT BY 1".
+        $sequence_name = $db->getSequenceName($seq_name);
+        return $db->query("CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1".
             ($start < 1 ? " MINVALUE $start" : ''));
     }
 
@@ -404,7 +405,37 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     function dropSequence($seq_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->query("DROP SEQUENCE $seq_name");
+        $sequence_name = $db->getSequenceName($seq_name);
+        return $db->query("DROP SEQUENCE $sequence_name");
     }
-}
+
+    // }}}
+    // {{{ listSequences()
+
+    /**
+     * list all sequences in the current database
+     *
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listSequences()
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $query = "SELECT sequence_name FROM sys.user_sequences";
+        $table_names = $db->queryCol($query);
+        if (MDB2::isError($table_names)) {
+            return $table_names;
+        }
+        $sequences = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
+            if ($sqn = $this->_isSequenceName($table_names[$i]))
+                $sequences[] = $sqn;
+        }
+        if ($db->options['optimize'] == 'portability') {
+            $sequences = array_flip($sequences);
+            $sequences = array_change_key_case($sequences, CASE_LOWER);
+            $sequences = array_flip($sequences);
+        }
+        return $sequences;
+    }}
 ?>
