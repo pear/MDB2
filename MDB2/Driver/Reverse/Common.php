@@ -269,7 +269,7 @@ class MDB2_Driver_Reverse_Common
      * @return array  an associative array with the information requested.
      *                If something goes wrong an error object is returned.
      *
-     * @see MDB2_common::setOption()
+     * @see MDB2_Driver_Common::setOption()
      * @access public
      */
     function tableInfo($result, $mode = null)

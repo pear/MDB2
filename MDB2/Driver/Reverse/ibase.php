@@ -83,7 +83,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      *                or an error object if something is wrong
      * @access public
      * @internal
-     * @see MDB2_common::tableInfo()
+     * @see MDB2_Driver_Common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {

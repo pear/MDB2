@@ -67,7 +67,7 @@
  * @category Database
  * @author  YOUR NAME <YOUR EMAIL>
  */
-class MDB2_xxx extends MDB2_Common
+class MDB2_xxx extends MDB2_Driver_Common
 {
 // Most of the class variables are taken from the corresponding Metabase driver.
 // Few are taken from the corresponding PEAR DB driver.
@@ -83,7 +83,7 @@ class MDB2_xxx extends MDB2_Common
     */
     function MDB2_xxx()
     {
-        $this->MDB2_common();
+        $this->MDB2_Driver_Common();
         $this->phptype = 'xxx';
         $this->dbsyntax = 'xxx';
 
