@@ -306,6 +306,61 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     }
 
     /**
+     * Test fetchAll()
+     *
+     * Test fetching an entire result set in one shot.
+     */
+    function testFetchAll() {
+        $data = array();
+        $total_rows = 5;
+
+        $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+
+        for ($row = 0; $row < $total_rows; $row++) {
+            $data[$row]['user_name'] = "user_$row";
+            $data[$row]['user_password'] = 'somepassword';
+            $data[$row]['subscribed'] = $row % 2 ? true : false;
+            $data[$row]['user_id'] = $row;
+            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
+            $data[$row]['weight'] = sqrt($row);
+            $data[$row]['access_date'] = MDB2_Date::mdbToday();
+            $data[$row]['access_time'] = MDB2_Date::mdbTime();
+            $data[$row]['approved'] = MDB2_Date::mdbNow();
+
+            $this->insertTestValues($prepared_query, $data[$row]);
+
+            $result = $this->db->execute($prepared_query);
+
+            if (MDB2::isError($result)) {
+                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+            }
+        }
+        $fields = array_keys($data[0]);
+        $query = 'SELECT '. implode (', ', $fields). ' FROM users';
+        echo $query;
+
+        $this->db->freePrepared($prepared_query);
+
+        //$result =& $this->db->query('SELECT user_name, user_password, FROM users', $this->types);
+        //$result =& $this->db->query('SELECT * FROM users');
+        $result =& $this->db->query($query, $this->types);
+        if (MDB2::isError($result)) {
+            $this->assertTrue(false, 'Error during query');
+        }
+        $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC);
+        if (MDB2::isError($values)) {
+            $this->assertTrue(false, 'Error fetching the result set');
+        } else {
+            for ($i=0; $i<$total_rows; $i++) {
+                foreach ($data[$i] as $key => $val) {
+                    $this->assertEquals($values[$i][$key], $val, 'Row #'.$i.', expected "'.$val.'", actual "'.$values[$i][$key].'"');
+                }
+            }
+        }
+        $result->free();
+    }
+
+    /**
      * Test prepared queries
      *
      * Tests prepared queries, making sure they correctly deal with ?, !, and '
