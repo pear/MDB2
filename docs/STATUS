@@ -23,11 +23,11 @@ numCols          -    -    T    -    -    -    -    -    -    -    -    -    -
 numRows          -    -    T    -    -    -    -    -    -    -    -    -    -
 errorNative      -    -    -    -    -    -    -    -    -    -    -    -    -
 prepare/execute  -    -    T    -    -    -    -    -    -    -    -    -    -
-sequences        -    -    T    -    -    -    -    -    -    -    -    -    -
+sequences        -    -   [1]   -    -    -    -    -    -    -    -    -    -
 affectedRows     -    -    l    -    -    -    -    -    -    -    -    -    -
 fetch modes      -    -    x    -    -    -    -    -    -    -    -    -    -
 fetch row by no  -    -    e    -    -    -    -    -    -    -    -    -    -
-transactions     -    -   [1]   -    -    -    -    -    -    -    -    -    -
+transactions     -    -    T   -    -    -    -    -    -    -    -    -    -
 auto-commit      -    -    T    -    -    -    -    -    -    -    -    -    -
 error mapping    -    -    x    -    -    -    -    -    -    -    -    -    -
 tableInfo        -    -    x    -    -    -    -    -    -    -    -    -    -
@@ -39,7 +39,7 @@ users            -    -    -    -    -    -    -    -    -    -    -    -    -
 databases        -    -    -    -    -    -    -    -    -    -    -    -    -
 functions        -    -    -    -    -    -    -    -    -    -    -    -    -
 
-[1] ibase under PHP 4 is unstable on Windows.
+[1] sequences are working, but not currId().
 
 
 Test Conformance
@@ -74,15 +74,17 @@ escapesequences  -    -    o    -    -    -    -    -    -    -    -    -    -
 ranges           -    -    o    -    -    -    -    -    -    -    -    -    -
 sequences        -    -    o    -    -    -    -    -    -    -    -    -    -
 replace          -    -    X    -    -    -    -    -    -    -    -    -    -
-affectedrows     -    -    X    -    -    -    -    -    -    -    -    -    -
-transactions     -    -   [1]   -    -    -    -    -    -    -    -    -    -
+affectedrows     -    -   [1]   -    -    -    -    -    -    -    -    -    -
+transactions     -    -   [2]   -    -    -    -    -    -    -    -    -    -
 lobstorage       -    -    X    -    -    -    -    -    -    -    -    -    -
 lobfiles         -    -    X    -    -    -    -    -    -    -    -    -    -
 lobnulls         -    -    X    -    -    -    -    -    -    -    -    -    -
 **[ BUGS ]********************************************************************
 fetchmodebug     -    -    X    -    -    -    -    -    -    -    -    -    -
 bug22328         -    -    o    -    -    -    -    -    -    -    -    -    -
+bug670           -    -    o    -    -    -    -    -    -    -    -    -    -
 bug681           -    -    o    -    -    -    -    -    -    -    -    -    -
+bug718           -    -    X    -    -    -    -    -    -    -    -    -    -
 **[ DATATYPE ]****************************************************************
 **[ MANAGER ]*****************************************************************
 createdatabase   -    -    -    -    -    -    -    -    -    -    -    -    -
@@ -91,7 +93,8 @@ updatedatabase   -    -    o    -    -    -    -    -    -    -    -    -    -
 getinsertid      -    -    n    -    -    -    -    -    -    -    -    -    -
 deleteoid        -    -    n    -    -    -    -    -    -    -    -    -    -
 **[ REVERSE ]*****************************************************************
-tableinfo        -    -    o    -    -    -    -    -    -    -    -    -    -
+tableinfo        -    -    X    -    -    -    -    -    -    -    -    -    -
 
 
-[1] ibase under PHP 4 is unstable on Windows.
+[1] test passed on PHP 5, not on PHP 4
+[2] test passed on PHP 4, not on PHP 5
