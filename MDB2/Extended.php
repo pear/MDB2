@@ -90,32 +90,34 @@ class MDB2_Extended
      *
      * @param string $table name of the table
      * @param array $table_fields ordered array containing the fields names
-     * @param array $types array that contains the types of the columns in
-     *        the result set
+     * @param mixed   $types  array that contains the types of the placeholders
+     * @param mixed   $result_types  array that contains the types of the columns in
+     *                        the result set
      * @param int $mode type of query to make (MDB2_AUTOQUERY_INSERT or MDB2_AUTOQUERY_UPDATE)
      * @param string $where in case of update queries, this string will be put after the sql WHERE statement
      * @return resource handle for the query
      * @see buildManipSQL
      * @access public
      */
-    function autoPrepare($table, $table_fields, $types = null,
+    function autoPrepare($table, $table_fields, $types = null, $result_types = null,
         $mode = MDB2_AUTOQUERY_INSERT, $where = false)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = $this->buildManipSQL($table, $table_fields, $mode, $where);
-        return $db->prepare($query, $types);
+        return $db->prepare($query, $types, $result_types);
     }
 
     // {{{
     // }}} autoExecute()
 
     /**
-     * Make automaticaly an insert or update query and call prepare() and executeParams() with it
+     * Make automaticaly an insert or update query and call prepare() and execute() with it
      *
      * @param string $table name of the table
      * @param array $fields_values assoc ($key=>$value) where $key is a field name and $value its value
-     * @param array $types array that contains the types of the columns in
-     *        the result set
+     * @param mixed   $types  array that contains the types of the placeholders
+     * @param mixed   $result_types  array that contains the types of the columns in
+     *                        the result set
      * @param int $mode type of query to make (MDB2_AUTOQUERY_INSERT or MDB2_AUTOQUERY_UPDATE)
      * @param array $param_types array that contains the types of the values
      *        defined in $params
@@ -126,13 +128,15 @@ class MDB2_Extended
      * @see autoPrepare
      * @access public
     */
-    function &autoExecute($table, $fields_values, $types = null, $param_types = null,
+    function &autoExecute($table, $fields_values, $types = null, $result_types = null,
         $mode = MDB2_AUTOQUERY_INSERT, $where = false, $result_class = true)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $prepared_query = $this->autoPrepare($table, array_keys($fields_values), $types, $mode, $where);
-        $result =& $db->executeParams($prepared_query, $param_types, array_values($fields_values), $result_class);
-        $db->freePrepared($prepared_query);
+        $stmt = $this->autoPrepare($table, array_keys($fields_values), $types, $result_types, $mode, $where);
+        $params = array_values($fields_values);
+        $prepare_query->bindParamArray($params);
+        $result =& $stmt->execute($result_class);
+        $stmt->free();
         return $result;
     }
 
@@ -248,22 +252,24 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         settype($params, 'array');
+        settype($type, 'array');
         if (count($params) == 0) {
             return $db->queryOne($query, $type, $colnum);
         }
 
-        $prepared_query = $db->prepare($query, $param_types);
-        if (MDB2::isError($prepared_query)) {
-            return $prepared_query;
+        $stmt = $db->prepare($query, $param_types, $type);
+        if (MDB2::isError($stmt)) {
+            return $stmt;
         }
 
-        $result = $db->executeParams($prepared_query, $type, $params);
+        $stmt->bindParamArray($params);
+        $result = $stmt->execute();
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
         $one = $result->fetchOne($colnum);
-        $db->freePrepared($prepared_query);
+        $stmt->free();
         $result->free();
         return $one;
     }
@@ -295,18 +301,19 @@ class MDB2_Extended
             return $db->queryRow($query, $types, $fetchmode);
         }
 
-        $prepared_query = $db->prepare($query, $param_types);
-        if (MDB2::isError($prepared_query)) {
-            return $prepared_query;
+        $stmt = $db->prepare($query, $param_types, $types);
+        if (MDB2::isError($stmt)) {
+            return $stmt;
         }
 
-        $result = $db->executeParams($prepared_query, $types, $params);
+        $stmt->bindParamArray($params);
+        $result = $stmt->execute();
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
         $row = $result->fetchRow($fetchmode);
-        $db->freePrepared($prepared_query);
+        $stmt->free();
         $result->free();
         return $row;
     }
@@ -334,22 +341,24 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         settype($params, 'array');
+        settype($type, 'array');
         if (count($params) == 0) {
             return $db->queryCol($query, $type, $colnum);
         }
 
-        $prepared_query = $db->prepare($query, $param_types);
-        if (MDB2::isError($prepared_query)) {
-            return $prepared_query;
+        $stmt = $db->prepare($query, $param_types, $type);
+        if (MDB2::isError($stmt)) {
+            return $stmt;
         }
 
-        $result = $db->executeParams($prepared_query, $type, $params);
+        $stmt->bindParamArray($params);
+        $result = $stmt->execute();
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
         $col = $result->fetchCol($colnum);
-        $db->freePrepared($prepared_query);
+        $stmt->free();
         $result->free();
         return $col;
     }
@@ -390,18 +399,19 @@ class MDB2_Extended
             return $db->queryAll($query, $types, $fetchmode, $rekey, $force_array, $group);
         }
 
-        $prepared_query = $db->prepare($query, $param_types);
-        if (MDB2::isError($prepared_query)) {
-            return $prepared_query;
+        $stmt = $db->prepare($query, $param_types, $types);
+        if (MDB2::isError($stmt)) {
+            return $stmt;
         }
 
-        $result = $db->executeParams($prepared_query, $types, $params);
+        $stmt->bindParamArray($params);
+        $result = $stmt->execute();
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
         $all = $result->fetchAll($fetchmode, $rekey, $force_array, $group);
-        $db->freePrepared($prepared_query);
+        $stmt->free();
         $result->free();
         return $all;
     }
@@ -488,18 +498,19 @@ class MDB2_Extended
             return $db->queryAll($query, $types, $fetchmode, true, $force_array, $group);
         }
 
-        $prepared_query = $db->prepare($query, $param_types);
-        if (MDB2::isError($prepared_query)) {
-            return $prepared_query;
+        $stmt = $db->prepare($query, $param_types, $types);
+        if (MDB2::isError($stmt)) {
+            return $stmt;
         }
 
-        $result = $db->executeParams($prepared_query, $types, $params);
+        $stmt->bindParamArray($params);
+        $result = $stmt->execute();
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
         $all = $result->fetchAll($fetchmode, true, $force_array, $group);
-        $db->freePrepared($prepared_query);
+        $stmt->free();
         $result->free();
         return $all;
     }
