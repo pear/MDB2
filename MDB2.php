@@ -884,6 +884,7 @@ class MDB2_Driver_Common extends PEAR
     var $supported = array();
 
     /**
+     * $options['ssl'] -> determines if ssl should be used for connections
      * $options['disable_query'] -> determines if querys should be executed
      * $options['result_class'] -> class used for result sets
      * $options['buffered_result_class'] -> class used for buffered result sets
@@ -904,6 +905,7 @@ class MDB2_Driver_Common extends PEAR
      * @access public
      */
     var $options = array(
+            'ssl' => false,
             'disable_query' => false,
             'result_class' => 'MDB2_Result_%s',
             'buffered_result_class' => 'MDB2_BufferedResult_%s',
