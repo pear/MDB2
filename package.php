@@ -89,6 +89,8 @@ similar as possible as the ext/pdo API!
 - removed _executePrepared(), drivers need to overwrite execute() for now on
 - fbsql: use correct error codes. Was using MySQL's codes by mistake.
 - add support for oracle style named parameters and modified test suite accordingly
+- dont convert sequence names if sequences are supported natively (BC break!)
+- removed executeParams() and executeMultiple()
 EOT;
 
 $description =<<<EOT
