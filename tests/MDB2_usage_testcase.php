@@ -384,10 +384,10 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $question_value = $this->db->quote("Wouldn't it be great if this worked too?", 'text');
 
-        $prepared_query = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 2)", array('text'));
+        $prepared_query = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (:text, $question_value, 2)", array('text'));
 
         $value = 'For Sure!';
-        $prepared_query->bindParam(0, $value);
+        $prepared_query->bindParam('text', $value);
 
         $result = $prepared_query->execute();
 
@@ -979,7 +979,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1,?,?)';
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1,:document, :picture)';
         $prepared_query = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'));
 
         $character_lob = '';
@@ -1048,7 +1048,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1,?,?)';
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
         $prepared_query = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'));
 
         $character_data_file = 'character_data';
@@ -1130,7 +1130,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1,?,?)';
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
         $prepared_query = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'));
 
         $null = null;
