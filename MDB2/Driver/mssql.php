@@ -74,6 +74,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->supported['sequences'] = true;
         $this->supported['indexes'] = true;
         $this->supported['affected_rows'] = true;
+        $this->supported['transactions'] = true;
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
         $this->supported['current_id'] = false;
@@ -81,7 +82,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
-        $this->supported['transactions'] = true;
         $this->supported['auto_increment'] = true;
 
         $db->options['database_device'] = false;
@@ -241,7 +241,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      * Connect to the database
      *
      * @return true on success, MDB2 Error Object on failure
-     **/
+     */
     function connect()
     {
         if ($this->connection != 0) {
@@ -254,30 +254,29 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
-            return $this->raiseError(null, MDB2_ERROR_NOT_FOUND, null, null,
+            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
         $function = ($this->options['persistent'] ? 'mssql_pconnect' : 'mssql_connect');
 
         $dsninfo = $this->dsn;
-        $user = $dsninfo['username'];
-        $pw = $dsninfo['password'];
         $dbhost = $dsninfo['hostspec'] ? $dsninfo['hostspec'] : 'localhost';
         if ($dsninfo['port']) {
             $dbhost .= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':')
                      . $dsninfo['port'];
         }
+        $user = $dsninfo['username'];
+        $pw = $dsninfo['password'];
 
         if ($dbhost && $user && $pw) {
             $connection = @$function($dbhost, $user, $pw);
         } elseif ($dbhost && $user) {
             $connection = @$function($dbhost, $user);
-        } elseif ($dbhost) {
-            $connection = @$function($dbhost);
         } else {
-            $connection = 0;
+            $connection = @$function($dbhost);
         }
+
         if ($connection <= 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
@@ -306,12 +305,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if (($this->opened_persistent || $force)
-            && $this->connection != 0
-        ) {
-            @mssql_close($this->connection);
-            $this->connection = 0;
-        } else {
+        if ($this->connection != 0) {
+            if (!$this->opened_persistent || $force) {
+                @mssql_close($this->connection);
+            }
             $this->connection = 0;
         }
         return MDB2_OK;
@@ -331,7 +328,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
-        // $database_name = sp_databases
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
@@ -413,7 +409,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function nextID($seq_name, $ondemand = true)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        $query = "INSERT INTO $sequence_name DEFAULT VALUES";
+        $query = "INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (0)";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);
         $this->popExpect();
@@ -426,7 +422,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                 $result = $this->manager->createSequence($seq_name, 2);
                 if (MDB2::isError($result)) {
                     return $this->raiseError(MDB2_ERROR, null, null,
-                        'nextID: on demand sequence could not be created');
+                        'nextID: on demand sequence '.$seq_name.' could not be created');
                 } else {
                     // First ID of a newly created sequence is 1
                     return 1;
