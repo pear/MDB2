@@ -451,13 +451,13 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $ismanip  if the query is a manipulation query
+     * @param boolean $isManip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
@@ -473,16 +473,19 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
 
         $result = ibase_query($connection, $query);
-        if (!$result) {
-            return $this->raiseError();
+
+        if ($result === false) {
+            $error =& $this->db->raiseError();
+            return $error;
         }
 
         if ($isManip) {
             return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
-            //return (function_exists('ibase_affected_rows') ? $result : 0);
         }
 
-        return $result;
+        $result_obj =& $this->db->_wrapResult($result, $this->types,
+            $result_class, $result_wrap_class, $this->row_limit, $this->row_offset);
+        return $result_obj;
     }
 
     // }}}
@@ -598,12 +601,10 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        /*
         if ($this->result === true) {
             //query successfully executed, but without results...
             return null;
         }
-        */
         if (!$this->_skipLimitOffset()) {
             return null;
         }
@@ -810,6 +811,10 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
+        if ($this->result === true) {
+            //query successfully executed, but without results...
+            return null;
+        }
         if (is_null($this->result)) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'fetchRow: resultset has already been freed');
@@ -980,15 +985,9 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             $error =& $this->db->raiseError();
             return $error;
         }
-        
-        if ($isManip) {
-            $this->db->affected_rows = (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
-            return $this->db->affected_rows;
-        }
 
-        // return empty result ...
-        if ($result === true) {
-            return true;
+        if ($isManip) {
+            return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
         }
 
         $result_obj =& $this->db->_wrapResult($result, $this->types,
