@@ -80,7 +80,7 @@ class MDB2_Tools_Manager_Writer
      */
     function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
     {
-        return MDB2_Driver_Common::raiseError($code, $mode, $options, $userinfo);
+        return MDB2::raiseError($code, $mode, $options, $userinfo);
     }
 
     // }}}

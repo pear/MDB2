@@ -182,7 +182,7 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     */
     function rewind()
     {
-        MDB2_Driver_Common::raiseError(MDB2_ERROR_NOT_CAPABLE);
+        MDB2::raiseError(MDB2_ERROR_NOT_CAPABLE);
     }
 }
 

@@ -456,7 +456,7 @@ class MDB2_Tools_Parser extends XML_Parser
                 $error .= " - Byte: $byte; Line: $line; Col: $column";
             }
             $error .= "\n";
-            $this->error = MDB2_Driver_Common::raiseError(MDB2_ERROR_MANAGER_PARSE, null, null, $error);
+            $this->error = MDB2::raiseError(MDB2_ERROR_MANAGER_PARSE, null, null, $error);
         }
         return $this->error;
     }

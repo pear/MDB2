@@ -287,15 +287,17 @@ class MDB2
     function &factory($type)
     {
         $class_name = 'MDB2_Driver_'.$type;
-        $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
 
-        if (!MDB2::fileExists($file_name)) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'unable to find: '.$file_name);
-        }
-        if (!class_exists($class_name) && !include_once($file_name)) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'unable to load driver class: '.$file_name);
+        if (!class_exists($class_name)) {
+            $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
+            if (!MDB2::fileExists($file_name)) {
+                return MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                    'unable to find: '.$file_name);
+            }
+            if (!include_once($file_name)) {
+                return MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                    'unable to load driver class: '.$file_name);
+            }
         }
 
         $obj =& new $class_name();
@@ -335,7 +337,7 @@ class MDB2
     {
         $dsninfo = MDB2::parseDSN($dsn);
         if (!isset($dsninfo['phptype'])) {
-            return MDB2_Driver_Common::raiseError(MDB2_ERROR_NOT_FOUND,
+            return MDB2::raiseError(MDB2_ERROR_NOT_FOUND,
                 null, null, 'no RDBMS driver specified');
         }
         $type = $dsninfo['phptype'];
@@ -430,11 +432,11 @@ class MDB2
     {
         $file_name = 'MDB2'.DIRECTORY_SEPARATOR.$file.'.php';
         if (!MDB2::fileExists($file_name)) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+            return MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'unable to find: '.$file_name);
         }
         if (!include_once($file_name)) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+            return MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'unable to load driver class: '.$file_name);
         }
         return $file_name;
@@ -452,6 +454,37 @@ class MDB2
     function apiVersion()
     {
         return '@package_version@';
+    }
+
+    // }}}
+    // {{{ raiseError()
+
+    /**
+     * This method is used to communicate an error and invoke error
+     * callbacks etc.  Basically a wrapper for PEAR::raiseError
+     * without the message string.
+     *
+     * @param mixed    integer error code
+     *
+     * @param int      error mode, see PEAR_Error docs
+     *
+     * @param mixed    If error mode is PEAR_ERROR_TRIGGER, this is the
+     *                 error level (E_USER_NOTICE etc).  If error mode is
+     *                 PEAR_ERROR_CALLBACK, this is the callback function,
+     *                 either as a function name, or as an array of an
+     *                 object and method name.  For other error modes this
+     *                 parameter is ignored.
+     *
+     * @param string   Extra debug information.  Defaults to the last
+     *                 query and native error code.
+     *
+     * @return object  a PEAR error object
+     *
+     * @see PEAR_Error
+     */
+    function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
+    {
+        return PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
     }
 
     // }}}
@@ -1166,7 +1199,7 @@ class MDB2_Driver_Common extends PEAR
                 $mode    = $this->_default_error_mode;
                 $options = $this->_default_error_options;
             }
-            return PEAR::raiseError($code, null, $mode, $options, null, 'MDB2_Error', true);
+            return MDB2::raiseError($code, $mode, $options);
         }
 
         if (is_null($userinfo) && isset($this->connection)) {
@@ -1185,7 +1218,7 @@ class MDB2_Driver_Common extends PEAR
             $userinfo = "[Error message: $userinfo]\n";
         }
 
-        return PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        return MDB2::raiseError($code, $mode, $options, $userinfo);
     }
 
 

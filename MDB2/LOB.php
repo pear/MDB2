@@ -114,7 +114,7 @@ class MDB2_LOB_Result extends MDB2_LOB
     function create(&$arguments)
     {
         if (!isset($arguments['resultLOB'])) {
-            return MDB2_Driver_Common::raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return MDB2::raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'MDB2_LOB_Result::create: it was not specified a result LOB identifier');
         }
         $this->result_lob = $arguments['resultLOB'];
@@ -138,7 +138,7 @@ class MDB2_LOB_Result extends MDB2_LOB
             return $read_length;
         }
         if ($read_length < 0) {
-            return MDB2_Driver_Common::raiseError(MDB2_ERROR_INVALID, null, null,
+            return MDB2::raiseError(MDB2_ERROR_INVALID, null, null,
                 'MDB2_LOB_Result::readLOB: data was read beyond end of data source');
         }
         return $read_length;
@@ -165,26 +165,26 @@ class MDB2_LOB_Output_File extends MDB2_LOB
     {
         if (isset($arguments['buffer_fength'])) {
             if ($arguments['buffer_length'] <= 0) {
-                return MDB2_Driver_Common::raiseError(MDB2_ERROR_INVALID, null, null,
+                return MDB2::raiseError(MDB2_ERROR_INVALID, null, null,
                     'MDB2_LOB_Output_File::create: it was specified an invalid buffer length');
             }
             $this->buffer_length = $arguments['buffer_length'];
         }
         if (isset($arguments['file'])) {
             if (intval($arguments['file']) == 0) {
-                return MDB2_Driver_Common::raiseError(MDB2_ERROR_INVALID, null, null,
+                return MDB2::raiseError(MDB2_ERROR_INVALID, null, null,
                     'MDB2_LOB_Output_File::create: it was specified an invalid output file identifier');
             }
             $this->file = $arguments['file'];
         } else {
             if (isset($arguments['file_name'])) {
                 if ((!$this->file = fopen($arguments['file_name'],'wb'))) {
-                    return MDB2_Driver_Common::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                    return MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                         'MDB2_LOB_Output_File::create: could not open specified output file ("'.$arguments['file_name'].'")');
                 }
                 $this->opened_file = true;
             } else {
-                return MDB2_Driver_Common::raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return MDB2::raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'MDB2_LOB_Output_File::create: it was not specified the output file');
             }
         }
@@ -230,7 +230,7 @@ class MDB2_LOB_Output_File extends MDB2_LOB
                 }
                 $read = strlen($buffer);
                 if (@fwrite($this->file, $buffer, $read)!= $read) {
-                    return MDB2_Driver_Common::raiseError(MDB2_ERROR, null, null,
+                    return MDB2::raiseError(MDB2_ERROR, null, null,
                         'MDB2_LOB_Output_File::readLOB: could not write to the output file');
                 }
             }
