@@ -662,12 +662,12 @@ class MDB2_Tools_Manager extends PEAR
                 'no valid sequence name specified');
         }
         $this->db->debug('Create sequence: '.$sequence_name);
-        $start = null;
+        $start = 1;
         if (isset($sequence['on'])) {
             $table = $sequence['on']['table'];
             $field = $sequence['on']['field'];
             if ($this->db->supports('summary_functions')) {
-                $field = "SELECT MAX($field) FROM $table";
+                $query = "SELECT MAX($field) FROM $table";
             } else {
                 $query = "SELECT $field FROM $table ORDER BY $field DESC";
             }
@@ -676,11 +676,8 @@ class MDB2_Tools_Manager extends PEAR
                 return $start;
             }
             $start++;
-        }
-        if (isset($sequence['start']) && is_numeric($sequence['start'])) {
+        } elseif (isset($sequence['start']) && is_numeric($sequence['start'])) {
             $start = $sequence['start'];
-        } else {
-            $start = 1;
         }
         $this->expectError(MDB2_ERROR_ALREADY_EXISTS);
         $result = $this->db->manager->createSequence($sequence_name, $start);
