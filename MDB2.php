@@ -94,12 +94,14 @@ define('MDB2_ERROR_EXTENSION_NOT_FOUND',-25);
 define('MDB2_ERROR_NOSUCHDB',           -26);
 define('MDB2_ERROR_ACCESS_VIOLATION',   -27);
 define('MDB2_ERROR_CANNOT_REPLACE',     -28);
-define('MDB2_ERROR_CANNOT_ALTER',       -29);
-define('MDB2_ERROR_MANAGER',            -30);
-define('MDB2_ERROR_MANAGER_PARSE',      -31);
-define('MDB2_ERROR_LOADMODULE',         -32);
-define('MDB2_ERROR_INSUFFICIENT_DATA',  -33);
-define('MDB2_ERROR_CONSTRAINT_NOT_NULL',-34);
+define('MDB2_ERROR_CONSTRAINT_NOT_NULL',-29);
+define('MDB2_ERROR_DEADLOCK',           -30);
+define('MDB2_ERROR_CANNOT_ALTER',       -31);
+define('MDB2_ERROR_MANAGER',            -32);
+define('MDB2_ERROR_MANAGER_PARSE',      -33);
+define('MDB2_ERROR_LOADMODULE',         -34);
+define('MDB2_ERROR_INSUFFICIENT_DATA',  -35);
+
 
 /**
  * This is a special constant that tells MDB2 the user hasn't specified
@@ -503,7 +505,8 @@ class MDB2
                 MDB2_ERROR_MANAGER            => 'MDB2_manager error',
                 MDB2_ERROR_MANAGER_PARSE      => 'MDB2_manager schema parse error',
                 MDB2_ERROR_LOADMODULE         => 'Error while including on demand module',
-                MDB2_ERROR_TRUNCATED          => 'truncated'
+                MDB2_ERROR_TRUNCATED          => 'truncated',
+                MDB2_ERROR_DEADLOCK           => 'deadlock detected',
             );
         }
 
@@ -1153,6 +1156,7 @@ class MDB2_Driver_Common extends PEAR
                     'unable to find module: '.$module);
                 return $error;
             }
+
             if (!class_exists($class_name)) {
                 $error =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                     'unable to load module: '.$module.' into property: '.$property);
