@@ -490,7 +490,7 @@ class MDB2_Extended
      * @access public
      */
     function getAssoc($query, $types = null, $params = array(), $param_types = null,
-        $fetchmode = MDB2_FETCHMODE_ORDERED, $force_array = false, $group = false)
+        $fetchmode = MDB2_FETCHMODE_DEFAULT, $force_array = false, $group = false)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         settype($params, 'array');
