@@ -207,8 +207,20 @@ define('MDB2_PORTABILITY_ALL', 63);
  * These are global variables that are used to track the various class instances
  */
 
-$GLOBALS['_MDB2_LOBs'] = array();
 $GLOBALS['_MDB2_databases'] = array();
+$GLOBALS['_MDB2_LOBs'] = array();
+$GLOBALS['_MDB2_dsninfo_default'] = array(
+    'phptype'  => false,
+    'dbsyntax' => false,
+    'username' => false,
+    'password' => false,
+    'protocol' => false,
+    'hostspec' => false,
+    'port'     => false,
+    'socket'   => false,
+    'database' => false,
+    'mode'     => false,
+);
 
 /**
  * The main 'MDB2' class is simply a container class with some static
@@ -353,7 +365,7 @@ class MDB2
         if (isset($dsninfo['database'])) {
             $err = $db->connect();
             if (MDB2::isError($err)) {
-                $dsn = $db->getDSN();
+                $dsn = $db->getDSN('string', 'xxx');
                 $db->disconnect();
                 $err->addUserInfo($dsn);
                 return $err;
@@ -396,19 +408,7 @@ class MDB2
     {
         if ($dsn) {
             $dsninfo = MDB2::parseDSN($dsn);
-            $dsninfo_default = array(
-                'phptype'  => false,
-                'dbsyntax' => false,
-                'username' => false,
-                'password' => false,
-                'protocol' => false,
-                'hostspec' => false,
-                'port'     => false,
-                'socket'   => false,
-                'database' => false,
-                'mode'     => false,
-            );
-            $dsninfo = array_merge($dsninfo_default, $dsninfo);
+            $dsninfo = array_merge($GLOBALS['_MDB2_dsninfo_default'], $dsninfo);
             $keys = array_keys($GLOBALS['_MDB2_databases']);
             for ($i=0, $j=count($keys); $i<$j; ++$i) {
                 $tmp_dsn = $GLOBALS['_MDB2_databases'][$keys[$i]]->getDSN('array');
@@ -649,18 +649,7 @@ class MDB2
      */
     function parseDSN($dsn)
     {
-        $parsed = array(
-            'phptype'  => false,
-            'dbsyntax' => false,
-            'username' => false,
-            'password' => false,
-            'protocol' => false,
-            'hostspec' => false,
-            'port'     => false,
-            'socket'   => false,
-            'database' => false,
-            'mode'     => false,
-        );
+        $parsed = $GLOBALS['_MDB2_dsninfo_default'];
 
         if (is_array($dsn)) {
             $dsn = array_merge($parsed, $dsn);
@@ -1589,17 +1578,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function setDSN($dsn)
     {
-        $dsn_default = array (
-            'phptype'  => false,
-            'dbsyntax' => false,
-            'username' => false,
-            'password' => false,
-            'protocol' => false,
-            'hostspec' => false,
-            'port'     => false,
-            'socket'   => false,
-            'mode'     => false,
-        );
+        $dsn_default = $GLOBALS['_MDB2_dsninfo_default'];
         $dsn = MDB2::parseDSN($dsn);
         if (isset($dsn['database'])) {
             $this->database_name = $dsn['database'];
@@ -1616,24 +1595,18 @@ class MDB2_Driver_Common extends PEAR
      * return the DSN as a string
      *
      * @param string     $type    type to return
+     * @param string     $hidepw  string to hide the password with
      * @return mixed DSN in the chosen type
      * @access public
      */
-    function getDSN($type = 'string')
+    function getDSN($type = 'string', $hidepw = false)
     {
-        $dsn_default = array (
-            'phptype'  => $this->phptype,
-            'dbsyntax' => false,
-            'username' => false,
-            'password' => false,
-            'protocol' => false,
-            'hostspec' => false,
-            'port'     => false,
-            'socket'   => false,
-            'database' => $this->database_name,
-            'mode'     => false,
-        );
-        $dsn = array_merge($dsn_default, $this->dsn);
+        $dsn = array_merge($GLOBALS['_MDB2_dsninfo_default'], $this->dsn);
+        $dsn['phptype'] = $this->phptype;
+        $dsn['database'] = $this->database_name;
+        if ($hidepw) {
+            $dsn['password'] = $hidepw;
+        }
         switch ($type) {
             // expand to include all possible options
             case 'string':
@@ -1713,7 +1686,7 @@ class MDB2_Driver_Common extends PEAR
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
-    function _wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit)
+    function &_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit)
     {
         if (!$ismanip) {
             if (!$result_class) {
@@ -1791,7 +1764,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function subSelect($query, $type = false)
     {
-        if ($this->supported['sub_selects'] == true) {
+        if ($this->supported['sub_selects']) {
             return $query;
         }
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
@@ -1946,7 +1919,7 @@ class MDB2_Driver_Common extends PEAR
      * @access public
      * @see execute
      */
-    function prepare($query, $types = null, $result_types = null)
+    function &prepare($query, $types = null, $result_types = null)
     {
         $this->debug($query, 'prepare');
         $positions = array();
@@ -2053,10 +2026,7 @@ class MDB2_Driver_Common extends PEAR
         if (MDB2::isError($result)) {
             return $result;
         }
-        if (method_exists($this->datatype, "get{$type}Declaration")) {
-            return $this->datatype->{"get{$type}Declaration"}($name, $field);
-        }
-        return $this->raiseError('type not defined: '.$type);
+        return $this->datatype->getDeclaration($type, $name, $field);
     }
 
     // }}}
