@@ -1886,11 +1886,16 @@ class MDB2_Tools_Manager extends PEAR
      */
     function updateDatabase($current_schema_file, $previous_schema_file = false, $variables = array())
     {
-        $database_definition = $this->parseDatabaseDefinitionFile($current_schema_file,
-            $variables, $this->options['fail_on_invalid_names']);
+        $database_definition = $this->parseDatabaseDefinitionFile(
+            $current_schema_file,
+            $variables,
+            $this->options['fail_on_invalid_names']
+        );
+
         if (MDB2::isError($database_definition)) {
             return $database_definition;
         }
+
         $this->database_definition = $database_definition;
         $copy = false;
 
@@ -1903,7 +1908,7 @@ class MDB2_Tools_Manager extends PEAR
                 return $databases;
             }
             if (!MDB2::isError($databases)
-                && !is_array($databases) && !in_array($this->database_definition['name'], $databases)
+                && (!is_array($databases) || !in_array($this->database_definition['name'], $databases))
             ) {
                 return $this->raiseError(MDB2_ERROR, null, null,
                     'database to update does not exist: '.$this->database_definition['name']);
