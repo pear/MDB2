@@ -354,7 +354,7 @@ It will automatically include the MDB2.php file you.</p>
 <h4><li><a name="70.3.5">Freeing the result set resources</a></li></h4>
 <p>When you are done with the result set of a query, you should make sure that any resources implicitly allocated for it are freed.  Freeing allocated resources is important because it reduces the use of memory that a script needs to run by allowing that memory may be reused.</p>
 <p>Even if your script exits right after you are done with the result of a query, you should always explicitly free query results because the end of a script may not imply that the resources are freed automatically then.  This is particularly true if you are using persistent database connections when running PHP as Web server module.</p>
-<p>With <b>MDB2</b> you should use the <tt>freeResult()</tt> method and it may be as simple as follows:</p>
+<p>With <b>MDB2</b> you should use the <tt>free()</tt> method and it may be as simple as follows:</p>
 <p><tt>$result->free();</tt></p>
 </ul>
 <h3><li><a name="70.2.5">Handling large object fields</a></li></h3>
