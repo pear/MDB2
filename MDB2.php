@@ -2578,7 +2578,7 @@ class MDB2_Result_Common extends MDB2_Result
         $this->mdb =& $mdb;
         $this->result =& $result;
         $this->offset = $offset;
-        $this->limit = $limit - 1;
+        $this->limit = max(0, $limit - 1);
     }
 
     // }}}
