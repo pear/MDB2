@@ -192,14 +192,16 @@ class MDB2_xxx extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ _close()
+    // {{{ disconnect()
+
     /**
-     * all the RDBMS specific things needed close a DB connection
+     * Log out and disconnect from the database.
      *
-     * @access private
-     *
+     * @return mixed true on success, false if not connected and error
+     *                object on error
+     * @access public
      */
-    function _close()
+    function disconnect()
     {
         // take this from the corresponding Metabase driver: Close()
     }
