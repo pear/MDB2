@@ -87,7 +87,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         // maybe this needs different handling for ibase and firebird?
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
-        $this->supported['replace'] = true;
+        $this->supported['replace'] = false;
         $this->supported['sub_selects'] = true;
 
         $this->options['database_path'] = '';
@@ -270,7 +270,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 'rollback: transactions can not be rolled back when changes are auto commited');
         }
 
-        if ($this->transaction_id && !ibase_rollback($this->connection)) {
+        if ($this->transaction_id && !@ibase_rollback($this->connection)) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: Could not rollback a pending transaction: '.ibase_errmsg());
         }
@@ -436,7 +436,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 //connection lost, try again...
                 $this->connect();
                 //rollback the failed transaction to prevent deadlock and execute the query again
-                $this->rollback();
+                if ($this->transaction_id) {
+                    $this->rollback();
+                }
                 $result = @ibase_query($this->connection, $query);
             }
         }
@@ -588,7 +590,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function currID($seq_name)
     {
-        $sequence_name = $this->getSequenceName($seq_name);
+        //$sequence_name = $this->getSequenceName($seq_name);
+        $sequence_name = strtoupper($this->getSequenceName($seq_name));
         $query = "SELECT RDB\$GENERATOR_ID FROM RDB\$GENERATORS WHERE RDB\$GENERATOR_NAME='$sequence_name'";
         $value = $this->queryOne($query);
         if (MDB2::isError($value)) {
@@ -692,6 +695,13 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
+        /*
+        if ($this->result === true) {
+            //query successfully executed, but without results...
+            return null;
+        }
+        */
+
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
@@ -751,7 +761,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_info = @ibase_field_info($this->result, $column);
-            if ($this->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
                 $column_name = strtolower($column_info['name']);
             }
             $columns[$column_name] = $column;
@@ -771,10 +781,12 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function numCols()
     {
+        /*
         if ($this->result === true) {
             //query successfully executed, but without results...
             return 0;
         }
+        */
         if (!is_resource($this->result)) {
             return $this->mdb->raiseError('numCols(): not a valid ibase resource');
         }
@@ -825,9 +837,9 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     /**
      * Constructor
      */
-    function MDB2_BufferedResult_oci8(&$mdb, &$result, $offset, $limit)
+    function MDB2_BufferedResult_ibase(&$mdb, &$result, $offset, $limit)
     {
-        parent::MDB2_Result_oci8($mdb, $result, $offset, $limit);
+        parent::MDB2_Result_ibase($mdb, $result, $offset, $limit);
     }
 
     // }}}
