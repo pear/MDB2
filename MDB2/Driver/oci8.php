@@ -165,6 +165,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
         $this->in_transaction = true;
+        ++$this->uncommitedqueries;
         return MDB2_OK;
     }
 
@@ -255,7 +256,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $error = OCIError();
             if (!empty($error) && $error['code'] == 12541) {
                 // Couldn't find TNS listener.  Try direct connection.
-                $connection = @$function($username, $password, null $charset);
+                $connection = @$function($username, $password, null, $charset);
             }
         } else {
             $function = $persistent ? 'OCIPLogon' : 'OCILogon';
@@ -554,8 +555,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $variables = '';
             foreach ($types as $parameter => $type) {
                 if ($type == 'clob' || $type == 'blob') {
-                    $columns.= ($columns ? ' RETURNING ' : ',').$parameter;
-                    $variables.= ($columns ? ' INTO ' : ',').':'.$parameter;
+                    $columns.= ($columns ? ', ' : ' RETURNING ').$parameter;
+                    $variables.= ($variables ? ', ' : ' INTO ').':'.$parameter;
                 }
             }
             $query.= $columns.$variables;
@@ -1000,7 +1001,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             return $connected;
         }
 
-        $success = MDB2_OK;
+        $result = MDB2_OK;
         $lobs = $descriptors = array();
         foreach ($this->values as $parameter => $value) {
             if (!isset($value)) {
@@ -1025,7 +1026,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     $lobs[$parameter]['value'] = $value;
                     $descriptors[$parameter] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
                     if (!is_object($descriptors[$parameter])) {
-                        $success = $this->db->raiseError();
+                        $result = $this->db->raiseError();
                         break;
                     }
                 } else {
@@ -1036,8 +1037,9 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 }
             }
             if (is_resource($descriptors[$parameter])) {
-                if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1, ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB))) {
-                    $success = $this->db->raiseError($this->statement);
+                $lob_type = $type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB;
+                if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1, $lob_type)) {
+                    $result = $this->db->raiseError($this->statement);
                     break;
                 }
             } else {
@@ -1045,7 +1047,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     $descriptors[$parameter] = substr($descriptors[$parameter], 1, -1);
                 }
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1)) {
-                    $success = $this->db->raiseError($this->statement);
+                    $result = $this->db->raiseError($this->statement);
                     break;
                 }
             }
@@ -1062,7 +1064,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 while (!@feof($stream['value'])) {
                     $data = @fread($stream['value'], $this->db->getOption('lob_buffer_length'));
                     if (!$descriptors[$parameter]->write($data, $this->db->getOption('lob_buffer_length'))) {
-                        $success = $this->db->raiseError();
+                        $result = $this->db->raiseError();
                         break(2);
                     }
                 }
@@ -1071,10 +1073,10 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 }
             }
 
-            if (!MDB2::isError($success)) {
+            if (!MDB2::isError($result)) {
                 if (!$this->db->in_transaction) {
                     if (!OCICommit($this->db->connection)) {
-                        $success = $this->db->raiseError();
+                        $result = $this->db->raiseError();
                     }
                 } else {
                     ++$this->db->uncommitedqueries;
@@ -1088,8 +1090,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
         }
 
-        if (MDB2::isError($success)) {
-            return $success;
+        if (MDB2::isError($result)) {
+            return $result;
         }
 
         if ($isManip) {
