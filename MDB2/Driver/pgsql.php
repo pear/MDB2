@@ -116,7 +116,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 '/syntax error at/'                     => MDB2_ERROR_SYNTAX,
                 '/violates not-null constraint/'        => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                 '/violates [\w ]+ constraint/'          => MDB2_ERROR_CONSTRAINT,
-                '/referential integrity violation/'     => MDB2_ERROR_CONSTRAINT
+                '/referential integrity violation/'     => MDB2_ERROR_CONSTRAINT,
+                '/deadlock detected/'                   => MDB2_ERROR_DEADLOCK
             );
         }
         foreach ($error_regexps as $regexp => $code) {
