@@ -217,9 +217,8 @@ class DB_Error extends PEAR_Error
  * @category Database
  * @author  Lukas Smith <smith@backendmedia.com>
  */
-class DB_result
+class DB_result extends MDB2_Result
 {
-    var $dbh;
     var $result;
     var $row_counter = null;
 
@@ -227,15 +226,13 @@ class DB_result
 
     var $limit_count = null;
 
-    function DB_result(&$dbh, $result)
+    function DB_result($result)
     {
-        $this->dbh = &$dbh;
         $this->result = $result;
     }
 
     function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        // seek
         return $this->result->fetchRow($fetchmode);
     }
 
@@ -272,8 +269,8 @@ class DB_result
 
     function tableInfo($mode = null)
     {
-        $this->dbh->loadModule('reverse');
-        return $this->dbh->reverse->tableInfo($this->result, $mode);
+        $this->result->db->loadModule('reverse');
+        return $this->result->db->reverse->tableInfo($this->result, $mode);
     }
 
     function getRowCounter()
@@ -299,7 +296,9 @@ class MDB2_PEARProxy
     function MDB2_PEARProxy(&$MDB2_object)
     {
         $this->MDB2_object =& $MDB2_object;
-        $this->MDB2_object->option['sequence_col_name'] = 'id';
+#        $this->MDB2_object->PEAR('DB_Error');
+        $this->MDB2_object->setOption('seqname_col_name', 'id');
+        $this->MDB2_object->setOption('result_wrap_class', 'DB_result');
     }
 
     function connect($dsninfo, $persistent = false)
@@ -389,11 +388,7 @@ class MDB2_PEARProxy
         $this->MDB2_object->loadModule('extended');
         // types
         $result =& $this->MDB2_object->extended->autoExecute($table, $fields_values, null, null, $mode, $where, false);
-        if (MDB2::isError($result) || $result === MDB2_OK) {
-            return $result;
-        }
-        $result_obj =& new DB_result($this->MDB2_object, $result);
-        return $result_obj;
+        return $result;
     }
 
     function buildManipSQL($table, $table_fields, $mode, $where = false)
@@ -405,11 +400,7 @@ class MDB2_PEARProxy
     function &execute($stmt, $data = false)
     {
         $result = $this->MDB2_object->executeParams($stmt, null, $data);
-        if (MDB2::isError($result) || $result === MDB2_OK) {
-            return $result;
-        }
-        $result_obj =& new DB_result($this->MDB2_object, $result);
-        return $result_obj;
+        return $result;
     }
 
     function executeMultiple($stmt, $data)
@@ -423,16 +414,11 @@ class MDB2_PEARProxy
             if (MDB2::isError($sth)) {
                 return $sth;
             }
-            $return = $this->MDB2_object->execute($sth, $params);
+            $return =& $this->MDB2_object->executeParams($sth, null, $params);
             return $return;
         } else {
             $result =& $this->MDB2_object->query($query);
-            if (MDB2::isError($result) || $result === MDB2_OK) {
-                return $result;
-            } else {
-                $result_obj =& new DB_result($this->MDB2_object, $result);
-                return $result_obj;
-            }
+            return $result;
         }
     }
 
@@ -441,55 +427,50 @@ class MDB2_PEARProxy
         if (MDB2::isError($result) || $result === MDB2_OK) {
             return $result;
         } else {
-            return $result->getResource();
+            return $result->result->getResource();
         }
     }
 
     function limitQuery($query, $from, $count)
     {
         $this->MDB2_object->loadModule('extended');
-        $result = $this->MDB2_object->extended->limitQuery($query, null, $from, $count);
-        if (MDB2::isError($result) || $result === MDB2_OK) {
-            return $result;
-        } else {
-            $result_obj =& new DB_result($this->MDB2_object, $result);
-            return $result_obj;
-        }
+        $result =& $this->MDB2_object->extended->limitQuery($query, null, $from, $count);
+        return $result;
     }
 
     function &getOne($query, $params = array())
     {
-        $this->MDB2_object->loadModule('extended');
-        return $this->MDB2_object->extended->getOne($query, null, $params);
+        $result = $this->query($query, $params);
+        return $result->result->fetch();
     }
 
     function &getRow($query,
                      $params = array(),
                      $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
-        $this->MDB2_object->loadModule('extended');
-        return $this->MDB2_object->extended->getRow($query, null, $params, null, $fetchmode);
+        $result = $this->query($query, $params);
+        return $result->result->fetchRow($fetchmode);
     }
 
     function &getCol($query, $col = 0, $params = array())
     {
-        $this->MDB2_object->loadModule('extended');
-        return $this->MDB2_object->extended->getCol($query, null, $params, null, $col);
+        $result = $this->query($query, $params);
+        return $result->result->fetchCol($col);
     }
 
     function &getAssoc($query, $force_array = false, $params = array(),
                        $fetchmode = MDB2_FETCHMODE_ORDERED, $group = false)
     {
-        $this->MDB2_object->loadModule('extended');
-        return $this->MDB2_object->extended->getAssoc($query, null, $params, null, $fetchmode, $force_array, $group);
+        $result = $this->query($query, $params);
+        return $result->result->fetchAll($fetchmode, true, $force_array, $group);
     }
 
     function &getAll($query,
                      $params = null,
                      $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
-        $this->MDB2_object->loadModule('extended');
-        return $this->MDB2_object->extended->getAll($query, null, $params, null, $fetchmode);
+        $result = $this->query($query, $params);
+        return $result->result->fetchAll($fetchmode);
     }
 
     function autoCommit($onoff = false)
@@ -520,7 +501,11 @@ class MDB2_PEARProxy
 
     function nextId($seq_name, $ondemand = true)
     {
-        return $this->MDB2_object->nextID($seq_name, $ondemand);
+        $id = $this->MDB2_object->nextID($seq_name, $ondemand);
+        if (MDB2::isResultCommon($id)) {
+            $id = $id->fetch();
+        }
+        return $id;
     }
 
     function createSequence($seq_name)
@@ -550,7 +535,7 @@ class MDB2_PEARProxy
     {
         $result = $this->_wrapResource($result);
         if (!is_null($rownum)) {
-            $result->seek($rownum);
+            $result->result->seek($rownum);
         }
         $arr = $result->fetchRow($fetchmode);
     }
@@ -582,7 +567,7 @@ class MDB2_PEARProxy
     function tableInfo($result, $mode = null)
     {
         $result = $this->_wrapResource($result);
-        if (is_string($result) || MDB2::isResult($result)) {
+        if (is_string($result) || MDB2::isResultCommon($result)) {
             $this->MDB2_object->loadModule('reverse');
             return $this->MDB2_object->reverse->tableInfo($result, $mode);
         }

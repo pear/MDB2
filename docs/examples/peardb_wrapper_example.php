@@ -18,6 +18,14 @@
     MDB2::loadFile('Wrapper/peardb');
     require_once 'Var_Dump.php';
 
+    PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'handle_pear_error');
+    function handle_pear_error ($error_obj)
+    {
+        print '<pre><b>PEAR-Error</b><br />';
+        echo $error_obj->getMessage().': '.$error_obj->getUserinfo();
+        print '</pre>';
+    }
+
     // just for kicks you can mess up this part to see some pear error handling
     $user = 'metapear';
     $pass = 'funky';
@@ -68,15 +76,10 @@
     echo('<br>get the next id using on demand:<br>');
     echo('<br>nextId:'.$db->nextId('real_funky_id_2'));
     echo('<br>dropSequence:'.$db->dropSequence('real_funky_id_2'));
-    // lets create a sequence
-    echo('<br>create a new seq with start 3 name real_funky_id<br>');
-    $err = $db->createSequence('real_funky_id',3);
-    if (DB::isError($err)) {
-        echo('<br>could not create sequence again<br>');
-    }
 
     echo('<br>get the next id:<br>');
     echo($db->nextId('real_funky_id').'<br>');
+
     // lets try an prepare execute combo
     $alldata = array(  array(1, 'one', 'un'),
                        array(2, 'two', 'deux'),
@@ -96,7 +99,8 @@
     $db->executeMultiple($prepared_query, $alldata);
     echo('running executeMultiple<br>');
     $array = array(4);
-    echo('<br>see getOne in action:<br>'.var_dump::display($db->getOne('SELECT trans_en FROM numbers WHERE number = ?',$array)).'<br>');
+    echo('<br>see getOne in action:<br>');
+    echo(Var_Dump::display($db->getOne('SELECT trans_en FROM numbers WHERE number = ?',$array)).'<br>');
     // You can disconnect from the database with:
     echo('<br>see getRow in action:<br>');
     echo(Var_Dump::display($db->getRow('SELECT * FROM numbers WHERE number = ?',$array)).'<br>');
@@ -105,7 +109,7 @@
     echo('<br>see getAll in action:<br>');
     echo(Var_Dump::display($db->getAll('SELECT * FROM test')).'<br>');
     echo('<br>see getAssoc in action:<br>');
-    echo(Var_Dump::display($db->getAssoc('SELECT * FROM test', false, '', DB_FETCHMODE_ASSOC)).'<br>');
+    echo(Var_Dump::display($db->getAssoc('SELECT * FROM test', false, null, DB_FETCHMODE_ASSOC)).'<br>');
     echo('tableInfo on a string:<br>');
     echo(Var_Dump::display($db->tableInfo('numbers')).'<br>');
     echo('<br>just a simple delete query:<br>');
