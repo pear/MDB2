@@ -126,22 +126,15 @@ class MDB2_xxx extends MDB2_Driver_Common
      * Define whether database changes done on the database be automatically
      * committed. This function may also implicitly start or end a transaction.
      *
-     * @param boolean $auto_commit    flag that indicates whether the database
-     *                                changes should be committed right after
-     *                                executing every query statement. If this
-     *                                argument is 0 a transaction implicitly
-     *                                started. Otherwise, if a transaction is
-     *                                in progress it is ended by committing any
-     *                                database changes that were pending.
-     *
      * @access public
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      */
-    function autoCommit($auto_commit)
+    function beginTransaction()
     {
         // take this from the corresponding Metabase driver: AutoCommitTransactions()
         // the MetabaseShutdownTransactions function is handled by the PEAR desctructor
+        // however in MDB2 no implicit transactions is left open
     }
 
     // }}}
