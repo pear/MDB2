@@ -838,11 +838,11 @@ class MDB2_Tools_Manager extends PEAR
         $this->db->setDatabase($previous_database_name);
 
         if (MDB2::isError($result) && $create
-            && MDB2::isError($result = $this->db->manager->dropDatabase($this->database_definition['name']))
+            && MDB2::isError($result2 = $this->db->manager->dropDatabase($this->database_definition['name']))
         ) {
             return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                 'Could not drop the created database after unsuccessful creation attempt ('.
-                $result->getMessage().' ('.$result->getUserinfo().'))');
+                $result2->getMessage().' ('.$result2->getUserinfo().'))');
         }
 
         return $result;
@@ -864,12 +864,12 @@ class MDB2_Tools_Manager extends PEAR
         $current_definition = $current_definition ? $current_definition : $this->database_definition;
         $changes = array();
         if (isset($current_definition['tables']) && is_array($current_definition['tables'])) {
+            $defined_tables = array();
             foreach ($current_definition['tables'] as $table_name => $table) {
                 $previous_tables = array();
                 if (isset($previous_definition['tables']) && is_array($previous_definition)) {
                     $previous_tables = $previous_definition['tables'];
                 }
-                $defined_tables = array();
                 $change = $this->compareTableDefinitions($table_name, $previous_tables, $table, $defined_tables);
                 if (MDB2::isError($change)) {
                     return $change;
@@ -878,20 +878,36 @@ class MDB2_Tools_Manager extends PEAR
                     $changes['tables'] = $change;
                 }
             }
+            if (isset($previous_definition['tables']) && is_array($previous_definition['tables'])) {
+                foreach ($previous_definition['tables'] as $table_name => $table) {
+                    if (!isset($defined_tables[$table_name])) {
+                        $changes[$table_name]['remove'] = true;
+                        $this->db->debug("Removed table '$table_name'");
+                    }
+                }
+            }
         }
         if (isset($current_definition['sequences']) && is_array($current_definition['sequences'])) {
+           $defined_sequences = array();
             foreach ($current_definition['sequences'] as $sequence_name => $sequence) {
                 $previous_sequences = array();
                 if (isset($previous_definition['sequences']) && is_array($previous_definition)) {
                     $previous_sequences = $previous_definition['sequences'];
                 }
-                $defined_sequences = array();
                 $change = $this->compareSequenceDefinitions($sequence_name, $previous_sequences, $sequence, $defined_sequences);
                 if (MDB2::isError($change)) {
                     return $change;
                 }
                 if (count($change)) {
                     $changes['sequences'] = $change;
+                }
+            }
+            if (isset($previous_definition['sequences']) && is_array($previous_definition['sequences'])) {
+                foreach ($previous_definition['sequences'] as $sequence_name => $sequence) {
+                    if (!isset($defined_sequences[$sequence_name])) {
+                        $changes[$sequence_name]['remove'] = true;
+                        $this->db->debug("Removed sequence '$sequence_name'");
+                    }
                 }
             }
         }
@@ -1151,14 +1167,10 @@ class MDB2_Tools_Manager extends PEAR
     function compareTableDefinitions($table_name, $previous_definition, $current_definition, &$defined_tables)
     {
         $changes = array();
+
         if (is_array($current_definition)) {
             $was_table_name = $table_name;
-            if (isset($previous_definition[$table_name])
-                && isset($previous_definition[$table_name]['was'])
-                && !$previous_definition[$table_name]['was'] == $was_table_name
-            ) {
-                $was_table_name = $table_name;
-            } elseif (isset($current_definition['was'])) {
+            if (isset($current_definition['was'])) {
                 $was_table_name = $current_definition['was'];
             }
             if (isset($previous_definition[$was_table_name])) {
@@ -1173,7 +1185,6 @@ class MDB2_Tools_Manager extends PEAR
                         '" was specified as base of more than of table of the database');
                 }
                 $defined_tables[$was_table_name] = true;
-
                 if (isset($current_definition['fields']) && is_array($current_definition['fields'])) {
                     $previous_fields = array();
                     if (isset($previous_definition[$was_table_name]['fields'])
@@ -1220,14 +1231,7 @@ class MDB2_Tools_Manager extends PEAR
                 $this->db->debug("Added table '$table_name'");
             }
         }
-        if (isset($previous_definition) && is_array($previous_definition)) {
-            foreach ($previous_definition as $table_name => $table) {
-                if (!isset($defined_tables[$table_name])) {
-                    $changes[$table_name]['remove'] = true;
-                    $this->db->debug("Removed table '$table_name'");
-                }
-            }
-        }
+
         return $changes;
     }
 
@@ -1295,14 +1299,6 @@ class MDB2_Tools_Manager extends PEAR
                 }
                 $changes[$sequence_name]['add'] = true;
                 $this->db->debug("Added sequence '$sequence_name'");
-            }
-        }
-        if (isset($previous_definition) && is_array($previous_definition)) {
-            foreach ($previous_definition as $sequence_name => $sequence) {
-                if (!isset($defined_sequences[$sequence_name])) {
-                    $changes[$sequence_name]['remove'] = true;
-                    $this->db->debug("Removed sequence '$sequence_name'");
-                }
             }
         }
         return $changes;
@@ -1408,7 +1404,7 @@ class MDB2_Tools_Manager extends PEAR
                 }
             }
         }
-        return $alternations;
+        return $alterations;
     }
 
     // }}}
@@ -1504,7 +1500,7 @@ class MDB2_Tools_Manager extends PEAR
                 }
             }
         }
-        return $alternations;
+        return $alterations;
     }
 
     // }}}
@@ -1859,6 +1855,7 @@ class MDB2_Tools_Manager extends PEAR
             if (MDB2::isError($changes)) {
                 return $changes;
             }
+
             if (is_array($changes)) {
                 $result = $this->alterDatabase($changes, $previous_definition);
                 if (MDB2::isError($result)) {
