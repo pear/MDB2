@@ -514,5 +514,35 @@ class MDB2_Extended
         $result->free();
         return $all;
     }
+
+    // }}}
+    // {{{ executeMultiple()
+
+    /**
+     * This function does several execute() calls on the same statement handle.
+     * $params must be an array indexed numerically from 0, one execute call is
+     * done for every 'row' in the array.
+     *
+     * If an error occurs during execute(), executeMultiple() does not execute
+     * the unfinished rows, but rather returns that error.
+     *
+     * @param resource $stmt query handle from prepare()
+     * @param array $params numeric array containing the
+     *        data to insert into the query
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     * @see prepare(), execute()
+     */
+    function executeMultiple(&$stmt, $params = null)
+    {
+        for ($i = 0, $j = count($params); $i < $j; $i++) {
+            $stmt->bindParamArray($params[$i]);
+            $result = $stmt->execute();
+            if (MDB2::isError($result)) {
+                return $result;
+            }
+        }
+        return MDB2_OK;
+    }
 }
 ?>
