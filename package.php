@@ -32,6 +32,10 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - do not disable result wrapping when doing internal calls to query() (bug #3997)
 - _wrapResult() now ensures that the result class is an instance of MDB2_Result_Common
 - unbundled the MDB2_Tools_Manager into a separate package PEAR::MDB2_Schema
+- improved getTableFieldDefinition() and moved native type mapping to the
+  datatype module mapNativeDatatype() method (mysql, sqlite and pgsql drivers)
+- fixes for listTables() in sqlite and pgsql driver
+- ensure that mysql drivers use the dummy_primary_key property
 EOT;
 
 $description =<<<EOT
