@@ -371,7 +371,8 @@ class MDB2_Tools_Manager extends PEAR
                 $table_definition['fields'][$field_name] = $definition[0][0];
                 $field_choices = count($definition[0]);
                 if ($field_choices > 1) {
-                    $warning = "There are $field_choices type choices in the table $table_name field $field_name (#1 is the default): ";
+                    $warning = "There are $field_choices type choices in the table"
+                        ."$table_name field $field_name (#1 is the default): ";
                     $field_choice_cnt = 1;
                     $table_definition['fields'][$field_name]['choices'] = array();
                     foreach ($definition[0] as $field_choice) {
@@ -894,7 +895,12 @@ class MDB2_Tools_Manager extends PEAR
                 if (isset($previous_definition['sequences']) && is_array($previous_definition)) {
                     $previous_sequences = $previous_definition['sequences'];
                 }
-                $change = $this->compareSequenceDefinitions($sequence_name, $previous_sequences, $sequence, $defined_sequences);
+                $change = $this->compareSequenceDefinitions(
+                    $sequence_name,
+                    $previous_sequences,
+                    $sequence,
+                    $defined_sequences
+                );
                 if (MDB2::isError($change)) {
                     return $change;
                 }
@@ -926,7 +932,8 @@ class MDB2_Tools_Manager extends PEAR
      * @return mixed array of changes on success, or a MDB2 error object
      * @access public
      */
-    function compareTableFieldsDefinitions($table_name, $previous_definition, $current_definition, &$defined_fields)
+    function compareTableFieldsDefinitions($table_name, $previous_definition,
+        $current_definition, &$defined_fields)
     {
         $changes = array();
         if (is_array($current_definition)) {
@@ -964,17 +971,27 @@ class MDB2_Tools_Manager extends PEAR
                             $unsigned = isset($field['unsigned']);
                             if ($previous_unsigned != $unsigned) {
                                 $change['unsigned'] = $unsigned;
-                                $this->db->debug("Changed field '$field_name' type from '".($previous_unsigned ? 'unsigned ' : '').$previous_definition[$was_field_name]['type']."' to '".($unsigned ? 'unsigned ' : '').$field['type']."' in table '$table_name'");
+                                $this->db->debug("Changed field '$field_name' type from '".
+                                    ($previous_unsigned ? 'unsigned ' : '').
+                                    $previous_definition[$was_field_name]['type']."' to '".
+                                    ($unsigned ? 'unsigned ' : '').$field['type']."' in table '$table_name'"
+                                );
                             }
                             break;
                         case 'text':
                         case 'clob':
                         case 'blob':
-                            $previous_length = (isset($previous_definition[$was_field_name]['length']) ? $previous_definition[$was_field_name]['length'] : 0);
+                            $previous_length = (isset($previous_definition[$was_field_name]['length'])
+                                ? $previous_definition[$was_field_name]['length'] : 0);
                             $length = (isset($field['length']) ? $field['length'] : 0);
                             if ($previous_length != $length) {
                                 $change['length'] = $length;
-                                $this->db->debug("Changed field '$field_name' length from '".$previous_definition[$was_field_name]['type'].($previous_length == 0 ? ' no length' : "($previous_length)")."' to '".$field['type'].($length == 0 ? ' no length' : "($length)")."' in table '$table_name'");
+                                $this->db->debug("Changed field '$field_name' length from '".
+                                    $previous_definition[$was_field_name]['type'].
+                                    ($previous_length == 0 ? ' no length' : "($previous_length)").
+                                    "' to '".$field['type'].($length == 0 ? ' no length' : "($length)").
+                                    "' in table '$table_name'"
+                                );
                             }
                             break;
                         case 'date':
@@ -1007,17 +1024,26 @@ class MDB2_Tools_Manager extends PEAR
                                 $change['default'] = $field['default'];
                             }
                             $this->db->debug("Changed field '$field_name' default from ".
-                                ($previous_default ? "'".$previous_definition[$was_field_name]['default']."'" : 'NULL').' TO '.($default ? "'".$field['default']."'" : 'NULL')." IN TABLE '$table_name'");
+                                ($previous_default ? "'".$previous_definition[$was_field_name]['default'].
+                                "'" : 'NULL').' TO '.($default ? "'".$field['default'].
+                                "'" : 'NULL')." IN TABLE '$table_name'"
+                            );
                         } else {
                             if ($default && $previous_definition[$was_field_name]['default']!= $field['default']) {
                                 $change['changed_default'] = true;
                                 $change['default'] = $field['default'];
-                                $this->db->debug("Changed field '$field_name' default from '".$previous_definition[$was_field_name]['default']."' to '".$field['default']."' in table '$table_name'");
+                                $this->db->debug("Changed field '$field_name' default from '".
+                                    $previous_definition[$was_field_name]['default'].
+                                    "' to '".$field['default']."' in table '$table_name'"
+                                );
                             }
                         }
                     } else {
                         $change['type'] = $field['type'];
-                        $this->db->debug("Changed field '$field_name' type from '".$previous_definition[$was_field_name]['type']."' to '".$field['type']."' in table '$table_name'");
+                        $this->db->debug("Changed field '$field_name' type from '".
+                            $previous_definition[$was_field_name]['type']."' to '".
+                            $field['type']."' in table '$table_name'"
+                        );
                     }
                     if (count($change)) {
                         $declaration = $this->db->getDeclaration($field['type'], $field_name, $field);
@@ -1068,7 +1094,8 @@ class MDB2_Tools_Manager extends PEAR
      * @return mixed array of changes on success, or a MDB2 error object
      * @access public
      */
-    function compareTableIndexesDefinitions($table_name, $previous_definition, $current_definition, &$defined_indexes)
+    function compareTableIndexesDefinitions($table_name, $previous_definition,
+        $current_definition, &$defined_indexes)
     {
         $changes = array();
         if (is_array($current_definition)) {
@@ -1082,7 +1109,6 @@ class MDB2_Tools_Manager extends PEAR
                 }
                 if (isset($previous_definition[$was_index_name])) {
                     $change = array();
-
                     if ($was_index_name != $index_name) {
                         $change['name'] = $was_index_name;
                         $this->db->debug("Changed index '$was_index_name' name to '$index_name' in table '$table_name'");
@@ -1164,7 +1190,8 @@ class MDB2_Tools_Manager extends PEAR
      * @return mixed array of changes on success, or a MDB2 error object
      * @access public
      */
-    function compareTableDefinitions($table_name, $previous_definition, $current_definition, &$defined_tables)
+    function compareTableDefinitions($table_name, $previous_definition,
+        $current_definition, &$defined_tables)
     {
         $changes = array();
 
@@ -1193,7 +1220,12 @@ class MDB2_Tools_Manager extends PEAR
                         $previous_fields = $previous_definition[$was_table_name]['fields'];
                     }
                     $defined_fields = array();
-                    $change = $this->compareTableFieldsDefinitions($table_name, $previous_fields, $current_definition['fields'], $defined_fields);
+                    $change = $this->compareTableFieldsDefinitions(
+                        $table_name,
+                        $previous_fields,
+                        $current_definition['fields'],
+                        $defined_fields
+                    );
                     if (MDB2::isError($change)) {
                         return $change;
                     }
@@ -1209,12 +1241,21 @@ class MDB2_Tools_Manager extends PEAR
                         $previous_indexes = $previous_definition[$was_table_name]['indexes'];
                     }
                     $defined_indexes = array();
-                    $change = $this->compareTableIndexesDefinitions($table_name, $previous_indexes, $current_definition['indexes'], $defined_indexes);
+                    $change = $this->compareTableIndexesDefinitions(
+                        $table_name,
+                        $previous_indexes,
+                        $current_definition['indexes'],
+                        $defined_indexes
+                    );
                     if (MDB2::isError($change)) {
                         return $change;
                     }
                     if (count($change)) {
-                        $changes[$was_table_name]+= $change;
+                        if (isset($changes[$was_table_name]['indexes'])) {
+                            $changes[$was_table_name]['indexes']+= $change;
+                        } else {
+                            $changes[$was_table_name]['indexes'] = $change;
+                        }
                     }
                 }
                 if (empty($changes[$was_table_name])) {
@@ -1246,7 +1287,8 @@ class MDB2_Tools_Manager extends PEAR
      * @return mixed array of changes on success, or a MDB2 error object
      * @access public
      */
-    function compareSequenceDefinitions($sequence_name, $previous_definition, $current_definition, &$defined_sequences)
+    function compareSequenceDefinitions($sequence_name, $previous_definition,
+        $current_definition, &$defined_sequences)
     {
         $changes = array();
         if (is_array($current_definition)) {
@@ -1276,7 +1318,10 @@ class MDB2_Tools_Manager extends PEAR
                     && $current_definition['start'] != $previous_definition[$was_sequence_name]['start']
                 ) {
                     $change['start'] = $previous_definition[$sequence_name]['start'];
-                    $this->db->debug("Changed sequence '$sequence_name' start from '".$previous_definition[$was_sequence_name]['start']."' to '".$this->database_definition['sequences'][$sequence_name]['start']."'");
+                    $this->db->debug("Changed sequence '$sequence_name' start from '".
+                        $previous_definition[$was_sequence_name]['start']."' to '".
+                        $this->database_definition['sequences'][$sequence_name]['start']."'"
+                    );
                 }
                 if (isset($current_definition['on']['table'])
                     && isset($previous_definition[$was_sequence_name]['on']['table'])
@@ -1286,7 +1331,12 @@ class MDB2_Tools_Manager extends PEAR
                     && $current_definition['on']['field'] != $previous_definition[$was_sequence_name]['on']['field']
                 ) {
                     $change['on'] = $current_definition['on'];
-                    $this->db->debug("Changed sequence '$sequence_name' on table field from '".$previous_definition[$was_sequence_name]['on']['table'].'.'.$previous_definition[$was_sequence_name]['on']['field']."' to '".$this->database_definition['sequences'][$sequence_name]['on']['table'].'.'.$this->database_definition['sequences'][$sequence_name]['on']['field']."'");
+                    $this->db->debug("Changed sequence '$sequence_name' on table field from '".
+                        $previous_definition[$was_sequence_name]['on']['table'].'.'.
+                        $previous_definition[$was_sequence_name]['on']['field']."' to '".
+                        $this->database_definition['sequences'][$sequence_name]['on']['table'].
+                        '.'.$this->database_definition['sequences'][$sequence_name]['on']['field']."'"
+                    );
                 }
                 if (count($change)) {
                     $changes[$was_sequence_name]['change'][$sequence_name] = $change;
@@ -1366,7 +1416,7 @@ class MDB2_Tools_Manager extends PEAR
     }
 
     // }}}
-    // {{{ alterDatabaseSequences()
+    // {{{ alterDatabaseIndexes()
 
     /**
      * Execute the necessary actions to implement the requested changes
@@ -1375,28 +1425,33 @@ class MDB2_Tools_Manager extends PEAR
      * @param string name of the table
      * @param array $changes an associative array that contains the definition of
      * the changes that are meant to be applied to the database structure.
-     * @param array multi dimensional array that contains the current definition
      * @return mixed MDB2_OK on success, or a MDB2 error object
      * @access public
      */
-    function alterDatabaseIndexes($table_name, $changes, $current_definition)
+    function alterDatabaseIndexes($table_name, $changes)
     {
         $alterations = 0;
         if (is_array($changes)) {
-            if (isset($changes['change'])) {
-                foreach ($changes['change'] as $index_name => $index) {
-                    $result = $this->db->manager->createIndex($table_name, $index_name,
-                        $current_definition[$index_name]);
+            if (isset($changes['changed_indexes'])) {
+                foreach ($changes['changed_indexes'] as $index_name => $index) {
+                    $result = $this->db->manager->createIndex(
+                        $table_name,
+                        $index_name,
+                        $index
+                    );
                     if (MDB2::isError($result)) {
                         return $result;
                     }
                     $alterations++;
                 }
             }
-            if (isset($changes['add'])) {
-                foreach ($changes['add'] as $index_name => $index) {
-                    $result = $this->db->manager->createIndex($table_name, $index_name,
-                        $current_definition[$index_name]);
+            if (isset($changes['added_indexes'])) {
+                foreach ($changes['added_indexes'] as $index_name => $index) {
+                    $result = $this->db->manager->createIndex(
+                        $table_name,
+                        $index_name,
+                        $index
+                    );
                     if (MDB2::isError($result)) {
                         return $result;
                     }
@@ -1445,7 +1500,10 @@ class MDB2_Tools_Manager extends PEAR
                     $alterations++;
                 }
                 if (isset($table['indexes']) && isset($current_definition[$table_name]['indexes'])) {
-                    $result = $this->alterDatabaseTables($table_name, $table['indexes'], $current_definition[$table_name]['indexes']);
+                    $result = $this->alterDatabaseIndexes(
+                        $table_name,
+                        $table['indexes']
+                    );
                     if (MDB2::isError($result)) {
                         return $result;
                     }
@@ -1475,8 +1533,7 @@ class MDB2_Tools_Manager extends PEAR
         if (is_array($changes)) {
             foreach ($changes as $sequence_name => $sequence) {
                 if (isset($sequence['add'])) {
-                    $result = $this->createSequence($sequence_name,
-                        $current_definition[$sequence_name]);
+                    $result = $this->createSequence($sequence_name, $sequence);
                     if (MDB2::isError($result)) {
                         return $result;
                     }
@@ -1518,7 +1575,8 @@ class MDB2_Tools_Manager extends PEAR
      */
     function alterDatabase($changes, $current_definition = null)
     {
-        $current_definition = $current_definition ? $current_definition : $this->database_definition;
+        $current_definition = $current_definition
+            ? $current_definition : $this->database_definition;
 
         $result = $this->verifyAlterDatabase($changes);
 
@@ -1639,7 +1697,9 @@ class MDB2_Tools_Manager extends PEAR
                             }
                             if (isset($field['changed_not_null'])) {
                                 $this->db->debug(
-                                   "\tChanged field '$field_name' notnull to ".(isset($field['notnull']) ? "'1'" : '0'));
+                                   "\tChanged field '$field_name' notnull to ".
+                                    (isset($field['notnull']) ? "'1'" : '0')
+                                );
                             }
                         }
                     }
@@ -1781,7 +1841,8 @@ class MDB2_Tools_Manager extends PEAR
                     }
                 }
             }
-            $previous_database_name = ($this->database_definition['name'] != '') ? $this->db->setDatabase($this->database_definition['name']) : '';
+            $previous_database_name = ($this->database_definition['name'] != '')
+                ? $this->db->setDatabase($this->database_definition['name']) : '';
         }
 
         $writer =& new MDB2_Tools_Manager_Writer();
@@ -1855,7 +1916,6 @@ class MDB2_Tools_Manager extends PEAR
             if (MDB2::isError($changes)) {
                 return $changes;
             }
-
             if (is_array($changes)) {
                 $result = $this->alterDatabase($changes, $previous_definition);
                 if (MDB2::isError($result)) {
