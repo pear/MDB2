@@ -229,74 +229,73 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function alterTable($name, &$changes, $check)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($check) {
-            foreach ($changes as $change_name => $change) {
-                switch ($change_name) {
-                case 'added_fields':
-                case 'removed_fields':
-                case 'renamed_fields':
-                    break;
-                case 'changed_fields':
-                    $fields = $changes['changed_fields'];
-                    foreach ($fields as $field) {
-                        if (MDB2::isError($err = $this->checkSupportedChanges($field))) {
-                            return $err;
-                        }
-                    }
-                    break;
-                default:
-                    return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
-                        'alterTable: change type ' . $change_name . ' not yet supported');
-                }
-            }
-            return MDB2_OK;
-        } else {
-            $query = '';
-            if (isset($changes['added_fields'])) {
-                $fields = $changes['added_fields'];
-                foreach ($fields as $field_name => $field) {
-                    if ($query) {
-                        $query .= ', ';
-                    }
-                    $query .= 'ADD ' . $field['declaration'];
-                }
-            }
-            if (isset($changes['removed_fields'])) {
-                $fields = $changes['removed_fields'];
-                foreach ($fields as $field_name => $field) {
-                    if ($query) {
-                        $query .= ', ';
-                    }
-                    $query .= 'DROP ' . $field_name;
-                }
-            }
-            if (isset($changes['renamed_fields'])) {
-                $fields = $changes['renamed_fields'];
-                foreach ($fields as $field_name => $field) {
-                    if ($query) {
-                        $query .= ', ';
-                    }
-                    $query .= 'ALTER ' . $field_name . ' TO ' . $field['name'];
-                }
-            }
-            if (isset($changes['changed_fields'])) {
+        foreach ($changes as $change_name => $change) {
+            switch ($change_name) {
+            case 'added_fields':
+            case 'removed_fields':
+            case 'renamed_fields':
+                break;
+            case 'changed_fields':
                 $fields = $changes['changed_fields'];
-                foreach ($fields as $field_name => $field) {
+                foreach ($fields as $field) {
                     if (MDB2::isError($err = $this->checkSupportedChanges($field))) {
                         return $err;
                     }
-                    if ($query) {
-                        $query .= ', ';
-                    }
-                    $db->loadModule('Datatype');
-                    $query .= 'ALTER '.$field_name.' TYPE '.$db->datatype->getTypeDeclaration($field['definition']);
                 }
+                break;
+            default:
+                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                    'alterTable: change type ' . $change_name . ' not yet supported');
             }
-            if (MDB2::isError($err = $db->query("ALTER TABLE $name $query"))) {
-                return $err;
-            }
+        }
+        if ($check) {
             return MDB2_OK;
         }
+        $query = '';
+        if (isset($changes['added_fields'])) {
+            $fields = $changes['added_fields'];
+            foreach ($fields as $field_name => $field) {
+                if ($query) {
+                    $query .= ', ';
+                }
+                $query .= 'ADD ' . $field['declaration'];
+            }
+        }
+        if (isset($changes['removed_fields'])) {
+            $fields = $changes['removed_fields'];
+            foreach ($fields as $field_name => $field) {
+                if ($query) {
+                    $query .= ', ';
+                }
+                $query .= 'DROP ' . $field_name;
+            }
+        }
+        if (isset($changes['renamed_fields'])) {
+            $fields = $changes['renamed_fields'];
+            foreach ($fields as $field_name => $field) {
+                if ($query) {
+                    $query .= ', ';
+                }
+                $query .= 'ALTER ' . $field_name . ' TO ' . $field['name'];
+            }
+        }
+        if (isset($changes['changed_fields'])) {
+            $fields = $changes['changed_fields'];
+            foreach ($fields as $field_name => $field) {
+                if (MDB2::isError($err = $this->checkSupportedChanges($field))) {
+                    return $err;
+                }
+                if ($query) {
+                    $query .= ', ';
+                }
+                $db->loadModule('Datatype');
+                $query .= 'ALTER '.$field_name.' TYPE '.$db->datatype->getTypeDeclaration($field['definition']);
+            }
+        }
+        if (!$query) {
+            return MDB2_OK;
+        }
+        return $db->query("ALTER TABLE $name $query");
     }
 
     // }}}
