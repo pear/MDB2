@@ -438,18 +438,14 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param           $clob
+     * @param           $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access private
      */
-    function _quoteCLOB($clob)
+    function _quoteCLOB($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($clob === null) {
-            return 'NULL';
-        }
-        return $this->_quoteLOB($clob);
+        return $this->_quoteLOB($value);
     }
 
     // }}}
@@ -459,18 +455,14 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param           $blob
+     * @param           $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access private
      */
-    function _quoteBLOB($blob)
+    function _quoteBLOB($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($blob === null) {
-            return 'NULL';
-        }
-        return $this->_quoteLOB($blob);
+        return $this->_quoteLOB($value);
     }
 
     // }}}
