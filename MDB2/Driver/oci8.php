@@ -303,7 +303,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $this->_close();
         }
 
-        $connection = $this->_doConnect($this->dsn['username'], $this->dsn['password'], $this->options['persistent']);
+        $connection = $this->_doConnect(
+            $this->dsn['username'],
+            $this->dsn['password'],
+            $this->options['persistent']
+        );
         if (MDB2::isError($connection)) {
             return $connection;
         }
@@ -311,10 +315,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->connected_dsn = $this->dsn;
         $this->opened_persistent = $this->options['persistent'];
         $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-        $doquery = $this->_doQuery($query);
-        if (MDB2::isError($doquery)) {
+        $error = $this->_doQuery($query);
+        if (MDB2::isError($error)) {
             $this->_close();
-            return $doquery;
+            return $error;
         }
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
         $error = $this->_doQuery($query);
@@ -362,7 +366,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function &standaloneQuery($query)
     {
-        $connection = $this->_doConnect($this->options['DBA_username'], $this->options['DBA_password'], $this->options['persistent']);
+        $connection = $this->_doConnect(
+            $this->options['DBA_username'],
+            $this->options['DBA_password'],
+            $this->options['persistent']
+        );
         if (MDB2::isError($connection)) {
             return $connection;
         }
@@ -435,7 +443,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $connection = $this->connection;
         }
 
-        $statement = @OCIParse($connection, $stmt);
+        $statement = @OCIParse($connection, $query);
         if (!$statement) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
@@ -444,7 +452,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $mode = $this->auto_commit ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
         $result = @OCIExecute($statement, $mode);
         if (!$result) {
-            return $this->raiseError();
+            return $this->raiseError($statement);
         }
 
         if ($isManip) {
@@ -975,7 +983,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         $mode = (empty($lobs) && $this->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
         $result = @OCIExecute($statement, $mode);
         if (!$result) {
-            return $this->db->raiseError();
+            return $this->db->raiseError($statement);
         }
 
         if (!empty($lobs)) {
@@ -1015,7 +1023,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         if (MDB2::isError($success)) {
-            return $success;;
+            return $success;
         }
 
         if ($isManip) {
