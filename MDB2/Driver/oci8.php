@@ -402,8 +402,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     // {{{ _modifyQuery()
 
     /**
-     * This method is used by backends to alter queries for various
-     * reasons.
+     * Changes a query string for various DBMS specific reasons
      *
      * @param string $query  query to modify
      * @return the new (modified) query

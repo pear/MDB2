@@ -1692,9 +1692,7 @@ class MDB2_Driver_Common extends PEAR
     // {{{ _modifyQuery()
 
     /**
-     * This method is used by backends to alter queries for various
-     * reasons.  It is defined here to assure that all implementations
-     * have this method defined.
+     * Changes a query string for various DBMS specific reasons
      *
      * @param string $query  query to modify
      * @return the new (modified) query
