@@ -86,7 +86,7 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
         }
         $this->row = null;
         $this->buffer = null;
-        $this->result->seek($rownum);
+        return $this->result->seek($rownum);
     }
 
     // }}}
