@@ -42,7 +42,7 @@ lobstorage       -    -    X    -    -    -    o    -    o    -    o    o    -
 lobfiles         -    -    X    -    -    -    o    -    o    -    o    o    -
 lobnulls         -    -   [1]   -    -    -    o    -    o    -    o    o    -
 **[ BUGS ]********************************************************************
-fetchmodebug     -    -   [1]   -    -    -    o    -    o    -    o    o    -
+fetchmodebug     -    -    o    -    -    -    o    -    o    -    o    o    -
 bug22328         -    -    o    -    -    -    o    -    o    -    o    o    -
 bug670           -    -    o    -    -    -    o    -    o    -    o    o    -
 bug681           -    -    o    -    -    -    o    -    o    -    o    o    -
