@@ -301,18 +301,17 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        $dsninfo = $this->dsn;
         if ($database_file) {
             if (!file_exists($database_file)) {
                 if (!touch($database_file)) {
                     return $this->raiseError(MDB2_ERROR_NOT_FOUND);
                 }
-                if (!isset($dsninfo['mode'])
-                    || !is_numeric($dsninfo['mode'])
+                if (!isset($this->dsn['mode'])
+                    || !is_numeric($this->dsn['mode'])
                 ) {
                     $mode = 0644;
                 } else {
-                    $mode = octdec($dsninfo['mode']);
+                    $mode = octdec($this->dsn['mode']);
                 }
                 if (!chmod($database_file, $mode)) {
                     return $this->raiseError(MDB2_ERROR_NOT_FOUND);
