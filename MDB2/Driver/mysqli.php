@@ -297,7 +297,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function connect()
     {
-        if (is_resource($this->connection)) {
+        if (is_object($this->connection)) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0) {
                 return MDB2_OK;
             }
@@ -403,7 +403,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if (is_resource($this->connection)) {
+        if (is_object($this->connection)) {
             if ($force) {
                 @mysqli_close($this->connection);
             }
