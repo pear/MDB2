@@ -1881,7 +1881,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function setLimit($limit, $offset = null)
     {
-        if (!isset($this->supported['limit_queries'])) {
+        if (!$this->supports('limit_queries')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'setLimit: limit is not supported by this driver');
         }
@@ -1919,7 +1919,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function subSelect($query, $type = false)
     {
-        if ($this->supported['sub_selects']) {
+        if ($this->supports('sub_selects')) {
             return $query;
         }
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
@@ -1992,7 +1992,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function replace($table, $fields)
     {
-        if (!$this->supported['replace']) {
+        if (!$this->supports('replace')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'replace: replace query is not supported');
         }
@@ -2050,7 +2050,7 @@ class MDB2_Driver_Common extends PEAR
                 //$this->autoCommit(true);
             }
             if (!PEAR::isError($success = $this->commit())
-                && isset($this->supported['affected_rows'])
+                && $this->supports('affected_rows')
             ) {
                 return $affected_rows;
             }
@@ -2265,7 +2265,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function getBeforeID($table, $ondemand = true)
     {
-        if (!$this->supported['auto_increment']) {
+        if (!$this->supports('auto_increment')) {
             return $thid->nextID($table, $ondemand);
         }
         return null;
