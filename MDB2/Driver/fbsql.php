@@ -350,8 +350,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     // {{{ _modifyQuery()
 
     /**
-     * This method is used by backends to alter queries for various
-     * reasons.
+     * Changes a query string for various DBMS specific reasons
      *
      * @param string $query  query to modify
      * @return the new (modified) query
@@ -359,9 +358,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function _modifyQuery($query, $isManip, $limit, $offset)
     {
-        // Add ; to the end of the query. This is required by FrontBase
-        $query .= ';';
         if ($limit > 0) {
+            $query = rtrim($query);
+            if (substr($query, -1) == ';') {
+                $query = substr($query, 0, -1);
+            }
             if ($isManip) {
                 return preg_replace('/^([\s(])*SELECT(?!\s*TOP\s*\()/i',
                     "\\1SELECT TOP($limit)", $query);
@@ -370,7 +371,8 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                     "\\1SELECT TOP($offset,$limit)", $query);
             }
         }
-        return $query;
+        // Add ; to the end of the query. This is required by FrontBase
+        return $query.';';
     }
 
     // }}}

@@ -376,8 +376,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     // {{{ _modifyQuery()
 
     /**
-     * This method is used by backends to alter queries for various
-     * reasons.
+     * Changes a query string for various DBMS specific reasons
      *
      * @param string $query  query to modify
      * @return the new (modified) query
@@ -386,9 +385,14 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function _modifyQuery($query, $isManip, $limit, $offset)
     {
         if ($limit > 0) {
+            $query = rtrim($query);
+            if (substr($query, -1) == ';') {
+                $query = substr($query, 0, -1);
+            }
             $fetch = $offset + $limit;
             if (!$isManip) {
-                $query = str_replace('SELECT', "SELECT TOP $fetch", $query);
+                return preg_replace('/^([\s(])*SELECT(?!\s*TOP\s*\()/i',
+                    "\\1SELECT TOP($fetch)", $query);
             }
         }
         return $query;

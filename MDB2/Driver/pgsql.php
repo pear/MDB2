@@ -452,8 +452,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     // {{{ _modifyQuery()
 
     /**
-     * This method is used by backends to alter queries for various
-     * reasons.
+     * Changes a query string for various DBMS specific reasons
      *
      * @param string $query  query to modify
      * @return the new (modified) query
@@ -461,7 +460,13 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function _modifyQuery($query, $isManip, $limit, $offset)
     {
-        if ($limit > 0) {
+        if ($limit > 0
+            && !preg_match('/LIMIT\s*\d(\s*(,|OFFSET)\s*\d+)?/i', $query)
+        ) {
+            $query = rtrim($query);
+            if (substr($query, -1) == ';') {
+                $query = substr($query, 0, -1);
+            }
             if ($isManip) {
                 $manip = preg_replace('/^(DELETE FROM|UPDATE).*$/', '\\1', $query);
                 $from = $match[2];
