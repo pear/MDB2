@@ -334,7 +334,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
         $connect_function = $persistent ? 'ibase_pconnect' : 'ibase_connect';
 
-        $connection = @call_user_func_array($function, $params);
+        $connection = @call_user_func_array($connect_function, $params);
         if ($connection <= 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
