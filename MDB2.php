@@ -2893,9 +2893,9 @@ class MDB2_Statement_Common
     function &execute($result_class = true, $result_wrap_class = false)
     {
         $query = '';
-        $last_position = $parameter_num = 0;
+        $last_position = 0;
         foreach ($this->values as $parameter => $value) {
-            $current_position = $this->statement[$parameter_num];
+            $current_position = $this->statement[$parameter];
             $query .= substr($this->query,
                 $last_position, $current_position - $last_position);
             if (!isset($value)) {
@@ -2909,7 +2909,6 @@ class MDB2_Statement_Common
             }
             $query .= $value_quoted;
             $last_position = $current_position + 1;
-            ++$parameter_num;
         }
         $query .= substr($this->query, $last_position);
 
