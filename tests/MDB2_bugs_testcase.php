@@ -159,17 +159,13 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $firstRow = $result->fetchRow();
         $this->assertEquals($firstRow['user_name'], $data['user_name'], "The data returned ($firstRow[user_name]) does not match that expected (".$data['user_name'].")");
 
-
-
-
-
         $result = $this->db->query('SELECT user_name, user_id, quota FROM users ORDER BY user_name');
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
         $this->db->setFetchMode(MDB2_FETCHMODE_ORDERED);
 
-        $value = $result->fetch();
+        $value = $result->fetchOne();
         $this->assertEquals($data['user_name'], $value, "The data returned ($value) does not match that expected (".$data['user_name'].")");
         $result->free();
     }
