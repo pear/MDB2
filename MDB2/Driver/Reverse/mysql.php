@@ -54,7 +54,7 @@ require_once 'MDB2/Driver/Reverse/mysqli.php';
  * @category Database
  * @author  Lukas Smith <smith@backendmedia.com>
  */
-class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_mysql
+class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_mysqli
 {
     /**
      * carried over from mysqli driver
@@ -63,7 +63,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_mysql
      * @access public
      * @since  Property available since Release 1.6.5
      */
-    var $flags,
+    var $flags;
 
     /**
      * carried over from mysqli driver
