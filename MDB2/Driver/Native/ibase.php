@@ -66,9 +66,17 @@ class MDB2_Driver_Native_ibase
         $this->db_index = $db_index;
     }
 
+    // }}}
+    // {{{ constructor
+
+    /**
+     * PHP4 Constructor
+     */
     function MDB2_Driver_Native_ibase($db_index)
     {
         $this->__construct($db_index);
     }
+
+    // }}}
 }
 ?>

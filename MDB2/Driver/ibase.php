@@ -97,6 +97,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->options['default_text_field_length'] = 4000;
     }
 
+    // }}}
+    // {{{ PHP4 constructor
+
     function MDB2_Driver_ibase()
     {
         $this->__construct();
@@ -313,7 +316,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      *
      * @return mixed connection resource on success, MDB2 Error Object on failure
      * @access private
-     **/
+     */
     function _doConnect($database_name, $persistent = false)
     {
         $dsninfo = $this->dsn;
@@ -350,7 +353,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      *
      * @return true on success, MDB2 Error Object on failure
      * @access public
-     **/
+     */
     function connect()
     {
         $database_file = $this->_getDatabaseFile($this->database_name);
@@ -397,7 +400,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      *
      * @return boolean
      * @access private
-     **/
+     */
     function _close()
     {
         if ($this->connection != 0) {
@@ -423,7 +426,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @param string $query the SQL query
      * @return mixed result identifier if query executed, else MDB2_error
      * @access private
-     **/
+     */
     function _doQuery($query, $prepared_query = false)
     {
         $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
@@ -630,11 +633,12 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
         return $value;
     }
+
+    // }}}
 }
 
 class MDB2_Result_ibase extends MDB2_Result_Common
 {
-    // }}}
     // {{{ _skipLimitOffset()
 
     /**
@@ -667,13 +671,13 @@ class MDB2_Result_ibase extends MDB2_Result_Common
     // {{{ fetch()
 
     /**
-    * fetch value from a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @param int    $colnum    field number where the data can be found
-    * @return mixed string on success, a MDB2 error on failure
-    * @access public
-    */
+     * fetch value from a result set
+     *
+     * @param int    $rownum    number of the row where the data can be found
+     * @param int    $colnum    field number where the data can be found
+     * @return mixed string on success, a MDB2 error on failure
+     * @access public
+     */
     function fetch($rownum = 0, $colnum = 0)
     {
         $seek = $this->seek($rownum);
@@ -840,20 +844,25 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         $this->result = null;
         return MDB2_OK;
     }
+
+    // }}}
 }
 
 class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
 {
+    // {{{ class vars
+
     var $buffer;
     var $buffer_rownum = - 1;
 
+    // }}}
     // {{{ _fillBuffer()
 
     /**
      * Fill the row buffer
      *
      * @param int $rownum   row number upto which the buffer should be filled
-                            if the row number is null all rows are ready into the buffer
+     *                      if the row number is null all rows are ready into the buffer
      * @return boolean true on success, false on failure
      * @access private
      */
@@ -949,12 +958,12 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     // {{{ seek()
 
     /**
-    * seek to a specific row in a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @return mixed MDB2_OK on success, a MDB2 error on failure
-    * @access public
-    */
+     * seek to a specific row in a result set
+     *
+     * @param int    $rownum    number of the row where the data can be found
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
     function seek($rownum = 0)
     {
         if (is_null($this->result)) {
@@ -1020,6 +1029,8 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
         $this->buffer_rownum = null;
         $free = parent::free();
     }
+
+    // }}}
 }
 
 ?>
