@@ -1632,14 +1632,18 @@ class MDB2_Driver_Common extends PEAR
                 $position = $question + 1;
             }
         }
-        if ($types) {
-            if (!is_array($types)) {
-                $types = array($types);
+        if (!$types) {
+            if (count($positions)) {
+                $types = array_fill(0, count($positions), 'text');
+            } else {
+                $types = array();
             }
-            $result = $this->loadModule('datatype');
-            if (MDB2::isError($result)) {
-                return $result;
-            }
+        } else if (!is_array($types)) {
+            $types = array($types);
+        }
+        $result = $this->loadModule('datatype');
+        if (MDB2::isError($result)) {
+            return $result;
         }
         $this->prepared_queries[] = array(
             'query' => $query,
@@ -1799,9 +1803,8 @@ class MDB2_Driver_Common extends PEAR
         if (MDB2::isError($result)) {
             return $result;
         }
-
         $query = '';
-        $index = $prepared_query-1;
+        $index = $prepared_query - 1;
         $this->clobs[$prepared_query] = $this->blobs[$prepared_query] = array();
         $count = count($this->prepared_queries[$index]['positions']);
         for ($last_position = $position = 0; $position < $count; $position++) {
@@ -1811,7 +1814,7 @@ class MDB2_Driver_Common extends PEAR
             if (!isset($this->prepared_queries[$index]['values'][$position])
                 && !isset($this->prepared_queries[$index]['types'][$position])
             ) {
-                $success = 'NULL';
+                $value_quoted = 'NULL';
             } else {
                 $value = $this->prepared_queries[$index]['values'][$position];
                 $type = $this->prepared_queries[$index]['types'][$position];
@@ -2366,7 +2369,7 @@ class MDB2_Driver_Common extends PEAR
      * @access public
      * @see prepare(), executeParams()
      */
-    function executeMultiple($prepared_query, $types = null, $params)
+    function executeMultiple($prepared_query, $types = null, $params = null)
     {
         for ($i = 0, $j = count($params); $i < $j; $i++) {
             $result = $this->executeParams($prepared_query, $types, $params[$i]);
