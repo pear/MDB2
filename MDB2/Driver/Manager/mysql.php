@@ -633,7 +633,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $result;
         }
         $res = $db->query("CREATE TABLE $sequence_name".
-            "(sequence INT DEFAULT 0 NOT NULL AUTO_INCREMENT, PRIMARY KEY (sequence))".
+            "(sequence INT NOT NULL AUTO_INCREMENT, PRIMARY KEY (sequence))".
             (strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : ''));
         if (MDB2::isError($res)) {
             return $res;
