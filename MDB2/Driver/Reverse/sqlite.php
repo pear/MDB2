@@ -70,7 +70,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'";
-        $result = $db->query($query);
+        $result = $db->query($query, null, false, false);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -208,7 +208,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     && $row[$columns['key']] == 'PRI'
                 ) {
                     // check that its not just a unique field
-                    if (MDB2::isError($indexes = $db->query("SHOW INDEX FROM $table", null, MDB2_FETCHMODE_ASSOC))) {
+                    if (MDB2::isError($indexes = $db->queryAll("SHOW INDEX FROM $table", null, MDB2_FETCHMODE_ASSOC))) {
                         return $indexes;
                     }
                     $is_primary = false;

@@ -267,7 +267,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     function listTableFields($table)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $result = $db->query("SELECT * FROM $table");
+        $result = $db->query("SELECT * FROM $table", null, false, false);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -299,11 +299,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $pk_name = strtolower($pk_name);
         }
         $query = "EXEC sp_statistics @table_name='$table'";
+        // third parameter is wrong! should this be a prepared query?
         $indexes_all = $db->query($query, 'text', $key_name);
         if (MDB2::isError($indexes_all)) {
             return $indexes_all;
         }
         $query = "EXEC sp_pkeys @table_name='$table'";
+        // third parameter is wrong! should this be a prepared query?
         $pk_all = $db->queryCol($query, 'text', $pk_name);
         $found = $indexes = array();
         for ($index = 0, $j = count($indexes_all); $index < $j; ++$index) {

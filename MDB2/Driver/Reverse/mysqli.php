@@ -62,7 +62,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      * @access public
      * @since  Property available since Release 1.6.5
      */
-    var $mysqli_flags = array(
+    var $flags = array(
         MYSQLI_NOT_NULL_FLAG        => 'not_null',
         MYSQLI_PRI_KEY_FLAG         => 'primary_key',
         MYSQLI_UNIQUE_KEY_FLAG      => 'unique_key',
@@ -84,7 +84,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      * @access public
      * @since  Property available since Release 1.6.5
      */
-    var $mysqli_types = array(
+    var $types = array(
         MYSQLI_TYPE_DECIMAL     => 'decimal',
         MYSQLI_TYPE_TINY        => 'tinyint',
         MYSQLI_TYPE_SHORT       => 'int',
@@ -128,7 +128,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableFieldDefinition: '.$db->dummy_primary_key.' is an hidden column');
         }
-        $result = $db->query("SHOW COLUMNS FROM $table");
+        $result = $db->query("SHOW COLUMNS FROM $table", null, false, false);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -338,7 +338,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableIndexDefinition: PRIMARY is an hidden index');
         }
-        if (MDB2::isError($result = $db->query("SHOW INDEX FROM $table"))) {
+        $result = $db->query("SHOW INDEX FROM $table", null, false, false);
+        if (MDB2::isError($result)) {
             return $result;
         }
         $definition = array();
@@ -441,7 +442,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             $tmp = @mysqli_fetch_field($id);
 
             $flags = '';
-            foreach ($this->mysqli_flags as $const => $means) {
+            foreach ($this->flags as $const => $means) {
                 if ($tmp->flags & $const) {
                     $flags .= $means . ' ';
                 }
@@ -454,8 +455,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             $res[$i] = array(
                 'table' => $case_func($tmp->table),
                 'name'  => $case_func($tmp->name),
-                'type'  => isset($this->mysqli_types[$tmp->type])
-                                    ? $this->mysqli_types[$tmp->type]
+                'type'  => isset($this->types[$tmp->type])
+                                    ? $this->types[$tmp->type]
                                     : 'unknown',
                 'len'   => $tmp->max_length,
                 'flags' => $flags,

@@ -484,7 +484,7 @@ class MDB2_PEARProxy extends PEAR
     }
 
     function simpleQuery($query) {
-        $result = $this->db_object->query($query, null, false);
+        $result = $this->db_object->query($query, null, false, false);
         if (MDB2::isError($result) || $result === MDB2_OK) {
             return $result;
         } else {
