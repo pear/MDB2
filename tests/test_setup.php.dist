@@ -9,6 +9,7 @@ $testcases = array(
     'MDB2_native_testcase',
 );
 
+// use a user that has full permissions on a database named "driver_test"
 $dbarray[] = array(
     'dsn' => array(
         'phptype' => 'mysql',
@@ -56,6 +57,7 @@ $dbarray[] = array(
     )
 );
 
+// must be a user with system administrator privileges
 $dbarray[] = array(
     'dsn' => array(
         'phptype' => 'mssql',
