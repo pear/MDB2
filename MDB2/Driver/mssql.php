@@ -114,9 +114,11 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                     245   => MDB2_ERROR_INVALID_NUMBER,
                     515   => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                     547   => MDB2_ERROR_CONSTRAINT,
+                    1205  => MDB2_ERROR_DEADLOCK,
                     2627  => MDB2_ERROR_CONSTRAINT,
                     2714  => MDB2_ERROR_ALREADY_EXISTS,
                     3701  => MDB2_ERROR_NOSUCHTABLE,
+                    8134  => MDB2_ERROR_DIVZERO,
                 );
              }
             if (isset($ecode_map[$native_code])) {
