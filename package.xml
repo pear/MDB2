@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta2</version>
-    <date>2004-04-17</date>
+    <date>2004-04-21</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
@@ -101,7 +101,11 @@ stable release.
 - renamed toString() to __toString() in order to take advantage of new PHP5
   goodness and made it public
 - MDB2_Driver_Datatype_Common::setResultTypes() can now handle missing elements
-  inside type arrays: array(2 =&gt; 'boolean', 4 =&gt; 'timestamp')</notes>
+  inside type arrays: array(2 =&gt; 'boolean', 4 =&gt; 'timestamp')
+- fixed potential warning due to manipulation query detection in the query*()
+  and the get*() query+fetch methods
+- added tests for fetchAll() and fetchCol()
+- performance tweaks for fetchAll()</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -224,7 +228,7 @@ stable release.
   <changelog>
     <release>
       <version>2.0.0beta2</version>
-      <date>2004-04-17</date>
+      <date>2004-04-21</date>
       <license>BSD License</license>
       <state>beta</state>
       <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
@@ -255,7 +259,11 @@ stable release.
 - renamed toString() to __toString() in order to take advantage of new PHP5
   goodness and made it public
 - MDB2_Driver_Datatype_Common::setResultTypes() can now handle missing elements
-  inside type arrays: array(2 =&gt; 'boolean', 4 =&gt; 'timestamp')</notes>
+  inside type arrays: array(2 =&gt; 'boolean', 4 =&gt; 'timestamp')
+- fixed potential warning due to manipulation query detection in the query*()
+  and the get*() query+fetch methods
+- added tests for fetchAll() and fetchCol()
+- performance tweaks for fetchAll()</notes>
     </release>
     <release>
       <version>2.0.0beta1</version>

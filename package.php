@@ -33,6 +33,10 @@ stable release.
   goodness and made it public
 - MDB2_Driver_Datatype_Common::setResultTypes() can now handle missing elements
   inside type arrays: array(2 => 'boolean', 4 => 'timestamp')
+- fixed potential warning due to manipulation query detection in the query*()
+  and the get*() query+fetch methods
+- added tests for fetchAll() and fetchCol()
+- performance tweaks for fetchAll()
 EOT;
 
 $description =<<<EOT
