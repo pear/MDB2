@@ -19,8 +19,6 @@ $notes = <<<EOT
 - added 'disable_query' option to be able to disable the execution of all queries
  (this might be useful in conjuntion with a custom debug handler to be able to
  dump all queries into a file instead of executing them)
-- added new 'clobfile' and 'blobfile' datatypes for prepare only. they serve to
-  hint that a parameter is actually a filename
 - removed requirement for LOB inserts to pass the parameters as an array
 - placeholders are now numbered starting from 0 (BC break in setParam() !)
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
@@ -78,6 +76,9 @@ $notes = <<<EOT
 - allow null values to be set for options
 - added emulate_database option (default true) to the Oracle driver that handles
   if the database_name should be used for connections of the username
+- removed fetch() and resultIsNull()
+- refactored handling of filename LOB values (prefix with 'file://')
+- standaloneQuery() now also supports SELECT querys
 EOT;
 
 $description =<<<EOT
