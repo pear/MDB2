@@ -373,9 +373,14 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
+            if ($this->supports('transactions') && !$this->auto_commit) {
+                $result = $this->rollback();
+                if (MDB2::isError($result)) {
+                    return $result;
+                }
+            }
             @sqlite_close($this->connection);
             $this->connection = 0;
-            unset($GLOBALS['_MDB2_databases'][$this->db_index]);
         }
         return MDB2_OK;
     }

@@ -332,9 +332,14 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
+            if ($this->supports('transactions') && !$this->auto_commit) {
+                $result = $this->rollback();
+                if (MDB2::isError($result)) {
+                    return $result;
+                }
+            }
             @mssql_close($this->connection);
             $this->connection = 0;
-            unset($GLOBALS['_MDB2_databases'][$this->db_index]);
         }
         return MDB2_OK;
     }
@@ -353,6 +358,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
+        // $database_name = sp_databases
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
