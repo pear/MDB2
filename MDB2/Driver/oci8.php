@@ -59,6 +59,12 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
     var $uncommitedqueries = 0;
 
+    /**
+     * The result or statement handle from the most recently executed query
+     * @var resource
+     */
+    var $last_stmt;
+
     // }}}
     // {{{ constructor
 
@@ -438,11 +444,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            if (!$this->connection) {
-                $error = $this->connect();
-                if (MDB2::isError($error)) {
-                    return $error;
-                }
+            $error = $this->connect();
+            if (MDB2::isError($error)) {
+                return $error;
             }
             $connection = $this->connection;
         }
@@ -452,6 +456,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
         }
+        $this->last_stmt = $result;
 
         $mode = $this->in_transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
         $return = @OCIExecute($result, $mode);
