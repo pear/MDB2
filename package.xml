@@ -70,10 +70,11 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta3</version>
-    <date>2004-08-06</date>
+    <date>2004-12-28</date>
     <license>BSD License</license>
     <state>beta</state>
-    <notes>- affectedRows() now ensures that the last query was a manipulation query
+    <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
+similar as possible as the ext/pdo API!
 - allowing limits of 0 in setLimit()
 - setParamsArray() can now handle non ordered arrays
 - performance tweak in fetchCol()
@@ -84,29 +85,91 @@ Other soon to follow.</description>
 - added getBeforeId() and getAfterId()
 - added new supported feature 'auto_increment'
 - fixed Iterator module
-- use __construct() and __destruct() (PHP4 BC hacks are provided)
+- use __construct() (PHP4 BC hacks are provided)
 - added 'disable_query' option to be able to disable the execution of all queries
  (this might be useful in conjuntion with a custom debug handler to be able to
  dump all queries into a file instead of executing them)
-- added new 'clobfile' and 'blobfile' datatypes for prepare only. they serve to
-  hint that a parameter is actually a filename
 - removed requirement for LOB inserts to pass the parameters as an array
 - placeholders are now numbered starting from 0 (BC break in setParam() !)
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
-- for PHP versions lower than 4 the transaction shutdown function is registered on load of MDB2.php (used to be a BC hack in the constructor of MDB_Driver_Common)
 - allow errorInfo() to be called when no connection has been established yet
 - cleaned up constructor handling
-- fixed various typos
-- updated raiseError method to be compatible with XML_Parser 1.1.x and return
-  useful error message (fix bug #2055)
+- updated raiseError method in the Manager to be compatible with
+  XML_Parser 1.1.x and return useful error message (fix bug #2055)
 - improved handling of MDB2_PORTABILITY_LOWERCASE in all the reverse
   methods inside the mysql driver to work coherently
 - fixed several issues in the listTablefields() method of manager drivers
-- major refactoring of MDB2_Manager
+- major refactoring of MDB2_Manager resulting in several new methods being available
 - fixed error in MDB2_Manager::_escapeSpecialCharacter() that would lead to
   incorrect handling of integer values (this needs to be explored in more detail)
 - several typo fixes and minor logic errors (among others a fix for bug #2057)
-- added MDB2_Driver_Common::getDatabase();</notes>
+- added MDB2_Driver_Common::getDatabase();
+- added default implementation for quoteCLOB() and quoteBLOB()
+- moved prepare/execute API towards PDO (mysql, sqlite, pgsql and ibase tested only)
+- use MDB2_ERROR_UNSUPPORTED instead of MDB2_ERROR_NOT_CAPABLE in common implementations
+- reworked quote handling: moved all implementation details into the extension,
+  made all quote methods private except for quote() itself, honor portability
+  MDB2_PORTABILITY_EMPTY_TO_NULL in quote(), removed MDB2_TYPE_* constants
+- reworked get*Declaration handling: moved all implementation details into the extension,
+  made all quote methods private except for quote() itself
+- ensure we are returning a reference in all relevant places
+- reworked dsn default handling
+- added ability to &quot;xxx&quot; out password in getDSN()
+- &quot;xxx&quot; out password on connect error in MDB2::connect()
+- removed affectedRows() method in favor of returning affectedRows() on query if relevant
+- added generic implementation of query() and moved driver specific code into _doQuery()
+- use _close() method in several places where they previously were not used
+- removed redundant code in _close() that dealt with transaction closing already
+  done in disconnect()
+- added _modifyQuery() to any driver that did not yet have it yet
+- added code in MDB2_Driver_mssql::connect() to better handle date values
+  independant of ini and locale settings inside the server
+- use comma, rather than colon, to delimit port in MDB2_driver_mssql::connect().
+  Bug 2140. (danielc)
+- use track_errors to capture error messages in MDB2_driver_pgsql::connect().
+  Bug 2011. (danielc)
+- add port to connect string when protocol is unix in MDB2_driver_pgsql::connect().
+  Bug 1919. (danielc)
+- accommodate changes made to PostgreSQL so &quot;no such field&quot; errors get properly
+  indicated rather than being mislabeled as &quot;no such table.&quot; (danielc)
+- fixed typo in MDB2_Driver_Manager_oci8::listTables() (fix for bug #2434)
+- added &quot;permission denied&quot; to error regex in pgsql driver.
+  Bug 2417. (stewart_linux-org-au)
+- added rownum handling to fetchRow()
+- MDB2::isError now also optionally accepts and error code to check for
+- readded MDB2_Error as the baseclass for all MDB2 error objects
+- allow null values to be set for options
+- added emulate_database option (default true) to the Oracle driver that handles
+  if the database_name should be used for connections of the username
+- removed fetch() and resultIsNull()
+- refactored handling of filename LOB values (prefix with 'file://')
+- standaloneQuery() now also supports SELECT querys
+- added LOAD DATA (port from DB) and SET to MDB2::isManip()
+- moved xml dumping in MDB2_Tools_Manager into separate Writer class
+- completely revised ibase driver, now passing all tests under php5
+- remove redundant call to commit() since setting autoCommit() already commits in MDB2::replace()
+- refactored standaloneQuery(), query(), _doQuery(), _wrapResult(); the most important change are:
+  result are only wrapped if it is explicitly requested
+  standaloneQuery() now works just as query() does but with its own connection
+- unified mssql standalone query with sqlite, mysql and others (not tested on
+  mssql yet, but since mssql automatically reuses connections per dsn the old
+  way could gurantee anything different from happening)
+- removed _executePrepared(), drivers need to overwrite execute() for now on
+- fbsql: use correct error codes. Was using MySQL's codes by mistake.
+- add support for oracle style named parameters and modified test suite accordingly
+- dont convert sequence names if sequences are supported natively (BC break!)
+- removed executeParams() and moved executeMultiple() to extended module
+- transaction API moved over to PDO: removed autoCommit(), added beginTransaction()
+  and refactored commit() (it doesn't start a new transaction automatically anymore)
+- reworked handling of uncommited transaction for persistant connections when
+  a given connection is no longer in use
+- only disconnect persistant connections if disconnect() has been explicitly
+  called by the user
+- instead of having a generic implemention of disconnect() we will rename
+  _close() to disconnect() to overwrite the generic implementation
+- placed convert methods after the portability conversions to ensure that the
+  proper type is maintained after the conversion methods
+- dont convert null values in the Datatype module</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -129,7 +192,6 @@ Other soon to follow.</description>
         <file role="doc" name="README"/>
         <file role="doc" name="STATUS"/>
         <file role="doc" name="TODO"/>
-        <file role="doc" name="tutorial.html"/>
         <file role="doc" name="xml_schema_documentation.html"/>
         <dir name="examples">
          <file role="doc" name="example.php"/>
@@ -193,8 +255,11 @@ Other soon to follow.</description>
         </dir> <!-- MDB2/Driver -->
         <dir name="Tools">
          <file role="php" name="Manager.php"/>
-         <file role="php" name="Parser.php"/>
          <file role="php" name="reverse_engineer_xml_schema.php"/>
+         <dir name="Manager">
+          <file role="php" name="Parser.php"/>
+          <file role="php" name="Writer.php"/>
+         </dir> <!-- MDB2/Tools/Manager -->
         </dir> <!-- MDB2/Tools -->
         <dir name="Wrapper">
          <file role="php" name="peardb.php"/>
@@ -230,10 +295,11 @@ Other soon to follow.</description>
   <changelog>
     <release>
       <version>2.0.0beta3</version>
-      <date>2004-08-06</date>
+      <date>2004-12-28</date>
       <license>BSD License</license>
       <state>beta</state>
-      <notes>- affectedRows() now ensures that the last query was a manipulation query
+      <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
+similar as possible as the ext/pdo API!
 - allowing limits of 0 in setLimit()
 - setParamsArray() can now handle non ordered arrays
 - performance tweak in fetchCol()
@@ -244,29 +310,91 @@ Other soon to follow.</description>
 - added getBeforeId() and getAfterId()
 - added new supported feature 'auto_increment'
 - fixed Iterator module
-- use __construct() and __destruct() (PHP4 BC hacks are provided)
+- use __construct() (PHP4 BC hacks are provided)
 - added 'disable_query' option to be able to disable the execution of all queries
  (this might be useful in conjuntion with a custom debug handler to be able to
  dump all queries into a file instead of executing them)
-- added new 'clobfile' and 'blobfile' datatypes for prepare only. they serve to
-  hint that a parameter is actually a filename
 - removed requirement for LOB inserts to pass the parameters as an array
 - placeholders are now numbered starting from 0 (BC break in setParam() !)
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
-- for PHP versions lower than 4 the transaction shutdown function is registered on load of MDB2.php (used to be a BC hack in the constructor of MDB_Driver_Common)
 - allow errorInfo() to be called when no connection has been established yet
 - cleaned up constructor handling
-- fixed various typos
-- updated raiseError method to be compatible with XML_Parser 1.1.x and return
-  useful error message (fix bug #2055)
+- updated raiseError method in the Manager to be compatible with
+  XML_Parser 1.1.x and return useful error message (fix bug #2055)
 - improved handling of MDB2_PORTABILITY_LOWERCASE in all the reverse
   methods inside the mysql driver to work coherently
 - fixed several issues in the listTablefields() method of manager drivers
-- major refactoring of MDB2_Manager
+- major refactoring of MDB2_Manager resulting in several new methods being available
 - fixed error in MDB2_Manager::_escapeSpecialCharacter() that would lead to
   incorrect handling of integer values (this needs to be explored in more detail)
 - several typo fixes and minor logic errors (among others a fix for bug #2057)
-- added MDB2_Driver_Common::getDatabase();</notes>
+- added MDB2_Driver_Common::getDatabase();
+- added default implementation for quoteCLOB() and quoteBLOB()
+- moved prepare/execute API towards PDO (mysql, sqlite, pgsql and ibase tested only)
+- use MDB2_ERROR_UNSUPPORTED instead of MDB2_ERROR_NOT_CAPABLE in common implementations
+- reworked quote handling: moved all implementation details into the extension,
+  made all quote methods private except for quote() itself, honor portability
+  MDB2_PORTABILITY_EMPTY_TO_NULL in quote(), removed MDB2_TYPE_* constants
+- reworked get*Declaration handling: moved all implementation details into the extension,
+  made all quote methods private except for quote() itself
+- ensure we are returning a reference in all relevant places
+- reworked dsn default handling
+- added ability to &quot;xxx&quot; out password in getDSN()
+- &quot;xxx&quot; out password on connect error in MDB2::connect()
+- removed affectedRows() method in favor of returning affectedRows() on query if relevant
+- added generic implementation of query() and moved driver specific code into _doQuery()
+- use _close() method in several places where they previously were not used
+- removed redundant code in _close() that dealt with transaction closing already
+  done in disconnect()
+- added _modifyQuery() to any driver that did not yet have it yet
+- added code in MDB2_Driver_mssql::connect() to better handle date values
+  independant of ini and locale settings inside the server
+- use comma, rather than colon, to delimit port in MDB2_driver_mssql::connect().
+  Bug 2140. (danielc)
+- use track_errors to capture error messages in MDB2_driver_pgsql::connect().
+  Bug 2011. (danielc)
+- add port to connect string when protocol is unix in MDB2_driver_pgsql::connect().
+  Bug 1919. (danielc)
+- accommodate changes made to PostgreSQL so &quot;no such field&quot; errors get properly
+  indicated rather than being mislabeled as &quot;no such table.&quot; (danielc)
+- fixed typo in MDB2_Driver_Manager_oci8::listTables() (fix for bug #2434)
+- added &quot;permission denied&quot; to error regex in pgsql driver.
+  Bug 2417. (stewart_linux-org-au)
+- added rownum handling to fetchRow()
+- MDB2::isError now also optionally accepts and error code to check for
+- readded MDB2_Error as the baseclass for all MDB2 error objects
+- allow null values to be set for options
+- added emulate_database option (default true) to the Oracle driver that handles
+  if the database_name should be used for connections of the username
+- removed fetch() and resultIsNull()
+- refactored handling of filename LOB values (prefix with 'file://')
+- standaloneQuery() now also supports SELECT querys
+- added LOAD DATA (port from DB) and SET to MDB2::isManip()
+- moved xml dumping in MDB2_Tools_Manager into separate Writer class
+- completely revised ibase driver, now passing all tests under php5
+- remove redundant call to commit() since setting autoCommit() already commits in MDB2::replace()
+- refactored standaloneQuery(), query(), _doQuery(), _wrapResult(); the most important change are:
+  result are only wrapped if it is explicitly requested
+  standaloneQuery() now works just as query() does but with its own connection
+- unified mssql standalone query with sqlite, mysql and others (not tested on
+  mssql yet, but since mssql automatically reuses connections per dsn the old
+  way could gurantee anything different from happening)
+- removed _executePrepared(), drivers need to overwrite execute() for now on
+- fbsql: use correct error codes. Was using MySQL's codes by mistake.
+- add support for oracle style named parameters and modified test suite accordingly
+- dont convert sequence names if sequences are supported natively (BC break!)
+- removed executeParams() and moved executeMultiple() to extended module
+- transaction API moved over to PDO: removed autoCommit(), added beginTransaction()
+  and refactored commit() (it doesn't start a new transaction automatically anymore)
+- reworked handling of uncommited transaction for persistant connections when
+  a given connection is no longer in use
+- only disconnect persistant connections if disconnect() has been explicitly
+  called by the user
+- instead of having a generic implemention of disconnect() we will rename
+  _close() to disconnect() to overwrite the generic implementation
+- placed convert methods after the portability conversions to ensure that the
+  proper type is maintained after the conversion methods
+- dont convert null values in the Datatype module</notes>
     </release>
     <release>
       <version>2.0.0beta2</version>
