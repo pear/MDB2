@@ -187,7 +187,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                             actually perform them otherwise.
      * @access public
      *
-      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
      */
     function alterTable($name, $changes, $check)
     {
@@ -242,7 +242,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *
      * @return mixed data array on success, a MDB error on failure
      * @access public
-     **/
+     */
     function listTables()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];

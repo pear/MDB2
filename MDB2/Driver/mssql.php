@@ -129,7 +129,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                     3701  => MDB2_ERROR_NOSUCHTABLE,
                     8134  => MDB2_ERROR_DIVZERO,
                 );
-             }
+            }
             if (isset($ecode_map[$native_code])) {
                 $error = $ecode_map[$native_code];
             }
