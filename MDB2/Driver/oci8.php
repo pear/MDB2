@@ -90,7 +90,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->options['database_name_prefix'] = false;
         $this->options['emulate_database'] = true;
         $this->options['default_tablespace'] = false;
-        $this->options['home'] = false;
         $this->options['default_text_field_length'] = 4000;
     }
 
@@ -249,17 +248,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'it was not specified a valid Oracle Service Identifier (SID)');
         }
 
-        if ($this->options['home']) {
-            putenv('ORACLE_HOME='.$this->options['home']);
-        }
-        putenv('ORACLE_SID='.$sid);
-
         if (version_compare(phpversion(), '5.0.0', '>=')) {
-            $connection = oci_new_connect($username, $password, $sid);
+            $charset = empty($dsninfo['charset']) ? null : $dsninfo['charset'];
+            $connection = oci_new_connect($username, $password, $sid, $charset);
             $error = OCIError();
             if (!empty($error) && $error['code'] == 12541) {
                 // Couldn't find TNS listener.  Try direct connection.
-                $connection = oci_new_connect($username, $password);
+                $connection = oci_new_connect($username, $password, null $charset);
             }
         } else {
             $function = $persistent ? 'OCIPLogon' : 'OCILogon';
@@ -347,7 +342,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function disconnect()
     {
         if ($this->connection != 0) {
-            @OCILogOff($this->connection);
+            if (version_compare(phpversion(), '5.0.0', '>=')) {
+                $ret = @oci_close($this->connection);
+            } else {
+                $ret = @OCILogOff($this->connection);
+            }
             $this->connection = 0;
             $this->uncommitedqueries = 0;
         }
