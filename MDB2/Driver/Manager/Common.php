@@ -212,18 +212,21 @@ class MDB2_Driver_Manager_Common
     function createTable($name, $fields)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (!isset($name) || !strcmp($name, '')) {
+        if (!$name) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no valid table name specified');
         }
-        if (count($fields) == 0) {
+        if (!count($fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no fields specified for table "'.$name.'"');
         }
-        if (MDB2::isError($query_fields = $this->getFieldDeclarationList($fields))) {
-            return $query_fields;
+        $query_fields = $this->getFieldDeclarationList($fields);
+        if (MDB2::isError($query_fields)) {
+            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
+                'createTable: unkown error');
         }
-        return $db->query("CREATE TABLE $name ($query_fields)");
+        $query = "CREATE TABLE $name ($query_fields)";
+        return $db->query($query);
     }
 
     // }}}

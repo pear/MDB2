@@ -384,8 +384,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 $query_fields .= ',';
             }
             $query_fields .= $field_name;
-            if (!strcmp($query_sort, '')
-                && $db->support('index_sorting')
+            if ($query_sort && $db->support('index_sorting')
                 && isset($definition['fields'][$field_name]['sorting'])
             ) {
                 switch ($definition['fields'][$field_name]['sorting']) {

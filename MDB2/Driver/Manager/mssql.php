@@ -249,7 +249,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $query = 'EXECUTE sp_tables @table_type = "\'TABLE\'"';
         $table_names = $db->queryCol($query, null, 2);
         if (MDB2::isError($table_names)) {
-            return($table_names);
+            return $table_names;
         }
         $tables = array();
         for ($i = 0, $j = count($table_names); $i <$j; ++$i) {
@@ -257,7 +257,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $tables[] = $table_names[$i];
             }
         }
-        return($tables);
+        return $tables;
     }
 
     // }}}
@@ -275,7 +275,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $result = $db->query("SELECT * FROM $table");
         if (MDB2::isError($result)) {
-            return($result);
+            return $result;
         }
         $columns = $result->getColumnNames();
         $result->free();
@@ -339,7 +339,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
-        $query = "CREATE TABLE $sequence_name (".$db->options['seqname_col_name']." INT NOT NULL IDENTITY($start,1) PRIMARY KEY CLUSTERED)";
+        $query = "CREATE TABLE $sequence_name (".$db->options['seqname_col_name']
+            ." INT NOT NULL IDENTITY($start,1) PRIMARY KEY CLUSTERED)";
         return $db->query($query);
     }
 

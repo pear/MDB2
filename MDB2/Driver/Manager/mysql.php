@@ -201,11 +201,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     function createTable($name, $fields)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (!isset($name) || !strcmp($name, '')) {
+        if (!$name) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no valid table name specified');
         }
-        if (count($fields) == 0) {
+        if (!count($fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no fields specified for table "'.$name.'"');
         }

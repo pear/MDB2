@@ -541,8 +541,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
 
         if (!isset($db->lobs[$lob])) {
-            return($db->raiseError(MDB2_ERROR, NULL, NULL,
-                'Retrieve LOB: it was not specified a valid lob'));
+            return $db->raiseError(MDB2_ERROR, NULL, NULL,
+                '_retrieveLOB: it was not specified a valid lob');
         }
 
         if (!isset($db->lobs[$lob]['handle'])) {
@@ -550,8 +550,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                 @ibase_blob_open($db->lobs[$lob]['value']);
             if (!$db->lobs[$lob]['handle']) {
                 unset($db->lobs[$lob]['value']);
-                return($db->raiseError(MDB2_ERROR, NULL, NULL,
-                    'Retrieve LOB: Could not open fetched large object field' . @ibase_errmsg()));
+                return $db->raiseError(MDB2_ERROR, NULL, NULL,
+                    '_retrieveLOB: Could not open fetched large object field' . @ibase_errmsg());
             }
         }
 
