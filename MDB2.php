@@ -2734,7 +2734,7 @@ class MDB2_Result_Common extends MDB2_Result
         $row = $this->fetchRow($fetchmode);
         if (is_array($row)) {
             if (!array_key_exists($colnum, $row)) {
-                return($this->raiseError(MDB2_ERROR_TRUNCATED));
+                return($this->mdb->raiseError(MDB2_ERROR_TRUNCATED));
             }
             do {
                 $column[] = $row[$colnum];
