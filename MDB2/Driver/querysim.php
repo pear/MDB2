@@ -336,6 +336,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      *                        the result set
      *
      * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      *
      * @return mixed Simulated result set as a multidimentional
      * array if valid QuerySim text was passed in.  A MDB2 error
@@ -343,7 +344,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      *
      * @access public
      */
-    function &query($query, $types = null, $result_class = false)
+    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
     {
         $ismanip = false;
         $offset = $this->row_offset;
@@ -377,6 +378,12 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
                     $result->free();
                     return $err;
                 }
+            }
+            if (!$result_wrap_class) {
+                $result_wrap_class = $this->options['result_wrap_class'];
+            }
+            if ($result_wrap_class) {
+                $result =& new $result_wrap_class($result);
             }
             return $result;
         }

@@ -432,11 +432,12 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      * @param mixed   $types  string or array that contains the types of the
      *                        columns in the result set
      * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      *
      * @access public
      */
-    function &query($query, $types = null, $result_class = false)
+    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
     {
         $ismanip = MDB2::isManip($query);
         $offset = $this->row_offset;
@@ -456,10 +457,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->debug($query, 'query');
 
         $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
-        }
-
         if (MDB2::isError($connected)) {
             return $connected;
         }
@@ -492,6 +489,12 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                         $result->free();
                         return $err;
                     }
+                }
+                if (!$result_wrap_class) {
+                    $result_wrap_class = $this->options['result_wrap_class'];
+                }
+                if ($result_wrap_class) {
+                    $result =& new $result_wrap_class($result);
                 }
                 return $result;
             }
@@ -542,9 +545,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return 'NULL';
         }
         if ($type) {
-            for ($i = 0, $j = count($col); $i < $j; ++$i) {
-                $col[$i] = $this->quote($col[$i], $type);
-            }
+            $this->loadModule('datatype');
+            return $this->datatype->implodeArray($col, $type);
         }
         return implode(', ', $col);
     }

@@ -421,7 +421,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @return mixed result identifier if query executed, else MDB2_error
      * @access private
      **/
-    function _doQuery($query, $prepared_query = 0)
+    function _doQuery($query, $prepared_query = false)
     {
         $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
         if ($prepared_query
@@ -460,10 +460,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      *       the function prepare()
      * @param string $query query to be executed
      * @param array $types array that contains the types of the columns in the result set
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     *
      * @access private
      */
-    function &_executePrepared($prepared_query, $query, $types = null, $result_class = false)
+    function &_executePrepared($prepared_query, $query, $types = null,
+        $result_class = false, $result_wrap_class = false)
     {
         $ismanip = MDB2::isManip($query);
         $offset = $this->row_offset;
@@ -495,6 +499,12 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                         return $err;
                     }
                 }
+                if (!$result_wrap_class) {
+                    $result_wrap_class = $this->options['result_wrap_class'];
+                }
+                if ($result_wrap_class) {
+                    $result =& new $result_wrap_class($result);
+                }
                 return $result;
             }
         }
@@ -509,14 +519,15 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      *
      * @param string $query the SQL query
      * @param array $types array that contains the types of the columns in the result set
-     *
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      *
      * @access public
      */
-    function &query($query, $types = null)
+    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
     {
-        $result =& $this->_executePrepared(0, $query, $types);
+        $result =& $this->_executePrepared(false, $query, $types, $result_class, $result_wrap_class);
         return $result;
     }
 

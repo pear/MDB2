@@ -573,11 +573,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @param string $query query to be executed
      * @param array $types array that contains the types of the columns in the result set
      * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     *
      * @access private
      */
-    function &_executePrepared($prepared_query, $query, $types = null, $result_class = false)
-     {
+    function &_executePrepared($prepared_query, $query, $types = null,
+        $result_class = false, $result_wrap_class = false)
+    {
         $ismanip = MDB2::isManip($query);
         $offset = $this->row_offset;
         $limit = $this->row_limit;
@@ -609,6 +612,12 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                         return $err;
                     }
                 }
+                if (!$result_wrap_class) {
+                    $result_wrap_class = $this->options['result_wrap_class'];
+                }
+                if ($result_wrap_class) {
+                    $result =& new $result_wrap_class($result);
+                }
                 return $result;
             }
         }
@@ -624,13 +633,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @param string $query the SQL query
      * @param array $types array that contains the types of the columns in the result set
      * @param mixed $result_class string which specifies which result class to use
-     *
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     *
      * @access public
      */
-    function &query($query, $types = null, $result_class = false)
+    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
     {
-        $result =& $this->_executePrepared(0, $query, $types, $result_class);
+        $result =& $this->_executePrepared(false, $query, $types, $result_class, $result_wrap_class);
         return $result;
     }
 
