@@ -1,7 +1,6 @@
 2.0.0 stable:
 - use constants that we can apply bit operators on for the types internally ..
   this would allow people to define complex types that know that they are text
-- move transaction API over to PDO (dont keep a transaction open for autocommit == false)
 - move all datatype related code into the datatype module (especially from the
   manager class and the reverse module)
 - move all code that is left from the reverse module into the manager module
