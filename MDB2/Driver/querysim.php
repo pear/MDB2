@@ -317,7 +317,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             $this->connection = 0;
             unset($GLOBALS['_MDB2_databases'][$this->db_index]);
 
-            if (!$ret) {
+            if (!isset($ret) || !$ret) {
                 $this->raiseError();
             }
         }
@@ -585,7 +585,8 @@ class MDB2_Result_querysim extends MDB2_Result_Common
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
-        if (isset($this->result[1][$this->rownum])) {
+        ++$this->rownum;
+        if (!isset($this->result[1][$this->rownum])) {
             if (is_null($this->result)) {
                 return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
@@ -614,7 +615,6 @@ class MDB2_Result_querysim extends MDB2_Result_Common
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
             $this->mdb->_convertNullArrayValuesToEmpty($row);
         }
-        ++$this->rownum;
         return $row;
     }
 
