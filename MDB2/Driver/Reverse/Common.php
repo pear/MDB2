@@ -143,7 +143,7 @@ class MDB2_Driver_Reverse_Common
             $start++;
         } else {
             $db->warnings[] = 'database does not support getting current
-                sequence value,the sequence value was incremented';
+                sequence value, the sequence value was incremented';
         }
         $definition = array();
         if ($start != 1) {
