@@ -430,21 +430,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ freeCLOBValue()
-
-    /**
-     * free a character large object
-     *
-     * @param string    $clob
-     * @access public
-     */
-    function freeCLOBValue($clob)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($db->lobs[$clob]);
-    }
-
-    // }}}
     // {{{ quoteBLOB()
 
     /**
@@ -473,21 +458,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         }
         $value .= "'";
         return $value;
-    }
-
-    // }}}
-    // {{{ freeBLOBValue()
-
-    /**
-     * free a binary large object
-     *
-     * @param string    $blob
-     * @access public
-     */
-    function freeBLOBValue($blob)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($db->lobs[$blob]);
     }
 
     // }}}

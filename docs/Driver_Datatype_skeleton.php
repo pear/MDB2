@@ -151,24 +151,6 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
     }
 
     // }}}
-    // {{{ freeClobValue()
-
-    /**
-     * free a chracter large object
-     *
-     * @param resource  $prepared_query query handle from prepare()
-     * @param string    $clob
-     * @param string    $value
-     * @return MDB2_OK
-     * @access public
-     */
-    function freeClobValue($prepared_query, $clob, &$value)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        // take this from the corresponding Metabase driver: FreeClobValue()
-    }
-
-    // }}}
     // {{{ quoteBlob()
 
     /**
@@ -189,21 +171,6 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
     }
 
     // }}}
-    // {{{ freeBlobValue()
-
-    /**
-     * free a binary large object
-     *
-     * @param resource  $prepared_query query handle from prepare()
-     * @param string    $blob
-     * @return MDB2_OK
-     * @access public
-     */
-    function freeBlobValue($prepared_query, $blob)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        // take this from the corresponding Metabase driver: FreeBlobValue()
-    }
 }
 
 ?>

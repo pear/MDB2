@@ -490,38 +490,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ freeLOBValue()
-
-    /**
-     * free a large object
-     *
-     * @param string $lob
-     * @param string $value
-     * @access public
-     */
-    function freeLOBValue($lob, &$value)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($value);
-    }
-
-    // }}}
-    // {{{ freeCLOBValue()
-
-    /**
-     * free a character large object
-     *
-     * @param string $clob
-     * @param string $value
-     * @access public
-     */
-    function freeCLOBValue($clob, &$value)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $this->freeLOBValue($clob, $value);
-    }
-
-    // }}}
     // {{{ quoteBLOB()
 
     /**
@@ -540,22 +508,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             return 'NULL';
         }
         return $this->_quoteLOB($blob);
-    }
-
-    // }}}
-    // {{{ freeBLOBValue()
-
-    /**
-     * free a binary large object
-     *
-     * @param string $blob
-     * @param string $value
-     * @access public
-     */
-    function freeBLOBValue($blob, &$value)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $this->freeLOBValue($blob, $value);
     }
 
     // }}}

@@ -457,22 +457,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ freeCLOBValue()
-
-    /**
-     * free a character large object
-     *
-     * @param string $clob
-     * @param string $value
-     * @access public
-     */
-    function freeCLOBValue($clob, &$value)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($value);
-    }
-
-    // }}}
     // {{{ quoteBLOB()
 
     /**
@@ -491,22 +475,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             return 'NULL';
         }
         return 'EMPTY_BLOB()';
-    }
-
-    // }}}
-    // {{{ freeBLOBValue()
-
-    /**
-     * free a binary large object
-     *
-     * @param string $blob
-     * @param string $value
-     * @access public
-     */
-    function freeBLOBValue($blob, &$value)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($value);
     }
 
     // }}}

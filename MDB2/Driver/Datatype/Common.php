@@ -647,9 +647,10 @@ class MDB2_Driver_Datatype_Common
      * @param string $value
      * @access public
      */
-    function freeCLOBValue($clob, &$value)
+    function freeCLOBValue($clob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        unset($db->lobs[$clob]);
     }
 
     // }}}
@@ -657,7 +658,7 @@ class MDB2_Driver_Datatype_Common
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
+    * compose query statements.
      *
      * @param resource $prepared_query query handle from prepare()
      * @param  $parameter
@@ -683,9 +684,10 @@ class MDB2_Driver_Datatype_Common
      * @param string $value
      * @access public
      */
-    function freeBLOBValue($blob, &$value)
+    function freeBLOBValue($blob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        unset($db->lobs[$blob]);
     }
 
     // }}}

@@ -353,22 +353,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ freeCLOBValue()
-
-    /**
-     * free a character large object
-     *
-     * @param string    $clob
-     * @param string    $value
-     * @access public
-     */
-    function freeCLOBValue($clob)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($value);
-    }
-
-    // }}}
     // {{{ quoteBLOB()
 
     /**
@@ -396,22 +380,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             $value .= bin2hex($data);
         }
         return $value;
-    }
-
-    // }}}
-    // {{{ freeBLOBValue()
-
-    /**
-     * free a binary large object
-     *
-     * @param string    $blob
-     * @param string    $value
-     * @access public
-     */
-    function freeBLOBValue($blob, $value)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($value);
     }
 
     // }}}
