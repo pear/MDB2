@@ -436,8 +436,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             }
             @ibase_close($this->connection);
             $this->connection = 0;
-            unset($GLOBALS['_MDB2_databases'][$this->db_index]);
-
             if (isset($result) && MDB2::isError($result)) {
                 return $result;
             }
@@ -1015,7 +1013,5 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         }
         return $parameters;
     }
-
-    // }}}
 }
 ?>

@@ -308,7 +308,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         if ($this->connection != 0) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
-                && !strcmp($this->connected_database_name, $this->database_name)
+                && $this->connected_database_name == $this->database_name
                 && ($this->opened_persistent == $this->options['persistent'])
             ) {
                 return MDB2_OK;
@@ -360,7 +360,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
             @pg_close($this->connection);
             $this->connection = 0;
-            unset($GLOBALS['_MDB2_databases'][$this->db_index]);
         }
         return MDB2_OK;
     }

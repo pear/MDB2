@@ -404,7 +404,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             }
             @mysql_close($this->connection);
             $this->connection = 0;
-            unset($GLOBALS['_MDB2_databases'][$this->db_index]);
         }
         return MDB2_OK;
     }

@@ -269,7 +269,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     function connect()
     {
         if ($this->connection != 0) {
-            if (!strcmp($this->connected_database_name, $this->database_name)
+            if ($this->connected_database_name == $this->database_name
                 && ($this->opened_persistent == $this->options['persistent'])
             ) {
                 return MDB2_OK;
@@ -325,7 +325,6 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
                 }
             }
             $this->connection = 0;
-            unset($GLOBALS['_MDB2_databases'][$this->db_index]);
         }
         return MDB2_OK;
     }
