@@ -67,19 +67,17 @@ echo ('
                 define('PATH_SEPARATOR', ':');
             }
         }
-        ini_set('include_path', '..'.PATH_SEPARATOR.ini_get('include_path'));
+        ini_set('include_path', '../../'.PATH_SEPARATOR.ini_get('include_path'));
         require_once 'MDB2.php';
         @include_once 'Var_Dump.php';
-        MDB2::loadFile('Manager');
+        MDB2::loadFile('Tools/Manager');
         $dsn = $_REQUEST['type'].'://'.$_REQUEST['user'].':'.$_REQUEST['pass'].'@'.$_REQUEST['host'].'/'.$_REQUEST['name'];
 
         $manager =& new MDB2_Tools_Manager;
-        $err = $manager->connect($dsn);
+        $err = $manager->connect($dsn, array('debug' => true, 'log_line_break' => '<br>'));
         if(MDB2::isError($err)) {
             $error = $err->getMessage();
         } else {
-            $manager->captureDebugOutput(true);
-            $manager->database->setOption('log_line_break', '<br>');
             if ($_REQUEST['action']) {
                 set_time_limit(0);
             }
@@ -95,14 +93,9 @@ echo ('
                         $dump_what = MDB2_MANAGER_DUMP_ALL;
                         break;
                 }
-                if (class_exists('Var_Dump')) {
-                    Var_Dump::display($manager->updateDatabase($_REQUEST['file']));
-                } else {
-                    var_dump($manager->updateDatabase($_REQUEST['file']));
-                }
                 $dump_config = array(
-                    'Output_Mode' => 'file',
-                    'Output' => $_REQUEST['file']
+                    'output_mode' => 'file',
+                    'output' => $_REQUEST['file']
                 );
                 if (class_exists('Var_Dump')) {
                     Var_Dump::display($manager->dumpDatabase($dump_config, $dump_what));
@@ -127,9 +120,9 @@ echo ('
                     var_dump($warnings);
                 }
             }
-            if ($manager->options['debug']) {
+            if ($manager->db->getOption('debug')) {
                 echo('Debug messages<br>');
-                echo($manager->debugOutput().'<br>');
+                echo($manager->db->debugOutput().'<br>');
             }
             echo('Database structure<br>');
             if (class_exists('Var_Dump')) {
