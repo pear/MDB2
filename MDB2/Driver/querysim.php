@@ -562,8 +562,8 @@ class MDB2_Result_querysim extends MDB2_Result_Common
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $value = rtrim($value);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
-            && $value === ''
+        if ($value === ''
+            && $this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
         ) {
             $value = null;
         }

@@ -779,8 +779,8 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             @OCIFetchInto($this->result, $row, OCI_ASSOC+OCI_RETURN_NULLS);
-            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
-                && is_array($row)
+            if (is_array($row)
+                && $this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
             ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
@@ -827,10 +827,10 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_name = @OCIColumnName($this->result, $column + 1);
-            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                $column_name = strtolower($column_name);
-            }
             $columns[$column_name] = $column;
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $columns = array_change_key_case($columns, CASE_LOWER);
         }
         return $columns;
     }

@@ -712,8 +712,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @ibase_fetch_assoc($this->result);
-            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
-                && is_array($row)
+            if (is_array($row)
+                && $this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
             ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
@@ -763,10 +763,10 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_info = @ibase_field_info($this->result, $column);
-            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                $column_name = strtolower($column_info['name']);
-            }
             $columns[$column_name] = $column;
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $columns = array_change_key_case($columns, CASE_LOWER);
         }
         return $columns;
     }

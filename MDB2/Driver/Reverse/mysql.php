@@ -93,6 +93,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         if (MDB2::isError($columns)) {
             return $columns;
         }
+        if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $columns = array_change_key_case($columns, CASE_LOWER);
+        }
         if (!isset($columns[$column = 'field'])
             || !isset($columns[$column = 'type']))
         {
@@ -244,10 +247,10 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                         return $result;
                     }
                     $is_primary = false;
-                    if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                        $indexes = array_change_key_case($indexes, CASE_LOWER);
-                    }
                     foreach ($indexes as $index) {
+                        if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+                            $index = array_change_key_case($index, CASE_LOWER);
+                        }
                         if ($index['key_name'] == 'PRIMARY' && $index['column_name'] == $field_name) {
                             $is_primary = true;
                             break;
@@ -368,12 +371,6 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
 
         if (!is_resource($id)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
-        }
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $case_func = 'strtolower';
-        } else {
-            $case_func = 'strval';
         }
 
         $count = @mysql_num_fields($id);

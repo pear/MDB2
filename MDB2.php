@@ -2592,8 +2592,8 @@ class MDB2_Result_Common
                 $column_names[$name] = $row[$i];
             }
             $row = $column_names;
-            if ($this->options['portability'] & MDB2_PORTABILITY_LOWERCASE
-                && is_array($row)
+            if (is_array($row)
+                && $this->options['portability'] & MDB2_PORTABILITY_LOWERCASE
             ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }

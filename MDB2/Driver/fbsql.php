@@ -329,15 +329,13 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function _modifyQuery($query)
     {
-        if ($this->options['portability'] & MDB2_PORTABILITY_DELETE_COUNT) {
-            // "DELETE FROM table" gives 0 affected rows in fbsql.
-            // This little hack lets you know how many rows were deleted.
-            if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
-                $query = preg_replace(
-                    '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
-                    'DELETE FROM \1 WHERE 1=1', $query
-                );
-            }
+        // "DELETE FROM table" gives 0 affected rows in fbsql.
+        // This little hack lets you know how many rows were deleted.
+        if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
+            $query = preg_replace(
+                '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
+                'DELETE FROM \1 WHERE 1=1', $query
+            );
         }
         return $query;
     }
@@ -367,7 +365,9 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 $query = str_replace('SELECT', "SELECT TOP($offset,$limit)", $query);
             }
         }
-        $query = $this->_modifyQuery($query);
+        if ($this->options['portability'] & MDB2_PORTABILITY_DELETE_COUNT) {
+            $query = $this->_modifyQuery($query);
+        }
         $this->last_query = $query;
         $this->debug($query, 'query');
 
@@ -530,8 +530,8 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $value = rtrim($value);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
-            && $value === ''
+        if ($value === ''
+            && $this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
         ) {
             $value = null;
         }
@@ -607,10 +607,10 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_name = @fbsql_field_name($this->result, $column);
-            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                $column_name = strtolower($column_name);
-            }
             $columns[$column_name] = $column;
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $columns = array_change_key_case($columns, CASE_LOWER);
         }
         return $columns;
     }

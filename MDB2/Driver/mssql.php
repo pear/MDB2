@@ -574,8 +574,8 @@ class MDB2_Result_mssql extends MDB2_Result_Common
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $value = rtrim($value);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
-            && $value === ''
+        if ($value === ''
+            && $this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
         ) {
             $value = null;
         }
@@ -602,8 +602,8 @@ class MDB2_Result_mssql extends MDB2_Result_Common
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @mssql_fetch_assoc($this->result);
-            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
-                && is_array($row)
+            if (is_array($row)
+                && $this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
             ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
@@ -619,9 +619,6 @@ class MDB2_Result_mssql extends MDB2_Result_Common
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
-        }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->mdb->_rtrimArrayValues($row);
         }
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->mdb->_convertEmptyArrayValuesToNull($row);
@@ -654,10 +651,10 @@ class MDB2_Result_mssql extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_name = @mssql_field_name($this->result, $column);
-            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                $column_name = strtolower($column_name);
-            }
             $columns[$column_name] = $column;
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $columns = array_change_key_case($columns, CASE_LOWER);
         }
         return $columns;
     }
