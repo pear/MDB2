@@ -55,7 +55,7 @@ updatedatabase   -    -    o    -    -    -    o    -    o    -    o    o    -
 getinsertid      -    -    n    -    -    -    -    -    n    -    n    -    -
 deleteoid        n    n    n    n    n    n    n    n    n    n    -    n    n
 **[ REVERSE ]*****************************************************************
-tableinfo        -    -    o    -    -    -    o    -    o    -    o    n    -
+tableinfo        -    -    o    -    -    -    o    -    o    -    o    o    -
 
 
 [1] test fails because sqlite does not return the correct number of affected rows
