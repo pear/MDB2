@@ -1,0 +1,97 @@
+STATUS OF THE PEAR MDB2 PACKAGE
+===============================
+
+$Id$
+------------------------------------------------------------------------
+
+MDB3 Driver Feature Matrix
+--------------------------
+Symbols:
+  x  =  implemented, but without tests
+  t  =  implemented, but one or more tests fail
+  T  =  implemented, passing all tests
+  e  =  emulated, without tests
+  l  =  emulated, but one or more tests fail
+  E  =  emulated, passing all tests
+  n  =  returns "not capable"
+  -  =  no implementation of this feature or status unknown
+
+                    fbsql      ifx      mssql     mysqli     odbc     sqlite
+FEATURE        dbase  |  ibase  |  msql   |  mysql  |   oci8  |  pgsql  |  sybase
+simpleQuery      -    -    T    -    -    -    -    -    -    -    -    -    -
+numCols          -    -    T    -    -    -    -    -    -    -    -    -    -
+numRows          -    -    T    -    -    -    -    -    -    -    -    -    -
+errorNative      -    -    -    -    -    -    -    -    -    -    -    -    -
+prepare/execute  -    -    T    -    -    -    -    -    -    -    -    -    -
+sequences        -    -    -    -    -    -    -    -    -    -    -    -    -
+affectedRows     -    -    l    -    -    -    -    -    -    -    -    -    -
+fetch modes      -    -    x    -    -    -    -    -    -    -    -    -    -
+fetch row by no  -    -    e    -    -    -    -    -    -    -    -    -    -
+transactions     -    -   [1]   -    -    -    -    -    -    -    -    -    -
+auto-commit      -    -    T    -    -    -    -    -    -    -    -    -    -
+error mapping    -    -    x    -    -    -    -    -    -    -    -    -    -
+tableInfo        -    -    x    -    -    -    -    -    -    -    -    -    -
+
+TYPE (getListOf)
+tables           -    -    -    -    -    -    -    -    -    -    -    -    -
+views            -    -    -    -    -    -    -    -    -    -    -    -    -
+users            -    -    -    -    -    -    -    -    -    -    -    -    -
+databases        -    -    -    -    -    -    -    -    -    -    -    -    -
+functions        -    -    -    -    -    -    -    -    -    -    -    -    -
+
+[1] ibase under PHP 4 is unstable on Windows.
+
+
+Test Conformance
+----------------
+Symbols:
+    -  =  not tested
+    o  =  Test passed
+    X  =  Test failed
+    N  =  Test failed due to DBMS not considering something an error
+    E  =  Test failed due to problem with PHP extension
+    n  =  "not capable"
+
+                    fbsql      ifx      mssql     mysqli     odbc     sqlite
+               dbase  |  ibase  |  msql   |  mysql  |   oci8  |  pgsql  |  sybase
+**[ API ]*********************************************************************
+connect          -    -    o    -    -    -    -    -    -    -    -    -    -
+getoption        -    -    o    -    -    -    -    -    -    -    -    -    -
+setoption        -    -    o    -    -    -    -    -    -    -    -    -    -
+loadmodule       -    -    o    -    -    -    -    -    -    -    -    -    -
+query            -    -    o    -    -    -    -    -    -    -    -    -    -
+fetchrow         -    -    o    -    -    -    -    -    -    -    -    -    -
+numrows          -    -    o    -    -    -    -    -    -    -    -    -    -
+numcols          -    -    o    -    -    -    -    -    -    -    -    -    -
+singleton        -    -    o    -    -    -    -    -    -    -    -    -    -
+**[ USAGE ]*******************************************************************
+storage          -    -    o    -    -    -    -    -    -    -    -    -    -
+bulkfetch        -    -    o    -    -    -    -    -    -    -    -    -    -
+preparedqueries  -    -    o    -    -    -    -    -    -    -    -    -    -
+metadata         -    -    o    -    -    -    -    -    -    -    -    -    -
+nulls            -    -    X    -    -    -    -    -    -    -    -    -    -
+escapesequences  -    -    o    -    -    -    -    -    -    -    -    -    -
+ranges           -    -    o    -    -    -    -    -    -    -    -    -    -
+sequences        -    -    o    -    -    -    -    -    -    -    -    -    -
+replace          -    -    X    -    -    -    -    -    -    -    -    -    -
+affectedrows     -    -    X    -    -    -    -    -    -    -    -    -    -
+transactions     -    -   [1]   -    -    -    -    -    -    -    -    -    -
+lobstorage       -    -    X    -    -    -    -    -    -    -    -    -    -
+lobfiles         -    -    X    -    -    -    -    -    -    -    -    -    -
+lobnulls         -    -    X    -    -    -    -    -    -    -    -    -    -
+**[ BUGS ]********************************************************************
+fetchmodebug     -    -    X    -    -    -    -    -    -    -    -    -    -
+bug22328         -    -    o    -    -    -    -    -    -    -    -    -    -
+bug681           -    -    o    -    -    -    -    -    -    -    -    -    -
+**[ DATATYPE ]****************************************************************
+**[ MANAGER ]*****************************************************************
+createdatabase   -    -    -    -    -    -    -    -    -    -    -    -    -
+updatedatabase   -    -    o    -    -    -    -    -    -    -    -    -    -
+**[ NATIVE ]******************************************************************
+getinsertid      -    -    n    -    -    -    -    -    -    -    -    -    -
+deleteoid        -    -    n    -    -    -    -    -    -    -    -    -    -
+**[ REVERSE ]*****************************************************************
+tableinfo        -    -    o    -    -    -    -    -    -    -    -    -    -
+
+
+[1] ibase under PHP 4 is unstable on Windows.
