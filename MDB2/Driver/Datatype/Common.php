@@ -223,21 +223,11 @@ class MDB2_Driver_Datatype_Common
                 ) {
                     continue;
                 }
-                $type = $types[$current_column];
-                switch ($type) {
-                case 'text':
-                    break;
-                case 'integer':
-                    $row[$key] = intval($row[$key]);
-                    break;
-                default:
-                    $value = $this->convertResult($row[$key], $type);
-                    if (MDB2::isError($value)) {
-                        return $value;
-                    }
-                    $row[$key] = $value;
-                    break;
+                $value = $this->convertResult($row[$key], $types[$current_column]);
+                if (MDB2::isError($value)) {
+                    return $value;
                 }
+                $row[$key] = $value;
             }
         }
         return $row;
@@ -706,6 +696,7 @@ class MDB2_Driver_Datatype_Common
             }
             $value = @fopen($value, 'r');
         }
+
         if (is_resource($value)) {
             $fp = $value;
             $value = '';
@@ -716,6 +707,7 @@ class MDB2_Driver_Datatype_Common
                 @fclose($fp);
             }
         }
+
         return $value;
     }
 
@@ -1061,14 +1053,12 @@ class MDB2_Driver_Datatype_Common
             case 'resultlob':
                 $class_name = 'MDB2_LOB_Result';
                 break;
-            case 'inputfile':
-                $class_name = 'MDB2_LOB_Input_File';
-                break;
             case 'outputfile':
                 $class_name = 'MDB2_LOB_Output_File';
                 break;
             default:
-                return $db->raiseError('createLOB: '.$arguments['type'] . ' is not a valid type of large object');
+                return $db->raiseError('createLOB: '.$arguments['type']
+                    . ' is not a valid type of large object');
             }
         } else {
             if (isset($arguments['class'])) {
