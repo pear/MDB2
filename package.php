@@ -27,6 +27,16 @@ $notes = <<<EOT
 - for PHP versions lower than 4 the transaction shutdown function is registered on load of MDB2.php (used to be a BC hack in the constructor of MDB_Driver_Common)
 - allow errorInfo() to be called when no connection has been established yet
 - cleaned up constructor handling
+- fixed various typos
+- updated raiseError method to be compatible with XML_Parser 1.1.x and return
+  useful error message (fix bug #2055)
+- improved handling of MDB2_PORTABILITY_LOWERCASE in all the reverse
+  methods inside the mysql driver to work coherently
+- fixed several issues in the listTablefields() method of manager drivers
+- refactored MDB2_Manager::createDatabase() and related privat methods
+- fixed error in MDB2_Manager::_escapeSpecialCharacter() that would lead to
+  incorrect handling of integer values (this needs to be explored in more detail)
+- several typo fixes and minor logic errors (among others a fix for bug #2057)
 EOT;
 
 $description =<<<EOT

@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta3</version>
-    <date>2004-05-21</date>
+    <date>2004-08-05</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- affectedRows() now ensures that the last query was a manipulation query
@@ -95,7 +95,17 @@ Other soon to follow.</description>
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
 - for PHP versions lower than 4 the transaction shutdown function is registered on load of MDB2.php (used to be a BC hack in the constructor of MDB_Driver_Common)
 - allow errorInfo() to be called when no connection has been established yet
-- cleaned up constructor handling</notes>
+- cleaned up constructor handling
+- fixed various typos
+- updated raiseError method to be compatible with XML_Parser 1.1.x and return
+  useful error message (fix bug #2055)
+- improved handling of MDB2_PORTABILITY_LOWERCASE in all the reverse
+  methods inside the mysql driver to work coherently
+- fixed several issues in the listTablefields() method of manager drivers
+- refactored MDB2_Manager::createDatabase() and related privat methods
+- fixed error in MDB2_Manager::_escapeSpecialCharacter() that would lead to
+  incorrect handling of integer values (this needs to be explored in more detail)
+- several typo fixes and minor logic errors (among others a fix for bug #2057)</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -219,7 +229,7 @@ Other soon to follow.</description>
   <changelog>
     <release>
       <version>2.0.0beta3</version>
-      <date>2004-05-21</date>
+      <date>2004-08-05</date>
       <license>BSD License</license>
       <state>beta</state>
       <notes>- affectedRows() now ensures that the last query was a manipulation query
@@ -244,7 +254,17 @@ Other soon to follow.</description>
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
 - for PHP versions lower than 4 the transaction shutdown function is registered on load of MDB2.php (used to be a BC hack in the constructor of MDB_Driver_Common)
 - allow errorInfo() to be called when no connection has been established yet
-- cleaned up constructor handling</notes>
+- cleaned up constructor handling
+- fixed various typos
+- updated raiseError method to be compatible with XML_Parser 1.1.x and return
+  useful error message (fix bug #2055)
+- improved handling of MDB2_PORTABILITY_LOWERCASE in all the reverse
+  methods inside the mysql driver to work coherently
+- fixed several issues in the listTablefields() method of manager drivers
+- refactored MDB2_Manager::createDatabase() and related privat methods
+- fixed error in MDB2_Manager::_escapeSpecialCharacter() that would lead to
+  incorrect handling of integer values (this needs to be explored in more detail)
+- several typo fixes and minor logic errors (among others a fix for bug #2057)</notes>
     </release>
     <release>
       <version>2.0.0beta2</version>
