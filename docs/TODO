@@ -1,16 +1,20 @@
 2.0.0 stable:
-- Fix the rest of the drivers (currently only MySQL, PostGreSQL and Oracle have been tested)
-- Expand the test suite
-- Write Docbook documentation
+- write basic Docbook documentation
 - test stored procedures
-- add Metabase Wrapper for the OO API
+- fix up PEAR::DB wrapper (especially ! and & support)
+- add getBeforeID() and getAfterID()
+- add named parameters (thereby also streamlining LOB support)
+- clean up manager and reverse module
+- more tests with php5 (explore usage of interceptors for modules)
 
 near future:
-- Add call to EXPLAIN method to the default debug output handler
-- Add mysqli driver
-- Expand the test suite to cover the entire API and all possible cases
-- extend PEAR::DB wrapper to work with ! and &
+- add call to EXPLAIN method to the default debug output handler
+- expand the test suite to cover the entire API and all possible cases
+- write complete Docbook documentation
+- add Metabase Wrapper for the OO API
+- add support for primary and foreign keys
+- add mysqli driver
 
 far future:
 - SQL Funtion Abstraction Module (for example SUBSTRING() and SUBSTR())
-- move MDB2_Manager functionaloty into DB_Schema
+- move MDB2_Manager functionality into DB_Schema
