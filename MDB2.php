@@ -414,7 +414,7 @@ class MDB2
      */
     function isConnection($value)
     {
-        return (is_object($value) && is_subclass_of($value, 'mdb2_driver_common'));
+        return is_a($value, 'MDB2_Driver_Common'));
     }
 
     // }}}
@@ -428,7 +428,7 @@ class MDB2
      */
     function isResult($value)
     {
-        return (is_object($value) && is_subclass_of($value, 'mdb2_result_common'));
+        return is_a($value, 'MDB2_Result_Common'));
     }
 
     // }}}
@@ -932,7 +932,7 @@ class MDB2_Driver_Common extends PEAR
     function &raiseError($code = null, $mode = null, $options = null,
                          $userinfo = null)
     {
-        // The error is yet a DB error object
+        // The error is yet a MDB2 error object
         if (is_object($code)) {
             return PEAR::raiseError($code, null, null, null, null, null, true);
         }
@@ -958,6 +958,7 @@ class MDB2_Driver_Common extends PEAR
         $msg = MDB2::errorMessage($code);
         return PEAR::raiseError("MDB2 Error: $msg", $code, $mode, $options, $userinfo);
     }
+
     // }}}
     // {{{ errorNative()
 
@@ -2013,7 +2014,7 @@ class MDB2_Driver_Common extends PEAR
             sequence value, the sequence value was incremented';
         $this->expectError(MDB2_ERROR_NOT_CAPABLE);
         $id = $this->nextID($seq_name);
-        $this->popExpectError(MDB2_ERROR_NOT_CAPABLE);
+        $this->popExpect(MDB2_ERROR_NOT_CAPABLE);
         if (MDB2::isError($id)) {
             if ($id->getCode() == MDB2_ERROR_NOT_CAPABLE) {
                 return $this->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
@@ -2747,25 +2748,8 @@ class MDB2_Result_Common
  */
 function MDB2_defaultDebugOutput(&$db, $scope, $message)
 {
-    $db->debug_output .= $scope.'('.$db->db_index.'): '.$message.$db->getOption('log_line_break');
+    $db->debug_output .= $scope.'('.$db->db_index.'): ';
+    $db->debug_output .= $message.$db->getOption('log_line_break');
 }
 
-// Used by many drivers
-if (!function_exists('array_change_key_case')) {
-    if (!defined('CASE_UPPER')) {
-        define('CASE_UPPER', 1);
-    }
-    if (!defined('CASE_LOWER')) {
-        define('CASE_LOWER', 0);
-    }
-    function &array_change_key_case(&$array, $case)
-    {
-        $casefunc = ($case == CASE_LOWER) ? 'strtolower' : 'strtoupper';
-        $ret = array();
-        foreach ($array as $key => $value) {
-            $ret[$casefunc($key)] = $value;
-        }
-        return $ret;
-    }
-}
 ?>
