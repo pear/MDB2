@@ -86,6 +86,7 @@ similar as possible as the ext/pdo API!
 - unified mssql standalone query with sqlite, mysql and others (not tested on
   mssql yet, but since mssql automatically reuses connections per dsn the old
   way could gurantee anything different from happening)
+- removed _executePrepared(), drivers need to overwrite execute() for now on
 EOT;
 
 $description =<<<EOT
