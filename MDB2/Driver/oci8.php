@@ -476,8 +476,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $columns = '';
             $variables = '';
             foreach ($types as $parameter => $type) {
-                $lob_type = substr($type, 1, 3);
-                if ($lob_type == 'lob') {
+                if ($type == 'clob' || $type == 'blob') {
                     $columns.= ($columns ? ' RETURNING ' : ',').$parameter;
                     $variables.= ($columns ? ' INTO ' : ',').':'.$parameter;
                 }
@@ -573,34 +572,6 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             }
         }
         return true;
-    }
-
-    // }}}
-    // {{{ fetch()
-
-    /**
-    * fetch value from a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @param int    $colnum    field number where the data can be found
-    * @return mixed string on success, a MDB2 error on failure
-    * @access public
-    */
-    function fetch($rownum = 0, $colnum = 0)
-    {
-        $seek = $this->seek($rownum);
-        if (MDB2::isError($seek)) {
-            return $seek;
-        }
-        $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
-        $row = $this->fetchRow($fetchmode);
-        if (!$row || MDB2::isError($row)) {
-            return $row;
-        }
-        if (!array_key_exists($colnum, $row)) {
-            return null;
-        }
-        return $row[$colnum];
     }
 
     // }}}
@@ -940,7 +911,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement
      */
     function &_executePrepared($result_class = false, $result_wrap_class = false)
     {
-        $ismanip = MDB2::isManip($query);
+        $ismanip = MDB2::isManip($this->query);
         $query = $this->db->_modifyQuery($this->query);
         $this->db->last_query = $query;
         $this->db->debug($query, 'query');
@@ -956,32 +927,41 @@ class MDB2_Statement_oci8 extends MDB2_Statement
             return $connected;
         }
 
-        $lob = array();
-        $descriptors = array();
+        $lobs = $descriptors = array();
         foreach ($this->values as $parameter => $value) {
-            $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
-            $lob_type = substr($type, 0, 4);
-            if ($lob_type == 'clob' || $lob_type == 'blob') {
-                if ($type == 'clobfile' || $type == 'blobfile') {
-                    $value = @fopen($value);
-                    $type = $lob_type;
-                } elseif (is_string($value)) {
-                    // create stream
+            if (!isset($value)) {
+                $value_quoted = 'NULL';
+            } else {
+                $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
+                if ($type == 'clob' || $type == 'blob') {
+                    $lobs[$parameter]['close'] = true;
+                    if (is_resource($value)) {
+                        $lobs[$parameter]['close'] = false;
+                    } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+                        if ($match[1] == 'file://') {
+                            $value = $match[2];
+                        }
+                        $value = @fopen($value, 'r');
+                    } else {
+                        $fp = @tmpfile();
+                        @fwrite($fp, $value);
+                        @rewind($fp);
+                        $value = $fp;
+                    }
+                    $lobs[$parameter]['value'] = $value;
+                    $descriptors[$parameter] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
+                    if (!is_object($descriptors[$parameter])) {
+                        $success = $this->db->raiseError();
+                        break;
+                    }
                 }
-                $type = $lob_type;
-                $descriptors[$parameter] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
-                if (!is_object($descriptors[$parameter])) {
-                    $success =  $this->db->raiseError();
-                    break;
+                $value_quoted = $this->quote($value, $type);
+                if (MDB2::isError($value_quoted)) {
+                    return $value_quoted;
                 }
             }
-            $value_quoted = $this->quote($value, $type);
-            if (MDB2::isError($value_quoted)) {
-                return $value_quoted;
-            }
-            if (isset($lob_type)) {
-                $lobs[$parameter] = $value;
-                if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1, ($lob_type == 'lob' ? OCI_B_CLOB : OCI_B_BLOB))) {
+            if (is_resource($value)) {
+                if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1, ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB))) {
                     $success =  $this->db->raiseError();
                     break;
                 }
@@ -993,7 +973,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement
             }
         }
 
-        $mode = ($lobs == 0 && $this->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
+        $mode = (empty($lobs) && $this->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
         $result = @OCIExecute($statement, $mode);
         if (!$result) {
             $error =& $this->db->raiseError();
@@ -1002,11 +982,15 @@ class MDB2_Statement_oci8 extends MDB2_Statement
 
         if (!empty($lobs)) {
             foreach ($lobs as $parameter => $stream) {
-                while (($data = @fread($stream, $this->getOption('lob_buffer_length')))) {
+                while (!@feof($stream['value'])) {
+                    $data = @fread($stream['value'], $this->getOption('lob_buffer_length'));
                     if (!$descriptors[$parameter]->write($data, $this->getOption('lob_buffer_length'))) {
                         $success = $this->db->raiseError();
                         break(2);
                     }
+                }
+                if ($stream['close']) {
+                    @fclose($stream);
                 }
             }
 
@@ -1027,8 +1011,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement
             }
         }
 
-       reset($descriptors);
-       for ($j = count($descriptors); $descriptor < $j; next($descriptors)) {
+        reset($descriptors);
+        for ($j = count($descriptors); $descriptor < $j; next($descriptors)) {
             @$descriptors[key($descriptors)]->free();
         }
 
