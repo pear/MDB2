@@ -99,6 +99,7 @@ define('MDB2_ERROR_MANAGER',            -30);
 define('MDB2_ERROR_MANAGER_PARSE',      -31);
 define('MDB2_ERROR_LOADMODULE',         -32);
 define('MDB2_ERROR_INSUFFICIENT_DATA',  -33);
+define('MDB2_ERROR_CONSTRAINT_NOT_NULL',-34);
 
 /**
  * This is a special constant that tells MDB2 the user hasn't specified
@@ -477,6 +478,7 @@ class MDB2
                 MDB2_ERROR_CANNOT_DELETE      => 'can not delete',
                 MDB2_ERROR_CANNOT_DROP        => 'can not drop',
                 MDB2_ERROR_CONSTRAINT         => 'constraint violation',
+                MDB2_ERROR_CONSTRAINT_NOT_NULL=> 'null value violates not-null constraint',
                 MDB2_ERROR_DIVZERO            => 'division by zero',
                 MDB2_ERROR_INVALID            => 'invalid',
                 MDB2_ERROR_INVALID_DATE       => 'invalid date or time',

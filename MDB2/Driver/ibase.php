@@ -170,6 +170,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     $error_regexps = array(
                         '/[tT]able not found/' => MDB2_ERROR_NOSUCHTABLE,
                         '/[tT]able .* already exists/' => MDB2_ERROR_ALREADY_EXISTS,
+                        '/validation error for column .* value "\*\*\* null/' => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                         '/violation of [\w ]+ constraint/' => MDB2_ERROR_CONSTRAINT,
                         '/conversion error from string/' => MDB2_ERROR_INVALID_NUMBER,
                         '/no permission for/' => MDB2_ERROR_ACCESS_VIOLATION,
