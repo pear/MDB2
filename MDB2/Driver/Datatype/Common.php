@@ -51,20 +51,6 @@
  */
 
 /**
- * define contants for all datatypes
- */
-define('MDB2_TYPE_TEXT'      , 0);
-define('MDB2_TYPE_BOOLEAN'   , 1);
-define('MDB2_TYPE_INTEGER'   , 2);
-define('MDB2_TYPE_DECIMAL'   , 3);
-define('MDB2_TYPE_FLOAT'     , 4);
-define('MDB2_TYPE_DATE'      , 5);
-define('MDB2_TYPE_TIME'      , 6);
-define('MDB2_TYPE_TIMESTAMP' , 7);
-define('MDB2_TYPE_CLOB'      , 8);
-define('MDB2_TYPE_BLOB'      , 9);
-
-/**
  * MDB2_Driver_Common: Base class that is extended by each MDB2 driver
  *
  * @package MDB2
@@ -74,16 +60,17 @@ define('MDB2_TYPE_BLOB'      , 9);
 class MDB2_Driver_Datatype_Common
 {
     var $valid_types = array(
-        'text'      => MDB2_TYPE_TEXT,
-        'boolean'   => MDB2_TYPE_BOOLEAN,
-        'integer'   => MDB2_TYPE_INTEGER,
-        'decimal'   => MDB2_TYPE_DECIMAL,
-        'float'     => MDB2_TYPE_FLOAT,
-        'date'      => MDB2_TYPE_DATE,
-        'time'      => MDB2_TYPE_TIME,
-        'timestamp' => MDB2_TYPE_TIMESTAMP,
-        'clob'      => MDB2_TYPE_CLOB,
-        'blob'      => MDB2_TYPE_BLOB
+        'text'      => true,
+#        'serialize' => true,
+        'boolean'   => true,
+        'integer'   => true,
+        'decimal'   => true,
+        'float'     => true,
+        'date'      => true,
+        'time'      => true,
+        'timestamp' => true,
+        'clob'      => true,
+        'blob'      => true,
     );
     var $db_index;
 
@@ -137,8 +124,8 @@ class MDB2_Driver_Datatype_Common
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'setResultTypes: ' . $type . ' is not a supported column type');
             }
-            $result->types[$key] = $this->valid_types[$type];
         }
+        $result->types = $types;
         return MDB2_OK;
     }
 
@@ -157,24 +144,26 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-            case MDB2_TYPE_TEXT:
+            case 'text':
                 return $value;
-            case MDB2_TYPE_INTEGER:
+#            case 'serialize':
+#                return $value ? @unserialize($value) : $value;
+            case 'integer':
                 return intval($value);
-            case MDB2_TYPE_BOOLEAN:
+            case 'boolean':
                 return $value == 'Y';
-            case MDB2_TYPE_DECIMAL:
+            case 'decimal':
                 return $value;
-            case MDB2_TYPE_FLOAT:
+            case 'float':
                 return doubleval($value);
-            case MDB2_TYPE_DATE:
+            case 'date':
                 return $value;
-            case MDB2_TYPE_TIME:
+            case 'time':
                 return $value;
-            case MDB2_TYPE_TIMESTAMP:
+            case 'timestamp':
                 return $value;
-            case MDB2_TYPE_CLOB:
-            case MDB2_TYPE_BLOB:
+            case 'clob':
+            case 'blob':
                 $db->lobs[] = array(
                     'value' => $value,
                     'position' => 0
@@ -236,9 +225,9 @@ class MDB2_Driver_Datatype_Common
                 }
                 $type = $types[$current_column];
                 switch ($type) {
-                    case MDB2_TYPE_TEXT:
+                    case 'text':
                         break;
-                    case MDB2_TYPE_INTEGER:
+                    case 'integer':
                         $row[$key] = intval($row[$key]);
                         break;
                     default:
@@ -287,7 +276,7 @@ class MDB2_Driver_Datatype_Common
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteInteger($field['default']) : '';
+            $this->quote($field['default'], 'integer') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$default.$notnull;
     }
@@ -323,11 +312,43 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteText($field['default']) : '';
+            $this->quote($field['default'], 'text') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         $type = isset($field['length']) ? 'CHAR ('.$field['length'].')' : 'TEXT';
         return $name.' '.$type.$default.$notnull;
     }
+
+    // }}}
+    // {{{ getSerializeDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare an text type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name name the field to be declared.
+     * @param string $field associative array with the name of the properties
+     *       of the field being declared as array indexes. Currently, the types
+     *       of supported field properties are as follows:
+     *
+     *       length
+     *           Integer value that determines the maximum length of the text
+     *           field. If this argument is missing the field should be
+     *           declared to have the longest length allowed by the DBMS.
+     *
+     *       default
+     *           Text value to be used as default for this field.
+     *
+     *       notnull
+     *           Boolean flag that indicates whether this field is constrained
+     *           to not be set to null.
+     * @return string DBMS specific SQL code portion that should be used to
+     *       declare the specified field.
+     * @access public
+     */
+#    function getSerializeDeclaration($name, $field)
+#    {
+#        return $this->getTextDeclaration($name, $field);
+#    }
 
     // }}}
     // {{{ getCLOBDeclaration()
@@ -419,7 +440,7 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteBoolean($field['default']) : '';
+            $this->quote($field['default'], 'boolean') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' CHAR (1)'.$default.$notnull;
     }
@@ -450,7 +471,7 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteDate($field['default']) : '';
+            $this->quote($field['default'], 'date') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' CHAR ('.strlen('YYYY-MM-DD').')'.$default.$notnull;
     }
@@ -481,7 +502,7 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteTimestamp($field['default']) : '';
+            $this->quote($field['default'], 'timestamp') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' CHAR ('.strlen('YYYY-MM-DD HH:MM:SS').')'.$default.$notnull;
     }
@@ -512,7 +533,7 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteTime($field['default']) : '';
+            $this->quote($field['default'], 'time') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' CHAR ('.strlen('HH:MM:SS').')'.$default.$notnull;
     }
@@ -543,7 +564,7 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteFloat($field['default']) : '';
+            $this->quote($field['default'], 'float') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' TEXT'.$default.$notnull;
     }
@@ -574,13 +595,71 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteDecimal($field['default']) : '';
+            $this->quote($field['default'], 'decimal') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' TEXT'.$default.$notnull;
     }
 
     // }}}
-    // {{{ quoteInteger()
+    // {{{ quote()
+
+    /**
+     * Convert a text value into a DBMS specific format that is suitable to
+     * compose query statements.
+     *
+     * @param string $value text string value that is intended to be converted.
+     * @param string $type type to which the value should be converted to
+     * @return string text string that represents the given argument value in
+     *       a DBMS specific format.
+     * @access public
+     */
+    function quote($value, $type = null)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if (is_null($value)
+            || ($value === '' && $db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)
+        ) {
+            return 'NULL';
+        } elseif (is_null($type)) {
+            switch (gettype($value)) {
+            case 'integer':
+                $type = 'integer';
+                break;
+            case 'double':
+                // todo
+                $type = 'decimal';
+                $type = 'float';
+                break;
+            case 'boolean':
+                $type = 'boolean';
+                break;
+            case 'array':
+            case 'object':
+#                $type = 'serialize';
+                 $type = 'text';
+                break;
+            default:
+                if (preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/', $value)) {
+                    $type = 'timestamp';
+                } elseif (preg_match('/\d{2}:\d{2}/', $value)) {
+                    $type = 'time';
+                } elseif (preg_match('/\d{4}-\d{2}-\d{2}/', $value)) {
+                    $type = 'date';
+                } else {
+                    $type = 'text';
+                }
+                break;
+            }
+        }
+
+        if (method_exists($this, "_quote{$type}")) {
+            return $this->{"_quote{$type}"}($value);
+        }
+        return $db->raiseError('type not defined: '.$type);
+    }
+
+    // }}}
+    // {{{ _quoteInteger()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -589,16 +668,15 @@ class MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteInteger($value)
+    function _quoteInteger($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (is_null($value)) ? 'NULL' : (int)$value;
+        return (int)$value;
     }
 
     // }}}
-    // {{{ quoteText()
+    // {{{ _quoteText()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -607,30 +685,49 @@ class MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that already contains any DBMS specific
      *       escaped character sequences.
-     * @access public
+     * @access private
      */
-    function quoteText($value)
+    function _quoteText($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (is_null($value)) ? 'NULL' : "'".$db->escape($value)."'";
+        return "'".$db->escape($value)."'";
     }
 
+    // {{{ _quoteSerialize()
+
+    /**
+     * Convert a serialize value into a DBMS specific format that is suitable to
+     * compose query statements.
+     *
+     * @param string $value text string value that is intended to be converted.
+     * @return string text string that already contains any DBMS specific
+     *       escaped character sequences.
+     * @access private
+     */
+#    function _quoteSerialize($value)
+#    {
+#        return $this->quote(serialize($value), 'text');
+#    }
+
     // }}}
-    // {{{ quoteCLOB()
+    // {{{ _quoteCLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
      * @param resource $prepared_query query handle from prepare()
-     * @param  $value
+     * @param  $parameter
+     * @param  $clob
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteCLOB($value)
+    function _quoteCLOB($clob)
     {
-        return $this->quoteText($value);
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'quoteCLOB: prepared queries with values of type "clob" are not yet supported');
     }
 
     // }}}
@@ -639,31 +736,34 @@ class MDB2_Driver_Datatype_Common
     /**
      * free a character large object
      *
-     * @param int $value lob index
+     * @param int $clob lob index
      * @access public
      */
-    function freeCLOBValue($value)
+    function freeCLOBValue($clob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($db->lobs[$value]);
+        unset($db->lobs[$clob]);
     }
 
     // }}}
-    // {{{ quoteBLOB()
+    // {{{ _quoteBLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
      * @param resource $prepared_query query handle from prepare()
-     * @param  $value
+     * @param  $parameter
+     * @param  $blob
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteBLOB($value)
+    function _quoteBLOB($blob)
     {
-        return $this->quoteText($value);
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'quoteBLOB: prepared queries with values of type "blob" are not yet supported');
     }
 
     // }}}
@@ -672,17 +772,17 @@ class MDB2_Driver_Datatype_Common
     /**
      * free a binary large object
      *
-     * @param int $value lob index
+     * @param int $blob lob index
      * @access public
      */
-    function freeBLOBValue($value)
+    function freeBLOBValue($blob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($db->lobs[$value]);
+        unset($db->lobs[$blob]);
     }
 
     // }}}
-    // {{{ quoteBoolean()
+    // {{{ _quoteBoolean()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -691,16 +791,15 @@ class MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteBoolean($value)
+    function _quoteBoolean($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (is_null($value)) ? 'NULL' : ($value ? "'Y'" : "'N'");
+        return ($value ? "'Y'" : "'N'");
     }
 
     // }}}
-    // {{{ quoteDate()
+    // {{{ _quoteDate()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -709,16 +808,15 @@ class MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteDate($value)
+    function _quoteDate($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (is_null($value)) ? 'NULL' : "'$value'";
+        return "'$value'";
     }
 
     // }}}
-    // {{{ quoteTimestamp()
+    // {{{ _quoteTimestamp()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -727,16 +825,15 @@ class MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteTimestamp($value)
+    function _quoteTimestamp($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (is_null($value)) ? 'NULL' : "'$value'";
+        return "'$value'";
     }
 
     // }}}
-    // {{{ quoteTime()
+    // {{{ _quoteTime()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -745,16 +842,15 @@ class MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteTime($value)
+    function _quoteTime($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (is_null($value)) ? 'NULL' : "'$value'";
+        return "'$value'";
     }
 
     // }}}
-    // {{{ quoteFloat()
+    // {{{ _quoteFloat()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -763,16 +859,15 @@ class MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteFloat($value)
+    function _quoteFloat($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (is_null($value)) ? 'NULL' : "'$value'";
+        return "'$value'";
     }
 
     // }}}
-    // {{{ quoteDecimal()
+    // {{{ _quoteDecimal()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -781,12 +876,11 @@ class MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteDecimal($value)
+    function _quoteDecimal($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (is_null($value)) ? 'NULL' : "'$value'";
+        return "'$value'";
     }
 
     // }}}

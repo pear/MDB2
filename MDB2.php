@@ -2026,51 +2026,11 @@ class MDB2_Driver_Common extends PEAR
      */
     function quote($value, $type = null)
     {
-        if (is_null($value)) {
-            return 'NULL';
-        } elseif (is_null($type)) {
-            switch (gettype($value)) {
-            case 'integer':
-                $type = 'integer';
-                break;
-            case 'double':
-                // todo
-                $type = 'decimal';
-                $type = 'float';
-                break;
-            case 'boolean':
-                $type = 'boolean';
-                break;
-            case 'array':
-                // todo
-                if (true && isset($value['data'])) {
-                    $type = 'blob';
-                } else {
-                    $type = 'clob';
-                }
-                break;
-            default:
-                if (preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/', $value)) {
-                    $type = 'timestamp';
-                } elseif (preg_match('/\d{2}:\d{2}/', $value)) {
-                    $type = 'time';
-                } elseif (preg_match('/\d{4}-\d{2}-\d{2}/', $value)) {
-                    $type = 'date';
-                } else {
-                    $type = 'text';
-                }
-                break;
-            }
-        }
-
         $result = $this->loadModule('datatype');
         if (MDB2::isError($result)) {
             return $result;
         }
-        if (method_exists($this->datatype, "quote{$type}")) {
-            return $this->datatype->{"quote{$type}"}($value);
-        }
-        return $this->raiseError('type not defined: '.$type);
+        return $this->datatype->quote($value, $type);
     }
 
     // }}}

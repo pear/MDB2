@@ -72,9 +72,9 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-             case MDB2_TYPE_BOOLEAN:
+             case 'boolean':
                  return $value == 'T';
-             case MDB2_TYPE_TIME:
+             case 'time':
                 if ($value[0] == '+') {
                     return substr($value, 1);
                 } else {
@@ -123,7 +123,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
                 declared as signed integer";
         }
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteInteger($field['default']) : '';
+            $this->quote($field['default'], 'integer') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$default.$notnull;
     }
@@ -159,7 +159,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteText($field['default']) : '';
+            $this->quote($field['default'], 'text') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         $length = isset($field['length']) ? $field['length'] : $db->max_text_length;
         return $name.' VARCHAR ('.$length.')'.$default.$notnull;
@@ -253,7 +253,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteBoolean($field['default']) : '';
+            $this->quote($field['default'], 'boolean') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' BOOLEAN)'.$default.$notnull;
     }
@@ -285,7 +285,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT DATE '.
-            $this->quoteDate($field['default']) : '';
+            $this->quote($field['default'], 'date') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
@@ -318,7 +318,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT TIMESTAMP '.
-            $this->quoteTimestamp($field['default']) : '';
+            $this->quote($field['default'], 'timestamp') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIMESTAMP'.$default.$notnull;
     }
@@ -350,7 +350,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT TIME '.
-            $this->quoteTime($field['default']) : '';
+            $this->quote($field['default'], 'time') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME'.$default.$notnull;
     }
@@ -383,7 +383,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteFloat($field['default']) : '';
+            $this->quote($field['default'], 'float') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' FLOAT'.$default.$notnull;
     }
@@ -417,31 +417,75 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteDecimal($field['default']) : '';
+            $this->quote($field['default'], 'decimal') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
     // }}}
-    // {{{ quoteBLOB()
+    // {{{ _quoteCLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param           $value
+     * @param           $clob
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteBLOB($value)
+    function _quoteCLOB($clob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (is_null($value)) ? 'NULL' : "'".addslashes($value)."'";
+        if ($clob === null) {
+            return 'NULL';
+        }
+        $value = "'";
+        $data = null;
+        while (!$this->endOfLOB($clob)) {
+            $result = $this->readLOB($clob, $data, $db->options['lob_buffer_length']);
+            if (MDB2::isError($result)) {
+                return $result;
+            }
+            $value .= $db->escape($data);
+        }
+        $value .= "'";
+        return $value;
     }
 
     // }}}
-    // {{{ quoteBoolean()
+    // {{{ _quoteBLOB()
+
+    /**
+     * Convert a text value into a DBMS specific format that is suitable to
+     * compose query statements.
+     *
+     * @param           $blob
+     * @return string  text string that represents the given argument value in
+     *                 a DBMS specific format.
+     * @access private
+     */
+    function _quoteBLOB($blob)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if ($blob === null) {
+            return 'NULL';
+        }
+        $value = "'";
+        $data = null;
+        while (!$this->endOfLOB($blob)) {
+            $result = $this->readLOB($blob, $data, $db->options['lob_buffer_length']);
+            if (MDB2::isError($result)) {
+                return $result;
+            }
+            $value .= addslashes($data);
+        }
+        $value .= "'";
+        return $value;
+    }
+
+    // }}}
+    // {{{ _quoteBoolean()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -450,16 +494,15 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteBoolean($value)
+    function _quoteBoolean($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return ($value === null) ? 'NULL' : ($value ? 'True' : 'False');
+        return ($value ? 'True' : 'False');
     }
 
     // }}}
-    // {{{ quoteDate()
+    // {{{ _quoteDate()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -468,16 +511,16 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteDate($value)
+    function _quoteDate($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return ($value === null) ? 'NULL' : "DATE'$value'";
+        return "DATE'$value'";
     }
 
     // }}}
-    // {{{ quoteTimestamp()
+    // {{{ _quoteTimestamp()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -486,16 +529,16 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteTimestamp($value)
+    function _quoteTimestamp($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return ($value === null) ? 'NULL' : "TIMESTAMP'$value'";
+        return "TIMESTAMP'$value'";
     }
 
     // }}}
-    // {{{ quoteTime()
+    // {{{ _quoteTime()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -504,16 +547,16 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteTime($value)
+    function _quoteTime($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return ($value === null) ? 'NULL' : "TIME'$value'";
+        return "TIME'$value'";
     }
 
     // }}}
-    // {{{ quoteFloat()
+    // {{{ _quoteFloat()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -522,16 +565,16 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * @param string  $value text string value that is intended to be converted.
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteFloat($value)
+    function _quoteFloat($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return ($value === null) ? 'NULL' : (float)$value;
+        return (float)$value;
     }
 
     // }}}
-    // {{{ quoteDecimal()
+    // {{{ _quoteDecimal()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -540,12 +583,12 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * @param string  $value text string value that is intended to be converted.
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteDecimal($value)
+    function _quoteDecimal($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return ($value === null) ? 'NULL' : $value;
+        return $value;
     }
 }
 

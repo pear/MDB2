@@ -71,7 +71,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-            case MDB2_TYPE_DECIMAL:
+            case 'decimal':
                 return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
             default:
                 return $this->_baseConvertResult($value, $type);
@@ -112,7 +112,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $unsigned = isset($field['unsigned']) ? ' UNSIGNED' : '';
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteInteger($field['default']) : '';
+            $this->quote($field['default'], 'integer') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$unsigned.$default.$notnull;
        ;
@@ -248,7 +248,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteDate($field['default']) : '';
+            $this->quote($field['default'], 'date') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
@@ -281,7 +281,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteTimestamp($field['default']) : '';
+            $this->quote($field['default'], 'timestamp') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATETIME'.$default.$notnull;
     }
@@ -313,7 +313,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteTime($field['default']) : '';
+            $this->quote($field['default'], 'time') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME'.$default.$notnull;
     }
@@ -347,7 +347,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = 'DOUBLE'.($db->options['fixed_float'] ? '('.($db->options['fixed_float']+2).','.$db->options['fixed_float'].')' : '');
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteFloat($field['default']) : '';
+            $this->quote($field['default'], 'float') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
@@ -381,39 +381,75 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = 'BIGINT';
         $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quoteDecimal($field['default']) : '';
+            $this->quote($field['default'], 'decimal') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
     // }}}
-    // {{{ quoteCLOB()
+    // {{{ _quoteCLOB()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-
-    // }}}
-    // {{{ quoteFloat()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string  $value text string value that is intended to be converted.
+     * @param           $clob
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteFloat($value)
+    function _quoteCLOB($clob)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return ($value === null) ? 'NULL' : (float)$value;
+        if ($clob === null) {
+            return 'NULL';
+        }
+        $value = "'";
+        $data = null;
+        while (!$this->endOfLOB($clob)) {
+            $result = $this->readLOB($clob, $data, $db->options['lob_buffer_length']);
+            if (MDB2::isError($result)) {
+                return $result;
+            }
+            $value .= $db->escape($data);
+        }
+        $value .= "'";
+        return $value;
     }
 
     // }}}
-    // {{{ quoteDecimal()
+    // {{{ _quoteBLOB()
+
+    /**
+     * Convert a text value into a DBMS specific format that is suitable to
+     * compose query statements.
+     *
+     * @param           $blob
+     * @return string  text string that represents the given argument value in
+     *                 a DBMS specific format.
+     * @access private
+     */
+    function _quoteBLOB($blob)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if ($blob === null) {
+            return 'NULL';
+        }
+        $value = "'";
+        $data = null;
+        while (!$this->endOfLOB($blob)) {
+        $result = $this->readLOB($blob, $data, $db->options['lob_buffer_length']);
+            if (MDB2::isError($result)) {
+                return $result;
+            }
+            $value .= $db->escape($data);
+        }
+        $value .= "'";
+        return $value;
+    }
+
+    // }}}
+    // {{{ _quoteFloat()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -422,12 +458,30 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      * @param string  $value text string value that is intended to be converted.
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
-     * @access public
+     * @access private
      */
-    function quoteDecimal($value)
+    function _quoteFloat($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (($value === null) ? 'NULL' : strval(round(doubleval($value)*pow(10.0, $db->options['decimal_places']))));
+        return (float)$value;
+    }
+
+    // }}}
+    // {{{ _quoteDecimal()
+
+    /**
+     * Convert a text value into a DBMS specific format that is suitable to
+     * compose query statements.
+     *
+     * @param string  $value text string value that is intended to be converted.
+     * @return string  text string that represents the given argument value in
+     *                 a DBMS specific format.
+     * @access private
+     */
+    function _quoteDecimal($value)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        return (strval(round(doubleval($value)*pow(10.0, $db->options['decimal_places']))));
     }
 }
 
