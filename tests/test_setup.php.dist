@@ -73,4 +73,7 @@ $dbarray[] = array(
         'hostspec' => 'hostname',
     )
 );
+
+// you may need to uncomment the line and modify the multiplier as you see fit
+#set_time_limit(60*count($dbarray));
 ?>

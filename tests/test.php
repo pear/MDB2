@@ -71,9 +71,6 @@ function handle_pear_error ($error_obj)
     print '</pre>';
 }
 
-// you may need to uncomment the line and modify the multiplier as you see fit
-set_time_limit(60*count($dbarray));
-
 MDB2::loadFile('Date');
 
 foreach ($testcases as $testcase) {
