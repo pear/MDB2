@@ -22,6 +22,9 @@ $notes = <<<EOT
 - fixed a few bugs in querysim driver
 - fixed issue in mysql reverse engineering: ensuring the correct case is used when
   doing assoc fetches based on portability flag setting
+- updated reverse engineering script to the new MDB2 API
+- removed broken implementations of currId() in the mssql and fbsql driver
+- fixed a few instances of MDB_Common to the new class name of MDB_Driver_Common
 EOT;
 
 $description =<<<EOT
