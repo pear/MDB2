@@ -131,7 +131,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
     function verifyFetchedValues(&$result, $rownum, &$data) {
         $result->seek($rownum);
-        $row = $result->fetchRow(MDB2_FETCHMODE_ORDERED);
+        $row = $result->fetchRow();
         for ($i = 0; $i < count($this->fields); $i++) {
             $value = $row[$i];
             $field = $this->fields[$i];
@@ -144,7 +144,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" ($value) doesn't match what was stored ($data[$field]) into the row $rownum", $delta);
         }
     }
-    
+
     function getSampleData($row) {
         $data = array();
         $data['user_name']     = 'user_' . $row;
