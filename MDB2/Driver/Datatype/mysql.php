@@ -1,7 +1,7 @@
 <?php
 // vim: set et ts=4 sw=4 fdm=marker:
 // +----------------------------------------------------------------------+
-// | PHP Version 4                                                        |
+// | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
 // | Copyright (c) 1998-2004 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
