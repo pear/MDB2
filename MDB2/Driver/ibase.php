@@ -461,95 +461,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         return $result;
     }
 
-    // }}}
-    // {{{ _executePrepared()
-
-    /**
-     * Execute a prepared query statement.
-     *
-     * @param int $prepared_query argument is a handle that was returned by
-     *       the function prepare()
-     * @param string $query query to be executed
-     * @param array $types array that contains the types of the columns in the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access private
-     */
-    function &_executePrepared($prepared_query, $query, $types = null,
-        $result_class = false, $result_wrap_class = false)
-    {
-        $ismanip = MDB2::isManip($query);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
-        $this->debug($query, 'query');
-        $this->last_query = $query;
-        if ($this->options['disable_query']) {
-            if ($ismanip) {
-                return MDB2_OK;
-            }
-            return null;
-        }
-
-        $connect = $this->connect();
-        if (MDB2::isError($connect)) {
-            return $connect;
-        }
-
-        $result = $this->_doQuery($query, $prepared_query);
-        if (!MDB2::isError($result)) {
-            if ($ismanip) {
-                if ($this->supported['affected_rows']) {
-                    return @ibase_affected_rows($this->connection);
-                }
-                return 0;
-            } else {
-                if (!$result_class) {
-                    $result_class = $this->options['result_buffering']
-                        ? $this->options['buffered_result_class'] : $this->options['result_class'];
-                }
-                $class_name = sprintf($result_class, $this->phptype);
-                $result =& new $class_name($this, $result, $offset, $limit);
-                if ($types) {
-                    $err = $result->setResultTypes($types);
-                    if (MDB2::isError($err)) {
-                        $result->free();
-                        return $err;
-                    }
-                }
-                if (!$result_wrap_class) {
-                    $result_wrap_class = $this->options['result_wrap_class'];
-                }
-                if ($result_wrap_class) {
-                    $result =& new $result_wrap_class($result);
-                }
-                return $result;
-            }
-        }
-        return $result;
-    }
-
-    // }}}
-    // {{{ query()
-
-    /**
-     * Send a query to the database and return any results
-     *
-     * @param string $query the SQL query
-     * @param array $types array that contains the types of the columns in the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access public
-     */
-    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
-    {
-        $result =& $this->_executePrepared(false, $query, $types, $result_class, $result_wrap_class);
-        return $result;
-    }
 
     // }}}
     // {{{ nextID()
@@ -648,34 +559,6 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             }
         }
         return true;
-    }
-
-    // }}}
-    // {{{ fetch()
-
-    /**
-     * fetch value from a result set
-     *
-     * @param int    $rownum    number of the row where the data can be found
-     * @param int    $colnum    field number where the data can be found
-     * @return mixed string on success, a MDB2 error on failure
-     * @access public
-     */
-    function fetch($rownum = 0, $colnum = 0)
-    {
-        $seek = $this->seek($rownum);
-        if (MDB2::isError($seek)) {
-            return $seek;
-        }
-        $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
-        $row = $this->fetchRow($fetchmode);
-        if (!$row || MDB2::isError($row)) {
-            return $row;
-        }
-        if (!array_key_exists($colnum, $row)) {
-            return null;
-        }
-        return $row[$colnum];
     }
 
     // }}}
