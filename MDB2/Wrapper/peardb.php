@@ -459,12 +459,14 @@ class MDB2_PEARProxy extends PEAR
 
     function &execute($stmt, $data = false)
     {
-        return $this->db_object->executeParams($stmt, null, $data);
+        $stmt->bindParamArray($data);
+        return $stmt->execute();
     }
 
     function executeMultiple($stmt, $data)
     {
-        return $this->db_object->executeMultiple($stmt, null, $data);
+        $this->db_object->loadModule('extended');
+        return $this->db_object->extended->executeMultiple($stmt, null, $data);
     }
 
     function &query($query, $params = array()) {
@@ -476,7 +478,8 @@ class MDB2_PEARProxy extends PEAR
             if (!is_array($params)) {
                 $params = array($params);
             }
-            return $this->db_object->executeParams($sth, null, $params);
+            $stmt->bindParamArray($params);
+            return $stmt->execute();
         }
         return $this->db_object->query($query);
     }
