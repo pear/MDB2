@@ -753,6 +753,7 @@ class MDB2_Tools_Manager extends PEAR
                 return $result;
             }
         }
+        return MDB2_OK;
     }
 
     // }}}
@@ -985,7 +986,7 @@ class MDB2_Tools_Manager extends PEAR
                     }
                     if (isset($defined_fields[$was_field_name])) {
                         return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                            'the field "'.$was_table_name.
+                            'the field "'.$was_field_name.
                             '" was specified as base of more than one field of table');
                     }
                     $defined_fields[$was_field_name] = true;
@@ -994,7 +995,7 @@ class MDB2_Tools_Manager extends PEAR
                         switch ($field['type']) {
                         case 'integer':
                             $previous_unsigned = isset($previous_definition[$was_field_name]['unsigned']);
-                            $unsigned = isset($fields[$field_name]['unsigned']);
+                            $unsigned = isset($field['unsigned']);
                             if ($previous_unsigned != $unsigned) {
                                 $change['unsigned'] = $unsigned;
                                 $this->db->debug("Changed field '$field_name' type from '".($previous_unsigned ? 'unsigned ' : '').$previous_definition[$was_field_name]['type']."' to '".($unsigned ? 'unsigned ' : '').$field['type']."' in table '$table_name'");
@@ -1040,17 +1041,17 @@ class MDB2_Tools_Manager extends PEAR
                                 $change['default'] = $field['default'];
                             }
                             $this->db->debug("Changed field '$field_name' default from ".
-                                ($previous_default ? "'".$previous_definition[$was_field_name]['default']."'" : 'NULL').' TO '.($default ? "'".$fields[$field_name]['default']."'" : 'NULL')." IN TABLE '$table_name'");
+                                ($previous_default ? "'".$previous_definition[$was_field_name]['default']."'" : 'NULL').' TO '.($default ? "'".$field['default']."'" : 'NULL')." IN TABLE '$table_name'");
                         } else {
                             if ($default && $previous_definition[$was_field_name]['default']!= $field['default']) {
                                 $change['changed_default'] = true;
                                 $change['default'] = $field['default'];
-                                $this->db->debug("Changed field '$field_name' default from '".$previous_definition[$was_field_name]['default']."' to '".$fields[$field_name]['default']."' in table '$table_name'");
+                                $this->db->debug("Changed field '$field_name' default from '".$previous_definition[$was_field_name]['default']."' to '".$field['default']."' in table '$table_name'");
                             }
                         }
                     } else {
                         $change['type'] = $field['type'];
-                        $this->db->debug("Changed field '$field_name' type from '".$previous_definition[$was_field_name]['type']."' to '".$fields[$field_name]['type']."' in table '$table_name'");
+                        $this->db->debug("Changed field '$field_name' type from '".$previous_definition[$was_field_name]['type']."' to '".$field['type']."' in table '$table_name'");
                     }
                     if (count($change)) {
                         $declaration = $this->db->getDeclaration($field['type'], $field_name, $field);
@@ -1120,6 +1121,7 @@ class MDB2_Tools_Manager extends PEAR
                         $change['name'] = $was_index_name;
                         $this->db->debug("Changed index '$was_index_name' name to '$index_name' in table '$table_name'");
                     }
+                    // todo: where should $defined_indexes be set?
                     if (isset($defined_indexes[$was_index_name])) {
                         return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                             'the index "'.$was_index_name.'" was specified as base of'.
@@ -1216,6 +1218,7 @@ class MDB2_Tools_Manager extends PEAR
                     $changes[$was_table_name]+= array('name' => $table_name);
                     $this->db->debug("Renamed table '$was_table_name' to '$table_name'");
                 }
+                // todo: where should $defined_tables be set?
                 if (isset($defined_tables[$was_table_name])) {
                     return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                         'the table "'.$was_table_name.
@@ -1291,7 +1294,7 @@ class MDB2_Tools_Manager extends PEAR
      */
     function compareSequenceDefinitions($sequence_name, $previous_definition, $current_definition)
     {
-        $defined_tables = $changes = array();
+        $defined_sequences = $changes = array();
         if (is_array($current_definition)) {
             $was_sequence_name = $sequence_name;
             if (isset($previous_definition[$sequence_name])
@@ -1307,6 +1310,7 @@ class MDB2_Tools_Manager extends PEAR
                     $changes[$was_sequence_name]['name'] = $sequence_name;
                     $this->db->debug("Renamed sequence '$was_sequence_name' to '$sequence_name'");
                 }
+                // todo: where should $defined_sequences bet set?
                 if (isset($defined_sequences[$was_sequence_name])) {
                     return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                         'the sequence "'.$was_sequence_name.'" was specified as base'.
@@ -2125,7 +2129,7 @@ class MDB2_Tools_Manager extends PEAR
             $databases = $this->db->manager->listDatabases();
             $this->db->popExpect();
             if (MDB2::isError($databases) && !in_array($databases->getCode(), $errorcodes)) {
-                return $database;
+                return $databases;
             }
             if (!MDB2::isError($databases)
                 && !is_array($databases) && !in_array($this->database_definition['name'], $databases)
