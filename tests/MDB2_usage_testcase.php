@@ -337,7 +337,6 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
         $fields = array_keys($data[0]);
         $query = 'SELECT '. implode (', ', $fields). ' FROM users';
-        echo $query;
 
         $this->db->freePrepared($prepared_query);
 
@@ -353,7 +352,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         } else {
             for ($i=0; $i<$total_rows; $i++) {
                 foreach ($data[$i] as $key => $val) {
-                    $this->assertEquals($values[$i][$key], $val, 'Row #'.$i.', expected "'.$val.'", actual "'.$values[$i][$key].'"');
+                    $this->assertEquals(strval($values[$i][$key]), strval($val), 'Row #'.$i.', expected "'.$val.'", actual "'.$values[$i][$key].'"');
                 }
             }
         }
