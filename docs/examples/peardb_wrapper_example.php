@@ -85,18 +85,18 @@
                        array(2, 'two', 'deux'),
                        array(3, 'three', 'trois'),
                        array(4, 'four', 'quatre'));
-    $prepared_query = $db->prepare('INSERT INTO numbers VALUES(?,?,?)');
+    $stmt = $db->prepare('INSERT INTO numbers VALUES(?,?,?)');
     foreach ($alldata as $row) {
         echo('running execute<br>');
-        $db->execute($prepared_query, $row);
+        $db->execute($stmt, $row);
     }
     // lets try an prepare execute combo
     $alldata = array(  array(5, 'five', 'cinq'),
                        array(6, 'six', 'six'),
                        array(7, 'seven', 'sept'),
                        array(8, 'eight', 'huit'));
-    $prepared_query = $db->prepare('INSERT INTO numbers VALUES(?,?,?)');
-    $db->executeMultiple($prepared_query, $alldata);
+    $stmt = $db->prepare('INSERT INTO numbers VALUES(?,?,?)');
+    $db->executeMultiple($stmt, $alldata);
     echo('running executeMultiple<br>');
     $array = array(4);
     echo('<br>see getOne in action:<br>');
