@@ -319,7 +319,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $pk_all = $db->queryCol($query, 'text', $pk_name);
         $found = $indexes = array();
         for ($index = 0, $j = count($indexes_all); $index < $j; ++$index) {
-            if (!in_array($indexes_all[$index], $pk_all) 
+            if (!in_array($indexes_all[$index], $pk_all)
                 && $indexes_all[$index] != null
                 && !isset($found[$indexes_all[$index]])
             ) {
