@@ -129,7 +129,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                 );
             }
             if (isset($ecode_map[$native_code])) {
-                if ($nativecode == 3701
+                if ($native_code == 3701
                     && preg_match('/Cannot drop the index/i', $msg)
                 ) {
                    $error = MDB2_ERROR_NOT_FOUND;
