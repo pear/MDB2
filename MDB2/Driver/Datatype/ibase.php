@@ -431,31 +431,14 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             @rewind($fp);
             $value = $fp;
         }
-        $handle = @ibase_blob_create($db->in_transaction ? $db->transaction_id : $db->connection);
-        if ($handle) {
-            while (!@feof($value)) {
-                $data = @fread($value, $db->options['lob_buffer_length']);
-                $result = @ibase_blob_add($handle, $data);
-                if ($result === false) {
-                    $result = $db->raiseError(MDB2_ERROR, null, null,
-                        'Could not add data to a large object: '.ibase_errmsg());
-                    break;
-                }
-            }
-            if ($close) {
-                @fclose($value);
-            }
-            if (MDB2::isError($result)) {
-                @ibase_blob_cancel($handle);
-            } else {
-                $value = @ibase_blob_close($handle);
-            }
-        } else {
-            $result = $db->raiseError();
-        }
-
         if ($db->in_transaction) {
+            $value = @ibase_blob_import($db->transaction_id, $value);
             $db->commit();
+        } else {
+            $value = @ibase_blob_import($db->connection, $value);
+        }
+        if ($close) {
+            @fclose($value);
         }
         return $value;
     }
