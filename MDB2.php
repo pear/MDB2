@@ -57,6 +57,10 @@
  */
 require_once 'PEAR.php';
 
+if (substr(PHP_VERSION, 0, 1) < 5) {
+    register_shutdown_function('_MDB2_shutdownTransactions');
+}
+
 /**
  * The method mapErrorCode in each MDB2_dbtype implementation maps
  * native error codes to one of these.
@@ -1005,17 +1009,6 @@ class MDB2_Driver_Common extends PEAR
         $this->PEAR();
     }
 
-    function MDB2_Driver_Common()
-    {
-        static $register_shutdown;
-        if (isset($register_shutdown)) {
-            $register_shutdown = true;
-            register_shutdown_function('_MDB2_shutdownTransactions');
-        }
-        $this->phpversion = 4;
-        $this->__construct();
-    }
-
     // }}}
     // {{{ __toString()
 
@@ -1086,7 +1079,7 @@ class MDB2_Driver_Common extends PEAR
             return PEAR::raiseError($code, null, null, null, null, null, true);
         }
 
-        if (is_null($userinfo) && isset($this->connection) && $this->connection) {
+        if (is_null($userinfo) && isset($this->connection)) {
             if (!empty($this->last_query)) {
                 $userinfo = "[Last query: {$this->last_query}]\n";
             }
@@ -2567,18 +2560,22 @@ class MDB2_Result_Common extends MDB2_Result
     var $offset_count = 0;
     var $limit;
 
-    // }}}
     // {{{ constructor
 
     /**
      * Constructor
      */
-    function MDB2_Result_Common(&$mdb, &$result, $offset, $limit)
+    function __construct(&$mdb, &$result, $offset = 0, $limit = 0)
     {
         $this->mdb =& $mdb;
         $this->result =& $result;
         $this->offset = $offset;
         $this->limit = max(0, $limit - 1);
+    }
+
+    function MDB2_Result_Common(&$mdb, &$result, $offset = 0, $limit = 0)
+    {
+        $this->__construct($mdb, $result, $offset, $limit);
     }
 
     // }}}
@@ -2953,11 +2950,16 @@ class MDB2_Row
      *
      * @param resource row data as array
      */
-    function MDB2_Row(&$row)
+    function __construct(&$row)
     {
         foreach ($row as $key => $value) {
             $this->$key = &$row[$key];
         }
+    }
+
+    function MDB2_Row(&$row)
+    {
+        $this->__construct($row);
     }
 }
 
