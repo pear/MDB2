@@ -400,47 +400,60 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param resource  $prepared_query query handle from prepare()
-     * @param           $parameter
-     * @param           $lob
+     * @param           $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access private
      */
-    function _quoteLOB($lob)
+    function _quoteLOB($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (MDB2::isError($connect = $db->connect())) {
             return $connect;
         }
-        $prepared_query = $GLOBALS['_MDB2_LOBs'][$lob]->prepared_query;
-        $parameter = $GLOBALS['_MDB2_LOBs'][$lob]->parameter;
-        $value   = '';  // DEAL WITH ME
         if (!$db->transaction_id = @ibase_trans(IBASE_COMMITTED, $db->connection)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'Could not start a new transaction: '.ibase_errmsg());
         }
-
-        if (($lo = @ibase_blob_create($db->auto_commit ? $db->connection : $db->transaction_id))) {
-            while (!$this->endOfLOB($lob)) {
-                $result = $this->readLOB($lob, $data, $db->options['lob_buffer_length']);
-                if (MDB2::isError($result)) {
-                    break;
-                }
-                if (@ibase_blob_add($lo, $data) === false) {
+        $close = true;
+        if (is_resource($value)) {
+            $close = false;
+        } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+            if ($match[1] == 'file://') {
+                $value = $match[2];
+            }
+            $value = @fopen($value, 'r');
+        } else {
+            $fp = @tmpfile();
+            @fwrite($fp, $value);
+            @rewind($fp);
+            $value = $fp;
+        }
+/*
+        $prepared_query = $GLOBALS['_MDB2_LOBs'][$lob]->prepared_query;
+        $parameter = $GLOBALS['_MDB2_LOBs'][$lob]->parameter;
+*/
+        if (($handle = @ibase_blob_create($db->auto_commit ? $db->connection : $db->transaction_id))) {
+            while (!@feof($value)) {
+                $data = @fread($value, $db->options['lob_buffer_length']);
+                if (@ibase_blob_add($handle, $data) === false) {
                     $result = $db->raiseError(MDB2_ERROR, null, null,
                         'Could not add data to a large object: '.ibase_errmsg());
                     break;
                 }
             }
+            if ($close) {
+                @fclose($value);
+            }
             if (MDB2::isError($result)) {
-                @ibase_blob_cancel($lo);
+                @ibase_blob_cancel($handle);
             } else {
-                $value = @ibase_blob_close($lo);
+                $value = @ibase_blob_close($handle);
             }
         } else {
             $result = $db->raiseError();
         }
+/*
         if (!isset($db->query_parameters[$prepared_query])) {
             $db->query_parameters[$prepared_query]       = array(0, '');
             $db->query_parameter_values[$prepared_query] = array();
@@ -449,7 +462,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $db->query_parameters[$prepared_query][$query_parameter] = $value;
         $db->query_parameter_values[$prepared_query][$parameter] = $query_parameter;
         $value = '?';
-
+*/
         if (!$db->auto_commit) {
             $db->commit();
         }

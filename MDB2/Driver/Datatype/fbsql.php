@@ -436,6 +436,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteBLOB($value)
     {
+        $value = $this->_readFile($value);
         return "'".addslashes($value)."'";
     }
 

@@ -377,37 +377,47 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param resource  $prepared_query query handle from prepare()
-     * @param           $parameter
-     * @param           $lob
+     * @param           $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access private
      */
-    function _quoteLOB($lob)
+    function _quoteLOB($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $connect = $db->connect();
         if (MDB2::isError($connect)) {
             return $connect;
         }
-        $prepared_query = $GLOBALS['_MDB2_LOBs'][$lob]->prepared_query;
-        $parameter = $GLOBALS['_MDB2_LOBs'][$lob]->parameter;
         if ($db->auto_commit && !@pg_exec($db->connection, 'BEGIN')) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'error starting transaction');
         }
+        $close = true;
+        if (is_resource($value)) {
+            $close = false;
+        } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+            if ($match[1] == 'file://') {
+                $value = $match[2];
+            }
+            $value = @fopen($value, 'r');
+        } else {
+            $fp = @tmpfile();
+            @fwrite($fp, $value);
+            @rewind($fp);
+            $value = $fp;
+        }
         if (($lo = @pg_locreate($db->connection))) {
             if (($handle = @pg_loopen($db->connection, $lo, 'w'))) {
-                while (!$this->endOfLOB($lob)) {
-                    $result = $this->readLOB($lob, $data, $db->options['lob_buffer_length']);
-                    if (MDB2::isError($result)) {
-                        break;
-                    }
-                    if (!pg_lowrite($handle, $data)) {
+                while (!@feof($value)) {
+                    $data = @fread($value, $db->options['lob_buffer_length']);
+                    if (!@pg_lowrite($handle, $data)) {
                         $result = $db->raiseError();
                         break;
                     }
+                }
+                if ($close) {
+                    @fclose($value);
                 }
                 @pg_loclose($handle);
                 if (!MDB2::isError($result)) {
