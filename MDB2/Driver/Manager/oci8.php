@@ -90,7 +90,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 $result2 = $db->standaloneQuery($query);
                 if (MDB2::isError($result2)) {
                     return $db->raiseError(MDB2_ERROR, null, null,
-                        'createDatabase: could not setup the database user ('.$result->getUserinfo().') and then could drop its records ('.$result2->getUserinfo().')');
+                        'createDatabase: could not setup the database user ('.$result->getUserinfo().
+                            ') and then could drop its records ('.$result2->getUserinfo().')');
                 }
                 return $db->raiseError(MDB2_ERROR, null, null,
                     'createDatabase: could not setup the database user ('.$result->getUserinfo().')');
@@ -218,20 +219,20 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     function alterTable($name, $changes, $check)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($check) {
-            foreach ($changes as $change_name => $change) {
-                switch ($change_name) {
-                case 'added_fields':
-                case 'removed_fields':
-                case 'changed_fields':
-                case 'name':
-                    break;
-                case 'renamed_fields':
-                default:
-                    return $db->raiseError(MDB2_ERROR, null, null,
-                        'alterTable: change type "'.$change_name.'" not yet supported');
-                }
+        foreach ($changes as $change_name => $change) {
+            switch ($change_name) {
+            case 'added_fields':
+            case 'removed_fields':
+            case 'changed_fields':
+            case 'name':
+                break;
+            case 'renamed_fields':
+            default:
+                return $db->raiseError(MDB2_ERROR, null, null,
+                    'alterTable: change type "'.$change_name.'" not yet supported');
             }
+        }
+        if ($check) {
             return MDB2_OK;
         }
         if (isset($changes['removed_fields'])) {
@@ -294,13 +295,10 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 }
             }
         }
-        if ($query != '' &&
-            MDB2::isError($result = $db->query("ALTER TABLE $name $query"))
-        ) {
-            return $result;
+        if (!$query) {
+            return MDB2_OK;
         }
-        return MDB2_OK;
-    }
+        return $db->query("ALTER TABLE $name $query");}
 
     // }}}
     // {{{ listDatabases()
@@ -328,6 +326,80 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $databases = $result->fetchCol();
         $result->free();
         return $databases;
+    }
+
+        // }}}
+    // {{{ listUsers()
+
+    /**
+     * list all users in the current database
+     *
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listUsers()
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $query = "SELECT username FROM sys.all_users";
+        $users = $db->queryCol($query);
+        if (MDB2::isError($users)) {
+            return $users;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $users = array_flip($users);
+            $users = array_change_key_case($users, CASE_LOWER);
+            $users = array_flip($users);
+        }
+        return $users;
+    }
+    // }}}
+    // {{{ listViews()
+
+    /**
+     * list all views in the current database
+     *
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listViews()
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $query = "SELECT view_name FROM sys.user_views";
+        $views = $db->queryCol($query);
+        if (MDB2::isError($views)) {
+            return $views;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $views = array_flip($views);
+            $views = array_change_key_case($views, CASE_LOWER);
+            $views = array_flip($views);
+        }
+        return $views;
+    }
+
+    // }}}
+    // {{{ listFunctions()
+
+    /**
+     * list all functions in the current database
+     *
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listFunctions()
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $query = "SELECT name FROM sys.user_source WHERE line = 1 AND type = 'FUNCTION'";
+        $functions = $db->queryCol($query);
+        if (MDB2::isError($functions)) {
+            return $functions;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $functions = array_flip($functions);
+            $functions = array_change_key_case($functions, CASE_LOWER);
+            $functions = array_flip($functions);
+        }
+        return $functions;
     }
 
     // }}}
@@ -431,7 +503,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             if ($sqn = $this->_isSequenceName($table_names[$i]))
                 $sequences[] = $sqn;
         }
-        if ($db->options['optimize'] == 'portability') {
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $sequences = array_flip($sequences);
             $sequences = array_change_key_case($sequences, CASE_LOWER);
             $sequences = array_flip($sequences);
