@@ -109,8 +109,14 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             static $ecode_map;
             if (empty($ecode_map)) {
                 $ecode_map = array(
+                    207   => MDB2_ERROR_NOSUCHFIELD,
                     208   => MDB2_ERROR_NOSUCHTABLE,
-                    3701  => MDB2_ERROR_NOSUCHTABLE
+                    245   => MDB2_ERROR_INVALID_NUMBER,
+                    515   => MDB2_ERROR_CONSTRAINT_NOT_NULL,
+                    547   => MDB2_ERROR_CONSTRAINT,
+                    2627  => MDB2_ERROR_CONSTRAINT,
+                    2714  => MDB2_ERROR_ALREADY_EXISTS,
+                    3701  => MDB2_ERROR_NOSUCHTABLE,
                 );
              }
             if (isset($ecode_map[$native_code])) {
