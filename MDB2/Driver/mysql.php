@@ -131,6 +131,22 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ escape()
+
+    /**
+     * Quotes a string so it can be safely used in a query. It will quote
+     * the text so it can safely be used within a query.
+     *
+     * @param string $text the input string to quote
+     * @return string quoted string
+     * @access public
+     */
+    function escape($text)
+    {
+        return @mysql_escape_string($text);
+    }
+
+    // }}}
     // {{{ autoCommit()
 
     /**

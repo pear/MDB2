@@ -15,8 +15,9 @@ have been tested to pass the test suite.
 - fixed bug in sequence creation on MySQL
 - fixed issues with nextid() ondemand handling in conjunction with currId()
 - added native currId() implementation for the Oracle driver
-- fixed sqlite driver (passes all but the LOB tests)
+- fixed sqlite driver (passes all but the REPLACE test due to a conformance issue in sqlite itself)
 - removed decimal_factor property to allow changing of decimal_places option
+- using native escape string methods in sqlite and mysql driver
 EOT;
 
 $description =<<<EOT
