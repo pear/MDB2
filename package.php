@@ -68,6 +68,9 @@ $notes = <<<EOT
 - accommodate changes made to PostgreSQL so "no such field" errors get properly
   indicated rather than being mislabeled as "no such table." (danielc)
 - fixed typo in MDB2_Driver_Manager_oci8::listTables() (fix for bug #2434)
+- added "permission denied" to error regex in pgsql driver.
+  Bug 2417. (stewart_linux-org-au)
+- added rownum handling to fetchRow()
 EOT;
 
 $description =<<<EOT
