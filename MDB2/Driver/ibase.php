@@ -467,13 +467,13 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $connection = ($this->auto_commit ? $connection : $this->transaction_id);
+            $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
         }
 
         $result = ibase_query($connection, $query);
 
         if ($result === false) {
-            return $this->db->raiseError();
+            return $this->raiseError();
         }
 
         if ($isManip) {
@@ -987,7 +987,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
     }
 
     // }}}
-    // {{{
+    // {{{ quoteParamsForPreparedQuery()
 
     function quoteParamsForPreparedQuery()
     {
@@ -1013,5 +1013,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         }
         return $parameters;
     }
+
+    // }}}
 }
 ?>
