@@ -2865,7 +2865,7 @@ class MDB2_Statement_Common
     }
 
     // }}}
-    // {{{ _executePrepared()
+    // {{{ execute()
 
     /**
      * Execute a prepared query statement.
@@ -2873,12 +2873,11 @@ class MDB2_Statement_Common
      * @param mixed $result_class string which specifies which result class to use
      * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access private
+     * @access public
      */
-    function &_executePrepared($result_class = true, $result_wrap_class = false)
+    function &execute($result_class = true, $result_wrap_class = false)
     {
         $query = '';
-        $this->clobs = $this->blobs = array();
         $last_position = $parameter_num = 0;
         foreach ($this->values as $parameter => $value) {
             $current_position = $this->positions[$parameter_num];
@@ -2902,36 +2901,6 @@ class MDB2_Statement_Common
         $this->db->row_offset = $this->row_offset;
         $this->db->row_limit = $this->row_limit;
         return $this->db->query($query, $this->result_types, $result_class, $result_wrap_class);
-    }
-
-    // }}}
-    // {{{ execute()
-
-    /**
-     * Execute a prepared query statement.
-     *
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function &execute($result_class = true, $result_wrap_class = false)
-    {
-        $success =& $this->_executePrepared($result_class, $result_wrap_class);
-
-        // todo remove
-        foreach ($this->clobs as $key => $value) {
-             $this->db->datatype->destroyLOB($key);
-             $this->db->datatype->freeCLOBValue($key, $value);
-        }
-        unset($this->clobs);
-        foreach ($this->blobs as $key => $value) {
-             $this->db->datatype->destroyLOB($key);
-             $this->db->datatype->freeBLOBValue($key, $value);
-        }
-        unset($this->blobs);
-
-        return $success;
     }
 
     // }}}
