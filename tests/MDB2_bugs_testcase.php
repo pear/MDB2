@@ -120,6 +120,21 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         }
     }
 
+    function verifyFetchedValues(&$result, $rownum, &$data) {
+        $row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
+        for ($i = 0; $i < count($this->fields); $i++) {
+            $value = $row[$i];
+            $field = $this->fields[$i];
+            if ($this->types[$i] == 'float') {
+                $delta = 0.0000000001;
+            } else {
+                $delta = 0;
+            }
+
+            $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" ($value) doesn't match what was stored ($data[$field]) into the row $rownum", $delta);
+        }
+    }
+
     /**
      *
      */
@@ -325,6 +340,47 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error fetching a row'.$row->getMessage());
             }
         }
+        $result->free();
+    }
+
+    /**
+     * http://pear.php.net/bugs/bug.php?id=3146
+     */
+    function testBug3146() {
+        $data = array();
+        $total_rows = 5;
+
+        $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+
+        for ($row = 0; $row < $total_rows; $row++) {
+            $data[$row]['user_name'] = "user_$row";
+            $data[$row]['user_password'] = 'somepassword';
+            $data[$row]['subscribed'] = (boolean)($row % 2);
+            $data[$row]['user_id'] = $row;
+            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
+            $data[$row]['weight'] = sqrt($row);
+            $data[$row]['access_date'] = MDB2_Date::mdbToday();
+            $data[$row]['access_time'] = MDB2_Date::mdbTime();
+            $data[$row]['approved'] = MDB2_Date::mdbNow();
+
+            $this->insertTestValues($prepared_query, $data[$row]);
+
+            $result = $prepared_query->execute($prepared_query);
+            if (MDB2::isError($result)) {
+                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+            }
+        }
+        $prepared_query->free();
+
+        $result = $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users ORDER BY user_id', $this->types);
+
+        $numrows = $result->numRows($result);
+
+        $this->verifyFetchedValues($result, 0, $data[0]);
+        $this->verifyFetchedValues($result, 2, $data[2]);
+        $this->verifyFetchedValues($result, null, $data[3]);
+        $this->verifyFetchedValues($result, 1, $data[1]);
+
         $result->free();
     }
 }
