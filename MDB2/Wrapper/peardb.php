@@ -323,36 +323,36 @@ class DB_row
 
 class MDB2_PEARProxy extends PEAR
 {
-    var $MDB2_object;
+    var $db2_object;
     var $phptype;
     var $connection;
     var $dsn;
 
-    function MDB2_PEARProxy(&$MDB2_object)
+    function MDB2_PEARProxy(&$db2_object)
     {
-        $this->MDB2_object =& $MDB2_object;
+        $this->db_object =& $db2_object;
         $this->PEAR('DB_Error');
-        $this->MDB2_object->setOption('seqname_col_name', 'id');
-        $this->MDB2_object->setOption('result_wrap_class', 'DB_result');
-        $this->phptype = $this->MDB2_object->phptype;
-        $this->connection = $this->MDB2_object->connection;
-        $this->dsn = $this->MDB2_object->getDSN();
+        $this->db_object->setOption('seqname_col_name', 'id');
+        $this->db_object->setOption('result_wrap_class', 'DB_result');
+        $this->phptype = $this->db_object->phptype;
+        $this->connection = $this->db_object->connection;
+        $this->dsn = $this->db_object->getDSN();
     }
 
     function connect($dsninfo, $persistent = false)
     {
         $this->options['persistent'] = $presistent;
-        return $this->MDB2_object->connect();
+        return $this->db_object->connect();
     }
 
     function disconnect()
     {
-        return $this->MDB2_object->disconnect();
+        return $this->db_object->disconnect();
     }
 
     function toString()
     {
-        return $this->MDB2_object->__toString();
+        return $this->db_object->__toString();
     }
 
     function quoteString($string)
@@ -369,12 +369,12 @@ class MDB2_PEARProxy extends PEAR
         if (is_null($string)) {
             return 'NULL';
         }
-        return "'".$this->MDB2_object->quote($string)."'";
+        return "'".$this->db_object->quote($string)."'";
     }
 
     function escapeSimple($str)
     {
-        return $this->MDB2_object->escape($str);
+        return $this->db_object->escape($str);
     }
 
     function quoteSmart($in)
@@ -392,107 +392,107 @@ class MDB2_PEARProxy extends PEAR
 
     function quoteIdentifier($string)
     {
-        return $this->MDB2_object->quoteIdentifier($string);
+        return $this->db_object->quoteIdentifier($string);
     }
 
     // map?
     function provides($feature)
     {
-        return $this->MDB2_object->support($feature);
+        return $this->db_object->support($feature);
     }
 
     // remove?
     function errorCode($nativecode)
     {
-        return $this->MDB2_object->errorCode($nativecode);
+        return $this->db_object->errorCode($nativecode);
     }
 
     // remove?
     function errorMessage($dbcode)
     {
-        return $this->MDB2_object->errorMessage($dbcode);
+        return $this->db_object->errorMessage($dbcode);
     }
 
     // remove?
     function &raiseError($code = MDB2_ERROR, $mode = null, $options = null,
                          $userinfo = null, $nativecode = null)
     {
-        return $this->MDB2_object->raiseError($code, $mode, $options, $userinfo, $nativecode);
+        return $this->db_object->raiseError($code, $mode, $options, $userinfo, $nativecode);
     }
 
     function setFetchMode($fetchmode, $object_class = 'stdClass')
     {
-        return $this->MDB2_object->setFetchMode($fetchmode, $object_class);
+        return $this->db_object->setFetchMode($fetchmode, $object_class);
     }
 
     function setOption($option, $value)
     {
-        return $this->MDB2_object->setOption($option, $value);
+        return $this->db_object->setOption($option, $value);
     }
 
     function getOption($option)
     {
-        return $this->MDB2_object->getOption($option);
+        return $this->db_object->getOption($option);
     }
 
     function prepare($query)
     {
         // parse for ! and &
         // set types
-        return $this->MDB2_object->prepare($query);
+        return $this->db_object->prepare($query);
     }
 
     function autoPrepare($table, $table_fields, $mode = MDB2_AUTOQUERY_INSERT, $where = false)
     {
-        $this->MDB2_object->loadModule('extended');
+        $this->db_object->loadModule('extended');
         // types
-        return $this->MDB2_object->extended->autoPrepare($table, $table_fields, $mode, $where);
+        return $this->db_object->extended->autoPrepare($table, $table_fields, $mode, $where);
     }
 
     function &autoExecute($table, $fields_values, $mode, $where)
     {
-        $this->MDB2_object->loadModule('extended');
+        $this->db_object->loadModule('extended');
         // types
-        $result =& $this->MDB2_object->extended->autoExecute($table, $fields_values, null, null, $mode, $where, false);
+        $result =& $this->db_object->extended->autoExecute($table, $fields_values, null, null, $mode, $where, false);
         return $result;
     }
 
     function buildManipSQL($table, $table_fields, $mode, $where = false)
     {
-        $this->MDB2_object->loadModule('extended');
-        return $this->MDB2_object->extended->buildManipSQL($table, $table_fields, null, null, $mode, $where);
+        $this->db_object->loadModule('extended');
+        return $this->db_object->extended->buildManipSQL($table, $table_fields, null, null, $mode, $where);
     }
 
     function &execute($stmt, $data = false)
     {
-        $result = $this->MDB2_object->executeParams($stmt, null, $data);
+        $result = $this->db_object->executeParams($stmt, null, $data);
         return $result;
     }
 
     function executeMultiple($stmt, $data)
     {
-        return $this->MDB2_object->executeMultiple($stmt, null, $data);
+        return $this->db_object->executeMultiple($stmt, null, $data);
     }
 
     function &query($query, $params = array()) {
         if (sizeof($params) > 0) {
-            $sth = $this->MDB2_object->prepare($query);
+            $sth = $this->db_object->prepare($query);
             if (MDB2::isError($sth)) {
                 return $sth;
             }
             if (!is_array($params)) {
                 $params = array($params);
             }
-            $return =& $this->MDB2_object->executeParams($sth, null, $params);
+            $return =& $this->db_object->executeParams($sth, null, $params);
             return $return;
         } else {
-            $result =& $this->MDB2_object->query($query);
+            $result =& $this->db_object->query($query);
             return $result;
         }
     }
 
     function simpleQuery($query) {
-        $result = $this->MDB2_object->query($query, null, false);
+        $result = $this->db_object->query($query, null, false);
         if (MDB2::isError($result) || $result === MDB2_OK) {
             return $result;
         } else {
@@ -502,7 +502,7 @@ class MDB2_PEARProxy extends PEAR
 
     function limitQuery($query, $from, $count, $params = array())
     {
-        $result = $this->MDB2_object->setLimit($count, $from);
+        $result = $this->db_object->setLimit($count, $from);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -568,7 +568,7 @@ class MDB2_PEARProxy extends PEAR
         $result = $this->query($query, $params);
         $all = $result->result->fetchAll($fetchmode, true, $force_array, $group);
         $first = reset($all);
-        if (isset($first) && $this->MDB2_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
+        if (isset($first) && $this->db_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
             if(is_array($first)) {
                 foreach($all as $key => $arr) {
                     $this->_convertNullArrayValuesToEmpty($all[$key]);
@@ -609,7 +609,7 @@ class MDB2_PEARProxy extends PEAR
         $result = $this->query($query, $params);
         $all = $result->result->fetchAll($fetchmode);
         $first = reset($all);
-        if (isset($first) && $this->MDB2_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
+        if (isset($first) && $this->db_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
             if(is_array($first)) {
                 foreach($all as $key => $arr) {
                     $this->_convertNullArrayValuesToEmpty($all[$key]);
@@ -631,33 +631,33 @@ class MDB2_PEARProxy extends PEAR
 
     function autoCommit($onoff = false)
     {
-        return $this->MDB2_object->autoCommit($onoff);
+        return $this->db_object->autoCommit($onoff);
     }
 
     function commit()
     {
-        return $this->MDB2_object->commit();
+        return $this->db_object->commit();
     }
 
     function rollback()
     {
-        return $this->MDB2_object->rollback();
+        return $this->db_object->rollback();
     }
 
     function affectedRows()
     {
-        return $this->MDB2_object->affectedRows();
+        return $this->db_object->affectedRows();
     }
 
     // remove?
     function errorNative()
     {
-        return $this->MDB2_object->errorNative();
+        return $this->db_object->errorNative();
     }
 
     function nextId($seq_name, $ondemand = true)
     {
-        $id = $this->MDB2_object->nextID($seq_name, $ondemand);
+        $id = $this->db_object->nextID($seq_name, $ondemand);
         if (MDB2::isResultCommon($id)) {
             $id = $id->fetch();
         }
@@ -666,23 +666,23 @@ class MDB2_PEARProxy extends PEAR
 
     function createSequence($seq_name)
     {
-        $this->MDB2_object->loadModule('manager');
-        return $this->MDB2_object->manager->createSequence($seq_name, 1);
+        $this->db_object->loadModule('manager');
+        return $this->db_object->manager->createSequence($seq_name, 1);
     }
 
     function dropSequence($seq_name)
     {
-        $this->MDB2_object->loadModule('manager');
-        return $this->MDB2_object->manager->dropSequence($seq_name);
+        $this->db_object->loadModule('manager');
+        return $this->db_object->manager->dropSequence($seq_name);
     }
 
     function _wrapResource($result)
     {
         if (is_resource($result)) {
-            $result_class = $this->MDB2_object->getOption('result_buffering')
-                ? $this->MDB2_object->getOption('buffered_result_class') : $$this->MDB2_object->getOption('result_class');
-            $class_name = sprintf($result_class, $this->MDB2_object->phptype);
-            $result =& new $class_name($this->MDB2_object, $result);
+            $result_class = $this->db_object->getOption('result_buffering')
+                ? $this->db_object->getOption('buffered_result_class') : $$this->db_object->getOption('result_class');
+            $class_name = sprintf($result_class, $this->db_object->phptype);
+            $result =& new $class_name($this->db_object, $result);
         }
         return $result;
     }
@@ -698,7 +698,7 @@ class MDB2_PEARProxy extends PEAR
 
     function freePrepared($prepared)
     {
-        return $this->MDB2_object->freePrepared($prepared);
+        return $this->db_object->freePrepared($prepared);
     }
 
     function freeResult($result)
@@ -729,8 +729,8 @@ class MDB2_PEARProxy extends PEAR
     {
         $result = $this->_wrapResource($result);
         if (is_string($result) || MDB2::isResultCommon($result)) {
-            $this->MDB2_object->loadModule('reverse');
-            return $this->MDB2_object->reverse->tableInfo($result, $mode);
+            $this->db_object->loadModule('reverse');
+            return $this->db_object->reverse->tableInfo($result, $mode);
         }
         return $result->tableInfo($mode);
     }
@@ -742,18 +742,18 @@ class MDB2_PEARProxy extends PEAR
 
     function getListOf($type)
     {
-        $this->MDB2_object->loadModule('manager');
+        $this->db_object->loadModule('manager');
         switch ($type) {
             case 'tables':
-                return $this->MDB2_object->manager->listTables();
+                return $this->db_object->manager->listTables();
             case 'views':
-                return $this->MDB2_object->manager->listViews();
+                return $this->db_object->manager->listViews();
             case 'users':
-                return $this->MDB2_object->manager->listUsers();
+                return $this->db_object->manager->listUsers();
             case 'functions':
-                return $this->MDB2_object->manager->listFunctions();
+                return $this->db_object->manager->listFunctions();
             case 'databases':
-                return $this->MDB2_object->manager->listDatabases();
+                return $this->db_object->manager->listDatabases();
             default:
                 return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
         }

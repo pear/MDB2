@@ -62,7 +62,7 @@
  */
 class MDB2_LOB
 {
-    var $mdb;
+    var $db;
     var $lob;
     var $data = '';
     var $position = 0;
@@ -123,17 +123,17 @@ class MDB2_LOB_Result extends MDB2_LOB
 
     function destroy()
     {
-        $this->mdb->datatype->_destroyResultLOB($this->result_lob);
+        $this->db->datatype->_destroyResultLOB($this->result_lob);
     }
 
     function endOfLOB()
     {
-        return $this->mdb->datatype->_endOfResultLOB($this->result_lob);
+        return $this->db->datatype->_endOfResultLOB($this->result_lob);
     }
 
     function readLOB(&$data, $length)
     {
-        $read_length = $this->mdb->datatype->_readResultLOB($this->result_lob, $data, $length);
+        $read_length = $this->db->datatype->_readResultLOB($this->result_lob, $data, $length);
         if (MDB2::isError($read_length)) {
             return $read_length;
         }
@@ -267,7 +267,7 @@ class MDB2_LOB_Output_File extends MDB2_LOB
             $this->file = '';
         }
         if ($this->opened_lob) {
-            $this->mdb->datatype->destroyLOB($this->input_lob);
+            $this->db->datatype->destroyLOB($this->input_lob);
             $this->input_lob = 0;
             $this->opened_lob = false;
         }
@@ -275,7 +275,7 @@ class MDB2_LOB_Output_File extends MDB2_LOB
 
     function endOfLOB()
     {
-        return $this->mdb->datatype->endOfLOB($this->input_lob);
+        return $this->db->datatype->endOfLOB($this->input_lob);
     }
 
     function readLOB(&$data, $length) {
@@ -283,11 +283,11 @@ class MDB2_LOB_Output_File extends MDB2_LOB
         $written_full = 0;
         do {
             for ($written = 0;
-                !$this->mdb->datatype->endOfLOB($this->input_lob)
+                !$this->db->datatype->endOfLOB($this->input_lob)
                 && $written < $buffer_length;
                 $written += $read)
             {
-                $result = $this->mdb->datatype->readLOB($this->input_lob, $buffer, $buffer_length);
+                $result = $this->db->datatype->readLOB($this->input_lob, $buffer, $buffer_length);
                 if (MDB2::isError($result)) {
                     return $result;
                 }
@@ -298,7 +298,7 @@ class MDB2_LOB_Output_File extends MDB2_LOB
                 }
             }
             $written_full += $written;
-        } while ($length == 0 && !$this->mdb->datatype->endOfLOB($this->input_lob));
+        } while ($length == 0 && !$this->db->datatype->endOfLOB($this->input_lob));
         return $written_full;
     }
 }

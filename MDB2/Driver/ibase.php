@@ -715,7 +715,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         */
 
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
-            $fetchmode = $this->mdb->fetchmode;
+            $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_skipLimitOffset()) {
             return null;
@@ -723,7 +723,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @ibase_fetch_assoc($this->result);
             if (is_array($row)
-                && $this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && $this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE
             ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
@@ -732,22 +732,22 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         if (!$row) {
             if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
             return null;
         }
         if (isset($this->types)) {
-            $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+            $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->mdb->_rtrimArrayValues($row);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            $this->db->_rtrimArrayValues($row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->mdb->_convertEmptyArrayValuesToNull($row);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $this->db->_convertEmptyArrayValuesToNull($row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $object_class = $this->mdb->options['fetch_class'];
+            $object_class = $this->db->options['fetch_class'];
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {
@@ -783,7 +783,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             $column_info = @ibase_field_info($this->result, $column);
             $columns[$column_info['name']] = $column;
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $columns = array_change_key_case($columns, CASE_LOWER);
         }
         return $columns;
@@ -808,15 +808,15 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         */
         if (!is_resource($this->result)) {
-            return $this->mdb->raiseError('numCols(): not a valid ibase resource');
+            return $this->db->raiseError('numCols(): not a valid ibase resource');
         }
         $cols = @ibase_num_fields($this->result);
         if (is_null($cols)) {
             if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numCols: resultset has already been freed');
             }
-            return $this->mdb->raiseError();
+            return $this->db->raiseError();
         }
         return $cols;
     }
@@ -838,7 +838,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
                 if (is_null($this->result)) {
                     return MDB2_OK;
                 }
-                return $this->mdb->raiseError();
+                return $this->db->raiseError();
             }
         }
         $this->result = null;
@@ -915,12 +915,12 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if (is_null($this->result)) {
-            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'fetchRow: resultset has already been freed');
         }
         $target_rownum = $this->rownum + 1;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
-            $fetchmode = $this->mdb->fetchmode;
+            $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_fillBuffer($target_rownum)) {
             return null;
@@ -934,16 +934,16 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             $row = $column_names;
         }
         if (isset($this->types)) {
-            $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+            $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->mdb->_rtrimArrayValues($row);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            $this->db->_rtrimArrayValues($row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->mdb->_convertEmptyArrayValuesToNull($row);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $this->db->_convertEmptyArrayValuesToNull($row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $object_class = $this->mdb->options['fetch_class'];
+            $object_class = $this->db->options['fetch_class'];
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {
@@ -967,7 +967,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     function seek($rownum = 0)
     {
         if (is_null($this->result)) {
-            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'seek: resultset has already been freed');
         }
         $this->rownum = $rownum - 1;
@@ -986,7 +986,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     function valid()
     {
         if (is_null($this->result)) {
-            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'valid: resultset has already been freed');
         }
         if ($this->_fillBuffer($this->rownum + 1)) {
@@ -1007,7 +1007,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     function numRows()
     {
         if (is_null($this->result)) {
-            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'seek: resultset has already been freed');
         }
         $this->_fillBuffer();

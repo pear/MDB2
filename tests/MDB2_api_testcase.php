@@ -204,13 +204,13 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
     }
 
     function testSingleton() {
-        $mdb =& MDB2::singleton();
-        $this->assertTrue(MDB2::isConnection($mdb));
+        $db =& MDB2::singleton();
+        $this->assertTrue(MDB2::isConnection($db));
 
         // should have a different database name set
-        $mdb =& MDB2::singleton($this->dsn, $this->options);
+        $db =& MDB2::singleton($this->dsn, $this->options);
 
-        $this->assertTrue($mdb->db_index != $this->db->db_index);
+        $this->assertTrue($db->db_index != $this->db->db_index);
     }
 }
 

@@ -530,18 +530,18 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         $value = @fbsql_result($this->result, $rownum, $colnum);
         if (!$value) {
             if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetch: resultset has already been freed');
             }
         }
         if (isset($this->types[$colnum])) {
-            $value = $this->mdb->datatype->convertResult($value, $this->types[$colnum]);
+            $value = $this->db->datatype->convertResult($value, $this->types[$colnum]);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $value = rtrim($value);
         }
         if ($value === ''
-            && $this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
+            && $this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
         ) {
             $value = null;
         }
@@ -561,11 +561,11 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
     function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
-            $fetchmode = $this->mdb->fetchmode;
+            $fetchmode = $this->db->fetchmode;
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @fbsql_fetch_assoc($this->result);
-            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+            if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE
                 && is_array($row)
             ) {
                 $row = array_change_key_case($row, CASE_LOWER);
@@ -575,19 +575,19 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         }
         if (!$row) {
             if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
             return null;
         }
         if (isset($this->types)) {
-            $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+            $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->mdb->_convertEmptyArrayValuesToNull($row);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $this->db->_convertEmptyArrayValuesToNull($row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $object_class = $this->mdb->options['fetch_class'];
+            $object_class = $this->db->options['fetch_class'];
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {
@@ -627,7 +627,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
             $column_name = @fbsql_field_name($this->result, $column);
             $columns[$column_name] = $column;
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $columns = array_change_key_case($columns, CASE_LOWER);
         }
         return $columns;
@@ -648,10 +648,10 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         $cols = @fbsql_num_fields($this->result);
         if (is_null($cols)) {
             if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numCols: resultset has already been freed');
             }
-            return $this->mdb->raiseError();
+            return $this->db->raiseError();
         }
         return $cols;
     }
@@ -669,7 +669,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
     function nextResult()
     {
         if (is_null($this->result)) {
-            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'nextResult: resultset has already been freed');
         }
         return @fbsql_next_result($this->result);
@@ -691,7 +691,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
             if (is_null($this->result)) {
                 return MDB2_OK;
             }
-            return $this->mdb->raiseError();
+            return $this->db->raiseError();
         }
         $this->result = null;
         return MDB2_OK;
@@ -714,10 +714,10 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
     {
         if (!@fbsql_data_seek($this->result, $rownum)) {
             if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'seek: resultset has already been freed');
             }
-            return $this->mdb->raiseError(MDB2_ERROR_INVALID, null, null,
+            return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
                 'seek: tried to seek to an invalid row number ('.$rownum.')');
         }
         $this->rownum = $rownum - 1;
@@ -756,7 +756,7 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
         $rows = @fbsql_num_rows($this->result);
         if (is_null($rows)) {
             if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numRows: resultset has already been freed');
             }
             return $this->raiseError();

@@ -311,10 +311,10 @@ class MDB2
      * object instead of a copy (this is a PHP4 quirk).
      *
      * For example:
-     *     $mdb =& MDB2::connect($dsn);
+     *     $db =& MDB2::connect($dsn);
      *          ^^
      * And not:
-     *     $mdb = MDB2::connect($dsn);
+     *     $db = MDB2::connect($dsn);
      *          ^^
      *
      * @param   mixed   $dsn      'data source name', see the MDB2::parseDSN
@@ -375,10 +375,10 @@ class MDB2
      * object instead of a copy (this is a PHP4 quirk).
      *
      * For example:
-     *     $mdb =& MDB2::singleton($dsn);
+     *     $db =& MDB2::singleton($dsn);
      *          ^^
      * And not:
-     *     $mdb = MDB2::singleton($dsn);
+     *     $db = MDB2::singleton($dsn);
      *          ^^
      *
      * @param   mixed   $dsn      'data source name', see the MDB2::parseDSN
@@ -2381,7 +2381,7 @@ class MDB2_Result
 
 class MDB2_Result_Common extends MDB2_Result
 {
-    var $mdb;
+    var $db;
     var $result;
     var $rownum = -1;
     var $types;
@@ -2394,17 +2394,17 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Constructor
      */
-    function __construct(&$mdb, &$result, $offset = 0, $limit = 0)
+    function __construct(&$db, &$result, $offset = 0, $limit = 0)
     {
-        $this->mdb =& $mdb;
+        $this->db =& $db;
         $this->result =& $result;
         $this->offset = $offset;
         $this->limit = max(0, $limit - 1);
     }
 
-    function MDB2_Result_Common(&$mdb, &$result, $offset = 0, $limit = 0)
+    function MDB2_Result_Common(&$db, &$result, $offset = 0, $limit = 0)
     {
-        $this->__construct($mdb, $result, $offset, $limit);
+        $this->__construct($db, $result, $offset, $limit);
     }
 
     // }}}
@@ -2431,11 +2431,11 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function setResultTypes($types)
     {
-        $load = $this->mdb->loadModule('datatype');
+        $load = $this->db->loadModule('datatype');
         if (MDB2::isError($load)) {
             return $load;
         }
-        return $this->mdb->datatype->setResultTypes($this, $types);
+        return $this->db->datatype->setResultTypes($this, $types);
     }
 
     // }}}
@@ -2451,7 +2451,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function fetch($rownum = 0, $colnum = 0)
     {
-        return $this->mdb->raiseError(MDB2_ERROR_UNSUPPORTED, NULL, NULL,
+        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, NULL, NULL,
             'fetch: method not implemented');
     }
 
@@ -2469,7 +2469,7 @@ class MDB2_Result_Common extends MDB2_Result
     {
         $target_rownum = $rownum - 1;
         if ($this->rownum > $target_rownum) {
-            return $this->mdb->raiseError(MDB2_ERROR_UNSUPPORTED, NULL, NULL,
+            return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, NULL, NULL,
                 'seek: seeking to previous rows not implemented');
         }
         while ($this->rownum < $target_rownum) {
@@ -2496,11 +2496,11 @@ class MDB2_Result_Common extends MDB2_Result
         }
         $rownum = ++$this->rownum;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
-            $fetchmode = $this->mdb->fetchmode;
+            $fetchmode = $this->db->fetchmode;
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
             $fetchmode = MDB2_FETCHMODE_ASSOC;
-            $object_class = $this->mdb->options['fetch_class'];
+            $object_class = $this->db->options['fetch_class'];
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $column_names = $this->getColumnNames();
@@ -2508,7 +2508,7 @@ class MDB2_Result_Common extends MDB2_Result
                 return $column_names;
             }
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $null_value = '';
         } else {
             $null_value = null;
@@ -2563,7 +2563,7 @@ class MDB2_Result_Common extends MDB2_Result
         $row = $this->fetchRow($fetchmode);
         if (is_array($row)) {
             if (!array_key_exists($colnum, $row)) {
-                return($this->mdb->raiseError(MDB2_ERROR_TRUNCATED));
+                return($this->db->raiseError(MDB2_ERROR_TRUNCATED));
             }
             do {
                 $column[] = $row[$colnum];
@@ -2604,7 +2604,7 @@ class MDB2_Result_Common extends MDB2_Result
                 if((is_array($row) && count($row) < 2)
                     || (is_object($row) && count(get_object_vars($row)) < 2)
                 ) {
-                    return $this->mdb->raiseError(MDB2_ERROR_TRUNCATED);
+                    return $this->db->raiseError(MDB2_ERROR_TRUNCATED);
                 }
             }
             if ($rekey) {
@@ -2671,7 +2671,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function nextResult()
     {
-        return $this->mdb->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'nextResult: method not implemented');
     }
 
@@ -2692,7 +2692,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function getColumnNames()
     {
-        return $this->mdb->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getColumnNames: method not implemented');
     }
 
@@ -2708,7 +2708,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function numCols()
     {
-        return $this->mdb->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'numCols: method not implemented');
     }
 
@@ -2794,7 +2794,7 @@ class MDB2_Row
 
 class MDB2_Statement_Common
 {
-    var $mdb;
+    var $db;
     var $query;
     var $positions;
     var $result_types;
@@ -2808,20 +2808,20 @@ class MDB2_Statement_Common
     /**
      * Constructor
      */
-    function __construct(&$mdb, $query, $positions, $types, $result_types, $statement = null)
+    function __construct(&$db, $query, $positions, $types, $result_types, $statement = null)
     {
-        $this->mdb =& $mdb;
+        $this->db =& $db;
         $this->query = $query;
         $this->positions = $positions;
         $this->types = $types;
         $this->result_types = $result_types;
         $this->statement = $statement;
-        $this->mdb->loadModule('datatype');
+        $this->db->loadModule('datatype');
     }
 
-    function MDB2_Statement_Common(&$mdb, $query, $positions, $types, $result_types, $statement = null)
+    function MDB2_Statement_Common(&$db, $query, $positions, $types, $result_types, $statement = null)
     {
-        $this->__construct($mdb, $query, $positions, $types, $result_types, $statement);
+        $this->__construct($db, $query, $positions, $types, $result_types, $statement);
     }
 
     // }}}
@@ -2897,7 +2897,7 @@ class MDB2_Statement_Common
                         $value = @fread($value);
                     }
                 }
-                $value_quoted = $this->mdb->quote($value, $type);
+                $value_quoted = $this->db->quote($value, $type);
                 if (MDB2::isError($value_quoted)) {
                     return $value_quoted;
                 }
@@ -2908,9 +2908,9 @@ class MDB2_Statement_Common
         }
         $query .= substr($this->query, $last_position);
 
-        $this->mdb->row_offset = $this->row_offset;
-        $this->mdb->row_limit = $this->row_limit;
-        $result =& $this->mdb->query($query, $this->result_types, $result_class, $result_wrap_class);
+        $this->db->row_offset = $this->row_offset;
+        $this->db->row_limit = $this->row_limit;
+        $result =& $this->db->query($query, $this->result_types, $result_class, $result_wrap_class);
         return $result;
     }
 
@@ -2930,13 +2930,13 @@ class MDB2_Statement_Common
         $success =& $this->_executePrepared($result_class, $result_wrap_class);
 
         foreach ($this->clobs as $key => $value) {
-             $this->mdb->datatype->destroyLOB($key);
-             $this->mdb->datatype->freeCLOBValue($key, $value);
+             $this->db->datatype->destroyLOB($key);
+             $this->db->datatype->freeCLOBValue($key, $value);
         }
         unset($this->clobs);
         foreach ($this->blobs as $key => $value) {
-             $this->mdb->datatype->destroyLOB($key);
-             $this->mdb->datatype->freeBLOBValue($key, $value);
+             $this->db->datatype->destroyLOB($key);
+             $this->db->datatype->freeBLOBValue($key, $value);
         }
         unset($this->blobs);
         return $success;

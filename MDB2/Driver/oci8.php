@@ -630,7 +630,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
-            $fetchmode = $this->mdb->fetchmode;
+            $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_skipLimitOffset()) {
             return null;
@@ -638,7 +638,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             @OCIFetchInto($this->result, $row, OCI_ASSOC+OCI_RETURN_NULLS);
             if (is_array($row)
-                && $this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && $this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE
             ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
@@ -647,19 +647,19 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         if (!$row) {
             if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
             return null;
         }
         if (isset($this->types)) {
-            $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+            $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->mdb->_rtrimArrayValues($row);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            $this->db->_rtrimArrayValues($row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $object_class = $this->mdb->options['fetch_class'];
+            $object_class = $this->db->options['fetch_class'];
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {
@@ -695,7 +695,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             $column_name = @OCIColumnName($this->result, $column + 1);
             $columns[$column_name] = $column;
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $columns = array_change_key_case($columns, CASE_LOWER);
         }
         return $columns;
@@ -716,10 +716,10 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         $cols = @OCINumCols($this->result);
         if (is_null($cols)) {
             if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numCols: resultset has already been freed');
             }
-            return $this->mdb->raiseError();
+            return $this->db->raiseError();
         }
         return $cols;
     }
@@ -740,7 +740,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             if (is_null($this->result)) {
                 return MDB2_OK;
             }
-            return $this->mdb->raiseError();
+            return $this->db->raiseError();
         }
         $this->result = null;
         return MDB2_OK;
@@ -811,12 +811,12 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if (is_null($this->result)) {
-            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'fetchRow: resultset has already been freed');
         }
         $target_rownum = $this->rownum + 1;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
-            $fetchmode = $this->mdb->fetchmode;
+            $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_fillBuffer($target_rownum)) {
             return null;
@@ -830,13 +830,13 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             $row = $column_names;
         }
         if (isset($this->types)) {
-            $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+            $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->mdb->_rtrimArrayValues($row);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            $this->db->_rtrimArrayValues($row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $object_class = $this->mdb->options['fetch_class'];
+            $object_class = $this->db->options['fetch_class'];
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {
@@ -860,7 +860,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     function seek($rownum = 0)
     {
         if (is_null($this->result)) {
-            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'seek: resultset has already been freed');
         }
         $this->rownum = $rownum - 1;
@@ -879,7 +879,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     function valid()
     {
         if (is_null($this->result)) {
-            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'valid: resultset has already been freed');
         }
         if ($this->_fillBuffer($this->rownum + 1)) {
@@ -900,7 +900,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     function numRows()
     {
         if (is_null($this->result)) {
-            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'seek: resultset has already been freed');
         }
         $this->_fillBuffer();
@@ -941,17 +941,17 @@ class MDB2_Statement_oci8 extends MDB2_Statement
     function &_executePrepared($result_class = false, $result_wrap_class = false)
     {
         $ismanip = MDB2::isManip($query);
-        $query = $this->mdb->_modifyQuery($this->query);
-        $this->mdb->last_query = $query;
-        $this->mdb->debug($query, 'query');
-        if ($this->mdb->getOption('disable_query')) {
+        $query = $this->db->_modifyQuery($this->query);
+        $this->db->last_query = $query;
+        $this->db->debug($query, 'query');
+        if ($this->db->getOption('disable_query')) {
             if ($ismanip) {
                 return MDB2_OK;
             }
             return null;
         }
 
-        $connected = $this->mdb->connect();
+        $connected = $this->db->connect();
         if (MDB2::isError($connected)) {
             return $connected;
         }
@@ -969,9 +969,9 @@ class MDB2_Statement_oci8 extends MDB2_Statement
                     // create stream
                 }
                 $type = $lob_type;
-                $descriptors[$parameter] = @OCINewDescriptor($this->mdb->connection, OCI_D_LOB);
+                $descriptors[$parameter] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
                 if (!is_object($descriptors[$parameter])) {
-                    $success =  $this->mdb->raiseError();
+                    $success =  $this->db->raiseError();
                     break;
                 }
             }
@@ -982,12 +982,12 @@ class MDB2_Statement_oci8 extends MDB2_Statement
             if (isset($lob_type)) {
                 $lobs[$parameter] = $value;
                 if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1, ($lob_type == 'lob' ? OCI_B_CLOB : OCI_B_BLOB))) {
-                    $success =  $this->mdb->raiseError();
+                    $success =  $this->db->raiseError();
                     break;
                 }
             } else {
                 if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1))) {
-                    $success =  $this->mdb->raiseError();
+                    $success =  $this->db->raiseError();
                     break;
                 }
             }
@@ -996,7 +996,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement
         $mode = ($lobs == 0 && $this->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
         $result = @OCIExecute($statement, $mode);
         if (!$result) {
-            $error =& $this->mdb->raiseError();
+            $error =& $this->db->raiseError();
             return $error;
         }
 
@@ -1004,7 +1004,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement
             foreach ($lobs as $parameter => $stream) {
                 while (($data = @fread($stream, $this->getOption('lob_buffer_length')))) {
                     if (!$descriptors[$parameter]->write($data, $this->getOption('lob_buffer_length'))) {
-                        $success = $this->mdb->raiseError();
+                        $success = $this->db->raiseError();
                         break(2);
                     }
                 }
@@ -1013,16 +1013,16 @@ class MDB2_Statement_oci8 extends MDB2_Statement
             if (!MDB2::isError($success)) {
                 if ($this->auto_commit) {
                     if (MDB2::isError($success)) {
-                        if (!OCIRollback($this->mdb->connection)) {
-                            $success = $this->mdb->raiseError();
+                        if (!OCIRollback($this->db->connection)) {
+                            $success = $this->db->raiseError();
                         }
                     } else {
-                        if (!OCICommit($this->mdb->connection)) {
-                            $success = $this->mdb->raiseError();
+                        if (!OCICommit($this->db->connection)) {
+                            $success = $this->db->raiseError();
                         }
                     }
                 } else {
-                    ++$this->mdb->uncommitedqueries;
+                    ++$this->db->uncommitedqueries;
                 }
             }
         }
@@ -1037,10 +1037,10 @@ class MDB2_Statement_oci8 extends MDB2_Statement
         }
 
         if ($ismanip) {
-            $this->mdb->affected_rows = @OCIRowCount($statement);
+            $this->db->affected_rows = @OCIRowCount($statement);
         }
 
-        $result_obj =& $this->mdb->_wrapResult($result, $ismanip, $this->types,
+        $result_obj =& $this->db->_wrapResult($result, $ismanip, $this->types,
             $result_class, $result_wrap_class, $this->row_offset, $lthis->row_imit);
         return $result_obj;
     }
