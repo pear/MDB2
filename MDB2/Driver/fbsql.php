@@ -392,7 +392,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
-                $this->loadModule('manager');
+                $this->loadModule('Manager');
                 // Since we are creating the sequence on demand
                 // we know the first id = 1 so initialize the
                 // sequence at 2
@@ -431,7 +431,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function getAfterID($id, $table)
     {
-        $this->loadModule('native');
+        $this->loadModule('Native');
         return $this->native->getInsertID();
     }
 

@@ -1439,17 +1439,16 @@ class MDB2_Driver_Common extends PEAR
      */
     function &loadModule($module, $property = null)
     {
-        $module = strtolower($module);
         if (!$property) {
-            $property = $module;
+            $property = strtolower($module);
         }
 
         if (!isset($this->{$property})) {
             $version = false;
-            $class_name = 'MDB2_'.ucfirst($module);
+            $class_name = 'MDB2_'.$module;
             $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
             if (!class_exists($class_name) && !MDB2::fileExists($file_name)) {
-                $class_name = 'MDB2_Driver_'.ucfirst($module).'_'.$this->phptype;
+                $class_name = 'MDB2_Driver_'.$module.'_'.$this->phptype;
                 $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
                 $version = true;
                 if (!class_exists($class_name) && !MDB2::fileExists($file_name)) {
@@ -2115,7 +2114,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function quote($value, $type = null)
     {
-        $result = $this->loadModule('datatype');
+        $result = $this->loadModule('Datatype');
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -2138,7 +2137,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function getDeclaration($type, $name, $field)
     {
-        $result = $this->loadModule('datatype');
+        $result = $this->loadModule('Datatype');
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -2439,7 +2438,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function setResultTypes($types)
     {
-        $load = $this->db->loadModule('datatype');
+        $load = $this->db->loadModule('Datatype');
         if (MDB2::isError($load)) {
             return $load;
         }
@@ -2764,7 +2763,7 @@ class MDB2_Statement_Common
         $this->query = $query;
         $this->types = $types;
         $this->result_types = $result_types;
-        $this->db->loadModule('datatype');
+        $this->db->loadModule('Datatype');
     }
 
     function MDB2_Statement_Common(&$db, &$statement, $query, $types, $result_types)

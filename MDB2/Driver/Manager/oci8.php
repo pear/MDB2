@@ -279,7 +279,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                     $change_default = true;
                 }
                 if ($change_type) {
-                    $db->loadModule('datatype');
+                    $db->loadModule('Datatype');
                     $change .= ' '.$db->datatype->getTypeDeclaration($field['definition']);
                 }
                 if ($change_default) {

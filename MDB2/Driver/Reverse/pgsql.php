@@ -244,7 +244,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
 
-        $db->loadModule('manager');
+        $db->loadModule('Manager');
         $columns = $db->manager->listTableFields($table);
 
         $definition = array();

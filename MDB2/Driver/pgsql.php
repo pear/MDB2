@@ -469,7 +469,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
-                $this->loadModule('manager');
+                $this->loadModule('Manager');
                 $result = $this->manager->createSequence($seq_name, 1);
                 if (MDB2::isError($result)) {
                     return $this->raiseError(MDB2_ERROR, null, null,

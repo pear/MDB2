@@ -605,7 +605,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $this->db->loadModule('manager');
+        $this->db->loadModule('Manager');
 
         for ($start_value = 1; $start_value < 4; $start_value++) {
             $sequence_name = "test_sequence_$start_value";

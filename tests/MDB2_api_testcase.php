@@ -147,7 +147,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
         if (!$this->methodExists($this->db, 'loadModule')) {
             return;
         }
-        $this->assertTrue(!MDB2::isError($this->db->loadModule('manager')));
+        $this->assertTrue(!MDB2::isError($this->db->loadModule('Manager')));
     }
 
     // test of the driver
