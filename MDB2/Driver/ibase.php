@@ -951,8 +951,8 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
     {
         $isManip = MDB2::isManip($this->query);
         $query = $this->db->_modifyQuery($this->query);
-        $this->db->last_query = $this->query;
-        $this->db->debug($this->query, 'query');
+        $this->db->last_query = $query;
+        $this->db->debug($query, 'query');
         if ($this->db->getOption('disable_query')) {
             if ($isManip) {
                 return MDB2_OK;
@@ -971,7 +971,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         $this->db->row_offset = $this->row_offset;
         $this->db->row_limit  = $this->row_limit;
 
-        array_unshift($parameters, ibase_prepare($connection, $this->query));
+        array_unshift($parameters, ibase_prepare($connection, $query));
         $result = call_user_func_array('ibase_execute', $parameters);
 
         if ($result === false) {
