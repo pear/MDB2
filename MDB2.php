@@ -2562,13 +2562,12 @@ class MDB2_Result_Common extends MDB2_Result
         }
 
         $shift_array = $rekey ? false : null;
-        if (is_null($shift_array)) {
+        if (!is_null($shift_array)) {
             if(is_object($row)) {
                 $colnum = count(get_object_vars($row));
             } else {
                 $colnum = count($row);
             }
-
             if ($colnum < 2) {
                 return $this->db->raiseError(MDB2_ERROR_TRUNCATED);
             }
