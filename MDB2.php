@@ -215,7 +215,7 @@ class MDB2
         } else {
             @include_once $include;
             if (!class_exists($class_name)) {
-                $error =& MDB2_Common::raiseError(MDB2_ERROR_NOT_FOUND,
+                $error =& MDB2_Driver_Common::raiseError(MDB2_ERROR_NOT_FOUND,
                     null, null, 'Unable to include the '.$include.' file');
                 return $error;
             }
@@ -258,7 +258,7 @@ class MDB2
     {
         $dsninfo = MDB2::parseDSN($dsn);
         if (!isset($dsninfo['phptype'])) {
-            $error =& MDB2_Common::raiseError(MDB2_ERROR_NOT_FOUND,
+            $error =& MDB2_Driver_Common::raiseError(MDB2_ERROR_NOT_FOUND,
                 null, null, 'no RDBMS driver specified');
             return $error;
         }
@@ -2551,13 +2551,12 @@ class MDB2_Result_Common
         $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
         $row = $this->fetchRow($fetchmode);
         if (is_array($row)) {
-            if (isset($row[$colnum])) {
-                do {
-                    $column[] = $row[$colnum];
-                } while (is_array($row = $this->fetchRow($fetchmode)));
-            } else {
-                return $this->mdb->raiseError(MDB2_ERROR_TRUNCATED);
+            if (!array_key_exists($colnum, $row)) {
+                return($this->raiseError(MDB2_ERROR_TRUNCATED));
             }
+            do {
+                $column[] = $row[$colnum];
+            } while (is_array($row = $this->fetchRow($fetchmode)));
         }
 
         if (MDB2::isError($row)) {
