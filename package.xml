@@ -70,10 +70,13 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta2</version>
-    <date>2004-04-09</date>
+    <date>2004-04-17</date>
     <license>BSD License</license>
     <state>beta</state>
-    <notes>- added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
+    <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
+manager and reverse module, might see some API refinement before the first
+stable release.
+- added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
   and MDB2_Driver_Manager_oci8
 - reversed parameter order of getValue(), type parameter is now optional and
   will then be autodetected (BC break!)
@@ -221,10 +224,13 @@ Other soon to follow.</description>
   <changelog>
     <release>
       <version>2.0.0beta2</version>
-      <date>2004-04-09</date>
+      <date>2004-04-17</date>
       <license>BSD License</license>
       <state>beta</state>
-      <notes>- added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
+      <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
+manager and reverse module, might see some API refinement before the first
+stable release.
+- added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
   and MDB2_Driver_Manager_oci8
 - reversed parameter order of getValue(), type parameter is now optional and
   will then be autodetected (BC break!)

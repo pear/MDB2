@@ -4,6 +4,9 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '2.0.0beta2';
 $notes = <<<EOT
+The core of MDB2 is not fairly stable API-wise. The modules, especially the
+manager and reverse module, might see some API refinement before the first
+stable release.
 - added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
   and MDB2_Driver_Manager_oci8
 - reversed parameter order of getValue(), type parameter is now optional and
