@@ -125,6 +125,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
          */
         // if $result is a string, we collect info for a table only
         if (is_string($result)) {
+            if (MDB::isError($connect = $db->connect())) {
+                return($connect);
+            }
             $result = strtoupper($result);
             $q_fields = "SELECT column_name, data_type, data_length, data_precision,
                      nullable, data_default FROM user_tab_columns
@@ -150,7 +153,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 }
                 $count++;
             }
-            $res['num_fields'] = $count;
+            if ($mode) {
+                $res['num_fields'] = $count;
+            }
             @OCIFreeStatement($stmt);
         } else { // else we want information about a resultset
             #if ($result === $db->last_stmt) {
@@ -184,7 +189,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                         $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
                     }
                 }
-                $res['num_fields'] = $count;
+                if ($mode) {
+                    $res['num_fields'] = $count;
+                }
             #} else {
             #    return $db->raiseError(MDB2_ERROR_NOT_CAPABLE);
             #}

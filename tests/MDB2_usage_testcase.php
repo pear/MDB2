@@ -555,6 +555,28 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         if (MDB2::isError($result)) {
             $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
         }
+
+        // Test currId()
+        $sequence_name = 'test_currid';
+
+        $next = $this->db->nextId($sequence_name);
+        $curr = $this->db->currId($sequence_name);
+
+        if (MDB2::isError($curr)) {
+            $this->assertTrue(false, "Error getting the current value of sequence $sequence_name : ".$curr->getMessage());
+        } else {
+            if ($next != $curr) {
+                if ($next+1 == $curr) {
+                    $this->assertTrue(false, "Warning: currId() is using nextId() instead of a native implementation");
+                } else {
+                    $this->assertEquals($next, $curr, "return value if currId() does not match the previous call to nextId()");
+                }
+            }
+        }
+        $result = $this->db->manager->dropSequence($sequence_name);
+        if (MDB2::isError($result)) {
+            $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
+        }
     }
 
 

@@ -692,29 +692,24 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             return null;
         }
 
+        $target_rownum = $this->rownum + 1;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
-        if (!$this->_skipLimitOffset()) {
-            return null;
-        }
-        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            $row = @ibase_fetch_assoc($this->result);
-            if (is_array($row) && $this->mdb->options['optimize'] == 'portability') {
-                $row = array_change_key_case($row, CASE_LOWER);
-            }
-        } else {
-            $row = @ibase_fetch_row($this->result);
-        }
-        if (!$row) {
+        if (!$this->_fillBuffer($target_rownum)) {
             if (is_null($this->result)) {
                 return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
             return null;
         }
-        foreach ($row as $key => $value_with_space) {
-            $row[$key] = rtrim($value_with_space, ' ');
+        $row = $this->buffer[$target_rownum];
+        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
+            $column_names = $this->getColumnNames();
+            foreach($column_names as $name => $i) {
+                $column_names[$name] = $row[$i];
+            }
+            $row = $column_names;
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
@@ -852,7 +847,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             return false;
         }
 
-        $buffer = true;
+        $row = true;
         while ((is_null($rownum) || $this->buffer_rownum < $rownum)
             && (!isset($this->limits) || ($this->buffer_rownum + 1) < $this->limits['limit'])
             && ($buffer = @ibase_fetch_assoc($this->result))

@@ -176,6 +176,47 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
 
     /**
+     * http://pear.php.net/bugs/bug.php?id=670
+     */
+    function testBug670() {
+        $data['user_name'] = null;
+        $data['user_password'] = 'somepassword';
+        $data['subscribed'] = true;
+        $data['user_id'] = 1;
+        $data['quota'] = sprintf("%.2f",strval(3/100));
+        $data['weight'] = sqrt(1);
+        $data['access_date'] = MDB2_Date::mdbToday();
+        $data['access_time'] = MDB2_Date::mdbTime();
+        $data['approved'] = MDB2_Date::mdbNow();
+
+        $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $this->insertTestValues($prepared_query, $data);
+        $result = $this->db->execute($prepared_query);
+
+        $result = $this->db->query('SELECT user_name FROM users');
+        $col = $result->fetchCol('user_name');
+        if (MDB2::isError($col)) {
+            $this->assertTrue(false, "Error when fetching column first first row as NULL: ".$col->getMessage());
+        }
+
+        $data['user_name'] = "user_1";
+        $data['user_id'] = 2;
+
+        $this->insertTestValues($prepared_query, $data);
+        $result = $this->db->execute($prepared_query);
+
+        $result = $this->db->query('SELECT user_name FROM users');
+        $col = $result->fetchCol('user_name');
+        if (MDB2::isError($col)) {
+            $this->assertTrue(false, "Error when fetching column: ".$col->getMessage());
+        }
+
+        $data['user_name'] = null;
+
+        $this->db->freePrepared($prepared_query);
+    }
+
+    /**
      * http://pear.php.net/bugs/bug.php?id=681
      */
     function testBug681() {
@@ -183,6 +224,50 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $numrows = $result->numRows();
         $this->assertEquals(0, $numrows, "Numrows is not returning 0 for empty result sets");
+
+        $data['user_name'] = "user_1";
+        $data['user_password'] = 'somepassword';
+        $data['subscribed'] = true;
+        $data['user_id'] = 1;
+        $data['quota'] = sprintf("%.2f",strval(3/100));
+        $data['weight'] = sqrt(1);
+        $data['access_date'] = MDB2_Date::mdbToday();
+        $data['access_time'] = MDB2_Date::mdbTime();
+        $data['approved'] = MDB2_Date::mdbNow();
+
+        $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $this->insertTestValues($prepared_query, $data);
+        $result = $this->db->execute($prepared_query);
+
+        $result = $this->db->query('SELECT * FROM users');
+        $numrows = $result->numRows();
+        $this->assertEquals(1, $numrows, "Numrows is not returning proper value");
+
+        $this->db->freePrepared($prepared_query);
+    }
+
+    /**
+     * http://pear.php.net/bugs/bug.php?id=718
+     */
+    function testBug718() {
+        $data['user_name'] = "user_1";
+        $data['user_password'] = 'somepassword';
+        $data['subscribed'] = true;
+        $data['user_id'] = 1;
+        $data['quota'] = sprintf("%.2f",strval(3/100));
+        $data['weight'] = sqrt(1);
+        $data['access_date'] = MDB2_Date::mdbToday();
+        $data['access_time'] = MDB2_Date::mdbTime();
+        $data['approved'] = MDB2_Date::mdbNow();
+
+        $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $this->insertTestValues($prepared_query, $data);
+        $result = $this->db->execute($prepared_query);
+
+        $row = $this->db->queryRow('SELECT a.user_id, b.user_id FROM users a, users b where a.user_id = b.user_id', array('integer', 'integer'), MDB2_FETCHMODE_ORDERED);
+        $this->assertEquals(2, count($row), "Columns with the same name get overwritten in ordered mode");
+
+        $this->db->freePrepared($prepared_query);
     }
 }
 

@@ -655,20 +655,30 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('manager');
-                // Since we are creating the sequence on demand
-                // we know the first id = 1 so initialize the
-                // sequence at 2
-                $result = $this->manager->createSequence($seq_name, 2);
+                $result = $this->manager->createSequence($seq_name, 1);
                 if (MDB2::isError($result)) {
-                    return $this->raiseError(MDB2_ERROR, null, null,
-                        'nextID: on demand sequence could not be created');
-                } else {
-                    // First ID of a newly created sequence is 1
-                    return 1;
+                    return $result;
                 }
+                return $this->nextId($seq_name, false);
             }
         }
         return $result;
+    }
+
+    // }}}
+    // {{{ currId()
+
+    /**
+     * returns the current id of a sequence
+     *
+     * @param string $seq_name name of the sequence
+     * @return mixed MDB2_Error or id
+     * @access public
+     */
+    function currId($seq_name)
+    {
+        $sequence_name = $this->getSequenceName($seq_name);
+        return $this->queryOne("SELECT $sequence_name.currval FROM DUAL");
     }
 }
 
@@ -728,29 +738,25 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     * fetch value from a result set
     *
     * @param int    $rownum    number of the row where the data can be found
-    * @param int    $field    field number where the data can be found
+    * @param int    $colnum    field number where the data can be found
     * @return mixed string on success, a MDB2 error on failure
     * @access public
     */
-    function fetch($rownum = 0, $field = 0)
+    function fetch($rownum = 0, $colnum = 0)
     {
         $seek = $this->seek($rownum);
         if (MDB2::isError($seek)) {
             return $seek;
         }
-        if (is_numeric($field)) {
-            $row = $this->fetchRow(MDB2_FETCHMODE_ORDERED);
-        } else {
-            $field = strtolower($field);
-            $row = $this->fetchRow(MDB2_FETCHMODE_ASSOC);
-        }
+        $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
+        $row = $this->fetchRow($fetchmode);
         if (MDB2::isError($row)) {
-            return $row;
+            return($row);
         }
-        if (!isset($row[$field])) {
-            return null;
+        if (!array_key_exists($colnum, $row)) {
+            return(NULL);
         }
-        return $row[$field];
+        return($row[$colnum]);
     }
 
     // }}}
@@ -772,7 +778,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             return null;
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            @OCIFetchInto($this->result, $row, OCI_ASSOC+OCI_RETURN_NULLS);
+            @OCIFetchInto($this->result, $row, OCI_RETURN_NULLS);
             if (is_array($row) && $this->mdb->options['optimize'] == 'portability') {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
@@ -916,7 +922,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
         $row = true;
         while ((is_null($rownum) || $this->buffer_rownum < $rownum)
             && (!isset($this->limits) || ($this->buffer_rownum + 1) < $this->limits['limit'])
-            && ($row = @OCIFetchInto($this->result, $buffer, OCI_ASSOC+OCI_RETURN_NULLS))
+            && ($row = @OCIFetchInto($this->result, $buffer, OCI_RETURN_NULLS))
         ) {
             $this->buffer_rownum++;
             $this->buffer[$this->buffer_rownum] = $buffer;
@@ -955,11 +961,11 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
         }
         $row = $this->buffer[$target_rownum];
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            if ($this->mdb->options['optimize'] == 'portability') {
-                $row = array_change_key_case($row, CASE_LOWER);
+            $column_names = $this->getColumnNames();
+            foreach($column_names as $name => $i) {
+                $column_names[$name] = $row[$i];
             }
-        } else {
-            $row = array_values($row);
+            $row = $column_names;
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);

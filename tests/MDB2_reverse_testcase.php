@@ -125,9 +125,6 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
         if (!$this->methodExists($this->db->reverse, 'tableInfo')) {
             return;
         }
-        if (MDB2::isError($connect = $this->db->connect())) {
-            $this->assertTrue(false, 'Cannot connect to the db'.$connect->getMessage());
-        }
 
         $table_info = $this->db->reverse->tableInfo('users');
         if (MDB2::isError($table_info)) {
