@@ -2057,7 +2057,7 @@ class MDB2_Driver_Common extends PEAR
             }
         }
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        return new $class_name($this, $query, $positions, $types, $result_types);
+        return new $class_name($this, $positions, $query, $types, $result_types);
     }
 
     // }}}
@@ -2773,8 +2773,8 @@ class MDB2_Row
 class MDB2_Statement_Common
 {
     var $db;
+    var $statement;
     var $query;
-    var $positions;
     var $result_types;
     var $row_offset;
     var $row_limit;
@@ -2786,20 +2786,19 @@ class MDB2_Statement_Common
     /**
      * Constructor
      */
-    function __construct(&$db, $query, $positions, $types, $result_types, $statement = null)
+    function __construct(&$db, &$statement, $query, $types, $result_types)
     {
         $this->db =& $db;
+        $this->statement = $statement;
         $this->query = $query;
-        $this->positions = $positions;
         $this->types = $types;
         $this->result_types = $result_types;
-        $this->statement = $statement;
         $this->db->loadModule('datatype');
     }
 
-    function MDB2_Statement_Common(&$db, $query, $positions, $types, $result_types, $statement = null)
+    function MDB2_Statement_Common(&$db, &$statement, $query, $types, $result_types)
     {
-        $this->__construct($db, $query, $positions, $types, $result_types, $statement);
+        $this->__construct($db, &$statement, $query, $types, $result_types);
     }
 
     // }}}
@@ -2864,7 +2863,7 @@ class MDB2_Statement_Common
         $query = '';
         $last_position = $parameter_num = 0;
         foreach ($this->values as $parameter => $value) {
-            $current_position = $this->positions[$parameter_num];
+            $current_position = $this->statement[$parameter_num];
             $query .= substr($this->query,
                 $last_position, $current_position - $last_position);
             if (!isset($value)) {
