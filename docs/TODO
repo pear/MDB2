@@ -6,6 +6,7 @@
 - add named parameters (thereby also streamlining LOB support)
 - clean up manager and reverse module
 - more tests with php5 (explore usage of interceptors for modules)
+- fix up tutorial
 
 near future:
 - add call to EXPLAIN method to the default debug output handler
