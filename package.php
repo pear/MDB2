@@ -4,7 +4,6 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '2.0.0beta3';
 $notes = <<<EOT
-- affectedRows() now ensures that the last query was a manipulation query
 - allowing limits of 0 in setLimit()
 - setParamsArray() can now handle non ordered arrays
 - performance tweak in fetchCol()
@@ -22,8 +21,6 @@ $notes = <<<EOT
 - removed requirement for LOB inserts to pass the parameters as an array
 - placeholders are now numbered starting from 0 (BC break in setParam() !)
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
-- for PHP versions lower than 4 the transaction shutdown function is registered
-  on load of MDB2.php (used to be a BC hack in the constructor of MDB2_Driver_Common)
 - allow errorInfo() to be called when no connection has been established yet
 - cleaned up constructor handling
 - updated raiseError method in the Manager to be compatible with
@@ -37,12 +34,11 @@ $notes = <<<EOT
 - several typo fixes and minor logic errors (among others a fix for bug #2057)
 - added MDB2_Driver_Common::getDatabase();
 - added default implementation for quoteCLOB() and quoteBLOB()
-- moved prepare/execute API towards PDO (mysql and sqlite tested only)
+- moved prepare/execute API towards PDO (mysql, sqlite and pgsql tested only)
 - use MDB2_ERROR_UNSUPPORTED instead of MDB2_ERROR_NOT_CAPABLE in common implementations
 - reworked quote handling: moved all implementation details into the extension,
   made all quote methods private except for quote() itself, honor portability
   MDB2_PORTABILITY_EMPTY_TO_NULL in quote(), removed MDB2_TYPE_* constants
-- added serialize datatype but commented it out for now
 - reworked get*Declaration handling: moved all implementation details into the extension,
   made all quote methods private except for quote() itself
 - ensure we are returning a reference in all relevant places
@@ -71,7 +67,6 @@ $notes = <<<EOT
 - added rownum handling to fetchRow()
 - MDB2::isError now also optionally accepts and error code to check for
 - readded MDB2_Error as the baseclass for all MDB2 error objects
-- use PEAR destructor emulation to handle open transaction at script end in PHP4
 - lazy load PEAR destructor emulation
 - allow null values to be set for options
 - added emulate_database option (default true) to the Oracle driver that handles
