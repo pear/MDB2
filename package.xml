@@ -73,11 +73,7 @@ Other soon to follow.</description>
     <date>2004-03-01</date>
     <license>BSD License</license>
     <state>alpha</state>
-    <notes>Please note that currently only the SQLite, the MySQL, the PostGreSQL, the Oracle
-and the Firebird/Interbase driver have been tested to pass the test suite.
-Look at the STATUS document for details.
-
-- fixed bug in MDB2::singleton
+    <notes>- fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
 - added PEAR::DB wrapper
 - fixed several bugs in the ibase driver
@@ -90,7 +86,8 @@ Look at the STATUS document for details.
 - using native escape string methods in sqlite and mysql driver
 - fixed minor conformance issues in tableInfo() in the oci8 and mysql driver
 - removed optimize option and added portability option instead (ported from DB)
-- added quoteIdentifier method (ported from DB)</notes>
+- added quoteIdentifier() method (ported from DB)
+- added STATUS document to make the status of the drivers more transparent</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -216,11 +213,7 @@ Look at the STATUS document for details.
       <date>2004-03-01</date>
       <license>BSD License</license>
       <state>alpha</state>
-      <notes>Please note that currently only the SQLite, the MySQL, the PostGreSQL, the Oracle
-and the Firebird/Interbase driver have been tested to pass the test suite.
-Look at the STATUS document for details.
-
-- fixed bug in MDB2::singleton
+      <notes>- fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
 - added PEAR::DB wrapper
 - fixed several bugs in the ibase driver
@@ -233,7 +226,8 @@ Look at the STATUS document for details.
 - using native escape string methods in sqlite and mysql driver
 - fixed minor conformance issues in tableInfo() in the oci8 and mysql driver
 - removed optimize option and added portability option instead (ported from DB)
-- added quoteIdentifier method (ported from DB)</notes>
+- added quoteIdentifier() method (ported from DB)
+- added STATUS document to make the status of the drivers more transparent</notes>
     </release>
     <release>
       <version>2.0.0alpha1</version>

@@ -4,10 +4,6 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '2.0.0alpha2';
 $notes = <<<EOT
-Please note that currently only the SQLite, the MySQL, the PostGreSQL, the Oracle
-and the Firebird/Interbase driver have been tested to pass the test suite.
-Look at the STATUS document for details.
-
 - fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
 - added PEAR::DB wrapper
@@ -21,7 +17,8 @@ Look at the STATUS document for details.
 - using native escape string methods in sqlite and mysql driver
 - fixed minor conformance issues in tableInfo() in the oci8 and mysql driver
 - removed optimize option and added portability option instead (ported from DB)
-- added quoteIdentifier method (ported from DB)
+- added quoteIdentifier() method (ported from DB)
+- added STATUS document to make the status of the drivers more transparent
 EOT;
 
 $description =<<<EOT
