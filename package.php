@@ -78,7 +78,7 @@ $result = $package->setOptions(array(
     'changelogoldtonew' => false,
     'simpleoutput'      => true,
     'baseinstalldir'    => '/',
-    'packagedirectory'  => '',
+    'packagedirectory'  => './',
     'dir_roles'         => array('docs' => 'doc',
                                  'examples' => 'doc',
                                  'tests' => 'test',
@@ -99,10 +99,10 @@ $package->addDependency('php', '4.2.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
 $package->addDependency('XML_Parser', true, 'has', 'pkg', false);
 
-if (isset($_GET['make']) || (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] == 'make')) {
-    $e = $package->writePackageFile();
+if (isset($_GET['make']) || (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'make')) {
+    $result = $package->writePackageFile();
 } else {
-    $e = $package->debugPackageFile();
+    $result = $package->debugPackageFile();
 }
 
 if (PEAR::isError($result)) {
