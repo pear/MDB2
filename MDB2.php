@@ -1187,7 +1187,7 @@ class MDB2_Driver_Common extends PEAR
     function debug($message, $scope = '')
     {
         if ($this->options['debug'] && $this->options['debug_handler']) {
-            call_user_func($this->options['debug_handler'], $this, $scope, $message);
+            call_user_func_array($this->options['debug_handler'], array(&$this, $scope, $message));
         }
     }
 
