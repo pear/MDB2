@@ -362,22 +362,6 @@ class MDB2_xxx extends MDB2_Driver_Common
 class MDB2_Result_xxx extends MDB2_Result_Common
 {
     // }}}
-    // {{{ fetch()
-
-    /**
-    * fetch value from a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @param int    $field    field number where the data can be found
-    * @return mixed string on success, a MDB2 error on failure
-    * @access public
-    */
-    function fetch($rownum = 0, $field = 0)
-    {
-        // take this from the corresponding Metabase driver: FetchResult()
-    }
-
-    // }}}
     // {{{ fetchRow()
 
     /**
@@ -431,23 +415,6 @@ class MDB2_Result_xxx extends MDB2_Result_Common
     function numCols()
     {
         // take this from the corresponding Metabase driver: NumberOfColumns()
-    }
-
-    // }}}
-    // {{{ resultIsNull()
-
-    /**
-     * Determine whether the value of a query result located in given row and
-     *    field is a null.
-     *
-     * @param int $rownum number of the row where the data can be found
-     * @param int $field field number where the data can be found
-     * @return mixed true or false on success, a MDB2 error on failure
-     * @access public
-     */
-    function resultIsNull($rownum, $field)
-    {
-        // take this from the corresponding Metabase driver: ResultIsNull()
     }
 
     // }}}
