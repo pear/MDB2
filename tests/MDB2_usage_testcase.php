@@ -706,8 +706,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $result = $this->db->execute($prepared_query);
 
             $affected_rows = $this->db->affectedRows();
-
-            $this->assertEquals($affected_rows, 1, "Inserting the row $row returned $affected_rows affected row count instead of 1 as expected");
+            if (MDB2::isError($affected_rows)) {
+                $this->assertTrue(false, 'Error in affectedRows(): '.$affected_rows->getMessage());
+            } else {
+                $this->assertEquals($affected_rows, 1, "Inserting the row $row returned $affected_rows affected row count instead of 1 as expected");
+            }
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -729,9 +732,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             }
 
             $affected_rows = $this->db->affectedRows();
-
-            $this->assertEquals($affected_rows, $row, "Updating the $row rows returned $affected_rows affected row count");
-
+            if (MDB2::isError($affected_rows)) {
+                $this->assertTrue(false, 'Error in affectedRows(): '.$affected_rows->getMessage());
+            } else {
+                $this->assertEquals($affected_rows, $row, "Updating the $row rows returned $affected_rows affected row count");
+            }
         }
 
         $this->db->freePrepared($prepared_query);
@@ -749,7 +754,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $affected_rows = $this->db->affectedRows();
 
-            $this->assertEquals($affected_rows, ($total_rows - $row), 'Deleting '.($total_rows - $row)." rows returned $affected_rows affected row count");
+            if (MDB2::isError($affected_rows)) {
+                $this->assertTrue(false, 'Error in affectedRows(): '.$affected_rows->getMessage());
+            } else {
+                $this->assertEquals($affected_rows, ($total_rows - $row), 'Deleting '.($total_rows - $row)." rows returned $affected_rows affected row count");
+            }
 
         }
 
