@@ -732,11 +732,11 @@ class MDB2_Result_mysql extends MDB2_Result_Common
             }
             return null;
         }
-        if (isset($this->types)) {
-            $row = $this->db->datatype->convertResultRow($this->types, $row);
-        }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->db->_convertEmptyArrayValuesToNull($row);
+        }
+        if (isset($this->types)) {
+            $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
             $object_class = $this->db->options['fetch_class'];
