@@ -526,17 +526,12 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('manager');
-                // Since we are creating the sequence on demand
-                // we know the first id = 1 so initialize the
-                // sequence at 2
-                $result = $this->manager->createSequence($seq_name, 2);
+                $result = $this->manager->createSequence($seq_name, 1);
                 if (MDB2::isError($result)) {
                     return $this->raiseError(MDB2_ERROR, null, null,
                         'nextID: on demand sequence could not be created');
-                } else {
-                    // First ID of a newly created sequence is 1
-                    return 1;
                 }
+                return $this->nextId($seq_name, false);
             }
         }
         return $result;
