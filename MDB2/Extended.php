@@ -165,12 +165,12 @@ class MDB2_Extended
         }
         switch ($mode) {
         case MDB2_AUTOQUERY_INSERT:
-            $cols = implode(', ', array_keys($table_fields));
+            $cols = implode(', ', $table_fields);
             $values = '?'.str_repeat(', ?', count($table_fields)-1);
             return 'INSERT INTO '.$table.' ('.$cols.') VALUES ('.$values.')';
             break;
         case MDB2_AUTOQUERY_UPDATE:
-            $set = implode(' = ?, ', array_keys($table_fields)).' = ?';
+            $set = implode(' = ?, ', $table_fields).' = ?';
             $sql = 'UPDATE '.$table.' SET '.$set;
             if ($where !== false) {
                 $sql .= ' WHERE '.$where;
