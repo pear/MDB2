@@ -18,6 +18,9 @@ have been tested to pass the test suite. Look at the STATUS document for details
 - fixed sqlite driver (passes all but the REPLACE test due to a conformance issue in sqlite itself)
 - removed decimal_factor property to allow changing of decimal_places option
 - using native escape string methods in sqlite and mysql driver
+- fixed minor conformance issues in tableInfo() in the oci8 and mysql driver
+- removed optimize option and added portability option instead (ported from DB)
+- added quoteIdentifier method (ported from DB)
 EOT;
 
 $description =<<<EOT
