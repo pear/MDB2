@@ -199,7 +199,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                ' FROM RDB$INDEX_SEGMENTS I'.
                ' JOIN RDB$RELATION_CONSTRAINTS R ON I.RDB$INDEX_NAME=R.RDB$INDEX_NAME'.
                ' WHERE I.RDB$FIELD_NAME=\''.$field_name.'\''.
-               ' AND R.RDB$RELATION_NAME=\''.$table_name.'\'';
+               ' AND UPPER(R.RDB$RELATION_NAME)=\''.strtoupper($table_name).'\'';
         $result = @ibase_query($db->connection, $sql);
         if (empty($result)) {
             return $db->raiseError();
@@ -221,7 +221,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             ' F.RDB$COMPUTED_SOURCE AS CSOURCE'.
             ' FROM RDB$RELATION_FIELDS R '.
             ' JOIN RDB$FIELDS F ON R.RDB$FIELD_SOURCE=F.RDB$FIELD_NAME'.
-            ' WHERE R.RDB$RELATION_NAME=\''.$table_name.'\''.
+            ' WHERE UPPER(R.RDB$RELATION_NAME)=\''.strtoupper($table_name).'\''.
             ' AND R.RDB$FIELD_NAME=\''.$field_name.'\'';
         $result = @ibase_query($db->connection, $sql);
         if (empty($result)) {
