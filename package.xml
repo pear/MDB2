@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta1</version>
-    <date>2004-03-07</date>
+    <date>2004-03-09</date>
     <license>BSD License</license>
     <state>alpha</state>
     <notes>- fixed bug in MDB2::singleton
@@ -88,7 +88,9 @@ Other soon to follow.</description>
 - removed optimize option and added portability option instead (ported from DB)
 - added quoteIdentifier() method (ported from DB)
 - added STATUS document to make the status of the drivers more transparent
-- fixed a few bugs in querysim driver</notes>
+- fixed a few bugs in querysim driver
+- fixed issue in mysql reverse engineering: ensuring the correct case is used when
+  doing assoc fetches based on portability flag setting</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -211,7 +213,7 @@ Other soon to follow.</description>
   <changelog>
     <release>
       <version>2.0.0beta1</version>
-      <date>2004-03-07</date>
+      <date>2004-03-09</date>
       <license>BSD License</license>
       <state>alpha</state>
       <notes>- fixed bug in MDB2::singleton
@@ -229,7 +231,9 @@ Other soon to follow.</description>
 - removed optimize option and added portability option instead (ported from DB)
 - added quoteIdentifier() method (ported from DB)
 - added STATUS document to make the status of the drivers more transparent
-- fixed a few bugs in querysim driver</notes>
+- fixed a few bugs in querysim driver
+- fixed issue in mysql reverse engineering: ensuring the correct case is used when
+  doing assoc fetches based on portability flag setting</notes>
     </release>
     <release>
       <version>2.0.0alpha1</version>

@@ -244,6 +244,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                         return $result;
                     }
                     $is_primary = false;
+                    if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+                        $indexes = array_change_key_case($indexes, CASE_LOWER);
+                    }
                     foreach ($indexes as $index) {
                         if ($index['key_name'] == 'PRIMARY' && $index['column_name'] == $field_name) {
                             $is_primary = true;
@@ -293,6 +296,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         }
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+            if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+                $row = array_change_key_case($row, CASE_LOWER);
+            }
             $key_name = strtolower($row['key_name']);
             if (!strcmp($index_name, $key_name)) {
                 if (!$row['non_unique']) {

@@ -20,6 +20,8 @@ $notes = <<<EOT
 - added quoteIdentifier() method (ported from DB)
 - added STATUS document to make the status of the drivers more transparent
 - fixed a few bugs in querysim driver
+- fixed issue in mysql reverse engineering: ensuring the correct case is used when
+  doing assoc fetches based on portability flag setting
 EOT;
 
 $description =<<<EOT
