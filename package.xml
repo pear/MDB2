@@ -76,8 +76,8 @@ Other soon to follow.</description>
     <notes>- added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
   and MDB2_Driver_Manager_oci8
 - reversed parameter order of getValue(), type parameter is now optional and
-  will then be autodetected
-- renamed get*Value() to quote*()
+  will then be autodetected (BC break!)
+- renamed get*Value() to quote*() (BC break!)
 - fixed LOB management in MDB2_Driver_ibase
 - moved getOne, getRow, getCol, getAll back into the exteneded module (most
   users should be able to move to the queryOne, queryRow, queryCol and queryAll
@@ -227,8 +227,8 @@ Other soon to follow.</description>
       <notes>- added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
   and MDB2_Driver_Manager_oci8
 - reversed parameter order of getValue(), type parameter is now optional and
-  will then be autodetected
-- renamed get*Value() to quote*()
+  will then be autodetected (BC break!)
+- renamed get*Value() to quote*() (BC break!)
 - fixed LOB management in MDB2_Driver_ibase
 - moved getOne, getRow, getCol, getAll back into the exteneded module (most
   users should be able to move to the queryOne, queryRow, queryCol and queryAll
