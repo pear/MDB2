@@ -11,6 +11,12 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - fixed bugs in MDB2_Extended::buildManipSQL() introduced in latest tweaks (bug #3725)
 - fixed index alteration in the Manager (bug #3710)
 - mysqli has connection objects instead of resources
+- fix mssql tableInfo() so flags are returned (bug #3691)
+- fixed bug in handling of force_array when 2 or less columns are fetched in fetchAll()
+- added map error message for sqlite multi-column unique constraints.
+- added listUsers(), listViews(), listFunctions() to oracle manager
+- added listFunctions() to pgsql manager
+- updated listViews() in pgsql manager
 EOT;
 
 $description =<<<EOT
@@ -93,6 +99,8 @@ $package->addMaintainer('quipo', 'contributor', 'Lorenzo Alberton', 'l.alberton@
 $package->addDependency('php', '4.2.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
 $package->addDependency('XML_Parser', true, 'has', 'pkg', false);
+
+$package->addglobalreplacement('package-info', '@package_version@', 'version');
 
 if (isset($_GET['make']) || (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'make')) {
     $result = $package->writePackageFile();
