@@ -216,8 +216,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     }
                 }
                 $definition[0] = $field_choices;
-                if (isset($columns['extra'])
-                    && isset($row[$columns['extra']])
+                if (isset($row[$columns['extra']])
                     && $row[$columns['extra']] == 'auto_increment')
                 {
                     $implicit_sequence = array();
@@ -227,10 +226,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     $definition[1]['name'] = $table.'_'.$field_name;
                     $definition[1]['definition'] = $implicit_sequence;
                 }
-                if (isset($columns['key'])
-                    && isset($row[$columns['key']])
-                    && $row[$columns['key']] == 'PRI')
-                {
+                if (isset($row[$columns['key']]) && $row[$columns['key']] == 'PRI') {
                     // check that its not just a unique field
                     $query = "SHOW INDEX FROM $table";
                     $indexes = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
@@ -239,7 +235,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     }
                     $is_primary = false;
                     foreach ($indexes as $index) {
-                        if (!($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE)) {
+                        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+                            $index['column_name'] = strtolower($index['column_name']);
+                        } else {
                             $index = array_change_key_case($index, CASE_LOWER);
                         }
                         if ($index['key_name'] == 'PRIMARY' && $index['column_name'] == $field_name) {
