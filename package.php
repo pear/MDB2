@@ -46,6 +46,7 @@ stable release.
   wrapping of result classes into an arbitrary class
 - added \$result_class param to all drivers where it was missing from the
   query() and _executePrepared() methods
+- applied several fixes to the PEAR::DB wrapper
 EOT;
 
 $description =<<<EOT

@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta2</version>
-    <date>2004-04-23</date>
+    <date>2004-04-25</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
@@ -114,7 +114,8 @@ stable release.
 - added 'result_wrap_class' option and optional parameter to query() to enable
   wrapping of result classes into an arbitrary class
 - added $result_class param to all drivers where it was missing from the
-  query() and _executePrepared() methods</notes>
+  query() and _executePrepared() methods
+- applied several fixes to the PEAR::DB wrapper</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -237,7 +238,7 @@ stable release.
   <changelog>
     <release>
       <version>2.0.0beta2</version>
-      <date>2004-04-23</date>
+      <date>2004-04-25</date>
       <license>BSD License</license>
       <state>beta</state>
       <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
@@ -281,7 +282,8 @@ stable release.
 - added 'result_wrap_class' option and optional parameter to query() to enable
   wrapping of result classes into an arbitrary class
 - added $result_class param to all drivers where it was missing from the
-  query() and _executePrepared() methods</notes>
+  query() and _executePrepared() methods
+- applied several fixes to the PEAR::DB wrapper</notes>
     </release>
     <release>
       <version>2.0.0beta1</version>
