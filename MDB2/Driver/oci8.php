@@ -553,14 +553,16 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                             return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                                 'prepare: named parameter with an empty name');
                         }
+                        $length = strlen($parameter)+1;
                     } else {
                         ++$parameter;
+                        $length = strlen($parameter);
                     }
                     if (isset($types[$parameter])
                         && ($types[$parameter] == 'clob' || $types[$parameter] == 'blob')
                     ) {
                         $value = $this->quote(null, $types[$parameter]);
-                        $query = substr_replace($query, $value, $p_position, (strlen($parameter)+1));
+                        $query = substr_replace($query, $value, $p_position, $length);
                         $position = $p_position + strlen($value) - 1;
                     } elseif ($placeholder_type == '?') {
                         $query = substr_replace($query, ':'.$parameter, $p_position, 1);
