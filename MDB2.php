@@ -2068,8 +2068,7 @@ class MDB2_Driver_Common extends PEAR
      * returns the next free id of a sequence if the RDBMS
      * does not support auto increment
      *
-     * @param string $seq_name name of the sequence (needs to match the name of
-     *               the table into which a new row was inserted
+     * @param string $table name of the table into which a new row was inserted
      * @param boolean $ondemand when true the seqence is
      *                          automatic created, if it
      *                          not exists
@@ -2077,12 +2076,12 @@ class MDB2_Driver_Common extends PEAR
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getBeforeID($seq_name, $ondemand = true)
+    function getBeforeID($table, $ondemand = true)
     {
         if (!$this->supported['auto_increment']) {
-            return $thid->nextID($seq_name, $ondemand);
+            return $thid->nextID($table, $ondemand);
         }
-        return 'NULL';
+        return null;
     }
 
     // }}}
@@ -2108,15 +2107,14 @@ class MDB2_Driver_Common extends PEAR
     // {{{ getAfterID()
 
     /**
-     * returns the autoincrement ID if supported
+     * returns the autoincrement ID if supported or $id
      *
-     * @param mixed id value as returned by getBeforeId()
-     * @param string $seq_name name of the sequence (needs to match the name of
-     *               the table into which a new row was inserted
+     * @param mixed $id value as returned by getBeforeId()
+     * @param string $table name of the table into which a new row was inserted
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getAfterID($id, $seq_name)
+    function getAfterID($id, $table)
     {
         return $id;
     }
