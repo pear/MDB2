@@ -320,7 +320,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         if ($this->connection != 0) {
             if (($this->opened_persistent) && (is_resource($this->connection))) {
                 if (!@fclose($this->connection)) {
-                    $this->raiseError();
+                    return $this->raiseError();
                 }
             }
             $this->connection = 0;

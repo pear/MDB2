@@ -332,12 +332,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if (($this->opened_persistent || $force)
-            && $this->connection != 0
-        ) {
-            @sqlite_close($this->connection);
-            $this->connection = 0;
-        } else {
+        if ($this->connection != 0) {
+            if (!$this->opened_persistent || $force) {
+                @sqlite_close($this->connection);
+            }
             $this->connection = 0;
         }
         return MDB2_OK;
