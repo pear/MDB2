@@ -191,7 +191,7 @@ class MDB2_Tools_Parser extends XML_Parser
                 $this->raiseError('tables need one or more fields', null, $xp);
             }
             if (isset($this->table['indexes'])) {
-                foreach ($this->table['indexes'] as $index_name => $index) {
+                foreach ($this->table['indexes'] as $index) {
                     foreach ($index['fields'] as $field_name => $field) {
                         if (!isset($this->table['fields'][$field_name])) {
                             $this->raiseError('index field "'.$field_name.'" does not exist', null, $xp);
@@ -361,7 +361,8 @@ class MDB2_Tools_Parser extends XML_Parser
     function validateFieldValue($field_name, &$field_value, &$xp)
     {
         if (!isset($this->table['fields'][$field_name])) {
-            return;
+            return $this->raiseError('"'.$field_name.'" is not defined', null, $xp);
+
         }
         $field_def = $this->table['fields'][$field_name];
         switch ($field_def['type']) {

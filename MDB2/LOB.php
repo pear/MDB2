@@ -281,7 +281,8 @@ class MDB2_LOB_Output_File extends MDB2_LOB
 
     function readLOB(&$data, $length) {
         $buffer_length = ($length == 0 ? $this->buffer_length : $length);
-        $written_full = 0;
+        $written_full = $read = 0;
+        $buffer = null;
         do {
             for ($written = 0;
                 !$this->db->datatype->endOfLOB($this->input_lob)
