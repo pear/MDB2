@@ -134,6 +134,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     1722 => MDB2_ERROR_INVALID_NUMBER,
                     2289 => MDB2_ERROR_NOSUCHTABLE,
                     2291 => MDB2_ERROR_CONSTRAINT,
+                    2292 => MDB2_ERROR_CONSTRAINT,
                     2449 => MDB2_ERROR_CONSTRAINT,
                 );
             }
