@@ -700,14 +700,14 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     // {{{ getAfterID()
 
     /**
-     * returns the autoincrement ID if supported
+     * returns the autoincrement ID if supported or $id
      *
-     * @param string $seq_name name of the sequence (needs to match the name of
-     *               the table into which a new row was inserted
+     * @param mixed $id value as returned by getBeforeId()
+     * @param string $table name of the table into which a new row was inserted
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getAfterID($id, $seq_name)
+    function getAfterID($id, $table)
     {
         $this->loadModule('native');
         return $this->native->getInsertID();
