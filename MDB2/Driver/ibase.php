@@ -161,6 +161,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                                 -208 => MDB2_ERROR_INVALID,
                                 -219 => MDB2_ERROR_NOSUCHTABLE,
                                 -297 => MDB2_ERROR_CONSTRAINT,
+                                -303 => MDB2_ERROR_INVALID,
                                 -530 => MDB2_ERROR_CONSTRAINT,
                                 -551 => MDB2_ERROR_ACCESS_VIOLATION,
                                 -552 => MDB2_ERROR_ACCESS_VIOLATION,
