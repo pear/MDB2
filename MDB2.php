@@ -293,7 +293,7 @@ class MDB2
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'unable to find: '.$file_name);
         }
-        if (!include_once($file_name)) {
+        if (!class_exists($class_name) && !include_once($file_name)) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'unable to load driver class: '.$file_name);
         }
@@ -1448,17 +1448,17 @@ class MDB2_Driver_Common extends PEAR
             $version = false;
             $class_name = 'MDB2_'.ucfirst($module);
             $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
-            if (!MDB2::fileExists($file_name)) {
+            if (!class_exists($class_name) && !MDB2::fileExists($file_name)) {
                 $class_name = 'MDB2_Driver_'.ucfirst($module).'_'.$this->phptype;
                 $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
                 $version = true;
-                if (!MDB2::fileExists($file_name)) {
+                if (!class_exists($class_name) && !MDB2::fileExists($file_name)) {
                     return $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                         'unable to find module: '.$file_name);
                 }
             }
 
-            if (!include_once($file_name)) {
+            if (!class_exists($class_name) && !include_once($file_name)) {
                 return $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                     'unable to load manager driver class: '.$file_name);
             }
