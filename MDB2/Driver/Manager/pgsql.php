@@ -325,20 +325,25 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // gratuitously stolen from PEAR DB _getSpecialQuery in pgsql.php
-        $query = 'SELECT c.relname as "Name"
-            FROM pg_class c, pg_user u
-            WHERE c.relowner = u.usesysid AND c.relkind = \'r\'
-            AND not exists (select 1 from pg_views where viewname = c.relname)
-            AND c.relname !~ \'^pg_\'
-            AND c.relname !~ \'^pga_\'
-            UNION
-            SELECT c.relname as "Name"
-            FROM pg_class c
-            WHERE c.relkind = \'r\'
-            AND not exists (select 1 from pg_views where viewname = c.relname)
-            AND not exists (select 1 from pg_user where usesysid = c.relowner)
-            AND c.relname !~ \'^pg_\'
-            AND c.relname !~ \'^pga_\'';
+        $query = 'SELECT c.relname AS "Name"'
+                        . ' FROM pg_class c, pg_user u'
+                        . ' WHERE c.relowner = u.usesysid'
+                        . " AND c.relkind = 'r'"
+                        . ' AND NOT EXISTS'
+                        . ' (SELECT 1 FROM pg_views'
+                        . '  WHERE viewname = c.relname)'
+                        . " AND c.relname !~ '^(pg_|sql_)'"
+                        . ' UNION'
+                        . ' SELECT c.relname AS "Name"'
+                        . ' FROM pg_class c'
+                        . " WHERE c.relkind = 'r'"
+                        . ' AND NOT EXISTS'
+                        . ' (SELECT 1 FROM pg_views'
+                        . '  WHERE viewname = c.relname)'
+                        . ' AND NOT EXISTS'
+                        . ' (SELECT 1 FROM pg_user'
+                        . '  WHERE usesysid = c.relowner)'
+                        . " AND c.relname !~ '^pg_'";
         return $db->queryCol($query);
     }
 
@@ -382,7 +387,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return $db->queryCol("SELECT relname
                                 FROM pg_class WHERE oid IN
-                                  (SELECR indexrelid FROM pg_index, pg_class
+                                  (SELECT indexrelid FROM pg_index, pg_class
                                    WHERE (pg_class.relname='$table')
                                    AND (pg_class.oid=pg_index.indrelid))");
     }
