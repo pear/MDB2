@@ -392,8 +392,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 }
                 $parameter = $GLOBALS['_MDB2_LOBs'][$clob_stream]->parameter;
                 $columns.= ($lobs == 0 ? ' RETURNING ' : ',').
-                    $this->prepared_queries[$prepared_query-1]['fields'][$parameter-1];
-                $variables.= ($lobs == 0 ? ' INTO ' : ',').':clob'.$parameter;
+                    $this->prepared_queries[$prepared_query]['fields'][$parameter];
+                $variables.= ($lobs == 0 ? ' INTO ' : ',').':clob'.($parameter+1);
                 ++$lobs;
             }
             if (!MDB2::isError($success)) {
@@ -410,8 +410,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     }
                     $parameter = $GLOBALS['_MDB2_LOBs'][$blob_stream]->parameter;
                     $columns.= ($lobs == 0 ? ' RETURNING ' : ',').
-                        $this->prepared_queries[$prepared_query-1]['fields'][$parameter-1];
-                    $variables.= ($lobs == 0 ? ' INTO ' : ',').':blob'.$parameter;
+                        $this->prepared_queries[$prepared_query]['fields'][$parameter];
+                    $variables.= ($lobs == 0 ? ' INTO ' : ',').':blob'.($parameter+1);
                     ++$lobs;
                 }
                 $query.= $columns.$variables;
@@ -589,6 +589,12 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $query = $this->_modifyQuery($query);
         $this->last_query = $query;
         $this->debug($query, 'query');
+        if ($this->options['disable_query']) {
+            if ($ismanip) {
+                MDB2_OK;
+            }
+            return NULL;
+        }
 
         $connected = $this->connect();
         if (MDB2::isError($connected)) {
