@@ -104,6 +104,9 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = $this->buildManipSQL($table, $table_fields, $mode, $where);
+        if (PEAR::isError($query)) {
+            return $query;
+        }
         return $db->prepare($query, $types, $result_types);
     }
 
@@ -131,6 +134,9 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $stmt = $this->autoPrepare($table, array_keys($fields_values), $mode, $where, $types, $result_types);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
+        }
         $params = array_values($fields_values);
         $stmt->bindParamArray($params);
         $result =& $stmt->execute($result_class);
@@ -200,7 +206,7 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $result = $db->setLimit($count, $from);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         return $db->query($query, $types, $result_class);
@@ -236,7 +242,7 @@ class MDB2_Extended
         }
 
         $stmt = $db->prepare($query, $param_types, $type);
-        if (MDB2::isError($stmt)) {
+        if (PEAR::isError($stmt)) {
             return $stmt;
         }
 
@@ -280,7 +286,7 @@ class MDB2_Extended
         }
 
         $stmt = $db->prepare($query, $param_types, $types);
-        if (MDB2::isError($stmt)) {
+        if (PEAR::isError($stmt)) {
             return $stmt;
         }
 
@@ -325,7 +331,7 @@ class MDB2_Extended
         }
 
         $stmt = $db->prepare($query, $param_types, $type);
-        if (MDB2::isError($stmt)) {
+        if (PEAR::isError($stmt)) {
             return $stmt;
         }
 
@@ -378,7 +384,7 @@ class MDB2_Extended
         }
 
         $stmt = $db->prepare($query, $param_types, $types);
-        if (MDB2::isError($stmt)) {
+        if (PEAR::isError($stmt)) {
             return $stmt;
         }
 
@@ -477,7 +483,7 @@ class MDB2_Extended
         }
 
         $stmt = $db->prepare($query, $param_types, $types);
-        if (MDB2::isError($stmt)) {
+        if (PEAR::isError($stmt)) {
             return $stmt;
         }
 
@@ -516,7 +522,7 @@ class MDB2_Extended
         for ($i = 0, $j = count($params); $i < $j; $i++) {
             $stmt->bindParamArray($params[$i]);
             $result = $stmt->execute();
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 return $result;
             }
         }
