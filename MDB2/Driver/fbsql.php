@@ -169,13 +169,13 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
         if ($this->connection) {
             if ($auto_commit) {
-                $result = $this->query('COMMIT');
+                $result = $this->_doQuery('COMMIT');
                 if (MDB2::isError($result)) {
                     return $result;
                 }
-                $result = $this->query('SET COMMIT TRUE');
+                $result = $this->_doQuery('SET COMMIT TRUE');
             } else {
-                $result = $this->query('SET COMMIT FALSE');
+                $result = $this->_doQuery('SET COMMIT FALSE');
             }
             if (MDB2::isError($result)) {
                 return $result;
@@ -210,7 +210,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
             'commit: transaction changes are being auto commited');
         }
-        return $this->query('COMMIT');
+        return $this->_doQuery('COMMIT');
     }
 
     // }}}
@@ -237,7 +237,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto commited');
         }
-        return $this->query('ROLLBACK');
+        return $this->_doQuery('ROLLBACK');
     }
 
     // }}}
@@ -256,8 +256,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            @fbsql_close($this->connection);
-            $this->connection = 0;
+            $this->_close();
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
@@ -291,8 +290,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
 
         if ($this->supports('transactions') && !$this->auto_commit) {
             if (!@fbsql_query('SET AUTOCOMMIT FALSE;', $this->connection)) {
-                @fbsql_close($this->connection);
-                $this->connection = 0;
+                $this->_close();
                 return $this->raiseError();
             }
             $this->in_transaction = true;
@@ -312,17 +310,63 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     {
         if ($this->connection != 0) {
             if ($this->supports('transactions') && !$this->auto_commit) {
-                $result = $this->autoCommit(true);
+                $result = $this->rollback();
+                if (MDB2::isError($result)) {
+                    return $result;
+                }
             }
             @fbsql_close($this->connection);
             $this->connection = 0;
             unset($GLOBALS['_MDB2_databases'][$this->db_index]);
-
-            if (isset($result) && MDB2::isError($result)) {
-                return $result;
-            }
         }
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _doQuery()
+
+    /**
+     * Execute a query
+     * @param string $query  query
+     * @param boolean $ismanip  if the query is a manipulation query
+     * @return result or error object
+     * @access private
+     */
+    function _doQuery($query, $ismanip = false)
+    {
+        $this->last_query = $query;
+        $this->debug($query, 'query');
+        if ($this->options['disable_query']) {
+            if ($ismanip) {
+                return MDB2_OK;
+            }
+            return null;
+        }
+
+        $connected = $this->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
+        }
+
+        if ($this->database_name
+            && $this->database_name != $this->connected_database_name
+        ) {
+            if (!@fbsql_select_db($this->database_name, $this->connection)) {
+                $error =& $this->raiseError();
+                return $error;
+            }
+            $this->connected_database_name = $this->database_name;
+        }
+
+        $result = @fbsql_query($query, $this->connection);
+        if (!$result) {
+            return $this->raiseError();
+        }
+
+        if ($ismanip) {
+            return @fbsql_affected_rows($this->connection);
+        }
+        return $result;
     }
 
     // }}}
@@ -336,8 +380,10 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access private
      */
-    function _modifyQuery($query)
+    function _modifyQuery($query, $ismanip, $limit, $offset)
     {
+        // Add ; to the end of the query. This is required by FrontBase
+        $query .= ';';
         // "DELETE FROM table" gives 0 affected rows in fbsql.
         // This little hack lets you know how many rows were deleted.
         if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
@@ -346,91 +392,12 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 'DELETE FROM \1 WHERE 1=1', $query
             );
         }
-        return $query;
-    }
-
-    // }}}
-    // {{{ query()
-
-    /**
-     * Send a query to the database and return any results
-     *
-     * @param string  $query  the SQL query
-     * @param mixed   $types  string or array that contains the types of the
-     *                        columns in the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access public
-     */
-    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
-    {
-        $ismanip = MDB2::isManip($query);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
         if ($limit > 0) {
             if (!$ismanip) {
                 $query = str_replace('SELECT', "SELECT TOP($offset,$limit)", $query);
             }
         }
-        if ($this->options['portability'] & MDB2_PORTABILITY_DELETE_COUNT) {
-            $query = $this->_modifyQuery($query);
-        }
-        $this->last_query = $query;
-        $this->debug($query, 'query');
-        if ($this->options['disable_query']) {
-            if ($ismanip) {
-                return MDB2_OK;
-            }
-            return NULL;
-        }
-
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
-        }
-
-        if ($this->database_name) {
-            if (!@fbsql_select_db($this->database_name, $this->connection)) {
-                $error =& $this->raiseError();
-                return $error;
-            }
-            $this->connected_database_name = $this->database_name;
-        }
-
-        // Add ; to the end of the query. This is required by FrontBase
-        $query .= ';';
-        $result = @fbsql_query($query, $this->connection);
-        if (!$result) {
-            $error =& $this->raiseError();
-            return $error;
-        }
-        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
-        return $result_obj;
-    }
-
-    // }}}
-    // {{{ affectedRows()
-
-    /**
-     * returns the affected rows of a query
-     *
-     * @return mixed MDB2 Error Object or number of rows
-     * @access public
-     */
-    function affectedRows()
-    {
-        if (MDB2::isManip($this->last_query)) {
-            $affected_rows = @fbsql_affected_rows($this->connection);
-        } else {
-            $affected_rows = 0;
-        }
-        if ($affected_rows === false) {
-            return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
-        }
-        return $affected_rows;
+        return $query;
     }
 
     // }}}
@@ -451,7 +418,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->query("INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL)");
+        $result = $this->_doQuery("INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL)");
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -472,7 +439,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
         $value = $this->queryOne("SELECT UNIQUE FROM $sequence_name", 'integer');
         if (is_numeric($value)
-            && MDB2::isError($this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
+            && MDB2::isError($this->_doQuery("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
         ) {
             $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
         }
