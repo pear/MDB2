@@ -317,7 +317,8 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     function listUsers()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->queryCol('SELECT DISTINCT USER FROM USER');
+        return $db->queryCol('SELECT "user_name" FROM'
+                             . ' information_schema.users');
     }
 
     // }}}
@@ -332,7 +333,12 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     function listTables()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $table_names = $db->queryCol('SHOW TABLES');
+        $table_names = $db->queryCol('SELECT "table_name"'
+                . ' FROM information_schema.tables'
+                . ' t0, information_schema.schemata t1'
+                . ' WHERE t0.schema_pk=t1.schema_pk AND'
+                . ' "table_type" = \'BASE TABLE\''
+                . ' AND "schema_name" = current_schema');
         if (MDB2::isError($table_names)) {
             return $table_names;
         }
