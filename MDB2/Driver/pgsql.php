@@ -115,18 +115,18 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         static $error_regexps;
         if (empty($error_regexps)) {
             $error_regexps = array(
-                '/([Tt]able does not exist\.|[Rr]elation [\"\'].*[\"\'] does not exist|[Ss]equence does not exist|[Cc]lass ".+" not found)$/' => MDB2_ERROR_NOSUCHTABLE,
-                '/[Tt]able [\"\'].*[\"\'] does not exist/' => MDB2_ERROR_NOSUCHTABLE,
+                '/^(([Rr]elation|[Ss]equence|[Tt]able)( [\"\'].*[\"\'])? does not exist|[Cc]lass ".+" not found)$/' => MDB2_ERROR_NOSUCHTABLE,
+                '/[Cc]olumn [\"\'].*[\"\'] .*does not exist/' => MDB2_ERROR_NOSUCHFIELD,
                 '/[Rr]elation [\"\'].*[\"\'] already exists|[Cc]annot insert a duplicate key into (a )?unique index.*/' => MDB2_ERROR_ALREADY_EXISTS,
-                '/divide by zero$/'                     => MDB2_ERROR_DIVZERO,
+                '/(divide|division) by zero$/'          => MDB2_ERROR_DIVZERO,
                 '/pg_atoi: error in .*: can\'t parse /' => MDB2_ERROR_INVALID_NUMBER,
+                '/invalid input syntax for integer/'    => MDB2_ERROR_INVALID_NUMBER,
                 '/ttribute [\"\'].*[\"\'] not found$|[Rr]elation [\"\'].*[\"\'] does not have attribute [\"\'].*[\"\']/' => MDB2_ERROR_NOSUCHFIELD,
                 '/parser: parse error at or near \"/'   => MDB2_ERROR_SYNTAX,
                 '/syntax error at/'                     => MDB2_ERROR_SYNTAX,
                 '/violates not-null constraint/'        => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                 '/violates [\w ]+ constraint/'          => MDB2_ERROR_CONSTRAINT,
-                '/referential integrity violation/'     => MDB2_ERROR_CONSTRAINT,
-                '/deadlock detected/'                   => MDB2_ERROR_DEADLOCK
+                '/referential integrity violation/'     => MDB2_ERROR_CONSTRAINT
             );
         }
         foreach ($error_regexps as $regexp => $code) {
@@ -242,10 +242,18 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $connstr = '';
 
         if ($protocol == 'tcp') {
-            if (!empty($dsninfo['hostspec'])) {
-                $connstr = 'host=' . $dsninfo['hostspec'];
+            if ($dsninfo['hostspec']) {
+                $connstr .= 'host=' . $dsninfo['hostspec'];
             }
-            if (!empty($dsninfo['port'])) {
+            if ($dsninfo['port']) {
+                $connstr .= ' port=' . $dsninfo['port'];
+            }
+        } elseif ($protocol == 'unix') {
+            // Allow for pg socket in non-standard locations.
+            if ($dsninfo['socket']) {
+                $connstr .= 'host=' . $dsninfo['socket'];
+            }
+            if ($dsninfo['port']) {
                 $connstr .= ' port=' . $dsninfo['port'];
             }
         }
@@ -268,12 +276,19 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         putenv('PGDATESTYLE=ISO');
 
         $function = ($persistent ? 'pg_pconnect' : 'pg_connect');
-        $connection = @$function($connstr);
-
-        if ($connection > 0) {
-            return $connection;
+        $ini = ini_get('track_errors');
+        if ($ini) {
+            $conn = @$function($connstr);
+        } else {
+            ini_set('track_errors', 1);
+            $conn = @$function($connstr);
+            ini_set('track_errors', $ini);
         }
-        return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+        if ($conn == false) {
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED,
+                null, null, strip_tags($php_errormsg));
+        }
+        return $connection;
     }
 
     // }}}
