@@ -101,12 +101,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function errorInfo($error = null)
     {
+        $native_msg = '';
         if (is_resource($error)) {
             $native_msg = @pg_result_error($error);
         } elseif ($this->connection) {
             $native_msg = @pg_errormessage($this->connection);
-        } else {
-            $native_msg = @pg_errormessage();
         }
 
         // Fall back to MDB2_ERROR if there was no mapping.
@@ -248,7 +247,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         if ($protocol == 'tcp') {
             if ($dsninfo['hostspec']) {
-                $connstr .= 'host=' . $dsninfo['hostspec'];
+                $connstr .= ' host=' . $dsninfo['hostspec'];
             }
             if ($dsninfo['port']) {
                 $connstr .= ' port=' . $dsninfo['port'];
@@ -256,7 +255,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         } elseif ($protocol == 'unix') {
             // Allow for pg socket in non-standard locations.
             if ($dsninfo['socket']) {
-                $connstr .= 'host=' . $dsninfo['socket'];
+                $connstr .= ' host=' . $dsninfo['socket'];
             }
             if ($dsninfo['port']) {
                 $connstr .= ' port=' . $dsninfo['port'];
@@ -283,13 +282,13 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $function = ($persistent ? 'pg_pconnect' : 'pg_connect');
         $ini = ini_get('track_errors');
         if ($ini) {
-            $conn = @$function($connstr);
+            $connection = @$function($connstr);
         } else {
             ini_set('track_errors', 1);
-            $conn = @$function($connstr);
+            $connection = @$function($connstr);
             ini_set('track_errors', $ini);
         }
-        if ($conn == false) {
+        if (!$connection) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED,
                 null, null, strip_tags($php_errormsg));
         }
@@ -386,7 +385,9 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $this->raiseError($result);
         }
         @pg_close($connection);
-        return $result;
+        $ismanip = MDB2::isManip($query);
+        $result_obj =& $this->_wrapResult($result, $ismanip);
+        return $result_obj;
     }
 
     // }}}
@@ -504,39 +505,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
 class MDB2_Result_pgsql extends MDB2_Result_Common
 {
-    // {{{ fetch()
-
-    /**
-    * fetch value from a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @param int    $colnum    field number where the data can be found
-    * @return mixed string on success, a MDB2 error on failure
-    * @access public
-    */
-    function fetch($rownum = 0, $colnum = 0)
-    {
-        $value = @pg_result($this->result, $rownum, $colnum);
-        if (!$value) {
-            if (is_null($this->result)) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'fetch: resultset has already been freed');
-            }
-        }
-        if (isset($this->types[$colnum])) {
-            $value = $this->db->datatype->convertResult($value, $this->types[$colnum]);
-        }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $value = rtrim($value);
-        }
-        if ($value === ''
-            && $this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
-        ) {
-            $value = null;
-        }
-        return $value;
-    }
-
     // }}}
     // {{{ fetchRow()
 
@@ -650,33 +618,6 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
             return $this->db->raiseError();
         }
         return $cols;
-    }
-
-    // }}}
-    // {{{ resultIsNull()
-
-    /**
-     * Determine whether the value of a query result located in given row and
-     *    field is a null.
-     *
-     * @param int $rownum number of the row where the data can be found
-     * @param int $colnum field number where the data can be found
-     * @return mixed true or false on success, a MDB2 error on failure
-     * @access public
-     */
-    function resultIsNull($rownum, $colnum)
-    {
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            return parent::resultIsNull($rownum, $colnum);
-        }
-        $value = pg_field_is_null($this->result, $rownum, $colnum);
-        if (!$value) {
-            if (is_null($this->result)) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'fetch: resultset has already been freed');
-            }
-        }
-        return (bool)$value;
     }
 
     // }}}
