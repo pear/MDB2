@@ -172,10 +172,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        if (!$this->destructor_registered) {
-            $this->destructor_registered = true;
-            $this->PEAR();
-        }
         $result = $this->_doQuery('BEGIN TRANSACTION');
         if (MDB2::isError($result)) {
             return $result;
@@ -284,14 +280,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
 
-        if ($this->supports('transactions')
-            && !$this->auto_commit
-            && !@mssql_query('BEGIN TRANSACTION', $this->connection)
-        ) {
-            $this->_close();
-            return $this->raiseError('connect: Could not begin the initial transaction');
-        }
-
        if ((bool) ini_get('mssql.datetimeconvert')) {
            ini_set('mssql.datetimeconvert', '0');
        }
@@ -311,7 +299,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if ($this->supports('transactions') && !$this->auto_commit) {
+            if ($this->supports('transactions') && !$this->in_transaction) {
                 $result = $this->rollback();
                 if (MDB2::isError($result)) {
                     return $result;

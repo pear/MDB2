@@ -154,10 +154,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        if (!$this->destructor_registered) {
-            $this->destructor_registered = true;
-            $this->PEAR();
-        }
         $result = $this->_doQuery('SET COMMIT FALSE');
         if (MDB2::isError($result)) {
             return $result;
@@ -271,15 +267,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
-        /*
-        if ($this->supports('transactions') && !$this->auto_commit) {
-            if (!@fbsql_query('SET AUTOCOMMIT FALSE;', $this->connection)) {
-                $this->_close();
-                return $this->raiseError();
-            }
-            $this->in_transaction = true;
-        }
-        */
+
         return MDB2_OK;
     }
 
@@ -294,12 +282,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if ($this->supports('transactions') && !$this->auto_commit) {
-                $result = $this->rollback();
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-            }
             @fbsql_close($this->connection);
             $this->connection = 0;
         }

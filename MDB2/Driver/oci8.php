@@ -161,10 +161,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        if (!$this->destructor_registered) {
-            $this->destructor_registered = true;
-            $this->PEAR();
-        }
         $this->in_transaction = true;
         return MDB2_OK;
     }
@@ -325,12 +321,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if ($this->supports('transactions') && !$this->auto_commit) {
-                $result = $this->rollback();
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-            }
             @OCILogOff($this->connection);
             $this->connection = 0;
             $this->uncommitedqueries = 0;
@@ -435,7 +425,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'Could not create statement');
         }
 
-        $mode = $this->auto_commit ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
+        $mode = $this->in_transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
         $return = @OCIExecute($result, $mode);
         if (!$return) {
             return $this->raiseError($result);
@@ -1028,7 +1018,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
         }
 
-        $mode = (empty($lobs) && $this->db->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
+        $mode = (empty($lobs) && $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
         $return = @OCIExecute($this->statement, $mode);
         if (!$return) {
             return $this->db->raiseError($this->statement);
@@ -1049,15 +1039,9 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
 
             if (!MDB2::isError($success)) {
-                if ($this->db->auto_commit) {
-                    if (MDB2::isError($success)) {
-                        if (!OCIRollback($this->db->connection)) {
-                            $success = $this->db->raiseError();
-                        }
-                    } else {
-                        if (!OCICommit($this->db->connection)) {
-                            $success = $this->db->raiseError();
-                        }
+                if (!$this->db->in_transaction) {
+                    if (!OCICommit($this->db->connection)) {
+                        $success = $this->db->raiseError();
                     }
                 } else {
                     ++$this->db->uncommitedqueries;

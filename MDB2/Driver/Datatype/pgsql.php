@@ -389,7 +389,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (MDB2::isError($connect)) {
             return $connect;
         }
-        if ($db->auto_commit && !@pg_exec($db->connection, 'BEGIN')) {
+        if (!$db->in_transaction && !@pg_exec($db->connection, 'BEGIN')) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'error starting transaction');
         }
@@ -432,7 +432,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         } else {
             $result = $db->raiseError();
         }
-        if ($db->auto_commit) {
+        if (!$db->in_transaction) {
             @pg_exec($db->connection, 'END');
         }
         if (MDB2::isError($result)) {
@@ -547,7 +547,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                 'did not specified a valid lob');
         }
         if (!isset($db->lobs[$lob]['handle'])) {
-            if ($db->auto_commit) {
+            if (!$db->in_transaction) {
                 if (!pg_exec($db->connection, 'BEGIN')) {
                     return $db->raiseError();
                 }

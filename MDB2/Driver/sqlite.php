@@ -175,10 +175,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        if (!$this->destructor_registered) {
-            $this->destructor_registered = true;
-            $this->PEAR();
-        }
         $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
         $result = $this->_doQuery($query);
         if (MDB2::isError($result)) {
@@ -324,15 +320,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             $this->connected_dsn = $this->dsn;
             $this->connected_database_name = $database_file;
             $this->opened_persistent = $this->getoption('persistent');
-
-            if (!$this->auto_commit) {
-                $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
-                if (!@sqlite_query($query, $this->connection)) {
-                    $this->_close();
-                    return $this->raiseError('connect: Could not start transaction');
-                }
-                $this->in_transaction = true;
-            }
         }
         return MDB2_OK;
     }
@@ -348,12 +335,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if ($this->supports('transactions') && !$this->auto_commit) {
-                $result = $this->rollback();
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-            }
             @sqlite_close($this->connection);
             $this->connection = 0;
         }
@@ -405,6 +386,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $result = @$function($query.';', $connection);
         ini_restore('track_errors');
         $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
+
         if (!$result) {
             return $this->raiseError();
         }

@@ -355,15 +355,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                     ' is not a supported default table type';
             }
         }
-        /*
-        if ($this->supports('transactions') && !$this->in_transaction) {
-            if (!@mysql_query('SET AUTOCOMMIT = 0', $this->connection)) {
-                $this->_close();
-                return $this->raiseError();
-            }
-            $this->in_transaction = true;
-        }
-        */
         return MDB2_OK;
     }
 
@@ -379,12 +370,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if ($this->supports('transactions') && !$this->auto_commit) {
-                $result = $this->rollback();
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-            }
             @mysql_close($this->connection);
             $this->connection = 0;
         }

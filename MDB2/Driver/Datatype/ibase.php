@@ -428,7 +428,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             @rewind($fp);
             $value = $fp;
         }
-        $handle = @ibase_blob_create($db->auto_commit ? $db->connection : $db->transaction_id);
+        $handle = @ibase_blob_create($db->in_transaction ? $db->transaction_id : $db->connection);
         if ($handle) {
             while (!@feof($value)) {
                 $data = @fread($value, $db->options['lob_buffer_length']);
@@ -451,7 +451,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $result = $db->raiseError();
         }
 
-        if (!$db->auto_commit) {
+        if ($db->in_transaction) {
             $db->commit();
         }
         return $value;

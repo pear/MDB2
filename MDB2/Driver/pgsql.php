@@ -148,15 +148,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function beginTransaction($auto_commit)
+    function beginTransaction()
     {
         $this->debug('starting transaction', 'beginTransaction');
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
-        }
-        if (!$this->destructor_registered) {
-            $this->destructor_registered = true;
-            $this->PEAR();
         }
         $result = $this->_doQuery('BEGIN');
         if (MDB2::isError($result)) {
@@ -319,14 +315,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $this->connected_dsn = $this->dsn;
             $this->connected_database_name = $this->database_name;
             $this->opened_persistent = $this->options['persistent'];
-            /*
-            if (!$this->auto_commit
-                && MDB2::isError($trans_result = $this->_doQuery('BEGIN'))
-            ) {
-                $this->_close();
-                return $trans_result;
-            }
-            */
         }
         return MDB2_OK;
     }
@@ -342,12 +330,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if ($this->supports('transactions') && !$this->auto_commit) {
-                $result = $this->rollback();
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-            }
             @pg_close($this->connection);
             $this->connection = 0;
         }

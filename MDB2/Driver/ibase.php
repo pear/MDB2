@@ -220,10 +220,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        if (!$this->destructor_registered) {
-            $this->destructor_registered = true;
-            $this->PEAR();
-        }
         $result = ibase_trans();
         if (!$result) {
             return $this->raiseError(MDB2_ERROR, null, null,
@@ -386,12 +382,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $this->connected_dsn = $this->dsn;
             $this->connected_database_name = $database_file;
             $this->opened_persistent = $this->options['persistent'];
-/*
-            if (!$this->in_transaction && MDB2::isError($trans_result = $this->beginTransaction())) {
-                $this->_close();
-                return $trans_result;
-            }
-*/
         }
         return MDB2_OK;
     }
@@ -408,22 +398,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            /*
-            //done automatically by ibase_close();
-            if ($this->supports('transactions') && $this->in_transaction) {
-                $result = $this->rollback();
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-            }
-            */
             ibase_close($this->connection);
             $this->connection = 0;
-            /*
-            if (isset($result) && MDB2::isError($result)) {
-                return $result;
-            }
-            */
         }
         return MDB2_OK;
     }
@@ -456,9 +432,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 $connection = $this->transaction_id;
             } else {
                 $err = $this->connect();
+                if (MDB2::isError($err)) {
+                    return $err;
+                }
                 $connection = $this->connection;
             }
-            //$connection = ($this->in_transaction ? $this->transaction_id : $this->connection);
         }
         $result = ibase_query($connection, $query);
 
@@ -559,7 +537,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
         $connection = ($this->in_transaction ? $this->transaction_id : $this->connection);
         $statement = ibase_prepare($connection, $query);
-        
+
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $obj =& new $class_name($this, $statement, $query, $types, $result_types);
         return $obj;
