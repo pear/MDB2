@@ -204,13 +204,16 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
     }
 
     function testSingleton() {
+        // this will reuse the existing database connection
+        // which has a database name set
         $mdb =& MDB2::singleton();
         $this->assertTrue(MDB2::isConnection($mdb));
-
-        // should have a different database name set
-        $mdb =& MDB2::singleton($this->dsn, $this->options);
-
-        $this->assertTrue($mdb->db_index != $this->db->db_index);
+        $this->assertTrue($mdb->db_index == $this->db->db_index, 'MDB::singleton() called without a parameter did not return the first still connected MDB instance ('.$mdb->getDSN().' should be equal to '.$this->db->getDSN().')');
+        
+        // $this->dsn does not have a database name set
+        $another_mdb =& MDB2::singleton($this->dsn, $this->options);
+        
+        $this->assertTrue($another_mdb->db_index != $this->db->db_index, 'MDB::singleton() called with a different dsn returned the first still connected MDB instance ('.$another_mdb->getDSN().' should not be equal to '.$this->db->getDSN().')');
     }
 }
 
