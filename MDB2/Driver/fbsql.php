@@ -490,12 +490,13 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     // {{{ getAfterID()
 
     /**
-     * @param miced id value as returned by getBeforeId()
+     * @param mixed id value as returned by getBeforeId()
      * @param string $table name of the table
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getAfterID($id, $table)    {
+    function getAfterID($id, $table)
+    {
         $this->loadModule('native');
         return $this->native->getInsertID();
     }
