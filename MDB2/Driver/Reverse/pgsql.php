@@ -105,6 +105,9 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         case 'text':
         case 'char':
         case 'varchar':
+        case 'bool':
+            $type[0] = 'boolean';
+            break;
         case 'bpchar':
             $type[0] = 'text';
 
@@ -113,21 +116,6 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
             } elseif (strstr($db_type, 'text'))
                 $type[1] = 'clob';
             break;
-/*
-        case 'enum':
-            preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
-            $length = 0;
-            if (is_array($matches)) {
-                foreach ($matches[0] as $value) {
-                    $length = max($length, strlen($value)-2);
-                }
-            }
-            unset($decimal);
-        case 'set':
-            $type[0] = 'text';
-            $type[1] = 'integer';
-            break;
-*/
         case 'date':
             $type[0] = 'date';
             break;
