@@ -941,13 +941,6 @@ class MDB2_Driver_Common extends PEAR
     var $debug_output = '';
 
     /**
-     * determine if queries should auto commit or not
-     * @var boolean
-     * @access public
-     */
-    var $auto_commit = true;
-
-    /**
      * determine if there is an open transaction
      * @var boolean
      * @access private
@@ -1024,13 +1017,6 @@ class MDB2_Driver_Common extends PEAR
     */
     var $blobs = array();
 
-    /**
-     * determines of the PHP4 destructor emulation has been enabled yet
-    * @var array
-    * @access private
-    */
-    var $destructor_registered;
-
     // }}}
     // {{{ constructor
 
@@ -1043,10 +1029,6 @@ class MDB2_Driver_Common extends PEAR
         $db_index = key($GLOBALS['_MDB2_databases']) + 1;
         $GLOBALS['_MDB2_databases'][$db_index] = &$this;
         $this->db_index = $db_index;
-
-        if (substr(PHP_VERSION, 0, 1) >= 5) {
-            $this->destructor_registered = true;
-        }
     }
 
     // }}}
@@ -1536,12 +1518,6 @@ class MDB2_Driver_Common extends PEAR
      */
     function disconnect()
     {
-        if ($this->in_transaction
-            && !MDB2::isError($this->rollback())
-            //&& !MDB2::isError($this->commmit())
-        ) {
-            $this->in_transaction = false;
-        }
         unset($GLOBALS['_MDB2_databases'][$this->db_index]);
         return $this->_close();
     }
@@ -2371,28 +2347,6 @@ class MDB2_Driver_Common extends PEAR
         $all = $result->fetchAll($fetchmode, $rekey, $force_array, $group);
         $result->free();
         return $all;
-    }
-
-    // }}}
-    // {{{ Destructor
-
-    /**
-    * this function closes open transactions to be executed at shutdown
-    *
-    * @access private
-    */
-    function __destruct()
-    {
-        /*
-        if ($this->in_transaction) {
-            $this->rollback();
-        }
-        */
-        $this->_close();
-    }
-    function _MDB2_Driver_Common()
-    {
-        $this->__destruct();
     }
 }
 
