@@ -458,6 +458,25 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ _modifyQuery()
+
+    /**
+     * Changes a query string for various DBMS specific reasons
+     *
+     * @param string $query  query to modify
+     * @return the new (modified) query
+     * @access private
+     */
+    function _modifyQuery($query, $isManip, $limit, $offset)
+    {
+        if ($limit > 0 && $this->dsn['dbsyntax'] == 'firebird') {
+            $query = preg_replace('/^([\s(])*SELECT(?!\s*FIRST\s*\d+)/i',
+                "SELECT FIRST $limit SKIP $offset", $query);
+        }
+        return $query;
+    }
+
+    // }}}
     // {{{ prepare()
 
     /**
@@ -630,6 +649,9 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function _skipLimitOffset()
     {
+        if ($db->dsn['dbsyntax'] == 'firebird') {
+            return true;
+        }
         if ($this->limit) {
             if ($this->rownum > $this->limit) {
                 return false;
