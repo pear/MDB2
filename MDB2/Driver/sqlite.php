@@ -370,7 +370,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if (!$this->connection) {
                 $error = $this->connect();
                 if (MDB2::isError($error)) {
-                    $error;
+                    return $error;
                 }
             }
             $connection = $this->connection;
