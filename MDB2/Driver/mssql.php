@@ -328,7 +328,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         if ($this->connection != 0) {
             $result = true;
             if ($this->supports('transactions') && !$this->auto_commit) {
-                $result = !@mssql_query('ROLLBACK TRANSACTION', $this->connection)
+                $result = !@mssql_query('ROLLBACK TRANSACTION', $this->connection);
             }
             @mssql_close($this->connection);
             $this->connection = 0;

@@ -366,7 +366,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $table = strtoupper($table);
         $query = "SELECT column_name FROM user_tab_columns WHERE table_name='$table' ORDER BY column_id";
         $fields = $db->queryCol($query);
-        if (MDB::isError($result)) {
+        if (MDB2::isError($result)) {
             return($result);
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {

@@ -254,7 +254,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'EXECUTE sp_tables @table_type = "\'TABLE\'"';
         $table_names = $db->queryCol($query, null, 2);
-        if (MDB::isError($table_names)) {
+        if (MDB2::isError($table_names)) {
             return($table_names);
         }
         $tables = array();
@@ -280,7 +280,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $result = $db->query("SELECT * FROM $table");
-        if (MDB::isError($result)) {
+        if (MDB2::isError($result)) {
             return($result);
         }
         $columns = $result->getColumnNames();

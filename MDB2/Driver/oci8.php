@@ -456,7 +456,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         $result = $this->_doQuery($query);
-        if (MDB::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         if ($ismanip) {

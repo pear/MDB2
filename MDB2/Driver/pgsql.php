@@ -413,7 +413,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 $manip = preg_replace('/^(DELETE FROM|UPDATE).*$/', '\\1', $query);
                 $form = $match[2];
                 $where = $match[3];
-                $query = $manip.' '.$from." WHERE ctid=(SELECT ctid FROM $from $where LIMIT $limit");
+                $query = $manip.' '.$from.' WHERE ctid=(SELECT ctid FROM '.$from.' '.$where.' LIMIT '.$limit.')';
             } else {
                 $query .= " LIMIT $limit OFFSET $offset";
             }
@@ -458,7 +458,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         $result = $this->_doQuery($query);
-        if (MDB::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         if ($ismanip) {
