@@ -560,16 +560,17 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
-        $res = $db->query("CREATE TABLE $sequence_name
-            (sequence INTEGER DEFAULT UNIQUE, dummy int, PRIMARY KEY(sequence))");
-        $res = $db->query("set unique = 1 for $sequence_name");
+        $seqname_col_name = $db->options['seqname_col_name'];
+        $query = "CREATE TABLE $sequence_name ($seqname_col_name INTEGER DEFAULT UNIQUE, PRIMARY KEY($seqname_col_name))";
+        $res = $db->query($query);
+        $res = $db->query("SET UNIQUE = 1 FOR $sequence_name");
         if (MDB2::isError($res)) {
             return $res;
         }
         if ($start == 1) {
             return MDB2_OK;
         }
-        $res = $db->query("INSERT INTO $sequence_name (sequence) VALUES (".($start-1).')');
+        $res = $db->query("INSERT INTO $sequence_name VALUES (".($start-1).')');
         if (!MDB2::isError($res)) {
             return MDB2_OK;
         }

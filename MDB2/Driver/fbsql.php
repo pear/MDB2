@@ -446,7 +446,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->query("INSERT INTO $sequence_name (dummy) VALUES (1)");
+        $result = $this->query("INSERT INTO $sequence_name VALUES (NULL)");
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -466,7 +466,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $result;
         }
         $value = $this->queryOne("SELECT UNIQUE FROM $sequence_name", 'integer');
-        $result = $this->query("DELETE FROM $sequence_name WHERE sequence < $value");
+        $result = $this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value");
         if (MDB2::isError($result)) {
             $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
         }

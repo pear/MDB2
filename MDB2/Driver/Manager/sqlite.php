@@ -425,7 +425,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
-        $query = "CREATE TABLE $sequence_name (sequence INTEGER PRIMARY KEY DEFAULT 0 NOT NULL)";
+        $seqname_col_name = $db->options['seqname_col_name'];
+        $query = "CREATE TABLE $sequence_name ($seqname_col_name INTEGER PRIMARY KEY DEFAULT 0 NOT NULL)";
         $res = $db->query($query);
         if (MDB2::isError($res)) {
             return $res;
@@ -433,7 +434,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if ($start == 1) {
             return MDB2_OK;
         }
-        $res = $db->query("INSERT INTO $sequence_name (sequence) VALUES (".($start-1).')');
+        $res = $db->query("INSERT INTO $sequence_name VALUES (".($start-1).')');
         if (!MDB2::isError($res)) {
             return MDB2_OK;
         }

@@ -606,7 +606,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->query("INSERT INTO $sequence_name (sequence) VALUES (NULL)");
+        $result = $this->query("INSERT INTO $sequence_name VALUES (NULL)");
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -626,7 +626,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $result;
         }
         $value = @sqlite_last_insert_rowid($this->connection);
-        $result = $this->query("DELETE FROM $sequence_name WHERE sequence < $value");
+        $result = $this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value");
         if (MDB2::isError($result)) {
             $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
         }
@@ -646,7 +646,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function currID($seq_name)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        return $this->queryOne("SELECT MAX(sequence) FROM $sequence_name", 'integer');
+        return $this->queryOne("SELECT MAX(".$this->options['seqname_col_name'].") FROM $sequence_name", 'integer');
     }
 }
 

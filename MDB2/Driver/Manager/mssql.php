@@ -317,7 +317,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
-        return $db->query("CREATE TABLE $sequence_name (sequence INT NOT NULL IDENTITY($start,1) PRIMARY KEY CLUSTERED)");
+        $query = "CREATE TABLE $sequence_name (".$db->options['seqname_col_name']." INT NOT NULL IDENTITY($start,1) PRIMARY KEY CLUSTERED)";
+        return $db->query($query);
     }
 
     // }}}
