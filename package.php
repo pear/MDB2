@@ -36,7 +36,7 @@ similar as possible as the ext/pdo API!
 - several typo fixes and minor logic errors (among others a fix for bug #2057)
 - added MDB2_Driver_Common::getDatabase();
 - added default implementation for quoteCLOB() and quoteBLOB()
-- moved prepare/execute API towards PDO (mysql, sqlite and pgsql tested only)
+- moved prepare/execute API towards PDO (mysql, sqlite, pgsql and ibase tested only)
 - use MDB2_ERROR_UNSUPPORTED instead of MDB2_ERROR_NOT_CAPABLE in common implementations
 - reworked quote handling: moved all implementation details into the extension,
   made all quote methods private except for quote() itself, honor portability
@@ -76,8 +76,9 @@ similar as possible as the ext/pdo API!
 - removed fetch() and resultIsNull()
 - refactored handling of filename LOB values (prefix with 'file://')
 - standaloneQuery() now also supports SELECT querys
-- added LOAD DATA (port from DB) to MDB2::isManip()
+- added LOAD DATA (port from DB) and SET to MDB2::isManip()
 - moved xml dumping in MDB2_Tools_Manager into separate Writer class
+- completely revised ibase driver, now passing all tests under php5
 EOT;
 
 $description =<<<EOT
