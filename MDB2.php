@@ -1157,7 +1157,7 @@ class MDB2_Driver_Common extends PEAR
     {
         switch ($fetchmode) {
             case MDB2_FETCHMODE_OBJECT:
-                $this->objects['fetch_class'] = $object_class;
+                $this->options['fetch_class'] = $object_class;
             case MDB2_FETCHMODE_ORDERED:
             case MDB2_FETCHMODE_ASSOC:
                 $this->fetchmode = $fetchmode;
@@ -2726,22 +2726,30 @@ class MDB2_Result_Common extends MDB2_Result
     {
         $all = array();
         while (!MDB2::isError($row = $this->fetchRow($fetchmode)) && $row) {
-            if ($rekey && count($row) < 2) {
-                return $this->mdb->raiseError(MDB2_ERROR_TRUNCATED);
+            if ($rekey) {
+                if((is_array($row) && count($row) < 2)
+                    || (is_object($row) && count(get_object_vars($row)) < 2)
+                ) {
+                    return $this->mdb->raiseError(MDB2_ERROR_TRUNCATED);
+                }
             }
             if ($rekey) {
-                if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
+                if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
                     $key = reset($row);
                     unset($row[key($row)]);
-                } elseif ($fetchmode & MDB2_FETCHMODE_OBJECT) {
+                } elseif ($fetchmode === MDB2_FETCHMODE_OBJECT) {
                     $arr = get_object_vars($row);
                     $key = reset($arr);
-                    unset($arr->{key($row)});
+#                    unset($row->{key($arr)});
                 } else {
                     $key = array_shift($row);
                 }
-                if (!$force_array && count($row) == 1) {
-                    $row = array_shift($row);
+                if (!$force_array) {
+                    if(is_array($row) && count($row) == 1) {
+                        $row = array_shift($row);
+                    }# else if(is_object($row) && count($arr = get_object_vars($row)) == 1) {
+                    #    $row = array_shift($arr);
+                    #}
                 }
                 if ($group) {
                     $all[$key][] = $row;
@@ -2878,6 +2886,30 @@ class MDB2_Result_Common extends MDB2_Result
     {
         $this->result = null;
         return MDB2_OK;
+    }
+}
+
+// }}}
+// {{{ class MDB2_Row
+
+/**
+ * Pear MDB2 Row Object
+ * @see MDB2_Driver_Common::setFetchMode()
+ */
+class MDB2_Row
+{
+    // {{{ constructor
+
+    /**
+     * constructor
+     *
+     * @param resource row data as array
+     */
+    function MDB2_Row(&$row)
+    {
+        foreach ($row as $key => $value) {
+            $this->$key = &$row[$key];
+        }
     }
 }
 
