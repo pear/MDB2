@@ -4,8 +4,8 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '2.0.0alpha2';
 $notes = <<<EOT
-Please note that currently only the MySQL, the PostGreSQL and the Oracle driver
-have been tested to pass the test suite.
+Please note that currently only the MySQL, the PostGreSQL the Oracle and Firebird/Interbase driver
+have been tested to pass the test suite. Look at the STATUS document for details.
 
 - fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
@@ -98,7 +98,7 @@ $package->addDependency('php', '4.2.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
 $package->addDependency('XML_Parser', true, 'has', 'pkg', false);
 
-if (isset($_GET['make']) || (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] == 'make')) { 
+if (isset($_GET['make']) || (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] == 'make')) {
     $e = $package->writePackageFile();
 } else {
     $e = $package->debugPackageFile();
