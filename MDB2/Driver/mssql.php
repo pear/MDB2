@@ -75,7 +75,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->supported['affected_rows'] = true;
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
-        $this->supported['current_id'] = true;
+        $this->supported['current_id'] = false;
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
@@ -496,22 +496,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             $this->warnings[] = 'nextID: could not delete previous sequence table values';
         }
         return $value;
-    }
-
-    // }}}
-    // {{{ currID()
-
-    /**
-     * returns the current id of a sequence
-     *
-     * @param string  $seq_name name of the sequence
-     * @return mixed MDB2 Error Object or id
-     * @access public
-     */
-    function currID($seq_name)
-    {
-        $sequence_name = $this->getSequenceName($seq_name);
-        return $this->queryOne("SELECT MAX(sequence) FROM $sequence_name", 'integer');
     }
 }
 
