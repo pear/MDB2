@@ -6,7 +6,7 @@
 - move all code that is left from the reverse module into the manager module
   as per the patches that Matt send in a while ago
 - more PDO API fixes (especially the fetch object needs to be merged with the
-  statement object
+  statement object, renaming of some of the fetch methods, LOB handling)
 - separate the manager into a separate package
 - write basic Docbook documentation
 - test stored procedures
