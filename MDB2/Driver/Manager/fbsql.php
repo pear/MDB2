@@ -291,7 +291,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                 $change < count($changes);
                 next($changes), $change++)
             {
-                switch(key($changes)) {
+                switch (key($changes)) {
                     case 'added_fields':
                     case 'removed_fields':
                     case 'changed_fields':

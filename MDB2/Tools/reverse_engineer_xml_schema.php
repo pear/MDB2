@@ -58,10 +58,10 @@ echo ('
 <body>
 ');
 
-    if(isset($_REQUEST['submit']) && $_REQUEST['file'] != '') {
+    if (isset($_REQUEST['submit']) && $_REQUEST['file'] != '') {
         // BC hack to define PATH_SEPARATOR for version of PHP prior 4.3
         if (!defined('PATH_SEPARATOR')) {
-            if(defined('DIRECTORY_SEPARATOR') && DIRECTORY_SEPARATOR == "\\") {
+            if (defined('DIRECTORY_SEPARATOR') && DIRECTORY_SEPARATOR == "\\") {
                 define('PATH_SEPARATOR', ';');
             } else {
                 define('PATH_SEPARATOR', ':');
@@ -75,7 +75,7 @@ echo ('
 
         $manager =& new MDB2_Tools_Manager;
         $err = $manager->connect($dsn, array('debug' => true, 'log_line_break' => '<br>'));
-        if(MDB2::isError($err)) {
+        if (MDB2::isError($err)) {
             $error = $err->getMessage();
         } else {
             if ($_REQUEST['action']) {
@@ -112,7 +112,7 @@ echo ('
                 $error = 'no action selected';
             }
             $warnings = $manager->getWarnings();
-            if(count($warnings) > 0) {
+            if (count($warnings) > 0) {
                 echo('Warnings<br>');
                 if (class_exists('Var_Dump')) {
                     Var_Dump::display($warnings);
@@ -143,10 +143,10 @@ echo ('
             Database Type:
             <select name="type">
                 <option value="mysql"');
-                if(isset($_REQUEST['type']) && $_REQUEST['type'] == 'mysql') {echo ('selected');}
+                if (isset($_REQUEST['type']) && $_REQUEST['type'] == 'mysql') {echo ('selected');}
                 echo ('>MySQL</option>
                 <option value="pgsql"');
-                if(isset($_REQUEST['type']) && $_REQUEST['type'] == 'mysql') {echo ('selected');}
+                if (isset($_REQUEST['type']) && $_REQUEST['type'] == 'mysql') {echo ('selected');}
                 echo ('>Postgres</option>
             </select>
             <br />
@@ -172,10 +172,10 @@ echo ('
                 if (!isset($_REQUEST['dump']) || $_REQUEST['dump'] == 'all') {echo ('selected');}
                 echo ('>All</option>
                 <option value="structure"');
-                if(isset($_REQUEST['dump']) && $_REQUEST['dump'] == 'structure') {echo ('selected');}
+                if (isset($_REQUEST['dump']) && $_REQUEST['dump'] == 'structure') {echo ('selected');}
                 echo ('>Structure</option>
                 <option value="content"');
-                if(isset($_REQUEST['dump']) && $_REQUEST['dump'] == 'content') {echo ('selected');}
+                if (isset($_REQUEST['dump']) && $_REQUEST['dump'] == 'content') {echo ('selected');}
                 echo ('>Content</option>
             </select>
             <br />

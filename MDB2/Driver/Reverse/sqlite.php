@@ -104,7 +104,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             if ($field_name == $columns[$i]['name']) {
                 $db_type = $columns[$i]['type'];
                 $type = array();
-                switch($db_type) {
+                switch ($db_type) {
                     case 'tinyint':
                     case 'smallint':
                     case 'mediumint':

@@ -83,7 +83,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     function _verifyTableType($table_type)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        switch(strtoupper($table_type)) {
+        switch (strtoupper($table_type)) {
             case 'BERKELEYDB':
             case 'BDB':
                 $check = array('have_bdb');
@@ -350,7 +350,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 $change < count($changes);
                 next($changes), $change++)
             {
-                switch(key($changes)) {
+                switch (key($changes)) {
                     case 'added_fields':
                     case 'removed_fields':
                     case 'changed_fields':

@@ -107,7 +107,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         }
         //$decimal = strtok('(), '); = eh?
         $type = array();
-        switch($db_type) {
+        switch ($db_type) {
             case 'int':
                 $type[0] = 'integer';
                 if ($length == '1') {

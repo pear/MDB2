@@ -112,7 +112,7 @@ class MDB2_Tools_Parser extends XML_Parser
         $this->elements[$this->count++] = strtolower($element);
         $this->element = implode('-', $this->elements);
 
-        switch($this->element) {
+        switch ($this->element) {
         case 'database-table-initialization-insert':
             $this->init = array('type' => 'insert');
             break;
@@ -153,7 +153,7 @@ class MDB2_Tools_Parser extends XML_Parser
             return;
         };
 
-        switch($this->element) {
+        switch ($this->element) {
         /* Initialization */
         case 'database-table-initialization-insert-field':
             if (!$this->init_name) {
@@ -221,7 +221,7 @@ class MDB2_Tools_Parser extends XML_Parser
                 $this->raiseError('fieldname "'.$this->field_name.'" not allowed', $xp);
             };
             /* Type check */
-            switch($this->field['type']) {
+            switch ($this->field['type']) {
             case 'integer':
                 if (isset($this->field['unsigned'])
                     && $this->field['unsigned'] !== '1' && $this->field['unsigned'] !== '0')
@@ -364,7 +364,7 @@ class MDB2_Tools_Parser extends XML_Parser
             return;
         };
         $field_def = $this->table['fields'][$field_name];
-        switch($field_def['type']) {
+        switch ($field_def['type']) {
         case 'text':
         case 'clob':
             if (isset($field_def['length']) && strlen($field_value) > $field_def['length']) {
@@ -435,7 +435,7 @@ class MDB2_Tools_Parser extends XML_Parser
     function raiseError($msg, $xp = null)
     {
         if (is_null($this->error)) {
-            if(is_resource($msg)) {
+            if (is_resource($msg)) {
                 $error = "Parser error: ";
                 $xp = $msg;
             } else {
@@ -461,7 +461,7 @@ class MDB2_Tools_Parser extends XML_Parser
             $value = (int) $value;
             return true;
         };
-        switch($value)
+        switch ($value)
         {
         case 'N':
         case 'n':
@@ -491,7 +491,7 @@ class MDB2_Tools_Parser extends XML_Parser
             $data = $this->variables[$data];
         };
 
-        switch($this->element) {
+        switch ($this->element) {
         /* Initialization */
         case 'database-table-initialization-insert-field-name':
             @$this->init_name .= $data;

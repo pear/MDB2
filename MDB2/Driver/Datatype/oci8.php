@@ -119,7 +119,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function getTypeDeclaration($field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        switch($field['type'])
+        switch ($field['type'])
         {
             case 'text':
                 $length = (isset($field['length']) ? $field['length'] : (($length = $db->options['default_text_field_length']) ? $length : 4000));

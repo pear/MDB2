@@ -291,7 +291,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $result = $db->query("SELECT * FROM $table");
-        if( MDB::isError($result)) {
+        if (MDB::isError($result)) {
             return($result);
         }
         $columns = $db->getColumnNames($result);

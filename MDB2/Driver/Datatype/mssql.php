@@ -82,7 +82,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     function convertResult($value, $type)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        switch($type) {
+        switch ($type) {
             case MDB2_TYPE_BOOLEAN:
                 return $value == '1';
             case MDB2_TYPE_DATE:

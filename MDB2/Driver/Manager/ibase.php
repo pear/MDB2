@@ -118,7 +118,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_common
             $change<count($changes);
             next($changes), $change++)
         {
-            switch(key($changes)) {
+            switch (key($changes)) {
                 case 'changed_not_null':
                 case 'notnull':
                     return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
@@ -248,7 +248,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_common
                 $change<count($changes);
                 next($changes), $change++)
             {
-                switch(key($changes)) {
+                switch (key($changes)) {
                     case 'added_fields':
                     case 'removed_fields':
                     case 'renamed_fields':
@@ -409,7 +409,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_common
                 && $db->support('index_sorting')
                 && isset($definition['fields'][$field_name]['sorting'])
             ) {
-                switch($definition['fields'][$field_name]['sorting']) {
+                switch ($definition['fields'][$field_name]['sorting']) {
                     case 'ascending':
                         $query_sort = ' ASC';
                         break;

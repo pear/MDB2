@@ -336,7 +336,7 @@ class MDB2_Tools_Manager extends PEAR
         }
         if (isset($table['initialization']) && is_array($table['initialization'])) {
             foreach ($table['initialization'] as $instruction) {
-                switch($instruction['type']) {
+                switch ($instruction['type']) {
                     case 'insert':
                         $query_fields = $query_values = array();
                         if (isset($instruction['fields']) && is_array($instruction['fields'])) {
@@ -357,7 +357,7 @@ class MDB2_Tools_Manager extends PEAR
                                 foreach ($instruction['fields'] as $field_name => $field) {
                                     $field_number++;
                                     $query = $field_name;
-                                    switch($table['fields'][$field_name]['type']) {
+                                    switch ($table['fields'][$field_name]['type']) {
                                         case 'integer':
                                         case 'text':
                                         case 'boolean':
@@ -794,7 +794,7 @@ class MDB2_Tools_Manager extends PEAR
                                 $defined_fields[$was_field_name] = true;
                                 $change = array();
                                 if ($field['type'] == $previous_fields[$was_field_name]['type']) {
-                                    switch($field['type']) {
+                                    switch ($field['type']) {
                                         case 'integer':
                                             $previous_unsigned = isset($previous_fields[$was_field_name]['unsigned']);
                                             $unsigned = isset($fields[$field_name]['unsigned']);
@@ -1327,7 +1327,7 @@ class MDB2_Tools_Manager extends PEAR
             $character < strlen($string);
             $character++)
         {
-            switch($string[$character]) {
+            switch ($string[$character]) {
                 case '\"':
                 case '>':
                 case '<':
@@ -1846,7 +1846,7 @@ class MDB2_Tools_Manager extends PEAR
                             if (in_array($field_name, array_keys($this->invalid_names))) {
                                 $this->warnings[] = "invalid field name: $field_name. You will need to set the class var \$fail_on_invalid_names to false or change the field name.";
                             }
-                            switch($field['type']) {
+                            switch ($field['type']) {
                                 case 'integer':
                                     if (isset($field['unsigned'])) {
                                         $buffer .=("    <unsigned>1</unsigned>$eol");
@@ -1909,7 +1909,7 @@ class MDB2_Tools_Manager extends PEAR
                         if (isset($table['initialization']) && is_array($table['initialization'])) {
                             $buffer = ("$eol  <initialization>$eol");
                             foreach ($table['initialization'] as $instruction_name => $instruction) {
-                                switch($instruction['type']) {
+                                switch ($instruction['type']) {
                                     case 'insert':
                                         $buffer .= ("$eol   <insert>$eol");
                                         foreach ($instruction['fields'] as $field_name => $field) {

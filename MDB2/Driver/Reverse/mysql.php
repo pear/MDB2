@@ -111,7 +111,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                 $length = strtok('(), ');
                 $decimal = strtok('(), ');
                 $type = array();
-                switch($db_type) {
+                switch ($db_type) {
                     case 'tinyint':
                     case 'smallint':
                     case 'mediumint':

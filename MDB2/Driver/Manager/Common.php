@@ -509,7 +509,7 @@ class MDB2_Driver_Manager_Common
             $field_name = key($definition['fields']);
             $query.= $field_name;
             if ($db->supports('index_sorting') && isset($definition['fields'][$field_name]['sorting'])) {
-                switch($definition['fields'][$field_name]['sorting']) {
+                switch ($definition['fields'][$field_name]['sorting']) {
                     case 'ascending':
                         $query.= ' ASC';
                         break;

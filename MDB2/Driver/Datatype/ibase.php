@@ -121,7 +121,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function getTypeDeclaration($field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        switch($field['type'])
+        switch ($field['type'])
         {
             case 'text':
                 $length = (isset($field['length']) ? $field['length'] : (!MDB2::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
@@ -553,7 +553,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * fetch a lob value from a result set
      *
      * @param int $lob handle to a lob created by the createLob() function
-     * @return mixed MDB_OK on success, a MDB error on failure
+     * @return mixed MDB2_OK on success, a MDB error on failure
      * @access private
      */
     function _retrieveLOB($lob)
