@@ -330,64 +330,18 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if (!$this->auto_commit) {
-                $result = $this->autoCommit(true);
+            if ($this->supports('transactions') && !$this->auto_commit) {
+                $result = $this->rollback();
+                if (MDB2::isError($result)) {
+                    return $result;
+                }
             }
-
             @OCILogOff($this->connection);
             $this->connection = 0;
-            $this->affected_rows = -1;
             $this->uncommitedqueries = 0;
             unset($GLOBALS['_MDB2_databases'][$this->db_index]);
-
-            if (isset($result) && MDB2::isError($result)) {
-                return $result;
-            }
         }
         return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ _modifyQuery()
-
-    /**
-     * This method is used by backends to alter queries for various
-     * reasons.
-     *
-     * @param string $query  query to modify
-     * @return the new (modified) query
-     * @access private
-     */
-    function _modifyQuery($query)
-    {
-        // "SELECT 2+2" must be "SELECT 2+2 FROM dual" in Oracle
-        if (preg_match('/^\s*SELECT/i', $query)
-            && !preg_match('/\sFROM\s/i', $query)
-        ) {
-            $query .= " FROM dual";
-        }
-        return $query;
-    }
-
-    // }}}
-    // {{{ _doQuery()
-
-    /**
-     * Execute a query
-     * @param string $query the SQL query
-     * @return mixed result identifier if query executed, else MDB2_error
-     * @access private
-     **/
-    function _doQuery($query)
-    {
-        if (!($statement = @OCIParse($this->connection, $stmt)) {
-            $error =& $this->raiseError(MDB2_ERROR, null, null,
-                'Could not create statement');
-            return $error;
-        }
-        $mode = $this->auto_commit ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
-        $result = @OCIExecute($statement, $mode);
-        return $result;
     }
 
     // }}}
@@ -423,48 +377,72 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ query()
+    // {{{ _modifyQuery()
 
     /**
-     * Send a query to the database and return any results
+     * This method is used by backends to alter queries for various
+     * reasons.
      *
-     * @param string $query the SQL query
-     * @param array $types array that contains the types of the columns in the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access public
+     * @param string $query  query to modify
+     * @return the new (modified) query
+     * @access private
      */
-    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
+    function _modifyQuery($query)
     {
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
+        // "SELECT 2+2" must be "SELECT 2+2 FROM dual" in Oracle
+        if (preg_match('/^\s*SELECT/i', $query)
+            && !preg_match('/\sFROM\s/i', $query)
+        ) {
+            $query .= " FROM dual";
         }
+        return $query;
+    }
 
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query);
+    // }}}
+    // {{{ _doQuery()
+
+    /**
+     * Execute a query
+     * @param string $query the SQL query
+     * @param boolean $ismanip  if the query is a manipulation query
+     * @return mixed result identifier if query executed, else MDB2_error
+     * @access private
+     **/
+    function _doQuery($query, $ismanip = false)
+    {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->getOption('disable_query')) {
             if ($ismanip) {
+                $this->affected_rows = 0;
                 return MDB2_OK;
             }
             return null;
         }
 
-        $result = $this->_doQuery($query);
-        if (MDB2::isError($result)) {
-            return $result;
+        $connected = $this->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
         }
+
+        $statement = @OCIParse($this->connection, $stmt);
+        if (!$statement) {
+            $error =& $this->raiseError(MDB2_ERROR, null, null,
+                'Could not create statement');
+            return $error;
+        }
+
+        $mode = $this->auto_commit ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
+        $result = @OCIExecute($statement, $mode);
+        if (!$result) {
+            $error =& $this->raiseError();
+            return $error;
+        }
+
         if ($ismanip) {
-            $this->affected_rows = @OCIRowCount($result);
+            return @OCIRowCount($result);
         }
-        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
-        return $result_obj;
+        return $result;
     }
 
     // }}}
@@ -500,7 +478,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             $query.= $columns.$variables;
         }
-        if (!($statement = @OCIParse($this->connection, $query)) {
+        $statement = @OCIParse($this->connection, $query);
+        if (!$statement) {
             $error =& $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
             return $error;
@@ -508,7 +487,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $statement =& new $class_name($this, $query, $positions, $types, $result_types, $statement);
-        return $statement
+        return $statement;
     }
 
     // }}}
@@ -987,8 +966,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement
                     break;
                 }
             } else {
-                if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1))) {
-                    $success =  $this->db->raiseError();
+                if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1)) {
+                    $success = $this->db->raiseError();
                     break;
                 }
             }
