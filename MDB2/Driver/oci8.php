@@ -161,6 +161,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
+        if (!$this->destructor_registered && $this->opened_persistent) {
+            $this->destructor_registered = true;
+            register_shutdown_function('MDB2_closeOpenTransactions');
+        }
         $this->in_transaction = true;
         return MDB2_OK;
     }
@@ -178,10 +182,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function commit()
     {
         $this->debug('commit transaction', 'commit');
-        if (!$this->supports('transactions')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'commit: transactions are not in use');
-        }
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto committed');
@@ -293,7 +293,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            $this->_close();
+            if ($this->opened_persistent) {
+                $this->connection = 0;
+            } else {
+                $this->disconnect();
+            }
         }
 
         $connection = $this->_doConnect(
@@ -310,27 +314,37 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
         $error = $this->_doQuery($query);
         if (MDB2::isError($error)) {
-            $this->_close();
+            if ($this->opened_persistent) {
+                $this->connection = 0;
+            } else {
+                $this->disconnect();
+            }
             return $error;
         }
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
         $error = $this->_doQuery($query);
         if (MDB2::isError($error)) {
-            $this->_close();
+            if ($this->opened_persistent) {
+                $this->connection = 0;
+            } else {
+                $this->disconnect();
+            }
             return $error;
         }
         return MDB2_OK;
     }
 
     // }}}
-    // {{{ _close()
+    // {{{ disconnect()
+
     /**
-     * Close the database connection
+     * Log out and disconnect from the database.
      *
-     * @return boolean
-     * @access private
-     **/
-    function _close()
+     * @return mixed true on success, false if not connected and error
+     *                object on error
+     * @access public
+     */
+    function disconnect()
     {
         if ($this->connection != 0) {
             @OCILogOff($this->connection);

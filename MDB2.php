@@ -1017,6 +1017,13 @@ class MDB2_Driver_Common extends PEAR
     */
     var $blobs = array();
 
+    /**
+     * determines of the PHP4 destructor emulation has been enabled yet
+    * @var array
+    * @access private
+    */
+    var $destructor_registered;
+
     // }}}
     // {{{ constructor
 
@@ -1029,6 +1036,30 @@ class MDB2_Driver_Common extends PEAR
         $db_index = key($GLOBALS['_MDB2_databases']) + 1;
         $GLOBALS['_MDB2_databases'][$db_index] = &$this;
         $this->db_index = $db_index;
+
+        if (substr(PHP_VERSION, 0, 1) >= 5) {
+            $this->destructor_registered = true;
+        }
+    }
+
+    // }}}
+    // {{{ Destructor
+
+    /**
+     *  Destructor
+     */
+    function __destruct()
+    {
+        if ($this->connection) {
+            if ($this->opened_persistent) {
+                if ($this->in_transaction) {
+                    $this->rollback();
+                }
+            } else {
+                $this->disconnect();
+            }
+        }
+        unset($GLOBALS['_MDB2_databases'][$this->db_index]);
     }
 
     // }}}
@@ -1517,20 +1548,6 @@ class MDB2_Driver_Common extends PEAR
      * @access public
      */
     function disconnect()
-    {
-        unset($GLOBALS['_MDB2_databases'][$this->db_index]);
-        return $this->_close();
-    }
-
-    // }}}
-    // {{{ _close()
-
-    /**
-     * all the RDBMS specific things needed to close a DB connection
-     *
-     * @access private
-     */
-    function _close()
     {
         return MDB2_OK;
     }
@@ -2826,6 +2843,28 @@ class MDB2_Statement_Common
     function free()
     {
         return MDB2_OK;
+    }
+}
+
+// }}}
+// {{{ MDB2_closeOpenTransactions()
+
+/**
+ * close any open transactions form persistant connections
+ *
+ * @return void
+ * @access public
+ */
+function MDB2_closeOpenTransactions()
+{
+    reset($GLOBALS['_MDB2_databases']);
+    while (next($GLOBALS['_MDB2_databases'])) {
+        $key = key($GLOBALS['_MDB2_databases']);
+        if ($GLOBALS['_MDB2_databases'][$key]->opened_persistent
+            && $GLOBALS['_MDB2_databases'][$key]->in_transaction
+        ) {
+            $GLOBALS['_MDB2_databases'][$key]->rollback();
+        }
     }
 }
 

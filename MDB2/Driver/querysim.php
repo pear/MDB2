@@ -277,7 +277,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             if ($this->connected_database_name) {
                 $this->_close($this->connection);
             }
-            $this->_close();
+            $this->disconnect();
         }
 
         $connection = 1;// sim connect
@@ -306,17 +306,16 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     }
     // }}}
 
-    // {{{ _close()
+    // {{{ disconnect()
 
     /**
-     * Close a file or simulate a successful database disconnect
+     * Log out and disconnect from the database.
      *
+     * @return mixed true on success, false if not connected and error
+     *                object on error
      * @access public
-     *
-     * @return bool true on success, false if file closed.
-     *              Always true if simulated.
      */
-    function _close()
+    function disconnect()
     {
         if ($this->connection != 0) {
             if (($this->opened_persistent) && (is_resource($this->connection))) {

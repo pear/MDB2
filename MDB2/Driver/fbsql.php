@@ -148,12 +148,12 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function beginTransaction()
     {
         $this->debug('starting transaction', 'beginTransaction');
-        if (!$this->supports('transactions')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'beginTransaction: transactions are not in use');
-        }
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
+        }
+        if (!$this->destructor_registered && $this->opened_persistent) {
+            $this->destructor_registered = true;
+            register_shutdown_function('MDB2_closeOpenTransactions');
         }
         $result = $this->_doQuery('SET COMMIT FALSE');
         if (MDB2::isError($result)) {
@@ -176,10 +176,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function commit()
     {
         $this->debug('commit transaction', 'commit');
-        if (!$this->supports('transactions')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'commit: transactions are not in use');
-        }
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto commited');
@@ -205,10 +201,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function rollback()
     {
         $this->debug('rolling back transaction', 'rollback');
-        if (!$this->supports('transactions')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'rollback: transactions are not in use');
-        }
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
@@ -237,7 +229,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            $this->_close();
+            if ($this->opened_persistent) {
+                $this->connection = 0;
+            } else {
+                $this->disconnect();
+            }
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
@@ -273,14 +269,16 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ _close()
+    // {{{ disconnect()
+
     /**
-     * all the RDBMS specific things needed close a DB connection
+     * Log out and disconnect from the database.
      *
-     * @return boolean
-     * @access private
-     **/
-    function _close()
+     * @return mixed true on success, false if not connected and error
+     *                object on error
+     * @access public
+     */
+    function disconnect()
     {
         if ($this->connection != 0) {
             @fbsql_close($this->connection);

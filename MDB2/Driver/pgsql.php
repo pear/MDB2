@@ -154,6 +154,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
+        if (!$this->destructor_registered && $this->opened_persistent) {
+            $this->destructor_registered = true;
+            register_shutdown_function('MDB2_closeOpenTransactions');
+        }
         $result = $this->_doQuery('BEGIN');
         if (MDB2::isError($result)) {
             return $result;
@@ -298,7 +302,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            $this->_close();
+            if ($this->opened_persistent) {
+                $this->connection = 0;
+            } else {
+                $this->disconnect();
+            }
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
@@ -320,14 +328,16 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ _close()
+    // {{{ disconnect()
+
     /**
-     * Close the database connection
+     * Log out and disconnect from the database.
      *
-     * @return boolean
-     * @access private
-     **/
-    function _close()
+     * @return mixed true on success, false if not connected and error
+     *                object on error
+     * @access public
+     */
+    function disconnect()
     {
         if ($this->connection != 0) {
             @pg_close($this->connection);

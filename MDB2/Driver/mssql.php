@@ -172,6 +172,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
+        if (!$this->destructor_registered && $this->opened_persistent) {
+            $this->destructor_registered = true;
+            register_shutdown_function('MDB2_closeOpenTransactions');
+        }
         $result = $this->_doQuery('BEGIN TRANSACTION');
         if (MDB2::isError($result)) {
             return $result;
@@ -246,7 +250,11 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            $this->_close();
+            if ($this->opened_persistent) {
+                $this->connection = 0;
+            } else {
+                $this->disconnect();
+            }
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
@@ -291,22 +299,18 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ _close()
+    // {{{ disconnect()
+
     /**
-     * all the RDBMS specific things needed close a DB connection
+     * Log out and disconnect from the database.
      *
-     * @return boolean
-     * @access private
-     **/
-    function _close()
+     * @return mixed true on success, false if not connected and error
+     *                object on error
+     * @access public
+     */
+    function disconnect()
     {
         if ($this->connection != 0) {
-            if ($this->supports('transactions') && !$this->in_transaction) {
-                $result = $this->rollback();
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-            }
             @mssql_close($this->connection);
             $this->connection = 0;
         }
