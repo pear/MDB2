@@ -614,7 +614,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $query = "SELECT $seq_name.nextval FROM DUAL";
+        $sequence_name = $this->getSequenceName($seq_name);
+        $query = "SELECT $sequence_name.nextval FROM DUAL";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->queryOne($query, 'integer');
         $this->popExpect();
@@ -643,7 +644,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function currId($seq_name)
     {
-        return $this->queryOne("SELECT $seq_name.currval FROM DUAL");
+        $sequence_name = $this->getSequenceName($seq_name);
+        return $this->queryOne("SELECT $sequence_name.currval FROM DUAL");
     }
 }
 

@@ -415,11 +415,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function createSequence($seq_name, $start = 1)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $seq_name = strtoupper($seq_name);
-        if (MDB2::isError($result = $db->query('CREATE GENERATOR '.$seq_name))) {
+        $sequence_name = $db->getSequenceName($seq_name);
+        if (MDB2::isError($result = $db->query('CREATE GENERATOR '.strtoupper($sequence_name)))) {
             return $result;
         }
-        if (MDB2::isError($result = $db->query('SET GENERATOR '.$seq_name.' TO '.($start-1)))) {
+        if (MDB2::isError($result = $db->query('SET GENERATOR '.strtoupper($sequence_name).' TO '.($start-1)))) {
             if (MDB2::isError($err = $db->dropSequence($seq_name))) {
                 return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                     'createSequence: Could not setup sequence start value and then it was not possible to drop it: '.
@@ -442,7 +442,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function dropSequence($seq_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->query('DELETE FROM RDB$GENERATORS WHERE RDB$GENERATOR_NAME=\''.strtoupper($seq_name).'\'');
+        $sequence_name = $db->getSequenceName($seq_name);
+        return $db->query('DELETE FROM RDB$GENERATORS WHERE RDB$GENERATOR_NAME=\''.strtoupper($sequence_name).'\'');
     }
 
     // }}}
@@ -457,7 +458,17 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listSequences()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->queryCol('SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS');
+        $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS';
+        $table_names = $db->queryCol($query);
+        if (MDB2::isError($table_names)) {
+            return $table_names;
+        }
+        $sequences = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
+            if ($sqn = $this->_isSequenceName($table_names[$i]))
+                $sequences[] = $sqn;
+        }
+        return $sequences;
     }
 }
 ?>

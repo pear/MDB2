@@ -383,7 +383,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     function createSequence($seq_name, $start = 1)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->query("CREATE SEQUENCE $seq_name INCREMENT 1".
+        $sequence_name = $db->getSequenceName($seq_name);
+        return $db->query("CREATE SEQUENCE $sequence_name INCREMENT 1".
             ($start < 1 ? " MINVALUE $start" : '')." START $start");
     }
 
@@ -400,7 +401,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     function dropSequence($seq_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->query("DROP SEQUENCE $seq_name");
+        $sequence_name = $db->getSequenceName($seq_name);
+        return $db->query("DROP SEQUENCE $sequence_name");
     }
 
     // }}}
@@ -415,20 +417,18 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     function listSequences()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        // gratuitously stolen and adapted from PEAR DB _getSpecialQuery in pgsql.php
-        $query = 'SELECT c.relname as "Name"
-            FROM pg_class c, pg_user u
-            WHERE c.relowner = u.usesysid AND c.relkind = \'S\'
-            AND not exists (select 1 from pg_views where viewname = c.relname)
-            AND c.relname !~ \'^pg_\'
-            UNION
-            SELECT c.relname as "Name"
-            FROM pg_class c
-            WHERE c.relkind = \'S\'
-            AND not exists (select 1 from pg_views where viewname = c.relname)
-            AND not exists (select 1 from pg_user where usesysid = c.relowner)
-            AND c.relname !~ \'^pg_\'';
-        return $db->queryCol($query);
+        $query = "SELECT relname FROM pg_class WHERE relkind = 'S' AND relnamespace IN";
+        $query.= "(SELECT oid FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema')";
+        $table_names = $db->queryCol($query);
+        if (MDB2::isError($table_names)) {
+            return $table_names;
+        }
+        $sequences = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
+            if ($sqn = $this->_isSequenceName($table_names[$i]))
+                $sequences[] = $sqn;
+        }
+        return $sequences;
     }
 }
 ?>

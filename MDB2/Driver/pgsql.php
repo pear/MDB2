@@ -494,8 +494,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
+        $sequence_name = $this->getSequenceName($seq_name);
+        $query = "SELECT NEXTVAL('$sequence_name')";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->queryOne("SELECT NEXTVAL('$seq_name')", 'integer');
+        $result = $this->queryOne($query, 'integer');
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -523,7 +525,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function currID($seq_name)
     {
-        return $this->queryOne("SELECT last_value FROM $seq_name", 'integer');
+        $sequence_name = $this->getSequenceName($seq_name);
+        return $this->queryOne("SELECT last_value FROM $sequence_name", 'integer');
     }
 }
 

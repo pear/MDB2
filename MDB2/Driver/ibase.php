@@ -583,7 +583,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $query = 'SELECT GEN_ID('.strtoupper($seq_name).', 1) as the_value FROM RDB$DATABASE';
+        $sequence_name = $this->getSequenceName($seq_name);
+        $query = 'SELECT GEN_ID('.strtoupper($sequence_name).', 1) as the_value FROM RDB$DATABASE';
         $this->expectError('*');
         $result = $this->queryOne($query, 'integer');
         $this->popExpect();
@@ -620,11 +621,12 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function currID($seq_name)
     {
-        $query = 'SELECT GEN_ID('.strtoupper($seq_name).', 0) as the_value FROM RDB$DATABASE';
+        $sequence_name = $this->getSequenceName($seq_name);
+        $query = 'SELECT GEN_ID('.strtoupper($sequence_name).', 0) as the_value FROM RDB$DATABASE';
         $value = @$this->queryOne($query);
         if (MDB2::isError($value)) {
             return $this->raiseError(MDB2_ERROR, null, null,
-                'currID: Unable to select from ' . $seqname) ;
+                'currID: Unable to select from ' . $seq_name) ;
         }
         if (!is_numeric($value)) {
             return $this->raiseError(MDB2_ERROR, null, null,
