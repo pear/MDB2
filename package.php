@@ -5,7 +5,11 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '2.0.0beta3';
 $notes = <<<EOT
 Warning: this release features numerous BC breaks to make the MDB2 API be as
-similar as possible as the ext/pdo API!
+similar as possible as the ext/pdo API! The next release is likely to also break
+BC for the same reason. Check php.net/pdo for information on the pdo API.
+
+Oracle NULL in LOB fields is broken.
+The fbsql and mssql drivers are likely to be broken as they are largely untested.
 
 MDB2 static class:
 - "xxx" out password on connect error in MDB2::connect()
