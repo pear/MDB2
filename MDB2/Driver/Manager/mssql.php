@@ -360,5 +360,30 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->Query("DROP TABLE $sequence_name");
     }
-}
+
+    // }}}
+    // {{{ listSequences()
+
+    /**
+     * list all sequences in the current database
+     *
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listSequences()
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $query = "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE_TABLE'";
+        $table_names = $db->queryCol($query);
+        if (MDB2::isError($table_names)) {
+            return $table_names;
+        }
+        $sequences = array();
+        for ($i = 0, $j = count($table_names); $i <$j; ++$i) {
+            if ($this->_isSequenceName($db, $table_names[$i])) {
+                $sequences[] = $table_names[$i];
+            }
+        }
+        return $sequences;
+    }}
 ?>
