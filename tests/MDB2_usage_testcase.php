@@ -933,7 +933,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1,:document, :picture)';
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
         $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'));
 
         $character_lob = '';
