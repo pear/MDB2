@@ -225,9 +225,8 @@ class MDB2_Extended
         return $result;
     }
 
-
-    // }}}
-    // {{{ getOne()
+    // {{{
+    // }}} getOne()
 
     /**
      * Fetch the first column of the first row of data returned from
@@ -241,15 +240,17 @@ class MDB2_Extended
      *       with this array as execute parameters
      * @param array $param_types array that contains the types of the values
      *       defined in $params
-     * @return mixed MDB2_OK or value on success, a MDB2 error on failure
+     * @param mixed $colnum which column to return
+     * @return mixed MDB2_OK or data on success, a MDB2 error on failure
      * @access public
      */
-    function getOne($query, $type = null, $params = array(), $param_types = null)
+    function getOne($query, $type = null, $params = array(),
+        $param_types = null, $colnum = 0)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         settype($params, 'array');
         if (count($params) == 0) {
-            return $db->queryOne($query, $type);
+            return $db->queryOne($query, $type, $colnum);
         }
 
         $prepared_query = $db->prepare($query, $param_types);
@@ -262,12 +263,12 @@ class MDB2_Extended
             return $result;
         }
 
-        $one = $result->fetch();
+        $one = $result->fetchOne($colnum);
         $db->freePrepared($prepared_query);
         $result->free();
         return $one;
     }
-
+ 
     // }}}
     // {{{ getRow()
 
