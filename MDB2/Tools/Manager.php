@@ -2086,7 +2086,7 @@ class MDB2_Tools_Manager extends PEAR
                     return $result;
                 }
                 $copy = true;
-                if ($this->options['debug']) {
+                if ($this->db->options['debug']) {
                     $result = $this->_debugDatabaseChanges($changes);
                     if (MDB2::isError($result)) {
                         return $result;
