@@ -47,7 +47,7 @@ bug22328         -    -    o    -    -    -    o    -    o    -    o    o    -
 bug670           -    -    o    -    -    -    o    -    o    -    o    o    -
 bug681           -    -    o    -    -    -    o    -    o    -    o    o    -
 bug718           -    -   [1]   -    -    -    o    -    o    -    o    o    -
-bug946           -    -    -    -    -    -    o    -    o    -    o    o    -
+bug946           -    -   [1]   -    -    -    o    -    o    -    o    o    -
 **[ MANAGER ]*****************************************************************
 createdatabase   -    -    -    -    -    -    o    -    o    -    o    o    -
 updatedatabase   -    -    o    -    -    -    o    -    o    -    o    o    -
@@ -58,7 +58,7 @@ deleteoid        n    n    n    n    n    n    n    n    n    n    -    n    n
 tableinfo        -    -   [1]   -    -    -    o    -    o    -    o    n    -
 
 
-[1] test passed on PHP 5, not on PHP 4
+[1] test passed on PHP 5, not on PHP 4 (unstable)
 [2] test passed on PHP 4, not on PHP 5
 [3] test fails because sqlite does not return the correct number of affected rows
 [4] sequences are working, but not currId()
