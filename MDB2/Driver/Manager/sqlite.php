@@ -165,45 +165,6 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         return $tables;
     }
 
-    function _getTableColumns($query)
-    {
-        $start_pos = strpos($query, '(');
-        $end_pos = strrpos($query, ')');
-        $column_def = substr($query, $start_pos+1, $end_pos-$start_pos-1);
-        $column_sql = split(',', $column_def);
-        $columns = array();
-        $count = count($column_sql);
-        if ($count == 0) {
-            return $db->raiseError('unexpected empty table column definition list');
-        }
-        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|INT|INTEGER|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( PRIMARY)?( \(([1-9][0-9]*)(,([1-9][0-9]*))?\))?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
-        for ($i=0, $j=0; $i<$count; ++$i) {
-            if (!preg_match($regexp, $column_sql[$i], $matches)) {
-                return $db->raiseError('unexpected table column SQL definition');
-            }
-            $columns[$j]['name'] = $matches[1];
-            $columns[$j]['type'] = strtolower($matches[2]);
-            if (isset($matches[5]) && strlen($matches[5])) {
-                $columns[$j]['length'] = $matches[5];
-            }
-            if (isset($matches[7]) && strlen($matches[7])) {
-                $columns[$j]['decimal'] = $matches[7];
-            }
-            if (isset($matches[9]) && strlen($matches[9])) {
-                $default = $matches[9];
-                if (strlen($default) && $default[0]=="'") {
-                    $default = str_replace("''","'",substr($default, 1, strlen($default)-2));
-                }
-                $columns[$j]['default'] = $default;
-            }
-            if (isset($matches[10]) && strlen($matches[10])) {
-                $columns[$j]['notnull'] = true;
-            }
-            ++$j;
-        }
-        return $columns;
-    }
-
     // }}}
     // {{{ listTableFields()
 
@@ -217,8 +178,9 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     function listTableFields($table)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $query = "SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'";
-        $result = $db->queryCol($query);
+        $query = "SELECT * FROM $table";
+        $db->setLimit(1);
+        $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -317,7 +279,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $indexes_all;
         }
         $found = $indexes = array();
-        foreach ($indexes_all as $index_name) {
+        foreach ($indexes_all as $index => $index_name) {
             if ($indexes_all[$index] != 'PRIMARY' && !isset($found[$index_name])) {
                 $indexes[] = $index_name;
                 $found[$index_name] = true;
