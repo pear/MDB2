@@ -412,6 +412,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         }
         if (($lo = @pg_locreate($db->connection))) {
             if (($handle = @pg_loopen($db->connection, $lo, 'w'))) {
+                $result = MDB2_OK;
                 while (!@feof($value)) {
                     $data = @fread($value, $db->options['lob_buffer_length']);
                     if (!@pg_lowrite($handle, $data)) {
