@@ -45,7 +45,8 @@
 // $Id$
 //
 
-require_once 'MDB2/Tools/Parser.php';
+require_once 'MDB2/Tools/Manager/Parser.php';
+require_once 'MDB2/Tools/Manager/Writer.php';
 
 define('MDB2_MANAGER_DUMP_ALL',          0);
 define('MDB2_MANAGER_DUMP_STRUCTURE',    1);
@@ -69,7 +70,7 @@ class MDB2_Tools_Manager extends PEAR
     var $warnings = array();
 
     var $options = array(
-        'fail_on_invalid_names' => 1,
+        'fail_on_invalid_names' => true,
     );
 
     var $invalid_names = array(
@@ -107,52 +108,6 @@ class MDB2_Tools_Manager extends PEAR
     );
 
     // }}}
-    // {{{ _escapeSpecialCharacters()
-
-    /**
-     * add escapecharacters to all special characters in a string
-     *
-     * @param string $string string that should be escaped
-     * @return string escaped string
-     * @access private
-     */
-    function _escapeSpecialCharacters($string)
-    {
-        if (!is_string($string)) {
-            $string = strval($string);
-        }
-        $escaped = '';
-        for ($char = 0, $count = strlen($string); $char < $count; $char++) {
-            switch ($string[$char]) {
-            case '&':
-                $escaped .= '&amp;';
-                break;
-            case '>':
-                $escaped .= '&gt;';
-                break;
-            case '<':
-                $escaped .= '&lt;';
-                break;
-            case '"':
-                $escaped .= '&quot;';
-                break;
-            case '\'':
-                $escaped .= '&apos;';
-                break;
-            default:
-                $code = ord($string[$char]);
-                if ($code < 32 || $code > 127) {
-                    $escaped .= "&#$code;";
-                } else {
-                    $escaped .= $string[$char];
-                }
-                break;
-            }
-        }
-        return $escaped;
-    }
-
-    // }}}
     // {{{ raiseError()
 
     /**
@@ -176,8 +131,7 @@ class MDB2_Tools_Manager extends PEAR
      * @access public
      * @see PEAR_Error
      */
-    function &raiseError($code = null, $mode = null, $options = null,
-                         $userinfo = null)
+    function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
     {
         $error =& MDB2_Driver_Common::raiseError($code, $mode, $options, $userinfo);
         return $error;
@@ -408,20 +362,21 @@ class MDB2_Tools_Manager extends PEAR
                 return $fields;
             }
             $this->database_definition['tables'][$table_name] = array('fields' => array());
+            $table_definition =& $this->database_definition['tables'][$table_name];
             for ($field = 0; $field < count($fields); $field++) {
                 $field_name = $fields[$field];
                 $definition = $this->db->reverse->getTableFieldDefinition($table_name, $field_name);
                 if (MDB2::isError($definition)) {
                     return $definition;
                 }
-                $this->database_definition['tables'][$table_name]['fields'][$field_name] = $definition[0][0];
+                $table_definition['fields'][$field_name] = $definition[0][0];
                 $field_choices = count($definition[0]);
                 if ($field_choices > 1) {
                     $warning = "There are $field_choices type choices in the table $table_name field $field_name (#1 is the default): ";
                     $field_choice_cnt = 1;
-                    $this->database_definition['tables'][$table_name]['fields'][$field_name]['choices'] = array();
+                    $table_definition['fields'][$field_name]['choices'] = array();
                     foreach ($definition[0] as $field_choice) {
-                        $this->database_definition['tables'][$table_name]['fields'][$field_name]['choices'][] = $field_choice;
+                        $table_definition['fields'][$field_name]['choices'][] = $field_choice;
                         $warning .= 'choice #'.($field_choice_cnt).': '.serialize($field_choice);
                         $field_choice_cnt++;
                     }
@@ -440,10 +395,10 @@ class MDB2_Tools_Manager extends PEAR
                     $index = $definition[2]['definition'];
                     $index_name = $definition[2]['name'];
                     $this->db->debug('Implicitly defining index: '.$index_name);
-                    if (!isset($this->database_definition['tables'][$table_name]['indexes'])) {
-                        $this->database_definition['tables'][$table_name]['indexes'] = array();
+                    if (!isset($table_definition['indexes'])) {
+                        $table_definition['indexes'] = array();
                     }
-                    $this->database_definition['tables'][$table_name]['indexes'][$index_name] = $index;
+                    $table_definition['indexes'][$index_name] = $index;
                 }
             }
             $indexes = $this->db->manager->listTableIndexes($table_name);
@@ -451,54 +406,51 @@ class MDB2_Tools_Manager extends PEAR
                 return $indexes;
             }
             if (is_array($indexes) && count($indexes) > 0
-                && !isset($this->database_definition['tables'][$table_name]['indexes'])
+                && !isset($table_definition['indexes'])
             ) {
-                $this->database_definition['tables'][$table_name]['indexes'] = array();
+                $table_definition['indexes'] = array();
             }
-            for ($index = 0, $index_cnt = count($indexes); $index < $index_cnt; $index++)
-            {
+            for ($index = 0, $index_cnt = count($indexes); $index < $index_cnt; $index++) {
                 $index_name = $indexes[$index];
                 $definition = $this->db->reverse->getTableIndexDefinition($table_name, $index_name);
                 if (MDB2::isError($definition)) {
                     return $definition;
                 }
-               $this->database_definition['tables'][$table_name]['indexes'][$index_name] = $definition;
+               $table_definition['indexes'][$index_name] = $definition;
             }
             // ensure that all fields that have an index on them are set to NOT NULL
-            if (isset($this->database_definition['tables'][$table_name]['indexes'])
-                && is_array($this->database_definition['tables'][$table_name]['indexes'])
-                && count($this->database_definition['tables'][$table_name]['indexes']) > 0
-            ) { var_dump($this->database_definition['tables'][$table_name]['indexes']);
-                foreach ($this->database_definition['tables'][$table_name]['indexes'] as $index_check_null) {
+            if (isset($table_definition['indexes'])
+                && is_array($table_definition['indexes'])
+                && count($table_definition['indexes'])
+            ) {
+                foreach ($table_definition['indexes'] as $index_check_null) {
                     foreach ($index_check_null['fields'] as $field_name_check_null => $field_check_null) {
-                        $this->database_definition['tables'][$table_name]['fields'][$field_name_check_null]['notnull'] = true;
+                        $table_definition['fields'][$field_name_check_null]['notnull'] = true;
                     }
                 }
             }
             // ensure that all fields that are set to NOT NULL also have a default value
-            if (is_array($this->database_definition['tables'][$table_name]['fields'])
-                && count($this->database_definition['tables'][$table_name]['fields']) > 0
-            ) {
-                foreach ($this->database_definition['tables'][$table_name]['fields'] as $field_set_default_name => $field_set_default) {
+            if (is_array($table_definition['fields']) && count($table_definition['fields'])) {
+                foreach ($table_definition['fields'] as $field_set_default_name => $field_set_default) {
                     if (isset($field_set_default['notnull']) && $field_set_default['notnull']
                         && !isset($field_set_default['default'])
                     ) {
+                        $table_field_definition[$field_set_default_name]['default']  = '';
                         if (isset($this->default_values[$field_set_default['type']])) {
-                            $this->database_definition['tables'][$table_name]['fields'][$field_set_default_name]['default'] = $this->default_values[$field_set_default['type']];
-                        } else {
-                            $this->database_definition['tables'][$table_name]['fields'][$field_set_default_name]['default'] = 0;
+                            $table_field_definition[$field_set_default_name]['default']
+                                = $this->default_values[$field_set_default['type']];
                         }
                     }
                     if (isset($field_set_default['choices']) && is_array($field_set_default['choices'])) {
-                        foreach ($field_set_default['choices'] as $field_choices_set_default_name => $field_choices_set_default) {
-                            if (isset($field_choices_set_default['notnull'])
-                                && $field_choices_set_default['notnull']
-                                && !isset($field_choices_set_default['default'])
+                        foreach ($field_set_default['choices'] as $choice_name => $choice_default) {
+                            if (isset($choice_default['notnull'])
+                                && $choice_default['notnull']
+                                && !isset($choice_default['default'])
                             ) {
-                                if (isset($this->default_values[$field_choices_set_default['type']])) {
-                                    $this->database_definition['tables'][$table_name]['fields'][$field_set_default_name]['choices'][$field_choices_set_default_name]['default'] = $this->default_values[$field_choices_set_default['type']];
-                                } else {
-                                    $this->database_definition['tables'][$table_name]['fields'][$field_set_default_name]['choices'][$field_choices_set_default_name]['default'] = 0;
+                                $table_field_definition[$field_set_default_name]['choices'][$choices_name]['default'] = '';
+                                if (isset($this->default_values[$choice_default['type']])) {
+                                    $table_field_definition[$field_set_default_name]['choices'][$choice_name]['default']
+                                        = $this->default_values[$choice_default['type']];
                                 }
                             }
                         }
@@ -921,7 +873,8 @@ class MDB2_Tools_Manager extends PEAR
                 if (isset($previous_definition['tables']) && is_array($previous_definition)) {
                     $previous_tables = $previous_definition['tables'];
                 }
-                $change = $this->compareTableDefinitions($table_name, $previous_tables, $table);
+                $defined_tables = array();
+                $change = $this->compareTableDefinitions($table_name, $previous_tables, $table, $defined_tables);
                 if (MDB2::isError($change)) {
                     return $change;
                 }
@@ -936,7 +889,8 @@ class MDB2_Tools_Manager extends PEAR
                 if (isset($previous_definition['sequences']) && is_array($previous_definition)) {
                     $previous_sequences = $previous_definition['sequences'];
                 }
-                $change = $this->compareSequenceDefinitions($sequence_name, $previous_sequences, $sequence);
+                $defined_sequences = array();
+                $change = $this->compareSequenceDefinitions($sequence_name, $previous_sequences, $sequence, $defined_sequences);
                 if (MDB2::isError($change)) {
                     return $change;
                 }
@@ -960,9 +914,9 @@ class MDB2_Tools_Manager extends PEAR
      * @return mixed array of changes on success, or a MDB2 error object
      * @access public
      */
-    function compareTableFieldsDefinitions($table_name, $previous_definition, $current_definition)
+    function compareTableFieldsDefinitions($table_name, $previous_definition, $current_definition, &$defined_fields)
     {
-        $defined_fields = $changes = array();
+        $changes = array();
         if (is_array($current_definition)) {
             foreach ($current_definition as $field_name => $field) {
                 $was_field_name = $field['was'];
@@ -1102,9 +1056,9 @@ class MDB2_Tools_Manager extends PEAR
      * @return mixed array of changes on success, or a MDB2 error object
      * @access public
      */
-    function compareTableIndexesDefinitions($table_name, $previous_definition, $current_definition)
+    function compareTableIndexesDefinitions($table_name, $previous_definition, $current_definition, &$defined_indexes)
     {
-        $defined_indexes = $changes = array();
+        $changes = array();
         if (is_array($current_definition)) {
             foreach ($current_definition as $index_name => $index) {
                 $was_index_name = $index['was'];
@@ -1121,7 +1075,6 @@ class MDB2_Tools_Manager extends PEAR
                         $change['name'] = $was_index_name;
                         $this->db->debug("Changed index '$was_index_name' name to '$index_name' in table '$table_name'");
                     }
-                    // todo: where should $defined_indexes be set?
                     if (isset($defined_indexes[$was_index_name])) {
                         return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                             'the index "'.$was_index_name.'" was specified as base of'.
@@ -1199,9 +1152,9 @@ class MDB2_Tools_Manager extends PEAR
      * @return mixed array of changes on success, or a MDB2 error object
      * @access public
      */
-    function compareTableDefinitions($table_name, $previous_definition, $current_definition)
+    function compareTableDefinitions($table_name, $previous_definition, $current_definition, &$defined_tables)
     {
-        $defined_tables = $changes = array();
+        $changes = array();
         if (is_array($current_definition)) {
             $was_table_name = $table_name;
             if (isset($previous_definition[$table_name])
@@ -1218,7 +1171,6 @@ class MDB2_Tools_Manager extends PEAR
                     $changes[$was_table_name]+= array('name' => $table_name);
                     $this->db->debug("Renamed table '$was_table_name' to '$table_name'");
                 }
-                // todo: where should $defined_tables be set?
                 if (isset($defined_tables[$was_table_name])) {
                     return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                         'the table "'.$was_table_name.
@@ -1233,7 +1185,8 @@ class MDB2_Tools_Manager extends PEAR
                     ) {
                         $previous_fields = $previous_definition[$was_table_name]['fields'];
                     }
-                    $change = $this->compareTableFieldsDefinitions($table_name, $previous_fields, $current_definition['fields']);
+                    $defined_fields = array();
+                    $change = $this->compareTableFieldsDefinitions($table_name, $previous_fields, $current_definition['fields'], $defined_fields);
                     if (MDB2::isError($change)) {
                         return $change;
                     }
@@ -1248,7 +1201,8 @@ class MDB2_Tools_Manager extends PEAR
                     ) {
                         $previous_indexes = $previous_definition[$was_table_name]['indexes'];
                     }
-                    $change = $this->compareTableIndexesDefinitions($table_name, $previous_indexes, $current_definition['indexes']);
+                    $defined_indexes = array();
+                    $change = $this->compareTableIndexesDefinitions($table_name, $previous_indexes, $current_definition['indexes'], $defined_indexes);
                     if (MDB2::isError($change)) {
                         return $change;
                     }
@@ -1292,9 +1246,9 @@ class MDB2_Tools_Manager extends PEAR
      * @return mixed array of changes on success, or a MDB2 error object
      * @access public
      */
-    function compareSequenceDefinitions($sequence_name, $previous_definition, $current_definition)
+    function compareSequenceDefinitions($sequence_name, $previous_definition, $current_definition, &$defined_sequences)
     {
-        $defined_sequences = $changes = array();
+        $changes = array();
         if (is_array($current_definition)) {
             $was_sequence_name = $sequence_name;
             if (isset($previous_definition[$sequence_name])
@@ -1310,7 +1264,6 @@ class MDB2_Tools_Manager extends PEAR
                     $changes[$was_sequence_name]['name'] = $sequence_name;
                     $this->db->debug("Renamed sequence '$was_sequence_name' to '$sequence_name'");
                 }
-                // todo: where should $defined_sequences bet set?
                 if (isset($defined_sequences[$was_sequence_name])) {
                     return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                         'the sequence "'.$was_sequence_name.'" was specified as base'.
@@ -1703,8 +1656,7 @@ class MDB2_Tools_Manager extends PEAR
             }
         }
         if (isset($changes['sequences'])) {
-            foreach ($changes['sequences'] as $sequence_name => $sequence)
-            {
+            foreach ($changes['sequences'] as $sequence_name => $sequence) {
                 $this->db->debug("$sequence_name:");
                 if (isset($sequence['add'])) {
                     $this->db->debug("\tAdded sequence '$sequence_name'");
@@ -1768,36 +1720,6 @@ class MDB2_Tools_Manager extends PEAR
     }
 
     // }}}
-    // {{{ dumpSequence()
-
-    /**
-     * dump the structure of a sequence
-     *
-     * @param string  $sequence_name
-     * @param string  $eol
-     * @return mixed string with xml seqeunce definition on success, or a MDB2 error object
-     * @access public
-     */
-    function dumpSequence($sequence_name, $eol, $dump = MDB2_MANAGER_DUMP_ALL)
-    {
-        $sequence_definition = $this->database_definition['sequences'][$sequence_name];
-        $buffer = "$eol <sequence>$eol  <name>$sequence_name</name>$eol";
-        if ($dump == MDB2_MANAGER_DUMP_ALL || $dump == MDB2_MANAGER_DUMP_CONTENT) {
-            if (isset($sequence_definition['start'])) {
-                $start = $sequence_definition['start'];
-                $buffer .= "  <start>$start</start>$eol";
-            }
-        }
-        if (isset($sequence_definition['on'])) {
-            $buffer .= "  <on>$eol   <table>".$sequence_definition['on']['table'].
-                "</table>$eol   <field>".$sequence_definition['on']['field'].
-                "</field>$eol  </on>$eol";
-        }
-        $buffer .= " </sequence>$eol";
-        return $buffer;
-    }
-
-    // }}}
     // {{{ dumpDatabase()
 
     /**
@@ -1812,14 +1734,14 @@ class MDB2_Tools_Manager extends PEAR
      *                     'definition'    =>    Boolean
      *                         true   :  dump currently parsed definition
      *                         default:  dump currently connected database
-     *                     'Output_Mode'    =>    String
+     *                     'output_mode'    =>    String
      *                         'file' :   dump into a file
      *                         default:   dump using a function
      *                     'output'        =>    String
      *                         depending on the 'Output_Mode'
      *                                  name of the file
      *                                  name of the function
-     *                     'EndOfLine'        =>    String
+     *                     'end_of_line'        =>    String
      *                         end of line delimiter that should be used
      *                         default: "\n"
      *                 );
@@ -1832,9 +1754,7 @@ class MDB2_Tools_Manager extends PEAR
      */
     function dumpDatabase($arguments, $dump = MDB2_MANAGER_DUMP_ALL)
     {
-        if (isset($arguments['definition']) && $arguments['definition']) {
-            $dump_definition = true;
-        } else {
+        if (!isset($arguments['definition']) || !$arguments['definition']) {
             if (!$this->db) {
                 return $this->raiseError(MDB2_ERROR_NODBSELECTED,
                     null, null, 'please connect to a RDBMS first');
@@ -1843,144 +1763,11 @@ class MDB2_Tools_Manager extends PEAR
             if (MDB2::isError($error)) {
                 return $error;
             }
-            $dump_definition = false;
-        }
 
-        if (isset($arguments['output'])) {
-            if (isset($arguments['output_mode']) && $arguments['output_mode'] == 'file') {
-                $fp = fopen($arguments['output'], 'w');
-                $output = false;
-            } elseif (function_exists($arguments['output'])) {
-                $output = $arguments['output'];
-            } else {
-                return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
-                        'no valid output function specified');
-            }
-        } else {
-            return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
-                'no output method specified');
-        }
-        if (isset($arguments['end_of_line'])) {
-            $eol = $arguments['end_of_line'];
-        } else {
-            $eol = "\n";
-        }
-
-        $sequences = array();
-        if (isset($this->database_definition['sequences'])
-            && is_array($this->database_definition['sequences'])
-        ) {
-            foreach ($this->database_definition['sequences'] as $sequence_name => $sequence) {
-                if (isset($sequence['on'])) {
-                    $table = $sequence['on']['table'];
-                } else {
-                    $table = '';
-                }
-                $sequences[$table][] = $sequence_name;
-            }
-        }
-        $previous_database_name = ($this->database_definition['name'] != '') ? $this->db->setDatabase($this->database_definition['name']) : '';
-        $buffer = ('<?xml version="1.0" encoding="ISO-8859-1" ?>'.$eol);
-        $buffer .= ("<database>$eol$eol <name>".$this->database_definition['name']."</name>$eol <create>".$this->database_definition['create']."</create>$eol");
-
-        if ($output) {
-            $output($buffer);
-        } else {
-            fwrite($fp, $buffer);
-        }
-        $buffer = '';
-        if (isset($this->database_definition['tables']) && is_array($this->database_definition['tables'])) {
-            foreach ($this->database_definition['tables'] as $table_name => $table) {
-                $buffer = ("$eol <table>$eol$eol  <name>$table_name</name>$eol");
-                if ($dump == MDB2_MANAGER_DUMP_ALL || $dump == MDB2_MANAGER_DUMP_STRUCTURE) {
-                    $buffer .= ("$eol  <declaration>$eol");
-                    if (isset($table['fields']) && is_array($table['fields'])) {
-                        foreach ($table['fields'] as $field_name => $field) {
-                            if (!isset($field['type'])) {
-                                return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
-                                    'it was not specified the type of the field "'.
-                                    $field_name.'" of the table "'.$table_name);
-                            }
-                            $buffer .=("$eol   <field>$eol    <name>$field_name</name>$eol    <type>".$field['type']."</type>$eol");
-                            if (in_array($field_name, array_keys($this->invalid_names))) {
-                                $this->warnings[] = "invalid field name: $field_name. You will need to set the class var \$fail_on_invalid_names to false or change the field name.";
-                            }
-                            switch ($field['type']) {
-                            case 'integer':
-                                if (isset($field['unsigned'])) {
-                                    $buffer .=("    <unsigned>1</unsigned>$eol");
-                                }
-                                break;
-                            case 'text':
-                            case 'clob':
-                            case 'blob':
-                                if (isset($field['length'])) {
-                                    $buffer .=('    <length>'.$field['length'].
-                                        "</length>$eol");
-                                }
-                                break;
-                            case 'boolean':
-                            case 'date':
-                            case 'timestamp':
-                            case 'time':
-                            case 'float':
-                            case 'decimal':
-                                break;
-                            default:
-                                return $this->raiseError('type "'.$field['type'].
-                                    '" is not yet supported');
-                            }
-                            if (isset($field['notnull']) && $field['notnull']) {
-                                $buffer .=("    <notnull>1</notnull>$eol");
-                            }
-                            if (isset($field['default'])) {
-                                $buffer .=('    <default>'.$this->_escapeSpecialCharacters($field['default'])."</default>$eol");
-                            }
-                            $buffer .=("   </field>$eol");
-                        }
-                    }
-                    if (isset($table['indexes']) && is_array($table['indexes'])) {
-                        foreach ($table['indexes'] as $index_name => $index) {
-                            $buffer .=("$eol   <index>$eol    <name>$index_name</name>$eol");
-                            if (isset($index['unique'])) {
-                                $buffer .=("    <unique>1</unique>$eol");
-                            }
-                            foreach ($index['fields'] as $field_name => $field) {
-                                $buffer .=("    <field>$eol     <name>$field_name</name>$eol");
-                                if (is_array($field) && isset($field['sorting'])) {
-                                    $buffer .=('     <sorting>'.$field['sorting']."</sorting>$eol");
-                                }
-                                $buffer .=("    </field>$eol");
-                            }
-                            $buffer .=("   </index>$eol");
-                        }
-                    }
-                    $buffer .= ("$eol  </declaration>$eol");
-                }
-                if ($output) {
-                    $output($buffer);
-                } else {
-                    fwrite($fp, $buffer);
-                }
-                $buffer = '';
-                if ($dump == MDB2_MANAGER_DUMP_ALL || $dump == MDB2_MANAGER_DUMP_CONTENT) {
-                    if ($dump_definition) {
-                        if (isset($table['initialization']) && is_array($table['initialization'])) {
-                            $buffer = ("$eol  <initialization>$eol");
-                            foreach ($table['initialization'] as $instruction_name => $instruction) {
-                                switch ($instruction['type']) {
-                                case 'insert':
-                                    $buffer .= ("$eol   <insert>$eol");
-                                    foreach ($instruction['fields'] as $field_name => $field) {
-                                        $buffer .= ("$eol    <field>$eol     <name>$field_name</name>$eol     <value>".$this->_escapeSpecialCharacters($field)."</value>$eol   </field>$eol");
-                                    }
-                                    $buffer .= ("$eol   </insert>$eol");
-                                    break;
-                                }
-                            }
-                            $buffer .= ("$eol  </initialization>$eol");
-                        }
-                    } else {
+            // get initialization data
+            if (isset($this->database_definition['tables']) && is_array($this->database_definition['tables'])) {
+                foreach ($this->database_definition['tables'] as $table_name => $table) {
+                    if ($dump == MDB2_MANAGER_DUMP_ALL || $dump == MDB2_MANAGER_DUMP_CONTENT) {
                         $types = array();
                         foreach ($table['fields'] as $field) {
                             $types[] = $field['type'];
@@ -1992,96 +1779,28 @@ class MDB2_Tools_Manager extends PEAR
                         }
                         $rows = count($data);
                         if ($rows > 0) {
-                            $buffer = ("$eol  <initialization>$eol");
-                            if ($output) {
-                                $output($buffer);
-                            } else {
-                                fwrite($fp, $buffer);
-                            }
-
+                            $table['initialization'] = array();
                             for ($row = 0; $row < $rows; $row++) {
-                                $buffer = ("$eol   <insert>$eol");
-                                $values = $data[$row];
-                                if (!is_array($values)) {
+                                if (!is_array($data[$row])) {
                                     break;
-                                } else {
-                                    foreach ($values as $field_name => $field) {
-                                            $buffer .= ("$eol   <field>$eol     <name>$field_name</name>$eol     <value>");
-                                            $buffer .= $this->_escapeSpecialCharacters($values[$field_name]);
-                                            $buffer .= ("</value>$eol   </field>$eol");
-                                    }
                                 }
-                                $buffer .= ("$eol   </insert>$eol");
-                                if ($output) {
-                                    $output($buffer);
-                                } else {
-                                    fwrite($fp, $buffer);
-                                }
-                                $buffer = '';
+                                $table['initialization']['insert'][] = $data[$row];
                             }
-                            $buffer = ("$eol  </initialization>$eol");
-                            if ($output) {
-                                $output($buffer);
-                            } else {
-                                fwrite($fp, $buffer);
-                            }
-                            $buffer = '';
-                        }
-                    }
-                }
-                $buffer .= ("$eol </table>$eol");
-                if ($output) {
-                    $output($buffer);
-                } else {
-                    fwrite($fp, $buffer);
-                }
-                if (isset($sequences[$table_name])) {
-                    for ($sequence = 0, $j = count($sequences[$table_name]);
-                        $sequence < $j;
-                        $sequence++)
-                    {
-                        $result = $this->dumpSequence($sequences[$table_name][$sequence], $eol, $dump);
-                        if (MDB2::isError($result)) {
-                            return $result;
-                        }
-                        if ($output) {
-                            $output($result);
-                        } else {
-                            fwrite($fp, $result);
                         }
                     }
                 }
             }
-        }
-        if (isset($sequences[''])) {
-            for ($sequence = 0;
-                $sequence < count($sequences['']);
-                $sequence++)
-            {
-                $result = $this->dumpSequence($sequences[''][$sequence], $eol, $dump);
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-                if ($output) {
-                       $output($result);
-                   } else {
-                       fwrite($fp, $result);
-                }
-            }
+            $previous_database_name = ($this->database_definition['name'] != '') ? $this->db->setDatabase($this->database_definition['name']) : '';
         }
 
-        $buffer = ("$eol</database>$eol");
-        if ($output) {
-            $output($buffer);
-        } else {
-            fwrite($fp, $buffer);
-            fclose($fp);
-        }
+        $writer =& new MDB2_Tools_Manager_Writer();
+        $return = $writer->dumpDatabase($this->database_definition, $arguments, $dump);
 
-        if ($previous_database_name != '') {
+        if (isset($previous_database_name) && $previous_database_name != '') {
             $this->db->setDatabase($previous_database_name);
         }
-        return MDB2_OK;
+
+        return $return;
     }
 
     // }}}
