@@ -103,6 +103,8 @@ similar as possible as the ext/pdo API!
 - dont convert fetched null values in the Datatype module
 - fixed bugs in start value handling in create sequence (bug #3077)
 - updated isManip from DB
+- added mysqli driver (passes all tests, but doesnt use native prepare yet)
+- oci8 driver now uses native bind support for all types in prepare()/execute()
 EOT;
 
 $description =<<<EOT
@@ -139,7 +141,7 @@ portability. Among other things MDB2 features:
 * PHPDoc API documentation
 
 Currently supported RDBMS:
-MySQL
+MySQL (mysql and mysqli extension)
 PostGreSQL
 Oracle
 Frontbase
