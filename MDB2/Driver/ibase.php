@@ -424,6 +424,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         } else {
             //Not Prepared Query
             $result = @ibase_query($connection, $query);
+            if (ibase_errmsg() == 'Query argument missed') { //ibase_errcode() only available in PHP5
+                //connection lost, try again...
+                $this->connect();
+                $result = @ibase_query($this->connection, $query);
+            }
         }
         if (!$result) {
             return $this->raiseError($result);
@@ -679,6 +684,11 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
+        if ($this->result === true) {
+            //query successfully executed, but without results...
+            return null;
+        }
+
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
@@ -750,6 +760,13 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function numCols()
     {
+        if ($this->result === true) {
+            //query successfully executed, but without results...
+            return 0;
+        }
+        if (!is_resource($this->result)) {
+            return $this->mdb->raiseError('numCols(): not a valid ibase resource');
+        }
         $cols = @ibase_num_fields($this->result);
         if (is_null($cols)) {
             if (is_null($this->result)) {
@@ -772,12 +789,14 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function free()
     {
-        $free = @ibase_free_result($this->result);
-        if (!$free) {
-            if (is_null($this->result)) {
-                return MDB2_OK;
+        if (is_resource($this->result)) {
+            $free = @ibase_free_result($this->result);
+            if (!$free) {
+                if (is_null($this->result)) {
+                    return MDB2_OK;
+                }
+                return $this->mdb->raiseError();
             }
-            return $this->mdb->raiseError();
         }
         $this->result = null;
         return MDB2_OK;
