@@ -134,6 +134,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                     1048 => MDB2_ERROR_CONSTRAINT,
                     1213 => MDB2_ERROR_DEADLOCK,
                     1216 => MDB2_ERROR_CONSTRAINT,
+                    1217 => MDB2_ERROR_CONSTRAINT,
                 );
             }
             if (isset($ecode_map[$native_code])) {
