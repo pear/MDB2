@@ -483,6 +483,92 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ prepare()
+
+    /**
+     * Prepares a query for multiple execution with execute().
+     * With some database backends, this is emulated.
+     * prepare() requires a generic query as string like
+     * 'INSERT INTO numbers VALUES(?,?,?)'. The ? are wildcards.
+     * Types of wildcards:
+     *    ? - a quoted scalar value, i.e. strings, integers
+     *
+     * @param string $query the query to prepare
+     * @return mixed resource handle for the prepared query on success, a DB
+     *        error on failure
+     * @access public
+     * @see execute
+     */
+    function &prepare($query, $types = null, $result_types = null)
+    {
+        $this->debug($query, 'prepare');
+        $placeholder_type_guess = $placeholder_type = null;
+        $question = '?';
+        $colon = ':';
+        $position = 0;
+        while ($position < strlen($query)) {
+            $q_position = strpos($query, $question, $position);
+            $c_position = strpos($query, $colon, $position);
+            if ($q_position && $c_position) {
+                $p_position = min($q_position, $c_position);
+            } elseif($q_position) {
+                $p_position = $q_position;
+            } elseif($c_position) {
+                $p_position = $c_position;
+            } else {
+                break;
+            }
+            if (is_null($placeholder_type)) {
+                $placeholder_type_guess = $query[$p_position];
+            }
+            if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
+                if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
+                    return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        'prepare: query with an unterminated text string specified');
+                }
+                switch ($this->escape_quotes) {
+                case '':
+                case "'":
+                    $position = $end_quote + 1;
+                    break;
+                default:
+                    if ($end_quote == $quote + 1) {
+                        $position = $end_quote + 1;
+                    } else {
+                        if ($query[$end_quote-1] == $this->escape_quotes) {
+                            $position = $end_quote;
+                        } else {
+                            $position = $end_quote + 1;
+                        }
+                    }
+                    break;
+                }
+            } elseif ($query[$position] == $placeholder_type_guess) {
+                if (is_null($placeholder_type)) {
+                    $placeholder_type = $query[$p_position];
+                    $question = $colon = $placeholder_type;
+                }
+                if ($placeholder_type == '?') {
+                    break;
+                }
+                $name = preg_replace('/^.{'.($position+1).'}([a-zA-Z]+).*$/', "\\1", $query);
+                if ($name === '') {
+                    return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        'prepare: named parameter with an empty name');
+                }
+                $query = substr_replace($query, '?', $position, strlen($name)+1);
+                $position = $p_position + 1;
+            } else {
+                $position = $p_position;
+            }
+        }
+        $statement = ibase_prepare($connection, $query);
+
+        $class_name = 'MDB2_Statement_'.$this->phptype;
+        return new $class_name($this, $statement, $query, $types, $result_types);
+    }
+
+    // }}}
     // {{{ nextID()
 
     /**
@@ -950,9 +1036,8 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
     function &execute($result_class = true, $result_wrap_class = false)
     {
         $isManip = MDB2::isManip($this->query);
-        $query = $this->db->_modifyQuery($this->query);
-        $this->db->last_query = $query;
-        $this->db->debug($query, 'query');
+        $this->db->last_query = $this->query;
+        $this->db->debug($this->query, 'query');
         if ($this->db->getOption('disable_query')) {
             if ($isManip) {
                 return MDB2_OK;
@@ -971,7 +1056,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         $this->db->row_offset = $this->row_offset;
         $this->db->row_limit  = $this->row_limit;
 
-        array_unshift($parameters, ibase_prepare($connection, $query));
+        array_unshift($parameters, $this->statement);
         $result = call_user_func_array('ibase_execute', $parameters);
 
         if ($result === false) {
