@@ -352,7 +352,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         } else {
             for ($i=0; $i<$total_rows; $i++) {
                 foreach ($data[$i] as $key => $val) {
-                    $this->assertEquals(strval($values[$i][$key]), strval($val), 'Row #'.$i.', expected "'.$val.'", actual "'.$values[$i][$key].'"');
+                    $this->assertEquals(strval($values[$i][$key]), strval($val), 'Row #'.$i.' ['.$key.'], expected "'.$val.'", actual "'.$values[$i][$key].'"');
                 }
             }
         }
@@ -656,7 +656,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             for ($sequence_value = $start_value; $sequence_value < ($start_value + 4); $sequence_value++) {
                 $value = $this->db->nextId($sequence_name, false);
 
-                $this->assertEquals($value, $sequence_value, "The returned sequence value is $value and not $sequence_value as expected with sequence start value with $start_value");
+                $this->assertEquals($sequence_value, $value, "The returned sequence value is $value and not $sequence_value as expected with sequence start value with $start_value");
 
             }
 
@@ -670,12 +670,12 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         // Test ondemand creation of sequences
         $sequence_name = 'test_ondemand';
+        $this->db->manager->dropSequence($sequence_name);
 
         for ($sequence_value = 1; $sequence_value < 4; $sequence_value++) {
             $value = $this->db->nextId($sequence_name);
 
-            $this->assertEquals($value, $sequence_value, "Error in ondemand sequences. The returned sequence value is $value and not $sequence_value as expected");
-
+            $this->assertEquals($sequence_value, $value, "Error in ondemand sequences. The returned sequence value is $value and not $sequence_value as expected");
         }
 
         $result = $this->db->manager->dropSequence($sequence_name);
