@@ -1,0 +1,46 @@
+<?php
+
+// if you get a max execution exceed error uncomment the following line
+// and modify the time limit as needed
+//set_time_limit(100);
+
+$testcases = array(
+    'MDB2_manager_testcase',
+    'MDB2_api_testcase',
+    'MDB2_usage_testcase',
+    'MDB2_bugs_testcase'
+);
+$dbarray[] = array(
+    'dsn' => array(
+        'phptype' => 'mysql',
+        'username' => 'username',
+        'password' => 'password',
+        'hostspec' => 'hostname',
+    ),
+    'options' => array(
+        'use_transactions' => true
+    )
+);
+
+$dbarray[] = array(
+    'dsn' => array(
+        'phptype' => 'pgsql',
+        'username' => 'username',
+        'password' => 'password',
+        'hostspec' => 'hostname',
+    )
+);
+
+$dbarray[] = array(
+    'dsn' => array(
+        'phptype' => 'oci8',
+        'username' => '',
+        'password' => 'password',
+        'hostspec' => 'hostname',
+    ),
+    'options' => array(
+        'DBA_username' => 'username',
+        'DBA_password' => 'password'
+    )
+);
+?>

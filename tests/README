@@ -1,0 +1,49 @@
+This is a test framework for MDB built using PHPUnit. Currently all
+the tests from the metabase driver_test.php have been ported.
+These tests directly access the MDB API, unlike driver_test.php
+which uses the metabase wrapper - hopefully this framework should give
+better feedback as to where or what caused when error are encountered. The
+driver_test.php is still very useful for testing the metabase
+compatability.
+
+Usage:
+In order for the tests to work they need to access a database called
+"driver_test". This database is created in the manager test. If you have
+problems running the manager test or the driver you are using does not yet
+provide the necessary methods you may create the database manually. In the
+future we will probably provide SQL files for every supported database.
+
+To setup the tests
+
+* requires PHPUnit to be installed
+
+* requires MDB to be installed in a php include path or the tests need to be
+  moved into the MDB root path.
+
+* copy the file test_setup.php.dist to test_setup.php
+
+* edit test_setup.php. The array $testarray specifies which testcases
+  to carry out. Currently only MDB_usage_testcase is release quality.
+  $dbarray is an array of databases to test.
+
+* point your browser at test.php for the results, and then fix the
+  bugs! 
+
+* by default test.php will use all tests in the testcases - if
+  you want to pick specific tests, use testchoose.php to pick just the
+  tests you want to run
+
+Writing tests:
+
+The tests are written using PHPUnit from pear so first make sure you
+have the latest stable release, and have read the docs,
+http://pear.php.net/manual/en/packages.phpunit.php
+
+There are currently 4 test cases in development,
+
+MDB_usage_testcase.php      -   port of the driver_test.php from metabase
+MDB_api_testcase.php        -   test(s) for each method in the driver api
+MDB_manager_testcase.php    -   test(s) for each method in the manager api
+MDB_bugs_testcase.php       -   each time a MDB bug is found a test should
+                                be added here.
+
