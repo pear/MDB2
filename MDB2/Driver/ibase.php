@@ -484,10 +484,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $sequence_name = $this->getSequenceName($seq_name);
+        $sequence_name = strtoupper($this->getSequenceName($seq_name));
         $this->pushErrorHandling(PEAR_ERROR_RETURN);
         $query = "SELECT GEN_ID($sequence_name, 1) as the_value FROM RDB\$DATABASE";
-        $result = $this->queryOne($query);
+        $result = @$this->queryOne($query);
         $this->popErrorHandling();
         if (MDB2::isError($result)) {
             if ($ondemand) {
@@ -501,7 +501,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                         'nextID: on demand sequence could not be created');
                 } else {
                     // First ID of a newly created sequence is 1
-                    return 1;
+                    // return 1;
+                    // BUT generators are not always reset, so return the actual value
+                    return $this->currID($seq_name);
                 }
             }
         }
@@ -520,10 +522,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function currID($seq_name)
     {
-        //$sequence_name = $this->getSequenceName($seq_name);
         $sequence_name = strtoupper($this->getSequenceName($seq_name));
-        $query = "SELECT RDB\$GENERATOR_ID FROM RDB\$GENERATORS WHERE RDB\$GENERATOR_NAME='$sequence_name'";
-        $value = $this->queryOne($query);
+        $query = "SELECT GEN_ID($sequence_name, 0) as the_value FROM RDB\$DATABASE";
+        $value = @$this->queryOne($query);
         if (MDB2::isError($value)) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'currID: Unable to select from ' . $seqname) ;
