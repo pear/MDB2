@@ -1027,7 +1027,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement
         }
 
         $result_obj =& $this->db->_wrapResult($result, $ismanip, $this->types,
-            $result_class, $result_wrap_class, $this->row_offset, $this->row_imit);
+            $result_class, $result_wrap_class, $this->row_offset, $this->row_limit);
         return $result_obj;
     }
 
