@@ -10,6 +10,13 @@ $notes = <<<EOT
   will then be autodetected
 - renamed get*Value() to quote*()
 - ibase driver: fixed LOB management
+- moved getOne, getRow, getCol, getAll back into the exteneded module
+- added getAssoc to the extended module
+- fixed bug in MDB2_Driver_Datatype_Common::implodeArray()
+- added sequence_col_name option to make the column name inside sequence
+  emulation tables configurable
+- fixed a bug in the MDB2_Driver_oci8 and MDB2_Driver_ibase buffering emulation
+  when using limit queries
 EOT;
 
 $description =<<<EOT
