@@ -472,7 +472,7 @@ class MDB2_BufferedResult_xxx extends MDB2_Result_xxx
     function valid()
     {
         $numrows = $this->numRows();
-        if (MDB2::isError($numrows)) {
+        if (PEAR::isError($numrows)) {
             return $numrows;
         }
         return $this->rownum < $numrows - 1;

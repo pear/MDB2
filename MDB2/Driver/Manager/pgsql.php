@@ -208,7 +208,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
             $fields = $changes['added_fields'];
             foreach ($fields as $field) {
                 $result = $db->query("ALTER TABLE $name ADD ".$field['declaration']);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     return $result;
                 }
             }
@@ -217,7 +217,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
             $fields = $changes['removed_fields'];
             foreach ($fields as $field_name => $field) {
                 $result = $db->query("ALTER TABLE $name DROP ".$field_name);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     return $result;
                 }
             }
@@ -356,12 +356,12 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $result = $db->query("SELECT * FROM $table", null, false, false);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $columns = $result->getColumnNames();
         $result->free();
-        if (MDB2::isError($columns)) {
+        if (PEAR::isError($columns)) {
             return $columns;
         }
         return array_flip($columns);
@@ -438,7 +438,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
         $query = "SELECT relname FROM pg_class WHERE relkind = 'S' AND relnamespace IN";
         $query.= "(SELECT oid FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema')";
         $table_names = $db->queryCol($query);
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $sequences = array();

@@ -67,7 +67,7 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
         $this->options = $GLOBALS['options'];
         $this->database = $GLOBALS['database'];
         $this->db =& MDB2::connect($this->dsn, $this->options);
-        if (MDB2::isError($this->db)) {
+        if (PEAR::isError($this->db)) {
             $this->assertTrue(false, 'Could not connect to database in setUp - ' .$this->db->getMessage() . ' - ' .$this->db->getUserInfo());
             exit;
         }
@@ -101,7 +101,7 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
 
     function tearDown() {
         unset($this->dsn);
-        if (!MDB2::isError($this->db)) {
+        if (!PEAR::isError($this->db)) {
             $this->db->disconnect();
         }
         unset($this->db);
@@ -127,7 +127,7 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
         }
 
         $table_info = $this->db->reverse->tableInfo('users');
-        if (MDB2::isError($table_info)) {
+        if (PEAR::isError($table_info)) {
             $this->assertTrue(false, 'Error in tableInfo(): '.$table_info->getMessage());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved ('.count($table_info).') is different from the expected one ('.count($this->fields).')');

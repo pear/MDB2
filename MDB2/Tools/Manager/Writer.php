@@ -333,7 +333,7 @@ class MDB2_Tools_Manager_Writer
                         $sequence++
                     ) {
                         $result = $this->dumpSequence($database_definition['sequences'], $sequences[$table_name][$sequence], $eol, $dump);
-                        if (MDB2::isError($result)) {
+                        if (PEAR::isError($result)) {
                             return $result;
                         }
                         if ($output) {
@@ -348,7 +348,7 @@ class MDB2_Tools_Manager_Writer
         if (isset($sequences[''])) {
             for ($sequence = 0; $sequence < count($sequences['']); $sequence++) {
                 $result = $this->dumpSequence($database_definition['sequences'], $sequences[''][$sequence], $eol, $dump);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     return $result;
                 }
                 if ($output) {

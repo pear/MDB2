@@ -181,7 +181,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
         $result = $this->_doQuery('BEGIN', true);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $this->in_transaction = true;
@@ -206,7 +206,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 'commit: transaction changes are being auto committed');
         }
         $result = $this->_doQuery('COMMIT', true);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -231,7 +231,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
         $result = $this->_doQuery('ROLLBACK', true);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -348,7 +348,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         if ($this->database_name) {
             $connection = $this->_doConnect($this->database_name, $this->options['persistent']);
-            if (MDB2::isError($connection)) {
+            if (PEAR::isError($connection)) {
                 return $connection;
             }
             $this->connection = $connection;
@@ -396,7 +396,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function &standaloneQuery($query, $types = null)
     {
         $connection = $this->_doConnect('template1', false);
-        if (MDB2::isError($connection)) {
+        if (PEAR::isError($connection)) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
                 'Cannot connect to template1');
         }
@@ -409,7 +409,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         $result = $this->_doQuery($query, $isManip, $connection, false);
         @pg_close($connection);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
 
@@ -445,7 +445,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         if (is_null($connection)) {
             $error = $this->connect();
-            if (MDB2::isError($error)) {
+            if (PEAR::isError($error)) {
                 return $error;
             }
             $connection = $this->connection;
@@ -513,11 +513,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->queryOne($query, 'integer');
         $this->popExpect();
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('Manager');
                 $result = $this->manager->createSequence($seq_name, 1);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     return $this->raiseError(MDB2_ERROR, null, null,
                         'nextID: on demand sequence could not be created');
                 }
@@ -561,7 +561,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
     {
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
-            if (MDB2::isError($seek)) {
+            if (PEAR::isError($seek)) {
                 return $seek;
             }
         }
@@ -625,7 +625,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
     {
         $columns = array();
         $numcols = $this->numCols();
-        if (MDB2::isError($numcols)) {
+        if (PEAR::isError($numcols)) {
             return $numcols;
         }
         for ($column = 0; $column < $numcols; $column++) {
@@ -721,7 +721,7 @@ class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
     function valid()
     {
         $numrows = $this->numRows();
-        if (MDB2::isError($numrows)) {
+        if (PEAR::isError($numrows)) {
             return $numrows;
         }
         return $this->rownum < ($numrows - 1);

@@ -96,7 +96,7 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
             $this->buffer = null;
         } else {
             $row = $this->result->fetchRow();
-            if (MDB2::isError($row)) {
+            if (PEAR::isError($row)) {
                 $this->row = null;
             } else {
                 $this->row = $row;
@@ -229,7 +229,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     function next()
     {
         $row = $this->result->fetchRow();
-        if (MDB2::isError($row)) {
+        if (PEAR::isError($row)) {
             $this->row = null;
             return false;
         }

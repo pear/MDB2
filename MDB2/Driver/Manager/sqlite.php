@@ -154,7 +154,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT name FROM sqlite_master WHERE type='table' AND sql NOT NULL ORDER BY name";
         $table_names = $db->queryCol($query);
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $tables = array();
@@ -219,12 +219,12 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'";
         $result = $db->queryCol($query);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $columns = $result->getColumnNames();
         $result->free();
-        if (MDB2::isError($columns)) {
+        if (PEAR::isError($columns)) {
             return $columns;
         }
         return array_flip($columns);
@@ -313,7 +313,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
         $indexes_all = $db->queryCol($query);
-        if (MDB2::isError($indexes_all)) {
+        if (PEAR::isError($indexes_all)) {
             return $indexes_all;
         }
         $found = $indexes = array();
@@ -344,19 +344,19 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $seqname_col_name = $db->options['seqname_col_name'];
         $query = "CREATE TABLE $sequence_name ($seqname_col_name INTEGER PRIMARY KEY DEFAULT 0 NOT NULL)";
         $res = $db->query($query);
-        if (MDB2::isError($res)) {
+        if (PEAR::isError($res)) {
             return $res;
         }
         if ($start == 1) {
             return MDB2_OK;
         }
         $res = $db->query("INSERT INTO $sequence_name ($seqname_col_name) VALUES (".($start-1).')');
-        if (!MDB2::isError($res)) {
+        if (!PEAR::isError($res)) {
             return MDB2_OK;
         }
         // Handle error
         $result = $db->query("DROP TABLE $sequence_name");
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'createSequence: could not drop inconsistent sequence table ('.
                 $result->getMessage().' ('.$result->getUserinfo().'))');
@@ -397,7 +397,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT name FROM sqlite_master WHERE type='table' AND sql NOT NULL ORDER BY name";
         $table_names = $db->queryCol($query);
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $sequences = array();

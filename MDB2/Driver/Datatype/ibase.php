@@ -114,7 +114,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($field['type']) {
         case 'text':
-            $length = (isset($field['length']) ? $field['length'] : (!MDB2::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
+            $length = (isset($field['length']) ? $field['length'] : (!PEAR::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
             return 'VARCHAR ('.$length.')';
         case 'clob':
             return 'BLOB SUB_TYPE 1';
@@ -410,7 +410,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _quoteLOB($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (MDB2::isError($connect = $db->connect())) {
+        if (PEAR::isError($connect = $db->connect())) {
             return $connect;
         }
         $close = true;
@@ -554,7 +554,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $lobresult = $this->_retrieveLOB($lob);
-        if (MDB2::isError($lobresult)) {
+        if (PEAR::isError($lobresult)) {
             return $lobresult;
         }
         return isset($db->lobs[$lob]['EndOfLOB']);
@@ -577,7 +577,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _readResultLOB($lob, &$data, $length)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (MDB2::isError($lobresult = $this->_retrieveLOB($lob))) {
+        if (PEAR::isError($lobresult = $this->_retrieveLOB($lob))) {
             return $lobresult;
         }
         $data = @ibase_blob_get($db->lobs[$lob]['handle'], $length);

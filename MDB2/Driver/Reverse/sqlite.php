@@ -71,11 +71,11 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'";
         $result = $db->query($query, null, false, false);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $columns = $result->getColumnNames();
-        if (MDB2::isError($columns)) {
+        if (PEAR::isError($columns)) {
             return $columns;
         }
         if (!isset($columns[$column = 'sql'])) {
@@ -83,7 +83,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 'getTableFieldDefinition: show columns does not return the column '.$column);
         }
         $query = $result->fetchOne();
-        if (MDB2::isError($columns = $this->_getTableColumns($query))) {
+        if (PEAR::isError($columns = $this->_getTableColumns($query))) {
             return $columns;
         }
         $count = count($columns);
@@ -208,7 +208,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     && $row[$columns['key']] == 'PRI'
                 ) {
                     // check that its not just a unique field
-                    if (MDB2::isError($indexes = $db->queryAll("SHOW INDEX FROM $table", null, MDB2_FETCHMODE_ASSOC))) {
+                    if (PEAR::isError($indexes = $db->queryAll("SHOW INDEX FROM $table", null, MDB2_FETCHMODE_ASSOC))) {
                         return $indexes;
                     }
                     $is_primary = false;
@@ -232,7 +232,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
         $result->free();
 
-        if (MDB2::isError($row)) {
+        if (PEAR::isError($row)) {
             return $row;
         }
         return $db->raiseError(MDB2_ERROR, null, null,
@@ -259,7 +259,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND name='$index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
         $result = $db->query($query);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $columns = $result->getColumnNames();

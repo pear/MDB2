@@ -79,7 +79,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         }
         $this->manager =& new MDB2_Tools_Manager;
         $this->manager->connect($this->dsn, $this->options);
-        if (MDB2::isError($this->manager)) {
+        if (PEAR::isError($this->manager)) {
             $this->assertTrue(false, 'Could not connect to manager in setUp');
             exit;
         }
@@ -87,7 +87,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
 
     function tearDown() {
         unset($this->dsn);
-        if (!MDB2::isError($this->manager)) {
+        if (!PEAR::isError($this->manager)) {
             $this->manager->disconnect();
         }
         unset($this->manager);
@@ -110,7 +110,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $this->manager->db->expectError('*');
         $result = $this->manager->db->manager->dropDatabase($this->database);
         $this->manager->db->popExpect();
-        if (!MDB2::isError($result) || $result->getCode() != MDB2_ERROR_UNSUPPORTED) {
+        if (!PEAR::isError($result) || $result->getCode() != MDB2_ERROR_UNSUPPORTED) {
             if (!$this->methodExists($this->manager, 'updateDatabase')) {
                 return;
             }
@@ -119,14 +119,14 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
                 false,
                 array('create' =>'1', 'name' => $this->database)
             );
-            if (!MDB2::isError($result)) {
+            if (!PEAR::isError($result)) {
                 $result = $this->manager->updateDatabase(
                     $this->lob_input_file,
                     false,
                     array('create' =>'0', 'name' => $this->database)
                 );
             }
-            $this->assertFalse(MDB2::isError($result), 'Error creating database');
+            $this->assertFalse(PEAR::isError($result), 'Error creating database');
         } elseif ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
             $this->assertTrue(false, 'Database management not supported');
         }
@@ -145,7 +145,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
             $backup_file,
             array('create' =>'0', 'name' =>$this->database)
         );
-        if (!MDB2::isError($result)) {
+        if (!PEAR::isError($result)) {
             $backup_file = $this->lob_input_file.$this->backup_extension;
             if (!file_exists($backup_file)) {
                 copy($this->lob_input_file, $backup_file);
@@ -156,7 +156,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
                 array('create' =>'0', 'name' => $this->database)
             );
         }
-        $this->assertFalse(MDB2::isError($result), 'Error updating database');
+        $this->assertFalse(PEAR::isError($result), 'Error updating database');
     }
 }
 

@@ -52,7 +52,7 @@ require_once 'MDB2.php';
 $dsn = 'querysim';
 
 $conn =& MDB2::connect($dsn);
-if (MDB2::isError($conn)) {
+if (PEAR::isError($conn)) {
     die ('Cannot connect: '.$conn->getMessage()."\n<br />\n<pre>".$conn->getUserInfo()."\n</pre>\n<br />");
 }
 
@@ -63,7 +63,7 @@ $user = $conn->query('
     103|Bert|Dawson|11
 ');
 
-if (MDB2::isError($user)) {
+if (PEAR::isError($user)) {
     die ('Database Error: '.$user->getMessage()."\n<br />\n<pre>".$user->getUserInfo()."\n</pre>\n<br />");
 }
 

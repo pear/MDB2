@@ -69,7 +69,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $tablespace = $db->options['default_tablespace'];
-        if (!MDB2::isError($tablespace) && $tablespace) {
+        if (!PEAR::isError($tablespace) && $tablespace) {
             $tablespace = ' DEFAULT TABLESPACE '.$tablespace;
         } else {
             $tablespace = '';
@@ -80,15 +80,15 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $username = $db->options['database_name_prefix'].$name;
         $query = 'CREATE USER '.$username.' IDENTIFIED BY '.$password.$tablespace;
         $result = $db->standaloneQuery($query);
-        if (!MDB2::isError($result)) {
+        if (!PEAR::isError($result)) {
             $query = 'GRANT CREATE SESSION, CREATE TABLE, UNLIMITED TABLESPACE, CREATE SEQUENCE TO '.$username;
             $result = $db->standaloneQuery($query);
-            if (!MDB2::isError($result)) {
+            if (!PEAR::isError($result)) {
                 return MDB2_OK;
             } else {
                 $query = 'DROP USER '.$username.' CASCADE';
                 $result2 = $db->standaloneQuery($query);
-                if (MDB2::isError($result2)) {
+                if (PEAR::isError($result2)) {
                     return $db->raiseError(MDB2_ERROR, null, null,
                         'createDatabase: could not setup the database user ('.$result->getUserinfo().
                             ') and then could drop its records ('.$result2->getUserinfo().')');
@@ -247,7 +247,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 $skipped_first = true;
             }
             $query .= ')';
-            if (MDB2::isError($result = $db->query("ALTER TABLE $name $query"))) {
+            if (PEAR::isError($result = $db->query("ALTER TABLE $name $query"))) {
                 return $result;
             }
             $query = '';
@@ -320,7 +320,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $query = "SELECT table_name FROM user_tables WHERE table_name LIKE '%'";
         }
         $result = $db->standaloneQuery($query);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $databases = $result->fetchCol();
@@ -342,7 +342,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT username FROM sys.all_users";
         $users = $db->queryCol($query);
-        if (MDB2::isError($users)) {
+        if (PEAR::isError($users)) {
             return $users;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
@@ -366,7 +366,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT view_name FROM sys.user_views";
         $views = $db->queryCol($query);
-        if (MDB2::isError($views)) {
+        if (PEAR::isError($views)) {
             return $views;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
@@ -391,7 +391,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT name FROM sys.user_source WHERE line = 1 AND type = 'FUNCTION'";
         $functions = $db->queryCol($query);
-        if (MDB2::isError($functions)) {
+        if (PEAR::isError($functions)) {
             return $functions;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
@@ -434,7 +434,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $table = strtoupper($table);
         $query = "SELECT column_name FROM user_tab_columns WHERE table_name='$table' ORDER BY column_id";
         $fields = $db->queryCol($query);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
@@ -495,7 +495,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT sequence_name FROM sys.user_sequences";
         $table_names = $db->queryCol($query);
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $sequences = array();

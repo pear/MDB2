@@ -53,9 +53,9 @@
    //$dsn = "$db_type://$user:$pass@$host/$db_name";
     Var_Dump($dsn);
     $db =& MDB2::connect($dsn);
-    // With MDB2::isError you can differentiate between an error or
+    // With PEAR::isError you can differentiate between an error or
     // a valid connection.
-    if (MDB2::isError($db)) {
+    if (PEAR::isError($db)) {
         die (__LINE__.$db->getMessage());
     }
 
@@ -129,7 +129,7 @@
     echo(Var_Dump($db->loadModule('manager')));
     echo('<br>create a new seq with start 3 name real_funky_id<br>');
     $err = $db->manager->createSequence('real_funky_id', 3);
-    if (MDB2::isError($err)) {
+    if (PEAR::isError($err)) {
             echo('<br>could not create sequence again<br>');
     }
     echo('<br>get the next id:<br>');

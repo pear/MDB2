@@ -66,7 +66,7 @@ echo ('
 
         $manager =& new MDB2_Tools_Manager;
         $err = $manager->connect($dsn, array('debug' => true, 'log_line_break' => '<br>'));
-        if (MDB2::isError($err)) {
+        if (PEAR::isError($err)) {
             $error = $err->getMessage();
         } else {
             if ($_REQUEST['action']) {

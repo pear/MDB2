@@ -129,11 +129,11 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 'getTableFieldDefinition: '.$db->dummy_primary_key.' is an hidden column');
         }
         $result = $db->query("SHOW COLUMNS FROM $table", null, false, false);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $columns = $result->getColumnNames();
-        if (MDB2::isError($columns)) {
+        if (PEAR::isError($columns)) {
             return $columns;
         }
         if (!($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE)) {
@@ -285,7 +285,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                     // check that its not just a unique field
                     $query = "SHOW INDEX FROM $table";
                     $indexes = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
-                    if (MDB2::isError($indexes)) {
+                    if (PEAR::isError($indexes)) {
                         return $indexes;
                     }
                     $is_primary = false;
@@ -313,7 +313,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         }
         $db->free($result);
 
-        if (MDB2::isError($row)) {
+        if (PEAR::isError($row)) {
             return $row;
         }
         return $db->raiseError(MDB2_ERROR, null, null,
@@ -339,7 +339,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 'getTableIndexDefinition: PRIMARY is an hidden index');
         }
         $result = $db->query("SHOW INDEX FROM $table", null, false, false);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $definition = array();

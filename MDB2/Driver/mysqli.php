@@ -213,7 +213,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             return MDB2_OK;  //nothing to do
         }
         $result = $this->_doQuery('SET AUTOCOMMIT = 0', true);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $this->in_transaction = true;
@@ -242,11 +242,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 'commit: transaction changes are being auto committed');
         }
         $result = $this->_doQuery('COMMIT', true);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $result = $this->_doQuery('SET AUTOCOMMIT = 1', true);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -275,11 +275,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
         $result = $this->_doQuery('ROLLBACK', true);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $result = $this->_doQuery('SET AUTOCOMMIT = 1', true);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -437,7 +437,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
 
         if (is_null($connection)) {
             $error = $this->connect();
-            if (MDB2::isError($error)) {
+            if (PEAR::isError($error)) {
                 return $error;
             }
             $connection = $this->connection;
@@ -650,14 +650,14 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);
         $this->popExpect();
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('Manager');
                 // Since we are creating the sequence on demand
                 // we know the first id = 1 so initialize the
                 // sequence at 2
                 $result = $this->manager->createSequence($seq_name, 2);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     return $this->raiseError(MDB2_ERROR, null, null,
                         'nextID: on demand sequence '.$seq_name.' could not be created');
                 } else {
@@ -671,7 +671,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value";
             $result = $this->_doQuery($query, true);
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
             }
         }
@@ -729,7 +729,7 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
     {
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
-            if (MDB2::isError($seek)) {
+            if (PEAR::isError($seek)) {
                 return $seek;
             }
         }
@@ -794,7 +794,7 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
     {
         $columns = array();
         $numcols = $this->numCols();
-        if (MDB2::isError($numcols)) {
+        if (PEAR::isError($numcols)) {
             return $numcols;
         }
         for ($column = 0; $column < $numcols; $column++) {
@@ -885,7 +885,7 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
     function valid()
     {
         $numrows = $this->numRows();
-        if (MDB2::isError($numrows)) {
+        if (PEAR::isError($numrows)) {
             return $numrows;
         }
         return $this->rownum < ($numrows - 1);

@@ -66,7 +66,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
         $this->options = $GLOBALS['options'];
         $this->database = $GLOBALS['database'];
         $this->db =& MDB2::connect($this->dsn, $this->options);
-        if (MDB2::isError($this->db)) {
+        if (PEAR::isError($this->db)) {
             $this->assertTrue(false, 'Could not connect to database in setUp - ' .$this->db->getMessage() . ' - ' .$this->db->getUserInfo());
             exit;
         }
@@ -98,7 +98,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
 
     function tearDown() {
         unset($this->dsn);
-        if (!MDB2::isError($this->db)) {
+        if (!PEAR::isError($this->db)) {
             $this->db->disconnect();
         }
         unset($this->db);
@@ -117,10 +117,10 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
     //test stuff in common.php
     function testConnect() {
         $db =& MDB2::connect($this->dsn, $this->options);
-        if (MDB2::isError($db)) {
+        if (PEAR::isError($db)) {
             $this->assertTrue(false, 'Connect failed bailing out - ' .$db->getMessage() . ' - ' .$db->getUserInfo());
         }
-        if (MDB2::isError($this->db)) {
+        if (PEAR::isError($this->db)) {
             exit;
         }
     }
@@ -147,7 +147,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
         if (!$this->methodExists($this->db, 'loadModule')) {
             return;
         }
-        $this->assertTrue(!MDB2::isError($this->db->loadModule('Manager')));
+        $this->assertTrue(!PEAR::isError($this->db->loadModule('Manager')));
     }
 
     // test of the driver
@@ -155,7 +155,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
     function standardQuery() {
         $query = 'SELECT * FROM users';
         // run the query and get a result handler
-        if (!MDB2::isError($this->db)) {
+        if (!PEAR::isError($this->db)) {
             return $this->db->query($query);
         }
         return false;
@@ -178,7 +178,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
         $err = $result->fetchRow();
         $result->free();
 
-        if (MDB2::isError($err)) {
+        if (PEAR::isError($err)) {
             $this->assertTrue(false, 'Error testFetch: '.$err->getMessage().' - '.$err->getUserInfo());
         }
     }
@@ -189,7 +189,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
             return;
         }
         $numrows = $result->numRows();
-        $this->assertTrue(!MDB2::isError($numrows) && is_int($numrows));
+        $this->assertTrue(!PEAR::isError($numrows) && is_int($numrows));
         $result->free();
     }
 
@@ -199,7 +199,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
             return;
         }
         $numcols = $result->numCols();
-        $this->assertTrue(!MDB2::isError($numcols) && $numcols > 0);
+        $this->assertTrue(!PEAR::isError($numcols) && $numcols > 0);
         $result->free();
     }
 

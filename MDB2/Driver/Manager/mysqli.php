@@ -104,7 +104,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         for ($i=0, $j=count($check); $i<$j; ++$i) {
             $query = 'SHOW VARIABLES LIKE '.$db->quote($check[$i], 'text');
             $has = $db->queryRow($query, null, MDB2_FETCHMODE_ORDERED);
-            if (MDB2::isError($has)) {
+            if (PEAR::isError($has)) {
                 return $has;
             }
             if (is_array($has)) {
@@ -138,7 +138,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'CREATE DATABASE '.$name;
         $result = $db->query($query);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         return MDB2_OK;
@@ -159,7 +159,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'DROP DATABASE '.$name;
         $result = $db->query($query);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         return MDB2_OK;
@@ -209,10 +209,10 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no fields specified for table "'.$name.'"');
         }
-        if (MDB2::isError($verify = $this->_verifyTableType($db->options['default_table_type']))) {
+        if (PEAR::isError($verify = $this->_verifyTableType($db->options['default_table_type']))) {
             return $verify;
         }
-        if (MDB2::isError($query_fields = $this->getFieldDeclarationList($fields))) {
+        if (PEAR::isError($query_fields = $this->getFieldDeclarationList($fields))) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: unkown error');
         }
@@ -446,7 +446,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $table_names = $db->queryCol('SHOW TABLES');
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $tables = array();
@@ -474,7 +474,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $fields = $db->queryCol("SHOW COLUMNS FROM $table");
-        if (MDB2::isError($fields)) {
+        if (PEAR::isError($fields)) {
             return $fields;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
@@ -573,7 +573,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
         $query = "SHOW INDEX FROM $table";
         $indexes_all = $db->queryCol($query, 'text', $key_name);
-        if (MDB2::isError($indexes_all)) {
+        if (PEAR::isError($indexes_all)) {
             return $indexes_all;
         }
         $found = $indexes = array();
@@ -608,26 +608,26 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         $sequence_name = $db->getSequenceName($seq_name);
         $seqname_col_name = $db->options['seqname_col_name'];
         $result = $this->_verifyTableType($db->options['default_table_type']);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $res = $db->query("CREATE TABLE $sequence_name".
             "($seqname_col_name INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ($seqname_col_name))".
             (strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : '')
         );
-        if (MDB2::isError($res)) {
+        if (PEAR::isError($res)) {
             return $res;
         }
         if ($start == 1) {
             return MDB2_OK;
         }
         $res = $db->query("INSERT INTO $sequence_name ($seqname_col_name) VALUES (".($start-1).')');
-        if (!MDB2::isError($res)) {
+        if (!PEAR::isError($res)) {
             return MDB2_OK;
         }
         // Handle error
         $result = $db->query("DROP TABLE $sequence_name");
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'createSequence: could not drop inconsistent sequence table ('.
                 $result->getMessage().' ('.$result->getUserinfo().'))');
@@ -667,7 +667,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $table_names = $db->queryCol('SHOW TABLES');
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $sequences = array();

@@ -389,7 +389,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $connect = $db->connect();
-        if (MDB2::isError($connect)) {
+        if (PEAR::isError($connect)) {
             return $connect;
         }
         if (!$db->in_transaction && !@pg_query($db->connection, 'BEGIN')) {
@@ -594,7 +594,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $lobresult = $this->_retrieveLOB($lob);
-        if (MDB2::isError($lobresult)) {
+        if (PEAR::isError($lobresult)) {
             return $lobresult;
         }
         return isset($db->lobs[$lob]['end_of_LOB']);
@@ -618,7 +618,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $lobresult = $this->_retrieveLOB($lob);
-        if (MDB2::isError($lobresult)) {
+        if (PEAR::isError($lobresult)) {
             return $lobresult;
         }
         $data = @pg_lo_read($db->lobs[$lob]['handle'], $length);

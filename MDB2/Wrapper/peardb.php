@@ -169,7 +169,7 @@ class DB
 
     function isError($value)
     {
-        return MDB2::isError($value);
+        return PEAR::isError($value);
     }
 
     function isManip($query)
@@ -286,7 +286,7 @@ class DB_result extends MDB2_Result_Common
     function free()
     {
         $err = $this->result->free();
-        if (MDB2::isError($err)) {
+        if (PEAR::isError($err)) {
             return $err;
         }
         $this->result = false;
@@ -471,7 +471,7 @@ class MDB2_PEARProxy extends PEAR
     function &query($query, $params = array()) {
         if (sizeof($params) > 0) {
             $sth = $this->db_object->prepare($query);
-            if (MDB2::isError($sth)) {
+            if (PEAR::isError($sth)) {
                 return $sth;
             }
             if (!is_array($params)) {
@@ -485,7 +485,7 @@ class MDB2_PEARProxy extends PEAR
 
     function simpleQuery($query) {
         $result = $this->db_object->query($query, null, false, false);
-        if (MDB2::isError($result) || $result === MDB2_OK) {
+        if (PEAR::isError($result) || $result === MDB2_OK) {
             return $result;
         } else {
             return $result->result->getResource();
@@ -495,7 +495,7 @@ class MDB2_PEARProxy extends PEAR
     function limitQuery($query, $from, $count, $params = array())
     {
         $result = $this->db_object->setLimit($count, $from);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $result =& $this->query($query, $params);

@@ -378,7 +378,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
         if (!empty($this->database_name)) {
             $connection = $this->_doConnect($database_file, $this->options['persistent']);
-            if (MDB2::isError($connection)) {
+            if (PEAR::isError($connection)) {
                 return $connection;
             }
             $this->connection =& $connection;
@@ -439,7 +439,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 $connection = $this->transaction_id;
             } else {
                 $error = $this->connect();
-                if (MDB2::isError($error)) {
+                if (PEAR::isError($error)) {
                     return $error;
                 }
                 $connection = $this->connection;
@@ -589,14 +589,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->expectError('*');
         $result = $this->queryOne($query, 'integer');
         $this->popExpect();
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             if ($ondemand) {
                 $this->loadModule('Manager');
                 // Since we are creating the sequence on demand
                 // we know the first id = 1 so initialize the
                 // sequence at 2
                 $result = $this->manager->createSequence($seq_name, 2);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     return $this->raiseError(MDB2_ERROR, null, null,
                         'nextID: on demand sequence could not be created');
                 } else {
@@ -625,7 +625,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $sequence_name = $this->getSequenceName($seq_name);
         $query = 'SELECT GEN_ID('.strtoupper($sequence_name).', 0) as the_value FROM RDB$DATABASE';
         $value = @$this->queryOne($query);
-        if (MDB2::isError($value)) {
+        if (PEAR::isError($value)) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'currID: Unable to select from ' . $seq_name) ;
         }
@@ -694,7 +694,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
-            if (MDB2::isError($seek)) {
+            if (PEAR::isError($seek)) {
                 return $seek;
             }
         }
@@ -757,7 +757,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
     {
         $columns = array();
         $numcols = $this->numCols();
-        if (MDB2::isError($numcols)) {
+        if (PEAR::isError($numcols)) {
             return $numcols;
         }
         for ($column = 0; $column < $numcols; $column++) {
@@ -905,7 +905,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
-            if (MDB2::isError($seek)) {
+            if (PEAR::isError($seek)) {
                 return $seek;
             }
         }
@@ -1046,7 +1046,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         }
 
         $connected = $this->db->connect();
-        if (MDB2::isError($connected)) {
+        if (PEAR::isError($connected)) {
             return $connected;
         }
         $connection = ($this->db->in_transaction ? $this->db->transaction_id : $this->db->connection);

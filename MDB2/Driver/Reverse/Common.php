@@ -136,7 +136,7 @@ class MDB2_Driver_Reverse_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $start = $db->currId($sequence);
-        if (MDB2::isError($start)) {
+        if (PEAR::isError($start)) {
             return $start;
         }
         if ($db->supports('current_id')) {

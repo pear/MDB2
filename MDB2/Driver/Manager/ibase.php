@@ -238,7 +238,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             case 'changed_fields':
                 $fields = $changes['changed_fields'];
                 foreach ($fields as $field) {
-                    if (MDB2::isError($err = $this->checkSupportedChanges($field))) {
+                    if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
                         return $err;
                     }
                 }
@@ -282,7 +282,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (isset($changes['changed_fields'])) {
             $fields = $changes['changed_fields'];
             foreach ($fields as $field_name => $field) {
-                if (MDB2::isError($err = $this->checkSupportedChanges($field))) {
+                if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
                     return $err;
                 }
                 if ($query) {
@@ -313,12 +313,12 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'SELECT RDB$FIELD_SOURCE FROM RDB$RELATION_FIELDS WHERE RDB$RELATION_NAME=\'$table\'';
         $result = $db->query($query, null, false, false);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $columns = $result->getColumnNames();
         $result->free();
-        if (MDB2::isError($columns)) {
+        if (PEAR::isError($columns)) {
             return $columns;
         }
         return array_flip($columns);
@@ -415,11 +415,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
-        if (MDB2::isError($result = $db->query('CREATE GENERATOR '.strtoupper($sequence_name)))) {
+        if (PEAR::isError($result = $db->query('CREATE GENERATOR '.strtoupper($sequence_name)))) {
             return $result;
         }
-        if (MDB2::isError($result = $db->query('SET GENERATOR '.strtoupper($sequence_name).' TO '.($start-1)))) {
-            if (MDB2::isError($err = $db->dropSequence($seq_name))) {
+        if (PEAR::isError($result = $db->query('SET GENERATOR '.strtoupper($sequence_name).' TO '.($start-1)))) {
+            if (PEAR::isError($err = $db->dropSequence($seq_name))) {
                 return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                     'createSequence: Could not setup sequence start value and then it was not possible to drop it: '.
                     $err->getMessage().' - ' .$err->getUserInfo());
@@ -459,7 +459,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS';
         $table_names = $db->queryCol($query);
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $sequences = array();

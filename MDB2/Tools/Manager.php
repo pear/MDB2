@@ -234,14 +234,14 @@ class MDB2_Tools_Manager extends PEAR
      */
     function connect(&$dbinfo, $options = false)
     {
-        if (is_object($this->db) && !MDB2::isError($this->db)) {
+        if (is_object($this->db) && !PEAR::isError($this->db)) {
             $this->disconnect();
         }
         if (is_object($dbinfo)) {
              $this->db =& $dbinfo;
         } else {
             $this->db =& MDB2::connect($dbinfo, $options);
-            if (MDB2::isError($this->db)) {
+            if (PEAR::isError($this->db)) {
                 return $this->db;
             }
         }
@@ -262,7 +262,7 @@ class MDB2_Tools_Manager extends PEAR
      */
     function disconnect()
     {
-        if (MDB2::isConnection($this->db) && !MDB2::isError($this->db)) {
+        if (MDB2::isConnection($this->db) && !PEAR::isError($this->db)) {
             $this->db->disconnect();
             unset($this->db);
         }
@@ -303,14 +303,14 @@ class MDB2_Tools_Manager extends PEAR
     {
         $parser =& new MDB2_Tools_Parser($variables, $fail_on_invalid_names);
         $result = $parser->setInputFile($input_file);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $result = $parser->parse();
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
-        if (!$result || MDB2::isError($parser->error)) {
+        if (!$result || PEAR::isError($parser->error)) {
             return $parser->error;
         }
         return $parser->database_definition;
@@ -340,14 +340,14 @@ class MDB2_Tools_Manager extends PEAR
             'tables' => array(),
         );
         $tables = $this->db->manager->listTables();
-        if (MDB2::isError($tables)) {
+        if (PEAR::isError($tables)) {
             return $tables;
         }
 
         for ($table = 0; $table < count($tables); $table++) {
             $table_name = $tables[$table];
             $fields = $this->db->manager->listTableFields($table_name);
-            if (MDB2::isError($fields)) {
+            if (PEAR::isError($fields)) {
                 return $fields;
             }
             $this->database_definition['tables'][$table_name] = array('fields' => array());
@@ -355,7 +355,7 @@ class MDB2_Tools_Manager extends PEAR
             for ($field = 0; $field < count($fields); $field++) {
                 $field_name = $fields[$field];
                 $definition = $this->db->reverse->getTableFieldDefinition($table_name, $field_name);
-                if (MDB2::isError($definition)) {
+                if (PEAR::isError($definition)) {
                     return $definition;
                 }
                 $table_definition['fields'][$field_name] = $definition[0][0];
@@ -392,7 +392,7 @@ class MDB2_Tools_Manager extends PEAR
                 }
             }
             $indexes = $this->db->manager->listTableIndexes($table_name);
-            if (MDB2::isError($indexes)) {
+            if (PEAR::isError($indexes)) {
                 return $indexes;
             }
             if (is_array($indexes) && count($indexes) > 0
@@ -403,7 +403,7 @@ class MDB2_Tools_Manager extends PEAR
             for ($index = 0, $index_cnt = count($indexes); $index < $index_cnt; $index++) {
                 $index_name = $indexes[$index];
                 $definition = $this->db->reverse->getTableIndexDefinition($table_name, $index_name);
-                if (MDB2::isError($definition)) {
+                if (PEAR::isError($definition)) {
                     return $definition;
                 }
                $table_definition['indexes'][$index_name] = $definition;
@@ -433,7 +433,7 @@ class MDB2_Tools_Manager extends PEAR
         }
 
         $sequences = $this->db->manager->listSequences();
-        if (MDB2::isError($sequences)) {
+        if (PEAR::isError($sequences)) {
             return $sequences;
         }
         if (is_array($sequences) && count($sequences) > 0
@@ -444,7 +444,7 @@ class MDB2_Tools_Manager extends PEAR
         for ($sequence = 0; $sequence < count($sequences); $sequence++) {
             $sequence_name = $sequences[$sequence];
             $definition = $this->db->reverse->getSequenceDefinition($sequence_name);
-            if (MDB2::isError($definition)) {
+            if (PEAR::isError($definition)) {
                 return $definition;
             }
             $this->database_definition['sequences'][$sequence_name] = $definition;
@@ -476,20 +476,20 @@ class MDB2_Tools_Manager extends PEAR
             $this->expectError(MDB2_ERROR_ALREADY_EXISTS);
             $result = $this->db->manager->createIndex($table_name, $index_name, $index);
             $this->popExpect();
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 if ($result->getCode() === MDB2_ERROR_ALREADY_EXISTS) {
                     $this->warnings[] = 'Index already exists: '.$index_name;
                     if ($overwrite) {
                         $this->db->debug('Overwritting Index');
                         $result = $this->db->manager->dropIndex($table_name, $index_name);
-                        if (!MDB2::isError($result)) {
+                        if (!PEAR::isError($result)) {
                             $result = $this->db->manager->createIndex($table_name, $index_name, $index);
                         }
                     } else {
                         $result = MDB2_OK;
                     }
                 }
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     $this->db->debug('Create index error: '.$table_name);
                     break;
                 }
@@ -517,20 +517,20 @@ class MDB2_Tools_Manager extends PEAR
         $this->expectError(MDB2_ERROR_ALREADY_EXISTS);
         $result = $this->db->manager->createTable($table_name, $table['fields']);
         $this->popExpect();
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             if ($result->getCode() === MDB2_ERROR_ALREADY_EXISTS) {
                 $this->warnings[] = 'Table already exists: '.$table_name;
                 if ($overwrite) {
                     $this->db->debug('Overwritting Table');
                     $result = $this->dropTable($table_name);
-                    if (!MDB2::isError($result)) {
+                    if (!PEAR::isError($result)) {
                         $result = $this->db->manager->createTable($table_name, $table['fields']);
                     }
                 } else {
                     $result = MDB2_OK;
                 }
             }
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->db->debug('Create table error: '.$table_name);
                 return $result;
             }
@@ -538,12 +538,12 @@ class MDB2_Tools_Manager extends PEAR
         if (isset($table['initialization']) && is_array($table['initialization'])) {
             $result = $this->initializeTable($table_name, $table);
         }
-        if (!MDB2::isError($result) && isset($table['indexes']) && is_array($table['indexes'])) {
+        if (!PEAR::isError($result) && isset($table['indexes']) && is_array($table['indexes'])) {
             $result = $this->createTableIndexes($table_name, $table['indexes'], $overwrite);
         }
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $result = $this->dropTable($table_name);
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $result = $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                     'could not drop the table ('.$result->getMessage().
                     ' ('.$result->getUserinfo().'))');
@@ -582,11 +582,11 @@ class MDB2_Tools_Manager extends PEAR
                     $query_values = implode(',',$query_values);
                     $stmt = $this->db->prepare(
                         "INSERT INTO $table_name ($query_fields) VALUES ($query_values)", $query_types);
-                    if (MDB2::isError($stmt)) {
+                    if (PEAR::isError($stmt)) {
                         return $stmt;
                     }
                     $result = $stmt->bindParamArray(array_values($instruction['fields']));
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $result = $stmt->execute();
@@ -648,7 +648,7 @@ class MDB2_Tools_Manager extends PEAR
                 $query = "SELECT $field FROM $table ORDER BY $field DESC";
             }
             $start = $this->db->queryOne($query, 'integer');
-            if (MDB2::isError($start)) {
+            if (PEAR::isError($start)) {
                 return $start;
             }
             $start++;
@@ -658,23 +658,23 @@ class MDB2_Tools_Manager extends PEAR
         $this->expectError(MDB2_ERROR_ALREADY_EXISTS);
         $result = $this->db->manager->createSequence($sequence_name, $start);
         $this->popExpect();
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             if ($result->getCode() === MDB2_ERROR_ALREADY_EXISTS) {
                 $this->warnings[] = 'Sequence already exists: '.$sequence_name;
                 if ($overwrite) {
                     $this->db->debug('Overwritting Sequence');
                     $result = $this->dropSequence($sequence_name);
-                    if (!MDB2::isError($result)) {
+                    if (!PEAR::isError($result)) {
                         $result = $this->db->manager->createSequence($sequence_name, $start);
                     }
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                 } else {
                     return MDB2_OK;
                 }
             }
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->db->debug('Create sequence error: '.$sequence_name);
                 return $result;
             }
@@ -732,23 +732,23 @@ class MDB2_Tools_Manager extends PEAR
             $this->expectError(MDB2_ERROR_ALREADY_EXISTS);
             $result = $this->db->manager->createDatabase($this->database_definition['name']);
             $this->popExpect();
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 if ($result->getCode() === MDB2_ERROR_ALREADY_EXISTS) {
                     $this->warnings[] = 'Database already exists: '.$this->database_definition['name'];
                     if ($overwrite) {
                         $this->db->debug('Overwritting Database');
                         $result = $this->db->manager->dropDatabase($this->database_definition['name']);
-                        if (!MDB2::isError($result)) {
+                        if (!PEAR::isError($result)) {
                             $result = $this->db->manager->createDatabase($this->database_definition['name']);
                         }
-                        if (MDB2::isError($result)) {
+                        if (PEAR::isError($result)) {
                             return $result;
                         }
                     } else {
                         $result = MDB2_OK;
                     }
                 }
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     $this->db->debug('Create database error.');
                     return $result;
                 }
@@ -756,7 +756,7 @@ class MDB2_Tools_Manager extends PEAR
         }
         $previous_database_name = $this->db->setDatabase($this->database_definition['name']);
         if (($support_transactions = $this->db->supports('transactions'))
-            && MDB2::isError($result = $this->db->beginTransaction())
+            && PEAR::isError($result = $this->db->beginTransaction())
         ) {
             return $result;
         }
@@ -767,31 +767,31 @@ class MDB2_Tools_Manager extends PEAR
         ) {
             foreach ($this->database_definition['tables'] as $table_name => $table) {
                 $result = $this->createTable($table_name, $table, $overwrite);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     break;
                 }
                 $created_objects++;
             }
         }
-        if (!MDB2::isError($result)
+        if (!PEAR::isError($result)
             && isset($this->database_definition['sequences'])
             && is_array($this->database_definition['sequences'])
         ) {
             foreach ($this->database_definition['sequences'] as $sequence_name => $sequence) {
                 $result = $this->createSequence($sequence_name, $sequence, false, $overwrite);
 
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     break;
                 }
                 $created_objects++;
             }
         }
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             if ($created_objects) {
                 if ($support_transactions) {
                     $res = $this->db->rollback();
-                    if (MDB2::isError($res))
+                    if (PEAR::isError($res))
                         $result = $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                             'Could not rollback the partially created database alterations ('.
                             $result->getMessage().' ('.$result->getUserinfo().'))');
@@ -804,7 +804,7 @@ class MDB2_Tools_Manager extends PEAR
         } else {
             if ($support_transactions) {
                 $res = $this->db->commit();
-                if (MDB2::isError($res))
+                if (PEAR::isError($res))
                     $result = $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                         'Could not end transaction after successfully created the database ('.
                         $res->getMessage().' ('.$res->getUserinfo().'))');
@@ -813,8 +813,8 @@ class MDB2_Tools_Manager extends PEAR
 
         $this->db->setDatabase($previous_database_name);
 
-        if (MDB2::isError($result) && $create
-            && MDB2::isError($result2 = $this->db->manager->dropDatabase($this->database_definition['name']))
+        if (PEAR::isError($result) && $create
+            && PEAR::isError($result2 = $this->db->manager->dropDatabase($this->database_definition['name']))
         ) {
             return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                 'Could not drop the created database after unsuccessful creation attempt ('.
@@ -847,7 +847,7 @@ class MDB2_Tools_Manager extends PEAR
                     $previous_tables = $previous_definition['tables'];
                 }
                 $change = $this->compareTableDefinitions($table_name, $previous_tables, $table, $defined_tables);
-                if (MDB2::isError($change)) {
+                if (PEAR::isError($change)) {
                     return $change;
                 }
                 if (!empty($change)) {
@@ -875,7 +875,7 @@ class MDB2_Tools_Manager extends PEAR
                     $sequence,
                     $defined_sequences
                 );
-                if (MDB2::isError($change)) {
+                if (PEAR::isError($change)) {
                     return $change;
                 }
                 if (!empty($change)) {
@@ -921,7 +921,7 @@ class MDB2_Tools_Manager extends PEAR
                 if (isset($previous_definition[$was_field_name])) {
                     if ($was_field_name != $field_name) {
                         $declaration = $this->db->getDeclaration($field['type'], $field_name, $field);
-                        if (MDB2::isError($declaration)) {
+                        if (PEAR::isError($declaration)) {
                             return $declaration;
                         }
                         $changes['renamed_fields'][$was_field_name] = array(
@@ -941,7 +941,7 @@ class MDB2_Tools_Manager extends PEAR
                     }
                     if (!empty($change)) {
                         $declaration = $this->db->getDeclaration($field['type'], $field_name, $field);
-                        if (MDB2::isError($declaration)) {
+                        if (PEAR::isError($declaration)) {
                             return $declaration;
                         }
                         $change['declaration'] = $declaration;
@@ -956,7 +956,7 @@ class MDB2_Tools_Manager extends PEAR
                             $table_name.'" that does not exist');
                     }
                     $declaration = $this->db->getDeclaration($field['type'], $field_name, $field);
-                    if (MDB2::isError($declaration)) {
+                    if (PEAR::isError($declaration)) {
                         return $declaration;
                     }
                     $change['declaration'] = $declaration;
@@ -1111,7 +1111,7 @@ class MDB2_Tools_Manager extends PEAR
                         $current_definition['fields'],
                         $defined_fields
                     );
-                    if (MDB2::isError($change)) {
+                    if (PEAR::isError($change)) {
                         return $change;
                     }
                     if (!empty($change)) {
@@ -1132,7 +1132,7 @@ class MDB2_Tools_Manager extends PEAR
                         $current_definition['indexes'],
                         $defined_indexes
                     );
-                    if (MDB2::isError($change)) {
+                    if (PEAR::isError($change)) {
                         return $change;
                     }
                     if (!empty($change)) {
@@ -1266,7 +1266,7 @@ class MDB2_Tools_Manager extends PEAR
                     }
                 }
                 $result = $this->db->manager->alterTable($table_name, $table, true);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     return $result;
                 }
             }
@@ -1311,7 +1311,7 @@ class MDB2_Tools_Manager extends PEAR
                         $index_name,
                         $index
                     );
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $alterations++;
@@ -1324,7 +1324,7 @@ class MDB2_Tools_Manager extends PEAR
                         $index_name,
                         $index
                     );
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $alterations++;
@@ -1359,19 +1359,19 @@ class MDB2_Tools_Manager extends PEAR
                 }
                 if (isset($table['remove'])) {
                     $result = $this->dropTable($table_name);
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $alterations++;
                 } elseif (isset($table['add'])) {
                     $result = $this->createTable($table_name, $current_definition[$table_name]);
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $alterations++;
                 } elseif(!empty($table)) {
                     $result = $this->db->manager->alterTable($table_name, $table, false);
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $alterations++;
@@ -1381,7 +1381,7 @@ class MDB2_Tools_Manager extends PEAR
                         $table_name,
                         $indexes
                     );
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $alterations += $result;
@@ -1411,23 +1411,23 @@ class MDB2_Tools_Manager extends PEAR
             foreach ($changes as $sequence_name => $sequence) {
                 if (isset($sequence['add'])) {
                     $result = $this->createSequence($sequence_name, $sequence);
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $alterations++;
                 } elseif (isset($sequence['remove'])) {
                     $result = $this->dropSequence($sequence_name);
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $alterations++;
                 } elseif (isset($sequence['change'])) {
                     $result = $this->dropSequence($current_definition[$sequence_name]['was']);
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $result = $this->createSequence($sequence_name, $current_definition[$sequence_name]);
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                     $alterations++;
@@ -1463,7 +1463,7 @@ class MDB2_Tools_Manager extends PEAR
             $previous_database_name = $this->db->getDatabase();
         }
         if (($support_transactions = $this->db->supports('transactions'))
-            && MDB2::isError($result = $this->db->beginTransaction())
+            && PEAR::isError($result = $this->db->beginTransaction())
         ) {
             return $result;
         }
@@ -1476,17 +1476,17 @@ class MDB2_Tools_Manager extends PEAR
                 $alterations += $result;
             }
         }
-        if (!MDB2::isError($result) && isset($changes['sequences']) && isset($current_definition['sequences'])) {
+        if (!PEAR::isError($result) && isset($changes['sequences']) && isset($current_definition['sequences'])) {
             $result = $this->alterDatabaseSequences($changes['sequences'], $current_definition['sequences']);
             if (is_numeric($result)) {
                 $alterations += $result;
             }
         }
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             if ($support_transactions) {
                 $res = $this->db->rollback();
-                if (MDB2::isError($res))
+                if (PEAR::isError($res))
                     $result = $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                         'Could not rollback the partially created database alterations ('.
                         $result->getMessage().' ('.$result->getUserinfo().'))');
@@ -1498,7 +1498,7 @@ class MDB2_Tools_Manager extends PEAR
         }
         if ($support_transactions) {
             $result = $this->db->commit();
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $result = $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                     'Could not end transaction after successfully implemented the requested database alterations ('.
                     $result->getMessage().' ('.$result->getUserinfo().'))');
@@ -1687,7 +1687,7 @@ class MDB2_Tools_Manager extends PEAR
                     null, null, 'please connect to a RDBMS first');
             }
             $error = $this->getDefinitionFromDatabase();
-            if (MDB2::isError($error)) {
+            if (PEAR::isError($error)) {
                 return $error;
             }
 
@@ -1701,7 +1701,7 @@ class MDB2_Tools_Manager extends PEAR
                         }
                         $query = 'SELECT '.implode(',',array_keys($table['fields']))." FROM $table_name";
                         $data = $this->db->queryAll($query, $types, MDB2_FETCHMODE_ASSOC);
-                        if (MDB2::isError($data)) {
+                        if (PEAR::isError($data)) {
                             return $data;
                         }
                         $rows = count($data);
@@ -1769,7 +1769,7 @@ class MDB2_Tools_Manager extends PEAR
             $this->options['fail_on_invalid_names']
         );
 
-        if (MDB2::isError($database_definition)) {
+        if (PEAR::isError($database_definition)) {
             return $database_definition;
         }
 
@@ -1779,39 +1779,39 @@ class MDB2_Tools_Manager extends PEAR
             $this->db->expectError($errorcodes);
             $databases = $this->db->manager->listDatabases();
             $this->db->popExpect();
-            if (MDB2::isError($databases) && !in_array($databases->getCode(), $errorcodes)) {
+            if (!MDB2::isError($databases, $errorcodes)) {
                 return $databases;
             }
-            if (!MDB2::isError($databases)
+            if (!PEAR::isError($databases)
                 && (!is_array($databases) || !in_array($this->database_definition['name'], $databases))
             ) {
                 return $this->raiseError(MDB2_ERROR, null, null,
                     'database to update does not exist: '.$this->database_definition['name']);
             }
             $previous_definition = $this->parseDatabaseDefinitionFile($previous_schema_file, $variables, 0);
-            if (MDB2::isError($previous_definition)) {
+            if (PEAR::isError($previous_definition)) {
                 return $previous_definition;
             }
             $changes = $this->compareDefinitions($previous_definition);
-            if (MDB2::isError($changes)) {
+            if (PEAR::isError($changes)) {
                 return $changes;
             }
             if (is_array($changes)) {
                 $result = $this->alterDatabase($changes, $previous_definition);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     return $result;
                 }
                 $copy = true;
                 if ($this->db->options['debug']) {
                     $result = $this->dumpDatabaseChanges($changes);
-                    if (MDB2::isError($result)) {
+                    if (PEAR::isError($result)) {
                         return $result;
                     }
                 }
             }
         } else {
             $result = $this->createDatabase();
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 return $result;
             }
             if ($previous_schema_file && !copy($current_schema_file, $previous_schema_file)) {

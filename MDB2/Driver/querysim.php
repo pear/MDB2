@@ -350,7 +350,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         }
 
         $result = $this->_buildResult($query);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
 
@@ -518,7 +518,7 @@ class MDB2_Result_querysim extends MDB2_Result_Common
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
-            if (MDB2::isError($seek)) {
+            if (PEAR::isError($seek)) {
                 return $seek;
             }
         }
@@ -644,7 +644,7 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
     function valid()
     {
         $numrows = $this->numRows();
-        if (MDB2::isError($numrows)) {
+        if (PEAR::isError($numrows)) {
             return $numrows;
         }
         return $this->rownum < ($numrows - 1);

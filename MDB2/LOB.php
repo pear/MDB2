@@ -134,7 +134,7 @@ class MDB2_LOB_Result extends MDB2_LOB
     function readLOB(&$data, $length)
     {
         $read_length = $this->db->datatype->_readResultLOB($this->result_lob, $data, $length);
-        if (MDB2::isError($read_length)) {
+        if (PEAR::isError($read_length)) {
             return $read_length;
         }
         if ($read_length < 0) {
@@ -225,7 +225,7 @@ class MDB2_LOB_Output_File extends MDB2_LOB
                 $written += $read
             ) {
                 $result = $this->db->datatype->readLOB($this->input_lob, $buffer, $buffer_length);
-                if (MDB2::isError($result)) {
+                if (PEAR::isError($result)) {
                     return $result;
                 }
                 $read = strlen($buffer);

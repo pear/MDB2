@@ -67,7 +67,7 @@ class MDB2_Native_TestCase extends PHPUnit_TestCase
         $this->options = $GLOBALS['options'];
         $this->database = $GLOBALS['database'];
         $this->db =& MDB2::connect($this->dsn, $this->options);
-        if (MDB2::isError($this->db)) {
+        if (PEAR::isError($this->db)) {
             $this->assertTrue(false, 'Could not connect to database in setUp - ' .$this->db->getMessage() . ' - ' .$this->db->getUserInfo());
             exit;
         }
@@ -101,7 +101,7 @@ class MDB2_Native_TestCase extends PHPUnit_TestCase
 
     function tearDown() {
         unset($this->dsn);
-        if (!MDB2::isError($this->db)) {
+        if (!PEAR::isError($this->db)) {
             $this->db->disconnect();
        }
         unset($this->db);
@@ -125,7 +125,7 @@ class MDB2_Native_TestCase extends PHPUnit_TestCase
         if (!$this->methodExists($this->db->native, 'getInsertID')) {
             return;
         }
-        if (MDB2::isError($connect = $this->db->connect())) {
+        if (PEAR::isError($connect = $this->db->connect())) {
             $this->assertTrue(false, 'Cannot connect to the db'.$connect->getMessage());
         }
 
@@ -140,7 +140,7 @@ class MDB2_Native_TestCase extends PHPUnit_TestCase
         if (!$this->methodExists($this->db->native, 'deleteOID')) {
             return;
         }
-        if (MDB2::isError($connect = $this->db->connect())) {
+        if (PEAR::isError($connect = $this->db->connect())) {
             $this->assertTrue(false, 'Cannot connect to the db'.$connect->getMessage());
         }
 

@@ -348,7 +348,7 @@ class MDB2_Tools_Parser extends XML_Parser
                     }
                 }
             }
-            if (MDB2::isError($this->error)) {
+            if (PEAR::isError($this->error)) {
                 $this->database_definition = $this->error;
             }
             break;

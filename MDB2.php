@@ -264,7 +264,7 @@ class MDB2
         if (is_array($options)) {
             foreach ($options as $option => $value) {
                 $test = $db->setOption($option, $value);
-                if (MDB2::isError($test)) {
+                if (PEAR::isError($test)) {
                     return $test;
                 }
             }
@@ -341,20 +341,20 @@ class MDB2
         $type = $dsninfo['phptype'];
 
         $db =& MDB2::factory($type);
-        if (MDB2::isError($db)) {
+        if (PEAR::isError($db)) {
             return $db;
         }
 
         $db->setDSN($dsninfo);
         $err = MDB2::setOptions($db, $options);
-        if (MDB2::isError($err)) {
+        if (PEAR::isError($err)) {
             $db->disconnect();
             return $err;
         }
 
         if (isset($dsninfo['database'])) {
             $err = $db->connect();
-            if (MDB2::isError($err)) {
+            if (PEAR::isError($err)) {
                 $dsn = $db->getDSN('string', 'xxx');
                 $db->disconnect();
                 $err->addUserInfo($dsn);
@@ -476,7 +476,8 @@ class MDB2
             } elseif (is_string($code)) {
                 return $data->getMessage() == $code;
             } else {
-                return $data->getCode() == $code;
+                $code = (array)$code;
+                return in_array($data->getCode(), $code);
             }
         }
         return false;
@@ -603,7 +604,7 @@ class MDB2
             );
         }
 
-        if (MDB2::isError($value)) {
+        if (PEAR::isError($value)) {
             $value = $value->getCode();
         }
 
@@ -1725,12 +1726,12 @@ class MDB2_Driver_Common extends PEAR
         $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
 
         $connected = $this->connect();
-        if (MDB2::isError($connected)) {
+        if (PEAR::isError($connected)) {
             return $connected;
         }
 
         $result = $this->_doQuery($query, $isManip, $this->connection, false);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
 
@@ -1799,12 +1800,12 @@ class MDB2_Driver_Common extends PEAR
         $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
 
         $connected = $this->connect();
-        if (MDB2::isError($connected)) {
+        if (PEAR::isError($connected)) {
             return $connected;
         }
 
         $result = $this->_doQuery($query, $isManip, $this->connection, $this->database_name);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
 
@@ -1848,7 +1849,7 @@ class MDB2_Driver_Common extends PEAR
             $result =& new $class_name($this, $result, $limit, $offset);
             if (!empty($types)) {
                 $error = $result->setResultTypes($types);
-                if (MDB2::isError($error)) {
+                if (PEAR::isError($error)) {
                     $result->free();
                     return $error;
                 }
@@ -2029,26 +2030,26 @@ class MDB2_Driver_Common extends PEAR
                 'replace: not specified which fields are keys');
         }
         $in_transaction = $this->in_transaction;
-        if (!$in_transaction && MDB2::isError($result = $this->beginTransaction())) {
+        if (!$in_transaction && PEAR::isError($result = $this->beginTransaction())) {
             return $result;
         }
         $query = "DELETE FROM $table$condition";
         $success = $this->_doQuery($query, true);
-        if (!MDB2::isError($success)) {
+        if (!PEAR::isError($success)) {
             $affected_rows = $success;
             $query = "INSERT INTO $table ($insert) VALUES ($values)";
             $success = $this->_doQuery($query, true);
-            if (!MDB2::isError($success)) {
+            if (!PEAR::isError($success)) {
                 $affected_rows += $success;
             }
         }
 
         if (!$in_transaction) {
-            if (MDB2::isError($success)) {
+            if (PEAR::isError($success)) {
                 $this->rollback();
                 //$this->autoCommit(true);
             }
-            if (!MDB2::isError($success = $this->commit())
+            if (!PEAR::isError($success = $this->commit())
                 && isset($this->supported['affected_rows'])
             ) {
                 return $affected_rows;
@@ -2166,7 +2167,7 @@ class MDB2_Driver_Common extends PEAR
     function quote($value, $type = null)
     {
         $result = $this->loadModule('Datatype');
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         return $this->datatype->quote($value, $type);
@@ -2189,7 +2190,7 @@ class MDB2_Driver_Common extends PEAR
     function getDeclaration($type, $name, $field)
     {
         $result = $this->loadModule('Datatype');
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         return $this->datatype->getDeclaration($type, $name, $field);
@@ -2209,7 +2210,7 @@ class MDB2_Driver_Common extends PEAR
     function compareDefinition($current, $previous)
     {
         $result = $this->loadModule('Datatype');
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         return $this->datatype->compareDefinition($current, $previous);
@@ -2510,7 +2511,7 @@ class MDB2_Result_Common extends MDB2_Result
     function setResultTypes($types)
     {
         $load = $this->db->loadModule('Datatype');
-        if (MDB2::isError($load)) {
+        if (PEAR::isError($load)) {
             return $load;
         }
         return $this->db->datatype->setResultTypes($this, $types);
@@ -2600,7 +2601,7 @@ class MDB2_Result_Common extends MDB2_Result
                 $column[] = $row[$colnum];
             } while (is_array($row = $this->fetchRow($fetchmode)));
         }
-        if (MDB2::isError($row)) {
+        if (PEAR::isError($row)) {
             return $row;
         }
         return $column;
@@ -2630,7 +2631,7 @@ class MDB2_Result_Common extends MDB2_Result
         $force_array = false, $group = false)
     {
         $row = $this->fetchRow($fetchmode);
-        if (MDB2::isError($row) || !$row) {
+        if (PEAR::isError($row) || !$row) {
             return $row;
         }
 
@@ -2911,7 +2912,7 @@ class MDB2_Statement_Common
             } else {
                 $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
                 $value_quoted = $this->db->quote($value, $type);
-                if (MDB2::isError($value_quoted)) {
+                if (PEAR::isError($value_quoted)) {
                     return $value_quoted;
                 }
             }

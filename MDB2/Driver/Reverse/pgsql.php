@@ -83,7 +83,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
                         and attname = '$field_name'
                         ORDER BY attnum
                         ", null, MDB2_FETCHMODE_ASSOC);
-        if (MDB2::isError($columns)) {
+        if (PEAR::isError($columns)) {
             return $columns;
         }
         $field_column = $columns['attname'];
@@ -191,7 +191,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         }
 
         // check that its not just a unique field
-        if (MDB2::isError($indexes = $db->queryAll("SELECT
+        if (PEAR::isError($indexes = $db->queryAll("SELECT
                 oid,indexrelid,indrelid,indkey,indisunique,indisprimary
                 FROm pg_index, pg_class
                 WHERE (pg_class.relname='$table')
@@ -201,7 +201,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         $indkeys = explode(' ',$indexes['indkey']);
         if (in_array($columns['attnum'],$indkeys)) {
             // doesnt look like queryAll should be used here
-            if (MDB2::isError($indexname = $db->queryAll("SELECT
+            if (PEAR::isError($indexname = $db->queryAll("SELECT
                     relname FROM pg_class WHERE oid={$columns['indexrelid']}", null))
             ) {
                 return $indexname;
@@ -236,7 +236,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
                                 WHERE (pg_class.relname='$index_name')
                                 AND (pg_class.oid=pg_index.indexrelid)";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
-        if (MDB2::isError($row)) {
+        if (PEAR::isError($row)) {
             return $row;
         }
         if ($row['relname'] != $index_name) {

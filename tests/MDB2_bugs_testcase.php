@@ -66,7 +66,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $this->options = $GLOBALS['options'];
         $this->database = $GLOBALS['database'];
         $this->db =& MDB2::connect($this->dsn, $this->options);
-        if (MDB2::isError($this->db)) {
+        if (PEAR::isError($this->db)) {
             $this->assertTrue(false, 'Could not connect to database in setUp');
             exit;
         }
@@ -99,17 +99,17 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
     function tearDown() {
         $this->clearTables();
         unset($this->dsn);
-        if (!MDB2::isError($this->db)) {
+        if (!PEAR::isError($this->db)) {
             $this->db->disconnect();
         }
         unset($this->db);
     }
 
     function clearTables() {
-        if (MDB2::isError($this->db->query('DELETE FROM users'))) {
+        if (PEAR::isError($this->db->query('DELETE FROM users'))) {
             $this->assertTrue(false, 'Error deleting from table users');
         }
-        if (MDB2::isError($this->db->query('DELETE FROM files'))) {
+        if (PEAR::isError($this->db->query('DELETE FROM files'))) {
             $this->assertTrue(false, 'Error deleting from table users');
         }
     }
@@ -157,7 +157,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $result = $stmt->execute();
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
@@ -165,7 +165,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $result =& $this->db->query('SELECT * FROM users ORDER BY user_name');
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 
@@ -175,7 +175,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $this->assertEquals($firstRow['user_name'], $data['user_name'], "The data returned ($firstRow[user_name]) does not match that expected (".$data['user_name'].")");
 
         $result = $this->db->query('SELECT user_name, user_id, quota FROM users ORDER BY user_name');
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
         $this->db->setFetchMode(MDB2_FETCHMODE_ORDERED);
@@ -195,7 +195,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $data = $result->fetchRow();
         $this->db->popErrorHandling();
-        $this->assertFalse(MDB2::isError($data), "Error messages for a query affect result reading of other queries");
+        $this->assertFalse(PEAR::isError($data), "Error messages for a query affect result reading of other queries");
     }
 
     /**
@@ -218,7 +218,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $result = $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
-        if (MDB2::isError($col)) {
+        if (PEAR::isError($col)) {
             $this->assertTrue(false, "Error when fetching column first first row as NULL: ".$col->getMessage());
         }
 
@@ -230,7 +230,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $result = $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
-        if (MDB2::isError($col)) {
+        if (PEAR::isError($col)) {
             $this->assertTrue(false, "Error when fetching column: ".$col->getMessage());
         }
 
@@ -317,7 +317,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
             $result = $stmt->execute();
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
@@ -327,7 +327,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $result = $this->db->query('SELECT * FROM users');
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
-            if (MDB2::isError($row)) {
+            if (PEAR::isError($row)) {
                 $this->assertTrue(false, 'Error fetching a row'.$row->getMessage());
             }
         }
@@ -336,7 +336,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $result = $this->db->query('SELECT * FROM users');
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
-            if (MDB2::isError($row)) {
+            if (PEAR::isError($row)) {
                 $this->assertTrue(false, 'Error fetching a row'.$row->getMessage());
             }
         }
@@ -366,7 +366,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
             $this->insertTestValues($prepared_query, $data[$row]);
 
             $result = $prepared_query->execute($prepared_query);
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }

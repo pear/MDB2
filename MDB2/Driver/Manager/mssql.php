@@ -242,7 +242,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'EXECUTE sp_tables @table_type = "\'TABLE\'"';
         $table_names = $db->queryCol($query, null, 2);
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $tables = array();
@@ -268,12 +268,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $result = $db->query("SELECT * FROM $table", null, false, false);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $columns = $result->getColumnNames();
         $result->free();
-        if (MDB2::isError($columns)) {
+        if (PEAR::isError($columns)) {
             return $columns;
         }
         return array_flip($columns);
@@ -301,7 +301,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $query = "EXEC sp_statistics @table_name='$table'";
         // third parameter is wrong! should this be a prepared query?
         $indexes_all = $db->query($query, 'text', $key_name);
-        if (MDB2::isError($indexes_all)) {
+        if (PEAR::isError($indexes_all)) {
             return $indexes_all;
         }
         $query = "EXEC sp_pkeys @table_name='$table'";
@@ -371,7 +371,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE_TABLE'";
         $table_names = $db->queryCol($query);
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $sequences = array();

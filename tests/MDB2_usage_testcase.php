@@ -67,7 +67,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $this->database = $GLOBALS['database'];
         $this->db =& MDB2::connect($this->dsn, $this->options);
 
-        if (MDB2::isError($this->db)) {
+        if (PEAR::isError($this->db)) {
             $this->assertTrue(false, 'Could not connect to database in setUp');
             exit;
         }
@@ -100,17 +100,17 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     function tearDown() {
         $this->clearTables();
         unset($this->dsn);
-        if (!MDB2::isError($this->db)) {
+        if (!PEAR::isError($this->db)) {
             $this->db->disconnect();
         }
         unset($this->db);
     }
 
     function clearTables() {
-        if (MDB2::isError($this->db->query('DELETE FROM users'))) {
+        if (PEAR::isError($this->db->query('DELETE FROM users'))) {
             $this->assertTrue(false, 'Error deleting from table users');
         }
-        if (MDB2::isError($this->db->query('DELETE FROM files'))) {
+        if (PEAR::isError($this->db->query('DELETE FROM files'))) {
             $this->assertTrue(false, 'Error deleting from table users');
         }
     }
@@ -176,13 +176,13 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $stmt->free();
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
         $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 
@@ -209,7 +209,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result = $stmt->execute();
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
@@ -222,7 +222,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             for ($row = 0; $row < $total_rows; $row++) {
                 $result =& $this->db->query('SELECT '.$field.' FROM users WHERE user_id='.$row, $this->types[$i]);
                 $value = $result->fetchOne();
-                if (MDB2::isError($value)) {
+                if (PEAR::isError($value)) {
                     $this->assertTrue(false, 'Error fetching row '.$row.' for field '.$field.' of type '.$this->types[$i]);
                 } else {
                     $this->assertEquals(strval($data[$row][$field]), strval(trim($value)), 'the query field '.$field.' of type '.$this->types[$i].' for row '.$row.' was returned as "'.$value.'" unlike "'.$data[$row][$field].'" as expected');
@@ -250,7 +250,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result = $stmt->execute();
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
@@ -268,11 +268,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
 
         $result =& $this->db->query('SELECT user_name, user_id FROM users ORDER BY user_name', array('text', 'integer'));
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
         $values = $result->fetchCol(0);
-        if (MDB2::isError($values)) {
+        if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error fetching first column');
         } else {
             $this->assertEquals($first_col, $values);
@@ -280,11 +280,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $result->free();
 
         $result =& $this->db->query('SELECT user_name, user_id FROM users ORDER BY user_name', array('text', 'integer'));
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
         $values = $result->fetchCol(1);
-        if (MDB2::isError($values)) {
+        if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error fetching second column');
         } else {
             $this->assertEquals($second_col, $values);
@@ -310,7 +310,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result = $stmt->execute();
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
@@ -322,11 +322,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         //$result =& $this->db->query('SELECT user_name, user_password, FROM users', $this->types);
         //$result =& $this->db->query('SELECT * FROM users');
         $result =& $this->db->query($query, $this->types);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
         $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC);
-        if (MDB2::isError($values)) {
+        if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error fetching the result set');
         } else {
             for ($i=0; $i<$total_rows; $i++) {
@@ -355,11 +355,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $stmt->free();
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $error = $result->getMessage();
         }
 
-        $this->assertTrue(!MDB2::isError($result), 'Could not execute prepared query with a text value with a question mark. Error: ');
+        $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared query with a text value with a question mark. Error: ');
 
         $question_value = $this->db->quote("Wouldn't it be great if this worked too?", 'text');
 
@@ -372,11 +372,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $stmt->free();
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $error = $result->getMessage();
         }
 
-        $this->assertTrue(!MDB2::isError($result), 'Could not execute prepared query with a text value with a quote character before a question mark. Error: ');
+        $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared query with a text value with a quote character before a question mark. Error: ');
 
     }
 
@@ -398,13 +398,13 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $stmt->free();
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
         $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 
@@ -453,13 +453,13 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result =& $this->db->query("INSERT INTO users (user_name,user_password,user_id) VALUES ($value,$value,0)");
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
             }
 
             $result =& $this->db->query('SELECT user_name,user_password FROM users', array('text', 'text'));
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
             }
 
@@ -504,13 +504,13 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result =& $this->db->query("INSERT INTO users (user_name,user_password,user_id) VALUES ($value,$value,0)");
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
             }
 
             $result =& $this->db->query('SELECT user_name,user_password FROM users', array('text', 'text'));
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
             }
 
@@ -545,7 +545,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result = $stmt->execute();
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
@@ -558,7 +558,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users ORDER BY user_name', $this->types);
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
             }
 
@@ -577,7 +577,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users ORDER BY user_name', $this->types);
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
             }
 
@@ -611,7 +611,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $sequence_name = "test_sequence_$start_value";
 
             $result = $this->db->manager->createSequence($sequence_name, $start_value);
-            $this->assertTrue(!MDB2::isError($result), "Error creating sequence $sequence_name with start value $start_value");
+            $this->assertTrue(!PEAR::isError($result), "Error creating sequence $sequence_name with start value $start_value");
 
             for ($sequence_value = $start_value; $sequence_value < ($start_value + 4); $sequence_value++) {
                 $value = $this->db->nextId($sequence_name, false);
@@ -621,7 +621,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result = $this->db->manager->dropSequence($sequence_name);
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
             }
 
@@ -641,7 +641,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $result = $this->db->manager->dropSequence($sequence_name);
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
         }
 
@@ -651,7 +651,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $next = $this->db->nextId($sequence_name);
         $curr = $this->db->currId($sequence_name);
 
-        if (MDB2::isError($curr)) {
+        if (PEAR::isError($curr)) {
             $this->assertTrue(false, "Error getting the current value of sequence $sequence_name : ".$curr->getMessage());
         } else {
             if ($next != $curr) {
@@ -663,7 +663,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             }
         }
         $result = $this->db->manager->dropSequence($sequence_name);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
         }
     }
@@ -724,7 +724,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $result = $this->db->replace('users', $fields);
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Replace failed');
         }
 
@@ -736,7 +736,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 
@@ -754,7 +754,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $result = $this->db->replace('users', $fields);
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Replace failed');
         }
         if ($this->db->supports('affected_rows')) {
@@ -763,7 +763,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 
@@ -795,7 +795,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result = $stmt->execute();
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
 
@@ -815,7 +815,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result = $stmt->execute();
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
 
@@ -833,7 +833,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $result = $stmt->execute();
 
-            if (MDB2::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
 
@@ -864,7 +864,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt->free();
 
         $result =& $this->db->query('SELECT * FROM users');
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
         $this->assertTrue(!$result->valid(), 'Transaction rollback did not revert the row that was inserted');
@@ -889,7 +889,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt->free();
 
         $result =& $this->db->query('SELECT * FROM users');
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
         $this->assertTrue($result->valid(), 'Transaction commit did not make permanent the row that was inserted');
@@ -908,7 +908,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $this->db->beginTransaction();
         $result =& $this->db->query('DELETE FROM users');
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error deleting from users'.$result->getMessage());
             $this->db->rollback();
         } else {
@@ -916,7 +916,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
 
         $result =& $this->db->query('SELECT * FROM users');
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 
@@ -949,14 +949,14 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $result = $stmt->execute();
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query: '.$result->getUserInfo());
         }
 
         $stmt->free();
 
         $result =& $this->db->query('SELECT document, picture FROM files', array('clob', 'blob'));
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
         }
 
@@ -964,7 +964,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $row = $result->fetchRow();
         $clob = $row[0];
-        if (!MDB2::isError($clob)) {
+        if (!PEAR::isError($clob)) {
             for ($value = ''; !$this->db->datatype->endOfLOB($clob);) {
                 $this->assertTrue(($this->db->datatype->readLOB($clob, $data, 8192) >= 0), 'Could not read CLOB');
                 $value .= $data;
@@ -976,7 +976,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
 
         $blob = $row[1];
-        if (!MDB2::isError($blob)) {
+        if (!PEAR::isError($blob)) {
             for ($value = ''; !$this->db->datatype->endOfLOB($blob);) {
                 $this->assertTrue(($this->db->datatype->readLOB($blob, $data, 8192) >= 0), 'Could not read BLOB');
                 $value .= $data;
@@ -1025,12 +1025,12 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt->bindParam('picture', $binary_data_file_tmp);
 
         $result = $stmt->execute();
-        $this->assertTrue(!MDB2::isError($result), 'Error executing prepared query - inserting LOB from files');
+        $this->assertTrue(!PEAR::isError($result), 'Error executing prepared query - inserting LOB from files');
 
         $stmt->free();
 
         $result =& $this->db->query('SELECT document, picture FROM files', array('clob', 'blob'));
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
         }
 
@@ -1038,7 +1038,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $row = $result->fetchRow();
         $clob = $row[0];
-        if (!MDB2::isError($clob)) {
+        if (!PEAR::isError($clob)) {
             $clob = $this->db->datatype->setLOBFile($clob, $character_data_file);
             $this->assertTrue(($this->db->datatype->readLOB($clob, $data, 0) >= 0), 'Error reading CLOB ');
             $this->db->datatype->destroyLOB($clob);
@@ -1053,7 +1053,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
 
         $blob = $row[1];
-        if (!MDB2::isError($blob)) {
+        if (!PEAR::isError($blob)) {
             $blob = $this->db->datatype->setLOBFile($blob, $binary_data_file);
             $this->assertTrue(($this->db->datatype->readLOB($blob, $data, 0) >= 0), 'Error reading BLOB ');
             $this->db->datatype->destroyLOB($blob);
@@ -1087,12 +1087,12 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt->bindParam('picture', $null);
 
         $result = $stmt->execute();
-        $this->assertTrue(!MDB2::isError($result), 'Error executing prepared query - inserting NULL lobs');
+        $this->assertTrue(!PEAR::isError($result), 'Error executing prepared query - inserting NULL lobs');
 
         $stmt->free();
 
         $result =& $this->db->query('SELECT document, picture FROM files', array('clob', 'blob'));
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
         }
 
@@ -1126,13 +1126,13 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $stmt->free();
 
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
         $row = $this->db->queryRow('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users WHERE user_password IS NULL', $this->types);
 
-        if (MDB2::isError($row)) {
+        if (PEAR::isError($row)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 

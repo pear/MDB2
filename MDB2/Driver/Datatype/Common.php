@@ -224,7 +224,7 @@ class MDB2_Driver_Datatype_Common
                     continue;
                 }
                 $value = $this->convertResult($row[$key], $types[$current_column]);
-                if (MDB2::isError($value)) {
+                if (PEAR::isError($value)) {
                     return $value;
                 }
                 $row[$key] = $value;
@@ -1266,7 +1266,7 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $result = MDB2::loadFile('LOB');
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
         $class_name = 'MDB2_LOB';
@@ -1295,7 +1295,7 @@ class MDB2_Driver_Datatype_Common
         $GLOBALS['_MDB2_LOBs'][$lob]->db = &$db;
 
         $result = $GLOBALS['_MDB2_LOBs'][$lob]->create($arguments);
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             $GLOBALS['_MDB2_LOBs'][$lob]->db->datatype->destroyLOB($lob);
             return $result;
         }
@@ -1363,7 +1363,7 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $lobresult = $this->_retrieveLOB($lob);
-        if (MDB2::isError($lobresult)) {
+        if (PEAR::isError($lobresult)) {
             return $lobresult;
         }
         $length = min($length, strlen($db->lobs[$lob]['value']) - $db->lobs[$lob]['position']);
@@ -1410,7 +1410,7 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $lobresult = $this->_retrieveLOB($lob);
-        if (MDB2::isError($lobresult)) {
+        if (PEAR::isError($lobresult)) {
             return $lobresult;
         }
         return $db->lobs[$lob]['position'] >= strlen($db->lobs[$lob]['value']);

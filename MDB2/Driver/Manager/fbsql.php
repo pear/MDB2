@@ -68,11 +68,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     function createDatabase($name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (MDB2::isError($result = $db->connect())) {
+        if (PEAR::isError($result = $db->connect())) {
             return $result;
         }
         $query = "CREATE DATABASE $name";
-        if (MDB2::isError($result = $db->query($query))) {
+        if (PEAR::isError($result = $db->query($query))) {
             return $result;
         }
 
@@ -92,11 +92,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     function dropDatabase($name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (MDB2::isError($result = $db->connect())) {
+        if (PEAR::isError($result = $db->connect())) {
             return $result;
         }
         $query = "DELETE DATABASE $name";
-        if (MDB2::isError($result = $db->query($query))) {
+        if (PEAR::isError($result = $db->query($query))) {
             return $result;
         }
 
@@ -343,7 +343,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                 . ' WHERE t0.schema_pk=t1.schema_pk AND'
                 . ' "table_type" = \'BASE TABLE\''
                 . ' AND "schema_name" = current_schema');
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         for ($i = 0, $j = count($table_names), $tables = array(); $i < $j; ++$i) {
@@ -455,7 +455,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $indexes_all = $db->queryCol("SHOW INDEX FROM $table", 'text', 'key_name');
-        if (MDB2::isError($indexes_all)) {
+        if (PEAR::isError($indexes_all)) {
             return $indexes_all;
         }
 
@@ -488,19 +488,19 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         $query = "CREATE TABLE $sequence_name ($seqname_col_name INTEGER DEFAULT UNIQUE, PRIMARY KEY($seqname_col_name))";
         $res = $db->query($query);
         $res = $db->query("SET UNIQUE = 1 FOR $sequence_name");
-        if (MDB2::isError($res)) {
+        if (PEAR::isError($res)) {
             return $res;
         }
         if ($start == 1) {
             return MDB2_OK;
         }
         $res = $db->query("INSERT INTO $sequence_name ($seqname_col_name) VALUES (".($start-1).')');
-        if (!MDB2::isError($res)) {
+        if (!PEAR::isError($res)) {
             return MDB2_OK;
         }
         // Handle error
         $result = $db->query("DROP TABLE $sequence_name");
-        if (MDB2::isError($result)) {
+        if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'createSequence: could not drop inconsistent sequence table ('.
                 $result->getMessage().' ('.$result->getUserinfo().'))');
@@ -540,7 +540,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $table_names = $db->queryCol('SHOW TABLES', 'text');
-        if (MDB2::isError($table_names)) {
+        if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $sequences = array();

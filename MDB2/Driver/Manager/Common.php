@@ -105,7 +105,7 @@ class MDB2_Driver_Manager_Common
         if (is_array($fields)) {
             foreach ($fields as $field_name => $field) {
                 $query = $db->getDeclaration($field['type'], $field_name, $field);
-                if (MDB2::isError($query)) {
+                if (PEAR::isError($query)) {
                     return $query;
                 }
                 $query_fields[] = $query;
@@ -216,7 +216,7 @@ class MDB2_Driver_Manager_Common
                 'createTable: no fields specified for table "'.$name.'"');
         }
         $query_fields = $this->getFieldDeclarationList($fields);
-        if (MDB2::isError($query_fields)) {
+        if (PEAR::isError($query_fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: unkown error');
         }
