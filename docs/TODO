@@ -15,7 +15,6 @@
 - clean up manager and reverse module
 - explore usage of interceptors for modules
 - fix up tutorial
-- merge in DB fixes since october 5th 2004
 
 near future:
 - add call to EXPLAIN method to the default debug output handler
