@@ -102,10 +102,14 @@ similar as possible as the ext/pdo API!
   proper type is maintained after the conversion methods
 - dont convert fetched null values in the Datatype module
 - fixed bugs in start value handling in create sequence (bug #3077)
+- updated isManip from DB
 EOT;
 
 $description =<<<EOT
 PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
+
+Note that the API will be adapted to better fit with the new php5 only PDO
+before the first stable release.
 
 It provides a common API for all support RDBMS. The main difference to most
 other DB abstraction packages is that MDB2 goes much further to ensure
