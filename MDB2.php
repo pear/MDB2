@@ -52,14 +52,7 @@
  * @author   Lukas Smith <smith@backendmedia.com>
  */
 
-/**
- * include the PEAR core
- */
 require_once 'PEAR.php';
-
-if (substr(PHP_VERSION, 0, 1) < 5) {
-    register_shutdown_function('_MDB2_shutdownTransactions');
-}
 
 /**
  * The method mapErrorCode in each MDB2_dbtype implementation maps
@@ -471,15 +464,28 @@ class MDB2
     // {{{ isError()
 
     /**
-     * Tell whether a result code from a MDB2 method is an error
+     * Tell whether a value is a MDB2 error.
      *
-     * @param   integer   $value  result code
-     * @return  boolean   whether $value is an MDB2 Error Object
-     * @access public
+     * @param   mixed $data   the value to test
+     * @param   int   $code   if $data is an error object, return true
+     *                        only if $code is a string and
+     *                        $obj->getMessage() == $code or
+     *                        $code is an integer and $obj->getCode() == $code
+     * @access  public
+     * @return  bool    true if parameter is an error
      */
-    function isError($value)
+    function isError($data, $code = null)
     {
-        return PEAR::isError($value);
+        if (is_a($data, 'MDB2_Error')) {
+            if (is_null($code)) {
+                return true;
+            } elseif (is_string($code)) {
+                return $data->getMessage() == $code;
+            } else {
+                return $data->getCode() == $code;
+            }
+        }
+        return false;
     }
 
     // }}}
@@ -781,6 +787,41 @@ class MDB2
 }
 
 /**
+ * MDB2_Error implements a class for reporting portable database error
+ * messages.
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Stig Bakken <ssb@fast.no>
+ */
+class MDB2_Error extends PEAR_Error
+{
+    // }}}
+    // {{{ constructor
+
+    /**
+     * MDB2_Error constructor.
+     *
+     * @param mixed   $code      MDB error code, or string with error message.
+     * @param integer $mode      what 'error mode' to operate in
+     * @param integer $level     what error level to use for
+     *                           $mode & PEAR_ERROR_TRIGGER
+     * @param smixed  $debuginfo additional debug info, such as the last query
+     */
+    function MDB2_Error($code = MDB2_ERROR, $mode = PEAR_ERROR_RETURN,
+              $level = E_USER_NOTICE, $debuginfo = NULL)
+    {
+        if (is_int($code)) {
+            $this->PEAR_Error('MDB2 Error: '.MDB2::errorMessage($code), $code,
+                $mode, $level, $debuginfo);
+        } else {
+            $this->PEAR_Error("MDB2 Error: $code", MDB2_ERROR, $mode, $level,
+                $debuginfo);
+        }
+    }
+}
+
+/**
  * MDB2_Driver_Common: Base class that is extended by each MDB2 driver
  *
  * @package MDB2
@@ -959,7 +1000,7 @@ class MDB2_Driver_Common extends PEAR
      * @var string
      * @access public
      */
-    var $last_query = '';
+    var $last_query;
 
     /**
      * the default fetchmode used
@@ -989,6 +1030,13 @@ class MDB2_Driver_Common extends PEAR
     */
     var $blobs = array();
 
+    /**
+     * determines of the PHP4 destructor emulation has been enabled yet
+    * @var array
+    * @access private
+    */
+    var $destructor_registered;
+
     // }}}
     // {{{ constructor
 
@@ -1002,7 +1050,9 @@ class MDB2_Driver_Common extends PEAR
         $GLOBALS['_MDB2_databases'][$db_index] = &$this;
         $this->db_index = $db_index;
 
-        $this->PEAR();
+        if (substr(PHP_VERSION, 0, 1) >= 5) {
+            $this->destructor_registered = true;
+        }
     }
 
     // }}}
@@ -1067,12 +1117,17 @@ class MDB2_Driver_Common extends PEAR
      *
      * @see PEAR_Error
      */
-    function &raiseError($code = null, $mode = null, $options = null,
-                         $userinfo = null)
+    function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
     {
         // The error is yet a MDB2 error object
-        if (is_object($code)) {
-            return PEAR::raiseError($code, null, null, null, null, null, true);
+        if (PEAR::isError($code)) {
+            // because we use the static PEAR::raiseError, our global
+            // handler should be used if it is set
+            if (is_null($mode) && !empty($this->_default_error_mode)) {
+                $mode    = $this->_default_error_mode;
+                $options = $this->_default_error_options;
+            }
+            return PEAR::raiseError($code, null, $mode, $options, null, 'MDB2_Error', true);
         }
 
         if (is_null($userinfo) && isset($this->connection)) {
@@ -1081,22 +1136,20 @@ class MDB2_Driver_Common extends PEAR
             }
             $native_errno = $native_msg = null;
             list($code, $native_errno, $native_msg) = $this->errorInfo($code);
-            if ($native_errno !== null) {
+            if (!is_null($native_errno)) {
                 $userinfo .= "[Native code: $native_errno]\n";
             }
-            if ($native_msg !== null) {
+            if (!is_null($native_msg)) {
                 $userinfo .= "[Native message: ". strip_tags($native_msg) ."]\n";
             }
         } else {
             $userinfo = "[Error message: $userinfo]\n";
         }
-        if (empty($code)) {
-            $code = MDB2_ERROR;
-        }
-        $msg = MDB2::errorMessage($code);
-        return PEAR::raiseError("MDB2 Error: $msg", $code, $mode, $options, $userinfo);
+
+        return PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
     }
 
+        
     // }}}
     // {{{ errorNative()
 
@@ -1166,14 +1219,14 @@ class MDB2_Driver_Common extends PEAR
     function setFetchMode($fetchmode, $object_class = 'stdClass')
     {
         switch ($fetchmode) {
-            case MDB2_FETCHMODE_OBJECT:
-                $this->options['fetch_class'] = $object_class;
-            case MDB2_FETCHMODE_ORDERED:
-            case MDB2_FETCHMODE_ASSOC:
-                $this->fetchmode = $fetchmode;
-                break;
-            default:
-                return $this->raiseError('invalid fetchmode mode');
+        case MDB2_FETCHMODE_OBJECT:
+            $this->options['fetch_class'] = $object_class;
+        case MDB2_FETCHMODE_ORDERED:
+        case MDB2_FETCHMODE_ASSOC:
+            $this->fetchmode = $fetchmode;
+            break;
+        default:
+            return $this->raiseError('invalid fetchmode mode');
         }
     }
 
@@ -1190,11 +1243,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function setOption($option, $value)
     {
-        if (isset($this->options[$option])) {
-            if (is_null($value)) {
-                return $this->raiseError(MDB2_ERROR, null, null,
-                    'may not set an option to value null');
-            }
+        if (array_key_exists($option, $this->options)) {
             $this->options[$option] = $value;
             return MDB2_OK;
         }
@@ -1214,7 +1263,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function getOption($option)
     {
-        if (isset($this->options[$option])) {
+        if (array_key_exists($option, $this->options)) {
             return $this->options[$option];
         }
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
@@ -1425,7 +1474,7 @@ class MDB2_Driver_Common extends PEAR
                 // needs to be loaded with a different version
                 $this->loaded_version_modules[] = $property;
             }
-        } else if (!is_object($this->{$property})) {
+        } elseif (!is_object($this->{$property})) {
             $error =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                 'unable to load module: '.$module.' into property: '.$property);
             return $error;
@@ -2143,12 +2192,9 @@ class MDB2_Driver_Common extends PEAR
         $this->expectError(MDB2_ERROR_UNSUPPORTED);
         $id = $this->nextID($seq_name);
         $this->popExpect(MDB2_ERROR_UNSUPPORTED);
-        if (MDB2::isError($id)) {
-            if ($id->getCode() == MDB2_ERROR_UNSUPPORTED) {
-                return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'currID: getting current sequence value not supported');
-            }
-            return $id;
+        if (MDB2::isError($id, MDB2_ERROR_UNSUPPORTED)) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'currID: getting current sequence value not supported');
         }
         return $id;
     }
@@ -2349,6 +2395,10 @@ class MDB2_Driver_Common extends PEAR
         if ($this->in_transaction && !MDB2::isError($this->rollback())) {
             $this->autoCommit(true);
         }
+    }
+    function _MDB2_Driver_Common()
+    {
+        $this->__destruct();
     }
 }
 
@@ -2585,7 +2635,7 @@ class MDB2_Result_Common extends MDB2_Result
         $all = array();
         while (!MDB2::isError($row = $this->fetchRow($fetchmode)) && $row) {
             if ($rekey) {
-                if((is_array($row) && count($row) < 2)
+                if ((is_array($row) && count($row) < 2)
                     || (is_object($row) && count(get_object_vars($row)) < 2)
                 ) {
                     return $this->db->raiseError(MDB2_ERROR_TRUNCATED);
@@ -2603,9 +2653,9 @@ class MDB2_Result_Common extends MDB2_Result
                     $key = array_shift($row);
                 }
                 if (!$force_array) {
-                    if(is_array($row) && count($row) == 1) {
+                    if (is_array($row) && count($row) == 1) {
                         $row = array_shift($row);
-                    }# else if(is_object($row) && count($arr = get_object_vars($row)) == 1) {
+                    }# elseif (is_object($row) && count($arr = get_object_vars($row)) == 1) {
                     #    $row = array_shift($arr);
                     #}
                 }
@@ -2959,20 +3009,6 @@ function MDB2_defaultDebugOutput(&$db, $scope, $message)
 {
     $db->debug_output .= $scope.'('.$db->db_index.'): ';
     $db->debug_output .= $message.$db->getOption('log_line_break');
-}
-
-function _MDB2_shutdownTransactions()
-{
-    reset($GLOBALS['_MDB2_databases']);
-    $j = count($GLOBALS['_MDB2_databases']);
-    for($i=0; $i<$j; next($GLOBALS['_MDB2_databases']),$i++) {
-        $db_index= key($GLOBALS['_MDB2_databases']);
-        if ($GLOBALS['_MDB2_databases'][$db_index]->in_transaction
-            && !MDB2::isError($GLOBALS['_MDB2_databases'][$db_index]->rollback())
-        ) {
-            $GLOBALS['_MDB2_databases'][$db_index]->autoCommit(true);
-        }
-    }
 }
 
 ?>
