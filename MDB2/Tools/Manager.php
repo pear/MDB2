@@ -70,7 +70,6 @@ class MDB2_Tools_Manager extends PEAR
 
     var $options = array(
         'fail_on_invalid_names' => 1,
-        'debug' => 0
     );
 
     var $invalid_names = array(
@@ -1624,8 +1623,7 @@ class MDB2_Tools_Manager extends PEAR
                 return $fields;
             }
             $this->database_definition['tables'][$table_name] = array('fields' => array());
-            for ($field = 0; $field < count($fields); $field++)
-            {
+            for ($field = 0; $field < count($fields); $field++) {
                 $field_name = $fields[$field];
                 $definition = $this->db->reverse->getTableFieldDefinition($table_name, $field_name);
                 if (MDB2::isError($definition)) {
@@ -1679,7 +1677,7 @@ class MDB2_Tools_Manager extends PEAR
                 }
                $this->database_definition['tables'][$table_name]['indexes'][$index_name] = $definition;
             }
-            // ensure that all fields that have an index on them are set to not null
+            // ensure that all fields that have an index on them are set to NOT NULL
             if (isset($this->database_definition['tables'][$table_name]['indexes'])
                 && is_array($this->database_definition['tables'][$table_name]['indexes'])
                 && count($this->database_definition['tables'][$table_name]['indexes']) > 0
@@ -1690,7 +1688,7 @@ class MDB2_Tools_Manager extends PEAR
                     }
                 }
             }
-            // ensure that all fields that are set to not null also have a default value
+            // ensure that all fields that are set to NOT NULL also have a default value
             if (is_array($this->database_definition['tables'][$table_name]['fields'])
                 && count($this->database_definition['tables'][$table_name]['fields']) > 0
             ) {
@@ -1711,11 +1709,9 @@ class MDB2_Tools_Manager extends PEAR
                                 && !isset($field_choices_set_default['default'])
                             ) {
                                 if (isset($this->default_values[$field_choices_set_default['type']])) {
-                                    $this->database_definition['tables'][$table_name]['fields'][$field_set_default_name]['choices']
-                                        [$field_choices_set_default_name]['default'] = $this->default_values[$field_choices_set_default['type']];
+                                    $this->database_definition['tables'][$table_name]['fields'][$field_set_default_name]['choices'][$field_choices_set_default_name]['default'] = $this->default_values[$field_choices_set_default['type']];
                                 } else {
-                                    $this->database_definition['tables'][$table_name]['fields'][$field_set_default_name]['choices']
-                                        [$field_choices_set_default_name]['default'] = 0;
+                                    $this->database_definition['tables'][$table_name]['fields'][$field_set_default_name]['choices'][$field_choices_set_default_name]['default'] = 0;
                                 }
                             }
                         }
@@ -1723,6 +1719,7 @@ class MDB2_Tools_Manager extends PEAR
                 }
             }
         }
+
         $sequences = $this->db->manager->listSequences();
         if (MDB2::isError($sequences)) {
             return $sequences;
@@ -1783,7 +1780,10 @@ class MDB2_Tools_Manager extends PEAR
                 return $this->raiseError(MDB2_ERROR_NODBSELECTED,
                     null, null, 'please connect to a RDBMS first');
             }
-            $this->getDefinitionFromDatabase();
+            $error = $this->getDefinitionFromDatabase();
+            if (MDB2::isError($error)) {
+                return $error;
+            }
             $dump_definition = false;
         }
 
