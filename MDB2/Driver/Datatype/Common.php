@@ -61,7 +61,6 @@ class MDB2_Driver_Datatype_Common
 {
     var $valid_types = array(
         'text'      => true,
-#        'serialize' => true,
         'boolean'   => true,
         'integer'   => true,
         'decimal'   => true,
@@ -96,8 +95,8 @@ class MDB2_Driver_Datatype_Common
      * Define the list of types to be associated with the columns of a given
      * result set.
      *
-     * This function may be called before invoking fetch(),
-     * fetchRow(), fetchCol() and fetchAll() so that the necessary data type
+     * This function may be called before invoking fetchRow(), fetchOne()
+     * fetchCole() and fetchAll() so that the necessary data type
      * conversions are performed on the data to be retrieved by them. If this
      * function is not called, the type of all result set columns is assumed
      * to be text, thus leading to not perform any conversions.
@@ -146,8 +145,6 @@ class MDB2_Driver_Datatype_Common
         switch ($type) {
             case 'text':
                 return $value;
-#            case 'serialize':
-#                return $value ? @unserialize($value) : $value;
             case 'integer':
                 return intval($value);
             case 'boolean':
@@ -340,38 +337,6 @@ class MDB2_Driver_Datatype_Common
         $type = isset($field['length']) ? 'CHAR ('.$field['length'].')' : 'TEXT';
         return $name.' '.$type.$default.$notnull;
     }
-
-    // }}}
-    // {{{ _getSerializeDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare an text type
-     * field to be used in statements like CREATE TABLE.
-     *
-     * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
-     *       of the field being declared as array indexes. Currently, the types
-     *       of supported field properties are as follows:
-     *
-     *       length
-     *           Integer value that determines the maximum length of the text
-     *           field. If this argument is missing the field should be
-     *           declared to have the longest length allowed by the DBMS.
-     *
-     *       default
-     *           Text value to be used as default for this field.
-     *
-     *       notnull
-     *           Boolean flag that indicates whether this field is constrained
-     *           to not be set to null.
-     * @return string DBMS specific SQL code portion that should be used to
-     *       declare the specified field.
-     * @access private
-     */
-#    function _getSerializeDeclaration($name, $field)
-#    {
-#        return $this->_getTextDeclaration($name, $field);
-#    }
 
     // }}}
     // {{{ _getCLOBDeclaration()
@@ -658,7 +623,6 @@ class MDB2_Driver_Datatype_Common
                 break;
             case 'array':
             case 'object':
-#                $type = 'serialize';
                  $type = 'text';
                 break;
             default:
@@ -716,21 +680,59 @@ class MDB2_Driver_Datatype_Common
         return "'".$db->escape($value)."'";
     }
 
-    // {{{ _quoteSerialize()
+    // }}}
+    // {{{ _readFile()
 
     /**
-     * Convert a serialize value into a DBMS specific format that is suitable to
+     * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param string $value text string value that is intended to be converted.
-     * @return string text string that already contains any DBMS specific
-     *       escaped character sequences.
+     * @param  $value
+     * @return string text string that represents the given argument value in
+     *       a DBMS specific format.
      * @access private
      */
-#    function _quoteSerialize($value)
-#    {
-#        return $this->quote(serialize($value), 'text');
-#    }
+    function _readFile($value)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $close = false;
+        if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+            $close = true;
+            if ($match[1] == 'file://') {
+                $value = $match[2];
+            }
+            $value = @fopen($value, 'r');
+        }
+        if (is_resource($value)) {
+            $fp = $value;
+            $value = '';
+            while (!@feof($fp)) {
+                $value .= @fread($fp, $db->options['lob_buffer_length']);
+            }
+            if ($close) {
+                @fclose($fp);
+            }
+        }
+        return $value;
+    }
+
+    // }}}
+    // {{{ _quoteLOB()
+
+    /**
+     * Convert a text value into a DBMS specific format that is suitable to
+     * compose query statements.
+     *
+     * @param  $value
+     * @return string text string that represents the given argument value in
+     *       a DBMS specific format.
+     * @access private
+     */
+    function _quoteLOB($value)
+    {
+        $value = $this->_readFile($value);
+        return $this->_quoteText($value);
+    }
 
     // }}}
     // {{{ _quoteCLOB()
@@ -739,8 +741,6 @@ class MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param resource $prepared_query query handle from prepare()
-     * @param  $parameter
      * @param  $value
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
@@ -748,7 +748,7 @@ class MDB2_Driver_Datatype_Common
      */
     function _quoteCLOB($value)
     {
-       return $this->_quoteText($value);
+        return $this->_quoteLOB($value);
     }
 
     // }}}
@@ -773,8 +773,6 @@ class MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param resource $prepared_query query handle from prepare()
-     * @param  $parameter
      * @param  $value
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
@@ -782,7 +780,7 @@ class MDB2_Driver_Datatype_Common
      */
     function _quoteBLOB($value)
     {
-       return $this->_quoteText($value);
+        return $this->_quoteLOB($value);
     }
 
     // }}}
