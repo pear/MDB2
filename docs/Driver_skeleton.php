@@ -511,7 +511,7 @@ class MDB2_BufferedResult_xxx extends MDB2_Result_xxx
     }
 
     // }}}
-    // {{{ hasMore()
+    // {{{ valid()
 
     /**
     * check if the end of the result set has been reached
@@ -519,7 +519,7 @@ class MDB2_BufferedResult_xxx extends MDB2_Result_xxx
     * @return mixed true or false on sucess, a MDB2 error on failure
     * @access public
     */
-    function hasMore()
+    function valid()
     {
         $numrows = $this->numRows();
         if (MDB2::isError($numrows)) {

@@ -339,7 +339,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
         $default_table_type = $this->options['default_table_type'];
         if ($default_table_type) {
-            switch($this->options['default_table_type'] = strtoupper($default_table_type)) {
+            switch ($this->options['default_table_type'] = strtoupper($default_table_type)) {
                 case 'BERKELEYDB':
                     $this->options['default_table_type'] = 'BDB';
                 case 'BDB':
@@ -751,10 +751,10 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $value = rtrim($value);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY
-            && is_null($value)
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
+            && $value === ''
         ) {
-            $value = '';
+            $value = null;
         }
         return $value;
     }
@@ -794,8 +794,8 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
         }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
-            $this->mdb->_convertNullArrayValuesToEmpty($row);
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $this->mdb->_convertEmptyArrayValuesToNull($row);
         }
         ++$this->rownum;
         return $row;
@@ -920,7 +920,7 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
     }
 
     // }}}
-    // {{{ hasMore()
+    // {{{ valid()
 
     /**
     * check if the end of the result set has been reached
@@ -928,13 +928,13 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
     * @return mixed true or false on sucess, a MDB2 error on failure
     * @access public
     */
-    function hasMore()
+    function valid()
     {
         $numrows = $this->numRows();
         if (MDB2::isError($numrows)) {
             return $numrows;
         }
-        return $this->rownum < $numrows - 1;
+        return $this->rownum < ($numrows - 1);
     }
 
     // }}}

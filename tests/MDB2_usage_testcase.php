@@ -141,7 +141,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $delta = 0;
             }
 
-            $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" ($value) doesn't match what was stored ($data[$field])", $delta);
+            $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" ($value) doesn't match what was stored ($data[$field]) into the row $rownum", $delta);
         }
     }
 
@@ -334,16 +334,16 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
      */
     function testNulls() {
         $portability = $this->db->getOption('portability');
-        if ($portability & MDB2_PORTABILITY_NULL_TO_EMPTY) {
-            $emptyisnull = true;
+        if ($portability & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $nullisempty = true;
         } else {
-            $emptyisnull = false;
+            $nullisempty = false;
         }
         $test_values = array(
             array('test', false),
             array('NULL', false),
             array('null', false),
-            array('', $emptyisnull),
+            array('', $nullisempty),
             array(null, true)
         );
 
@@ -370,7 +370,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
             }
 
-            $this->assertTrue($result->hasMore(), 'The query result seems to have reached the end of result earlier than expected');
+            $this->assertTrue($result->valid(), 'The query result seems to have reached the end of result earlier than expected');
 
             if ($is_null) {
                 $error_message = 'A query result column is not NULL unlike what was expected';
@@ -423,7 +423,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
             }
 
-            $this->assertTrue($result->hasMore(), 'The query result seems to have reached the end of result earlier than expected');
+            $this->assertTrue($result->valid(), 'The query result seems to have reached the end of result earlier than expected');
 
             $value = $result->fetch();
             $result->free();
@@ -485,7 +485,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             }
         }
 
-        $this->assertTrue(!$result->hasMore(), "The query result did not seem to have reached the end of result as expected starting row $start_row after fetching upto row $row");
+        $this->assertTrue(!$result->valid(), "The query result did not seem to have reached the end of result as expected starting row $start_row after fetching upto row $row");
 
         $result->free();
 
@@ -504,13 +504,13 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(($result_rows <= $rows), 'expected a result of no more than '.$rows.' but the returned number of rows is '.$result_rows);
 
             for ($row = 0; $row < $result_rows; $row++) {
-                $this->assertTrue($result->hasMore(), 'The query result seem to have reached the end of result at row '.$row.' that is before '.$result_rows.' as expected');
+                $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result at row '.$row.' that is before '.$result_rows.' as expected');
 
                 $this->verifyFetchedValues($result, $row, $data[$row + $start_row]);
             }
         }
 
-        $this->assertTrue(!$result->hasMore(), "The query result did not seem to have reached the end of result as expected starting row $start_row after fetching upto row $row");
+        $this->assertTrue(!$result->valid(), "The query result did not seem to have reached the end of result as expected starting row $start_row after fetching upto row $row");
 
         $result->free();
     }
@@ -700,7 +700,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $this->verifyFetchedValues($result, 0, $data);
 
-        $this->assertTrue(!$result->hasMore(), 'the query result did not seem to have reached the end of result as expected');
+        $this->assertTrue(!$result->valid(), 'the query result did not seem to have reached the end of result as expected');
 
         $result->free();
     }
@@ -826,7 +826,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 
-        $this->assertTrue(!$result->hasMore(), 'Transaction rollback did not revert the row that was inserted');
+        $this->assertTrue(!$result->valid(), 'Transaction rollback did not revert the row that was inserted');
         $result->free();
 
         $this->insertTestValues($prepared_query, $data);
@@ -838,7 +838,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 
-        $this->assertTrue($result->hasMore(), 'Transaction commit did not make permanent the row that was inserted');
+        $this->assertTrue($result->valid(), 'Transaction commit did not make permanent the row that was inserted');
         $result->free();
 
         $result =& $this->db->query('DELETE FROM users');
@@ -857,7 +857,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
 
-        $this->assertTrue(!$result->hasMore(), 'Transaction end with implicit commit when re-enabling auto-commit did not make permanent the rows that were deleted');
+        $this->assertTrue(!$result->valid(), 'Transaction end with implicit commit when re-enabling auto-commit did not make permanent the rows that were deleted');
         $result->free();
     }
 
@@ -904,7 +904,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
         }
 
-        $this->assertTrue($result->hasMore(), 'The query result seem to have reached the end of result too soon.');
+        $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
 
         $row = $result->fetchRow();
         $clob = $row[0];
@@ -988,7 +988,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
         }
 
-        $this->assertTrue($result->hasMore(), 'The query result seem to have reached the end of result too soon.');
+        $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
 
         $row = $result->fetchRow();
         $clob = $row[0];
@@ -1049,7 +1049,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
         }
 
-        $this->assertTrue($result->hasMore(), 'The query result seem to have reached the end of result too soon.');
+        $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
 
         $this->assertTrue($result->resultIsNull(0, 'document'), 'A query result large object column document is not NULL unlike what was expected');
         $this->assertTrue($result->resultIsNull(0, 'picture'), 'A query result large object column picture is not NULL unlike what was expected');

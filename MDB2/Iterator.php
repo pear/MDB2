@@ -130,7 +130,7 @@ class MDB2_Iterator implements Iterator
     }
 
     // }}}
-    // {{{ hasMore()
+    // {{{ valid()
 
     /**
     * check if the end of the result set has been reached
@@ -138,9 +138,9 @@ class MDB2_Iterator implements Iterator
     * @return mixed true or false on sucess, a MDB2 error on failure
     * @access public
     */
-    function hasMore()
+    function valid()
     {
-        return $this->result->hasMore();
+        return $this->result->valid();
     }
 
     // }}}
@@ -188,7 +188,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements BufferedIterator
     }
 
     // }}}
-    // {{{ hasMore()
+    // {{{ valid()
 
     /**
     * check if the end of the result set has been reached
@@ -196,9 +196,9 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements BufferedIterator
     * @return mixed true or false on sucess, a MDB2 error on failure
     * @access public
     */
-    function hasMore()
+    function valid()
     {
-        return $this->result->hasMore();
+        return $this->result->valid();
     }
 
     // }}}
