@@ -121,6 +121,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                     116 => MDB2_ERROR_NOSUCHTABLE,
                     217 => MDB2_ERROR_INVALID_NUMBER,
                     226 => MDB2_ERROR_NOSUCHFIELD,
+                    231 => MDB2_ERROR_INVALID,
                     251 => MDB2_ERROR_SYNTAX,
                     357 => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                     358 => MDB2_ERROR_CONSTRAINT,
@@ -359,14 +360,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     {
         // Add ; to the end of the query. This is required by FrontBase
         $query .= ';';
-        // "DELETE FROM table" gives 0 affected rows in fbsql.
-        // This little hack lets you know how many rows were deleted.
-        if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
-            $query = preg_replace(
-                '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
-                'DELETE FROM \1 WHERE 1=1', $query
-            );
-        }
         if ($limit > 0) {
             if (!$isManip) {
                 $query = str_replace('SELECT', "SELECT TOP($offset,$limit)", $query);
