@@ -386,8 +386,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     function createSequence($seq_name, $start = 1)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $sequence_name = $db->getSequenceName($seq_name);
-        return $db->query("CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1".
+        return $db->query("CREATE SEQUENCE $seq_name START WITH $start INCREMENT BY 1".
             ($start < 1 ? " MINVALUE $start" : ''));
     }
 
@@ -405,8 +404,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     function dropSequence($seq_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $sequence_name = $db->getSequenceName($seq_name);
-        return $db->query("DROP SEQUENCE $sequence_name");
+        return $db->query("DROP SEQUENCE $seq_name");
     }
 }
 ?>
