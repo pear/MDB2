@@ -293,7 +293,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         }
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
-            $key_name = $row['key_name'];
+            $key_name = strtolower($row['key_name']);
             if (!strcmp($index_name, $key_name)) {
                 if (!$row['non_unique']) {
                     $definition[$index_name]['unique'] = true;
@@ -370,6 +370,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         // if $result is a string, then we want information about a
         // table without a resultset
         if (is_string($result)) {
+            if (MDB::isError($connect = $db->connect())) {
+                return($connect);
+            }
             $id = @mysql_list_fields($db->database_name, $result, $db->connection);
             if (empty($id)) {
                 return $db->raiseError();
@@ -386,26 +389,35 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         // made this IF due to performance (one if is faster than $count if's)
         if (empty($mode)) {
             for ($i = 0; $i<$count; $i++) {
-                $res[$i]['table'] = @mysql_field_table ($id, $i);
-                $res[$i]['name'] = @mysql_field_name  ($id, $i);
-                $res[$i]['type'] = @mysql_field_type  ($id, $i);
-                $res[$i]['len']  = @mysql_field_len   ($id, $i);
-                $res[$i]['flags'] = @mysql_field_flags ($id, $i);
+                $name = @mysql_field_name($id, $i);
+                if ($name != 'dummy_primary_key') {
+                    $res[$j]['table'] = @mysql_field_table($id, $i);
+                    $res[$j]['name'] = $name;
+                    $res[$j]['type'] = @mysql_field_type($id, $i);
+                    $res[$j]['len']  = @mysql_field_len($id, $i);
+                    $res[$j]['flags'] = @mysql_field_flags($id, $i);
+                    $j++;
+                }
             }
         } else { // full
             $res['num_fields'] = $count;
 
             for ($i = 0; $i<$count; $i++) {
-                $res[$i]['table'] = @mysql_field_table ($id, $i);
-                $res[$i]['name'] = @mysql_field_name  ($id, $i);
-                $res[$i]['type'] = @mysql_field_type  ($id, $i);
-                $res[$i]['len']  = @mysql_field_len   ($id, $i);
-                $res[$i]['flags'] = @mysql_field_flags ($id, $i);
-                if ($mode & MDB2_TABLEINFO_ORDER) {
-                    $res['order'][$res[$i]['name']] = $i;
-                }
-                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
+                $name = @mysql_field_name($id, $i);
+                if ($name != 'dummy_primary_key') {
+                    $res[$j]['table'] = @mysql_field_table($id, $i);
+                    $res[$j]['name'] = $name;
+                    $res[$j]['type'] = @mysql_field_type($id, $i);
+                    $res[$j]['len']  = @mysql_field_len($id, $i);
+                    $res[$j]['flags'] = @mysql_field_flags($id, $i);
+                    if ($mode & MDB_TABLEINFO_ORDER) {
+                        // note sure if this should be $i or $j
+                        $res['order'][$res[$j]['name']] = $i;
+                    }
+                    if ($mode & MDB_TABLEINFO_ORDERTABLE) {
+                        $res['ordertable'][$res[$j]['table']][$res[$j]['name']] = $j;
+                    }
+                    $j++;
                 }
             }
         }
