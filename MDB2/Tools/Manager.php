@@ -362,11 +362,11 @@ class MDB2_Tools_Manager extends PEAR
         $result = $parser->setInputFile($input_file);
         if (MDB2::isError($result)) {
             return $result;
-        };
+        }
         $result = $parser->parse();
         if (MDB2::isError($result)) {
             return $result;
-        };
+        }
         if (!$result || MDB2::isError($parser->error)) {
             return $parser->error;
         }
@@ -531,7 +531,7 @@ class MDB2_Tools_Manager extends PEAR
     /**
      * create a indexes om a table
      *
-     * @param string $table_name  name of the table 
+     * @param string $table_name  name of the table
      * @param array  $indexes     indexes to be created
      * @return mixed MDB2_OK on success, or a MDB2 error object
      * @param boolean $overwrite  determine if the table/index should be
