@@ -17,7 +17,7 @@ function grepForTest($var) {
  * @return array of methods beginning with test
  */
 function getTests($class) {
-    $methods = get_class_methods($class);
+    $methods = array_flip(array_change_key_case(array_flip(get_class_methods($class))));
     return array_filter($methods, 'grepForTest');
 }
 
