@@ -136,9 +136,6 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     function createDatabase($name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (MDB2::isError($result = $db->connect())) {
-            return $result;
-        }
         $query = 'CREATE DATABASE '.$name;
         $result = $db->query($query);
         if (MDB2::isError($result)) {
@@ -161,9 +158,6 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     function dropDatabase($name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (MDB2::isError($result = $db->connect())) {
-            return $result;
-        }
         $query = 'DROP DATABASE '.$name;
         $result = $db->query($query);
         if (MDB2::isError($result)) {

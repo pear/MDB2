@@ -97,9 +97,6 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         if (!@fbsql_stop_db($name, $db->connection)) {
             return $db->raiseError();
         }
-        if (!@fbsql_drop_db($name, $db->connection)) {
-            return $db->raiseError();
-        }
         return $db->disconnect();
     }
 
