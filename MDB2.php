@@ -839,6 +839,7 @@ class MDB2_Driver_Common extends PEAR
     var $supported = array();
 
     /**
+     * $options['disable_query'] -> determines if querys should be executed
      * $options['result_class'] -> class used for result sets
      * $options['buffered_result_class'] -> class used for buffered result sets
      * $options['result_wrap_class'] -> class used to wrap result sets into
@@ -858,6 +859,7 @@ class MDB2_Driver_Common extends PEAR
      * @access public
      */
     var $options = array(
+            'disable_query' => false,
             'result_class' => 'MDB2_Result_%s',
             'buffered_result_class' => 'MDB2_BufferedResult_%s',
             'result_wrap_class' => false,
@@ -995,7 +997,8 @@ class MDB2_Driver_Common extends PEAR
      */
     function __construct()
     {
-        $db_index = count($GLOBALS['_MDB2_databases']) + 1;
+        end($GLOBALS['_MDB2_databases']);
+        $db_index = key($GLOBALS['_MDB2_databases']) + 1;
         $GLOBALS['_MDB2_databases'][$db_index] = &$this;
         $this->db_index = $db_index;
 
@@ -1840,13 +1843,14 @@ class MDB2_Driver_Common extends PEAR
      *    ? - a quoted scalar value, i.e. strings, integers
      *
      * @param string $query the query to prepare
-     * @param array $types array thats specifies the types of the fields
+     * @param array $types specifies the types of the fields
+     * @param array $fields specifies the names of the fields (required for LOBs only)
      * @return mixed resource handle for the prepared query on success, a DB
      *        error on failure
      * @access public
      * @see execute
      */
-    function prepare($query, $types = null)
+    function prepare($query, $types = null, $fields = array())
     {
         $this->debug($query, 'prepare');
         $positions = array();
@@ -1886,7 +1890,7 @@ class MDB2_Driver_Common extends PEAR
             } else {
                 $types = array();
             }
-        } else if (!is_array($types)) {
+        } elseif (!is_array($types)) {
             if ($count = count($positions)) {
                 $types = array_fill(0, $count, $types);
             } else {
@@ -1897,16 +1901,18 @@ class MDB2_Driver_Common extends PEAR
         if (MDB2::isError($result)) {
             return $result;
         }
-        $this->prepared_queries[] = array(
+        end($this->prepared_queries);
+        $prepared_query = key($this->prepared_queries)+1;
+        $this->prepared_queries[$prepared_query] = array(
             'query' => $query,
             'positions' => $positions,
+            'fields' => array_values($fields),
             'types' => array_values($types),
             'values' => array(),
         );
-        $prepared_query = count($this->prepared_queries);
         if ($this->row_limit > 0) {
-            $this->prepared_queries[$prepared_query-1]['offset'] = $this->row_offset;
-            $this->prepared_queries[$prepared_query-1]['limit'] = $this->row_limit;
+            $this->prepared_queries[$prepared_query]['offset'] = $this->row_offset;
+            $this->prepared_queries[$prepared_query]['limit'] = $this->row_limit;
         }
         return $prepared_query;
     }
@@ -1927,7 +1933,7 @@ class MDB2_Driver_Common extends PEAR
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'invalid prepared query');
         }
-        if (!is_array($this->prepared_queries[$prepared_query-1])) {
+        if (!is_array($this->prepared_queries[$prepared_query])) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'prepared query was already freed');
         }
@@ -1956,14 +1962,7 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
 
-        if ($parameter < 1
-            || $parameter > count($this->prepared_queries[$prepared_query-1]['positions'])
-        ) {
-            return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                'setParam: it was not specified a valid argument number');
-        }
-
-        $this->prepared_queries[$prepared_query-1]['values'][$parameter-1] = $value;
+        $this->prepared_queries[$prepared_query]['values'][$parameter] = $value;
         return MDB2_OK;
     }
 
@@ -1984,13 +1983,11 @@ class MDB2_Driver_Common extends PEAR
      */
     function setParamArray($prepared_query, $params)
     {
-        $i = 0;
-        foreach ($params as $param) {
-            $success = $this->setParam($prepared_query, $i + 1, $param);
+        foreach ($params as $name => $param) {
+            $success = $this->setParam($prepared_query, $name, $param);
             if (MDB2::isError($success)) {
                 return $success;
             }
-            ++$i;
         }
         return MDB2_OK;
     }
@@ -2012,7 +2009,7 @@ class MDB2_Driver_Common extends PEAR
         if (MDB2::isError($result)) {
             return $result;
         }
-        $this->prepared_queries[$prepared_query-1] = '';
+        $this->prepared_queries[$prepared_query] = '';
         return MDB2_OK;
     }
 
@@ -2062,30 +2059,32 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
         $query = '';
-        $index = $prepared_query - 1;
         $this->clobs[$prepared_query] = $this->blobs[$prepared_query] = array();
-        $count = count($this->prepared_queries[$index]['positions']);
-        for ($last_position = $position = 0; $position < $count; $position++) {
-            $current_position = $this->prepared_queries[$index]['positions'][$position];
-            $query .= substr($this->prepared_queries[$index]['query'],
+        $count = count($this->prepared_queries[$prepared_query]['positions']);
+        for ($last_position = $parameter = 0; $parameter < $count; $parameter++) {
+            $current_position = $this->prepared_queries[$prepared_query]['positions'][$parameter];
+            $query .= substr($this->prepared_queries[$prepared_query]['query'],
                 $last_position, $current_position - $last_position);
-            if (!isset($this->prepared_queries[$index]['values'][$position])
-                && !isset($this->prepared_queries[$index]['types'][$position])
-            ) {
+            if (!isset($this->prepared_queries[$prepared_query]['values'][$parameter])) {
                 $value_quoted = 'NULL';
             } else {
-                $value = $this->prepared_queries[$index]['values'][$position];
-                $type = $this->prepared_queries[$index]['types'][$position];
-                if ($type == 'clob' || $type == 'blob') {
+                $value = $this->prepared_queries[$prepared_query]['values'][$parameter];
+                $type = $this->prepared_queries[$prepared_query]['types'][$parameter];
+                $lob_type = substr($type, 0, 4);
+                if ($lob_type == 'clob' || $lob_type == 'blob') {
                     if (is_array($value)) {
-                        $value['database'] = &$this;
-                        $value['prepared_query'] = $prepared_query;
-                        $value['parameter'] = $position + 1;
-                        $this->prepared_queries[$index]['fields'][$position] = $value['field'];
-                        $value = $this->datatype->createLOB($value);
-                        if (MDB2::isError($value)) {
-                            return $value;
-                        }
+                        $lob = $value;
+                    } elseif ($type == 'clobfile' || $type == 'blobfile') {
+                        $lob = array('type' => 'inputfile', 'file_name' => $value);
+                    } else {
+                        $lob = array('data' => $value);
+                    }
+                    $type = $lob_type;
+                    $lob['prepared_query'] = $prepared_query;
+                    $lob['parameter'] = $parameter;
+                    $value = $this->datatype->createLOB($lob);
+                    if (MDB2::isError($value)) {
+                        return $value;
                     }
                 }
                 $value_quoted = $this->quote($value, $type);
@@ -2103,19 +2102,11 @@ class MDB2_Driver_Common extends PEAR
             $query .= $value_quoted;
             $last_position = $current_position + 1;
         }
+        $query .= substr($this->prepared_queries[$prepared_query]['query'], $last_position);
 
-        $query .= substr($this->prepared_queries[$index]['query'], $last_position);
-        if ($this->row_limit > 0) {
-            $this->prepared_queries[$index]['offset'] = $this->row_offset;
-            $this->prepared_queries[$index]['limit'] = $this->row_limit;
-        }
-        if (isset($this->prepared_queries[$index]['limit'])
-            && $this->prepared_queries[$index]['limit'] > 0
-        ) {
-            $this->row_offset = $this->prepared_queries[$index]['offset'];
-            $this->row_limit = $this->prepared_queries[$index]['limit'];
-        } else {
-            $this->row_offset = $this->row_limit = 0;
+        if ($this->row_limit > 0 || $this->row_offset > 0) {
+            $this->prepared_queries[$prepared_query]['offset'] = $this->row_offset;
+            $this->prepared_queries[$prepared_query]['limit'] = $this->row_limit;
         }
         $success =& $this->_executePrepared($prepared_query, $query, $types, $result_class, $result_wrap_class);
 
@@ -2992,7 +2983,7 @@ function MDB2_defaultDebugOutput(&$db, $scope, $message)
 function _MDB2_shutdownTransactions()
 {
     reset($GLOBALS['_MDB2_databases']);
-    $j=count($GLOBALS['_MDB2_databases']);
+    $j = count($GLOBALS['_MDB2_databases']);
     for($i=0; $i<$j; next($GLOBALS['_MDB2_databases']),$i++) {
         $db_index= key($GLOBALS['_MDB2_databases']);
         if ($GLOBALS['_MDB2_databases'][$db_index]->in_transaction
