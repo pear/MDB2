@@ -338,6 +338,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';
+        $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
 
         $this->supported['transactions'] = false;
         if ($this->options['default_table_type']) {

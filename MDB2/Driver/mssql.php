@@ -279,6 +279,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
+        $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
 
        if ((bool) ini_get('mssql.datetimeconvert')) {
            ini_set('mssql.datetimeconvert', '0');

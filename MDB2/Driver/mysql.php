@@ -328,6 +328,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
+        $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
 
         $this->supported['transactions'] = false;
         if ($this->options['default_table_type']) {

@@ -313,6 +313,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             $this->connected_dsn = $this->dsn;
             $this->connected_database_name = $database_file;
             $this->opened_persistent = $this->getoption('persistent');
+            $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
         }
         return MDB2_OK;
     }

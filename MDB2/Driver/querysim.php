@@ -297,6 +297,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $this->connection = $connection;
         $this->connected_database_name = $this->database_name;
         $this->opened_persistent = $this->options['persistent'];
+        $this->dbsyntax = $dsninfo['dbsyntax'] ? $dsninfo['dbsyntax'] : $this->phptype;
+
         return MDB2_OK;
     }
     // }}}
