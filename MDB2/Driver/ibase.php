@@ -80,7 +80,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
         $this->supported['sequences'] = true;
         $this->supported['indexes'] = true;
-        $this->supported['affected_rows'] = true;
+        $this->supported['affected_rows'] = function_exists('ibase_affected_rows');
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
         $this->supported['transactions'] = true;
@@ -365,8 +365,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            @ibase_close($this->connection);
-            $this->connection = 0;
+            $this->_close();
         }
 
         if (!PEAR::loadExtension('interbase')) {
@@ -374,7 +373,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        if (!empty($this->database_name)) {
+        if ($database_file) {
             $connection = $this->_doConnect($database_file, $this->options['persistent']);
             if (MDB2::isError($connection)) {
                 return $connection;
@@ -385,8 +384,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $this->opened_persistent = $this->options['persistent'];
 
             if (!$this->auto_commit && MDB2::isError($trans_result = $this->_doQuery('BEGIN'))) {
-                @ibase_close($this->connection);
-                $this->connection = 0;
+                $this->_close();
                 return $trans_result;
             }
         }
@@ -404,8 +402,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if (!$this->auto_commit) {
-                $result = $this->_doQuery('END');
+            if ($this->supports('transactions') && !$this->auto_commit) {
+                $result = $this->rollback();
+                if (MDB2::isError($result)) {
+                    return $result;
+                }
             }
             @ibase_close($this->connection);
             $this->connection = 0;
@@ -451,7 +452,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             }
         }
         if (!$result) {
-            return $this->raiseError($result);
+            return $this->raiseError();
         }
         return $result;
     }
@@ -485,7 +486,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             if ($ismanip) {
                 return MDB2_OK;
             }
-            return NULL;
+            return null;
         }
 
         $connect = $this->connect();
@@ -496,7 +497,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $result = $this->_doQuery($query, $prepared_query);
         if (!MDB2::isError($result)) {
             if ($ismanip) {
-                return MDB2_OK;
+                if ($this->supported['affected_rows']) {
+                    return @ibase_affected_rows($this->connection);
+                }
+                return 0;
             } else {
                 if (!$result_class) {
                     $result_class = $this->options['result_buffering']
@@ -541,31 +545,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     {
         $result =& $this->_executePrepared(false, $query, $types, $result_class, $result_wrap_class);
         return $result;
-    }
-
-    // }}}
-    // {{{ affectedRows()
-
-    /**
-     * returns the affected rows of a query
-     *
-     * @return mixed MDB2 Error Object or number of rows
-     * @access public
-     */
-    function affectedRows()
-    {
-        if (function_exists('ibase_affected_rows')) { //PHP5 only
-            if (MDB2::isManip($this->last_query)) {
-                $affected_rows = @ibase_affected_rows($this->connection);
-            } else {
-                $affected_rows = 0;
-            }
-            if ($affected_rows === false) {
-                return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
-            }
-            return $affected_rows;
-        }
-        return parent::affectedRows();
     }
 
     // }}}
