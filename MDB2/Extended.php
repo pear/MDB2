@@ -396,7 +396,7 @@ class MDB2_Extended
             return $result;
         }
 
-        $all = $result->fetchAll($result, $fetchmode, $rekey, $force_array, $group);
+        $all = $result->fetchAll($fetchmode, $rekey, $force_array, $group);
         $db->freePrepared($prepared_query);
         $result->free();
         return $all;
