@@ -122,6 +122,15 @@ define('DB_TABLEINFO_ORDER',        MDB2_TABLEINFO_ORDER);
 define('DB_TABLEINFO_ORDERTABLE',   MDB2_TABLEINFO_ORDERTABLE);
 define('DB_TABLEINFO_FULL',         MDB2_TABLEINFO_FULL);
 
+define('DB_PORTABILITY_NONE', MDB2_PORTABILITY_NONE);
+define('DB_PORTABILITY_LOWERCASE', MDB2_PORTABILITY_LOWERCASE);
+define('DB_PORTABILITY_RTRIM', MDB2_PORTABILITY_RTRIM);
+define('DB_PORTABILITY_DELETE_COUNT', MDB2_PORTABILITY_DELETE_COUNT);
+define('DB_PORTABILITY_NUMROWS', MDB2_PORTABILITY_NUMROWS);
+define('DB_PORTABILITY_ERRORS', MDB2_PORTABILITY_ERRORS);
+define('DB_PORTABILITY_EMPTY_TO_NULL', MDB2_PORTABILITY_EMPTY_TO_NULL);
+define('DB_PORTABILITY_ALL', MDB2_PORTABILITY_ALL);
+
 /**
  * Wrapper that makes MDB2 behave like PEAR DB
  *
@@ -217,7 +226,7 @@ class DB_Error extends PEAR_Error
  * @category Database
  * @author  Lukas Smith <smith@backendmedia.com>
  */
-class DB_result extends MDB2_Result
+class DB_result extends MDB2_Result_Common
 {
     var $result;
     var $row_counter = null;
@@ -229,6 +238,11 @@ class DB_result extends MDB2_Result
     function DB_result($result)
     {
         $this->result = $result;
+    }
+
+    function fetch()
+    {
+        return $this->result->fetch();
     }
 
     function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
@@ -275,7 +289,7 @@ class DB_result extends MDB2_Result
 
     function getRowCounter()
     {
-        return $this->result->rownum;
+        return $this->result->rownum+1;
     }
 }
 
@@ -289,16 +303,20 @@ class DB_row
     }
 }
 
-class MDB2_PEARProxy
+class MDB2_PEARProxy extends PEAR
 {
     var $MDB2_object;
+    var $phptype;
+    var $connection;
 
     function MDB2_PEARProxy(&$MDB2_object)
     {
         $this->MDB2_object =& $MDB2_object;
-#        $this->MDB2_object->PEAR('DB_Error');
+        $this->PEAR('DB_Error');
         $this->MDB2_object->setOption('seqname_col_name', 'id');
         $this->MDB2_object->setOption('result_wrap_class', 'DB_result');
+        $this->phptype = $this->MDB2_object->phptype;
+        $this->connection = $this->MDB2_object->connection;
     }
 
     function connect($dsninfo, $persistent = false)
@@ -310,6 +328,11 @@ class MDB2_PEARProxy
     function disconnect()
     {
         return $this->MDB2_object->disconnect();
+    }
+
+    function toString()
+    {
+        return $this->MDB2_object->__toString();
     }
 
     function quoteString($string)
@@ -327,6 +350,29 @@ class MDB2_PEARProxy
             return 'NULL';
         }
         return "'".$this->MDB2_object->quote($string)."'";
+    }
+
+    function escapeSimple($str)
+    {
+        return $this->MDB2_object->escape($str);
+    }
+
+    function quoteSmart($in)
+    {
+        if (is_int($in) || is_double($in)) {
+            return $in;
+        } elseif (is_bool($in)) {
+            return $in ? 1 : 0;
+        } elseif (is_null($in)) {
+            return 'NULL';
+        } else {
+            return "'" . $this->escapeSimple($in) . "'";
+        }
+    }
+
+    function quoteIdentifier($string)
+    {
+        return $this->MDB2_object->quoteIdentifier($string);
     }
 
     // map?
@@ -414,6 +460,9 @@ class MDB2_PEARProxy
             if (MDB2::isError($sth)) {
                 return $sth;
             }
+            if (!is_array($params)) {
+                $params = array($params);
+            }
             $return =& $this->MDB2_object->executeParams($sth, null, $params);
             return $return;
         } else {
@@ -431,10 +480,13 @@ class MDB2_PEARProxy
         }
     }
 
-    function limitQuery($query, $from, $count)
+    function limitQuery($query, $from, $count, $params = array())
     {
-        $this->MDB2_object->loadModule('extended');
-        $result =& $this->MDB2_object->extended->limitQuery($query, null, $from, $count);
+        $result = $this->MDB2_object->setLimit($count, $from);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        $result =& $this->query($query, $params);
         return $result;
     }
 
@@ -538,6 +590,11 @@ class MDB2_PEARProxy
             $result->result->seek($rownum);
         }
         $arr = $result->fetchRow($fetchmode);
+    }
+
+    function freePrepared($prepared)
+    {
+        return $this->MDB2_object->freePrepared($prepared);
     }
 
     function freeResult($result)
