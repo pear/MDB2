@@ -105,7 +105,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function errorInfo($error = null)
     {
-        if($this->connection) {
+        if ($this->connection) {
             $native_code = @mysql_errno($this->connection);
             $native_msg  = @mysql_error($this->connection);
         } else {
@@ -139,7 +139,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             }
             if (isset($ecode_map[$native_code])) {
                 $error = $ecode_map[$native_code];
-            } else if ($this->options['portability'] & MDB2_PORTABILITY_ERRORS) {
+            } elseif ($this->options['portability'] & MDB2_PORTABILITY_ERRORS) {
                 if ($native_code == 1022) $error = MDB2_ERROR_CONSTRAINT;
                 if ($native_code == 1048) $error = MDB2_ERROR_CONSTRAINT_NOT_NULL;
                 if ($native_code == 1062) $error = MDB2_ERROR_CONSTRAINT;
@@ -227,6 +227,10 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                     return $result;
                 }
             } else {
+                if (!$this->destructor_registered) {
+                    $this->destructor_registered = true;
+                    $this->PEAR();
+                }
                 $result = $this->_doQuery('SET AUTOCOMMIT = 0');
                 if (MDB2::isError($result)) {
                     return $result;

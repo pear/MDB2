@@ -104,7 +104,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function errorInfo($error = null)
     {
-       if($this->connection) {
+       if ($this->connection) {
            $native_code = @fbsql_errno($this->connection);
            $native_msg  = @fbsql_error($this->connection);
        } else {
@@ -175,6 +175,10 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 }
                 $result = $this->_doQuery('SET COMMIT TRUE');
             } else {
+                if (!$this->destructor_registered) {
+                    $this->destructor_registered = true;
+                    $this->PEAR();
+                }
                 $result = $this->_doQuery('SET COMMIT FALSE');
             }
             if (MDB2::isError($result)) {

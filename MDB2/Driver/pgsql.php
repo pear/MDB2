@@ -103,7 +103,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         if (is_resource($error)) {
             $native_msg = @pg_result_error($error);
-        } elseif($this->connection) {
+        } elseif ($this->connection) {
             $native_msg = @pg_errormessage($this->connection);
         } else {
             $native_msg = @pg_errormessage();
@@ -162,6 +162,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return MDB2_OK;
         }
         if ($this->connection) {
+            if (!$auto_commit && !$this->destructor_registered) {
+                $this->destructor_registered = true;
+                $this->PEAR();
+            }
             $result = $this->_doQuery($auto_commit ? 'END' : 'BEGIN');
             if (MDB2::isError($result)) {
                 return $result;

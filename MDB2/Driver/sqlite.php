@@ -193,6 +193,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                     return $result;
                 }
             } else {
+                if (!$this->destructor_registered) {
+                    $this->destructor_registered = true;
+                    $this->PEAR();
+                }
                 $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
                 $result = $this->_doQuery($query);
                 if (MDB2::isError($result)) {

@@ -186,6 +186,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             if ($auto_commit) {
                 $result = $this->_doQuery('COMMIT TRANSACTION');
             } else {
+                if (!$this->destructor_registered) {
+                    $this->destructor_registered = true;
+                    $this->PEAR();
+                }
                 $result = $this->_doQuery('BEGIN TRANSACTION');
             }
             if (MDB2::isError($result)) {
