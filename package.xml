@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE package SYSTEM "../../php4/pear/package.dtd">
+<package version="1.0">
+  <name>MDB2</name>
+  <summary>database abstraction layer</summary>
+  <description>
+    PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
+
+    It provides a common API for all support RDBMS. The main difference to most
+    other DB abstraction packages is that MDB2 goes much further to ensure
+    portability. Among other things MDB2 features:
+    * An OO-style query API
+    * A DSN (data source name) or array format for specifying database servers
+    * Datatype abstraction and on demand datatype conversion
+    * Portable error codes
+    * Sequential and non sequential row fetching as well as bulk fetching
+    * Ability to make buffered and unbuffered queries
+    * Ordered array and associative array for the fetched rows
+    * Prepare/execute (bind) emulation
+    * Sequence emulation
+    * Replace emulation
+    * Limited Subselect emulation
+    * Row limit support
+    * Transactions support
+    * Large Object support
+    * Index/Unique support
+    * Module Framework to load advanced functionality on demand
+    * Table information interface
+    * RDBMS management methods (creating, dropping, altering)
+    * Full integration into the PEAR Framework
+    * Wrappers for the PEAR DB and Metabase APIs
+    * PHPDoc API documentation
+
+    Currently supported RDBMS:
+    MySQL
+    PostGreSQL
+    Oracle
+    Frontbase
+    Querysim
+    Interbase/Firebird
+    MSSQL
+    Other soon to follow.
+  </description>
+  <license>
+    BSD style
+  </license>
+  <maintainers>
+    <maintainer>
+      <user>lsmith</user>
+      <role>lead</role>
+      <name>Lukas Kahwe Smith</name>
+      <email>lsmith@php.net</email>
+    </maintainer>
+    <maintainer>
+      <user>dickmann</user>
+      <role>contributor</role>
+      <name>Christian Dickmann</name>
+      <email>chrisdicki@gmx.de</email>
+    </maintainer>
+    <maintainer>
+      <user>pgc</user>
+      <role>contributor</role>
+      <name>Paul Cooper</name>
+      <email>pgc@ucecom.com</email>
+    </maintainer>
+    <maintainer>
+      <user>ssb</user>
+      <role>contributor</role>
+      <name>Stig S&#230;ther Bakken</name>
+      <email>stig@php.net</email>
+    </maintainer>
+    <maintainer>
+      <user>cox</user>
+      <role>contributor</role>
+      <name>Tomas V.V.Cox</name>
+      <email>cox@php.net</email>
+    </maintainer>
+    <maintainer>
+      <user>manuel</user>
+      <role>contributor</role>
+      <name>Manuel Lemos</name>
+      <email>mlemos@acm.org</email>
+    </maintainer>
+    <maintainer>
+      <user>fmk</user>
+      <role>contributor</role>
+      <name>Frank M. Kromann</name>
+      <email>frank@kromann.info</email>
+    </maintainer>
+    <maintainer>
+      <user>quipo</user>
+      <role>contributor</role>
+      <name>Lorenzo Alberton</name>
+      <email>l.alberton@quipo.it</email>
+    </maintainer>
+  </maintainers>
+  <release>
+    <version>2.0devel1</version>
+    <state>devel</state>
+    <date>2003-09-24</date>
+    <notes>
+        This is the first preview release of MDB2 2.0.
+        It will not be available through the pear installer.
+
+        MDB2 2.x breaks backwards compatibility in many ways in order to simplify
+        the API for both users and drivers developers.
+
+        Here follows a short list of the most important changes:
+        - all code that is not necessary for basic operation is now separateed
+          into separate modules which can be loaded with the loadModule() method
+        - all datatype related methods have been moved to a dataype module with
+          the notable exception of getValue() and the newly introduced getDeclaration()
+        - all "higher level" methods like queryRow/getRow etc have been moved to
+          the extended module
+        - all manager method are no longer available in the core class and or
+          now only available in the manager module
+        - all reverse engineering methods have been taken from the manager class
+          and are now available through the reverse module
+        - a new module has been added to allow the addition of methods with
+          RDBMS specific functionality (like getting the last autoincrement ID)
+        - LOB handling has been greatly simplified
+        - several methods names have been shortend
+        - the fetch.+ methods do not free the result set anymore
+        - the Manager and the reverse_engineer_xml_schema script are no longer
+          part of MDB2 and will be moved into the yet to be created DB_Schema
+          package. However until then you can find MDB2 2.x compatible versions
+          of these scripts in CVS.
+        - all parameters are now lowercased with underscores as separators
+        - all drivers now support all of the dsn options that PEAR DB supports
+        - several methods have been removed because they offered redundant functionality
+        - changed prepare API type is now passed to prepare and not to setParam*()
+    </notes>
+    <filelist>
+      <file role="php" baseinstalldir="/">MDB2.php</file>
+      <dir name="MDB2">
+        <file role="php">Date.php</file>
+        <file role="php">LOB.php</file>
+        <file role="php">Extended.php</file>
+        <file role="php">Result.php</file>
+        <dir name="Tools">
+          <file role="php">Manager.php</file>
+          <file role="php">Parser.php</file>
+          <file role="php">reverse_engineer_xml_schema.php</file>
+        </dir>
+        <dir name="Wrapper">
+          <file role="php">Metabase.php</file>
+          <file role="php">PEARDB.php</file>
+        </dir>
+        <dir name="Driver">
+          <file role="php">Common.php</file>
+          <file role="php">querysim.php</file>
+          <file role="php">mssql.php</file>
+          <file role="php">ibase.php</file>
+          <file role="php">oci8.php</file>
+          <file role="php">fbsql.php</file>
+          <file role="php">mysql.php</file>
+          <file role="php">pgsql.php</file>
+          <dir name="Manager">
+            <file role="php">Common.php</file>
+            <file role="php">mssql.php</file>
+            <file role="php">ibase.php</file>
+            <file role="php">oci8.php</file>
+            <file role="php">fbsql.php</file>
+            <file role="php">mysql.php</file>
+            <file role="php">pgsql.php</file>
+          </dir>
+          <dir name="Datatype">
+            <file role="php">Common.php</file>
+            <file role="php">mssql.php</file>
+            <file role="php">ibase.php</file>
+            <file role="php">oci8.php</file>
+            <file role="php">fbsql.php</file>
+            <file role="php">mysql.php</file>
+            <file role="php">pgsql.php</file>
+          </dir>
+          <dir name="Native">
+            <file role="php">mssql.php</file>
+            <file role="php">ibase.php</file>
+            <file role="php">oci8.php</file>
+            <file role="php">fbsql.php</file>
+            <file role="php">mysql.php</file>
+            <file role="php">pgsql.php</file>
+          </dir>
+          <dir name="Reverse">
+            <file role="php">Common.php</file>
+            <file role="php">mssql.php</file>
+            <file role="php">ibase.php</file>
+            <file role="php">oci8.php</file>
+            <file role="php">fbsql.php</file>
+            <file role="php">mysql.php</file>
+            <file role="php">pgsql.php</file>
+          </dir>
+        </dir>
+      </dir>
+      <dir name="docs">
+        <file role="doc">README</file>
+        <file role="doc">MAINTAINERS</file>
+        <file role="doc">TODO</file>
+        <file role="doc">tutorial.html</file>
+        <file role="doc">datatypes.html</file>
+        <file role="doc">xml_schema_documentation.html</file>
+        <file role="doc">MDB2.dtd</file>
+        <file role="doc">Driver_skeleton.php</file>
+        <file role="doc">Driver_Manager_skeleton.php</file>
+        <file role="doc">Driver_Datatype_skeleton.php</file>
+        <file role="doc">Driver_Reverse_skeleton.php</file>
+        <file role="doc">Driver_Native_skeleton.php</file>
+        <dir name="examples">
+          <file role="doc">example.php</file>
+          <file role="doc">peardb_wrapper_example.php</file>
+          <file role="doc">metapear_test_db.schema</file>
+        </dir>
+      </dir>
+      <dir name="tests">
+        <file role="test">README</file>
+        <file role="test">test.php</file>
+        <file role="test">clitest.php</file>
+        <file role="test">testchoose.php</file>
+        <file role="test">MDB2_api_testcase.php</file>
+        <file role="test">MDB2_manager_testcase.php</file>
+        <file role="test">MDB2_usage_testcase.php</file>
+        <file role="test">MDB2_bugs_testcase.php</file>
+        <file role="test">HTML_TestListener.php</file>
+        <file role="test">Console_TestListener.php</file>
+        <file role="test">tests.css</file>
+        <file role="test">testUtils.php</file>
+        <file role="test">test_setup.php.dist</file>
+        <file role="test">test.schema</file>
+        <file role="test">driver_test_config.php</file>
+        <file role="test">driver_test.php</file>
+        <file role="test">driver_test.schema</file>
+        <file role="test">lob_test.schema</file>
+        <dir name="templates">
+          <file role="test">results.tpl</file>
+        </dir>
+      </dir>
+    </filelist>
+    <deps>
+        <dep type="php" rel="ge" version="4.1.0" />
+        <dep type="pkg" rel="ge" version="1.0b1">PEAR</dep>
+        <dep type="pkg" rel="has">XML_Parser</dep>
+    </deps>
+  </release>
+  <changelog>
+  </changelog>
+</package>

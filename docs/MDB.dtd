@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT comments (#PCDATA)>
+<!ELEMENT create (#PCDATA)>
+<!ELEMENT default (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT length (#PCDATA | variable)*>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT notnull (#PCDATA)>
+<!ELEMENT overwrite (#PCDATA)>
+<!ELEMENT sorting (#PCDATA)>
+<!ELEMENT start (#PCDATA)>
+<!ELEMENT type (#PCDATA)>
+<!ELEMENT unique (#PCDATA)>
+<!ELEMENT unsigned (#PCDATA)>
+<!ELEMENT value (#PCDATA)>
+<!ELEMENT variable (#PCDATA)>
+<!ELEMENT was (#PCDATA)>
+<!ELEMENT database (name+ | create? | overwrite? | description? | comments? | table+ | sequence?)*>
+<!ELEMENT field (#PCDATA | name | was | type | default | notnull | unsigned | description | comments | length | sorting | value)*>
+<!ELEMENT table (#PCDATA | name | was | description | comments | declaration | initialization)*>
+<!ELEMENT sequence (name+ | was? | start? | on+ | description? | comments?)*>
+<!ELEMENT index (name+ | was? | unique? | field+)>
+<!ELEMENT declaration (field+, index?)>
+<!ELEMENT initialization (insert)>
+<!ELEMENT insert (field+)>
+<!ELEMENT on (table, field)+>
