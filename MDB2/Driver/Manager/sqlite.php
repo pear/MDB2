@@ -160,7 +160,6 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $query = "CREATE TABLE $name ($query_fields)";
         return $db->query($query);
     }
-
     // }}}
     // {{{ listDatabases()
 
@@ -173,7 +172,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     function listDatabases()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->queryCol('SHOW DATABASES');
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'listDatabases: list databases is not supported');
     }
 
     // }}}
