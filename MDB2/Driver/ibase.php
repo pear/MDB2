@@ -648,12 +648,12 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function _skipLimitOffset()
     {
-        if ($this->limit)) {
+        if ($this->limit) {
             if ($this->rownum > $this->limit) {
                 return false;
             }
         }
-        if ($this->offset)) {
+        if ($this->offset) {
             while ($this->offset_count < $this->offset) {
                 ++$this->offset_count;
                 if (!is_array(@ibase_fetch_row($this->result))) {
