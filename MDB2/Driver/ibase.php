@@ -368,19 +368,21 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        $connection = $this->_doConnect($database_file, $this->options['persistent']);
-        if (MDB2::isError($connection)) {
-            return $connection;
-        }
-        $this->connection = $connection;
-        $this->connected_dsn = $this->dsn;
-        $this->connected_database_name = $database_file;
-        $this->opened_persistent = $this->options['persistent'];
+        if (!empty($this->database_name)) {
+            $connection = $this->_doConnect($database_file, $this->options['persistent']);
+            if (MDB2::isError($connection)) {
+                return $connection;
+            }
+            $this->connection = $connection;
+            $this->connected_dsn = $this->dsn;
+            $this->connected_database_name = $database_file;
+            $this->opened_persistent = $this->options['persistent'];
 
-        if (!$this->auto_commit && MDB2::isError($trans_result = $this->_doQuery('BEGIN'))) {
-            @ibase_close($this->connection);
-            $this->connection = 0;
-            return $trans_result;
+            if (!$this->auto_commit && MDB2::isError($trans_result = $this->_doQuery('BEGIN'))) {
+                @ibase_close($this->connection);
+                $this->connection = 0;
+                return $trans_result;
+            }
         }
         return MDB2_OK;
     }
