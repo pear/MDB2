@@ -14,6 +14,8 @@ $notes = <<<EOT
 - explicitly specify colum name in sequence emulation queries
 - added getBeforeId() and getAfterId()
 - added new supported feature 'auto_increment'
+- fixed Iterator module
+- use __construct() and __destruct() (PHP4 BC hacks are provided)
 EOT;
 
 $description =<<<EOT
