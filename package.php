@@ -91,6 +91,8 @@ similar as possible as the ext/pdo API!
 - add support for oracle style named parameters and modified test suite accordingly
 - dont convert sequence names if sequences are supported natively (BC break!)
 - removed executeParams() and executeMultiple()
+- transaction API moved over to PDO: removed autoCommit(), added beginTransaction()
+  and refactored commit() (it doesn't start a new transaction automatically anymore)
 EOT;
 
 $description =<<<EOT
