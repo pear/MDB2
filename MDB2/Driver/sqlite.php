@@ -312,7 +312,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             }
 
             $function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
+            $php_errormsg = '';
+            ini_set('track_errors', true);
             $connection = @$function($database_file);
+            ini_restore('track_errors');
+            $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
             if (!$connection) {
                 return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
             }
@@ -388,6 +392,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
         $function = $this->options['result_buffering']
             ? 'sqlite_query' : 'sqlite_unbuffered_query';
+        $php_errormsg = '';
         ini_set('track_errors', true);
         $result = @$function($query.';', $connection);
         ini_restore('track_errors');
