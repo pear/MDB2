@@ -9,14 +9,26 @@ $notes = <<<EOT
 - reversed parameter order of getValue(), type parameter is now optional and
   will then be autodetected
 - renamed get*Value() to quote*()
-- ibase driver: fixed LOB management
-- moved getOne, getRow, getCol, getAll back into the exteneded module
+- fixed LOB management in MDB2_Driver_ibase
+- moved getOne, getRow, getCol, getAll back into the exteneded module (most users
+  should be able to move to the queryOne, queryRow, queryCol and queryAll equivalent)
 - added getAssoc to the extended module
 - fixed bug in MDB2_Driver_Datatype_Common::implodeArray()
 - added sequence_col_name option to make the column name inside sequence
   emulation tables configurable
 - fixed a bug in the MDB2_Driver_oci8 and MDB2_Driver_ibase buffering emulation
   when using limit queries
+- removed MDB2_PORTABILITY_NULL_TO_EMPTY in favor of MDB2_PORTABILITY_EMPTY_TO_NULL
+  this means that DB and MDB2 work exactly the opposite now, but it seems more
+  efficient to do things the way Oracle does since this is the RDBMS which
+  creates the original issue to begin with
+- fixed a typos in getAll, getAssoc and getCol
+- test suite: moved set_time_limit() call to the setup script to be easier to customize
+- renamed hasMore() to valid() due to changes in the PHP5 iterator API
+- renamed toString() to __toString() in order to take advantage of new PHP5
+  goodness and made it public
+- MDB2_Driver_Datatype_Common::setResultTypes() can now handle missing elements
+  inside type arrays: array(2 => 'boolean', 4 => 'timestamp')
 EOT;
 
 $description =<<<EOT
