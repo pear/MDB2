@@ -447,13 +447,13 @@ class MDB2_PEARProxy extends PEAR
     {
         $this->db_object->loadModule('Extended');
         // types
-        return $this->db_object->extended->autoExecute($table, $fields_values, null, null, $mode, $where, false);
+        return $this->db_object->extended->autoExecute($table, $fields_values, $mode, $where);
     }
 
     function buildManipSQL($table, $table_fields, $mode, $where = false)
     {
         $this->db_object->loadModule('Extended');
-        return $this->db_object->extended->buildManipSQL($table, $table_fields, null, null, $mode, $where);
+        return $this->db_object->extended->buildManipSQL($table, $table_fields, $mode, $where);
     }
 
     function &execute($stmt, $data = false)
