@@ -4,44 +4,6 @@ STATUS OF THE PEAR MDB2 PACKAGE
 $Id$
 ------------------------------------------------------------------------
 
-MDB2 Driver Feature Matrix
---------------------------
-Symbols:
-  x  =  implemented, but without tests
-  t  =  implemented, but one or more tests fail
-  T  =  implemented, passing all tests
-  e  =  emulated, without tests
-  l  =  emulated, but one or more tests fail
-  E  =  emulated, passing all tests
-  n  =  returns "not capable"
-  -  =  no implementation of this feature or status unknown
-
-                    fbsql      ifx      mssql     mysqli     odbc     sqlite
-FEATURE        dbase  |  ibase  |  msql   |  mysql  |   oci8  |  pgsql  |  sybase
-simpleQuery      -    -    T    -    -    -    -    -    -    -    -    -    -
-numCols          -    -    T    -    -    -    -    -    -    -    -    -    -
-numRows          -    -    T    -    -    -    -    -    -    -    -    -    -
-errorNative      -    -    -    -    -    -    -    -    -    -    -    -    -
-prepare/execute  -    -    T    -    -    -    -    -    -    -    -    -    -
-sequences        -    -   [1]   -    -    -    -    -    -    -    -    -    -
-affectedRows     -    -    l    -    -    -    -    -    -    -    -    -    -
-fetch modes      -    -    x    -    -    -    -    -    -    -    -    -    -
-fetch row by no  -    -    e    -    -    -    -    -    -    -    -    -    -
-transactions     -    -    T   -    -    -    -    -    -    -    -    -    -
-auto-commit      -    -    T    -    -    -    -    -    -    -    -    -    -
-error mapping    -    -    x    -    -    -    -    -    -    -    -    -    -
-tableInfo        -    -    x    -    -    -    -    -    -    -    -    -    -
-
-TYPE (getListOf)
-tables           -    -    -    -    -    -    -    -    -    -    -    -    -
-views            -    -    -    -    -    -    -    -    -    -    -    -    -
-users            -    -    -    -    -    -    -    -    -    -    -    -    -
-databases        -    -    -    -    -    -    -    -    -    -    -    -    -
-functions        -    -    -    -    -    -    -    -    -    -    -    -    -
-
-[1] sequences are working, but not currId().
-
-
 Test Conformance
 ----------------
 Symbols:
@@ -55,46 +17,47 @@ Symbols:
                     fbsql      ifx      mssql     mysqli     odbc     sqlite
                dbase  |  ibase  |  msql   |  mysql  |   oci8  |  pgsql  |  sybase
 **[ API ]*********************************************************************
-connect          -    -    o    -    -    -    -    -    -    -    -    -    -
-getoption        -    -    o    -    -    -    -    -    -    -    -    -    -
-setoption        -    -    o    -    -    -    -    -    -    -    -    -    -
-loadmodule       -    -    o    -    -    -    -    -    -    -    -    -    -
-query            -    -    o    -    -    -    -    -    -    -    -    -    -
-fetchrow         -    -    o    -    -    -    -    -    -    -    -    -    -
-numrows          -    -    o    -    -    -    -    -    -    -    -    -    -
-numcols          -    -    o    -    -    -    -    -    -    -    -    -    -
-singleton        -    -    o    -    -    -    -    -    -    -    -    -    -
+connect          -    -    o    -    -    -    o    -    o    -    o    o    -
+getoption        -    -    o    -    -    -    o    -    o    -    o    o    -
+setoption        -    -    o    -    -    -    o    -    o    -    o    o    -
+loadmodule       -    -    o    -    -    -    o    -    o    -    o    o    -
+query            -    -    o    -    -    -    o    -    o    -    o    o    -
+fetchrow         -    -    o    -    -    -    o    -    o    -    o    o    -
+numrows          -    -    o    -    -    -    o    -    o    -    o    o    -
+numcols          -    -    o    -    -    -    o    -    o    -    o    o    -
+singleton        -    -    o    -    -    -    o    -    o    -    o    o    -
 **[ USAGE ]*******************************************************************
-storage          -    -    o    -    -    -    -    -    -    -    -    -    -
-bulkfetch        -    -    o    -    -    -    -    -    -    -    -    -    -
-preparedqueries  -    -    o    -    -    -    -    -    -    -    -    -    -
-metadata         -    -    o    -    -    -    -    -    -    -    -    -    -
-nulls            -    -    X    -    -    -    -    -    -    -    -    -    -
-escapesequences  -    -    o    -    -    -    -    -    -    -    -    -    -
-ranges           -    -    o    -    -    -    -    -    -    -    -    -    -
-sequences        -    -    o    -    -    -    -    -    -    -    -    -    -
-replace          -    -    X    -    -    -    -    -    -    -    -    -    -
-affectedrows     -    -   [1]   -    -    -    -    -    -    -    -    -    -
-transactions     -    -   [2]   -    -    -    -    -    -    -    -    -    -
-lobstorage       -    -    X    -    -    -    -    -    -    -    -    -    -
-lobfiles         -    -    X    -    -    -    -    -    -    -    -    -    -
-lobnulls         -    -    X    -    -    -    -    -    -    -    -    -    -
+storage          -    -    o    -    -    -    o    -    o    -    o    o    -
+bulkfetch        -    -    o    -    -    -    o    -    o    -    o    o    -
+preparedqueries  -    -    o    -    -    -    o    -    o    -    o    o    -
+metadata         -    -    o    -    -    -    o    -    o    -    o    o    -
+nulls            -    -    X    -    -    -    o    -    o    -    o    o    -
+escapesequences  -    -    o    -    -    -    o    -    o    -    o    o    -
+ranges           -    -    o    -    -    -    o    -    o    -    o    o    -
+sequences        -    -   [4]   -    -    -    o    -    o    -    o    o    -
+replace          -    -    X    -    -    -    o    -    o    -    o    o    -
+affectedrows     -    -   [1]   -    -    -    o    -    o    -    o   [3]   -
+transactions     -    -   [2]   -    -    -    o    -    o    -    o    o    -
+lobstorage       -    -    X    -    -    -    o    -    o    -    o    o    -
+lobfiles         -    -    X    -    -    -    o    -    o    -    o    o    -
+lobnulls         -    -    X    -    -    -    o    -    o    -    o    o    -
 **[ BUGS ]********************************************************************
-fetchmodebug     -    -    X    -    -    -    -    -    -    -    -    -    -
-bug22328         -    -    o    -    -    -    -    -    -    -    -    -    -
-bug670           -    -    o    -    -    -    -    -    -    -    -    -    -
-bug681           -    -    o    -    -    -    -    -    -    -    -    -    -
-bug718           -    -    X    -    -    -    -    -    -    -    -    -    -
-**[ DATATYPE ]****************************************************************
+fetchmodebug     -    -    X    -    -    -    o    -    o    -    o    o    -
+bug22328         -    -    o    -    -    -    o    -    o    -    o    o    -
+bug670           -    -    o    -    -    -    o    -    o    -    o    o    -
+bug681           -    -    o    -    -    -    o    -    o    -    o    o    -
+bug718           -    -    X    -    -    -    o    -    o    -    o    o    -
 **[ MANAGER ]*****************************************************************
-createdatabase   -    -    -    -    -    -    -    -    -    -    -    -    -
-updatedatabase   -    -    o    -    -    -    -    -    -    -    -    -    -
+createdatabase   -    -    -    -    -    -    o    -    o    -    o    o    -
+updatedatabase   -    -    o    -    -    -    o    -    o    -    o    o    -
 **[ NATIVE ]******************************************************************
-getinsertid      -    -    n    -    -    -    -    -    -    -    -    -    -
-deleteoid        -    -    n    -    -    -    -    -    -    -    -    -    -
+getinsertid      -    -    n    -    -    -    -    -    o    -    n    -    -
+deleteoid        n    n    n    n    n    n    n    n    n    n    -    n    n
 **[ REVERSE ]*****************************************************************
-tableinfo        -    -    X    -    -    -    -    -    -    -    -    -    -
+tableinfo        -    -    X    -    -    -    o    -    o    -    o    n    -
 
 
 [1] test passed on PHP 5, not on PHP 4
 [2] test passed on PHP 4, not on PHP 5
+[3] test fails because sqlite does not return the correct number of affected rows
+[4] test fails because ibase because nextId() is used instead of currId()
