@@ -212,7 +212,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
                     'alterTable: change type "'.$change.'" not yet supported');
             }
             $query = '';
-            if (isSet($changes['added_fields'])) {
+            if (isset($changes['added_fields'])) {
                 $fields = $changes['added_fields'];
                 foreach ($fields as $field) {
                     $result = $db->query("ALTER TABLE $name ADD ".$field['declaration']);
@@ -221,7 +221,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
                     }
                 }
             }
-            if (isSet($changes['removed_fields'])) {
+            if (isset($changes['removed_fields'])) {
                 $fields = $changes['removed_fields'];
                 foreach ($fields as $field_name => $field) {
                     $result = $db->query("ALTER TABLE $name DROP ".$field_name);
