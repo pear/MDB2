@@ -967,7 +967,6 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             return $connected;
         }
         $connection = ($this->db->auto_commit ? $this->db->connection : $this->db->transaction_id);
-        $this->clobs = $this->blobs = array();
 
         $parameters = $this->quoteParamsForPreparedQuery();
 
