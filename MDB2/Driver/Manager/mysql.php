@@ -639,14 +639,15 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
         $res = $db->query("CREATE TABLE $sequence_name".
             "($seqname_col_name INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ($seqname_col_name))".
-            (strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : ''));
+            (strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : '')
+        );
         if (MDB2::isError($res)) {
             return $res;
         }
         if ($start == 1) {
             return MDB2_OK;
         }
-        $res = $db->query("INSERT INTO $sequence_name VALUES (".($start-1).')');
+        $res = $db->query("INSERT INTO $sequence_name ($seqname_col_name) VALUES (".($start-1).')');
         if (!MDB2::isError($res)) {
             return MDB2_OK;
         }

@@ -388,7 +388,7 @@ class MDB2_Result_xxx extends MDB2_Result_Common
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         // take this from the corresponding Metabase driver: FetchResultArray()
         // possibly you also need to take code from Metabases FetchRow() method

@@ -104,7 +104,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         }
         $field_column = $columns['field'];
         $type_column = $columns['type'];
-        while (is_array($row = $result->fetchRow())) {
+        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ORDERED))) {
             if ($field_name == $row[$field_column]) {
                 $db_type = strtolower($row[$type_column]);
                 $db_type = strtok($db_type, '(), ');

@@ -123,6 +123,11 @@ define('MDB2_FETCHMODE_ORDERED',  1);
 define('MDB2_FETCHMODE_ASSOC',    2);
 
 /**
+ * Column data as object properties
+ */
+define('MDB2_FETCHMODE_OBJECT',   3);
+
+/**
  * For multi-dimensional results: normally the first level of arrays
  * is the row number, and the second level indexed by column number or name.
  * MDB2_FETCHMODE_FLIPPED switches this order, so the first level of arrays
@@ -831,6 +836,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['buffered_result_class'] -> class used for buffered result sets
      * $options['result_wrap_class'] -> class used to wrap result sets into
      * $options['result_buffering'] -> boolean should results be buffered or not?
+     * $options['fetch_class'] -> class to use when fetch mode object is used
      * $options['persistent'] -> boolean persistent connection?
      * $options['debug'] -> integer numeric debug level
      * $options['debug_handler'] -> string function/meothd that captures debug messages
@@ -849,6 +855,7 @@ class MDB2_Driver_Common extends PEAR
             'buffered_result_class' => 'MDB2_BufferedResult_%s',
             'result_wrap_class' => false,
             'result_buffering' => true,
+            'fetch_class' => 'stdClass',
             'persistent' => false,
             'debug' => 0,
             'debug_handler' => 'MDB2_defaultDebugOutput',
@@ -1128,18 +1135,29 @@ class MDB2_Driver_Common extends PEAR
 
     /**
      * Sets which fetch mode should be used by default on queries
-     * on this connection.
+     * on this connection
      *
-     * @param integer $fetchmode MDB2_FETCHMODE_ORDERED or MDB2_FETCHMODE_ASSOC,
-     *       possibly bit-wise OR'ed with MDB2_FETCHMODE_FLIPPED.
-     * @access public
+     * @param integer $fetchmode MDB2_FETCHMODE_ORDERED or
+     *        MDB2_FETCHMODE_ASSOC, possibly bit-wise OR'ed with
+     *        MDB2_FETCHMODE_FLIPPED.
+     *
+     * @param string $object_class The class of the object
+     *                      to be returned by the fetch methods when
+     *                      the MDB2_FETCHMODE_OBJECT mode is selected.
+     *                      If no class is specified by default a cast
+     *                      to object from the assoc array row will be done.
+     *
      * @see MDB2_FETCHMODE_ORDERED
      * @see MDB2_FETCHMODE_ASSOC
      * @see MDB2_FETCHMODE_FLIPPED
+     * @see MDB2_FETCHMODE_OBJECT
+     * @access public
      */
-    function setFetchMode($fetchmode)
+    function setFetchMode($fetchmode, $object_class = 'stdClass')
     {
         switch ($fetchmode) {
+            case MDB2_FETCHMODE_OBJECT:
+                $this->objects['fetch_class'] = $object_class;
             case MDB2_FETCHMODE_ORDERED:
             case MDB2_FETCHMODE_ASSOC:
                 $this->fetchmode = $fetchmode;
@@ -2497,6 +2515,9 @@ class MDB2_Result_Common extends MDB2_Result
     var $result;
     var $rownum = -1;
     var $types;
+    var $offset;
+    var $offset_count = 0;
+    var $limit;
 
     // }}}
     // {{{ constructor
@@ -2504,10 +2525,12 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Constructor
      */
-    function MDB2_Result_Common(&$mdb, &$result)
+    function MDB2_Result_Common(&$mdb, &$result, $offset, $limit)
     {
         $this->mdb =& $mdb;
         $this->result =& $result;
+        $this->offset = $offset;
+        $this->limit = $limit - 1;
     }
 
     // }}}
@@ -2591,7 +2614,7 @@ class MDB2_Result_Common extends MDB2_Result
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         $columns = $this->numCols();
         if (MDB2::isError($columns)) {
@@ -2600,6 +2623,10 @@ class MDB2_Result_Common extends MDB2_Result
         $rownum = ++$this->rownum;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
+        }
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $fetchmode = MDB2_FETCHMODE_ASSOC;
+            $object_class = $this->mdb->options['fetch_class'];
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $column_names = $this->getColumnNames();
@@ -2633,6 +2660,13 @@ class MDB2_Result_Common extends MDB2_Result
                 && $this->options['portability'] & MDB2_PORTABILITY_LOWERCASE
             ) {
                 $row = array_change_key_case($row, CASE_LOWER);
+            }
+        }
+        if (isset($object_class)) {
+            if ($object_class == 'stdClass') {
+                $row = (object) $row;
+            } else {
+                $row = &new $object_class($row);
             }
         }
         return $row;
@@ -2691,7 +2725,7 @@ class MDB2_Result_Common extends MDB2_Result
         $force_array = false, $group = false)
     {
         $all = array();
-        while (is_array($row = $this->fetchRow($fetchmode))) {
+        while (!MDB2::isError($row = $this->fetchRow($fetchmode)) && $row) {
             if ($rekey && count($row) < 2) {
                 return $this->mdb->raiseError(MDB2_ERROR_TRUNCATED);
             }
@@ -2699,6 +2733,10 @@ class MDB2_Result_Common extends MDB2_Result
                 if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
                     $key = reset($row);
                     unset($row[key($row)]);
+                } elseif ($fetchmode & MDB2_FETCHMODE_OBJECT) {
+                    $arr = get_object_vars($row);
+                    $key = reset($arr);
+                    unset($arr->{key($row)});
                 } else {
                     $key = array_shift($row);
                 }
@@ -2725,6 +2763,18 @@ class MDB2_Result_Common extends MDB2_Result
             return $row;
         }
         return $all;
+    }
+
+    // }}}
+    // {{{ getRowCounter()
+
+    /**
+     * returns the actual row number that was last fetched (count from 0)
+     * @return integer
+     */
+    function getRowCounter()
+    {
+        return $this->rownum + $this->offset;
     }
 
     // }}}

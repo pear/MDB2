@@ -482,7 +482,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                         ? $this->options['buffered_result_class'] : $this->options['result_class'];
                 }
                 $class_name = sprintf($result_class, $this->phptype);
-                $result =& new $class_name($this, $result);
+                $result =& new $class_name($this, $result, $offset, $limit);
                 if ($types) {
                     $err = $result->setResultTypes($types);
                     if (MDB2::isError($err)) {
@@ -674,7 +674,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result =& $this->query("INSERT INTO $sequence_name VALUES (NULL)");
+        $result =& $this->query("INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL)");
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -727,9 +727,9 @@ class MDB2_Result_mysql extends MDB2_Result_Common
     /**
      * Constructor
      */
-    function MDB2_Result_mysql(&$mdb, &$result)
+    function MDB2_Result_mysql(&$mdb, &$result, $offset, $limit)
     {
-        parent::MDB2_Result_Common($mdb, $result);
+        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
     }
 
     // }}}
@@ -776,10 +776,14 @@ class MDB2_Result_mysql extends MDB2_Result_Common
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
+        }
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $fetchmode = MDB2_FETCHMODE_ASSOC;
+            $object_class = $this->mdb->options['fetch_class'];
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @mysql_fetch_assoc($this->result);
@@ -803,6 +807,13 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         }
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->mdb->_convertEmptyArrayValuesToNull($row);
+        }
+        if (isset($object_class)) {
+            if ($object_class == 'stdClass') {
+                $row = (object) $row;
+            } else {
+                $row = &new $object_class($row);
+            }
         }
         ++$this->rownum;
         return $row;
@@ -897,9 +908,9 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
     /**
      * Constructor
      */
-    function MDB2_BufferedResult_mysql(&$mdb, &$result)
+    function MDB2_BufferedResult_mysql(&$mdb, &$result, $offset, $limit)
     {
-        parent::MDB2_Result_mysql($mdb, $result);
+        parent::MDB2_Result_mysql($mdb, $result, $offset, $limit);
     }
 
     // }}}

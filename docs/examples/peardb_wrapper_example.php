@@ -74,11 +74,11 @@
 
     // lets create a sequence on demand
     echo('<br>get the next id using on demand:<br>');
-    echo('<br>nextId:'.$db->nextId('real_funky_id_2'));
+    echo('<br>nextId:'.$db->nextId('real_funky_id_wrapper_2'));
     echo('<br>dropSequence:'.$db->dropSequence('real_funky_id_2'));
 
     echo('<br>get the next id:<br>');
-    echo($db->nextId('real_funky_id').'<br>');
+    echo($db->nextId('real_funky_id_wrapper').'<br>');
 
     // lets try an prepare execute combo
     $alldata = array(  array(1, 'one', 'un'),

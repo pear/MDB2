@@ -570,7 +570,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         if ($start == 1) {
             return MDB2_OK;
         }
-        $res = $db->query("INSERT INTO $sequence_name VALUES (".($start-1).')');
+        $res = $db->query("INSERT INTO $sequence_name ($seqname_col_name) VALUES (".($start-1).')');
         if (!MDB2::isError($res)) {
             return MDB2_OK;
         }

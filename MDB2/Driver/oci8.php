@@ -695,8 +695,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
 class MDB2_Result_oci8 extends MDB2_Result_Common
 {
-    var $limits;
-
     // }}}
     // {{{ constructor
 
@@ -705,14 +703,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
      */
     function MDB2_Result_oci8(&$mdb, &$result, $offset, $limit)
     {
-        parent::MDB2_Result_Common($mdb, $result);
-        if ($offset || $limit) {
-            $this->limits = array(
-                'offset' => $offset,
-                'count' => 0,
-                'limit' => ($limit - 1),
-            );
-        }
+        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
     }
 
     // }}}
@@ -727,12 +718,14 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
      */
     function _skipLimitOffset()
     {
-        if (isset($this->limits) && is_array($this->limits)) {
-            if ($this->rownum > $this->limits['limit']) {
+        if ($this->limit) {
+            if ($this->rownum > $this->limit) {
                 return false;
             }
-            while ($this->limits['count'] < $this->limits['offset']) {
-                ++$this->limits['count'];
+        }
+        if ($this->limit) {
+            while ($this->offset_count < $this->limit) {
+                ++$this->offset_count;
                 if (!@OCIFetchInto($this->result, $row, OCI_RETURN_NULLS)) {
                     return false;
                 }
@@ -779,10 +772,14 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
+        }
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $fetchmode = MDB2_FETCHMODE_ASSOC;
+            $object_class = $this->mdb->options['fetch_class'];
         }
         if (!$this->_skipLimitOffset()) {
             return null;
@@ -809,6 +806,13 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->mdb->_rtrimArrayValues($row);
+        }
+        if (isset($object_class)) {
+            if ($object_class == 'stdClass') {
+                $row = (object) $row;
+            } else {
+                $row = &new $object_class($row);
+            }
         }
         ++$this->rownum;
         return $row;
@@ -936,7 +940,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
 
         $row = true;
         while ((is_null($rownum) || $this->buffer_rownum < $rownum)
-            && (!isset($this->limits) || $this->buffer_rownum < $this->limits['limit'])
+            && (!$this->limit || $this->buffer_rownum < $this->limit)
             && ($row = @OCIFetchInto($this->result, $buffer, OCI_RETURN_NULLS))
         ) {
             ++$this->buffer_rownum;
@@ -947,7 +951,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             ++$this->buffer_rownum;
             $this->buffer[$this->buffer_rownum] = false;
             return false;
-        } elseif (isset($this->limits) && $this->buffer_rownum >= $this->limits['limit']) {
+        } elseif ($this->limit && $this->buffer_rownum >= $this->limit) {
             ++$this->buffer_rownum;
             $this->buffer[$this->buffer_rownum] = false;
         }
@@ -964,7 +968,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if (is_null($this->result)) {
             return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
@@ -973,6 +977,10 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
         $target_rownum = $this->rownum + 1;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
+        }
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $fetchmode = MDB2_FETCHMODE_ASSOC;
+            $object_class = $this->mdb->options['fetch_class'];
         }
         if (!$this->_fillBuffer($target_rownum)) {
             return null;

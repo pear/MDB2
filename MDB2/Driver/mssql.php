@@ -513,8 +513,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
 class MDB2_Result_mssql extends MDB2_Result_Common
 {
-    var $limits;
-
     // }}}
     // {{{ constructor
 
@@ -523,14 +521,7 @@ class MDB2_Result_mssql extends MDB2_Result_Common
      */
     function MDB2_Result_mssql(&$mdb, &$result, $offset, $limit)
     {
-        parent::MDB2_Result_Common($mdb, $result);
-        if ($offset || $limit) {
-            $this->limits = array(
-                'offset' => $offset,
-                'limit' => $limit,
-                'count' => 0
-            );
-        }
+        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
     }
 
     // }}}
@@ -545,14 +536,16 @@ class MDB2_Result_mssql extends MDB2_Result_Common
      */
     function _skipLimitOffset()
     {
-        if (isset($this->limits) && is_array($this->limits)) {
-            if ($this->rownum >= $this->limits['limit']) {
+        if ($this->limit) {
+            if ($this->rownum >= $this->limit) {
                 return MDB2_ERROR;
             }
-            while ($this->limits['count'] < $this->limits['offset']) {
-                $this->limits['count']++;
+        }
+        if ($this->offset) {
+            while ($this->offset_count < $this->offset) {
+                ++$this->offset_count;
                 if (!is_array(@mysql_fetch_row($this->result))) {
-                    $this->limits['count'] = $this->limits['offset'];
+                    $this->offset_count = $this->limit;
                     return MDB2_ERROR;
                 }
             }
@@ -604,10 +597,14 @@ class MDB2_Result_mssql extends MDB2_Result_Common
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
+    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
+        }
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $fetchmode = MDB2_FETCHMODE_ASSOC;
+            $object_class = $this->mdb->options['fetch_class'];
         }
         if (!$this->_skipLimitOffset()) {
             return null;
@@ -634,6 +631,13 @@ class MDB2_Result_mssql extends MDB2_Result_Common
         }
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->mdb->_convertEmptyArrayValuesToNull($row);
+        }
+        if (isset($object_class)) {
+            if ($object_class == 'stdClass') {
+                $row = (object) $row;
+            } else {
+                $row = &new $object_class($row);
+            }
         }
         ++$this->rownum;
         return $row;
@@ -786,8 +790,8 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
             }
             return $this->raiseError();
         }
-        if (isset($this->limits)) {
-            $rows -= $this->limits[0];
+        if ($this->limit) {
+            $rows -= $this->limit;
             if ($rows < 0) {
                 $rows = 0;
             }

@@ -90,6 +90,12 @@
     $result->free();
     echo('<br>row:<br>');
     echo(Var_Dump::display($array).'<br>');
+    $result = $db->query($query);
+    // lets just get row:0 and free the result
+    $array = $result->fetchRow(MDB2_FETCHMODE_OBJECT);
+    $result->free();
+    echo('<br>row (object:<br>');
+    echo(Var_Dump::display($array).'<br>');
     // run the query and get a result handler
     $result = $db->query($query);
     // lets just get row:0 and free the result

@@ -106,7 +106,7 @@ define('DB_BINMODE_CONVERT',    3);
 define('DB_FETCHMODE_DEFAULT',      MDB2_FETCHMODE_DEFAULT);
 define('DB_FETCHMODE_ORDERED',      MDB2_FETCHMODE_ORDERED);
 define('DB_FETCHMODE_ASSOC',        MDB2_FETCHMODE_ASSOC);
-define('DB_FETCHMODE_OBJECT',       3);
+define('DB_FETCHMODE_OBJECT',       MDB2_FETCHMODE_OBJECT);
 define('DB_FETCHMODE_FLIPPED',      MDB2_FETCHMODE_FLIPPED);
 
 define('DB_GETMODE_ORDERED', DB_FETCHMODE_ORDERED);
@@ -245,7 +245,7 @@ class DB_result extends MDB2_Result_Common
         return $this->result->fetch();
     }
 
-    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
+    function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         return $this->result->fetchRow($fetchmode);
     }
@@ -289,7 +289,7 @@ class DB_result extends MDB2_Result_Common
 
     function getRowCounter()
     {
-        return $this->result->rownum+1;
+        return $this->result->getRowCounter()+1;
     }
 }
 
