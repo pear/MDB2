@@ -4,6 +4,8 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '2.0.0beta3';
 $notes = <<<EOT
+Warning: this release features numerous BC breaks to make the MDB2 API be as
+similar as possible as the ext/pdo API!
 - allowing limits of 0 in setLimit()
 - setParamsArray() can now handle non ordered arrays
 - performance tweak in fetchCol()
