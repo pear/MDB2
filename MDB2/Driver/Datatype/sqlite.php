@@ -71,10 +71,10 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-            case 'decimal':
-                return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
-            default:
-                return $this->_baseConvertResult($value, $type);
+        case 'decimal':
+            return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
+        default:
+            return $this->_baseConvertResult($value, $type);
         }
     }
 

@@ -96,74 +96,74 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         //$decimal = strtok('(), '); = eh?
         $type = array();
         switch ($db_type) {
-            case 'int':
-                $type[0] = 'integer';
-                if ($length == '1') {
-                    $type[1] = 'boolean';
-                }
-                break;
-            case 'text':
-            case 'char':
-            case 'varchar':
-            case 'bpchar':
-                $type[0] = 'text';
+        case 'int':
+            $type[0] = 'integer';
+            if ($length == '1') {
+                $type[1] = 'boolean';
+            }
+            break;
+        case 'text':
+        case 'char':
+        case 'varchar':
+        case 'bpchar':
+            $type[0] = 'text';
 
-                if ($length == '1') {
-                    $type[1] = 'boolean';
-                } elseif (strstr($db_type, 'text'))
-                    $type[1] = 'clob';
-                break;
+            if ($length == '1') {
+                $type[1] = 'boolean';
+            } elseif (strstr($db_type, 'text'))
+                $type[1] = 'clob';
+            break;
 /*
-            case 'enum':
-                preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
-                $length = 0;
-                if (is_array($matches)) {
-                    foreach ($matches[0] as $value) {
-                        $length = max($length, strlen($value)-2);
-                    }
+        case 'enum':
+            preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
+            $length = 0;
+            if (is_array($matches)) {
+                foreach ($matches[0] as $value) {
+                    $length = max($length, strlen($value)-2);
                 }
-                unset($decimal);
-            case 'set':
-                $type[0] = 'text';
-                $type[1] = 'integer';
-                break;
+            }
+            unset($decimal);
+        case 'set':
+            $type[0] = 'text';
+            $type[1] = 'integer';
+            break;
 */
-            case 'date':
-                $type[0] = 'date';
-                break;
-            case 'datetime':
-            case 'timestamp':
-                $type[0] = 'timestamp';
-                break;
-            case 'time':
-                $type[0] = 'time';
-                break;
-            case 'float':
-            case 'double':
-            case 'real':
+        case 'date':
+            $type[0] = 'date';
+            break;
+        case 'datetime':
+        case 'timestamp':
+            $type[0] = 'timestamp';
+            break;
+        case 'time':
+            $type[0] = 'time';
+            break;
+        case 'float':
+        case 'double':
+        case 'real':
 
-                $type[0] = 'float';
-                break;
-            case 'decimal':
-            case 'money':
-            case 'numeric':
-                $type[0] = 'decimal';
-                break;
-            case 'oid':
-            case 'tinyblob':
-            case 'mediumblob':
-            case 'longblob':
-            case 'blob':
-                $type[0] = 'blob';
-                $type[1] = 'text';
-                break;
-            case 'year':
-                $type[0] = 'integer';
-                $type[1] = 'date';
-                break;
-            default:
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'getTableFieldDefinition: unknown database attribute type');
+            $type[0] = 'float';
+            break;
+        case 'decimal':
+        case 'money':
+        case 'numeric':
+            $type[0] = 'decimal';
+            break;
+        case 'oid':
+        case 'tinyblob':
+        case 'mediumblob':
+        case 'longblob':
+        case 'blob':
+            $type[0] = 'blob';
+            $type[1] = 'text';
+            break;
+        case 'year':
+            $type[0] = 'integer';
+            $type[1] = 'date';
+            break;
+        default:
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableFieldDefinition: unknown database attribute type');
         }
 
         if ($columns['attnotnull'] == 'f') {
@@ -185,8 +185,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
             if ($type[$datatype] != 'boolean'
                 && $type[$datatype] != 'time'
                 && $type[$datatype] != 'date'
-                && $type[$datatype] != 'timestamp')
-            {
+                && $type[$datatype] != 'timestamp'
+            ) {
                 if (strlen($length)) {
                     $field_choices[$datatype]['length'] = $length;
                 }

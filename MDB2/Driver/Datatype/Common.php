@@ -143,40 +143,40 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-            case 'text':
-                return $value;
-            case 'integer':
-                return intval($value);
-            case 'boolean':
-                return $value == 'Y';
-            case 'decimal':
-                return $value;
-            case 'float':
-                return doubleval($value);
-            case 'date':
-                return $value;
-            case 'time':
-                return $value;
-            case 'timestamp':
-                return $value;
-            case 'clob':
-            case 'blob':
-                $db->lobs[] = array(
-                    'value' => $value,
-                    'position' => 0
-                );
-                end($db->lobs);
-                $lob = key($db->lobs);
-                $dst_lob = array(
-                    'database' => &$db,
-                    'type' => 'resultlob',
-                    'resultLOB' => $lob,
-                );
-                $lob = $this->createLOB($dst_lob);
-                return $lob;
-            default:
-                return $db->raiseError(MDB2_ERROR_INVALID, null, null,
-                    'attempt to convert result value to an unknown type ' . $type);
+        case 'text':
+            return $value;
+        case 'integer':
+            return intval($value);
+        case 'boolean':
+            return $value == 'Y';
+        case 'decimal':
+            return $value;
+        case 'float':
+            return doubleval($value);
+        case 'date':
+            return $value;
+        case 'time':
+            return $value;
+        case 'timestamp':
+            return $value;
+        case 'clob':
+        case 'blob':
+            $db->lobs[] = array(
+                'value' => $value,
+                'position' => 0
+            );
+            end($db->lobs);
+            $lob = key($db->lobs);
+            $dst_lob = array(
+                'database' => &$db,
+                'type' => 'resultlob',
+                'resultLOB' => $lob,
+            );
+            $lob = $this->createLOB($dst_lob);
+            return $lob;
+        default:
+            return $db->raiseError(MDB2_ERROR_INVALID, null, null,
+                'attempt to convert result value to an unknown type ' . $type);
         }
     }
 
@@ -222,18 +222,18 @@ class MDB2_Driver_Datatype_Common
                 }
                 $type = $types[$current_column];
                 switch ($type) {
-                    case 'text':
-                        break;
-                    case 'integer':
-                        $row[$key] = intval($row[$key]);
-                        break;
-                    default:
-                        $value = $this->convertResult($row[$key], $type);
-                        if (MDB2::isError($value)) {
-                            return $value;
-                        }
-                        $row[$key] = $value;
-                        break;
+                case 'text':
+                    break;
+                case 'integer':
+                    $row[$key] = intval($row[$key]);
+                    break;
+                default:
+                    $value = $this->convertResult($row[$key], $type);
+                    if (MDB2::isError($value)) {
+                        return $value;
+                    }
+                    $row[$key] = $value;
+                    break;
                 }
             }
         }
@@ -1053,19 +1053,19 @@ class MDB2_Driver_Datatype_Common
         $class_name = 'MDB2_LOB';
         if (isset($arguments['type'])) {
             switch ($arguments['type']) {
-                case 'data':
-                    break;
-                case 'resultlob':
-                    $class_name = 'MDB2_LOB_Result';
-                    break;
-                case 'inputfile':
-                    $class_name = 'MDB2_LOB_Input_File';
-                    break;
-                case 'outputfile':
-                    $class_name = 'MDB2_LOB_Output_File';
-                    break;
-                default:
-                    return $db->raiseError('createLOB: '.$arguments['type'] . ' is not a valid type of large object');
+            case 'data':
+                break;
+            case 'resultlob':
+                $class_name = 'MDB2_LOB_Result';
+                break;
+            case 'inputfile':
+                $class_name = 'MDB2_LOB_Input_File';
+                break;
+            case 'outputfile':
+                $class_name = 'MDB2_LOB_Output_File';
+                break;
+            default:
+                return $db->raiseError('createLOB: '.$arguments['type'] . ' is not a valid type of large object');
             }
         } else {
             if (isset($arguments['class'])) {

@@ -741,18 +741,18 @@ class MDB2_PEARProxy extends PEAR
     {
         $this->db_object->loadModule('manager');
         switch ($type) {
-            case 'tables':
-                return $this->db_object->manager->listTables();
-            case 'views':
-                return $this->db_object->manager->listViews();
-            case 'users':
-                return $this->db_object->manager->listUsers();
-            case 'functions':
-                return $this->db_object->manager->listFunctions();
-            case 'databases':
-                return $this->db_object->manager->listDatabases();
-            default:
-                return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
+        case 'tables':
+            return $this->db_object->manager->listTables();
+        case 'views':
+            return $this->db_object->manager->listViews();
+        case 'users':
+            return $this->db_object->manager->listUsers();
+        case 'functions':
+            return $this->db_object->manager->listFunctions();
+        case 'databases':
+            return $this->db_object->manager->listDatabases();
+        default:
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
         }
     }
 }

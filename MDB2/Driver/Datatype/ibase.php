@@ -71,12 +71,12 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-            case 'decimal':
-                return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
-            case 'timestamp':
-                return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
-            default:
-                return $this->_baseConvertResult($value, $type);
+        case 'decimal':
+            return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
+        case 'timestamp':
+            return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
+        default:
+            return $this->_baseConvertResult($value, $type);
         }
     }
 
@@ -109,29 +109,28 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _getTypeDeclaration($field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        switch ($field['type'])
-        {
-            case 'text':
-                $length = (isset($field['length']) ? $field['length'] : (!MDB2::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
-                return 'VARCHAR ('.$length.')';
-            case 'clob':
-                return 'BLOB SUB_TYPE 1';
-            case 'blob':
-                return 'BLOB SUB_TYPE 0';
-            case 'integer':
-                return 'INTEGER';
-            case 'boolean':
-                return 'CHAR (1)';
-            case 'date':
-                return 'DATE';
-            case 'time':
-                return 'TIME';
-            case 'timestamp':
-                return 'TIMESTAMP';
-            case 'float':
-                return 'DOUBLE PRECISION';
-            case 'decimal':
-                return 'DECIMAL(18,'.$db->options['decimal_places'].')';
+        switch ($field['type']) {
+        case 'text':
+            $length = (isset($field['length']) ? $field['length'] : (!MDB2::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
+            return 'VARCHAR ('.$length.')';
+        case 'clob':
+            return 'BLOB SUB_TYPE 1';
+        case 'blob':
+            return 'BLOB SUB_TYPE 0';
+        case 'integer':
+            return 'INTEGER';
+        case 'boolean':
+            return 'CHAR (1)';
+        case 'date':
+            return 'DATE';
+        case 'time':
+            return 'TIME';
+        case 'timestamp':
+            return 'TIMESTAMP';
+        case 'float':
+            return 'DOUBLE PRECISION';
+        case 'decimal':
+            return 'DECIMAL(18,'.$db->options['decimal_places'].')';
         }
         return '';
     }

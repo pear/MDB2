@@ -69,12 +69,12 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-            case 'date':
-                return substr($value, 0, strlen('YYYY-MM-DD'));
-            case 'time':
-                return substr($value, strlen('YYYY-MM-DD '), strlen('HH:MI:SS'));
-            default:
-                return $this->_baseConvertResult($value, $type);
+        case 'date':
+            return substr($value, 0, strlen('YYYY-MM-DD'));
+        case 'time':
+            return substr($value, strlen('YYYY-MM-DD '), strlen('HH:MI:SS'));
+        default:
+            return $this->_baseConvertResult($value, $type);
         }
     }
 
@@ -107,27 +107,26 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function _getTypeDeclaration($field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        switch ($field['type'])
-        {
-            case 'text':
-                $length = (isset($field['length']) ? $field['length'] : (($length = $db->options['default_text_field_length']) ? $length : 4000));
-                return 'VARCHAR ('.$length.')';
-            case 'clob':
-                return 'CLOB';
-            case 'blob':
-                return 'BLOB';
-            case 'integer':
-                return 'INT';
-            case 'boolean':
-                return 'CHAR (1)';
-            case 'date':
-            case 'time':
-            case 'timestamp':
-                return 'DATE';
-            case 'float':
-                return 'NUMBER';
-            case 'decimal':
-                return 'NUMBER(*,'.$db->options['decimal_places'].')';
+        switch ($field['type']) {
+        case 'text':
+            $length = (isset($field['length']) ? $field['length'] : (($length = $db->options['default_text_field_length']) ? $length : 4000));
+            return 'VARCHAR ('.$length.')';
+        case 'clob':
+            return 'CLOB';
+        case 'blob':
+            return 'BLOB';
+        case 'integer':
+            return 'INT';
+        case 'boolean':
+            return 'CHAR (1)';
+        case 'date':
+        case 'time':
+        case 'timestamp':
+            return 'DATE';
+        case 'float':
+            return 'NUMBER';
+        case 'decimal':
+            return 'NUMBER(*,'.$db->options['decimal_places'].')';
         }
     }
 

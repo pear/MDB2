@@ -668,15 +668,17 @@ class MDB2_Tools_Manager extends PEAR
             $table = $sequence['on']['table'];
             $field = $sequence['on']['field'];
             if ($this->db->supports('summary_functions')) {
-                $field = "MAX($field)";
+                $field = "SELECT MAX($field) FROM $table";
+            } else {
+                $query = "SELECT $field FROM $table ORDER BY $field DESC";
             }
-            $start = $this->db->queryOne("SELECT $field FROM $table", 'integer');
+            $start = $this->db->queryOne($query, 'integer');
             if (MDB2::isError($start)) {
                 return $start;
             }
             $start++;
         }
-        if (!is_numeric($start) && isset($sequence['start']) && is_numeric($sequence['start'])) {
+        if (isset($sequence['start']) && is_numeric($sequence['start'])) {
             $start = $sequence['start'];
         } else {
             $start = 1;
@@ -747,9 +749,7 @@ class MDB2_Tools_Manager extends PEAR
      */
     function createDatabase()
     {
-        if (!isset($this->database_definition['name'])
-            || $this->database_definition['name'] == ''
-        ) {
+        if (!isset($this->database_definition['name']) || !$this->database_definition['name']) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'no valid database name specified');
         }
@@ -1596,8 +1596,7 @@ class MDB2_Tools_Manager extends PEAR
     function dumpDatabaseChanges($changes)
     {
         if (isset($changes['tables'])) {
-            foreach ($changes['tables'] as $table_name => $table)
-            {
+            foreach ($changes['tables'] as $table_name => $table) {
                 $this->db->debug("$table_name:");
                 if (isset($table['add'])) {
                     $this->db->debug("\tAdded table '$table_name'");
@@ -1681,8 +1680,7 @@ class MDB2_Tools_Manager extends PEAR
             }
         }
         if (isset($changes['indexes'])) {
-            foreach ($changes['indexes'] as $table_name => $table)
-            {
+            foreach ($changes['indexes'] as $table_name => $table) {
                 $this->db->debug("$table_name:");
                 if (isset($table['added_indexes'])) {
                     foreach ($table['added_indexes'] as $index_name => $index) {

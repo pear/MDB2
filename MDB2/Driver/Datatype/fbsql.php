@@ -72,16 +72,16 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-             case 'boolean':
-                 return $value == 'T';
-             case 'time':
-                if ($value[0] == '+') {
-                    return substr($value, 1);
-                } else {
-                    return $value;
-                }
-            default:
-                return $this->_baseConvertResult($value, $type);
+         case 'boolean':
+             return $value == 'T';
+         case 'time':
+            if ($value[0] == '+') {
+                return substr($value, 1);
+            } else {
+                return $value;
+            }
+        default:
+            return $this->_baseConvertResult($value, $type);
         }
         return $this->_baseConvertResult($value, $type);
     }

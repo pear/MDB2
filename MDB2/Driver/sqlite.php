@@ -534,10 +534,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function replace($table, $fields)
     {
         $count = count($fields);
-        for ($keys = 0, $query = $values = '',reset($fields), $colnum = 0;
-            $colnum < $count;
-            next($fields), $colnum++)
-        {
+        $query = $values = '';
+        $keys = $colnum = 0;
+        for (reset($fields); $colnum < $count; next($fields), $colnum++) {
             $name = key($fields);
             if ($colnum > 0) {
                 $query .= ',';

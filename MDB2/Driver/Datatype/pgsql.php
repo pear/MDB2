@@ -70,18 +70,18 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-            case 'boolean':
-                return $value == 't';
-            case 'float':
-                return doubleval($value);
-            case 'date':
-                return $value;
-            case 'time':
-                return $value;
-            case 'timestamp':
-                return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
-            default:
-                return $this->_baseConvertResult($value, $type);
+        case 'boolean':
+            return $value == 't';
+        case 'float':
+            return doubleval($value);
+        case 'date':
+            return $value;
+        case 'time':
+            return $value;
+        case 'timestamp':
+            return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
+        default:
+            return $this->_baseConvertResult($value, $type);
         }
     }
 

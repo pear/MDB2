@@ -353,25 +353,25 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $default_table_type = $this->options['default_table_type'];
         if ($default_table_type) {
             switch ($this->options['default_table_type'] = strtoupper($default_table_type)) {
-                case 'BERKELEYDB':
-                    $this->options['default_table_type'] = 'BDB';
-                case 'BDB':
-                case 'INNODB':
-                case 'GEMINI':
-                    break;
-                case 'HEAP':
-                case 'ISAM':
-                case 'MERGE':
-                case 'MRG_MYISAM':
-                case 'MYISAM':
-                    if ($this->supports('transactions')) {
-                        $this->warnings[] = $default_table_type.
-                            ' is not a transaction-safe default table type';
-                    }
-                    break;
-                default:
+            case 'BERKELEYDB':
+                $this->options['default_table_type'] = 'BDB';
+            case 'BDB':
+            case 'INNODB':
+            case 'GEMINI':
+                break;
+            case 'HEAP':
+            case 'ISAM':
+            case 'MERGE':
+            case 'MRG_MYISAM':
+            case 'MYISAM':
+                if ($this->supports('transactions')) {
                     $this->warnings[] = $default_table_type.
-                        ' is not a supported default table type';
+                        ' is not a transaction-safe default table type';
+                }
+                break;
+            default:
+                $this->warnings[] = $default_table_type.
+                    ' is not a supported default table type';
             }
         }
 
@@ -589,10 +589,9 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     function replace($table, $fields)
     {
         $count = count($fields);
-        for ($keys = 0, $query = $values = '',reset($fields), $colnum = 0;
-            $colnum < $count;
-            next($fields), $colnum++)
-        {
+        $query = $values = '';
+        $keys = $colnum = 0;
+        for (reset($fields); $colnum < $count; next($fields), $colnum++) {
             $name = key($fields);
             if ($colnum > 0) {
                 $query .= ',';

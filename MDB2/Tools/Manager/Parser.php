@@ -166,8 +166,8 @@ class MDB2_Tools_Parser extends XML_Parser
                 $this->raiseError('unkown field "'.$this->init_name.'"', null, $xp);
             }
             if ($this->init_value !== ''
-                && !$this->validateFieldValue($this->init_name, $this->init_value, $xp))
-            {
+                && !$this->validateFieldValue($this->init_name, $this->init_value, $xp)
+            ) {
                 $this->raiseError('field "'.$this->init_name.'" has wrong value', null, $xp);
             }
             $this->init['fields'][$this->init_name] = $this->init_value;
@@ -197,8 +197,8 @@ class MDB2_Tools_Parser extends XML_Parser
                             $this->raiseError('index field "'.$field_name.'" does not exist', null, $xp);
                         }
                         if (!(isset($this->table['fields'][$field_name]['notnull'])
-                            && $this->table['fields'][$field_name]['notnull'] == true))
-                        {
+                            && $this->table['fields'][$field_name]['notnull'] == true)
+                        ) {
                             $this->raiseError('index field "'.$field_name.
                                 '" has to be "notnull"', null, $xp);
                         }
@@ -224,8 +224,8 @@ class MDB2_Tools_Parser extends XML_Parser
             switch ($this->field['type']) {
             case 'integer':
                 if (isset($this->field['unsigned'])
-                    && $this->field['unsigned'] !== '1' && $this->field['unsigned'] !== '0')
-                {
+                    && $this->field['unsigned'] !== '1' && $this->field['unsigned'] !== '0'
+                ) {
                     $this->raiseError('unsigned has to be 1 or 0', null, $xp);
                 }
                 break;
@@ -265,8 +265,8 @@ class MDB2_Tools_Parser extends XML_Parser
                         '"-fields are not allowed to have a default value', null, $xp);
                 }
                 if ($this->field['default'] !== ''
-                    && !$this->validateFieldValue($this->field_name, $this->field['default'], $xp))
-                {
+                    && !$this->validateFieldValue($this->field_name, $this->field['default'], $xp)
+                ) {
                     $this->raiseError('default value of "'.$this->field_name.'" is of wrong type', null, $xp);
                 }
             }
@@ -312,8 +312,8 @@ class MDB2_Tools_Parser extends XML_Parser
             }
             if (isset($this->seq['on'])) {
                 if ((!isset($this->seq['on']['table']) || !$this->seq['on']['table'])
-                    || (!isset($this->seq['on']['field']) || !$this->seq['on']['field']))
-                {
+                    || (!isset($this->seq['on']['field']) || !$this->seq['on']['field'])
+                ) {
                     $this->raiseError('sequence "'.$this->seq_name.
                         '" was not properly defined', null, $xp);
                 }
@@ -324,13 +324,13 @@ class MDB2_Tools_Parser extends XML_Parser
         /* End of File */
         case 'database':
             if (isset($this->database_definition['create'])
-                && !$this->is_boolean($this->database_definition['create']))
-            {
+                && !$this->is_boolean($this->database_definition['create'])
+            ) {
                 $this->raiseError('field "create" has to be 1 or 0', null, $xp);
             }
             if (isset($this->database_definition['overwrite'])
-                && !$this->is_boolean($this->database_definition['overwrite']))
-            {
+                && !$this->is_boolean($this->database_definition['overwrite'])
+            ) {
                 $this->raiseError('field "overwrite" has to be 1 or 0', null, $xp);
             }
             if (!isset($this->database_definition['name'])
@@ -341,8 +341,8 @@ class MDB2_Tools_Parser extends XML_Parser
             if (isset($this->database_definition['sequences'])) {
                 foreach ($this->database_definition['sequences'] as $seq_name => $seq) {
                     if (isset($seq['on'])
-                        && !isset($this->database_definition['tables'][$seq['on']['table']]['fields'][$seq['on']['field']]))
-                    {
+                        && !isset($this->database_definition['tables'][$seq['on']['table']]['fields'][$seq['on']['field']])
+                    ) {
                         $this->raiseError('sequence "'.$seq_name.
                             '" was assigned on unexisting field/table', null, $xp);
                     }
@@ -470,8 +470,7 @@ class MDB2_Tools_Parser extends XML_Parser
             $value = (int) $value;
             return true;
         }
-        switch ($value)
-        {
+        switch ($value) {
         case 'N':
         case 'n':
         case 'no':

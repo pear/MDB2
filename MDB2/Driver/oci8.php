@@ -296,8 +296,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         if ($this->connection != 0) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
-                && $this->opened_persistent == $this->options['persistent'])
-            {
+                && $this->opened_persistent == $this->options['persistent']
+            ) {
                 return MDB2_OK;
             }
             $this->_close();

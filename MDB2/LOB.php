@@ -170,9 +170,7 @@ class MDB2_LOB_Input_File extends MDB2_LOB
                     'MDB2_LOB_Input_File::create: it was specified an invalid input file identifier');
             }
             $this->file = $arguments['file'];
-        }
-        else
-        {
+        } else {
             if (isset($arguments['file_name'])) {
                 if ((!$this->file = fopen($arguments['file_name'], 'rb'))) {
                 return MDB2_Driver_Common::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
@@ -287,8 +285,8 @@ class MDB2_LOB_Output_File extends MDB2_LOB
             for ($written = 0;
                 !$this->db->datatype->endOfLOB($this->input_lob)
                 && $written < $buffer_length;
-                $written += $read)
-            {
+                $written += $read
+            ) {
                 $result = $this->db->datatype->readLOB($this->input_lob, $buffer, $buffer_length);
                 if (MDB2::isError($result)) {
                     return $result;

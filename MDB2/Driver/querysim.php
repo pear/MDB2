@@ -270,8 +270,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     {
         if ($this->connection != 0) {
             if (!strcmp($this->connected_database_name, $this->database_name)
-                && ($this->opened_persistent == $this->options['persistent']))
-            {
+                && ($this->opened_persistent == $this->options['persistent'])
+            ) {
                 return MDB2_OK;
             }
             if ($this->connected_database_name) {

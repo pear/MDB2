@@ -136,48 +136,48 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 // try to interpret Interbase error code (that's why we need ibase_errno()
                 // in the interbase module to return the real error code)
                 switch ($native_code) {
-                    case -204:
-                        if (isset($m[3]) && is_int(strpos($m[3], 'Table unknown'))) {
-                            $errno = MDB2_ERROR_NOSUCHTABLE;
-                        }
+                case -204:
+                    if (isset($m[3]) && is_int(strpos($m[3], 'Table unknown'))) {
+                        $errno = MDB2_ERROR_NOSUCHTABLE;
+                    }
+                break;
+                default:
+                    static $ecode_map;
+                    if (empty($ecode_map)) {
+                        $ecode_map = array(
+                            -104 => MDB2_ERROR_SYNTAX,
+                            -150 => MDB2_ERROR_ACCESS_VIOLATION,
+                            -151 => MDB2_ERROR_ACCESS_VIOLATION,
+                            -155 => MDB2_ERROR_NOSUCHTABLE,
+                              88 => MDB2_ERROR_NOSUCHTABLE,
+                            -157 => MDB2_ERROR_NOSUCHFIELD,
+                            -158 => MDB2_ERROR_VALUE_COUNT_ON_ROW,
+                            -170 => MDB2_ERROR_MISMATCH,
+                            -171 => MDB2_ERROR_MISMATCH,
+                            -172 => MDB2_ERROR_INVALID,
+                            -204 => MDB2_ERROR_INVALID,
+                            -205 => MDB2_ERROR_NOSUCHFIELD,
+                            -206 => MDB2_ERROR_NOSUCHFIELD,
+                            -208 => MDB2_ERROR_INVALID,
+                            -219 => MDB2_ERROR_NOSUCHTABLE,
+                            -297 => MDB2_ERROR_CONSTRAINT,
+                            -303 => MDB2_ERROR_INVALID,
+                            -530 => MDB2_ERROR_CONSTRAINT,
+                            -551 => MDB2_ERROR_ACCESS_VIOLATION,
+                            -552 => MDB2_ERROR_ACCESS_VIOLATION,
+                            -607 => MDB2_ERROR_NOSUCHTABLE,
+                            -803 => MDB2_ERROR_CONSTRAINT,
+                            -904 => MDB2_ERROR_CONNECT_FAILED,
+                            -913 => MDB2_ERROR_DEADLOCK,
+                            -922 => MDB2_ERROR_NOSUCHDB,
+                            -923 => MDB2_ERROR_CONNECT_FAILED,
+                            -924 => MDB2_ERROR_CONNECT_FAILED,
+                        );
+                    }
+                    if (isset($ecode_map[$native_code])) {
+                        $error = $ecode_map[$native_code];
+                    }
                     break;
-                    default:
-                        static $ecode_map;
-                        if (empty($ecode_map)) {
-                            $ecode_map = array(
-                                -104 => MDB2_ERROR_SYNTAX,
-                                -150 => MDB2_ERROR_ACCESS_VIOLATION,
-                                -151 => MDB2_ERROR_ACCESS_VIOLATION,
-                                -155 => MDB2_ERROR_NOSUCHTABLE,
-                                  88 => MDB2_ERROR_NOSUCHTABLE,
-                                -157 => MDB2_ERROR_NOSUCHFIELD,
-                                -158 => MDB2_ERROR_VALUE_COUNT_ON_ROW,
-                                -170 => MDB2_ERROR_MISMATCH,
-                                -171 => MDB2_ERROR_MISMATCH,
-                                -172 => MDB2_ERROR_INVALID,
-                                -204 => MDB2_ERROR_INVALID,
-                                -205 => MDB2_ERROR_NOSUCHFIELD,
-                                -206 => MDB2_ERROR_NOSUCHFIELD,
-                                -208 => MDB2_ERROR_INVALID,
-                                -219 => MDB2_ERROR_NOSUCHTABLE,
-                                -297 => MDB2_ERROR_CONSTRAINT,
-                                -303 => MDB2_ERROR_INVALID,
-                                -530 => MDB2_ERROR_CONSTRAINT,
-                                -551 => MDB2_ERROR_ACCESS_VIOLATION,
-                                -552 => MDB2_ERROR_ACCESS_VIOLATION,
-                                -607 => MDB2_ERROR_NOSUCHTABLE,
-                                -803 => MDB2_ERROR_CONSTRAINT,
-                                -904 => MDB2_ERROR_CONNECT_FAILED,
-                                -913 => MDB2_ERROR_DEADLOCK,
-                                -922 => MDB2_ERROR_NOSUCHDB,
-                                -923 => MDB2_ERROR_CONNECT_FAILED,
-                                -924 => MDB2_ERROR_CONNECT_FAILED,
-                            );
-                        }
-                        if (isset($ecode_map[$native_code])) {
-                            $error = $ecode_map[$native_code];
-                        }
-                        break;
                 }
             } else {
                 static $error_regexps;
@@ -444,8 +444,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
         if ($prepared_query
             && isset($this->query_parameters[$prepared_query])
-            && count($this->query_parameters[$prepared_query]) > 2)
-        {
+            && count($this->query_parameters[$prepared_query]) > 2
+        ) {
             $this->query_parameters[$prepared_query][0] = $connection;
             $this->query_parameters[$prepared_query][1] = $query;
             $result = @call_user_func_array('ibase_query', $this->query_parameters[$prepared_query]);

@@ -93,81 +93,81 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 $db_type = $columns[$i]['type'];
                 $type = array();
                 switch ($db_type) {
-                    case 'tinyint':
-                    case 'smallint':
-                    case 'mediumint':
-                    case 'int':
-                    case 'integer':
-                    case 'bigint':
-                        $type[0] = 'integer';
-                        if ($columns[$i]['length'] && $columns[$i]['length'] == '1') {
-                            $type[1] = 'boolean';
-                            if (preg_match('/^[is|has]/', $field_name)) {
-                                $type = array_reverse($type);
-                            }
+                case 'tinyint':
+                case 'smallint':
+                case 'mediumint':
+                case 'int':
+                case 'integer':
+                case 'bigint':
+                    $type[0] = 'integer';
+                    if ($columns[$i]['length'] && $columns[$i]['length'] == '1') {
+                        $type[1] = 'boolean';
+                        if (preg_match('/^[is|has]/', $field_name)) {
+                            $type = array_reverse($type);
                         }
-                        break;
-                    case 'tinytext':
-                    case 'mediumtext':
-                    case 'longtext':
-                    case 'text':
-                    case 'char':
-                    case 'varchar':
-                    case "varchar2":
-                        $type[0] = 'text';
-                        if (isset($columns[$i]['length']) && $columns[$i]['length'] == '1') {
-                            $type[1] = 'boolean';
-                            if (preg_match('/[is|has]/', $field_name)) {
-                                $type = array_reverse($type);
-                            }
-                        } elseif (strstr($db_type, 'text'))
-                            $type[1] = 'clob';
-                        break;
-                    case 'enum':
-                        preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
-                        $length = 0;
-                        if (is_array($matches)) {
-                            foreach ($matches[0] as $value) {
-                                $length = max($length, strlen($value)-2);
-                            }
+                    }
+                    break;
+                case 'tinytext':
+                case 'mediumtext':
+                case 'longtext':
+                case 'text':
+                case 'char':
+                case 'varchar':
+                case "varchar2":
+                    $type[0] = 'text';
+                    if (isset($columns[$i]['length']) && $columns[$i]['length'] == '1') {
+                        $type[1] = 'boolean';
+                        if (preg_match('/[is|has]/', $field_name)) {
+                            $type = array_reverse($type);
                         }
-                        unset($decimal);
-                    case 'set':
-                        $type[0] = 'text';
-                        $type[1] = 'integer';
-                        break;
-                    case 'date':
-                        $type[0] = 'date';
-                        break;
-                    case 'datetime':
-                    case 'timestamp':
-                        $type[0] = 'timestamp';
-                        break;
-                    case 'time':
-                        $type[0] = 'time';
-                        break;
-                    case 'float':
-                    case 'double':
-                    case 'real':
-                        $type[0] = 'float';
-                        break;
-                    case 'decimal':
-                    case 'numeric':
-                        $type[0] = 'decimal';
-                        break;
-                    case 'tinyblob':
-                    case 'mediumblob':
-                    case 'longblob':
-                    case 'blob':
-                        $type[0] = 'text';
-                        break;
-                    case 'year':
-                        $type[0] = 'integer';
-                        $type[1] = 'date';
-                        break;
-                    default:
-                        return $db->raiseError(MDB2_ERROR, null, null,
-                            'getTableFieldDefinition: unknown database attribute type');
+                    } elseif (strstr($db_type, 'text'))
+                        $type[1] = 'clob';
+                    break;
+                case 'enum':
+                    preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
+                    $length = 0;
+                    if (is_array($matches)) {
+                        foreach ($matches[0] as $value) {
+                            $length = max($length, strlen($value)-2);
+                        }
+                    }
+                    unset($decimal);
+                case 'set':
+                    $type[0] = 'text';
+                    $type[1] = 'integer';
+                    break;
+                case 'date':
+                    $type[0] = 'date';
+                    break;
+                case 'datetime':
+                case 'timestamp':
+                    $type[0] = 'timestamp';
+                    break;
+                case 'time':
+                    $type[0] = 'time';
+                    break;
+                case 'float':
+                case 'double':
+                case 'real':
+                    $type[0] = 'float';
+                    break;
+                case 'decimal':
+                case 'numeric':
+                    $type[0] = 'decimal';
+                    break;
+                case 'tinyblob':
+                case 'mediumblob':
+                case 'longblob':
+                case 'blob':
+                    $type[0] = 'text';
+                    break;
+                case 'year':
+                    $type[0] = 'integer';
+                    $type[1] = 'date';
+                    break;
+                default:
+                    return $db->raiseError(MDB2_ERROR, null, null,
+                        'getTableFieldDefinition: unknown database attribute type');
                 }
                 for ($field_choices = array(), $datatype = 0;
                     $datatype < count($type);
@@ -183,8 +183,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     if ($type[$datatype] != 'boolean'
                         && $type[$datatype] != 'time'
                         && $type[$datatype] != 'date'
-                        && $type[$datatype] != 'timestamp')
-                    {
+                        && $type[$datatype] != 'timestamp'
+                    ) {
                         if (isset($columns[$i]['length'])) {
                             $field_choices[$datatype]['length'] = $columns[$i]['length'];
                         }
@@ -194,8 +194,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 /*
                 if (isset($columns['extra'])
                     && isset($row[$columns['extra']])
-                    && $row[$columns['extra']] == 'auto_increment')
-                {
+                    && $row[$columns['extra']] == 'auto_increment'
+                ) {
                     $implicit_sequence = array();
                     $implicit_sequence['on'] = array();
                     $implicit_sequence['on']['table'] = $table;
@@ -205,8 +205,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 }
                 if (isset($columns['key'])
                     && isset($row[$columns['key']])
-                    && $row[$columns['key']] == 'PRI')
-                {
+                    && $row[$columns['key']] == 'PRI'
+                ) {
                     // check that its not just a unique field
                     if (MDB2::isError($indexes = $db->query("SHOW INDEX FROM $table", null, MDB2_FETCHMODE_ASSOC))) {
                         return $indexes;

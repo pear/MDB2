@@ -1650,13 +1650,13 @@ class MDB2_Driver_Common extends PEAR
             $dsn['password'] = $hidepw;
         }
         switch ($type) {
-            // expand to include all possible options
-            case 'string':
-                $dsn = $dsn['phptype'].'://'.$dsn['username'].':'.
-                    $dsn['password'].'@'.$dsn['hostspec'].
-                    ($dsn['port'] ? (':'.$dsn['port']) : '').
-                    '/'.$dsn['database'];
-                break;
+        // expand to include all possible options
+        case 'string':
+            $dsn = $dsn['phptype'].'://'.$dsn['username'].':'.
+                $dsn['password'].'@'.$dsn['hostspec'].
+                ($dsn['port'] ? (':'.$dsn['port']) : '').
+                '/'.$dsn['database'];
+            break;
         }
         return $dsn;
     }
@@ -1923,10 +1923,9 @@ class MDB2_Driver_Common extends PEAR
                 'replace: replace query is not supported');
         }
         $count = count($fields);
-        for ($keys = 0, $condition = $insert = $values = '', reset($fields), $colnum = 0;
-            $colnum < $count;
-            next($fields), $colnum++)
-        {
+        $condition = $insert = $values = '';
+        $keys = $colnum = 0;
+        for (reset($fields); $colnum < $count; next($fields), $colnum++) {
             $name = key($fields);
             if ($colnum > 0) {
                 $insert .= ', ';

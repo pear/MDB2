@@ -71,20 +71,20 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-            case 'boolean':
-                return $value == '1';
-            case 'date':
-                if (strlen($value) > 10) {
-                    $value = substr($value,0,10);
-                }
-                return $value;
-            case 'time':
-                if (strlen($value) > 8) {
-                    $value = substr($value,11,8);
-                }
-                return $value;
-            default:
-                return $this->_baseConvertResult($value,$type);
+        case 'boolean':
+            return $value == '1';
+        case 'date':
+            if (strlen($value) > 10) {
+                $value = substr($value,0,10);
+            }
+            return $value;
+        case 'time':
+            if (strlen($value) > 8) {
+                $value = substr($value,11,8);
+            }
+            return $value;
+        default:
+            return $this->_baseConvertResult($value,$type);
         }
     }
 

@@ -83,15 +83,15 @@ echo ('
             }
             if ($_REQUEST['action'] == 'dump') {
                 switch ($_REQUEST['dump']) {
-                    case 'structure':
-                        $dump_what = MDB2_MANAGER_DUMP_STRUCTURE;
-                        break;
-                    case 'content':
-                        $dump_what = MDB2_MANAGER_DUMP_CONTENT;
-                        break;
-                    default:
-                        $dump_what = MDB2_MANAGER_DUMP_ALL;
-                        break;
+                case 'structure':
+                    $dump_what = MDB2_MANAGER_DUMP_STRUCTURE;
+                    break;
+                case 'content':
+                    $dump_what = MDB2_MANAGER_DUMP_CONTENT;
+                    break;
+                default:
+                    $dump_what = MDB2_MANAGER_DUMP_ALL;
+                    break;
                 }
                 $dump_config = array(
                     'output_mode' => 'file',

@@ -331,8 +331,8 @@ class MDB2_Tools_Manager_Writer
                 if (isset($sequences[$table_name])) {
                     for ($sequence = 0, $j = count($sequences[$table_name]);
                         $sequence < $j;
-                        $sequence++)
-                    {
+                        $sequence++
+                    ) {
                         $result = $this->dumpSequence($database_definition['sequences'], $sequences[$table_name][$sequence], $eol, $dump);
                         if (MDB2::isError($result)) {
                             return $result;

@@ -163,39 +163,39 @@ class MDB2_Extended
         }
         $first = true;
         switch ($mode) {
-            case MDB2_AUTOQUERY_INSERT:
-                $values = '';
-                $names = '';
-                while (list(, $value) = each($table_fields)) {
-                    if ($first) {
-                        $first = false;
-                    } else {
-                        $names .= ',';
-                        $values .= ',';
-                    }
-                    $names .= $value;
-                    $values .= '?';
+        case MDB2_AUTOQUERY_INSERT:
+            $values = '';
+            $names = '';
+            while (list(, $value) = each($table_fields)) {
+                if ($first) {
+                    $first = false;
+                } else {
+                    $names .= ',';
+                    $values .= ',';
                 }
-                return "INSERT INTO $table ($names) VALUES ($values)";
-                break;
-            case MDB2_AUTOQUERY_UPDATE:
-                $set = '';
-                while (list(, $value) = each($table_fields)) {
-                    if ($first) {
-                        $first = false;
-                    } else {
-                        $set .= ',';
-                    }
-                    $set .= "$value = ?";
+                $names .= $value;
+                $values .= '?';
+            }
+            return "INSERT INTO $table ($names) VALUES ($values)";
+            break;
+        case MDB2_AUTOQUERY_UPDATE:
+            $set = '';
+            while (list(, $value) = each($table_fields)) {
+                if ($first) {
+                    $first = false;
+                } else {
+                    $set .= ',';
                 }
-                $query = "UPDATE $table SET $set";
-                if ($where) {
-                    $query .= " WHERE $where";
-                }
-                return $query;
-                break;
-            default:
-                $db->raiseError(MDB2_ERROR_SYNTAX);
+                $set .= "$value = ?";
+            }
+            $query = "UPDATE $table SET $set";
+            if ($where) {
+                $query .= " WHERE $where";
+            }
+            return $query;
+            break;
+        default:
+            $db->raiseError(MDB2_ERROR_SYNTAX);
         }
     }
 
