@@ -2564,16 +2564,13 @@ class MDB2_Result_Common extends MDB2_Result
                 } elseif ($fetchmode === MDB2_FETCHMODE_OBJECT) {
                     $arr = get_object_vars($row);
                     $key = reset($arr);
-#                    unset($row->{key($arr)});
                 } else {
                     $key = array_shift($row);
                 }
                 if (!$force_array) {
                     if (is_array($row) && count($row) == 1) {
                         $row = array_shift($row);
-                    }# elseif (is_object($row) && count($arr = get_object_vars($row)) == 1) {
-                    #    $row = array_shift($arr);
-                    #}
+                    }
                 }
                 if ($group) {
                     $all[$key][] = $row;
