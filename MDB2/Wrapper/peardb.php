@@ -128,7 +128,7 @@ define('DB_PORTABILITY_RTRIM', MDB2_PORTABILITY_RTRIM);
 define('DB_PORTABILITY_DELETE_COUNT', MDB2_PORTABILITY_DELETE_COUNT);
 define('DB_PORTABILITY_NUMROWS', MDB2_PORTABILITY_NUMROWS);
 define('DB_PORTABILITY_ERRORS', MDB2_PORTABILITY_ERRORS);
-define('DB_PORTABILITY_EMPTY_TO_NULL', MDB2_PORTABILITY_EMPTY_TO_NULL);
+define('DB_PORTABILITY_NULL_TO_EMPTY', MDB2_PORTABILITY_EMPTY_TO_NULL);
 define('DB_PORTABILITY_ALL', MDB2_PORTABILITY_ALL);
 
 /**
@@ -247,13 +247,31 @@ class DB_result extends MDB2_Result_Common
 
     function &fetchrow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        return $this->result->fetchRow($fetchmode);
+        $arr = $this->result->fetchRow($fetchmode);
+        if ($this->result->mdb->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
+            $this->_convertNullArrayValuesToEmpty($arr);
+        }
+        return $arr;
     }
 
     function fetchInto(&$arr, $fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         $arr = $this->fetchRow($fetchmode, $rownum);
+        if ($this->result->mdb->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
+            $this->_convertNullArrayValuesToEmpty($arr);
+        }
         return DB_OK;
+    }
+
+    function _convertNullArrayValuesToEmpty(&$array)
+    {
+        if (is_array($array)) {
+            foreach ($array as $key => $value) {
+                if (is_null($value)) {
+                    $array[$key] = '';
+                }
+            }
+        }
     }
 
     function numCols()
@@ -308,6 +326,7 @@ class MDB2_PEARProxy extends PEAR
     var $MDB2_object;
     var $phptype;
     var $connection;
+    var $dsn;
 
     function MDB2_PEARProxy(&$MDB2_object)
     {
@@ -317,6 +336,7 @@ class MDB2_PEARProxy extends PEAR
         $this->MDB2_object->setOption('result_wrap_class', 'DB_result');
         $this->phptype = $this->MDB2_object->phptype;
         $this->connection = $this->MDB2_object->connection;
+        $this->dsn = $this->MDB2_object->getDSN();
     }
 
     function connect($dsninfo, $persistent = false)
@@ -400,7 +420,7 @@ class MDB2_PEARProxy extends PEAR
         return $this->MDB2_object->raiseError($code, $mode, $options, $userinfo, $nativecode);
     }
 
-    function setFetchMode($fetchmode, $object_class = null)
+    function setFetchMode($fetchmode, $object_class = 'stdClass')
     {
         return $this->MDB2_object->setFetchMode($fetchmode, $object_class);
     }
@@ -490,39 +510,123 @@ class MDB2_PEARProxy extends PEAR
         return $result;
     }
 
+    function _convertNullArrayValuesToEmpty(&$array)
+    {
+        if (is_array($array)) {
+            foreach ($array as $key => $value) {
+                if (is_null($value)) {
+                    $array[$key] = '';
+                }
+            }
+        }
+    }
+
     function &getOne($query, $params = array())
     {
         $result = $this->query($query, $params);
-        return $result->result->fetch();
+        $one = $result->result->fetch();
+        if (is_null($one)) {
+            $one = '';
+        }
+        return $one;
     }
 
     function &getRow($query,
                      $params = array(),
                      $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
+        if (!is_array($params)) {
+            if (is_array($fetchmode)) {
+                if ($params === null) {
+                    $tmp = DB_FETCHMODE_DEFAULT;
+                } else {
+                    $tmp = $params;
+                }
+                $params = $fetchmode;
+                $fetchmode = $tmp;
+            } elseif ($params !== null) {
+                $fetchmode = $params;
+                $params = array();
+            }
+        }
         $result = $this->query($query, $params);
-        return $result->result->fetchRow($fetchmode);
+        $row = $result->result->fetchRow($fetchmode);
+        return $row;
     }
 
     function &getCol($query, $col = 0, $params = array())
     {
         $result = $this->query($query, $params);
-        return $result->result->fetchCol($col);
+        $col = $result->result->fetchCol($col);
+        $this->_convertNullArrayValuesToEmpty($col);
+        return $col;
     }
 
     function &getAssoc($query, $force_array = false, $params = array(),
                        $fetchmode = MDB2_FETCHMODE_ORDERED, $group = false)
     {
         $result = $this->query($query, $params);
-        return $result->result->fetchAll($fetchmode, true, $force_array, $group);
+        $all = $result->result->fetchAll($fetchmode, true, $force_array, $group);
+        $first = reset($all);
+        if (isset($first) && $this->MDB2_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
+            if(is_array($first)) {
+                foreach($all as $key => $arr) {
+                    $this->_convertNullArrayValuesToEmpty($all[$key]);
+                }
+            } elseif(is_object($first)) {
+                foreach($all as $key => $arr) {
+                    $tmp = get_object_vars($all[$key]);
+                    if(is_array($tmp)) {
+                        $this->_convertNullArrayValuesToEmpty($tmp);
+                        foreach($tmp as $key2 => $column) {
+                            $all[$key]->{$key2} = $column;
+                        }
+                    }
+                }
+            }
+        }
+        return $all;
     }
 
     function &getAll($query,
                      $params = null,
                      $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
+        if (!is_array($params)) {
+            if (is_array($fetchmode)) {
+                if ($params === null) {
+                    $tmp = DB_FETCHMODE_DEFAULT;
+                } else {
+                    $tmp = $params;
+                }
+                $params = $fetchmode;
+                $fetchmode = $tmp;
+            } elseif ($params !== null) {
+                $fetchmode = $params;
+                $params = array();
+            }
+        }
         $result = $this->query($query, $params);
-        return $result->result->fetchAll($fetchmode);
+        $all = $result->result->fetchAll($fetchmode);
+        $first = reset($all);
+        if (isset($first) && $this->MDB2_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
+            if(is_array($first)) {
+                foreach($all as $key => $arr) {
+                    $this->_convertNullArrayValuesToEmpty($all[$key]);
+                }
+            } elseif(is_object($first)) {
+                foreach($all as $key => $arr) {
+                    $tmp = get_object_vars($all[$key]);
+                    if(is_array($tmp)) {
+                        $this->_convertNullArrayValuesToEmpty($tmp);
+                        foreach($tmp as $key2 => $column) {
+                            $all[$key]->{$key2} = $column;
+                        }
+                    }
+                }
+            }
+        }
+        return $all;
     }
 
     function autoCommit($onoff = false)
