@@ -315,23 +315,44 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        $function = ($this->options['persistent'] ? 'mysql_pconnect' : 'mysql_connect');
-
-        if (isset($this->dsn['protocol']) && $this->dsn['protocol'] == 'unix') {
-            $dbhost = ':' . $this->dsn['socket'];
+        $params = array();
+        if ($this->dsn['protocol'] && $this->dsn['protocol'] == 'unix') {
+            $params[0] = ':' . $this->dsn['socket'];
         } else {
-            $dbhost = $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost';
-            if (!empty($this->dsn['port'])) {
-                $dbhost .= ':' . $this->dsn['port'];
+            $params[0] = $this->dsn['hostspec'] ? $this->dsn['hostspec']
+                         : 'localhost';
+            if ($this->dsn['port']) {
+                $params[0] .= ':' . $this->dsn['port'];
             }
         }
-        $user = $this->dsn['username'];
-        $pw = $this->dsn['password'];
-
-        $connection = @$function($dbhost, $user, $pw, true);
-        if ($connection <= 0) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+        $params[] = $this->dsn['username'] ? $this->dsn['username'] : null;
+        $params[] = $this->dsn['password'] ? $this->dsn['password'] : null;
+        if (isset($this->dsn['new_link'])
+            && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true))
+        {
+            $params[] = true;
+        } else {
+            $params[] = false;
         }
+        if (version_compare(phpversion(), '4.3.0', '>=')) {
+            $params[] = isset($this->dsn['client_flags'])
+                        ? $this->dsn['client_flags'] : null;
+        }
+
+        $connect_function = $this->options['persistent'] ? 'mysql_pconnect' : 'mysql_connect';
+
+        @ini_set('track_errors', true);
+        $php_errormsg = '';
+        $connection = @call_user_func_array($connect_function, $params);
+        @ini_restore('track_errors');
+        if (!$connection) {
+            if (($err = @mysql_error()) != '') {
+                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null, $err);
+            } else {
+                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null, $php_errormsg);
+            }
+        }
+
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';

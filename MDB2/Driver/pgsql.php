@@ -253,52 +253,66 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $database_name = 'template1';
         }
 
-        $protocol = (isset($this->dsn['protocol'])) ? $this->dsn['protocol'] : 'tcp';
-        $connstr = '';
+        $protocol = $this->dsn['protocol'] ? $this->dsn['protocol'] : 'tcp';
 
+        $params = array('');
         if ($protocol == 'tcp') {
             if ($this->dsn['hostspec']) {
-                $connstr .= ' host=' . $this->dsn['hostspec'];
+                $params[0] .= 'host=' . $this->dsn['hostspec'];
             }
             if ($this->dsn['port']) {
-                $connstr .= ' port=' . $this->dsn['port'];
+                $params[0] .= ' port=' . $this->dsn['port'];
             }
         } elseif ($protocol == 'unix') {
             // Allow for pg socket in non-standard locations.
             if ($this->dsn['socket']) {
-                $connstr .= ' host=' . $this->dsn['socket'];
+                $params[0] .= 'host=' . $this->dsn['socket'];
             }
             if ($this->dsn['port']) {
-                $connstr .= ' port=' . $this->dsn['port'];
+                $params[0] .= ' port=' . $this->dsn['port'];
+            }
+        }
+        if ($database_name) {
+            $params[0] .= ' dbname=\'' . addslashes($database_name) . '\'';
+        }
+        if ($this->dsn['username']) {
+            $params[0] .= ' user=\'' . addslashes($this->dsn['username']) . '\'';
+        }
+        if ($this->dsn['password']) {
+            $params[0] .= ' password=\'' . addslashes($this->dsn['password']) . '\'';
+        }
+        if (!empty($this->dsn['options'])) {
+            $params[0] .= ' options=' . $this->dsn['options'];
+        }
+        if (!empty($this->dsn['tty'])) {
+            $params[0] .= ' tty=' . $this->dsn['tty'];
+        }
+        if (!empty($this->dsn['connect_timeout'])) {
+            $params[0] .= ' connect_timeout=' . $this->dsn['connect_timeout'];
+        }
+        if (!empty($this->dsn['sslmode'])) {
+            $params[0] .= ' sslmode=' . $this->dsn['sslmode'];
+        }
+        if (!empty($this->dsn['service'])) {
+            $params[0] .= ' service=' . $this->dsn['service'];
+        }
+
+        if (isset($this->dsn['new_link'])
+            && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true))
+        {
+            if (version_compare(phpversion(), '4.3.0', '>=')) {
+                $params[] = PGSQL_CONNECT_FORCE_NEW;
             }
         }
 
-        if (isset($database_name)) {
-            $connstr .= ' dbname=\'' . addslashes($database_name) . '\'';
-        }
-        if (!empty($this->dsn['username'])) {
-            $connstr .= ' user=\'' . addslashes($this->dsn['username']) . '\'';
-        }
-        if (!empty($this->dsn['password'])) {
-            $connstr .= ' password=\'' . addslashes($this->dsn['password']) . '\'';
-        }
-        if (!empty($this->dsn['options'])) {
-            $connstr .= ' options=' . $this->dsn['options'];
-        }
-        if (!empty($this->dsn['tty'])) {
-            $connstr .= ' tty=' . $this->dsn['tty'];
-        }
+        $connect_function = $persistent ? 'pg_pconnect' : 'pg_connect';
+
         putenv('PGDATESTYLE=ISO');
 
-        $function = ($persistent ? 'pg_pconnect' : 'pg_connect');
-        $ini = ini_get('track_errors');
-        if ($ini) {
-            $connection = @$function($connstr);
-        } else {
-            ini_set('track_errors', 1);
-            $connection = @$function($connstr);
-            ini_set('track_errors', $ini);
-        }
+        @ini_set('track_errors', true);
+        $php_errormsg = '';
+        $connection = @call_user_func_array($connect_function, $params);
+        @ini_restore('track_errors');
         if (!$connection) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED,
                 null, null, strip_tags($php_errormsg));
