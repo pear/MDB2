@@ -712,6 +712,9 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             }
             return null;
         }
+        foreach ($row as $key => $value_with_space) {
+            $row[$key] = rtrim($value_with_space, ' ');
+        }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
         }
@@ -741,9 +744,9 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             return $numcols;
         }
         for ($column = 0; $column < $numcols; $column++) {
-            $column_name = @ibase_field_info($this->result, $column);
+            $column_info = @ibase_field_info($this->result, $column);
             if ($this->mdb->options['optimize'] == 'portability') {
-                $column_name = strtolower($column_name);
+                $column_name = strtolower($column_info['name']);
             }
             $columns[$column_name] = $column;
         }
@@ -900,6 +903,9 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             }
         } else {
             $row = array_values($row);
+        }
+        foreach ($row as $key => $value_with_space) {
+            $row[$key] = rtrim($value_with_space, ' ');
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
