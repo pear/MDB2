@@ -101,59 +101,6 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ createTable()
-
-    /**
-     * create a new table
-     *
-     * @param string $name     Name of the database that should be created
-     * @param array $fields Associative array that contains the definition of each field of the new table
-     *                        The indexes of the array entries are the names of the fields of the table an
-     *                        the array entry values are associative arrays like those that are meant to be
-     *                         passed with the field definitions to get[Type]Declaration() functions.
-     *
-     *                        Example
-     *                        array(
-     *
-     *                            'id' => array(
-     *                                'type' => 'integer',
-     *                                'unsigned' => 1
-     *                                'notnull' => 1
-     *                                'default' => 0
-     *                            ),
-     *                            'name' => array(
-     *                                'type' => 'text',
-     *                                'length' => 12
-     *                            ),
-     *                            'password' => array(
-     *                                'type' => 'text',
-     *                                'length' => 12
-     *                            )
-     *                        );
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function createTable($name, $fields)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (!isset($name) || !strcmp($name, '')) {
-            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: no valid table name specified');
-        }
-        if (count($fields) == 0) {
-            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: no fields specified for table "'.$name.'"');
-        }
-        if (MDB2::isError($query_fields = $this->getFieldDeclarationList($fields))) {
-            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: unkown error');
-        }
-        $query = "CREATE TABLE $name ($query_fields)";
-
-        return $db->query($query);
-    }
-
-    // }}}
     // {{{ dropTable()
 
     /**
