@@ -143,13 +143,13 @@ define('MDB2_PORTABILITY_NONE', 0);
 
 /**
  * Portability: convert names of tables and fields to lower case
- * when using the get*(), fetch*() and tableInfo() methods.
+ * when using the query*(), fetch*() and tableInfo() methods.
  * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_LOWERCASE', 1);
 
 /**
- * Portability: right trim the data output by get*() and fetch*().
+ * Portability: right trim the data output by query*() and fetch*().
  * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_RTRIM', 2);
@@ -182,11 +182,11 @@ define('MDB2_PORTABILITY_NUMROWS', 8);
 define('MDB2_PORTABILITY_ERRORS', 16);
 
 /**
- * Portability: convert null values to empty strings in data output by
- * get*() and fetch*().
+ * Portability: convert empty values to null strings in data output by
+ * query*() and fetch*().
  * @see MDB2_Driver_Common::setOption()
  */
-define('MDB2_PORTABILITY_NULL_TO_EMPTY', 32);
+define('MDB2_PORTABILITY_EMPTY_TO_NULL', 32);
 
 /**
  * Portability: turn on all portability features.
@@ -569,8 +569,8 @@ class MDB2
                 MDB2_ERROR_EXTENSION_NOT_FOUND=> 'extension not found',
                 MDB2_ERROR_NOSUCHDB           => 'no such database',
                 MDB2_ERROR_ACCESS_VIOLATION   => 'insufficient permissions',
-                MDB2_ERROR_MANAGER            => 'MDB2_manager error',
-                MDB2_ERROR_MANAGER_PARSE      => 'MDB2_manager schema parse error',
+                MDB2_ERROR_MANAGER            => 'manager error',
+                MDB2_ERROR_MANAGER_PARSE      => 'manager schema parse error',
                 MDB2_ERROR_LOADMODULE         => 'Error while including on demand module',
                 MDB2_ERROR_TRUNCATED          => 'truncated',
                 MDB2_ERROR_DEADLOCK           => 'deadlock detected',
@@ -764,42 +764,49 @@ class MDB2_Driver_Common extends PEAR
     var $db_index = 0;
 
     /**
+     * DSN used for the next query
      * @var array
      * @access private
      */
     var $dsn = array();
 
     /**
+     * DSN that was used to create the current connection
      * @var array
      * @access private
      */
     var $connected_dsn = array();
 
     /**
+     * connection resource
      * @var mixed
      * @access private
      */
     var $connection = 0;
 
     /**
+     * if the current opened connection is a persistent connection
      * @var boolean
      * @access private
      */
     var $opened_persistent;
 
     /**
+     * the name of the database for the next query
      * @var string
      * @access private
      */
     var $database_name = '';
 
     /**
+     * the name of the database currrently selected
      * @var string
      * @access private
      */
     var $connected_database_name = '';
 
     /**
+     * list of all supported features of the given driver
      * @var array
      * @access public
      */
@@ -813,6 +820,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['lob_buffer_length'] -> integer LOB buffer length
      * $options['log_line_break'] -> string line-break format
      * $options['seqname_format'] -> string pattern for sequence name
+     * $options['seqequence_col_name'] -> string sequence column name
      * $options['use_transactions'] -> boolean
      * $options['decimal_places'] -> integer
      * $options['portability'] -> portability constant
@@ -836,42 +844,49 @@ class MDB2_Driver_Common extends PEAR
         );
 
     /**
+     * escape character
      * @var string
      * @access private
      */
     var $escape_quotes = '';
 
     /**
+     * warnings
      * @var array
      * @access private
      */
     var $warnings = array();
 
     /**
+     * string with the debugging information
      * @var string
      * @access public
      */
     var $debug_output = '';
 
     /**
+     * determine if queries should auto commit or not
      * @var boolean
      * @access public
      */
     var $auto_commit = true;
 
     /**
+     * determine if there is an open transaction
      * @var boolean
      * @access private
      */
     var $in_transaction = false;
 
     /**
+     * result offset used in the next query
      * @var integer
      * @access private
      */
     var $row_offset = 0;
 
     /**
+     * result limit used in the next query
      * @var integer
      * @access private
      */
@@ -892,42 +907,49 @@ class MDB2_Driver_Common extends PEAR
     var $dbsyntax;
 
     /**
+     * contains metadata about all prepared queries
      * @var array
      * @access private
      */
     var $prepared_queries = array();
 
     /**
+     * the last query send to the driver
      * @var string
      * @access public
      */
     var $last_query = '';
 
     /**
+     * the default fetchmode used
      * @var integer
      * @access private
      */
     var $fetchmode = MDB2_FETCHMODE_ORDERED;
 
     /**
+     * the affected rows from the last manipulation query
      * @var integer
      * @access private
      */
     var $affected_rows = -1;
 
     /**
+     * contains all LOB objects created with this MDb2 instance
     * @var array
     * @access private
     */
     var $lobs = array();
 
     /**
+     * contains all CLOB objects created with this MDb2 instance
     * @var array
     * @access private
     */
     var $clobs = array();
 
     /**
+     * contains all BLOB objects created with this MDb2 instance
     * @var array
     * @access private
     */
@@ -949,7 +971,7 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ _toString()
+    // {{{ __toString()
 
     /**
      * String conversation
@@ -957,7 +979,7 @@ class MDB2_Driver_Common extends PEAR
      * @return string
      * @access public
      */
-    function toString()
+    function __toString()
     {
         $info = get_class($this);
         $info .= ': (phptype = '.$this->phptype.', dbsyntax = '.$this->dbsyntax.')';
@@ -1266,20 +1288,20 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ _convertNullArrayValuesToEmpty()
+    // {{{ _convertEmptyArrayValuesToNull()
 
     /**
-     * Convert all null values in an array to empty strings
+     * Convert all empty values in an array to null strings
      *
      * @param array  $array  the array to be de-nullified (passed by reference)
      * @return void
      * @access private
      */
-    function _convertNullArrayValuesToEmpty(&$array)
+    function _convertEmptyArrayValuesToNull(&$array)
     {
         foreach ($array as $key => $value) {
-            if (is_null($value)) {
-                $array[$key] = '';
+            if ($value === '') {
+                $array[$key] = null;
             }
         }
     }
@@ -1498,7 +1520,7 @@ class MDB2_Driver_Common extends PEAR
             'mode'     => false,
         );
         $dsn = array_merge($dsn_default, $this->dsn);
-        switch($type) {
+        switch ($type) {
             // expand to include all possible options
             case 'string':
                 $dsn = $dsn['phptype'].'://'.$dsn['username'].':'.
@@ -2088,7 +2110,7 @@ class MDB2_Driver_Common extends PEAR
         if (is_null($value)) {
             return 'NULL';
         } elseif (is_null($type)) {
-            switch(gettype($value)) {
+            switch (gettype($value)) {
             case 'integer':
                 $type = 'integer';
                 break;
@@ -2548,13 +2570,19 @@ class MDB2_Result_Common
                 return $column_names;
             }
         }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $null_value = '';
+        } else {
+            $null_value = null;
+        }
         for ($column = 0; $column < $columns; $column++) {
-            // TODO: null handling needs to be fixed
             if (!$this->resultIsNull($rownum, $column)) {
                 $value = $this->fetch($rownum, $column);
                 if (is_null($value)) {
                     return null;
                 }
+            } else {
+                $value = $null_value;
             }
             $row[$column] = $value;
         }
@@ -2736,11 +2764,6 @@ class MDB2_Result_Common
         $value = $this->fetch($rownum, $colnum);
         if (MDB2::isError($value)) {
             return $value;
-        }
-        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY
-            && $value == ''
-        ) {
-            return true;
         }
         return !isset($value);
     }
