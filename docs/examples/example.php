@@ -161,19 +161,19 @@
     echo(Var_Dump::display($db->executeMultiple($prepared_query, null, $alldata)).'<br>');
     $array = array(4);
     echo('<br>see getOne in action:<br>');
-    echo(Var_Dump::display($db->getOne('SELECT trans_en FROM numbers WHERE number = ?',null,$array,'text')).'<br>');
+    echo(Var_Dump::display($db->extended->getOne('SELECT trans_en FROM numbers WHERE number = ?',null,$array,'text')).'<br>');
     $db->setFetchmode(MDB2_FETCHMODE_ASSOC);
     echo('<br>default fetchmode ist now MDB2_FETCHMODE_ASSOC<br>');
     echo('<br>see getRow in action:<br>');
-    echo(Var_Dump::display($db->getRow('SELECT * FROM numbers WHERE number = ?',null,$array,array('integer','text','text'))));
+    echo(Var_Dump::display($db->extended->getRow('SELECT * FROM numbers WHERE number = ?',null,$array,array('integer','text','text'))));
     echo('default fetchmode ist now MDB2_FETCHMODE_ORDERED<br>');
     $db->setFetchmode(MDB2_FETCHMODE_ORDERED);
     echo('<br>see getCol in action:<br>');
-    echo(Var_Dump::display($db->getCol('SELECT * FROM numbers',null, null, null, 1)).'<br>');
+    echo(Var_Dump::display($db->extended->getCol('SELECT * FROM numbers',null, null, null, 1)).'<br>');
     echo('<br>see getAll in action:<br>');
-    echo(Var_Dump::display($db->getAll('SELECT * FROM test',null,null,null,array('integer','text','text'))).'<br>');
+    echo(Var_Dump::display($db->extended->getAll('SELECT * FROM test',null,null,null,array('integer','text','text'))).'<br>');
     echo('<br>see getAssoc in action:<br>');
-    echo(Var_Dump::display($db->getAll('SELECT * FROM test',null, null, null,array('integer','text','text'), MDB2_FETCHMODE_ASSOC)).'<br>');
+    echo(Var_Dump::display($db->extended->getAssoc('SELECT * FROM test',null, null, null,array('integer','text','text'), MDB2_FETCHMODE_ASSOC)).'<br>');
     echo('tableInfo on a string:<br>');
     echo(Var_Dump::display($db->reverse->tableInfo('numbers')).'<br>');
     echo('<br>just a simple update query:<br>');
@@ -216,7 +216,7 @@
             ),
             MDB2_MANAGER_DUMP_STRUCTURE
         )).'<br>');
-        if ($manager->options['debug']) {
+        if ($manager->db->getOption('debug') === true) {
             echo($manager->debugOutput().'<br>');
         }
         // this is the database definition as an array
