@@ -610,7 +610,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
             $fetchmode = $this->mdb->fetchmode;
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            $row = @pg_fetch_assoc($this->result);
+            $row = @pg_fetch_array($this->result, null, PGSQL_ASSOC);
             if (is_array($row) && $this->options['optimize'] == 'portability') {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
