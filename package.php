@@ -25,7 +25,7 @@ $notes = <<<EOT
 - placeholders are now numbered starting from 0 (BC break in setParam() !)
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
 - for PHP versions lower than 4 the transaction shutdown function is registered
-  on load of MDB2.php (used to be a BC hack in the constructor of MDB_Driver_Common)
+  on load of MDB2.php (used to be a BC hack in the constructor of MDB2_Driver_Common)
 - allow errorInfo() to be called when no connection has been established yet
 - cleaned up constructor handling
 - updated raiseError method in the Manager to be compatible with
@@ -71,6 +71,13 @@ $notes = <<<EOT
 - added "permission denied" to error regex in pgsql driver.
   Bug 2417. (stewart_linux-org-au)
 - added rownum handling to fetchRow()
+- MDB2::isError now also optionally accepts and error code to check for
+- readded MDB2_Error as the baseclass for all MDB2 error objects
+- use PEAR destructor emulation to handle open transaction at script end in PHP4
+- lazy load PEAR destructor emulation
+- allow null values to be set for options
+- added emulate_database option (default true) to the Oracle driver that handles
+  if the database_name should be used for connections of the username
 EOT;
 
 $description =<<<EOT
