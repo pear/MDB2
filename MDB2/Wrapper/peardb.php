@@ -299,7 +299,6 @@ class MDB2_PEARProxy
     function MDB2_PEARProxy(&$MDB2_object)
     {
         $this->MDB2_object =& $MDB2_object;
-        $this->MDB2_object->option['sequence_prefix'] = '_seq_';
         $this->MDB2_object->option['sequence_col_name'] = 'id';
     }
 
@@ -460,32 +459,37 @@ class MDB2_PEARProxy
 
     function &getOne($query, $params = array())
     {
-        return $this->MDB2_object->getOne($query, null, $params);
+        $this->MDB2_object->loadModule('extended');
+        return $this->MDB2_object->extended->getOne($query, null, $params);
     }
 
     function &getRow($query,
                      $params = array(),
                      $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
-        return $this->MDB2_object->getRow($query, null, $params, null, $fetchmode);
+        $this->MDB2_object->loadModule('extended');
+        return $this->MDB2_object->extended->getRow($query, null, $params, null, $fetchmode);
     }
 
     function &getCol($query, $col = 0, $params = array())
     {
-        return $this->MDB2_object->getCol($query, null, $params, null, $col);
+        $this->MDB2_object->loadModule('extended');
+        return $this->MDB2_object->extended->getCol($query, null, $params, null, $col);
     }
 
     function &getAssoc($query, $force_array = false, $params = array(),
                        $fetchmode = MDB2_FETCHMODE_ORDERED, $group = false)
     {
-        return $this->MDB2_object->getAll($query, null, $params, null, $fetchmode, true, $force_array, $group);
+        $this->MDB2_object->loadModule('extended');
+        return $this->MDB2_object->extended->getAssoc($query, null, $params, null, $fetchmode, $force_array, $group);
     }
 
     function &getAll($query,
                      $params = null,
                      $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
-        return $this->MDB2_object->getAll($query, null, $params, null, $fetchmode);
+        $this->MDB2_object->loadModule('extended');
+        return $this->MDB2_object->extended->getAll($query, null, $params, null, $fetchmode);
     }
 
     function autoCommit($onoff = false)
