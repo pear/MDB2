@@ -71,6 +71,15 @@ function htmlErrorHandler($errno, $errstr, $errfile, $errline)
 }
 set_error_handler('htmlErrorHandler');
 
+function htmlErrorHandlerPEAR($error_obj)
+{
+    echo '<pre>';
+    errorHandlerPEAR($error_obj);
+    echo '</pre>';
+}
+PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'htmlErrorHandlerPEAR');
+
+
 MDB2::loadFile('Date');
 
 foreach ($testcases as $testcase) {

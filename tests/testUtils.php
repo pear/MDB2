@@ -72,9 +72,11 @@ function getBacktrace()
 require_once 'PEAR.php';
 function errorHandlerPEAR($error_obj)
 {
-    print '<pre><b>PEAR-Error</b><br />';
-    echo $error_obj->getMessage().': '.$error_obj->getUserinfo();
-    print '</pre>';
+    $message = "-- PEAR-Error --\n";
+    $message.= $error_obj->getMessage().': '.$error_obj->getUserinfo()."\n";
+    $message.= getBacktrace();
+
+    print_r($message);
 }
 
 PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'errorHandlerPEAR');
