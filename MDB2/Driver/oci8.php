@@ -349,7 +349,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             @OCILogOff($this->connection);
             $this->connection = 0;
             $this->uncommitedqueries = 0;
-            unset($GLOBALS['_MDB2_databases'][$this->db_index]);
         }
         return MDB2_OK;
     }
@@ -382,6 +381,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
 
         $result = $this->_doQuery($query, $isManip, $connection, false);
+
         @OCILogOff($connection);
         if (MDB2::isError($result)) {
             return $result;
@@ -390,7 +390,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if ($isManip) {
             return $result;
         }
-
         return $this->_wrapResult($result, $types, true, false, $limit, $offset);
     }
 
@@ -443,16 +442,16 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $connection = $this->connection;
         }
 
-        $statement = @OCIParse($connection, $query);
-        if (!$statement) {
+        $result = @OCIParse($connection, $query);
+        if (!$result) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
         }
 
         $mode = $this->auto_commit ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
-        $result = @OCIExecute($statement, $mode);
-        if (!$result) {
-            return $this->raiseError($statement);
+        $return = @OCIExecute($result, $mode);
+        if (!$return) {
+            return $this->raiseError($result);
         }
 
         if ($isManip) {
@@ -482,6 +481,48 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function &prepare($query, $types = null, $result_types = null)
     {
         $this->debug($query, 'prepare');
+        // todo clean up ? to :X replacement
+        for ($position = 0;
+            $position < strlen($query) && is_int($question = strpos($query, '?', $position));
+        ) {
+            if (is_int($quote = strpos($query, "'", $position)) && $quote < $question) {
+                if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
+                    return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        'prepare: query with an unterminated text string specified');
+                }
+                switch ($this->escape_quotes) {
+                case '':
+                case "'":
+                    $position = $end_quote + 1;
+                    break;
+                default:
+                    if ($end_quote == $quote + 1) {
+                        $position = $end_quote + 1;
+                    } else {
+                        if ($query[$end_quote-1] == $this->escape_quotes) {
+                            $position = $end_quote;
+                        } else {
+                            $position = $end_quote + 1;
+                        }
+                    }
+                    break;
+                }
+            } else {
+                $positions[] = $question;
+                $position = $question + 1;
+            }
+        }
+        $newquery = '';
+        $last_position;
+        foreach ($positions as $parameter => $position) {
+            $current_position = $position;
+            $newquery .= substr($query,
+                $last_position, $current_position - $last_position);
+            $newquery .= ':'.$parameter;
+            $last_position = $current_position + 1;
+            ++$parameter_num;
+        }
+        $newquery .= substr($query, $last_position);
         if (is_array($types)) {
             $columns = '';
             $variables = '';
@@ -491,16 +532,16 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $variables.= ($columns ? ' INTO ' : ',').':'.$parameter;
                 }
             }
-            $query.= $columns.$variables;
+            $newquery.= $columns.$variables;
         }
-        $statement = @OCIParse($this->connection, $query);
+        $statement = @OCIParse($this->connection, $newquery);
         if (!$statement) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        return new $class_name($this, $query, $positions, $types, $result_types, $statement);
+        return new $class_name($this, $newquery, $positions, $types, $result_types, $statement);
     }
 
     // }}}
@@ -961,36 +1002,41 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                         $success = $this->db->raiseError();
                         break;
                     }
-                }
-                $value_quoted = $this->quote($value, $type);
-                if (MDB2::isError($value_quoted)) {
-                    return $value_quoted;
+                } else {
+                    $descriptors[$parameter] = $this->db->quote($value, $type);
+                    if (MDB2::isError($descriptors[$parameter])) {
+                        return $descriptors[$parameter];
+                    }
+                    if ($descriptors[$parameter][0] === "'") {
+                        $descriptors[$parameter] = substr($descriptors[$parameter], 1, -1);
+                    }
                 }
             }
-            if (is_resource($value)) {
-                if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1, ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB))) {
-                    $success =  $this->db->raiseError();
+
+            if (is_resource($descriptors[$parameter])) {
+                if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1, ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB))) {
+                    $success = $this->db->raiseError($this->statement);
                     break;
                 }
             } else {
-                if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1)) {
-                    $success = $this->db->raiseError();
+                if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1)) {
+                    $success = $this->db->raiseError($this->statement);
                     break;
                 }
             }
         }
 
-        $mode = (empty($lobs) && $this->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
-        $result = @OCIExecute($statement, $mode);
-        if (!$result) {
-            return $this->db->raiseError($statement);
+        $mode = (empty($lobs) && $this->db->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
+        $return = @OCIExecute($this->statement, $mode);
+        if (!$return) {
+            return $this->db->raiseError($this->statement);
         }
 
         if (!empty($lobs)) {
             foreach ($lobs as $parameter => $stream) {
                 while (!@feof($stream['value'])) {
-                    $data = @fread($stream['value'], $this->getOption('lob_buffer_length'));
-                    if (!$descriptors[$parameter]->write($data, $this->getOption('lob_buffer_length'))) {
+                    $data = @fread($stream['value'], $this->db->getOption('lob_buffer_length'));
+                    if (!$descriptors[$parameter]->write($data, $this->db->getOption('lob_buffer_length'))) {
                         $success = $this->db->raiseError();
                         break(2);
                     }
@@ -1001,7 +1047,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
 
             if (!MDB2::isError($success)) {
-                if ($this->auto_commit) {
+                if ($this->db->auto_commit) {
                     if (MDB2::isError($success)) {
                         if (!OCIRollback($this->db->connection)) {
                             $success = $this->db->raiseError();
@@ -1018,8 +1064,10 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         reset($descriptors);
-        for ($j = count($descriptors); $descriptor < $j; next($descriptors)) {
-            @$descriptors[key($descriptors)]->free();
+        for ($i = count($descriptors); $descriptor < $i; next($descriptors)) {
+            if (is_resource($descriptors[key($descriptors)])) {
+                @$descriptors[key($descriptors)]->free();
+            }
         }
 
         if (MDB2::isError($success)) {
@@ -1027,10 +1075,10 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         if ($isManip) {
-            return @OCIRowCount($statement);
+            return @OCIRowCount($this->statement);
         }
 
-        return $this->db->_wrapResult($result, $isManip, $this->types,
+        return $this->db->_wrapResult($this->statement, $isManip, $this->types,
             $result_class, $result_wrap_class, $this->row_offset, $this->row_limit);
     }
 
