@@ -2607,7 +2607,7 @@ class MDB2_Result_Common
     /**
      * Fetch and return a column of data (it uses current for that)
      *
-     * @param int $colnum the row number to fetch
+     * @param int $colnum the column number to fetch
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
@@ -2618,7 +2618,7 @@ class MDB2_Result_Common
         $row = $this->fetchRow($fetchmode);
         if (is_array($row)) {
             if (!array_key_exists($colnum, $row)) {
-                return($this->raiseError(MDB2_ERROR_TRUNCATED));
+                return($this->mdb->raiseError(MDB2_ERROR_TRUNCATED));
             }
             do {
                 $column[] = $row[$colnum];
