@@ -45,6 +45,12 @@ $notes = <<<EOT
   made all quote methods private except for quote() itself, honor portability
   MDB2_PORTABILITY_EMPTY_TO_NULL in quote(), removed MDB2_TYPE_* constants
 - added serialize datatype but commented it out for now
+- reworked get*Declaration handling: moved all implementation details into the extension,
+  made all quote methods private except for quote() itself
+- ensure we are returning a reference in all relevant places
+- reworked dsn default handling
+- added ability to "xxx" out password in getDSN()
+- "xxx" out password in MDB2::connect()
 EOT;
 
 $description =<<<EOT
