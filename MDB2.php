@@ -137,32 +137,32 @@ define('MDB2_FETCHMODE_FLIPPED',  4);
 
 /**
  * Portability: turn off all portability features.
- * @see MDB2_common::setOption()
+ * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_NONE', 0);
 
 /**
  * Portability: convert names of tables and fields to lower case
  * when using the get*(), fetch*() and tableInfo() methods.
- * @see MDB2_common::setOption()
+ * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_LOWERCASE', 1);
 
 /**
  * Portability: right trim the data output by get*() and fetch*().
- * @see MDB2_common::setOption()
+ * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_RTRIM', 2);
 
 /**
  * Portability: force reporting the number of rows deleted.
- * @see MDB2_common::setOption()
+ * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_DELETE_COUNT', 4);
 
 /**
  * Portability: not needed in MDB2 (just left here for compatibility to DB)
- * @see MDB2_common::setOption()
+ * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_NUMROWS', 8);
 
@@ -177,20 +177,20 @@ define('MDB2_PORTABILITY_NUMROWS', 8);
  *   07001, which means 'too few parameters.'  When this option is on
  *   that code gets mapped to MDB2_ERROR_NOSUCHFIELD.
  *
- * @see MDB2_common::setOption()
+ * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_ERRORS', 16);
 
 /**
  * Portability: convert null values to empty strings in data output by
  * get*() and fetch*().
- * @see MDB2_common::setOption()
+ * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_NULL_TO_EMPTY', 32);
 
 /**
  * Portability: turn on all portability features.
- * @see MDB2_common::setOption()
+ * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_ALL', 63);
 
@@ -212,16 +212,16 @@ $GLOBALS['_MDB2_databases'] = array();
  *              with some 'static' methods for creating MDB2 objects as
  *              well as common utility functions for other MDB2 classes.
  *
- * MDB2_common   The base for each MDB2 implementation.  Provides default
+ * MDB2_Driver_Common   The base for each MDB2 implementation.  Provides default
  * |            implementations (in OO lingo virtual methods) for
  * |            the actual DB implementations as well as a bunch of
  * |            query utility functions.
  * |
- * +-MDB2_mysql  The MDB2 implementation for MySQL. Inherits MDB2_Common.
+ * +-MDB2_mysql  The MDB2 implementation for MySQL. Inherits MDB2_Driver_Common.
  *              When calling MDB2::factory or MDB2::connect for MySQL
  *              connections, the object returned is an instance of this
  *              class.
- * +-MDB2_pgsql  The MDB2 implementation for PostGreSQL. Inherits MDB2_Common.
+ * +-MDB2_pgsql  The MDB2 implementation for PostGreSQL. Inherits MDB2_Driver_Common.
  *              When calling MDB2::factory or MDB2::connect for PostGreSQL
  *              connections, the object returned is an instance of this
  *              class.
@@ -1017,7 +1017,7 @@ class MDB2_Driver_Common extends PEAR
             return PEAR::raiseError($code, null, null, null, null, null, true);
         }
 
-        if (is_null($userinfo) && isset($this) && $this->connection) {
+        if (is_null($userinfo) && isset($this->connection) && $this->connection) {
             if (!empty($this->last_query)) {
                 $userinfo = "[Last query: {$this->last_query}]\n";
             }
