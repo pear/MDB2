@@ -224,10 +224,13 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($this->auto_commit == $auto_commit) {
             return MDB2_OK;
         }
-        if ($this->connection && $auto_commit
-            && MDB2::isError($commit = $this->commit())
-        ) {
-            return $commit;
+        if ($auto_commit) {
+            if ($this->connection && MDB2::isError($commit = $this->commit())) {
+                return $commit;
+            }
+        } elseif (!$this->destructor_registered) {
+            $this->destructor_registered = true;
+            $this->PEAR();
         }
         $this->auto_commit = $auto_commit;
         $this->in_transaction = !$auto_commit;
@@ -859,7 +862,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
                 if (!end($this->buffer)) {
                     return false;
                 }
-            } else if (isset($this->buffer[$rownum])) {
+            } elseif (isset($this->buffer[$rownum])) {
                 return (bool) $this->buffer[$rownum];
             }
         }
