@@ -256,18 +256,25 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'it was not specified a valid Oracle Service Identifier (SID)');
         }
 
-        if (version_compare(phpversion(), '5.0.0', '>=')) {
-            $function = $persistent ? 'oci_pconnect' : 'oci_connect';
+        if (function_exists('oci_connect')) {
+            if (isset($this->dsn['new_link'])
+                && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true)
+            ) {
+                $connect_function = 'oci_new_connect';
+            } else {
+                $connect_function = $persistent ? 'oci_pconnect' : 'oci_connect';
+            }
+
             $charset = empty($this->dsn['charset']) ? null : $this->dsn['charset'];
             $connection = @$function($username, $password, $sid, $charset);
             $error = OCIError();
             if (!empty($error) && $error['code'] == 12541) {
                 // Couldn't find TNS listener.  Try direct connection.
-                $connection = @$function($username, $password, null, $charset);
+                $connection = @$connect_function($username, $password, null, $charset);
             }
         } else {
-            $function = $persistent ? 'OCIPLogon' : 'OCILogon';
-            $connection = @$function($username, $password, $sid);
+            $connect_function = $persistent ? 'OCIPLogon' : 'OCILogon';
+            $connection = @$connect_function($username, $password, $sid);
         }
 
         if (!$connection) {
@@ -344,7 +351,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     {
         if ($this->connection != 0) {
             if (!$this->opened_persistent || $force) {
-                if (version_compare(phpversion(), '5.0.0', '>=')) {
+                if (function_exists('oci_close')) {
                     @oci_close($this->connection);
                 } else {
                     @OCILogOff($this->connection);
@@ -465,6 +472,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         if ($isManip) {
             return @OCIRowCount($result);
+        }
+
+        if (is_numeric($this->options['result_buffering'])) {
+            @ocisetprefetch($result, $this->options['result_buffering']);
         }
         return $result;
     }
