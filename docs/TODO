@@ -3,11 +3,13 @@
 - Expand the test suite
 - Write Docbook documentation
 - test stored procedures
+- add Metabase Wrapper for the OO API
 
 near future:
 - Add call to EXPLAIN method to the default debug output handler
 - Add mysqli driver
 - Expand the test suite to cover the entire API and all possible cases
+- extend PEAR::DB wrapper to work with ! and &
 
 far future:
 - SQL Funtion Abstraction Module (for example SUBSTRING() and SUBSTR())
