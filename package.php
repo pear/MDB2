@@ -87,6 +87,7 @@ similar as possible as the ext/pdo API!
   mssql yet, but since mssql automatically reuses connections per dsn the old
   way could gurantee anything different from happening)
 - removed _executePrepared(), drivers need to overwrite execute() for now on
+- fbsql: use correct error codes. Was using MySQL's codes by mistake.
 EOT;
 
 $description =<<<EOT
