@@ -137,7 +137,7 @@ class DB
         if (PEAR::isError($db)) {
             return $db;
         }
-        $obj =& new MDB2_PEAR_PROXY($db);
+        $obj =& new MDB2_PEARProxy($db);
         return $obj;
     }
 
@@ -150,7 +150,7 @@ class DB
         if (PEAR::isError($db)) {
             return $db;
         }
-        $obj =& new MDB2_PEAR_PROXY($db);
+        $obj =& new MDB2_PEARProxy($db);
         return $obj;
     }
 
@@ -292,11 +292,11 @@ class DB_row
     }
 }
 
-class MDB2_PEAR_PROXY
+class MDB2_PEARProxy
 {
     var $MDB2_object;
 
-    function MDB2_PEAR_PROXY(&$MDB2_object)
+    function MDB2_PEARProxy(&$MDB2_object)
     {
         $this->MDB2_object =& $MDB2_object;
         $this->MDB2_object->option['sequence_prefix'] = '_seq_';
