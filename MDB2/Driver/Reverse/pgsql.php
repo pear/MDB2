@@ -261,7 +261,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
 
         $definition = array();
         if ($row['indisunique'] == 't') {
-            $definition[$index_name]['unique'] = true;
+            $definition['unique'] = true;
         }
 
         $index_column_numbers = explode(' ', $row['indkey']);

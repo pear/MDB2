@@ -293,7 +293,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             $key_name = $row['key_name'];
             if ($index_name == $key_name) {
                 if (!$row['non_unique']) {
-                    $definition[$index_name]['unique'] = true;
+                    $definition['unique'] = true;
                 }
                 $column_name = $row['column_name'];
                 $definition['fields'][$column_name] = array();
