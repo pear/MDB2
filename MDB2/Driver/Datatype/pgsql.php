@@ -654,6 +654,97 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             $db->lobs[$lob] = '';
         }
     }
+
+    // }}}
+    // {{{ mapNativeDatatype()
+
+    /**
+     * Maps a native array description of a field to a MDB2 datatype and length
+     *
+     * @param array  $field native field description
+     * @return array containing the various possible types and the length
+     * @access public
+     */
+    function mapNativeDatatype($field)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db_type = preg_replace('/\d/','', strtolower($field['typname']) );
+        $length = $field['attlen'];
+        if ($length == '-1') {
+            $length = $field['atttypmod']-4;
+        }
+        if ((int)$length <= 0) {
+            $length = null;
+        }
+        $type = array();
+        switch ($db_type) {
+        case 'int':
+            $type[] = 'integer';
+            if ($length == '1') {
+                $type[] = 'boolean';
+            }
+            break;
+        case 'bool':
+            $type[] = 'boolean';
+            $length = null;
+            break;
+        case 'text':
+        case 'char':
+        case 'varchar':
+        case 'bpchar':
+            $type[] = 'text';
+            if ($length == '1') {
+                $type[] = 'boolean';
+            } elseif (strstr($db_type, 'text'))
+                $type[] = 'clob';
+            break;
+        case 'date':
+            $type[] = 'date';
+            $length = null;
+            break;
+        case 'datetime':
+        case 'timestamp':
+            $type[] = 'timestamp';
+            $length = null;
+            break;
+        case 'time':
+            $type[] = 'time';
+            $length = null;
+            break;
+        case 'float':
+        case 'double':
+        case 'real':
+            $type[] = 'float';
+            break;
+        case 'decimal':
+        case 'money':
+        case 'numeric':
+            $type[] = 'decimal';
+            break;
+        case 'tinyblob':
+        case 'mediumblob':
+        case 'longblob':
+        case 'blob':
+            $type[] = 'blob';
+            $length = null;
+            break;
+        case 'oid':
+            $type[] = 'blob';
+            $type[] = 'clob';
+            $length = null;
+            break;
+        case 'year':
+            $type[] = 'integer';
+            $type[] = 'date';
+            $length = null;
+            break;
+        default:
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableFieldDefinition: unknown database attribute type');
+        }
+
+        return array($type, $length);
+    }
 }
 
 ?>

@@ -424,6 +424,108 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return (strval(round(doubleval($value)*pow(10.0, $db->options['decimal_places']))));
     }
+
+    // }}}
+    // {{{ mapNativeDatatype()
+
+    /**
+     * Maps a native array description of a field to a MDB2 datatype and length
+     *
+     * @param array  $field native field description
+     * @return array containing the various possible types and the length
+     * @access public
+     */
+    function mapNativeDatatype($field)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db_type = $field['type'];
+        $length = isset($field['length']) ? $field['length'] : null;
+        $type = array();
+        switch ($db_type) {
+        case 'tinyint':
+        case 'smallint':
+        case 'mediumint':
+        case 'int':
+        case 'integer':
+        case 'bigint':
+            $type[] = 'integer';
+            if ($length == '1') {
+                $type[] = 'boolean';
+                if (preg_match('/^[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            }
+            $type[] = 'decimal';
+            break;
+        case 'tinytext':
+        case 'mediumtext':
+        case 'longtext':
+        case 'text':
+        case 'char':
+        case 'varchar':
+        case "varchar2":
+            $type[] = 'text';
+            if ($length == '1') {
+                $type[] = 'boolean';
+                if (preg_match('/[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            } elseif (strstr($db_type, 'text'))
+                $type[] = 'clob';
+            break;
+        case 'enum':
+            preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
+            $length = 0;
+            if (is_array($matches)) {
+                foreach ($matches[0] as $value) {
+                    $length = max($length, strlen($value)-2);
+                }
+            }
+        case 'set':
+            $type[] = 'text';
+            $type[] = 'integer';
+            break;
+        case 'date':
+            $type[] = 'date';
+            $length = null;
+            break;
+        case 'datetime':
+        case 'timestamp':
+            $type[] = 'timestamp';
+            $length = null;
+            break;
+        case 'time':
+            $type[] = 'time';
+            $length = null;
+            break;
+        case 'float':
+        case 'double':
+        case 'real':
+            $type[] = 'float';
+            break;
+        case 'decimal':
+        case 'numeric':
+            $type[] = 'decimal';
+            break;
+        case 'tinyblob':
+        case 'mediumblob':
+        case 'longblob':
+        case 'blob':
+            $type[] = 'text';
+            $length = null;
+            break;
+        case 'year':
+            $type[] = 'integer';
+            $type[] = 'date';
+            $length = null;
+            break;
+        default:
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableFieldDefinition: unknown database attribute type');
+        }
+
+        return array($type, $length);
+    }
 }
 
 ?>

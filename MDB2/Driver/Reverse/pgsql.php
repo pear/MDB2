@@ -68,7 +68,12 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
     function getTableFieldDefinition($table, $field_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $columns = $db->queryRow("SELECT
+        $result = $db->loadModule('Datatype');
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        $column = $db->queryRow("SELECT
                     attnum,attname,typname,attlen,attnotnull,
                     atttypmod,usename,usesysid,pg_class.oid,relpages,
                     reltuples,relhaspkey,relhasrules,relacl,adsrc
@@ -83,105 +88,34 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
                         and attname = '$field_name'
                         ORDER BY attnum
                         ", null, MDB2_FETCHMODE_ASSOC);
-        if (PEAR::isError($columns)) {
-            return $columns;
-        }
-        $field_column = $columns['attname'];
-        $type_column = $columns['typname'];
-        $db_type = preg_replace('/\d/','', strtolower($type_column) );
-        $length = $columns['attlen'];
-        if ($length == -1) {
-            $length = $columns['atttypmod']-4;
-        }
-        //$decimal = strtok('(), '); = eh?
-        $type = array();
-        switch ($db_type) {
-        case 'int':
-            $type[0] = 'integer';
-            if ($length == '1') {
-                $type[1] = 'boolean';
-            }
-            break;
-        case 'text':
-        case 'char':
-        case 'varchar':
-        case 'bool':
-            $type[0] = 'boolean';
-            break;
-        case 'bpchar':
-            $type[0] = 'text';
-
-            if ($length == '1') {
-                $type[1] = 'boolean';
-            } elseif (strstr($db_type, 'text'))
-                $type[1] = 'clob';
-            break;
-        case 'date':
-            $type[0] = 'date';
-            break;
-        case 'datetime':
-        case 'timestamp':
-            $type[0] = 'timestamp';
-            break;
-        case 'time':
-            $type[0] = 'time';
-            break;
-        case 'float':
-        case 'double':
-        case 'real':
-
-            $type[0] = 'float';
-            break;
-        case 'decimal':
-        case 'money':
-        case 'numeric':
-            $type[0] = 'decimal';
-            break;
-        case 'oid':
-        case 'tinyblob':
-        case 'mediumblob':
-        case 'longblob':
-        case 'blob':
-            $type[0] = 'blob';
-            $type[1] = 'text';
-            break;
-        case 'year':
-            $type[0] = 'integer';
-            $type[1] = 'date';
-            break;
-        default:
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableFieldDefinition: unknown database attribute type');
+        if (PEAR::isError($column)) {
+            return $column;
         }
 
-        if ($columns['attnotnull'] == 'f') {
+        list($types, $length) = $db->datatype->mapNativeDatatype($column);
+        if ($column['attnotnull'] == 't') {
             $notnull = true;
         }
-
-        if (!preg_match("/nextval\('([^']+)'/",$columns['adsrc']))  {
-            $default = substr($columns['adsrc'],1,-1);
+        // todo .. check how default look like
+        if (!preg_match("/nextval\('([^']+)'/", $column['adsrc'])
+            && strlen($column['adsrc']) > 2
+        ) {
+            $default = substr($column['adsrc'], 1, -1);
         }
         $definition = array();
-        for ($field_choices = array(), $datatype = 0; $datatype < count($type); $datatype++) {
-            $field_choices[$datatype] = array('type' => $type[$datatype]);
+        foreach ($types as $key => $type) {
+            $definition[0][$key] = array('type' => $type);
             if (isset($notnull)) {
-                $field_choices[$datatype]['notnull'] = true;
+                $definition[0][$key]['notnull'] = true;
             }
             if (isset($default)) {
-                $field_choices[$datatype]['default'] = $default;
+                $definition[0][$key]['default'] = $default;
             }
-            if ($type[$datatype] != 'boolean'
-                && $type[$datatype] != 'time'
-                && $type[$datatype] != 'date'
-                && $type[$datatype] != 'timestamp'
-            ) {
-                if (strlen($length)) {
-                    $field_choices[$datatype]['length'] = $length;
-                }
+            if (isset($length)) {
+                $definition[0][$key]['length'] = $length;
             }
         }
-        $definition[0] = $field_choices;
-        if (preg_match("/nextval\('([^']+)'/",$columns['adsrc'],$nextvals)) {
+        if (preg_match("/nextval\('([^']+)'/", $column['adsrc'], $nextvals)) {
             $implicit_sequence = array();
             $implicit_sequence['on'] = array();
             $implicit_sequence['on']['table'] = $table;
@@ -191,27 +125,25 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         }
 
         // check that its not just a unique field
-        if (PEAR::isError($indexes = $db->queryAll("SELECT
-                oid,indexrelid,indrelid,indkey,indisunique,indisprimary
-                FROm pg_index, pg_class
-                WHERE (pg_class.relname='$table')
-                    AND (pg_class.oid=pg_index.indrelid)", null, MDB2_FETCHMODE_ASSOC))) {
+        $query = "SELECT oid,indexrelid,indrelid,indkey,indisunique,indisprimary
+                FROM pg_index, pg_class
+                WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_index.indrelid)";
+        if (PEAR::isError($indexes = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC))) {
             return $indexes;
         }
-        $indkeys = explode(' ',$indexes['indkey']);
-        if (in_array($columns['attnum'],$indkeys)) {
-            // doesnt look like queryAll should be used here
-            if (PEAR::isError($indexname = $db->queryAll("SELECT
-                    relname FROM pg_class WHERE oid={$columns['indexrelid']}", null))
-            ) {
-                return $indexname;
+        $indkeys = explode(' ', $indexes['indkey']);
+        if (in_array($column['attnum'], $indkeys)
+            && $indexes['indisprimary'] == 't'
+            && $indexes['indisunique'] != 't'
+        ) {
+            $query = "SELECT relname FROM pg_class WHERE oid={$indexes['indexrelid']}";
+            $index_name = $db->queryOne($query);
+            if (PEAR::isError($index_name)) {
+                return $index_name;
             }
-            $is_primary = ($indexes['isdisprimary'] == 't') ;
-            $is_unique = ($indexes['isdisunique'] == 't') ;
-
             $implicit_index = array();
             $implicit_index['unique'] = true;
-            $implicit_index['fields'][$field_name] = $indexname['relname'];
+            $implicit_index['fields'][$field_name] = $index_name;
             $definition[2]['name'] = $field_name;
             $definition[2]['definition'] = $implicit_index;
         }
@@ -232,9 +164,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
     function getTableIndexDefinition($table, $index_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $query = "SELECT * from pg_index, pg_class
-                                WHERE (pg_class.relname='$index_name')
-                                AND (pg_class.oid=pg_index.indexrelid)";
+        $query = "SELECT * FROM pg_index, pg_class
+            WHERE (pg_class.relname='$index_name') AND (pg_class.oid=pg_index.indexrelid)";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
