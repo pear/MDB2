@@ -500,7 +500,7 @@ class MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'CREATE';
-        if (isset($definition['unique'])) {
+        if (isset($definition['unique']) && $definition['unique']) {
             $query .= ' UNIQUE';
         }
         $query .= " INDEX $name ON $table (";
