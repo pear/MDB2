@@ -128,17 +128,12 @@ class MDB2_Driver_Datatype_Common
         if (!is_array($types)) {
             $types = array($types);
         }
-        $columns = count($types);
-        for ($column = 0; $column < $columns; $column++) {
-            if (!isset($this->valid_types[$types[$column]])) {
+        foreach ($types as $key => $type) {
+            if (!isset($this->valid_types[$type])) {
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'setResultTypes: ' . $types[$column] . ' is not a supported column type');
+                    'setResultTypes: ' . $type . ' is not a supported column type');
             }
-            $result->types[$column] = $this->valid_types[$types[$column]];
-        }
-        while ($column < $columns) {
-            $result->types[$column] = MDB2_TYPE_TEXT;
-            $column++;
+            $result->types[$key] = $this->valid_types[$type];
         }
         return MDB2_OK;
     }
