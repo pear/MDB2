@@ -94,7 +94,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '.gdb';
-        $this->options['default_text_field_length'] = 4000;
+        $this->options['default_text_field_length'] = 4096;
     }
 
     // }}}
@@ -226,16 +226,27 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($this->auto_commit == $auto_commit) {
             return MDB2_OK;
         }
-        if ($auto_commit) {
-            if ($this->connection && MDB2::isError($commit = $this->commit())) {
-                return $commit;
+        if ($this->connection) {
+            if (!$auto_commit && !$this->destructor_registered) {
+                $this->destructor_registered = true;
+                $this->PEAR();
             }
-        } elseif (!$this->destructor_registered) {
-            $this->destructor_registered = true;
-            $this->PEAR();
+            if ($auto_commit) {
+                //$result = $this->commit(); //@ibase_commit($this->connection);
+                $result = @ibase_commit($this->transaction_id);
+                $msg = 'autoCommit: could not commit a transaction';
+            } else {
+                $result = @ibase_trans();
+                $msg = 'autoCommit: could not start a transaction';
+            }
+            //if (!$result || MDB2::isError($result)) {
+            if (!$result) {
+                return $this->raiseError(MDB2_ERROR, null, null, $msg);
+            }
+            $this->transaction_id = $result;
         }
-        $this->auto_commit = $auto_commit;
         $this->in_transaction = !$auto_commit;
+        $this->auto_commit    = $auto_commit;
         return MDB2_OK;
     }
 
@@ -258,9 +269,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto commited');
         }
-        if (!@ibase_commit($this->connection)) {
+        if (!$this->transaction_id || !@ibase_commit($this->transaction_id)) {
             return $this->raiseError(MDB2_ERROR, null, null,
-                'commit: could not commit');
+                'commit: could not commit a transaction');
+        }
+        $this->transaction_id = @ibase_trans();
+        if (!$this->transaction_id) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'commit: could not start a transaction');
         }
         return MDB2_OK;
     }
@@ -285,7 +301,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 'rollback: transactions can not be rolled back when changes are auto commited');
         }
 
-        if ($this->transaction_id && !@ibase_rollback($this->connection)) {
+        if ($this->transaction_id && !@ibase_rollback($this->transaction_id)) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: Could not rollback a pending transaction: '.ibase_errmsg());
         }
@@ -325,9 +341,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function _doConnect($database_name, $persistent = false)
     {
         $dsninfo = $this->dsn;
-        $user = $dsninfo['username'];
-        $pw   = $dsninfo['password'];
-        $dbhost = $dsninfo['hostspec'] ?
+        $user    = $dsninfo['username'];
+        $pw      = $dsninfo['password'];
+        $dbhost  = $dsninfo['hostspec'] ?
             ($dsninfo['hostspec'].':'.$database_name) : $database_name;
 
         $params = array();
@@ -347,6 +363,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 @ibase_timefmt("%Y-%m-%d", IBASE_DATE);
             } else {
                 @ini_set("ibase.timestampformat", "%Y-%m-%d %H:%M:%S");
+                //@ini_set("ibase.timeformat", "%H:%M:%S");
                 @ini_set("ibase.dateformat", "%Y-%m-%d");
             }
             return $connection;
@@ -367,7 +384,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function connect()
     {
         $database_file = $this->_getDatabaseFile($this->database_name);
-
         if ($this->connection != 0) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
                 && $this->connected_database_name == $database_file
@@ -377,7 +393,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             }
             $this->_close();
         }
-
         if (!PEAR::loadExtension('interbase')) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
@@ -439,35 +454,34 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @return mixed result identifier if query executed, else MDB2_error
      * @access private
      */
-    function _doQuery($query, $prepared_query = false)
+    function _doQuery($query, $isManip = false)
     {
-        $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
-        if ($prepared_query
-            && isset($this->query_parameters[$prepared_query])
-            && count($this->query_parameters[$prepared_query]) > 2
-        ) {
-            $this->query_parameters[$prepared_query][0] = $connection;
-            $this->query_parameters[$prepared_query][1] = $query;
-            $result = @call_user_func_array('ibase_query', $this->query_parameters[$prepared_query]);
-        } else {
-            //Not Prepared Query
-            $result = @ibase_query($connection, $query);
-            if (ibase_errmsg() == 'Query argument missed') { //ibase_errcode() only available in PHP5
-                //connection lost, try again...
-                $this->connect();
-                //rollback the failed transaction to prevent deadlock and execute the query again
-                if ($this->transaction_id) {
-                    $this->rollback();
-                }
-                $result = @ibase_query($this->connection, $query);
-            }
+        $connected = $this->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
         }
+        $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
+        $this->last_query = $query;
+        $this->debug($query, 'query');
+        if ($this->options['disable_query']) {
+            if ($isManip) {
+                return MDB2_OK;
+            }
+            return null;
+        }
+        
+        $result = ibase_query($connection, $query);
         if (!$result) {
             return $this->raiseError();
         }
+
+        if ($isManip) {
+            return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
+            //return (function_exists('ibase_affected_rows') ? $result : 0);
+        }
+
         return $result;
     }
-
 
     // }}}
     // {{{ nextID()
@@ -575,8 +589,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
     /**
      * Fetch a row and insert the data into an existing array.
      *
-     * @param int       $fetchmode  how the array data should be indexed
-     * @param int    $rownum    number of the row where the data can be found
+     * @param int  $fetchmode how the array data should be indexed
+     * @param int  $rownum    number of the row where the data can be found
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
@@ -681,12 +695,11 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function numCols()
     {
-        /*
         if ($this->result === true) {
             //query successfully executed, but without results...
             return 0;
         }
-        */
+
         if (!is_resource($this->result)) {
             return $this->db->raiseError('numCols(): not a valid ibase resource');
         }
@@ -922,6 +935,92 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
 
 class MDB2_Statement_ibase extends MDB2_Statement_Common
 {
+    // {{{ _executePrepared()
 
+    /**
+     * Execute a prepared query statement.
+     *
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access private
+     */
+    function &_executePrepared($result_class = false, $result_wrap_class = false)
+    {
+        $isManip = MDB2::isManip($this->query);
+        $query = $this->db->_modifyQuery($this->query);
+        $this->db->last_query = $query;
+        $this->db->debug($query, 'query');
+        if ($this->db->getOption('disable_query')) {
+            if ($isManip) {
+                return MDB2_OK;
+            }
+            return null;
+        }
+
+        $connected = $this->db->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
+        }
+        $connection = ($this->db->auto_commit ? $this->db->connection : $this->db->transaction_id);
+        $this->clobs = $this->blobs = array();
+
+        $parameters = $this->quoteParamsForPreparedQuery();
+
+        $this->db->row_offset = $this->row_offset;
+        $this->db->row_limit  = $this->row_limit;
+
+        array_unshift($parameters, ibase_prepare($connection, $this->query));
+        $result = call_user_func_array('ibase_execute', $parameters);
+
+        if ($result === false) {
+            $error =& $this->db->raiseError();
+            return $error;
+        }
+        
+        if ($isManip) {
+            $this->db->affected_rows = (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
+            return $this->db->affected_rows;
+        }
+        
+        if ($result === true) {
+            return true;
+        }
+
+        $result_obj =& $this->db->_wrapResult($result, $isManip, $this->types,
+            $result_class, $result_wrap_class, $this->row_offset, $this->row_limit);
+        return $result_obj;
+    }
+
+    // }}}
+    // {{{
+
+    function quoteParamsForPreparedQuery()
+    {
+        $parameters = array();
+        $must_quote = array('decimal', 'boolean', 'blob', 'clob');
+        foreach ($this->values as $parameter => $value) {
+            if (!isset($value)) {
+                $parameters[] = null;
+            } else {
+                $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
+                if (in_array($type, $must_quote)) {
+                    //var_dump($value); var_dump($type);
+                    if ($type == 'boolean') {
+                        $value = ($value ? 'Y' : 'N');
+                    } else {
+                        $value = $this->db->quote($value, $type);
+                    }
+                } elseif (strpos($value, '?') !== false) {
+                    $value = "'".$this->db->escape($value)."'";
+                }
+                $parameters[] = $value;
+            }
+        }
+        return $parameters;
+    }
+
+    // }}}
 }
 ?>
