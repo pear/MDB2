@@ -963,15 +963,11 @@ class MDB2_Driver_Datatype_Common
                 $class = $arguments['class'];
             }
         }
-        $lob = count($GLOBALS['_MDB2_LOBs']);
-        $GLOBALS['_MDB2_LOBs'][] =& new $class_name;
         end($GLOBALS['_MDB2_LOBs']);
-        $lob = key($GLOBALS['_MDB2_LOBs']);
-        if (isset($arguments['database'])) {
-            $GLOBALS['_MDB2_LOBs'][$lob]->db = &$arguments['database'];
-        } else {
-            $GLOBALS['_MDB2_LOBs'][$lob]->db = &$db;
-        }
+        $lob = key($GLOBALS['_MDB2_LOBs'])+1;
+        $GLOBALS['_MDB2_LOBs'][$lob] =& new $class_name;
+        $GLOBALS['_MDB2_LOBs'][$lob]->db = &$db;
+
         $result = $GLOBALS['_MDB2_LOBs'][$lob]->create($arguments);
         if (MDB2::isError($result)) {
             $GLOBALS['_MDB2_LOBs'][$lob]->db->datatype->destroyLOB($lob);
