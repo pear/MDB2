@@ -262,27 +262,23 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        $function = ($this->options['persistent'] ? 'mssql_pconnect' : 'mssql_connect');
-
-        $dbhost = $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost';
+        $params = array(
+            $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost',
+            $this->dsn['username'] ? $this->dsn['username'] : null,
+            $this->dsn['password'] ? $this->dsn['password'] : null,
+        );
         if ($this->dsn['port']) {
-            $dbhost .= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':')
-                     . $this->dsn['port'];
-        }
-        $user = $this->dsn['username'];
-        $pw = $this->dsn['password'];
-
-        if ($dbhost && $user && $pw) {
-            $connection = @$function($dbhost, $user, $pw);
-        } elseif ($dbhost && $user) {
-            $connection = @$function($dbhost, $user);
-        } else {
-            $connection = @$function($dbhost);
+            $params[0] .= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':')
+                        . $this->dsn['port'];
         }
 
+        $connect_function = $this->options['persistent'] ? 'mssql_pconnect' : 'mssql_connect';
+
+        $connection = @call_user_func_array($connect_function, $params);
         if ($connection <= 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
+
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';

@@ -245,23 +245,22 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        $function = ($this->options['persistent'] ? 'fbsql_pconnect' : 'fbsql_connect');
+        $params = array(
+            $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost',
+            $this->dsn['username'] ? $this->dsn['username'] : null,
+            $this->dsn['password'] ? $this->dsn['password'] : null,
+        );
 
-        $dbhost = $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost';
-        $user = $this->dsn['username'];
-        $pw = $this->dsn['password'];
+        $connect_function = $this->options['persistent'] ? 'fbsql_pconnect' : 'fbsql_connect';
 
-        if ($dbhost && $user && $pw) {
-            $connection = @$function($dbhost, $user, $pw);
-        } elseif ($dbhost && $user) {
-            $connection = @$function($dbhost, $user);
-        } else {
-            $connection = @$function($dbhost);
-        }
-
+        @ini_set('track_errors', true);
+        $php_errormsg = '';
+        $connection = @call_user_func_array($connect_function, $params);
+        @ini_restore('track_errors');
         if ($connection <= 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
+
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';

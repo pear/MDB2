@@ -309,7 +309,10 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        if ($this->options['ssl'] === true) {
+        @ini_set('track_errors', true);
+        $php_errormsg = '';
+
+        if (($this->options['ssl'] === true) {
             $init = @mysqli_init();
             @mysqli_ssl_set(
                 $init,
@@ -320,14 +323,14 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 empty($this->dsn['cipher']) ? null : $this->dsn['cipher']
             );
             if ($connection = @mysqli_real_connect(
-                $init,
-                $this->dsn['hostspec'],
-                $this->dsn['username'],
-                $this->dsn['password'],
-                $this->dsn['database'],
-                $this->dsn['port'],
-                $this->dsn['socket'])
-            ) {
+                    $init,
+                    $this->dsn['hostspec'],
+                    $this->dsn['username'],
+                    $this->dsn['password'],
+                    $this->database_name,
+                    $this->dsn['port'],
+                    $this->dsn['socket']))
+            {
                 $connection = $init;
             }
         } else {
@@ -335,19 +338,25 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 $this->dsn['hostspec'],
                 $this->dsn['username'],
                 $this->dsn['password'],
-                $this->dsn['database'],
+                $this->database_name,
                 $this->dsn['port'],
                 $this->dsn['socket']
             );
         }
 
-        if ($connection <= 0) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+        @ini_restore('track_errors');
+
+        if (!$connection) {
+            if (($err = @mysqli_connect_error()) != '') {
+                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null, $err);
+            } else {
+                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null, $php_errormsg);
+            }
         }
 
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
-        $this->connected_database_name = '';
+        $this->connected_database_name = $this->database_name;
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
         $this->supported['transactions'] = false;
