@@ -1621,7 +1621,7 @@ class MDB2_Driver_Common extends PEAR
                 'setLimit: limit is not supported by this driver');
         }
         $limit = (int)$limit;
-        if ($limit < 1) {
+        if ($limit < 0) {
             return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                 'setLimit: it was not specified a valid selected range row limit');
         }
@@ -1948,11 +1948,13 @@ class MDB2_Driver_Common extends PEAR
      */
     function setParamArray($prepared_query, $params)
     {
-        for ($i = 0, $j = count($params); $i < $j; ++$i) {
-            $success = $this->setParam($prepared_query, $i + 1, $params[$i]);
+        $i = 0;
+        foreach ($params as $param) {
+            $success = $this->setParam($prepared_query, $i + 1, $param);
             if (MDB2::isError($success)) {
                 return $success;
             }
+            ++$i;
         }
         return MDB2_OK;
     }
@@ -2109,9 +2111,14 @@ class MDB2_Driver_Common extends PEAR
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'affectedRows: method not implemented');
         }
-        if ($this->affected_rows == -1) {
-            return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+        if (MDB2::isManip($this->last_query)) {
+            if ($this->affected_rows == -1) {
+                return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            }
+        } else {
+            $affected_rows = 0;
         }
+
         return $this->affected_rows;
     }
 
@@ -2645,13 +2652,15 @@ class MDB2_Result_Common extends MDB2_Result
     {
         $column = array();
         $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
-        while (is_array($row = $this->fetchRow($fetchmode))) {
+        $row = $this->fetchRow($fetchmode);
+        if (is_array($row)) {
             if (!array_key_exists($colnum, $row)) {
-                return($this->mdb->raiseError(MDB2_ERROR_TRUNCATED));
+                return($this->raiseError(MDB2_ERROR_TRUNCATED));
             }
-            $column[] = $row[$colnum];
+            do {
+                $column[] = $row[$colnum];
+            } while (is_array($row = $this->fetchRow($fetchmode)));
         }
-
         if (MDB2::isError($row)) {
             return $row;
         }
