@@ -600,7 +600,7 @@ class MDB2
                 MDB2_ERROR_ACCESS_VIOLATION   => 'insufficient permissions',
                 MDB2_ERROR_MANAGER            => 'manager error',
                 MDB2_ERROR_MANAGER_PARSE      => 'manager schema parse error',
-                MDB2_ERROR_LOADMODULE         => 'Error while including on demand module',
+                MDB2_ERROR_LOADMODULE         => 'error while including on demand module',
                 MDB2_ERROR_TRUNCATED          => 'truncated',
                 MDB2_ERROR_DEADLOCK           => 'deadlock detected',
             );
@@ -1668,15 +1668,15 @@ class MDB2_Driver_Common extends PEAR
      * execute a query as database administrator
      *
      * @param string $query the SQL query
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &standaloneQuery($query)
+    function &standaloneQuery($query, $types = null)
     {
-        $ismanip = MDB2::isManip($query);
-        $result = $this->_doQuery($query, $ismanip);
-        $result_obj =& $this->_wrapResult($result, $ismanip);
-        return $result_obj;
+        $result =& $this->query($query, $types);
+        return $result;
     }
 
     // }}}
@@ -1701,13 +1701,14 @@ class MDB2_Driver_Common extends PEAR
 
     /**
      * Execute a query
-     *
      * @param string $query  query
      * @param boolean $ismanip  if the query is a manipulation query
+     * @param resource $connection
+     * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false)
+    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
@@ -1731,13 +1732,18 @@ class MDB2_Driver_Common extends PEAR
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
+    function &query($query, $types = null, $result_class = true, $result_wrap_class = false)
     {
         $ismanip = MDB2::isManip($query);
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
         $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+
+        $connected = $this->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
+        }
 
         $result = $this->_doQuery($query, $ismanip);
         if (MDB2::isError($result)) {
@@ -1748,7 +1754,7 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
 
-        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
+        $result_obj =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
         return $result_obj;
     }
 
@@ -1763,35 +1769,46 @@ class MDB2_Driver_Common extends PEAR
      *                        the result set
      * @param mixed $result_class string which specifies which result class to use
      * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @param string $limit number of rows to select
+     * @param string $offset first row to select
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
-    function &_wrapResult($result, $ismanip = false, $types = array(),
-        $result_class = null, $result_wrap_class = null, $offset = null, $limit = null)
+    function &_wrapResult($result, $types = array(), $result_class = true,
+        $result_wrap_class = false, $limit = null, $offset = null)
     {
-        if (!$ismanip) {
-            if (!$result_class) {
-                $result_class = $this->options['result_buffering']
-                    ? $this->options['buffered_result_class'] : $this->options['result_class'];
-            }
+        if ($result_class === true) {
+            $result_class = $this->options['result_buffering']
+                ? $this->options['buffered_result_class'] : $this->options['result_class'];
+        }
+        if ($result_class) {
             $class_name = sprintf($result_class, $this->phptype);
-            $result =& new $class_name($this, $result, $offset, $limit);
+            if (!class_exists($class_name)) {
+                $error =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                    '_wrapResult: result class does not exist '.$class_name);
+                return $error;
+            }
+            $result =& new $class_name($this, $result, $limit, $offset);
             if ($types) {
-                $err = $result->setResultTypes($types);
-                if (MDB2::isError($err)) {
+                $error = $result->setResultTypes($types);
+                if (MDB2::isError($error)) {
                     $result->free();
-                    return $err;
+                    return $error;
                 }
             }
-            if (!$result_wrap_class) {
-                $result_wrap_class = $this->options['result_wrap_class'];
-            }
-            if ($result_wrap_class) {
-                $result =& new $result_wrap_class($result);
-            }
-            return $result;
         }
-        return MDB2_OK;
+        if ($result_wrap_class === true) {
+            $result_wrap_class = $this->options['result_wrap_class'];
+        }
+        if ($result_wrap_class) {
+            if (!class_exists($result_wrap_class)) {
+                $error =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                    '_wrapResult: result wrap class does not exist '.$result_wrap_class);
+                return $error;
+            }
+            $result =& new $result_wrap_class($result);
+        }
+        return $result;
     }
 
     // }}}
@@ -2345,7 +2362,7 @@ class MDB2_Driver_Common extends PEAR
      * @see prepare()
      */
     function &executeParams($prepared_query, $types = null, $params = false,
-        $result_class = false, $result_wrap_class = false)
+        $result_class = true, $result_wrap_class = false)
     {
         $this->bindParamArray($prepared_query, $params);
 
@@ -2423,7 +2440,7 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Constructor
      */
-    function __construct(&$db, &$result, $offset = 0, $limit = 0)
+    function __construct(&$db, &$result, $limit = 0, $offset = 0)
     {
         $this->db =& $db;
         $this->result =& $result;
@@ -2431,9 +2448,9 @@ class MDB2_Result_Common extends MDB2_Result
         $this->limit = max(0, $limit - 1);
     }
 
-    function MDB2_Result_Common(&$db, &$result, $offset = 0, $limit = 0)
+    function MDB2_Result_Common(&$db, &$result, $limit = 0, $offset = 0)
     {
-        $this->__construct($db, $result, $offset, $limit);
+        $this->__construct($db, $result, $limit, $offset);
     }
 
     // }}}
@@ -2859,7 +2876,7 @@ class MDB2_Statement_Common
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
-    function &_executePrepared($result_class = false, $result_wrap_class = false)
+    function &_executePrepared($result_class = true, $result_wrap_class = false)
     {
         $query = '';
         $this->clobs = $this->blobs = array();
@@ -2900,7 +2917,7 @@ class MDB2_Statement_Common
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &execute($result_class = false, $result_wrap_class = false)
+    function &execute($result_class = true, $result_wrap_class = false)
     {
         $success =& $this->_executePrepared($result_class, $result_wrap_class);
 
