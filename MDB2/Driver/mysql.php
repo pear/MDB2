@@ -690,8 +690,9 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return $result;
         }
         $value = $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
-        $result = $this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value");
-        if (MDB2::isError($result)) {
+        if (is_numeric($value)
+            && MDB2::isError($this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
+        ) {
             $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
         }
         return $value;

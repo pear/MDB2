@@ -632,8 +632,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $result;
         }
         $value = @sqlite_last_insert_rowid($this->connection);
-        $result = $this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value");
-        if (MDB2::isError($result)) {
+        if (is_numeric($value)
+            && MDB2::isError($this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
+        ) {
             $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
         }
         return $value;
