@@ -2,52 +2,13 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0beta2';
+$version = '2.0.0beta3';
 $notes = <<<EOT
-The core of MDB2 is now fairly stable API-wise. The modules, especially the
-manager and reverse module, might see some API refinement before the first
-stable release.
-- added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
-  and MDB2_Driver_Manager_oci8
-- reversed parameter order of getValue(), type parameter is now optional and
-  will then be autodetected (BC break!)
-- renamed get*Value() to quote*() (BC break!)
-- fixed LOB management in MDB2_Driver_ibase
-- moved getOne, getRow, getCol, getAll back into the exteneded module (most
-  users should be able to move to the queryOne, queryRow, queryCol and queryAll
-  equivalent) (BC break!)
-- added getAssoc to the extended module
-- fixed bug in MDB2_Driver_Datatype_Common::implodeArray()
-- added sequence_col_name option to make the column name inside sequence
-  emulation tables configurable
-- fixed a bug in the MDB2_Driver_oci8 and MDB2_Driver_ibase buffering emulation
-  when using limit queries
-- removed MDB2_PORTABILITY_NULL_TO_EMPTY in favor of MDB2_PORTABILITY_EMPTY_TO_NULL
-  this means that DB and MDB2 work exactly the opposite now, but it seems more
-  efficient to do things the way Oracle does since this is the RDBMS which
-  creates the original issue to begin with (BC break!)
-- fixed a typos in getAll, getAssoc and getCol
-- test suite: moved set_time_limit() call to the setup script to be easier to customize
-- renamed hasMore() to valid() due to changes in the PHP5 iterator API (BC break!)
-- renamed toString() to __toString() in order to take advantage of new PHP5
-  goodness and made it public
-- MDB2_Driver_Datatype_Common::setResultTypes() can now handle missing elements
-  inside type arrays: array(2 => 'boolean', 4 => 'timestamp')
-- fixed potential warning due to manipulation query detection in the query*()
-  and the get*() query+fetch methods
-- added tests for fetchAll() and fetchCol()
-- performance tweaks for fetchAll() and fetchCol()
-- fixed MDB2_Driver_Manager_mysql::listTableIndexes()
-- fixed MDB2_Driver_Common::debug()
-- renamed MDB2::isResult() to MDB2::isResultCommon()
-- added base result class MDB2_Result from which all result sets should be
-  inherited and added MDB2::isResult() which checks if a given object extends from it
-- added 'result_wrap_class' option and optional parameter to query() to enable
-  wrapping of result classes into an arbitrary class
-- added \$result_class param to all drivers where it was missing from the
-  query() and _executePrepared() methods
-- applied several fixes to the PEAR::DB wrapper
-- fixed a typo in MDB2_Driver_Reverse_pgsql::tableInfo()
+- affectedRows() now ensures that the last query was a manipulation query
+- allowing limits of 0 in setLimit()
+- setParamsArray() can now handle non ordered arrays
+- performance tweak in fetchCol()
+- fixed a large number of compatibility issues in the PEAR::DB wrapper
 EOT;
 
 $description =<<<EOT
