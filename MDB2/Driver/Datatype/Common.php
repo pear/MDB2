@@ -619,11 +619,11 @@ class MDB2_Driver_Datatype_Common
                  $type = 'text';
                 break;
             default:
-                if (preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}/', $value)) {
+                if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $value)) {
                     $type = 'timestamp';
-                } elseif (preg_match('/\d{2}:\d{2}/', $value)) {
+                } elseif (preg_match('/^\d{2}:\d{2}$/', $value)) {
                     $type = 'time';
-                } elseif (preg_match('/\d{4}-\d{2}-\d{2}/', $value)) {
+                } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
                     $type = 'date';
                 } else {
                     $type = 'text';
