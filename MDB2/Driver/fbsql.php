@@ -566,10 +566,6 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
-        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $fetchmode = MDB2_FETCHMODE_ASSOC;
-            $object_class = $this->mdb->options['fetch_class'];
-        }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @fbsql_fetch_assoc($this->result);
             if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
@@ -593,7 +589,8 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->mdb->_convertEmptyArrayValuesToNull($row);
         }
-        if (isset($object_class)) {
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $object_class = $this->mdb->options['fetch_class'];
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {

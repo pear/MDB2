@@ -715,10 +715,6 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
-        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $fetchmode = MDB2_FETCHMODE_ASSOC;
-            $object_class = $this->mdb->options['fetch_class'];
-        }
         if (!$this->_skipLimitOffset()) {
             return null;
         }
@@ -748,7 +744,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->mdb->_convertEmptyArrayValuesToNull($row);
         }
-        if (isset($object_class)) {
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $object_class = $this->mdb->options['fetch_class'];
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {
@@ -930,10 +927,6 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
-        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $fetchmode = MDB2_FETCHMODE_ASSOC;
-            $object_class = $this->mdb->options['fetch_class'];
-        }
         if (!$this->_fillBuffer($target_rownum)) {
             return null;
         }
@@ -953,6 +946,14 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
         }
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->mdb->_convertEmptyArrayValuesToNull($row);
+        }
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $object_class = $this->mdb->options['fetch_class'];
+            if ($object_class == 'stdClass') {
+                $row = (object) $row;
+            } else {
+                $row = &new $object_class($row);
+            }
         }
         ++$this->rownum;
         return $row;
