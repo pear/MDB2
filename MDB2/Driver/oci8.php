@@ -536,8 +536,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
                 }
-                ++$parameter;
-                $query = substr_replace($query, ':'.$parameter, $p_position, 1);
+                $query = substr_replace($query, ':'.$parameter++, $p_position, 1);
                 $position = $p_position + strlen($parameter);
             } else {
                 $position = $p_position;
@@ -994,10 +993,11 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             return $connected;
         }
 
+        $success = MDB2_OK;
         $lobs = $descriptors = array();
         foreach ($this->values as $parameter => $value) {
             if (!isset($value)) {
-                $value_quoted = 'NULL';
+                $descriptors[$parameter] = 'NULL';
             } else {
                 $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
                 if ($type == 'clob' || $type == 'blob') {
@@ -1026,18 +1026,17 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     if (MDB2::isError($descriptors[$parameter])) {
                         return $descriptors[$parameter];
                     }
-                    if ($descriptors[$parameter][0] === "'") {
-                        $descriptors[$parameter] = substr($descriptors[$parameter], 1, -1);
-                    }
                 }
             }
-
             if (is_resource($descriptors[$parameter])) {
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1, ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB))) {
                     $success = $this->db->raiseError($this->statement);
                     break;
                 }
             } else {
+                if ($descriptors[$parameter][0] === "'") {
+                    $descriptors[$parameter] = substr($descriptors[$parameter], 1, -1);
+                }
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1)) {
                     $success = $this->db->raiseError($this->statement);
                     break;
@@ -1082,10 +1081,9 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
         }
 
-        reset($descriptors);
-        for ($i = count($descriptors); $descriptor < $i; next($descriptors)) {
-            if (is_resource($descriptors[key($descriptors)])) {
-                @$descriptors[key($descriptors)]->free();
+        foreach ($descriptors as $parameter => $foo) {
+            if (is_resource($descriptors[$parameter])) {
+                @$descriptors[$parameter]->free();
             }
         }
 
