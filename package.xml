@@ -67,6 +67,12 @@ Other soon to follow.</description>
       <email>l.alberton@quipo.it</email>
       <role>contributor</role>
     </maintainer>
+    <maintainer>
+      <user>danielc</user>
+      <name>Daniel Convissor</name>
+      <email>danielc@php.net</email>
+      <role>helper</role>
+    </maintainer>
   </maintainers>
   <release>
     <version>2.0.0beta3</version>
