@@ -115,20 +115,17 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             static $ecode_map;
             if (empty($ecode_map)) {
                 $ecode_map = array(
-                    1004 => MDB2_ERROR_CANNOT_CREATE,
-                    1005 => MDB2_ERROR_CANNOT_CREATE,
-                    1006 => MDB2_ERROR_CANNOT_CREATE,
-                    1007 => MDB2_ERROR_ALREADY_EXISTS,
-                    1008 => MDB2_ERROR_CANNOT_DROP,
-                    1046 => MDB2_ERROR_NODBSELECTED,
-                    1050 => MDB2_ERROR_ALREADY_EXISTS,
-                    1051 => MDB2_ERROR_NOSUCHTABLE,
-                    1054 => MDB2_ERROR_NOSUCHFIELD,
-                    1062 => MDB2_ERROR_ALREADY_EXISTS,
-                    1064 => MDB2_ERROR_SYNTAX,
-                    1100 => MDB2_ERROR_NOT_LOCKED,
-                    1136 => MDB2_ERROR_VALUE_COUNT_ON_ROW,
-                    1146 => MDB2_ERROR_NOSUCHTABLE,
+                     22 => MDB2_ERROR_SYNTAX,
+                     85 => MDB2_ERROR_ALREADY_EXISTS,
+                    108 => MDB2_ERROR_SYNTAX,
+                    116 => MDB2_ERROR_NOSUCHTABLE,
+                    217 => MDB2_ERROR_INVALID_NUMBER,
+                    226 => MDB2_ERROR_NOSUCHFIELD,
+                    251 => MDB2_ERROR_SYNTAX,
+                    357 => MDB2_ERROR_CONSTRAINT_NOT_NULL,
+                    358 => MDB2_ERROR_CONSTRAINT,
+                    360 => MDB2_ERROR_CONSTRAINT,
+                    361 => MDB2_ERROR_CONSTRAINT,
                 );
             }
             if (isset($ecode_map[$native_code])) {
