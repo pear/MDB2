@@ -595,21 +595,20 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     function listTableIndexes($table)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $key_name = 'key_name';
-        if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $key_name = ucfirst($key_name);
+        $key_name = 'Key_name';
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $key_name = strtolower($key_name);
         }
-        $indexes_all = $db->queryCol("SHOW INDEX FROM $table", 'text', $key_name);
+        $query = "SHOW INDEX FROM $table";
+        $indexes_all = $db->queryCol($query, 'text', $key_name);
         if (MDB2::isError($indexes_all)) {
             return $indexes_all;
         }
-        for ($found = $indexes = array(), $index = 0, $indexes_all_cnt = count($indexes_all);
-            $index < $indexes_all_cnt;
-            $index++)
-        {
+        $found = $indexes = array();
+        for ($index = 0, $j = count($indexes_all); $index < $j; ++$index) {
             if ($indexes_all[$index] != 'PRIMARY'
-                && !isset($found[$indexes_all[$index]]))
-            {
+                && !isset($found[$indexes_all[$index]])
+            ) {
                 $indexes[] = $indexes_all[$index];
                 $found[$indexes_all[$index]] = true;
             }
