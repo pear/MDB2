@@ -355,7 +355,6 @@ class MDB2_Tools_Manager extends PEAR
                                 $lobs = array();
                                 $field_number = 0;
                                 foreach ($instruction['fields'] as $field_name => $field) {
-                                    $field_number++;
                                     $query = $field_name;
                                     switch ($table['fields'][$field_name]['type']) {
                                         case 'integer':
@@ -397,6 +396,7 @@ class MDB2_Tools_Manager extends PEAR
                                     if (MDB2::isError($result)) {
                                         break;
                                     }
+                                    $field_number++;
                                 }
                             }
                             if (!MDB2::isError($result)) {

@@ -311,7 +311,7 @@ It will automatically include the MDB2.php file you.</p>
 <p>Make sure the query was prepared without error.</p>
 <p><tt>{</tt></p>
 <ul>
-<p><tt>$mdb->setParam($prepared_query,1,&quot;admin&quot;);</tt></p>
+<p><tt>$mdb->setParam($prepared_query,0,&quot;admin&quot;);</tt></p>
 </ul>
 <p>Set the first query argument with the text constant value <tt>admin</tt>.</p>
 <ul>
@@ -398,7 +398,7 @@ It will automatically include the MDB2.php file you.</p>
 <p><li>Define the character large object field query parameter value. Notice that you need to specify the name of the table field into which will be inserted the large object data value.</li></p>
 <ul>
 <ul>
-<p><tt>$mdb->setParam($prepared_query,1,$character_lob,&quot;document&quot;);</tt></p>
+<p><tt>$mdb->setParam($prepared_query,0,$character_lob,&quot;document&quot;);</tt></p>
 </ul>
 </ul>
 <p><li>Execute the prepared query.</li></p>
