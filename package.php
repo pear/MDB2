@@ -23,6 +23,7 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - ensure that internal calls to query dont wrap the result
 - for some reason mysqli didnt like SELECT LAST_INSERT_ID()
 - fixed bug in table alteration when only an index was added
+- updated pgsql API calls to 4.2.0 recommended names (bug #3904)
 EOT;
 
 $description =<<<EOT
