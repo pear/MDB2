@@ -4,7 +4,7 @@ STATUS OF THE PEAR MDB2 PACKAGE
 $Id$
 ------------------------------------------------------------------------
 
-MDB3 Driver Feature Matrix
+MDB2 Driver Feature Matrix
 --------------------------
 Symbols:
   x  =  implemented, but without tests
