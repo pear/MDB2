@@ -585,26 +585,22 @@ class MDB2_Result_querysim extends MDB2_Result_Common
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
-        ++$this->rownum;
-        if (!isset($this->result[1][$this->rownum])) {
+        $target_rownum = $this->rownum + 1;
+        if (!isset($this->result[1][$target_rownum])) {
             if (is_null($this->result)) {
                 return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
             return null;
         }
-        $row = $this->result[1][$this->rownum];
+        $row = $this->result[1][$target_rownum];
         // make row associative
         if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
-            foreach ($row as $key => $value) {
-                $arraytemp[$this->result[0][$key]] = $value;
+            $column_names = $this->getColumnNames();
+            foreach ($column_names as $name => $i) {
+                $column_names[$name] = $row[$i];
             }
-            $row = $arraytemp;
-            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
-                && is_array($row)
-            ) {
-                $row = array_change_key_case($row, CASE_LOWER);
-            }
+            $row = $column_names;
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
@@ -615,6 +611,7 @@ class MDB2_Result_querysim extends MDB2_Result_Common
         if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
             $this->mdb->_convertNullArrayValuesToEmpty($row);
         }
+        ++$this->rownum;
         return $row;
     }
 
