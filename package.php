@@ -13,6 +13,10 @@ have been tested to pass the test suite.
 - fixed several bugs in the ibase driver
 - fixed several PHP5 related issues
 - fixed bug in sequence creation on MySQL
+- fixed issues with nextid() ondemand handling in conjunction with currId()
+- added native currId() implementation for the Oracle driver
+- fixed sqlite driver (passes all but the LOB tests)
+- removed decimal_factor property to allow changing of decimal_places option
 EOT;
 
 $description =<<<EOT
