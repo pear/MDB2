@@ -125,7 +125,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
     function insertTestValues($prepared_query, &$data) {
         for ($i = 0; $i < count($this->fields); $i++) {
-            $this->db->setParam($prepared_query, ($i + 1), $data[$this->fields[$i]]);
+            $this->db->setParam($prepared_query, $i, $data[$this->fields[$i]]);
         }
     }
 
@@ -369,7 +369,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $prepared_query = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 1)", array('text'));
 
-        $this->db->setParam($prepared_query, 1, 'Sure!');
+        $this->db->setParam($prepared_query, 0, 'Sure!');
 
         $result = $this->db->execute($prepared_query);
 
@@ -385,7 +385,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $prepared_query = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 2)", array('text'));
 
-        $this->db->setParam($prepared_query, 1, 'For Sure!');
+        $this->db->setParam($prepared_query, 0, 'For Sure!');
 
         $result = $this->db->execute($prepared_query);
 
@@ -872,8 +872,8 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $prepared_query = $this->db->prepare('UPDATE users SET user_password=? WHERE user_id < ?', array('text', 'integer'));
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $this->db->setParam($prepared_query, 1, "another_password_$row");
-            $this->db->setParam($prepared_query, 2, $row);
+            $this->db->setParam($prepared_query, 0, "another_password_$row");
+            $this->db->setParam($prepared_query, 1, $row);
 
             $result = $this->db->execute($prepared_query);
 
@@ -894,7 +894,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $prepared_query = $this->db->prepare('DELETE FROM users WHERE user_id >= ?', array('integer'));
 
         for ($row = $total_rows; $total_rows; $total_rows = $row) {
-            $this->db->setParam($prepared_query, 1, $row = intval($total_rows / 2));
+            $this->db->setParam($prepared_query, 0, $row = intval($total_rows / 2));
 
             $result = $this->db->execute($prepared_query);
 
@@ -992,26 +992,19 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $prepared_query = $this->db->prepare('INSERT INTO files (ID, document, picture) VALUES (1,?,?)', array('clob', 'blob'));
+        $prepared_query = $this->db->prepare('INSERT INTO files (ID, document, picture) VALUES (1,?,?)', array('clob', 'blob'), array('document', 'picture'));
 
-        $character_lob = array(
-                            'data' => '',
-                            'field' => 'document'
-
-                              );
+        $character_lob = '';
         for ($code = 32; $code <= 127; $code++) {
-            $character_lob['data'] .= chr($code);
+            $character_lob .= chr($code);
         }
-        $binary_lob = array(
-                            'data' => '',
-                            'field' => 'picture'
-                            );
+        $binary_lob = '';
         for ($code = 0; $code <= 255; $code++) {
-            $binary_lob['data'] .= chr($code);
+            $binary_lob .= chr($code);
         }
 
-        $this->db->setParam($prepared_query, 1, $character_lob);
-        $this->db->setParam($prepared_query, 2, $binary_lob);
+        $this->db->setParam($prepared_query, 0, $character_lob);
+        $this->db->setParam($prepared_query, 1, $binary_lob);
 
         $result = $this->db->execute($prepared_query);
 
@@ -1037,7 +1030,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             }
             $this->db->datatype->destroyLOB($clob);
 
-            $this->assertEquals($character_lob['data'], $value, 'Retrieved character LOB value ("' . $value . '") is different from what was stored ("' . $character_lob['data'] . '")');
+            $this->assertEquals($character_lob, $value, 'Retrieved character LOB value ("' . $value . '") is different from what was stored ("' . $character_lob . '")');
         } else {
             $this->assertTrue(false, 'Error retrieving CLOB result');
         }
@@ -1051,7 +1044,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->db->datatype->destroyLOB($blob);
 
-            $this->assertEquals($binary_lob['data'], $value, 'Retrieved binary LOB value ("'.$value.'") is different from what was stored ("'.$binary_lob['data'].'")');
+            $this->assertEquals($binary_lob, $value, 'Retrieved binary LOB value ("'.$value.'") is different from what was stored ("'.$binary_lob.'")');
         } else {
             $this->assertTrue(false, 'Error retrieving CLOB result');
         }
@@ -1067,18 +1060,13 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $prepared_query = $this->db->prepare('INSERT INTO files (ID, document, picture) VALUES (1,?,?)', array('clob', 'blob'));
+        $prepared_query = $this->db->prepare('INSERT INTO files (ID, document, picture) VALUES (1,?,?)', array('clobfile', 'blobfile'), array('document', 'picture'));
 
         $character_data_file = 'character_data';
         if (($file = fopen($character_data_file, 'w'))) {
             for ($character_data = '', $code = 32; $code <= 127; $code++) {
                 $character_data .= chr($code);
             }
-            $character_lob = array(
-                                   'type' => 'inputfile',
-                                   'field' => 'document',
-                                   'file_name' => $character_data_file
-                                   );
             $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
             fclose($file);
         }
@@ -1086,19 +1074,14 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $binary_data_file = 'binary_data';
         if (($file = fopen($binary_data_file, 'wb'))) {
             for ($binary_data = '', $code = 0; $code <= 255; $code++) {
-                    $binary_data .= chr($code);
+                $binary_data .= chr($code);
             }
-            $binary_lob = array(
-                                'type' => 'inputfile',
-                                'field' => 'picture',
-                                'file_name' => $binary_data_file
-                                );
             $this->assertTrue((fwrite($file, $binary_data, strlen($binary_data)) == strlen($binary_data)), 'Error creating blob file to read from');
             fclose($file);
         }
 
-        $this->db->setParam($prepared_query, 1, $character_lob);
-        $this->db->setParam($prepared_query, 2, $binary_lob);
+        $this->db->setParam($prepared_query, 0, $character_data_file);
+        $this->db->setParam($prepared_query, 1, $binary_data_file);
 
         $result = $this->db->execute($prepared_query);
         $this->assertTrue(!MDB2::isError($result), 'Error executing prepared query - inserting LOB from files');
@@ -1156,10 +1139,10 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $prepared_query = $this->db->prepare('INSERT INTO files (ID, document,picture) VALUES (1,?,?)', array('clob', 'blob'));
+        $prepared_query = $this->db->prepare('INSERT INTO files (ID, document,picture) VALUES (1,?,?)', array('clob', 'blob'), array('document', 'picture'));
 
+        $this->db->setParam($prepared_query, 0, null);
         $this->db->setParam($prepared_query, 1, null);
-        $this->db->setParam($prepared_query, 2, null);
 
         $result = $this->db->execute($prepared_query);
         $this->assertTrue(!MDB2::isError($result), 'Error executing prepared query - inserting NULL lobs');
