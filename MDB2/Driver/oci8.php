@@ -1067,7 +1067,9 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     break;
                 }
             } else {
-                if ($descriptors[$parameter][0] === "'") {
+                if ($descriptors[$parameter] === 'NULL') {
+                    $descriptors[$parameter] = null;
+                } elseif ($descriptors[$parameter][0] === "'") {
                     $descriptors[$parameter] = substr($descriptors[$parameter], 1, -1);
                 }
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1)) {
