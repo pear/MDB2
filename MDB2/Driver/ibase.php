@@ -951,8 +951,8 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
     {
         $isManip = MDB2::isManip($this->query);
         $query = $this->db->_modifyQuery($this->query);
-        $this->db->last_query = $query;
-        $this->db->debug($query, 'query');
+        $this->db->last_query = $this->query;
+        $this->db->debug($this->query, 'query');
         if ($this->db->getOption('disable_query')) {
             if ($isManip) {
                 return MDB2_OK;
