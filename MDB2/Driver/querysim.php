@@ -582,20 +582,20 @@ class MDB2_Result_querysim extends MDB2_Result_Common
      */
     function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
+        if (is_null($this->result)) {
+            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'fetchRow: resultset has already been freed');
+        }
+        $target_rownum = $this->rownum + 1;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
-        $target_rownum = $this->rownum + 1;
         if (!isset($this->result[1][$target_rownum])) {
-            if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'fetchRow: resultset has already been freed');
-            }
             return null;
         }
         $row = $this->result[1][$target_rownum];
         // make row associative
-        if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
+        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $column_names = $this->getColumnNames();
             foreach ($column_names as $name => $i) {
                 $column_names[$name] = $row[$i];
