@@ -360,10 +360,12 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * execute a query as DBA
      *
      * @param string $query the SQL query
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &standaloneQuery($query)
+    function &standaloneQuery($query, $types = null)
     {
         $connection = $this->_doConnect(
             $this->options['DBA_username'],
@@ -484,7 +486,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function &prepare($query, $types = null, $result_types = null)
     {
         $this->debug($query, 'prepare');
-        $query = $this->db->_modifyQuery($query);
+        $query = $this->_modifyQuery($query);
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
@@ -504,7 +506,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             if (is_null($placeholder_type)) {
                 $placeholder_type_guess = $query[$p_position];
             }
-            if (is_int($quote = strpos($query, "'", $position)) && $quote < $question) {
+            if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
                 if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
                     return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                         'prepare: query with an unterminated text string specified');
@@ -527,14 +529,18 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     break;
                 }
             } elseif ($query[$position] == $placeholder_type_guess) {
-                if ($placeholder_type == ':') {
+                if ($placeholder_type_guess == ':') {
                     break;
                 }
+                if (is_null($placeholder_type)) {
+                    $placeholder_type = $query[$p_position];
+                    $question = $colon = $placeholder_type;
+                }
                 ++$parameter;
-                $query = substr_replace($query, ':'.$parameter, $question, 1);
-                $position = $question + strlen($parameter);
+                $query = substr_replace($query, ':'.$parameter, $p_position, 1);
+                $position = $p_position + strlen($parameter);
             } else {
-                $position = $question;
+                $position = $p_position;
             }
         }
         if (is_array($types)) {
