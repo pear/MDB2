@@ -936,12 +936,14 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'));
 
         $character_lob = '';
-        for ($code = 32; $code <= 127; $code++) {
-            $character_lob .= chr($code);
-        }
         $binary_lob = '';
-        for ($code = 0; $code <= 255; $code++) {
-            $binary_lob .= chr($code);
+        for ($i = 0; $i < 100; $i++) {
+            for ($code = 32; $code <= 127; $code++) {
+                $character_lob .= chr($code);
+            }
+            for ($code = 0; $code <= 255; $code++) {
+                $binary_lob .= chr($code);
+            }
         }
 
         $stmt->bindParam('document', $character_lob);
@@ -1003,8 +1005,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $character_data_file = 'character_data';
         if (($file = fopen($character_data_file, 'w'))) {
-            for ($character_data = '', $code = 32; $code <= 127; $code++) {
-                $character_data .= chr($code);
+            $character_data = '';
+            for ($i = 0; $i < 100; $i++) {
+                for ($code = 32; $code <= 127; $code++) {
+                    $character_data .= chr($code);
+                }
             }
             $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
             fclose($file);
@@ -1012,8 +1017,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $binary_data_file = 'binary_data';
         if (($file = fopen($binary_data_file, 'wb'))) {
-            for ($binary_data = '', $code = 0; $code <= 255; $code++) {
-                $binary_data .= chr($code);
+            $binary_data = '';
+            for ($i = 0; $i < 100; $i++) {
+                for ($code = 0; $code <= 255; $code++) {
+                    $binary_data .= chr($code);
+                }
             }
             $this->assertTrue((fwrite($file, $binary_data, strlen($binary_data)) == strlen($binary_data)), 'Error creating blob file to read from');
             fclose($file);
