@@ -47,11 +47,12 @@ bug22328         -    -    o    -    -    -    o    -    o    -    o    o    -
 bug670           -    -    o    -    -    -    o    -    o    -    o    o    -
 bug681           -    -    o    -    -    -    o    -    o    -    o    o    -
 bug718           -    -   [1]   -    -    -    o    -    o    -    o    o    -
+bug946           -    -    -    -    -    -    o    -    o    -    o    o    -
 **[ MANAGER ]*****************************************************************
 createdatabase   -    -    -    -    -    -    o    -    o    -    o    o    -
 updatedatabase   -    -    o    -    -    -    o    -    o    -    o    o    -
 **[ NATIVE ]******************************************************************
-getinsertid      -    -    n    -    -    -    -    -    o    -    n    -    -
+getinsertid      -    -    n    -    -    -    -    -    n    -    n    -    -
 deleteoid        n    n    n    n    n    n    n    n    n    n    -    n    n
 **[ REVERSE ]*****************************************************************
 tableinfo        -    -   [1]   -    -    -    o    -    o    -    o    n    -
