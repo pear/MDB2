@@ -1402,8 +1402,8 @@ class MDB2_Driver_Common extends PEAR
 
             // load modul in a specific version
             if ($version) {
-                if (method_exists($class_name, 'factory')) {
-                    $class_name_new = call_user_func(array($class_name, 'factory'), $this->db_index);
+                if (method_exists($class_name, 'getClassName')) {
+                    $class_name_new = call_user_func(array($class_name, 'getClassName'), $this->db_index);
                     if ($class_name != $class_name_new) {
                         $class_name = $class_name_new;
                         $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
