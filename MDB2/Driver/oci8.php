@@ -248,14 +248,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         if (empty($sid)) {
             return $this->raiseError(MDB2_ERROR, null, null,
-                'it was not specified a valid Oracle Service IDentifier (SID)');
+                'it was not specified a valid Oracle Service Identifier (SID)');
         }
 
         if ($this->options['HOME']) {
             putenv('ORACLE_HOME='.$this->options['HOME']);
         }
         putenv('ORACLE_SID='.$sid);
-
         $function = ($persistent ? 'OCIPLogon' : 'OCINLogon');
         $connection = @$function($username, $password, $sid);
         if (!$connection) {
@@ -284,25 +283,27 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $this->_close();
         }
 
-        $database_name = $this->options['database_name_prefix'].$this->database_name;
-        $connection = $this->_doConnect($database_name, $this->dsn['password'], $this->options['persistent']);
-        if (MDB2::isError($connection)) {
-            return $connection;
-        }
-        $this->connection = $connection;
-        $this->connected_dsn = $this->dsn;
-        $this->opened_persistent = $this->options['persistent'];
-        $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-        $doquery = $this->_doQuery($query);
-        if (MDB2::isError($doquery)) {
-            $this->_close();
-            return $doquery;
-        }
-        $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
-        $doquery = $this->_doQuery($query);
-        if (MDB2::isError($doquery)) {
-            $this->_close();
-            return $doquery;
+        if ($this->database_name) {
+            $database_name = $this->options['database_name_prefix'].$this->database_name;
+            $connection = $this->_doConnect($database_name, $this->dsn['password'], $this->options['persistent']);
+            if (MDB2::isError($connection)) {
+                return $connection;
+            }
+            $this->connection = $connection;
+            $this->connected_dsn = $this->dsn;
+            $this->opened_persistent = $this->options['persistent'];
+            $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
+            $doquery = $this->_doQuery($query);
+            if (MDB2::isError($doquery)) {
+                $this->_close();
+                return $doquery;
+            }
+            $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
+            $doquery = $this->_doQuery($query);
+            if (MDB2::isError($doquery)) {
+                $this->_close();
+                return $doquery;
+            }
         }
         return MDB2_OK;
     }
