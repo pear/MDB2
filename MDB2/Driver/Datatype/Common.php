@@ -643,8 +643,7 @@ class MDB2_Driver_Datatype_Common
     /**
      * free a character large object
      *
-     * @param string $blob
-     * @param string $value
+     * @param int $clob lob index
      * @access public
      */
     function freeCLOBValue($clob)
@@ -658,7 +657,7 @@ class MDB2_Driver_Datatype_Common
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
-    * compose query statements.
+     * compose query statements.
      *
      * @param resource $prepared_query query handle from prepare()
      * @param  $parameter
@@ -680,8 +679,7 @@ class MDB2_Driver_Datatype_Common
     /**
      * free a binary large object
      *
-     * @param string $blob
-     * @param string $value
+     * @param int $blob lob index
      * @access public
      */
     function freeBLOBValue($blob)
