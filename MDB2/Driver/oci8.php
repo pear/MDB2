@@ -317,10 +317,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $doquery;
         }
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
-        $doquery = $this->_doQuery($query);
-        if (MDB2::isError($doquery)) {
+        $error = $this->_doQuery($query);
+        if (MDB2::isError($error)) {
             $this->_close();
-            return $doquery;
+            return $error;
         }
         return MDB2_OK;
     }
@@ -366,21 +366,24 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (MDB2::isError($connection)) {
             return $connection;
         }
-        $result = @OCIParse($connection, $query);
-        if (!$result) {
-            return $this->raiseError($connection);
-        }
-        if ($this->auto_commit) {
-            $success = @OCIExecute($result, OCI_COMMIT_ON_SUCCESS);
-        } else {
-            $success = @OCIExecute($result, OCI_DEFAULT);
-        }
-        if (!$success) {
-            return $this->raiseError($result);
-        }
-        @OCILogOff($connection);
+
         $ismanip = MDB2::isManip($query);
-        $result_obj =& $this->_wrapResult($result, $ismanip);
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
+        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+
+        $result = $this->_doQuery($query, $ismanip, $connection, false);
+        @OCILogOff($connection);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+
+        if ($ismanip) {
+            return $result;
+        }
+
+        $result_obj =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
         return $result_obj;
     }
 
@@ -411,12 +414,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
     /**
      * Execute a query
-     * @param string $query the SQL query
+     * @param string $query  query
      * @param boolean $ismanip  if the query is a manipulation query
-     * @return mixed result identifier if query executed, else MDB2_error
+     * @param resource $connection
+     * @param string $database_name
+     * @return result or error object
      * @access private
-     **/
-    function _doQuery($query, $ismanip = false)
+     */
+    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
@@ -428,12 +433,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return null;
         }
 
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
+        if (is_null($connection)) {
+            $connection = $this->connection;
         }
 
-        $statement = @OCIParse($this->connection, $stmt);
+        $statement = @OCIParse($connection, $stmt);
         if (!$statement) {
             $error =& $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
@@ -911,7 +915,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement
      *
      * @access private
      */
-    function &_executePrepared($result_class = false, $result_wrap_class = false)
+    function &_executePrepared($result_class = true, $result_wrap_class = false)
     {
         $ismanip = MDB2::isManip($this->query);
         $query = $this->db->_modifyQuery($this->query);

@@ -355,17 +355,29 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $this->raiseError(null, MDB2_ERROR_NOT_FOUND, null, null,
                 'standaloneQuery: extension '.$this->phptype.' is not compiled into PHP');
         }
+
         $connection = @mssql_connect($this->dsn['hostspec'],$this->dsn['username'],$this->dsn['password']);
         if ($connection == 0) {
             return $this->raiseError('standaloneQuery: Could not connect to the Microsoft SQL server');
         }
-        $result = @mssql_query($query, $connection);
-        if (!$result) {
-            return $this->raiseError('standaloneQuery: Could not query a Microsoft SQL server');
-        }
-        @mssql_close($connection);
+
         $ismanip = MDB2::isManip($query);
-        $result_obj =& $this->_wrapResult($result, $ismanip);
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
+        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+
+        $result = $this->_doQuery($query, $ismanip, $connection, false);
+        @mssql_close($connection);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+
+        if ($ismanip) {
+            return $result;
+        }
+
+        $result_obj =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
         return $result_obj;
     }
 
@@ -376,10 +388,12 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      * Execute a query
      * @param string $query  query
      * @param boolean $ismanip  if the query is a manipulation query
+     * @param resource $connection
+     * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false)
+    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
@@ -390,28 +404,30 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return null;
         }
 
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
+        if (is_null($connection)) {
+            $connection = $this->connection;
+        }
+        if (is_null($database_name)) {
+            $database_name = $this->database_name;
         }
 
-        if ($this->database_name
-            && $this->database_name != $this->connected_database_name
-        ) {
-            if (!@mssql_select_db($this->database_name, $this->connection)) {
-                $error =& $this->raiseError();
-                return $error;
+        if ($database_name) {
+            if ($database_name != $this->connected_database_name) {
+                if (!@mssql_select_db($database_name, $connection)) {
+                    $error =& $this->raiseError();
+                    return $error;
+                }
+                $this->connected_database_name = $database_name;
             }
-            $this->connected_database_name = $this->database_name;
         }
 
-        $result = @mssql_query($query, $this->connection);
+        $result = @mssql_query($query, $connection);
         if (!$result) {
             return $this->raiseError();
         }
 
         if ($ismanip) {
-            return @mssql_affected_rows($this->connection);
+            return @mssql_affected_rows($connection);
         }
         return $result;
     }
@@ -456,7 +472,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->_doQuery("INSERT INTO $sequence_name DEFAULT VALUES");
+        $query = "INSERT INTO $sequence_name DEFAULT VALUES";
+        $result = $this->_doQuery($query);
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -476,10 +493,12 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $result;
         }
         $value = $this->queryOne("SELECT @@IDENTITY FROM $sequence_name", 'integer');
-        if (is_numeric($value)
-            && MDB2::isError($this->_doQuery("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
-        ) {
-            $this->warnings[] = 'nextID: could not delete previous sequence table values';
+        if (is_numeric($value)) {
+            $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value";
+            $result = $this->_doQuery($query);
+            if (MDB2::isError($result)) {
+                $this->warnings[] = 'nextID: could not delete previous sequence table values';
+            }
         }
         return $value;
     }

@@ -236,7 +236,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * @return mixed connection resource on success, MDB2 Error Object on failure
      * @access private
      **/
-    function _doConnect($database_name, $persistent)
+    function _doConnect($database_name, $persistent = false)
     {
         if ($database_name == '') {
             $database_name = 'template1';
@@ -377,16 +377,29 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function &standaloneQuery($query)
     {
-        if (($connection = $this->_doConnect('template1', 0)) == 0) {
+        $connection = $this->_doConnect('template1', false);
+        if (MDB2::isError($connection)) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
                 'Cannot connect to template1');
         }
-        if (!($result = @pg_exec($connection, $query))) {
-            $this->raiseError($result);
-        }
-        @pg_close($connection);
+
         $ismanip = MDB2::isManip($query);
-        $result_obj =& $this->_wrapResult($result, $ismanip);
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
+        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+
+        $result = $this->_doQuery($query, $ismanip, $connection, false);
+        @pg_close($connection);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+
+        if ($ismanip) {
+            return $result;
+        }
+
+        $result_obj =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
         return $result_obj;
     }
 
@@ -397,10 +410,12 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * Execute a query
      * @param string $query  query
      * @param boolean $ismanip  if the query is a manipulation query
+     * @param resource $connection
+     * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false)
+    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
@@ -411,12 +426,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return null;
         }
 
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
+        if (is_null($connection)) {
+            $connection = $this->connection;
         }
 
-        $result = @pg_exec($this->connection, $query);
+        $result = @pg_exec($connection, $query);
         if (!$result) {
             return $this->raiseError();
         }
