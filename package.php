@@ -59,6 +59,14 @@ $notes = <<<EOT
 - added _modifyQuery() to any driver that did not yet have it yet
 - added code in MDB2_Driver_mssql::connect() to better handle date values
   independant of ini and locale settings inside the server
+- use comma, rather than colon, to delimit port in MDB2_driver_mssql::connect().
+  Bug 2140. (danielc)
+- use track_errors to capture error messages in MDB2_driver_pgsql::connect().
+  Bug 2011. (danielc)
+- add port to connect string when protocol is unix in MDB2_driver_pgsql::connect().
+  Bug 1919. (danielc)
+- accommodate changes made to PostgreSQL so "no such field" errors get properly
+  indicated rather than being mislabeled as "no such table." (danielc)
 EOT;
 
 $description =<<<EOT
