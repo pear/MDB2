@@ -243,7 +243,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * @return mixed data array on success, a MDB error on failure
      * @access public
      **/
-    function listTables(&$db)
+    function listTables()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'EXECUTE sp_tables @table_type = "\'TABLE\'"';

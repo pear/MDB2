@@ -339,7 +339,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      * @return mixed data array on success, a MDB error on failure
      * @access public
      **/
-    function listTables(&$db)
+    function listTables()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'SELECT table_name FROM sys.user_tables';
@@ -356,7 +356,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      * @return mixed data array on success, a MDB error on failure
      * @access public
      */
-    function listTableFields(&$db, $table)
+    function listTableFields($table)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $table = strtoupper($table);

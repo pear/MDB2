@@ -111,8 +111,9 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function dropTable(&$db, $name)
+    function dropTable($name)
     {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return $db->query("DROP TABLE $name CASCADE");
     }
 
