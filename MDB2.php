@@ -414,7 +414,7 @@ class MDB2
      */
     function isConnection($value)
     {
-        return is_a($value, 'MDB2_Driver_Common'));
+        return is_a($value, 'MDB2_Driver_Common');
     }
 
     // }}}
@@ -428,7 +428,7 @@ class MDB2
      */
     function isResult($value)
     {
-        return is_a($value, 'MDB2_Result_Common'));
+        return is_a($value, 'MDB2_Result_Common');
     }
 
     // }}}
