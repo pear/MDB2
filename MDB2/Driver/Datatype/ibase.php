@@ -402,7 +402,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param           $value
+     * @param  $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access private
@@ -412,10 +412,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (MDB2::isError($connect = $db->connect())) {
             return $connect;
-        }
-        if (!$db->transaction_id = @ibase_trans(IBASE_COMMITTED, $db->connection)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'Could not start a new transaction: '.ibase_errmsg());
         }
         $close = true;
         if (is_resource($value)) {
@@ -433,7 +429,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         }
         if ($db->in_transaction) {
             $value = @ibase_blob_import($db->transaction_id, $value);
-            $db->commit();
         } else {
             $value = @ibase_blob_import($db->connection, $value);
         }
@@ -450,7 +445,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param           $value
+     * @param  $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access private
@@ -467,7 +462,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param           $value
+     * @param  $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access private
