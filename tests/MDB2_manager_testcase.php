@@ -114,9 +114,17 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
             if (!$this->methodExists($this->manager, 'updateDatabase')) {
                 return;
             }
-            $result = $this->manager->updateDatabase($this->driver_input_file, false, array('create' =>'1', 'name' => $this->database));
+            $result = $this->manager->updateDatabase(
+                $this->driver_input_file,
+                false,
+                array('create' =>'1', 'name' => $this->database)
+            );
             if (!MDB2::isError($result)) {
-                $result = $this->manager->updateDatabase($this->lob_input_file, false, array('create' =>'0', 'name' => $this->database));
+                $result = $this->manager->updateDatabase(
+                    $this->lob_input_file,
+                    false,
+                    array('create' =>'0', 'name' => $this->database)
+                );
             }
             $this->assertFalse(MDB2::isError($result), 'Error creating database');
         } elseif ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
@@ -132,13 +140,21 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         if (!file_exists($backup_file)) {
             copy($this->driver_input_file, $backup_file);
         }
-        $result = $this->manager->updateDatabase($this->driver_input_file, $backup_file, array('create' =>'0', 'name' =>$this->database));
+        $result = $this->manager->updateDatabase(
+            $this->driver_input_file,
+            $backup_file,
+            array('create' =>'0', 'name' =>$this->database)
+        );
         if (!MDB2::isError($result)) {
             $backup_file = $this->lob_input_file.$this->backup_extension;
             if (!file_exists($backup_file)) {
                 copy($this->lob_input_file, $backup_file);
             }
-            $result = $this->manager->updateDatabase($this->lob_input_file, $backup_file, array('create' =>'0', 'name' => $this->database));
+            $result = $this->manager->updateDatabase(
+                $this->lob_input_file,
+                $backup_file,
+                array('create' =>'0', 'name' => $this->database)
+            );
         }
         $this->assertFalse(MDB2::isError($result), 'Error updating database');
     }
