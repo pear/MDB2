@@ -22,6 +22,7 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - mysql driver now uses mysqli implementations where feasible
 - ensure that internal calls to query dont wrap the result
 - for some reason mysqli didnt like SELECT LAST_INSERT_ID()
+- fixed bug in table alteration when only an index was added
 EOT;
 
 $description =<<<EOT
