@@ -349,7 +349,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function standaloneQuery($query)
+    function &standaloneQuery($query)
     {
         if (!PEAR::loadExtension($this->phptype)) {
             return $this->raiseError(null, MDB2_ERROR_NOT_FOUND, null, null,
@@ -364,7 +364,9 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $this->raiseError('standaloneQuery: Could not query a Microsoft SQL server');
         }
         @mssql_close($connection);
-        return MDB2_OK;
+        $ismanip = MDB2::isManip($query);
+        $result_obj =& $this->_wrapResult($result, $ismanip);
+        return $result_obj;
     }
 
     // }}}

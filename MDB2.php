@@ -1671,9 +1671,12 @@ class MDB2_Driver_Common extends PEAR
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function standaloneQuery($query)
+    function &standaloneQuery($query)
     {
-        return $this->_doQuery($query, MDB2::isManip($query));
+        $ismanip = MDB2::isManip($query);
+        $result = $this->_doQuery($query, $ismanip);
+        $result_obj =& $this->_wrapResult($result, $ismanip);
+        return $result_obj;
     }
 
     // }}}

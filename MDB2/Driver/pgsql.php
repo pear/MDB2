@@ -375,7 +375,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function standaloneQuery($query)
+    function &standaloneQuery($query)
     {
         if (($connection = $this->_doConnect('template1', 0)) == 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,

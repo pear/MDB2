@@ -360,7 +360,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function standaloneQuery($query)
+    function &standaloneQuery($query)
     {
         $connection = $this->_doConnect($this->options['DBA_username'], $this->options['DBA_password'], $this->options['persistent']);
         if (MDB2::isError($connection)) {
@@ -379,7 +379,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $this->raiseError($result);
         }
         @OCILogOff($connection);
-        return MDB2_OK;
+        $ismanip = MDB2::isManip($query);
+        $result_obj =& $this->_wrapResult($result, $ismanip);
+        return $result_obj;
     }
 
     // }}}
