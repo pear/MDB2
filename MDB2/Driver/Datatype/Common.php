@@ -250,10 +250,10 @@ class MDB2_Driver_Datatype_Common
     function getDeclaration($type, $name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (method_exists($this, "_get{$type}Declaration")) {
-            return $this->{"_get{$type}Declaration"}($name, $field);
+        if (!method_exists($this, "_get{$type}Declaration")) {
+            return $db->raiseError('type not defined: '.$type);
         }
-        return $db->raiseError('type not defined: '.$type);
+        return $this->{"_get{$type}Declaration"}($name, $field);
     }
 
     // }}}
@@ -264,7 +264,7 @@ class MDB2_Driver_Datatype_Common
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -302,7 +302,7 @@ class MDB2_Driver_Datatype_Common
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -339,7 +339,7 @@ class MDB2_Driver_Datatype_Common
      * large object type field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -371,7 +371,7 @@ class MDB2_Driver_Datatype_Common
      * object type field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -403,7 +403,7 @@ class MDB2_Driver_Datatype_Common
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -434,7 +434,7 @@ class MDB2_Driver_Datatype_Common
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -465,7 +465,7 @@ class MDB2_Driver_Datatype_Common
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -496,7 +496,7 @@ class MDB2_Driver_Datatype_Common
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -527,7 +527,7 @@ class MDB2_Driver_Datatype_Common
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -558,7 +558,7 @@ class MDB2_Driver_Datatype_Common
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name name the field to be declared.
-     * @param string $field associative array with the name of the properties
+     * @param array $field associative array with the name of the properties
      *       of the field being declared as array indexes. Currently, the types
      *       of supported field properties are as follows:
      *
@@ -579,6 +579,230 @@ class MDB2_Driver_Datatype_Common
             $this->quote($field['default'], 'decimal') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' TEXT'.$default.$notnull;
+    }
+
+    // }}}
+    // {{{ compareDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access public
+     */
+    function compareDefinition($current, $previous)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $type = isset($current['type']) ? $current['type'] : null;
+
+        if (!method_exists($this, "_compare{$type}Definition")) {
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'type "'.$current['type'].'" is not yet supported');
+        }
+
+        if (!isset($previous['type']) || $previous['type'] != $type) {
+            return $current;
+        }
+
+        $change = $this->{"_compare{$type}Definition"}($current, $previous);
+        $previous_notnull = isset($previous['notnull']);
+        $notnull = isset($current['notnull']);
+        if ($previous_notnull != $notnull) {
+            $change['changed_not_null'] = true;
+            if ($notnull) {
+                $change['notnull'] = isset($current['notnull']);
+            }
+        }
+
+        $previous_default = isset($previous['default']);
+        $default = isset($current['default']);
+        if ($previous_default != $default) {
+            $change['changed_default'] = true;
+            if ($default) {
+                $change['default'] = $current['default'];
+            }
+        } elseif ($default && $previous['default']!= $current['default']) {
+            $change['changed_default'] = true;
+            $change['default'] = $current['default'];
+        }
+
+        return $change;
+    }
+
+    // }}}
+    // {{{ _compareIntegerDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an integer field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareIntegerDefinition($current, $previous)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $change = array();
+        $previous_unsigned = isset($previous['unsigned']);
+        $unsigned = isset($current['unsigned']);
+        if ($previous_unsigned != $unsigned) {
+            $change['unsigned'] = $unsigned;
+        }
+        return $change;
+    }
+
+    // }}}
+    // {{{ _compareTextDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an text field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareTextDefinition($current, $previous)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $change = array();
+        $previous_length = (isset($previous['length']) ? $previous['length'] : 0);
+        $length = (isset($current['length']) ? $current['length'] : 0);
+        if ($previous_length != $length) {
+            $change['length'] = $length;
+        }
+        return $change;
+    }
+
+    // }}}
+    // {{{ _compareCLOBDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an CLOB field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareCLOBDefinition($current, $previous)
+    {
+        return $this->_compareTextDefinition($current, $previous);
+    }
+
+    // }}}
+    // {{{ _compareBLOBDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an BLOB field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareBLOBDefinition($current, $previous)
+    {
+        return $this->_compareTextDefinition($current, $previous);
+    }
+
+    // }}}
+    // {{{ _compareDateDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an date field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareDateDefinition($current, $previous)
+    {
+        return array();
+    }
+
+    // }}}
+    // {{{ _compareTimeDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an time field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareTimeDefinition($current, $previous)
+    {
+        return array();
+    }
+
+    // }}}
+    // {{{ _compareTimestampDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an timestamp field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareTimestampDefinition($current, $previous)
+    {
+        return array();
+    }
+
+    // }}}
+    // {{{ _compareBooleanDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an boolean field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareBooleanDefinition($current, $previous)
+    {
+        return array();
+    }
+
+    // }}}
+    // {{{ _compareFloatDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an float field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareFloatDefinition($current, $previous)
+    {
+        return array();
+    }
+
+    // }}}
+    // {{{ _compareDecimalDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied to an decimal field
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access private
+     */
+    function _compareDecimalDefinition($current, $previous)
+    {
+        return array();
     }
 
     // }}}
@@ -632,10 +856,10 @@ class MDB2_Driver_Datatype_Common
             }
         }
 
-        if (method_exists($this, "_quote{$type}")) {
-            return $this->{"_quote{$type}"}($value);
+        if (!method_exists($this, "_quote{$type}")) {
+            return $db->raiseError('type not defined: '.$type);
         }
-        return $db->raiseError('type not defined: '.$type);
+        return $this->{"_quote{$type}"}($value);
     }
 
     // }}}

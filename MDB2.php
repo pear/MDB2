@@ -2196,6 +2196,26 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ compareDefinition()
+
+    /**
+     * Obtain an array of changes that may need to applied
+     *
+     * @param array $current new definition
+     * @param array  $previous old definition
+     * @return array  containg all changes that will need to be applied
+     * @access public
+     */
+    function compareDefinition($current, $previous)
+    {
+        $result = $this->loadModule('Datatype');
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return $this->datatype->compareDefinition($current, $previous);
+    }
+
+    // }}}
     // {{{ supports()
 
     /**
