@@ -307,7 +307,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     function listDatabases()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->queryCol('SELECT datname FROM pg_database');
+        $result = $db->standaloneQuery('SELECT datname FROM pg_database');
+        if (!MDB2::isResultCommon($result)) {
+            return $result;
+        }
+
+        $col = $result->fetchCol();
+        $result->free();
+        return $col;
     }
 
     // }}}
@@ -322,7 +329,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     function listUsers()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->queryCol('SELECT usename FROM pg_user');
+        $result = $db->standaloneQuery('SELECT usename FROM pg_user');
+        if (!MDB2::isResultCommon($result)) {
+            return $result;
+        }
+
+        $col = $result->fetchCol();
+        $result->free();
+        return $col;
     }
 
     // }}}
