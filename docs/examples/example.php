@@ -79,12 +79,6 @@
     echo('query for the following examples:'.$query.'<br>');
     // run the query and get a result handler
     $result = $db->query($query);
-    // lets just get row:0 column:0 and free the result
-    $field = $result->fetch();
-    $result->free();
-    echo('<br>field:<br>'.$field.'<br>');
-    // run the query and get a result handler
-    $result = $db->query($query);
     // lets just get row:0 and free the result
     $array = $result->fetchRow();
     $result->free();
