@@ -83,7 +83,10 @@ class MDB2_Driver_Native_mysqli
     function getInsertID()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $value = $db->queryOne('SELECT LAST_INSERT_ID()', 'integer');
+        $value = @mysqli_insert_id($db->connection);
+        if (!$value) {
+            return $db->raiseError();
+        }
         return $value;
     }
 }
