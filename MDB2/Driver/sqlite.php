@@ -122,6 +122,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                     $error_regexps = array(
                         '/^no such table:/' => MDB2_ERROR_NOSUCHTABLE,
                         '/^table .* already exists$/' => MDB2_ERROR_ALREADY_EXISTS,
+                        '/PRIMARY KEY must be unique/i' => MDB2_ERROR_CONSTRAINT,
+                        '/is not unique/' => MDB2_ERROR_CONSTRAINT,
+                        '/uniqueness constraint failed/' => MDB2_ERROR_CONSTRAINT,
                         '/^no such column:/' => MDB2_ERROR_NOSUCHFIELD,
                         '/^near ".*": syntax error$/' => MDB2_ERROR_SYNTAX
                      );
