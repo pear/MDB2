@@ -347,7 +347,7 @@ class MDB2_Tools_Manager extends PEAR
         $this->database_definition = array(
             'name' => $database,
             'create' => 1,
-            'tables' => array()
+            'tables' => array(),
         );
         $tables = $this->db->manager->listTables();
         if (MDB2::isError($tables)) {
@@ -604,17 +604,17 @@ class MDB2_Tools_Manager extends PEAR
                     }
                     $query_fields = implode(',',$query_fields);
                     $query_values = implode(',',$query_values);
-                    $prepared_query = $this->db->prepare(
+                    $stmt = $this->db->prepare(
                         "INSERT INTO $table_name ($query_fields) VALUES ($query_values)", $query_types);
-                    if (MDB2::isError($prepared_query)) {
-                        return $prepared_query;
+                    if (MDB2::isError($stmt)) {
+                        return $stmt;
                     }
-                    $result = $prepared_query->bindParamArray($instruction['fields']);
+                    $result = $stmt->bindParamArray(array_values($instruction['fields']));
                     if (MDB2::isError($result)) {
                         return $result;
                     }
-                    $result = $prepared_query->execute();
-                    $prepared_query->free();
+                    $result = $stmt->execute();
+                    $stmt->free();
                 }
                 break;
             }
@@ -878,7 +878,7 @@ class MDB2_Tools_Manager extends PEAR
                     return $change;
                 }
                 if (count($change)) {
-                    $changes['tables'][$table_name] = $change;
+                    $changes['tables'] = $change;
                 }
             }
         }
@@ -894,7 +894,7 @@ class MDB2_Tools_Manager extends PEAR
                     return $change;
                 }
                 if (count($change)) {
-                    $changes['sequences'][$sequence_name] = $change;
+                    $changes['sequences'] = $change;
                 }
             }
         }
