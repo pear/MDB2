@@ -43,7 +43,7 @@
 //
 // $Id$
 
-require_once 'MDB2/Tools/Manager.php';
+require_once 'MDB2/Schema.php';
 
 class MDB2_Manager_TestCase extends PHPUnit_TestCase {
     //contains the dsn of the database we are testing
@@ -52,7 +52,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
     var $options;
     //contains the name of the database we are testing
     var $database;
-    //contains the MDB2_Tools_Manager object of the db once we have connected
+    //contains the MDB2_Schema object of the db once we have connected
     var $manager;
     //contains the name of the driver_test schema
     var $driver_input_file = 'driver_test.schema';
@@ -77,7 +77,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         if (file_exists($backup_file)) {
             unlink($backup_file);
         }
-        $this->manager =& new MDB2_Tools_Manager;
+        $this->manager =& new MDB2_Schema;
         $this->manager->connect($this->dsn, $this->options);
         if (PEAR::isError($this->manager)) {
             $this->assertTrue(false, 'Could not connect to manager in setUp');

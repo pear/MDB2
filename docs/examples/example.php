@@ -59,8 +59,8 @@
         die (__LINE__.$db->getMessage());
     }
 
-    MDB2::loadFile('Tools/Manager');
-    $manager =& new MDB2_Tools_Manager;
+    MDB2::loadFile('Schema');
+    $manager =& new MDB2_Schema;
     $input_file = 'metapear_test_db.schema';
     // you can either pass a dsn string, a dsn array or an exisiting db connection
     $manager->connect($db);

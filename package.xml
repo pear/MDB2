@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0">
-  <name>MDB2</name>
-  <summary>database abstraction layer</summary>
-  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
+<package version="1.0" packagerversion="1.4.0a9">
+ <name>MDB2</name>
+ <summary>database abstraction layer</summary>
+ <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
 
 Note that the API will be adapted to better fit with the new php5 only PDO
 before the first stable release.
@@ -30,8 +30,7 @@ portability. Among other things MDB2 features:
 * Table information interface
 * RDBMS management methods (creating, dropping, altering)
 * RDBMS independent xml based schema definition management
-* Altering of a DB from a changed xml schema
-* Reverse engineering of xml schemas from an existing DB (currently only MySQL)
+* Reverse engineering schemas from an existing DB (currently only MySQL)
 * Full integration into the PEAR Framework
 * PHPDoc API documentation
 
@@ -44,42 +43,368 @@ Querysim
 Interbase/Firebird
 MSSQL
 SQLite
-Other soon to follow.</description>
-  <maintainers>
-    <maintainer>
-      <user>lsmith</user>
-      <name>Lukas Kahwe Smith</name>
-      <email>smith@backendmedia.com</email>
-      <role>lead</role>
-    </maintainer>
-    <maintainer>
-      <user>pgc</user>
-      <name>Paul Cooper</name>
-      <email>pgc@ucecom.com</email>
-      <role>contributor</role>
-    </maintainer>
-    <maintainer>
-      <user>fmk</user>
-      <name>Frank M. Kromann</name>
-      <email>frank@kromann.info</email>
-      <role>contributor</role>
-    </maintainer>
-    <maintainer>
-      <user>quipo</user>
-      <name>Lorenzo Alberton</name>
-      <email>l.alberton@quipo.it</email>
-      <role>contributor</role>
-    </maintainer>
-    <maintainer>
-      <user>danielc</user>
-      <name>Daniel Convissor</name>
-      <email>danielc@php.net</email>
-      <role>helper</role>
-    </maintainer>
+Other soon to follow.
+ </description>
+ <maintainers>
+  <maintainer>
+   <user>lsmith</user>
+   <name>Lukas Kahwe Smith</name>
+   <email>smith@backendmedia.com</email>
+   <role>lead</role>
+  </maintainer>
+  <maintainer>
+   <user>pgc</user>
+   <name>Paul Cooper</name>
+   <email>pgc@ucecom.com</email>
+   <role>contributor</role>
+  </maintainer>
+  <maintainer>
+   <user>fmk</user>
+   <name>Frank M. Kromann</name>
+   <email>frank@kromann.info</email>
+   <role>contributor</role>
+  </maintainer>
+  <maintainer>
+   <user>quipo</user>
+   <name>Lorenzo Alberton</name>
+   <email>l.alberton@quipo.it</email>
+   <role>contributor</role>
+  </maintainer>
+  <maintainer>
+   <user>danielc</user>
+   <name>Daniel Convissor</name>
+   <email>danielc@php.net</email>
+   <role>helper</role>
+  </maintainer>
   </maintainers>
-  <release>
+ <release>
+  <version>2.0.0beta4</version>
+  <date>2005-04-02</date>
+  <license>BSD License</license>
+  <state>beta</state>
+  <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
+similar as possible as the ext/pdo API! The next release is likely to also break
+BC for the same reason. Check php.net/pdo for information on the pdo API.
+
+- fixed bugs in MDB2_Extended::buildManipSQL() introduced in latest tweaks (bug #3725)
+- mysqli has connection objects instead of resources
+- fix mssql tableInfo() so flags are returned (bug #3691)
+- fixed bug in handling of force_array when 2 or less columns are fetched in fetchAll()
+- added map error message for sqlite multi-column unique constraints.
+- added listUsers(), listViews(), listFunctions() to oracle manager
+- added listFunctions() to pgsql manager
+- updated listViews() in pgsql manager
+- added __call() support for module handling
+- mysql driver now uses mysqli implementations where feasible
+- ensure that internal calls to query dont wrap the result
+- for some reason mysqli didnt like SELECT LAST_INSERT_ID()
+- fixed bug in table alteration when only an index was added
+- updated pgsql API calls to 4.2.0 recommended names (bug #3904)
+- moved logic to compareDefinitions from the Manager into the Datatype module
+  to increase flexibility
+- extended MDB2::isError() to be able to handle an array or codes
+- added error handling into autoPrepare() and autoExecute()
+- migrade all MDB2::isError calls that dont check for specific errors codes to PEAR::isError
+- don't pass new_link to mysql_pconnect() (bug #3993)
+- use MDB2::raiseError() instead of MDB2_Driver_Common::raiseError()
+- do not disable result wrapping when doing internal calls to query() (bug #3997)
+- _wrapResult() now ensures that the result class is an instance of MDB2_Result_Common
+- unbundled the MDB2_Tools_Manager into a separate package PEAR::MDB2_Schema
+  </notes>
+  <deps>
+   <dep type="php" rel="ge" version="4.2.0" optional="no"/>
+   <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
+   <dep type="pkg" rel="has" optional="no">XML_Parser</dep>
+  </deps>
+  <filelist>
+   <dir name="/" baseinstalldir="/">
+    <dir name="docs">
+     <dir name="examples">
+      <file role="doc" name="example.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="doc" name="metapear_test_db.schema">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="doc" name="peardb_wrapper_example.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /docs/examples -->
+     <file role="doc" name="CONTRIBUTORS">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="datatypes.html">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="Driver_Datatype_skeleton.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="Driver_Manager_skeleton.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="Driver_Native_skeleton.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="Driver_Reverse_skeleton.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="Driver_skeleton.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="MAINTAINERS">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="MDB.dtd">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="MDB.xsl">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="querysim_readme.txt">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="README">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="STATUS">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="TODO">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="xml_schema_documentation.html">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+    </dir> <!-- /docs -->
+    <dir name="MDB2">
+     <dir name="Driver">
+      <dir name="Datatype">
+       <file role="php" name="Common.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="fbsql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="ibase.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mssql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mysql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mysqli.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="oci8.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="pgsql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="sqlite.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Datatype -->
+      <dir name="Manager">
+       <file role="php" name="Common.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="fbsql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="ibase.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mssql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mysql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mysqli.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="oci8.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="pgsql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="sqlite.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Manager -->
+      <dir name="Native">
+       <file role="php" name="fbsql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="ibase.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mssql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mysql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mysqli.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="oci8.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="pgsql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="sqlite.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Native -->
+      <dir name="Reverse">
+       <file role="php" name="Common.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="fbsql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="ibase.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mssql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mysql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="mysqli.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="oci8.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="pgsql.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+       <file role="php" name="sqlite.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Reverse -->
+      <file role="php" name="fbsql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="php" name="ibase.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="php" name="mssql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="php" name="mysql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="php" name="mysqli.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="php" name="oci8.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="php" name="pgsql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="php" name="querysim.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+      <file role="php" name="sqlite.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver -->
+     <dir name="Wrapper">
+      <file role="php" name="peardb.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Wrapper -->
+     <file role="php" name="Date.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="php" name="Extended.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="php" name="Iterator.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="php" name="LOB.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+    </dir> <!-- /MDB2 -->
+    <dir name="tests">
+     <dir name="templates">
+      <file role="test" name="results.tpl">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /tests/templates -->
+     <file role="test" name="clitest.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="Console_TestListener.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="driver_test.schema">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="HTML_TestListener.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="lob_test.schema">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="MDB2_api_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="MDB2_bugs_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="MDB2_manager_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="MDB2_native_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="MDB2_reverse_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="MDB2_usage_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="README">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="test.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="testchoose.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="tests.css">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="testUtils.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="test_setup.php.dist">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+    </dir> <!-- /tests -->
+    <file role="php" name="MDB2.php">
+     <replace type="package-info" from="@package_version@" to="version"/>
+    </file>
+   </dir> <!-- / -->
+  </filelist>
+ </release>
+ <changelog>
+   <release>
     <version>2.0.0beta4</version>
-    <date>2005-03-10</date>
+    <date>2005-04-02</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
@@ -87,346 +412,37 @@ similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
 - fixed bugs in MDB2_Extended::buildManipSQL() introduced in latest tweaks (bug #3725)
-- fixed index alteration in the Manager (bug #3710)
 - mysqli has connection objects instead of resources
 - fix mssql tableInfo() so flags are returned (bug #3691)
 - fixed bug in handling of force_array when 2 or less columns are fetched in fetchAll()
 - added map error message for sqlite multi-column unique constraints.
 - added listUsers(), listViews(), listFunctions() to oracle manager
 - added listFunctions() to pgsql manager
-- updated listViews() in pgsql manager</notes>
-    <deps>
-      <dep type="php" rel="ge" version="4.2.0" optional="no"/>
-      <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-      <dep type="pkg" rel="has" optional="no">XML_Parser</dep>
-    </deps>
-    <filelist>
-      <dir baseinstalldir="/" name="/">
-       <dir name="docs">
-        <file role="doc" name="CONTRIBUTORS">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="datatypes.html">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="Driver_Datatype_skeleton.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="Driver_Manager_skeleton.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="Driver_Native_skeleton.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="Driver_Reverse_skeleton.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="Driver_skeleton.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="MAINTAINERS">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="MDB.dtd">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="MDB.xsl">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="querysim_readme.txt">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="README">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="STATUS">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="TODO">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="doc" name="xml_schema_documentation.html">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <dir name="examples">
-         <file role="doc" name="example.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="doc" name="metapear_test_db.schema">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="doc" name="peardb_wrapper_example.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-        </dir> <!-- docs/examples -->
-       </dir> <!-- docs -->
-       <dir name="MDB2">
-        <file role="php" name="Date.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="php" name="Extended.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="php" name="Iterator.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="php" name="LOB.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <dir name="Driver">
-         <file role="php" name="fbsql.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="php" name="ibase.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="php" name="mssql.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="php" name="mysql.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="php" name="mysqli.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="php" name="oci8.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="php" name="pgsql.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="php" name="querysim.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="php" name="sqlite.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <dir name="Datatype">
-          <file role="php" name="Common.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="fbsql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="ibase.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mssql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mysql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mysqli.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="oci8.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="pgsql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="sqlite.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-         </dir> <!-- MDB2/Driver/Datatype -->
-         <dir name="Manager">
-          <file role="php" name="Common.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="fbsql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="ibase.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mssql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mysql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mysqli.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="oci8.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="pgsql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="sqlite.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-         </dir> <!-- MDB2/Driver/Manager -->
-         <dir name="Native">
-          <file role="php" name="fbsql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="ibase.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mssql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mysql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mysqli.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="oci8.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="pgsql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="sqlite.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-         </dir> <!-- MDB2/Driver/Native -->
-         <dir name="Reverse">
-          <file role="php" name="Common.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="fbsql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="ibase.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mssql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mysql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="mysqli.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="oci8.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="pgsql.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="sqlite.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-         </dir> <!-- MDB2/Driver/Reverse -->
-        </dir> <!-- MDB2/Driver -->
-        <dir name="Tools">
-         <file role="php" name="Manager.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <file role="php" name="reverse_engineer_xml_schema.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-         <dir name="Manager">
-          <file role="php" name="Parser.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-          <file role="php" name="Writer.php">
-            <replace type="package-info" from="@package_version@" to="version"/>
-          </file>
-         </dir> <!-- MDB2/Tools/Manager -->
-        </dir> <!-- MDB2/Tools -->
-        <dir name="Wrapper">
-         <file role="php" name="peardb.php">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-        </dir> <!-- MDB2/Wrapper -->
-       </dir> <!-- MDB2 -->
-       <dir name="tests">
-        <file role="test" name="clitest.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="Console_TestListener.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="driver_test.schema">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="HTML_TestListener.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="lob_test.schema">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="MDB2_api_testcase.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="MDB2_bugs_testcase.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="MDB2_manager_testcase.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="MDB2_native_testcase.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="MDB2_reverse_testcase.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="MDB2_usage_testcase.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="README">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="test.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="testchoose.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="tests.css">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="testUtils.php">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <file role="test" name="test_setup.php.dist">
-          <replace type="package-info" from="@package_version@" to="version"/>
-        </file>
-        <dir name="templates">
-         <file role="test" name="results.tpl">
-           <replace type="package-info" from="@package_version@" to="version"/>
-         </file>
-        </dir> <!-- tests/templates -->
-       </dir> <!-- tests -->
-       <file role="php" name="MDB2.php">
-         <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- / -->
-    </filelist>
-  </release>
-  <changelog>
-    <release>
-      <version>2.0.0beta4</version>
-      <date>2005-03-10</date>
-      <license>BSD License</license>
-      <state>beta</state>
-      <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
-similar as possible as the ext/pdo API! The next release is likely to also break
-BC for the same reason. Check php.net/pdo for information on the pdo API.
-
-- fixed bugs in MDB2_Extended::buildManipSQL() introduced in latest tweaks (bug #3725)
-- fixed index alteration in the Manager (bug #3710)
-- mysqli has connection objects instead of resources
-- fix mssql tableInfo() so flags are returned (bug #3691)
-- fixed bug in handling of force_array when 2 or less columns are fetched in fetchAll()
-- added map error message for sqlite multi-column unique constraints.
-- added listUsers(), listViews(), listFunctions() to oracle manager
-- added listFunctions() to pgsql manager
-- updated listViews() in pgsql manager</notes>
-    </release>
-    <release>
-      <version>2.0.0beta3</version>
-      <date>2005-03-06</date>
-      <license>BSD License</license>
-      <state>beta</state>
-      <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
+- updated listViews() in pgsql manager
+- added __call() support for module handling
+- mysql driver now uses mysqli implementations where feasible
+- ensure that internal calls to query dont wrap the result
+- for some reason mysqli didnt like SELECT LAST_INSERT_ID()
+- fixed bug in table alteration when only an index was added
+- updated pgsql API calls to 4.2.0 recommended names (bug #3904)
+- moved logic to compareDefinitions from the Manager into the Datatype module
+  to increase flexibility
+- extended MDB2::isError() to be able to handle an array or codes
+- added error handling into autoPrepare() and autoExecute()
+- migrade all MDB2::isError calls that dont check for specific errors codes to PEAR::isError
+- don't pass new_link to mysql_pconnect() (bug #3993)
+- use MDB2::raiseError() instead of MDB2_Driver_Common::raiseError()
+- do not disable result wrapping when doing internal calls to query() (bug #3997)
+- _wrapResult() now ensures that the result class is an instance of MDB2_Result_Common
+- unbundled the MDB2_Tools_Manager into a separate package PEAR::MDB2_Schema
+    </notes>
+   </release>
+   <release>
+    <version>2.0.0beta3</version>
+    <date>2005-03-06</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
 similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
@@ -578,14 +594,15 @@ MDB_Tools_Manager
   incorrect handling of integer values (this needs to be explored in more detail)
 - several typo fixes and minor logic errors (among others a fix for bug #2057)
 - moved xml dumping in MDB2_Tools_Manager into separate Writer class
-- fixed bugs in start value handling in create sequence (bug #3077)</notes>
-    </release>
-    <release>
-      <version>2.0.0beta2</version>
-      <date>2004-04-25</date>
-      <license>BSD License</license>
-      <state>beta</state>
-      <notes>The core of MDB2 is now fairly stable API-wise. The modules, especially the
+- fixed bugs in start value handling in create sequence (bug #3077)
+    </notes>
+   </release>
+   <release>
+    <version>2.0.0beta2</version>
+    <date>2004-04-25</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>The core of MDB2 is now fairly stable API-wise. The modules, especially the
 manager and reverse module, might see some API refinement before the first
 stable release.
 - added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
@@ -628,14 +645,15 @@ stable release.
 - added $result_class param to all drivers where it was missing from the
   query() and _executePrepared() methods
 - applied several fixes to the PEAR::DB wrapper
-- fixed a typo in MDB2_Driver_Reverse_pgsql::tableInfo()</notes>
-    </release>
-    <release>
-      <version>2.0.0beta1</version>
-      <date>2004-03-12</date>
-      <license>BSD License</license>
-      <state>alpha</state>
-      <notes>- fixed bug in MDB2::singleton
+- fixed a typo in MDB2_Driver_Reverse_pgsql::tableInfo()
+    </notes>
+   </release>
+   <release>
+    <version>2.0.0beta1</version>
+    <date>2004-03-12</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>- fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
 - added PEAR::DB wrapper (not working yet)
 - fixed several bugs in the ibase driver
@@ -655,14 +673,15 @@ stable release.
   doing assoc fetches based on portability flag setting
 - updated reverse engineering script to the new MDB2 API
 - removed broken implementations of currId() in the mssql and fbsql driver
-- fixed a few instances of MDB_Common to the new class name of MDB_Driver_Common</notes>
-    </release>
-    <release>
-      <version>2.0.0alpha1</version>
-      <date>2004-01-05</date>
-      <license>BSD License</license>
-      <state>alpha</state>
-      <notes>This is the first alpha release of MDB2 2.0.
+- fixed a few instances of MDB_Common to the new class name of MDB_Driver_Common
+    </notes>
+   </release>
+   <release>
+    <version>2.0.0alpha1</version>
+    <date>2004-01-05</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>This is the first alpha release of MDB2 2.0.
 
 MDB2 2.x breaks backwards compatibility in many ways in order to simplify
 the API for both users and drivers developers.
@@ -694,7 +713,8 @@ Here follows a short list of the most important changes:
 - results are now wrapped inside objects and all methods which operate
   on resultsets have been moved into respecitive classes
 - there are two types of result object: buffered (default) and unbuffered
-- totally rewrote buffering and limit emulation</notes>
-    </release>
-  </changelog>
+- totally rewrote buffering and limit emulation
+    </notes>
+   </release>
+ </changelog>
 </package>

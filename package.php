@@ -9,7 +9,6 @@ similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
 - fixed bugs in MDB2_Extended::buildManipSQL() introduced in latest tweaks (bug #3725)
-- fixed index alteration in the Manager (bug #3710)
 - mysqli has connection objects instead of resources
 - fix mssql tableInfo() so flags are returned (bug #3691)
 - fixed bug in handling of force_array when 2 or less columns are fetched in fetchAll()
@@ -17,7 +16,6 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - added listUsers(), listViews(), listFunctions() to oracle manager
 - added listFunctions() to pgsql manager
 - updated listViews() in pgsql manager
-- fixed bug in the Manager when upgrading a database that doesnt exist
 - added __call() support for module handling
 - mysql driver now uses mysqli implementations where feasible
 - ensure that internal calls to query dont wrap the result
@@ -26,16 +24,14 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - updated pgsql API calls to 4.2.0 recommended names (bug #3904)
 - moved logic to compareDefinitions from the Manager into the Datatype module
   to increase flexibility
-- removed default_values property from the Manager
-  (the user will now need to set the proper defaults himself)
 - extended MDB2::isError() to be able to handle an array or codes
 - added error handling into autoPrepare() and autoExecute()
 - migrade all MDB2::isError calls that dont check for specific errors codes to PEAR::isError
 - don't pass new_link to mysql_pconnect() (bug #3993)
 - use MDB2::raiseError() instead of MDB2_Driver_Common::raiseError()
-- do not require that not null fields have a default set in the Manager (bug #3997)
 - do not disable result wrapping when doing internal calls to query() (bug #3997)
 - _wrapResult() now ensures that the result class is an instance of MDB2_Result_Common
+- unbundled the MDB2_Tools_Manager into a separate package PEAR::MDB2_Schema
 EOT;
 
 $description =<<<EOT
@@ -66,8 +62,7 @@ portability. Among other things MDB2 features:
 * Table information interface
 * RDBMS management methods (creating, dropping, altering)
 * RDBMS independent xml based schema definition management
-* Altering of a DB from a changed xml schema
-* Reverse engineering of xml schemas from an existing DB (currently only MySQL)
+* Reverse engineering schemas from an existing DB (currently only MySQL)
 * Full integration into the PEAR Framework
 * PHPDoc API documentation
 
@@ -85,25 +80,29 @@ EOT;
 
 $package = new PEAR_PackageFileManager();
 
-$result = $package->setOptions(array(
-    'package'           => 'MDB2',
-    'summary'           => 'database abstraction layer',
-    'description'       => $description,
-    'version'           => $version,
-    'state'             => 'beta',
-    'license'           => 'BSD License',
-    'filelistgenerator' => 'cvs',
-    'ignore'            => array('package.php', 'package.xml'),
-    'notes'             => $notes,
-    'changelogoldtonew' => false,
-    'simpleoutput'      => true,
-    'baseinstalldir'    => '/',
-    'packagedirectory'  => './',
-    'dir_roles'         => array('docs' => 'doc',
-                                 'examples' => 'doc',
-                                 'tests' => 'test',
-                                 'tests/templates' => 'test')
-    ));
+$result = $package->setOptions(
+    array(
+        'package'           => 'MDB2',
+        'summary'           => 'database abstraction layer',
+        'description'       => $description,
+        'version'           => $version,
+        'state'             => 'beta',
+        'license'           => 'BSD License',
+        'filelistgenerator' => 'cvs',
+        'ignore'            => array('package.php', 'package.xml'),
+        'notes'             => $notes,
+        'changelogoldtonew' => false,
+        'simpleoutput'      => true,
+        'baseinstalldir'    => '/',
+        'packagedirectory'  => './',
+        'dir_roles'         => array(
+            'docs' => 'doc',
+             'examples' => 'doc',
+             'tests' => 'test',
+             'tests/templates' => 'test',
+        ),
+    )
+);
 
 if (PEAR::isError($result)) {
     echo $result->getMessage();
@@ -117,7 +116,6 @@ $package->addMaintainer('quipo', 'contributor', 'Lorenzo Alberton', 'l.alberton@
 
 $package->addDependency('php', '4.2.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('XML_Parser', true, 'has', 'pkg', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
 
