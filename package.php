@@ -100,7 +100,8 @@ similar as possible as the ext/pdo API!
   _close() to disconnect() to overwrite the generic implementation
 - placed convert methods after the portability conversions to ensure that the
   proper type is maintained after the conversion methods
-- dont convert null values in the Datatype module
+- dont convert fetched null values in the Datatype module
+- fixed bugs in start value handling in create sequence (bug #3077)
 EOT;
 
 $description =<<<EOT
