@@ -316,11 +316,9 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            if (!$this->connection) {
-                $error = $this->connect();
-                if (MDB2::isError($error)) {
-                    return $error;
-                }
+            $error = $this->connect();
+            if (MDB2::isError($error)) {
+                return $error;
             }
             $connection = $this->connection;
         }
@@ -364,8 +362,12 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         // Add ; to the end of the query. This is required by FrontBase
         $query .= ';';
         if ($limit > 0) {
-            if (!$isManip) {
-                $query = str_replace('SELECT', "SELECT TOP($offset,$limit)", $query);
+            if ($isManip) {
+                return preg_replace('/^([\s(])*SELECT(?!\s*TOP\s*\()/i',
+                    "\\1SELECT TOP($limit)", $query);
+            } else {
+                return preg_replace('/([\s(])*SELECT(?!\s*TOP\s*\()/i',
+                    "\\1SELECT TOP($offset,$limit)", $query);
             }
         }
         return $query;
