@@ -71,12 +71,12 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
-        case 'decimal':
-            return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
-        case 'timestamp':
-            return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
-        default:
-            return $this->_baseConvertResult($value, $type);
+            case 'decimal':
+                return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
+            case 'timestamp':
+                return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
+            default:
+                return $this->_baseConvertResult($value, $type);
         }
     }
 
@@ -428,14 +428,12 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             @rewind($fp);
             $value = $fp;
         }
-/*
-        $prepared_query = $GLOBALS['_MDB2_LOBs'][$lob]->prepared_query;
-        $parameter = $GLOBALS['_MDB2_LOBs'][$lob]->parameter;
-*/
-        if (($handle = @ibase_blob_create($db->auto_commit ? $db->connection : $db->transaction_id))) {
+        $handle = @ibase_blob_create($db->auto_commit ? $db->connection : $db->transaction_id);
+        if ($handle) {
             while (!@feof($value)) {
                 $data = @fread($value, $db->options['lob_buffer_length']);
-                if (@ibase_blob_add($handle, $data) === false) {
+                $result = @ibase_blob_add($handle, $data);
+                if ($result === false) {
                     $result = $db->raiseError(MDB2_ERROR, null, null,
                         'Could not add data to a large object: '.ibase_errmsg());
                     break;
@@ -452,16 +450,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         } else {
             $result = $db->raiseError();
         }
-/*
-        if (!isset($db->query_parameters[$prepared_query])) {
-            $db->query_parameters[$prepared_query]       = array(0, '');
-            $db->query_parameter_values[$prepared_query] = array();
-        }
-        $query_parameter = count($db->query_parameters[$prepared_query]);
-        $db->query_parameters[$prepared_query][$query_parameter] = $value;
-        $db->query_parameter_values[$prepared_query][$parameter] = $query_parameter;
-        $value = '?';
-*/
+
         if (!$db->auto_commit) {
             $db->commit();
         }
@@ -501,9 +490,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         return $this->_quoteLOB($value);
     }
-
+    
     // }}}
-    // {{{ _quoteFloat()
+    // {{{ _quoteBoolean()
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -511,12 +500,12 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
-     *      a DBMS specific format.
+     *       a DBMS specific format.
      * @access private
      */
-    function _quoteFloat($value)
+    function _quoteBoolean($value)
     {
-        return $value;
+        return ($value ? "'Y'" : "'N'");
     }
 
     // }}}
