@@ -188,13 +188,13 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         if ($this->connection) {
             if ($auto_commit) {
                 $query = 'END TRANSACTION '.$this->options['base_transaction_name'];
-                $result = $this->query($query);
+                $result = $this->_doQuery($query);
                 if (MDB2::isError($result)) {
                     return $result;
                 }
             } else {
                 $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
-                $result = $this->query($query);
+                $result = $this->_doQuery($query);
                 if (MDB2::isError($result)) {
                     return $result;
                 }
@@ -229,11 +229,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
             'commit: transaction changes are being auto commited');
         }
-        $result = $this->query('COMMIT TRANSACTION '.$this->options['base_transaction_name']);
+        $result = $this->_doQuery('COMMIT TRANSACTION '.$this->options['base_transaction_name']);
         if (MDB2::isError($result)) {
             return $result;
         }
-        return $this->query('BEGIN TRANSACTION '.$this->options['base_transaction_name']);
+        return $this->_doQuery('BEGIN TRANSACTION '.$this->options['base_transaction_name']);
     }
 
     // }}}
@@ -260,11 +260,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto commited');
         }
-        $result = $this->query('ROLLBACK TRANSACTION '.$this->options['base_transaction_name']);
+        $result = $this->_doQuery('ROLLBACK TRANSACTION '.$this->options['base_transaction_name']);
         if (MDB2::isError($result)) {
             return $result;
         }
-        return $this->query('BEGIN TRANSACTION '.$this->options['base_transaction_name']);
+        return $this->_doQuery('BEGIN TRANSACTION '.$this->options['base_transaction_name']);
     }
 
     // }}}
@@ -302,8 +302,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            @sqlite_close($this->connection);
-            $this->connection = 0;
+            $this->_close();
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
@@ -350,8 +349,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if (!$this->auto_commit) {
                 $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
                 if (!@sqlite_query($query, $this->connection)) {
-                    @sqlite_close($this->connection);
-                    $this->connection = 0;
+                    $this->_close();
                     return $this->raiseError('connect: Could not start transaction');
                 }
                 $this->in_transaction = true;
@@ -371,19 +369,63 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if (isset($this->supported['transactions']) && !$this->auto_commit) {
-                $result = $this->autoCommit(true);
-            }
             @sqlite_close($this->connection);
             $this->connection = 0;
             unset($GLOBALS['_MDB2_databases'][$this->db_index]);
-
-            if (isset($result) && MDB2::isError($result)) {
-                return $result;
-            }
-
         }
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _doQuery()
+
+    /**
+     * Execute a query
+     * @param string $query  query
+     * @param boolean $ismanip  if the query is a manipulation query
+     * @return result or error object
+     * @access private
+     */
+    function _doQuery($query, $ismanip = false)
+    {
+        $this->last_query = $query;
+        $this->debug($query, 'query');
+        if ($this->options['disable_query']) {
+            if ($ismanip) {
+                return MDB2_OK;
+            }
+            return null;
+        }
+
+        $connected = $this->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
+        }
+
+        if ($this->database_name
+            && $this->database_name != $this->connected_database_name
+        ) {
+            if (!@mysql_select_db($this->database_name, $this->connection)) {
+                $error =& $this->raiseError();
+                return $error;
+            }
+            $this->connected_database_name = $this->database_name;
+        }
+
+        $function = $this->options['result_buffering']
+            ? 'sqlite_query' : 'sqlite_unbuffered_query';
+        ini_set('track_errors', true);
+        $result = @$function($query.';', $this->connection);
+        ini_restore('track_errors');
+        $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
+        if (!$result) {
+            return $this->raiseError();
+        }
+
+        if ($ismanip) {
+            return @sqlite_changes($this->connection);
+        }
+        return $result;
     }
 
     // }}}
@@ -397,7 +439,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access private
      */
-    function _modifyQuery($query, $ismanip, $offset, $limit)
+    function _modifyQuery($query, $ismanip, $limit, $offset)
     {
         // "DELETE FROM table" gives 0 affected rows in sqlite.
         // This little hack lets you know how many rows were deleted.
@@ -417,78 +459,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         return $query;
     }
 
-    // }}}
-    // {{{ query()
-
-    /**
-     * Send a query to the database and return any results
-     *
-     * @param string  $query  the SQL query
-     * @param mixed   $types  string or array that contains the types of the
-     *                        columns in the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access public
-     */
-    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
-    {
-        $ismanip = MDB2::isManip($query);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $ismanip, $offset, $limit);
-        $this->last_query = $query;
-        $this->debug($query, 'query');
-        if ($this->options['disable_query']) {
-            if ($ismanip) {
-                return MDB2_OK;
-            }
-            return null;
-        }
-
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
-        }
-
-        $function = $this->options['result_buffering']
-            ? 'sqlite_query' : 'sqlite_unbuffered_query';
-        ini_set('track_errors', true);
-        $result = @$function($query.';', $this->connection);
-        ini_restore('track_errors');
-        $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
-
-        if (!$result) {
-            $error =& $this->raiseError();
-            return $error;
-        }
-        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
-        return $result_obj;
-    }
-
-    // }}}
-    // {{{ affectedRows()
-
-    /**
-     * returns the affected rows of a query
-     *
-     * @return mixed MDB2 Error Object or number of rows
-     * @access public
-     */
-    function affectedRows()
-    {
-        if (MDB2::isManip($this->last_query)) {
-            $affected_rows = @sqlite_changes($this->connection);
-        } else {
-            $affected_rows = 0;
-        }
-        if ($affected_rows === false) {
-            return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
-        }
-        return $affected_rows;
-    }
 
     // }}}
     // {{{ replace()
@@ -588,7 +558,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,
                 'replace: not specified which fields are keys');
         }
-        return $this->query("REPLACE INTO $table ($query) VALUES ($values)");
+        $query = "REPLACE INTO $table ($query) VALUES ($values)";
+        $this->last_query = $query;
+        $this->debug($query, 'query');
+        return $this->_doQuery($query, true);
     }
 
     // }}}
@@ -609,7 +582,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->query("INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL)");
+        $result = $this->_doQuery("INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL)");
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -630,7 +603,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
         $value = @sqlite_last_insert_rowid($this->connection);
         if (is_numeric($value)
-            && MDB2::isError($this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
+            && MDB2::isError($this->_doQuery("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
         ) {
             $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
         }

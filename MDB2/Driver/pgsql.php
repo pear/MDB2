@@ -294,9 +294,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             {
                 return MDB2_OK;
             }
-            @pg_close($this->connection);
-            $this->affected_rows = -1;
-            $this->connection = 0;
+            $this->_close();
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
@@ -317,9 +315,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             if (!$this->auto_commit
                 && MDB2::isError($trans_result = $this->_doQuery('BEGIN'))
             ) {
-                @pg_close($this->connection);
-                $this->connection = 0;
-                $this->affected_rows = -1;
+                $this->_close();
                 return $trans_result;
             }
         }
@@ -337,39 +333,17 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if (!$this->auto_commit) {
-                $result = $this->_doQuery('END');
+            if ($this->supports('transactions') && !$this->auto_commit) {
+                $result = $this->rollback();
+                if (MDB2::isError($result)) {
+                    return $result;
+                }
             }
             @pg_close($this->connection);
             $this->connection = 0;
-            $this->affected_rows = -1;
             unset($GLOBALS['_MDB2_databases'][$this->db_index]);
-
-            if (isset($result) && MDB2::isError($result)) {
-                return $result;
-            }
         }
         return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ _doQuery()
-
-    /**
-     * Execute a query
-     * @param string $query the SQL query
-     * @return mixed result identifier if query executed, else MDB2_error
-     * @access private
-     **/
-    function _doQuery($query)
-    {
-        $result = @pg_exec($this->connection, $query);
-        if ($result) {
-            $this->affected_rows = ($this->supports('affected_rows') ? @pg_affected_rows($result) : -1);
-        } else {
-            return $this->raiseError($result);
-        }
-        return $result;
     }
 
     // }}}
@@ -396,6 +370,43 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ _doQuery()
+
+    /**
+     * Execute a query
+     * @param string $query  query
+     * @param boolean $ismanip  if the query is a manipulation query
+     * @return result or error object
+     * @access private
+     */
+    function _doQuery($query, $ismanip = false)
+    {
+        $this->last_query = $query;
+        $this->debug($query, 'query');
+        if ($this->options['disable_query']) {
+            if ($ismanip) {
+                return MDB2_OK;
+            }
+            return null;
+        }
+
+        $connected = $this->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
+        }
+
+        $result = @pg_exec($this->connection, $query);
+        if (!$result) {
+            return $this->raiseError();
+        }
+
+        if ($ismanip) {
+            return @pg_affected_rows($result);
+        }
+        return $result;
+    }
+
+    // }}}
     // {{{ _modifyQuery()
 
     /**
@@ -406,7 +417,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access private
      */
-    function _modifyQuery($query, $ismanip, $offset, $limit)
+    function _modifyQuery($query, $ismanip, $limit, $offset)
     {
         if ($limit > 0) {
             if ($ismanip) {
@@ -419,60 +430,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
         }
         return $query;
-    }
-
-    // }}}
-    // {{{ query()
-
-    /**
-     * Send a query to the database and return any results
-     *
-     * @param string $query the SQL query
-     * @param array $types array that contains the types of the columns in
-     *                         the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access public
-     */
-    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
-    {
-        $ismanip = MDB2::isManip($query);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $ismanip, $offset, $limit);
-        $this->last_query = $query;
-        $this->debug($query, 'query');
-        if ($this->options['disable_query']) {
-            if ($ismanip) {
-                return MDB2_OK;
-            }
-            return NULL;
-        }
-
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
-        }
-
-        $result = $this->_doQuery($query);
-        if (MDB2::isError($result)) {
-            return $result;
-        }
-        if ($ismanip) {
-            $this->affected_rows = @pg_affected_rows($result);
-        } elseif ((preg_match('/^\s*\(?\s*SELECT\s+/si', $query)
-                && !preg_match('/^\s*\(?\s*SELECT\s+INTO\s/si', $query))
-            || preg_match('/^\s*EXPLAIN/si',$query)
-        ) {
-            $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
-            return $result_obj;
-        } else {
-            $this->affected_rows = 0;
-            return MDB2_OK;
-        }
     }
 
     // }}}
