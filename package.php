@@ -9,6 +9,9 @@ $notes = <<<EOT
 - setParamsArray() can now handle non ordered arrays
 - performance tweak in fetchCol()
 - fixed a large number of compatibility issues in the PEAR::DB wrapper
+- added MDB2_FETCHMODE_OBJECT
+- added MDB2_Driver_Result_Common::getRowCounter()
+- explicitly specify colum name in sequence emulation queries
 EOT;
 
 $description =<<<EOT
