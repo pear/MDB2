@@ -65,9 +65,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     /**
      * Constructor
      */
-    function MDB2_Driver_oci8()
+    function __construct()
     {
-        $this->MDB2_Driver_Common();
+        parent::__construct();
+
         $this->phptype = 'oci8';
         $this->dbsyntax = 'oci8';
 
@@ -88,8 +89,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->options['DBA_password'] = false;
         $this->options['database_name_prefix'] = false;
         $this->options['default_tablespace'] = false;
-        $this->options['HOME'] = false;
+        $this->options['home'] = false;
         $this->options['default_text_field_length'] = 4000;
+    }
+
+    function MDB2_Driver_oci8()
+    {
+        $this->__construct();
     }
 
     // }}}
@@ -107,8 +113,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (is_resource($error)) {
             $error_data = @OCIError($error);
             $error = null;
-        } else {
+        } elseif($this->connection) {
             $error_data = @OCIError($this->connection);
+        } else {
+            $error_data = @OCIError();
         }
         $native_code = $error_data['code'];
         $native_msg  = $error_data['message'];
@@ -253,14 +261,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'it was not specified a valid Oracle Service Identifier (SID)');
         }
 
-        if ($this->options['HOME']) {
-            putenv('ORACLE_HOME='.$this->options['HOME']);
+        if ($this->options['home']) {
+            putenv('ORACLE_HOME='.$this->options['home']);
         }
         putenv('ORACLE_SID='.$sid);
         $function = ($persistent ? 'OCIPLogon' : 'OCINLogon');
         $connection = @$function($username, $password, $sid);
         if (!$connection) {
-            $connection =  $this->raiseError();
+            $connection =  $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
         return $connection;
     }
@@ -427,7 +435,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     ) {
                         $clob_stream = key($this->clobs[$prepared_query]);
                         $parameter = $GLOBALS['_MDB2_LOBs'][$clob_stream]->parameter;
-                        if (!OCIBindByName($statement, ':clob'.$parameter, $descriptors[$clob_stream], -1, OCI_B_CLOB)) {
+                        if (!OCIBindByName($statement, ':clob'.($parameter+1), $descriptors[$clob_stream], -1, OCI_B_CLOB)) {
                             $success = $this->raiseError();
                             break;
                         }
@@ -439,7 +447,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                         ) {
                             $blob_stream = key($this->blobs[$prepared_query]);
                             $parameter = $GLOBALS['_MDB2_LOBs'][$blob_stream]->parameter;
-                            if (!OCIBindByName($statement, ':blob'.$parameter, $descriptors[$blob_stream], -1, OCI_B_BLOB)) {
+                            if (!OCIBindByName($statement, ':blob'.($parameter+1), $descriptors[$blob_stream], -1, OCI_B_BLOB)) {
                                 $success = $this->raiseError();
                                 break;
                             }
@@ -702,18 +710,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
 class MDB2_Result_oci8 extends MDB2_Result_Common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Result_oci8(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ _skipLimitOffset()
 
     /**
@@ -730,10 +726,11 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
                 return false;
             }
         }
-        if ($this->limit) {
-            while ($this->offset_count < $this->limit) {
+        if ($this->offset) {
+            while ($this->offset_count < $this->offset) {
                 ++$this->offset_count;
                 if (!@OCIFetchInto($this->result, $row, OCI_RETURN_NULLS)) {
+                    $this->offset_count = $this->offset;
                     return false;
                 }
             }
@@ -904,18 +901,6 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     var $buffer;
     var $buffer_rownum = - 1;
 
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_BufferedResult_oci8(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_oci8($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ _fillBuffer()
 
     /**
