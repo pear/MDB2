@@ -97,7 +97,7 @@ class MDB2_LOB
         $this->position += $length;
         return $length;
     }
-};
+}
 
 /**
  * MDB2 Large Object (BLOB/CLOB) class for reading results
@@ -143,7 +143,7 @@ class MDB2_LOB_Result extends MDB2_LOB
         }
         return $read_length;
     }
-};
+}
 
 /**
  * MDB2 Large Object (BLOB/CLOB) class to read file into DB
@@ -153,6 +153,7 @@ class MDB2_LOB_Result extends MDB2_LOB
  * @access private
  * @author  Lukas Smith <smith@backendmedia.com>
  */
+/*
 class MDB2_LOB_Input_File extends MDB2_LOB
 {
     var $file = '';
@@ -207,8 +208,8 @@ class MDB2_LOB_Input_File extends MDB2_LOB
         }
         return strlen($data);
     }
-};
-
+}
+*/
 /**
  * MDB2 Large Object (BLOB/CLOB) class to read into a file from DB
  *
@@ -302,4 +303,5 @@ class MDB2_LOB_Output_File extends MDB2_LOB
         return $written_full;
     }
 }
+
 ?>
