@@ -146,7 +146,8 @@ class DB
         if (PEAR::isError($db)) {
             return $db;
         }
-        return new MDB2_PEARProxy($db);
+        $obj =& new MDB2_PEARProxy($db);
+        return $obj;
     }
 
     function &connect($dsn, $options = false)
@@ -158,7 +159,8 @@ class DB
         if (PEAR::isError($db)) {
             return $db;
         }
-        return new MDB2_PEARProxy($db);
+        $obj =& new MDB2_PEARProxy($db);
+        return $obj;
     }
 
     function apiVersion()
