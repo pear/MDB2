@@ -776,6 +776,13 @@ class MDB2_Driver_Common extends PEAR
 {
     // {{{ properties
     /**
+     * php version used
+     * @var integer
+     * @access public
+     */
+    var $phpversion = 5;
+
+    /**
      * index of the MDB2 object within the $GLOBALS['_MDB2_databases'] array
      * @var integer
      * @access public
@@ -986,13 +993,24 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Constructor
      */
-    function MDB2_Driver_Common()
+    function __construct()
     {
         $db_index = count($GLOBALS['_MDB2_databases']) + 1;
         $GLOBALS['_MDB2_databases'][$db_index] = &$this;
         $this->db_index = $db_index;
 
         $this->PEAR();
+    }
+ 
+    function MDB2_Driver_Common()
+    {
+        static $register_shutdown;
+        if (isset($register_shutdown)) {
+            $register_shutdown = true;
+            register_shutdown_function('_MDB2_shutdownTransactions');
+        }
+        $this->phpversion = 4;
+        $this->__construct();
     }
 
     // }}}
@@ -2280,7 +2298,7 @@ class MDB2_Driver_Common extends PEAR
         if (!$this->supported['auto_increment']) {
             return $thid->nextID($seq_name, $ondemand);
         }
-        return;
+        return 'NULL';
     }
 
     // }}}
@@ -2308,13 +2326,14 @@ class MDB2_Driver_Common extends PEAR
     /**
      * returns the autoincrement ID if supported
      *
+     * @param miced id value as returned by getBeforeId()
      * @param string $table name of the table
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getAfterID($table)
+    function getAfterID($id, $table)
     {
-        return;
+        return $id;
     }
 
     // }}}
@@ -2535,7 +2554,7 @@ class MDB2_Driver_Common extends PEAR
     *
     * @access private
     */
-    function _MDB2_Driver_Common()
+    function __destruct()
     {
         if ($this->in_transaction && !MDB2::isError($this->rollback())) {
             $this->autoCommit(true);
@@ -2820,7 +2839,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function getRowCounter()
     {
-        return $this->rownum + $this->offset;
+        return $this->rownum + 1 + $this->offset;
     }
 
     // }}}
@@ -2968,6 +2987,20 @@ function MDB2_defaultDebugOutput(&$db, $scope, $message)
 {
     $db->debug_output .= $scope.'('.$db->db_index.'): ';
     $db->debug_output .= $message.$db->getOption('log_line_break');
+}
+
+function _MDB2_shutdownTransactions()
+{
+    reset($GLOBALS['_MDB2_databases']);
+    $j=count($GLOBALS['_MDB2_databases']);
+    for($i=0; $i<$j; next($GLOBALS['_MDB2_databases']),$i++) {
+        $db_index= key($GLOBALS['_MDB2_databases']);
+        if ($GLOBALS['_MDB2_databases'][$db_index]->in_transaction
+            && !MDB2::isError($GLOBALS['_MDB2_databases'][$db_index]->rollback())
+        ) {
+            $GLOBALS['_MDB2_databases'][$db_index]->autoCommit(true);
+        }
+    }
 }
 
 ?>
