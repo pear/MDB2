@@ -170,7 +170,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     $error_regexps = array(
                         '/[tT]able not found/' => MDB2_ERROR_NOSUCHTABLE,
                         '/[tT]able .* already exists/' => MDB2_ERROR_ALREADY_EXISTS,
-                        '/violation of FOREIGN KEY constraint/' => MDB2_ERROR_CONSTRAINT,
+                        '/violation of [\w ]+ constraint/' => MDB2_ERROR_CONSTRAINT,
                         '/conversion error from string/' => MDB2_ERROR_INVALID_NUMBER,
                         '/no permission for/' => MDB2_ERROR_ACCESS_VIOLATION,
                         '/arithmetic exception, numeric overflow, or string truncation/' => MDB2_ERROR_DIVZERO
