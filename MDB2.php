@@ -1514,6 +1514,20 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ getDatabase()
+
+    /**
+     * get the current database
+     *
+     * @return string name of the database
+     * @access public
+     */
+    function getDatabase()
+    {
+        return $this->database_name;
+    }
+
+    // }}}
     // {{{ setDSN()
 
     /**
