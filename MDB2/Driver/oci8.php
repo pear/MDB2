@@ -426,7 +426,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->debug($query, 'query');
         if ($this->getOption('disable_query')) {
             if ($isManip) {
-                $this->affected_rows = 0;
                 return MDB2_OK;
             }
             return null;
@@ -1021,7 +1020,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement
         }
 
         if ($isManip) {
-            $this->db->affected_rows = @OCIRowCount($statement);
+            return @OCIRowCount($statement);
         }
 
         return $this->db->_wrapResult($result, $isManip, $this->types,
