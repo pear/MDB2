@@ -79,6 +79,7 @@ similar as possible as the ext/pdo API!
 - added LOAD DATA (port from DB) and SET to MDB2::isManip()
 - moved xml dumping in MDB2_Tools_Manager into separate Writer class
 - completely revised ibase driver, now passing all tests under php5
+- remove redundant call to commit() since setting autoCommit() already commits in MDB2::replace()
 EOT;
 
 $description =<<<EOT
