@@ -244,7 +244,30 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getIntegerDeclaration()
+    // {{{ getDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare
+     * of the given type
+     *
+     * @param string $type type to which the value should be converted to
+     * @param string  $name   name the field to be declared.
+     * @param string  $field  definition of the field
+     * @return string  DBMS specific SQL code portion that should be used to
+     *                 declare the specified field.
+     * @access public
+     */
+    function getDeclaration($type, $name, $field)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if (method_exists($this, "_get{$type}Declaration")) {
+            return $this->{"_get{$type}Declaration"}($name, $field);
+        }
+        return $db->raiseError('type not defined: '.$type);
+    }
+
+    // }}}
+    // {{{ _getIntegerDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an integer type
@@ -267,9 +290,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getIntegerDeclaration($name, $field)
+    function _getIntegerDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['unsigned'])) {
@@ -282,7 +305,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getTextDeclaration()
+    // {{{ _getTextDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an text type
@@ -306,9 +329,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getTextDeclaration($name, $field)
+    function _getTextDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -319,7 +342,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getSerializeDeclaration()
+    // {{{ _getSerializeDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an text type
@@ -343,15 +366,15 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-#    function getSerializeDeclaration($name, $field)
+#    function _getSerializeDeclaration($name, $field)
 #    {
-#        return $this->getTextDeclaration($name, $field);
+#        return $this->_getTextDeclaration($name, $field);
 #    }
 
     // }}}
-    // {{{ getCLOBDeclaration()
+    // {{{ _getCLOBDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an character
@@ -372,9 +395,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getCLOBDeclaration($name, $field)
+    function _getCLOBDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
@@ -383,7 +406,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getBLOBDeclaration()
+    // {{{ _getBLOBDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an binary large
@@ -404,9 +427,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getBLOBDeclaration($name, $field)
+    function _getBLOBDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
@@ -415,7 +438,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getBooleanDeclaration()
+    // {{{ _getBooleanDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare a boolean type
@@ -434,9 +457,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getBooleanDeclaration($name, $field)
+    function _getBooleanDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -446,7 +469,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getDateDeclaration()
+    // {{{ _getDateDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare a date type
@@ -465,9 +488,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getDateDeclaration($name, $field)
+    function _getDateDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -477,7 +500,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getTimestampDeclaration()
+    // {{{ _getTimestampDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare a timestamp
@@ -496,9 +519,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getTimestampDeclaration($name, $field)
+    function _getTimestampDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -508,7 +531,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getTimeDeclaration()
+    // {{{ _getTimeDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare a time
@@ -527,9 +550,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getTimeDeclaration($name, $field)
+    function _getTimeDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -539,7 +562,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getFloatDeclaration()
+    // {{{ _getFloatDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare a float type
@@ -558,9 +581,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getFloatDeclaration($name, $field)
+    function _getFloatDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -570,7 +593,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getDecimalDeclaration()
+    // {{{ _getDecimalDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare a decimal type
@@ -589,9 +612,9 @@ class MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getDecimalDeclaration($name, $field)
+    function _getDecimalDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.

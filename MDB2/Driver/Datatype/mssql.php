@@ -89,7 +89,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getTextDeclaration()
+    // {{{ _getTextDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an text type
@@ -113,9 +113,9 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getTextDeclaration($name, $field)
+    function _getTextDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = isset($field['length']) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
@@ -126,7 +126,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getCLOBDeclaration()
+    // {{{ _getCLOBDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an character
@@ -149,9 +149,9 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                        is constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access public
+     * @access private
      */
-    function getCLOBDeclaration($name, $field)
+    function _getCLOBDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['length'])) {
@@ -169,7 +169,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getBLOBDeclaration()
+    // {{{ _getBLOBDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an binary large
@@ -192,9 +192,9 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access public
+     * @access private
      */
-    function getBLOBDeclaration($name, $field)
+    function _getBLOBDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['length'])) {
@@ -212,7 +212,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getBooleanDeclaration()
+    // {{{ _getBooleanDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare a boolean type
@@ -231,9 +231,9 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access public
+     * @access private
      */
-    function getBooleanDeclaration($name, $field)
+    function _getBooleanDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -243,7 +243,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getFloatDeclaration()
+    // {{{ _getFloatDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an float type
@@ -264,9 +264,9 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access public
+     * @access private
      */
-    function getFloatDeclaration($name, $field)
+    function _getFloatDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -276,7 +276,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ getDecimalDeclaration()
+    // {{{ _getDecimalDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an decimal type
@@ -297,9 +297,9 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access public
+     * @access private
      */
-    function getDecimalDeclaration($name, $field)
+    function _getDecimalDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
