@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta1</version>
-    <date>2004-03-09</date>
+    <date>2004-03-12</date>
     <license>BSD License</license>
     <state>alpha</state>
     <notes>- fixed bug in MDB2::singleton
@@ -90,7 +90,10 @@ Other soon to follow.</description>
 - added STATUS document to make the status of the drivers more transparent
 - fixed a few bugs in querysim driver
 - fixed issue in mysql reverse engineering: ensuring the correct case is used when
-  doing assoc fetches based on portability flag setting</notes>
+  doing assoc fetches based on portability flag setting
+- updated reverse engineering script to the new MDB2 API
+- removed broken implementations of currId() in the mssql and fbsql driver
+- fixed a few instances of MDB_Common to the new class name of MDB_Driver_Common</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -213,7 +216,7 @@ Other soon to follow.</description>
   <changelog>
     <release>
       <version>2.0.0beta1</version>
-      <date>2004-03-09</date>
+      <date>2004-03-12</date>
       <license>BSD License</license>
       <state>alpha</state>
       <notes>- fixed bug in MDB2::singleton
@@ -233,7 +236,10 @@ Other soon to follow.</description>
 - added STATUS document to make the status of the drivers more transparent
 - fixed a few bugs in querysim driver
 - fixed issue in mysql reverse engineering: ensuring the correct case is used when
-  doing assoc fetches based on portability flag setting</notes>
+  doing assoc fetches based on portability flag setting
+- updated reverse engineering script to the new MDB2 API
+- removed broken implementations of currId() in the mssql and fbsql driver
+- fixed a few instances of MDB_Common to the new class name of MDB_Driver_Common</notes>
     </release>
     <release>
       <version>2.0.0alpha1</version>
