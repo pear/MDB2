@@ -106,7 +106,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
 
     function methodExists(&$class, $name) {
         if (is_object($class)
-            && array_key_exists(strtolower($name), array_flip(get_class_methods($class)))
+            && array_key_exists(strtolower($name), array_change_key_case(array_flip(get_class_methods($class))))
         ) {
             return true;
         }
