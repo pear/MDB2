@@ -214,12 +214,12 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
         if (PEAR::isError($query_fields = $this->getFieldDeclarationList($fields))) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: unkown error');
+                'createTable: '.$this->getUserinfo());
         }
         if (isset($db->supported['transactions'])
             && ($db->options['default_table_type'] == 'BDB' || $db->options['default_table_type'] == 'BERKELEYDB')
         ) {
-            $query_fields .= ', dummy_primary_key INT NOT NULL AUTO_INCREMENT, PRIMARY KEY (dummy_primary_key)';
+            $query_fields .= ', '.$db->dummy_primary_key.' INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ('.$db->dummy_primary_key.')';
         }
         $query = "CREATE TABLE $name ($query_fields)".(strlen($db->options['default_table_type'])
             ? ' TYPE='.$db->options['default_table_type'] : '');
