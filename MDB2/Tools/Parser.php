@@ -441,6 +441,7 @@ class MDB2_Tools_Parser extends XML_Parser
                 $xp = $msg;
             } else {
                 $error .= 'Parser error: '.$msg;
+                $xp = $this->parser;
             }
             if (($error_string = xml_error_string($ecode))) {
                 $error .= ' - '.$error_string;
