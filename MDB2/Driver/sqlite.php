@@ -386,18 +386,18 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $ismanip  if the query is a manipulation query
+     * @param boolean $isManip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
-            if ($ismanip) {
+            if ($isManip) {
                 return MDB2_OK;
             }
             return null;
@@ -430,7 +430,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError();
         }
 
-        if ($ismanip) {
+        if ($isManip) {
             return @sqlite_changes($connection);
         }
         return $result;
@@ -447,7 +447,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access private
      */
-    function _modifyQuery($query, $ismanip, $limit, $offset)
+    function _modifyQuery($query, $isManip, $limit, $offset)
     {
         // "DELETE FROM table" gives 0 affected rows in sqlite.
         // This little hack lets you know how many rows were deleted.
@@ -458,7 +458,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             );
         }
         if ($limit > 0) {
-            if ($ismanip) {
+            if ($isManip) {
                 $query .= " LIMIT $limit";
             } else {
                 $query .= " LIMIT $offset,$limit";

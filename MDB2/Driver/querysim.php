@@ -336,15 +336,15 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $ismanip  if the query is a manipulation query
+     * @param boolean $isManip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
-        if ($ismanip) {
+        if ($isManip) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
         }
 

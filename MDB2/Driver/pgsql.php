@@ -383,19 +383,19 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 'Cannot connect to template1');
         }
 
-        $ismanip = MDB2::isManip($query);
+        $isManip = MDB2::isManip($query);
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+        $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
 
-        $result = $this->_doQuery($query, $ismanip, $connection, false);
+        $result = $this->_doQuery($query, $isManip, $connection, false);
         @pg_close($connection);
         if (MDB2::isError($result)) {
             return $result;
         }
 
-        if ($ismanip) {
+        if ($isManip) {
             return $result;
         }
 
@@ -409,18 +409,18 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $ismanip  if the query is a manipulation query
+     * @param boolean $isManip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
-            if ($ismanip) {
+            if ($isManip) {
                 return MDB2_OK;
             }
             return null;
@@ -435,7 +435,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $this->raiseError();
         }
 
-        if ($ismanip) {
+        if ($isManip) {
             return @pg_affected_rows($result);
         }
         return $result;
@@ -452,10 +452,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access private
      */
-    function _modifyQuery($query, $ismanip, $limit, $offset)
+    function _modifyQuery($query, $isManip, $limit, $offset)
     {
         if ($limit > 0) {
-            if ($ismanip) {
+            if ($isManip) {
                 $manip = preg_replace('/^(DELETE FROM|UPDATE).*$/', '\\1', $query);
                 $from = $match[2];
                 $where = $match[3];

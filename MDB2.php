@@ -1675,23 +1675,23 @@ class MDB2_Driver_Common extends PEAR
      */
     function &standaloneQuery($query, $types = null)
     {
-        $ismanip = MDB2::isManip($query);
+        $isManip = MDB2::isManip($query);
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+        $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
 
         $connected = $this->connect();
         if (MDB2::isError($connected)) {
             return $connected;
         }
 
-        $result = $this->_doQuery($query, $ismanip, $this->connection, false);
+        $result = $this->_doQuery($query, $isManip, $this->connection, false);
         if (MDB2::isError($result)) {
             return $result;
         }
 
-        if ($ismanip) {
+        if ($isManip) {
             return $result;
         }
 
@@ -1722,13 +1722,13 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $ismanip  if the query is a manipulation query
+     * @param boolean $isManip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
@@ -1754,23 +1754,23 @@ class MDB2_Driver_Common extends PEAR
      */
     function &query($query, $types = null, $result_class = true, $result_wrap_class = false)
     {
-        $ismanip = MDB2::isManip($query);
+        $isManip = MDB2::isManip($query);
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+        $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
 
         $connected = $this->connect();
         if (MDB2::isError($connected)) {
             return $connected;
         }
 
-        $result = $this->_doQuery($query, $ismanip, $this->connection, $this->database_name);
+        $result = $this->_doQuery($query, $isManip, $this->connection, $this->database_name);
         if (MDB2::isError($result)) {
             return $result;
         }
 
-        if ($ismanip) {
+        if ($isManip) {
             return $result;
         }
 

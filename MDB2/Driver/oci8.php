@@ -367,19 +367,19 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $connection;
         }
 
-        $ismanip = MDB2::isManip($query);
+        $isManip = MDB2::isManip($query);
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+        $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
 
-        $result = $this->_doQuery($query, $ismanip, $connection, false);
+        $result = $this->_doQuery($query, $isManip, $connection, false);
         @OCILogOff($connection);
         if (MDB2::isError($result)) {
             return $result;
         }
 
-        if ($ismanip) {
+        if ($isManip) {
             return $result;
         }
 
@@ -415,18 +415,18 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $ismanip  if the query is a manipulation query
+     * @param boolean $isManip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->getOption('disable_query')) {
-            if ($ismanip) {
+            if ($isManip) {
                 $this->affected_rows = 0;
                 return MDB2_OK;
             }
@@ -451,7 +451,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $error;
         }
 
-        if ($ismanip) {
+        if ($isManip) {
             return @OCIRowCount($result);
         }
         return $result;
@@ -917,12 +917,12 @@ class MDB2_Statement_oci8 extends MDB2_Statement
      */
     function &_executePrepared($result_class = true, $result_wrap_class = false)
     {
-        $ismanip = MDB2::isManip($this->query);
+        $isManip = MDB2::isManip($this->query);
         $query = $this->db->_modifyQuery($this->query);
         $this->db->last_query = $query;
         $this->db->debug($query, 'query');
         if ($this->db->getOption('disable_query')) {
-            if ($ismanip) {
+            if ($isManip) {
                 return MDB2_OK;
             }
             return null;
@@ -1026,11 +1026,11 @@ class MDB2_Statement_oci8 extends MDB2_Statement
             return $success;;
         }
 
-        if ($ismanip) {
+        if ($isManip) {
             $this->db->affected_rows = @OCIRowCount($statement);
         }
 
-        $result_obj =& $this->db->_wrapResult($result, $ismanip, $this->types,
+        $result_obj =& $this->db->_wrapResult($result, $isManip, $this->types,
             $result_class, $result_wrap_class, $this->row_offset, $this->row_limit);
         return $result_obj;
     }
