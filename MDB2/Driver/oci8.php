@@ -895,10 +895,10 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     }
 }
 
-class MDB2_Statement_oci8 extends MDB2_Statement
+class MDB2_Statement_oci8 extends MDB2_Statement_Common
 {
     // }}}
-    // {{{ _executePrepared()
+    // {{{ execute()
 
     /**
      * Execute a prepared query statement.
@@ -906,10 +906,9 @@ class MDB2_Statement_oci8 extends MDB2_Statement
      * @param mixed $result_class string which specifies which result class to use
      * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access private
+     * @access public
      */
-    function &_executePrepared($result_class = true, $result_wrap_class = false)
+    function &execute($result_class = true, $result_wrap_class = false)
     {
         $isManip = MDB2::isManip($this->query);
         $query = $this->db->_modifyQuery($this->query);
