@@ -229,11 +229,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            if ($this->opened_persistent) {
-                $this->connection = 0;
-            } else {
-                $this->disconnect();
-            }
+            $this->disconnect(false);
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
@@ -278,10 +274,14 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      *                object on error
      * @access public
      */
-    function disconnect()
+    function disconnect($force = true)
     {
-        if ($this->connection != 0) {
+        if (($this->opened_persistent || $force)
+            && $this->connection != 0
+        ) {
             @fbsql_close($this->connection);
+            $this->connection = 0;
+        } else {
             $this->connection = 0;
         }
         return MDB2_OK;

@@ -365,11 +365,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            if ($this->opened_persistent) {
-                $this->connection = 0;
-            } else {
-                $this->disconnect();
-            }
+            $this->disconnect(false);
         }
         if (!PEAR::loadExtension('interbase')) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
@@ -400,10 +396,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      *                object on error
      * @access public
      */
-    function disconnect()
+    function disconnect($force = true)
     {
-        if ($this->connection != 0) {
-            ibase_close($this->connection);
+        if (($this->opened_persistent || $force)
+            && $this->connection != 0
+        ) {
+            @ibase_close($this->connection);
+            $this->connection = 0;
+        } else {
             $this->connection = 0;
         }
         return MDB2_OK;
