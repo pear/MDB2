@@ -131,7 +131,7 @@ class MDB2_Extended
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $prepared_query = $this->autoPrepare($table, array_keys($fields_values), $types, $mode, $where);
-        $result =& $this->executeParams($prepared_query, array_values($fields_values), $param_types, $result_class);
+        $result =& $db->executeParams($prepared_query, $param_types, array_values($fields_values), $result_class);
         $db->freePrepared($prepared_query);
         return $result;
     }
