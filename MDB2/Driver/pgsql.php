@@ -371,10 +371,12 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * execute a query as DBA
      *
      * @param string $query the SQL query
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &standaloneQuery($query)
+    function &standaloneQuery($query, $types = null)
     {
         $connection = $this->_doConnect('template1', false);
         if (MDB2::isError($connection)) {
