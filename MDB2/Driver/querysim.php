@@ -518,40 +518,6 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
 
 class MDB2_Result_querysim extends MDB2_Result_Common
 {
-    // {{{ fetch()
-
-    /**
-    * fetch value from a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @param int    $colnum    field number where the data can be found
-    * @return mixed string on success, a MDB2 error on failure
-    * @access public
-    */
-    function fetch($rownum = 0, $colnum = 0)
-    {
-        if (!isset($this->result[1][$rownum][$colnum])) {
-            if (is_null($this->result)) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'fetch: resultset has already been freed');
-            }
-            return null;
-        }
-        $value = $this->result[1][$rownum][$colnum];
-        if (isset($this->types[$colnum])) {
-            $value = $this->db->datatype->convertResult($value, $this->types[$colnum]);
-        }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $value = rtrim($value);
-        }
-        if ($value === ''
-            && $this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
-        ) {
-            $value = null;
-        }
-        return $value;
-    }
-
     // }}}
     // {{{ fetchRow()
 

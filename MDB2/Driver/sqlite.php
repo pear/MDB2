@@ -650,33 +650,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
 class MDB2_Result_sqlite extends MDB2_Result_Common
 {
-    // {{{ fetch()
-
-    /**
-    * fetch value from a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @param int    $colnum    field number where the data can be found
-    * @return mixed string on success, a MDB2 error on failure
-    * @access public
-    */
-    function fetch($rownum = 0, $colnum = 0)
-    {
-        $seek = $this->seek($rownum);
-        if (MDB2::isError($seek)) {
-            return $seek;
-        }
-        $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
-        $row = $this->fetchRow($fetchmode);
-        if (!$row || MDB2::isError($row)) {
-            return $row;
-        }
-        if (!array_key_exists($colnum, $row)) {
-            return null;
-        }
-        return $row[$colnum];
-    }
-
     // }}}
     // {{{ fetchRow()
 
