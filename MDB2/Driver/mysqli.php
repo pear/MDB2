@@ -798,7 +798,7 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
             return $numcols;
         }
         for ($column = 0; $column < $numcols; $column++) {
-            $column_info = @ mysqli_fetch_field_direct($this->result, $column);
+            $column_info = @mysqli_fetch_field_direct($this->result, $column);
             $columns[$column_info->name] = $column;
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
