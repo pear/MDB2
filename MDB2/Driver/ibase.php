@@ -579,7 +579,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function currID($seq_name)
     {
         $seqname = $this->getSequenceName($seq_name);
-        $query = 'SELECT RDB$GENERATOR_ID FROM RDB$GENERATORS WHERE RDB$GENERATOR_NAME=\'$seqname\'';
+        $query = "SELECT RDB\$GENERATOR_ID FROM RDB\$GENERATORS WHERE RDB\$GENERATOR_NAME='$seqname'";
         $value = $this->queryOne($query);
         if (MDB2::isError($value)) {
             return $this->raiseError(MDB2_ERROR, null, null,
