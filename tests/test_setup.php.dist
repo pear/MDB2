@@ -67,7 +67,7 @@ $mssql = array(
     )
 );
 
-$fbsql] = array(
+$fbsql = array(
     'dsn' => array(
         'phptype' => 'fbsql',
         'username' => 'username',
