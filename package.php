@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '2.0.0beta2';
 $notes = <<<EOT
-The core of MDB2 is not fairly stable API-wise. The modules, especially the
+The core of MDB2 is now fairly stable API-wise. The modules, especially the
 manager and reverse module, might see some API refinement before the first
 stable release.
 - added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
@@ -47,6 +47,7 @@ stable release.
 - added \$result_class param to all drivers where it was missing from the
   query() and _executePrepared() methods
 - applied several fixes to the PEAR::DB wrapper
+- fixed a typo in MDB2_Driver_Reverse_pgsql::tableInfo()
 EOT;
 
 $description =<<<EOT

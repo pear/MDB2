@@ -320,7 +320,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
             if (MDB2::isError($connect = $db->connect())) {
                 return $connect;
             }
-            $id = @pg_exec($this->connection, "SELECT * FROM $result LIMIT 0");
+            $id = @pg_exec($db->connection, "SELECT * FROM $result LIMIT 0");
             $got_string = true;
         } else {
             /*

@@ -73,7 +73,7 @@ Other soon to follow.</description>
     <date>2004-04-25</date>
     <license>BSD License</license>
     <state>beta</state>
-    <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
+    <notes>The core of MDB2 is now fairly stable API-wise. The modules, especially the
 manager and reverse module, might see some API refinement before the first
 stable release.
 - added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
@@ -115,7 +115,8 @@ stable release.
   wrapping of result classes into an arbitrary class
 - added $result_class param to all drivers where it was missing from the
   query() and _executePrepared() methods
-- applied several fixes to the PEAR::DB wrapper</notes>
+- applied several fixes to the PEAR::DB wrapper
+- fixed a typo in MDB2_Driver_Reverse_pgsql::tableInfo()</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -241,7 +242,7 @@ stable release.
       <date>2004-04-25</date>
       <license>BSD License</license>
       <state>beta</state>
-      <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
+      <notes>The core of MDB2 is now fairly stable API-wise. The modules, especially the
 manager and reverse module, might see some API refinement before the first
 stable release.
 - added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
@@ -283,7 +284,8 @@ stable release.
   wrapping of result classes into an arbitrary class
 - added $result_class param to all drivers where it was missing from the
   query() and _executePrepared() methods
-- applied several fixes to the PEAR::DB wrapper</notes>
+- applied several fixes to the PEAR::DB wrapper
+- fixed a typo in MDB2_Driver_Reverse_pgsql::tableInfo()</notes>
     </release>
     <release>
       <version>2.0.0beta1</version>
