@@ -36,7 +36,7 @@ stable release.
 - fixed potential warning due to manipulation query detection in the query*()
   and the get*() query+fetch methods
 - added tests for fetchAll() and fetchCol()
-- performance tweaks for fetchAll()
+- performance tweaks for fetchAll() and fetchCol()
 EOT;
 
 $description =<<<EOT

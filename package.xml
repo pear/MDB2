@@ -105,7 +105,7 @@ stable release.
 - fixed potential warning due to manipulation query detection in the query*()
   and the get*() query+fetch methods
 - added tests for fetchAll() and fetchCol()
-- performance tweaks for fetchAll()</notes>
+- performance tweaks for fetchAll() and fetchCol()</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -263,7 +263,7 @@ stable release.
 - fixed potential warning due to manipulation query detection in the query*()
   and the get*() query+fetch methods
 - added tests for fetchAll() and fetchCol()
-- performance tweaks for fetchAll()</notes>
+- performance tweaks for fetchAll() and fetchCol()</notes>
     </release>
     <release>
       <version>2.0.0beta1</version>
