@@ -83,6 +83,9 @@ similar as possible as the ext/pdo API!
 - refactored standaloneQuery(), query(), _doQuery(), _wrapResult(); the most important change are:
   result are only wrapped if it is explicitly requested
   standaloneQuery() now works just as query() does but with its own connection
+- unified mssql standalone query with sqlite, mysql and others (not tested on
+  mssql yet, but since mssql automatically reuses connections per dsn the old
+  way could gurantee anything different from happening)
 EOT;
 
 $description =<<<EOT
