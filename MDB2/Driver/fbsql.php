@@ -77,6 +77,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->supported['sequences'] = true;
         $this->supported['indexes'] = true;
         $this->supported['affected_rows'] = true;
+        $this->supported['transactions'] = true;
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
         $this->supported['current_id'] = false;
@@ -155,7 +156,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             $this->destructor_registered = true;
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
-        $result = $this->_doQuery('SET COMMIT FALSE');
+        $result = $this->_doQuery('SET COMMIT FALSE', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -180,7 +181,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto commited');
         }
-        $result = $this->_doQuery('COMMIT');
+        $result = $this->_doQuery('COMMIT', true);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        $result = $this->_doQuery('SET COMMIT TRUE', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -205,7 +210,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result = $this->_doQuery('ROLLBACK');
+        $result = $this->_doQuery('ROLLBACK', true);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        $result = $this->_doQuery('SET COMMIT TRUE', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -248,11 +257,10 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             $connection = @$function($dbhost, $user, $pw);
         } elseif ($dbhost && $user) {
             $connection = @$function($dbhost, $user);
-        } elseif ($dbhost) {
-            $connection = @$function($dbhost);
         } else {
-            $connection = 0;
+            $connection = @$function($dbhost);
         }
+
         if ($connection <= 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
@@ -394,7 +402,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 $result = $this->manager->createSequence($seq_name, 2);
                 if (MDB2::isError($result)) {
                     return $this->raiseError(MDB2_ERROR, null, null,
-                        'nextID: on demand sequence could not be created');
+                        'nextID: on demand sequence '.$seq_name.' could not be created');
                 } else {
                     // First ID of a newly created sequence is 1
                     return 1;
@@ -474,8 +482,8 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @fbsql_fetch_assoc($this->result);
-            if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE
-                && is_array($row)
+            if (is_array($row)
+                && $this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE
             ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
@@ -548,9 +556,9 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
     /**
      * Count the number of columns returned by the DBMS in a query result.
      *
-     * @access public
      * @return mixed integer value with the number of columns, a MDB2 error
      *                       on failure
+     * @access public
      */
     function numCols()
     {
@@ -621,7 +629,7 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
     */
     function seek($rownum = 0)
     {
-        if (!@fbsql_data_seek($this->result, $rownum)) {
+        if ($this->rownum != ($rownum - 1) && !@fbsql_data_seek($this->result, $rownum)) {
             if (is_null($this->result)) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'seek: resultset has already been freed');
