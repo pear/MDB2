@@ -56,9 +56,6 @@ require_once 'MDB2/Driver/Manager/Common.php';
  */
 class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 {
-    // {{{ properties
-    var $verified_table_types = array();#
-
     // }}}
     // {{{ constructor
 
@@ -89,7 +86,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                 'createDatabase: database already exists');
         }
         $php_errormsg = '';
-        $handle = @sqlite_open($database_file, 0666, $php_errormsg);
+        $handle = @sqlite_open($database_file, $db->dsn['mode'], $php_errormsg);
         if (!$handle) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createDatabase: '.(isset($php_errormsg) ? $php_errormsg : 'could not create the database file'));
