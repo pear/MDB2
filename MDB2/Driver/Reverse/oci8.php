@@ -101,7 +101,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            if (MDB::isError($connect = $db->connect())) {
+            if (MDB2::isError($connect = $db->connect())) {
                 return $connect;
             }
             $result = strtoupper($result);

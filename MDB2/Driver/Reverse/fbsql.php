@@ -96,7 +96,7 @@ class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            if (MDB::isError($connect = $db->connect())) {
+            if (MDB2::isError($connect = $db->connect())) {
                 return $connect;
             }
             $id = @fbsql_list_fields($db->database_name,

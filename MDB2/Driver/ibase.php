@@ -178,8 +178,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                         '/conversion error from string/' => MDB2_ERROR_INVALID_NUMBER,
                         '/no permission for/' => MDB2_ERROR_ACCESS_VIOLATION,
                         '/arithmetic exception, numeric overflow, or string truncation/' => MDB2_ERROR_DIVZERO,
-                        '/deadlock/' => MDB_ERROR_DEADLOCK,
-                        '/attempt to store duplicate value/' => MDB_ERROR_CONSTRAINT,
+                        '/deadlock/' => MDB2_ERROR_DEADLOCK,
+                        '/attempt to store duplicate value/' => MDB2_ERROR_CONSTRAINT,
                     );
                 }
                 foreach ($error_regexps as $regexp => $code) {

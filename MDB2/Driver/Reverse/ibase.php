@@ -99,7 +99,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            if (MDB::isError($connect = $db->connect())) {
+            if (MDB2::isError($connect = $db->connect())) {
                 return $connect;
             }
             $id = @ibase_query($db->connection,

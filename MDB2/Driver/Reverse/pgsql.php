@@ -317,7 +317,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            if (MDB::isError($connect = $db->connect())) {
+            if (MDB2::isError($connect = $db->connect())) {
                 return $connect;
             }
             $id = @pg_exec($this->connection, "SELECT * FROM $result LIMIT 0");
