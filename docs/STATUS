@@ -23,7 +23,7 @@ numCols          -    -    T    -    -    -    -    -    -    -    -    -    -
 numRows          -    -    T    -    -    -    -    -    -    -    -    -    -
 errorNative      -    -    -    -    -    -    -    -    -    -    -    -    -
 prepare/execute  -    -    T    -    -    -    -    -    -    -    -    -    -
-sequences        -    -    -    -    -    -    -    -    -    -    -    -    -
+sequences        -    -    T    -    -    -    -    -    -    -    -    -    -
 affectedRows     -    -    l    -    -    -    -    -    -    -    -    -    -
 fetch modes      -    -    x    -    -    -    -    -    -    -    -    -    -
 fetch row by no  -    -    e    -    -    -    -    -    -    -    -    -    -
