@@ -117,7 +117,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
                 $result = $this->manager->updateDatabase($this->lob_input_file, false, array('create' =>'0', 'name' => $this->database));
             }
             $this->assertFalse(MDB2::isError($result), 'Error creating database');
-        } else if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
+        } elseif ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
             $this->assertTrue(false, 'Database management not supported');
         }
     }
