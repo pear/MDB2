@@ -541,7 +541,7 @@ class MDB2
         $manips = 'INSERT|UPDATE|DELETE|REPLACE|'
                . 'CREATE|DROP|'
                . 'LOAD DATA|SELECT .* INTO|COPY|'
-               . 'ALTER|GRANT|REVOKE|'
+               . 'ALTER|GRANT|REVOKE|SET|'
                . 'LOCK|UNLOCK';
         if (preg_match('/^\s*"?('.$manips.')\s+/i', $query)) {
             return true;
