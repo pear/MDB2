@@ -115,7 +115,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         static $error_regexps;
         if (empty($error_regexps)) {
             $error_regexps = array(
-                '/^(([Rr]elation|[Ss]equence|[Tt]able)( [\"\'].*[\"\'])? does not exist|[Cc]lass ".+" not found)$/' => MDB2_ERROR_NOSUCHTABLE,
+                '/(([Rr]elation|[Ss]equence|[Tt]able)( [\"\'].*[\"\'])? does not exist|[Cc]lass ".+" not found)$/' => MDB2_ERROR_NOSUCHTABLE,
                 '/[Cc]olumn [\"\'].*[\"\'] .*does not exist/' => MDB2_ERROR_NOSUCHFIELD,
                 '/[Rr]elation [\"\'].*[\"\'] already exists|[Cc]annot insert a duplicate key into (a )?unique index.*/' => MDB2_ERROR_ALREADY_EXISTS,
                 '/(divide|division) by zero$/'          => MDB2_ERROR_DIVZERO,
