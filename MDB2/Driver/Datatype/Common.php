@@ -1273,7 +1273,7 @@ class MDB2_Driver_Datatype_Common
     function implodeArray($array, $type = false)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (!is_array($array) || count($array) == 0) {
+        if (!is_array($array) || empty($array)) {
             return 'NULL';
         }
         if ($type) {
