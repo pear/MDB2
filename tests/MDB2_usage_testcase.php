@@ -144,6 +144,20 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" ($value) doesn't match what was stored ($data[$field]) into the row $rownum", $delta);
         }
     }
+    
+    function getSampleData($row) {
+        $data = array();
+        $data['user_name']     = 'user_' . $row;
+        $data['user_password'] = 'somepassword';
+        $data['subscribed']    = $row % 2 ? true : false;
+        $data['user_id']       = $row;
+        $data['quota']         = strval($row/100);
+        $data['weight']        = sqrt($row);
+        $data['access_date']   = MDB2_Date::mdbToday();
+        $data['access_time']   = MDB2_Date::mdbTime();
+        $data['approved']      = MDB2_Date::mdbNow();
+        return $data;
+    }
 
     /**
      * Test typed data storage and retrieval
@@ -153,18 +167,8 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
      * and comparing the results
      */
     function testStorage() {
-        $row = 1234;
-        $data = array();
-        $data['user_name'] = "user_$row";
-        $data['user_password'] = 'somepassword';
-        $data['subscribed'] = $row % 2 ? true : false;
-        $data['user_id'] = $row;
-        $data['quota'] = strval($row/100);
-        $data['weight'] = sqrt($row);
-        $data['access_date'] = MDB2_Date::mdbToday();
-        $data['access_time'] = MDB2_Date::mdbTime();
-        $data['approved'] = MDB2_Date::mdbNow();
-
+        $data = $this->getSampleData(1234);
+        
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
         $this->insertTestValues($stmt, $data);
@@ -200,15 +204,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $data[$row]['user_name'] = "user_$row";
-            $data[$row]['user_password'] = 'somepassword';
-            $data[$row]['subscribed'] = $row % 2 ? true : false;
-            $data[$row]['user_id'] = $row;
-            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
-            $data[$row]['weight'] = sqrt($row);
-            $data[$row]['access_date'] = MDB2_Date::mdbToday();
-            $data[$row]['access_time'] = MDB2_Date::mdbTime();
-            $data[$row]['approved'] = MDB2_Date::mdbNow();
+            $data[$row] = $this->getSampleData($row);
 
             $this->insertTestValues($stmt, $data[$row]);
 
@@ -249,15 +245,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $data[$row]['user_name'] = "user_$row";
-            $data[$row]['user_password'] = 'somepassword';
-            $data[$row]['subscribed'] = $row % 2 ? true : false;
-            $data[$row]['user_id'] = $row;
-            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
-            $data[$row]['weight'] = sqrt($row);
-            $data[$row]['access_date'] = MDB2_Date::mdbToday();
-            $data[$row]['access_time'] = MDB2_Date::mdbTime();
-            $data[$row]['approved'] = MDB2_Date::mdbNow();
+            $data[$row] = $this->getSampleData($row);
 
             $this->insertTestValues($stmt, $data[$row]);
 
@@ -317,15 +305,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $data[$row]['user_name'] = "user_$row";
-            $data[$row]['user_password'] = 'somepassword';
-            $data[$row]['subscribed'] = $row % 2 ? true : false;
-            $data[$row]['user_id'] = $row;
-            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
-            $data[$row]['weight'] = sqrt($row);
-            $data[$row]['access_date'] = MDB2_Date::mdbToday();
-            $data[$row]['access_time'] = MDB2_Date::mdbTime();
-            $data[$row]['approved'] = MDB2_Date::mdbNow();
+            $data[$row] = $this->getSampleData($row);
 
             $this->insertTestValues($stmt, $data[$row]);
 
@@ -409,17 +389,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
      * number of columns and that the column names are in the correct order
      */
     function testMetadata() {
-        $row = 1234;
-        $data = array();
-        $data['user_name'] = "user_$row";
-        $data['user_password'] = 'somepassword';
-        $data['subscribed'] = $row % 2 ? true : false;
-        $data['user_id'] = $row;
-        $data['quota'] = strval($row/100);
-        $data['weight'] = sqrt($row);
-        $data['access_date'] = MDB2_Date::mdbToday();
-        $data['access_time'] = MDB2_Date::mdbTime();
-        $data['approved'] = MDB2_Date::mdbNow();
+        $data = $this->getSampleData(1234);
 
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
@@ -551,7 +521,6 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $result->free();
 
             $this->assertEquals($test_strings[$string], rtrim($value), "the value retrieved for field \"user_name\" (\"$value\") doesn't match what was stored (".$test_strings[$string].')');
-
         }
     }
 
@@ -571,15 +540,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $data[$row]['user_name'] = "user_$row";
-            $data[$row]['user_password'] = 'somepassword';
-            $data[$row]['subscribed'] = $row % 2 ? true : false;
-            $data[$row]['user_id'] = $row;
-            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
-            $data[$row]['weight'] = sqrt($row);
-            $data[$row]['access_date'] = MDB2_Date::mdbToday();
-            $data[$row]['access_time'] = MDB2_Date::mdbTime();
-            $data[$row]['approved'] = MDB2_Date::mdbNow();
+            $data[$row] = $this->getSampleData($row);
 
             $this->insertTestValues($stmt, $data[$row]);
 
@@ -720,16 +681,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
 
         $row = 1234;
-        $data = array();
-        $data['user_name'] = "user_$row";
-        $data['user_password'] = 'somepassword';
-        $data['subscribed'] = $row % 2 ? true : false;
-        $data['user_id'] = $row;
-        $data['quota'] = strval($row/100);
-        $data['weight'] = sqrt($row);
-        $data['access_date'] = MDB2_Date::mdbToday();
-        $data['access_time'] = MDB2_Date::mdbTime();
-        $data['approved'] = MDB2_Date::mdbNow();
+        $data = $this->getSampleData($row);
 
         $fields = array(
             'user_name' => array(
@@ -792,21 +744,20 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $this->verifyFetchedValues($result, 0, $data);
 
         $row = 4321;
-        $fields['user_name']['value'] = $data['user_name'] = "user_$row";
+        $fields['user_name']['value']     = $data['user_name']     = 'user_'.$row;
         $fields['user_password']['value'] = $data['user_password'] = 'somepassword';
-        $fields['subscribed']['value'] = $data['subscribed'] = $row % 2 ? true : false;
-        $fields['quota']['value'] = $data['quota'] = strval($row/100);
-        $fields['weight']['value'] = $data['weight'] = sqrt($row);
-        $fields['access_date']['value'] = $data['access_date'] = MDB2_Date::mdbToday();
-        $fields['access_time']['value'] = $data['access_time'] = MDB2_Date::mdbTime();
-        $fields['approved']['value'] = $data['approved'] = MDB2_Date::mdbNow();
+        $fields['subscribed']['value']    = $data['subscribed']    = $row % 2 ? true : false;
+        $fields['quota']['value']         = $data['quota']         = strval($row/100);
+        $fields['weight']['value']        = $data['weight']        = sqrt($row);
+        $fields['access_date']['value']   = $data['access_date']   = MDB2_Date::mdbToday();
+        $fields['access_time']['value']   = $data['access_time']   = MDB2_Date::mdbTime();
+        $fields['approved']['value']      = $data['approved']      = MDB2_Date::mdbNow();
 
         $result = $this->db->replace('users', $fields);
 
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Replace failed');
         }
-
         if ($this->db->supports('affected_rows')) {
             $this->assertEquals(2, $result, "replacing a row returned $result unlike 2 as expected");
         }
@@ -839,15 +790,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $data[$row]['user_name'] = "user_$row";
-            $data[$row]['user_password'] = 'somepassword';
-            $data[$row]['subscribed'] = $row % 2 ? true : false;
-            $data[$row]['user_id'] = $row;
-            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
-            $data[$row]['weight'] = sqrt($row);
-            $data[$row]['access_date'] = MDB2_Date::mdbToday();
-            $data[$row]['access_time'] = MDB2_Date::mdbTime();
-            $data[$row]['approved'] = MDB2_Date::mdbNow();
+            $data[$row] = $this->getSampleData($row);
 
             $this->insertTestValues($stmt, $data[$row]);
 
@@ -903,63 +846,75 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     }
 
     /**
-     * Testing transaction support
+     * Testing transaction support - Test ROLLBACK
      */
-    function testTransactions() {
+    function testTransactionsRollback() {
         if (!$this->supported('transactions')) {
             return;
         }
 
-        $this->db->autoCommit(0);
+        $data = $this->getSampleData(0);
 
-        $row = 0;
-        $data = array();
-        $data['user_name'] = "user_$row";
-        $data['user_password'] = 'somepassword';
-        $data['subscribed'] = $row % 2 ? true : false;
-        $data['user_id'] = $row;
-        $data['quota'] = strval($row/100);
-        $data['weight'] = sqrt($row);
-        $data['access_date'] = MDB2_Date::mdbToday();
-        $data['access_time'] = MDB2_Date::mdbTime();
-        $data['approved'] = MDB2_Date::mdbNow();
-
+        $this->db->beginTransaction();
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
         $this->insertTestValues($stmt, $data);
         $result = $stmt->execute();
+
         $this->db->rollback();
+        $stmt->free();
 
         $result =& $this->db->query('SELECT * FROM users');
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
-
         $this->assertTrue(!$result->valid(), 'Transaction rollback did not revert the row that was inserted');
         $result->free();
+    }
 
+    /**
+     * Testing transaction support - Test COMMIT
+     */
+    function testTransactionsCommit() {
+        if (!$this->supported('transactions')) {
+            return;
+        }
+
+        $data = $this->getSampleData(1);
+
+        $this->db->beginTransaction();
+        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
         $this->insertTestValues($stmt, $data);
         $result = $stmt->execute();
         $this->db->commit();
+        $stmt->free();
 
         $result =& $this->db->query('SELECT * FROM users');
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
-
         $this->assertTrue($result->valid(), 'Transaction commit did not make permanent the row that was inserted');
         $result->free();
+    }
 
+    /**
+     * Testing transaction support - Test COMMIT and ROLLBACK
+     */
+    function testTransactionsBoth() {
+
+        if (!$this->supported('transactions')) {
+            return;
+        }
+        $data = $this->getSampleData(0);
+
+        $this->db->beginTransaction();
         $result =& $this->db->query('DELETE FROM users');
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error deleting from users'.$result->getMessage());
             $this->db->rollback();
+        } else {
+            $this->db->commit();
         }
-
-        $autocommit = $this->db->autocommit(1);
-        $this->assertTrue(!MDB2::isError($autocommit), 'Error autocommiting transactions');
-
-        $stmt->free();
 
         $result =& $this->db->query('SELECT * FROM users');
         if (MDB2::isError($result)) {
@@ -973,7 +928,6 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     /**
      * Testing LOB storage
      */
-
     function testLOBStorage() {
         if (!$this->supported('LOBs')) {
             return;
@@ -1017,7 +971,6 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $value .= $data;
             }
             $this->db->datatype->destroyLOB($clob);
-
             $this->assertEquals($character_lob, $value, 'Retrieved character LOB value ("' . $value . '") is different from what was stored ("' . $character_lob . '")');
         } else {
             $this->assertTrue(false, 'Error retrieving CLOB result');
@@ -1031,7 +984,6 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             }
 
             $this->db->datatype->destroyLOB($blob);
-
             $this->assertEquals($binary_lob, $value, 'Retrieved binary LOB value ("'.$value.'") is different from what was stored ("'.$binary_lob.'")');
         } else {
             $this->assertTrue(false, 'Error retrieving CLOB result');
@@ -1042,7 +994,6 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     /**
      * Test for lob storage from and to files
      */
-
     function testLOBFiles() {
         if (!$this->supported('LOBs')) {
             return;
@@ -1124,7 +1075,6 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     /**
      * Test handling of lob nulls
      */
-
     function testLOBNulls() {
         if (!$this->supported('LOBs')) {
             return;
