@@ -418,7 +418,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access private
      */
-    function _modifyQuery($query)
+    function _modifyQuery($query, $ismanip, $offset, $limit)
     {
         // "DELETE FROM table" gives 0 affected rows in mysql.
         // This little hack lets you know how many rows were deleted.
@@ -427,6 +427,13 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
                 'DELETE FROM \1 WHERE 1=1', $query
             );
+        }
+        if ($limit > 0) {
+            if ($ismanip) {
+                $query .= " LIMIT $limit";
+            } else {
+                $query .= " LIMIT $offset,$limit";
+            }
         }
         return $query;
     }
@@ -452,23 +459,14 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        if ($limit > 0) {
-            if ($ismanip) {
-                $query .= " LIMIT $limit";
-            } else {
-                $query .= " LIMIT $offset,$limit";
-            }
-        }
-        if ($this->options['portability'] & MDB2_PORTABILITY_DELETE_COUNT) {
-            $query = $this->_modifyQuery($query);
-        }
+        $query = $this->_modifyQuery($query, $ismanip, $offset, $limit);
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
             if ($ismanip) {
                 return MDB2_OK;
             }
-            return NULL;
+            return null;
         }
 
         $connected = $this->connect();
@@ -488,34 +486,14 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
         $function = $this->options['result_buffering']
             ? 'mysql_query' : 'mysql_unbuffered_query';
-        if ($result = @$function($query, $this->connection)) {
-            if ($ismanip) {
-                return MDB2_OK;
-            } else {
-                if (!$result_class) {
-                    $result_class = $this->options['result_buffering']
-                        ? $this->options['buffered_result_class'] : $this->options['result_class'];
-                }
-                $class_name = sprintf($result_class, $this->phptype);
-                $result =& new $class_name($this, $result, $offset, $limit);
-                if ($types) {
-                    $err = $result->setResultTypes($types);
-                    if (MDB2::isError($err)) {
-                        $result->free();
-                        return $err;
-                    }
-                }
-                if (!$result_wrap_class) {
-                    $result_wrap_class = $this->options['result_wrap_class'];
-                }
-                if ($result_wrap_class) {
-                    $result =& new $result_wrap_class($result);
-                }
-                return $result;
-            }
+        $result = @$function($query, $this->connection);
+
+        if (!$result) {
+            $error =& $this->raiseError();
+            return $error;
         }
-        $error =& $this->raiseError();
-        return $error;
+        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
+        return $result_obj;
     }
 
     // }}}
@@ -688,8 +666,9 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     function nextID($seq_name, $ondemand = true)
     {
         $sequence_name = $this->getSequenceName($seq_name);
+        $query = "INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL)";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result =& $this->query("INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL)");
+        $result =& $this->query($query);
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -812,6 +791,7 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         } else {
            $row = @mysql_fetch_row($this->result);
         }
+
         if (!$row) {
             if (is_null($this->result)) {
                 return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
@@ -932,7 +912,7 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
     */
     function seek($rownum = 0)
     {
-        if (!@mysql_data_seek($this->result, $rownum)) {
+        if ($this->rownum != ($rownum - 1) && !@mysql_data_seek($this->result, $rownum)) {
             if (is_null($this->result)) {
                 return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'seek: resultset has already been freed');
@@ -985,4 +965,8 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
     }
 }
 
+class MDB2_Statement_mysql extends MDB2_Statement_Common
+{
+
+}
 ?>

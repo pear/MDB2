@@ -397,7 +397,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access private
      */
-    function _modifyQuery($query)
+    function _modifyQuery($query, $ismanip, $offset, $limit)
     {
         // "DELETE FROM table" gives 0 affected rows in sqlite.
         // This little hack lets you know how many rows were deleted.
@@ -406,6 +406,13 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
                 'DELETE FROM \1 WHERE 1=1', $query
             );
+        }
+        if ($limit > 0) {
+            if ($ismanip) {
+                $query .= " LIMIT $limit";
+            } else {
+                $query .= " LIMIT $offset,$limit";
+            }
         }
         return $query;
     }
@@ -431,23 +438,14 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        if ($limit > 0) {
-            if ($ismanip) {
-                $query .= " LIMIT $limit";
-            } else {
-                $query .= " LIMIT $limit OFFSET $offset";
-            }
-        }
-        if ($this->options['portability'] & MDB2_PORTABILITY_DELETE_COUNT) {
-            $query = $this->_modifyQuery($query);
-        }
+        $query = $this->_modifyQuery($query, $ismanip, $offset, $limit);
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
             if ($ismanip) {
                 return MDB2_OK;
             }
-            return NULL;
+            return null;
         }
 
         $connected = $this->connect();
@@ -461,34 +459,13 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $result = @$function($query.';', $this->connection);
         ini_restore('track_errors');
         $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
-        if ($result) {
-            if ($ismanip) {
-                return MDB2_OK;
-            } else {
-                if (!$result_class) {
-                    $result_class = $this->options['result_buffering']
-                        ? $this->options['buffered_result_class'] : $this->options['result_class'];
-                }
-                $class_name = sprintf($result_class, $this->phptype);
-                $result =& new $class_name($this, $result, $offset, $limit);
-                if ($types) {
-                    $err = $result->setResultTypes($types);
-                    if (MDB2::isError($err)) {
-                        $result->free();
-                        return $err;
-                    }
-                }
-                if (!$result_wrap_class) {
-                    $result_wrap_class = $this->options['result_wrap_class'];
-                }
-                if ($result_wrap_class) {
-                    $result =& new $result_wrap_class($result);
-                }
-                return $result;
-            }
+
+        if (!$result) {
+            $error =& $this->raiseError();
+            return $error;
         }
-        $error =& $this->raiseError();
-        return $error;
+        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
+        return $result_obj;
     }
 
     // }}}
@@ -896,6 +873,11 @@ class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
         }
         return $rows;
     }
+}
+
+class MDB2_Statement_sqlite extends MDB2_Statement_Common
+{
+
 }
 
 ?>

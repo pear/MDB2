@@ -377,165 +377,15 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @return mixed result identifier if query executed, else MDB2_error
      * @access private
      **/
-    function _doQuery($query, $ismanip = null, $prepared_query = 0)
+    function _doQuery($query)
     {
-        $lobs = 0;
-        $success = MDB2_OK;
-        $result = 0;
-        $descriptors = array();
-
-        if ($prepared_query) {
-            $columns = '';
-            $variables = '';
-            for (reset($this->clobs[$prepared_query]), $clob = 0;
-                $clob < count($this->clobs[$prepared_query]);
-                $clob++, next($this->clobs[$prepared_query])
-            ) {
-                $clob_stream = key($this->clobs[$prepared_query]);
-                $descriptors[$clob_stream] = @OCINewDescriptor($this->connection, OCI_D_LOB);
-                if (!is_object($descriptors[$clob_stream])) {
-                    $success = $this->raiseError(MDB2_ERROR, null, null,
-                        'Could not create descriptor for clob parameter');
-                    break;
-                }
-                $parameter = $GLOBALS['_MDB2_LOBs'][$clob_stream]->parameter;
-                $columns.= ($lobs == 0 ? ' RETURNING ' : ',').
-                    $this->prepared_queries[$prepared_query]['fields'][$parameter];
-                $variables.= ($lobs == 0 ? ' INTO ' : ',').':clob'.($parameter+1);
-                ++$lobs;
-            }
-            if (!MDB2::isError($success)) {
-                for (reset($this->blobs[$prepared_query]), $blob = 0;
-                    $blob < count($this->blobs[$prepared_query]);
-                    $blob++, next($this->blobs[$prepared_query])
-                ) {
-                    $blob_stream = key($this->blobs[$prepared_query]);
-                    $descriptors[$blob_stream] = @OCINewDescriptor($this->connection, OCI_D_LOB);
-                    if (!is_object($descriptors[$blob_stream])) {
-                        $success = $this->raiseError(MDB2_ERROR, null, null,
-                            'Could not create descriptor for blob parameter');
-                        break;
-                    }
-                    $parameter = $GLOBALS['_MDB2_LOBs'][$blob_stream]->parameter;
-                    $columns.= ($lobs == 0 ? ' RETURNING ' : ',').
-                        $this->prepared_queries[$prepared_query]['fields'][$parameter];
-                    $variables.= ($lobs == 0 ? ' INTO ' : ',').':blob'.($parameter+1);
-                    ++$lobs;
-                }
-                $query.= $columns.$variables;
-            }
+        if (!($statement = @OCIParse($this->connection, $stmt)) {
+            $error =& $this->raiseError(MDB2_ERROR, null, null,
+                'Could not create statement');
+            return $error;
         }
-
-        if (!MDB2::isError($success)) {
-            if (($statement = @OCIParse($this->connection, $query))) {
-                if ($lobs) {
-                    for (reset($this->clobs[$prepared_query]), $clob = 0;
-                        $clob < count($this->clobs[$prepared_query]);
-                        $clob++, next($this->clobs[$prepared_query])
-                    ) {
-                        $clob_stream = key($this->clobs[$prepared_query]);
-                        $parameter = $GLOBALS['_MDB2_LOBs'][$clob_stream]->parameter;
-                        if (!OCIBindByName($statement, ':clob'.($parameter+1), $descriptors[$clob_stream], -1, OCI_B_CLOB)) {
-                            $success = $this->raiseError();
-                            break;
-                        }
-                    }
-                    if (!MDB2::isError($success)) {
-                        for (reset($this->blobs[$prepared_query]), $blob = 0;
-                            $blob < count($this->blobs[$prepared_query]);
-                            $blob++, next($this->blobs[$prepared_query])
-                        ) {
-                            $blob_stream = key($this->blobs[$prepared_query]);
-                            $parameter = $GLOBALS['_MDB2_LOBs'][$blob_stream]->parameter;
-                            if (!OCIBindByName($statement, ':blob'.($parameter+1), $descriptors[$blob_stream], -1, OCI_B_BLOB)) {
-                                $success = $this->raiseError();
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (!MDB2::isError($success)) {
-                    $mode = ($lobs == 0 && $this->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
-                    $result = @OCIExecute($statement, $mode);
-                    if ($result) {
-                        if ($lobs) {
-                            for (reset($this->clobs[$prepared_query]), $clob = 0;
-                                $clob < count($this->clobs[$prepared_query]);
-                                $clob++, next($this->clobs[$prepared_query])
-                            ) {
-                                $clob_stream = key($this->clobs[$prepared_query]);
-                                for ($value = ''; !$this->datatype->endOfLOB($clob_stream);) {
-                                    if ($this->datatype->readLOB($clob_stream, $data, $this->options['lob_buffer_length']) < 0) {
-                                        $success = $this->raiseError();
-                                        break;
-                                    }
-                                    $value.= $data;
-                                }
-                                if (!MDB2::isError($success) && !$descriptors[$clob_stream]->save($value)) {
-                                    $success = $this->raiseError();
-                                }
-                            }
-                            if (!MDB2::isError($success)) {
-                                for (reset($this->blobs[$prepared_query]), $blob = 0;
-                                    $blob < count($this->blobs[$prepared_query]);
-                                    $blob++, next($this->blobs[$prepared_query])
-                                ) {
-                                    $blob_stream = key($this->blobs[$prepared_query]);
-                                    for ($value = ''; !$this->datatype->endOfLOB($blob_stream);) {
-                                        if ($this->datatype->readLOB($blob_stream, $data, $this->options['lob_buffer_length']) < 0) {
-                                            $success = $this->raiseError();
-                                            break;
-                                        }
-                                        $value.= $data;
-                                    }
-                                    if (!MDB2::isError($success) && !$descriptors[$blob_stream]->save($value)) {
-                                        $success = $this->raiseError();
-                                    }
-                                }
-                            }
-                        }
-                        if ($this->auto_commit) {
-                            if ($lobs) {
-                                if (MDB2::isError($success)) {
-                                    if (!OCIRollback($this->connection)) {
-                                        $success = $this->raiseError();
-                                    }
-                                } else {
-                                    if (!OCICommit($this->connection)) {
-                                        $success = $this->raiseError();
-                                    }
-                                }
-                            }
-                        } else {
-                            ++$this->uncommitedqueries;
-                        }
-                        if (!MDB2::isError($success)) {
-                            if (is_null($ismanip)) {
-                                $ismanip = MDB2::isManip($query);
-                            }
-                            if ($ismanip) {
-                                $this->affected_rows = @OCIRowCount($statement);
-                                @OCIFreeCursor($statement);
-                            }
-                            $result = $statement;
-                        }
-                    } else {
-                        return $this->raiseError($statement);
-                    }
-                }
-            } else {
-                return $this->raiseError();
-            }
-        }
-        for (reset($descriptors), $descriptor = 0;
-            $descriptor < count($descriptors);
-            $descriptor++, next($descriptors)
-        ) {
-            @$descriptors[key($descriptors)]->free();
-        }
-        if (MDB2::isError($success)) {
-            return $success;
-        }
+        $mode = $this->auto_commit ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
+        $result = @OCIExecute($statement, $mode);
         return $result;
     }
 
@@ -572,74 +422,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ _executePrepared()
-
-    /**
-     * Execute a prepared query statement.
-     *
-     * @param int $prepared_query argument is a handle that was returned by
-     *       the function prepare()
-     * @param string $query query to be executed
-     * @param array $types array that contains the types of the columns in the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access private
-     */
-    function &_executePrepared($prepared_query, $query, $types = null,
-        $result_class = false, $result_wrap_class = false)
-    {
-        $ismanip = MDB2::isManip($query);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query);
-        $this->last_query = $query;
-        $this->debug($query, 'query');
-        if ($this->options['disable_query']) {
-            if ($ismanip) {
-                return MDB2_OK;
-            }
-            return NULL;
-        }
-
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
-        }
-
-        $result = $this->_doQuery($query, $ismanip, $prepared_query);
-        if (!MDB2::isError($result)) {
-            if ($ismanip) {
-                return MDB2_OK;
-            } else {
-                if (!$result_class) {
-                    $result_class = $this->options['result_buffering']
-                        ? $this->options['buffered_result_class'] : $this->options['result_class'];
-                }
-                $class_name = sprintf($result_class, $this->phptype);
-                $result =& new $class_name($this, $result, $offset, $limit);
-                if ($types) {
-                    $err = $result->setResultTypes($types);
-                    if (MDB2::isError($err)) {
-                        $result->free();
-                        return $err;
-                    }
-                }
-                if (!$result_wrap_class) {
-                    $result_wrap_class = $this->options['result_wrap_class'];
-                }
-                if ($result_wrap_class) {
-                    $result =& new $result_wrap_class($result);
-                }
-                return $result;
-            }
-        }
-        return $result;
-    }
-
-    // }}}
     // {{{ query()
 
     /**
@@ -655,8 +437,77 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
     {
-        $result =& $this->_executePrepared(false, $query, $types, $result_class, $result_wrap_class);
-        return $result;
+        $connected = $this->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
+        }
+
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
+        $query = $this->_modifyQuery($query);
+        $this->last_query = $query;
+        $this->debug($query, 'query');
+        if ($this->getOption('disable_query')) {
+            if ($ismanip) {
+                return MDB2_OK;
+            }
+            return null;
+        }
+
+        $result = $this->_doQuery($query);
+        if (MDB::isError($result)) {
+            return $result;
+        }
+        if ($ismanip) {
+            $this->affected_rows = @OCIRowCount($result);
+        }
+        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
+        return $result_obj;
+    }
+
+    // }}}
+    // {{{ prepare()
+
+    /**
+     * Prepares a query for multiple execution with execute().
+     * With some database backends, this is emulated.
+     * prepare() requires a generic query as string like
+     * 'INSERT INTO numbers VALUES(?,?,?)'. The ? are wildcards.
+     * Types of wildcards:
+     *    ? - a quoted scalar value, i.e. strings, integers
+     *
+     * @param string $query the query to prepare
+     * @param array $fields specifies the names of the fields (required for LOBs only)
+     * @return mixed resource handle for the prepared query on success, a DB
+     *        error on failure
+     * @access public
+     * @see execute
+     */
+    function prepare($query, $types = null, $result_types = null)
+    {
+        $this->debug($query, 'prepare');
+        if (is_array($types)) {
+            $columns = '';
+            $variables = '';
+            foreach ($types as $parameter => $type) {
+                $lob_type = substr($type, 1, 3);
+                if ($lob_type == 'lob') {
+                    $columns.= ($columns ? ' RETURNING ' : ',').$parameter;
+                    $variables.= ($columns ? ' INTO ' : ',').':'.$parameter;
+                }
+            }
+            $query.= $columns.$variables;
+        }
+        if (!($statement = @OCIParse($this->connection, $query)) {
+            $error =& $this->raiseError(MDB2_ERROR, null, null,
+                'Could not create statement');
+            return $error;
+        }
+
+        $class_name = 'MDB2_Statement_'.$this->phptype;
+        $statement =& new $class_name($this, $query, $positions, $types, $result_types, $statement);
+        return $statement
     }
 
     // }}}
@@ -1073,4 +924,140 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     }
 }
 
+class MDB2_Statement_oci8 extends MDB2_Statement
+{
+    // }}}
+    // {{{ _executePrepared()
+
+    /**
+     * Execute a prepared query statement.
+     *
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access private
+     */
+    function &_executePrepared($result_class = false, $result_wrap_class = false)
+    {
+        $ismanip = MDB2::isManip($query);
+        $query = $this->mdb->_modifyQuery($this->query);
+        $this->mdb->last_query = $query;
+        $this->mdb->debug($query, 'query');
+        if ($this->mdb->getOption('disable_query')) {
+            if ($ismanip) {
+                return MDB2_OK;
+            }
+            return null;
+        }
+
+        $connected = $this->mdb->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
+        }
+
+        $lob = array();
+        $descriptors = array();
+        foreach($this->values as $parameter => $value) {
+            $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
+            $lob_type = substr($type, 0, 4);
+            if ($lob_type == 'clob' || $lob_type == 'blob') {
+                if ($type == 'clobfile' || $type == 'blobfile') {
+                    $value = @fopen($value);
+                    $type = $lob_type;
+                } elseif (is_string($value)) {
+                    // create stream
+                }
+                $type = $lob_type;
+                $descriptors[$parameter] = @OCINewDescriptor($this->mdb->connection, OCI_D_LOB);
+                if (!is_object($descriptors[$parameter])) {
+                    $success =  $this->mdb->raiseError();
+                    break;
+                }
+            }
+            $value_quoted = $this->quote($value, $type);
+            if (MDB2::isError($value_quoted)) {
+                return $value_quoted;
+            }
+            if (isset($lob_type)) {
+                $lobs[$parameter] = $value;
+                if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1, ($lob_type == 'lob' ? OCI_B_CLOB : OCI_B_BLOB))) {
+                    $success =  $this->mdb->raiseError();
+                    break;
+                }
+            } else {
+                if (!OCIBindByName($statement, ':'.$parameter, $descriptors[$parameter], -1))) {
+                    $success =  $this->mdb->raiseError();
+                    break;
+                }
+            }
+        }
+
+        $mode = ($lobs == 0 && $this->auto_commit) ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
+        $result = @OCIExecute($statement, $mode);
+        if (!$result) {
+            $error =& $this->mdb->raiseError();
+            return $error;
+        }
+
+        if (!empty($lobs)) {
+            foreach ($lobs as $parameter => $stream) {
+                while (($data = @fread($stream, $this->getOption('lob_buffer_length')))) {
+                    if (!$descriptors[$parameter]->write($data, $this->getOption('lob_buffer_length'))) {
+                        $success = $this->mdb->raiseError();
+                        break(2);
+                    }
+                }
+            }
+
+            if (!MDB2::isError($success)) {
+                if ($this->auto_commit) {
+                    if (MDB2::isError($success)) {
+                        if (!OCIRollback($this->mdb->connection)) {
+                            $success = $this->mdb->raiseError();
+                        }
+                    } else {
+                        if (!OCICommit($this->mdb->connection)) {
+                            $success = $this->mdb->raiseError();
+                        }
+                    }
+                } else {
+                    ++$this->mdb->uncommitedqueries;
+                }
+            }
+        }
+
+       reset($descriptors);
+       for ($j = count($descriptors); $descriptor < $j; next($descriptors)) {
+            @$descriptors[key($descriptors)]->free();
+        }
+
+        if (MDB2::isError($success)) {
+            return $success;;
+        }
+
+        if ($ismanip) {
+            $this->mdb->affected_rows = @OCIRowCount($statement);
+        }
+
+        $result_obj =& $this->mdb->_wrapResult($result, $ismanip, $this->types,
+            $result_class, $result_wrap_class, $this->row_offset, $lthis->row_imit);
+        return $result_obj;
+    }
+
+    // }}}
+    // {{{ free()
+
+    /**
+     * Release resources allocated for the specified prepared query.
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function free()
+    {
+        @OCIFreeStatement($this->statement);
+        return MDB2_OK;
+    }
+}
 ?>

@@ -123,9 +123,9 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         return true;
     }
 
-    function insertTestValues($prepared_query, &$data) {
+    function insertTestValues(&$prepared_query, &$data) {
         for ($i = 0; $i < count($this->fields); $i++) {
-            $this->db->setParam($prepared_query, $i, $data[$this->fields[$i]]);
+            $prepared_query->bindParam($i, $data[$this->fields[$i]]);
         }
     }
 
@@ -169,9 +169,9 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $this->insertTestValues($prepared_query, $data);
 
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -212,14 +212,14 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->insertTestValues($prepared_query, $data[$row]);
 
-            $result = $this->db->execute($prepared_query);
+            $result = $prepared_query->execute();
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $total_fields = count($this->fields);
         for ($i = 0; $i < $total_fields; $i++) {
@@ -261,14 +261,14 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->insertTestValues($prepared_query, $data[$row]);
 
-            $result = $this->db->execute($prepared_query);
+            $result = $prepared_query->execute();
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $first_col = array();
         for ($row = 0; $row < $total_rows; $row++) {
@@ -329,7 +329,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->insertTestValues($prepared_query, $data[$row]);
 
-            $result = $this->db->execute($prepared_query);
+            $result = $prepared_query->execute();
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -338,7 +338,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $fields = array_keys($data[0]);
         $query = 'SELECT '. implode (', ', $fields). ' FROM users ORDER BY user_name';
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         //$result =& $this->db->query('SELECT user_name, user_password, FROM users', $this->types);
         //$result =& $this->db->query('SELECT * FROM users');
@@ -369,11 +369,12 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $prepared_query = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 1)", array('text'));
 
-        $this->db->setParam($prepared_query, 0, 'Sure!');
+        $value = 'Sure!';
+        $prepared_query->bindParam(0, $value);
 
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         if (MDB2::isError($result)) {
             $error = $result->getMessage();
@@ -385,11 +386,12 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $prepared_query = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 2)", array('text'));
 
-        $this->db->setParam($prepared_query, 0, 'For Sure!');
+        $value = 'For Sure!';
+        $prepared_query->bindParam(0, $value);
 
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         if (MDB2::isError($result)) {
             $error = $result->getMessage();
@@ -423,9 +425,9 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $this->insertTestValues($prepared_query, $data);
 
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -583,14 +585,14 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->insertTestValues($prepared_query, $data[$row]);
 
-            $result = $this->db->execute($prepared_query);
+            $result = $prepared_query->execute();
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         for ($rows = 2, $start_row = 0; $start_row < $total_rows; $start_row += $rows) {
 
@@ -853,7 +855,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->insertTestValues($prepared_query, $data[$row]);
 
-            $result = $this->db->execute($prepared_query);
+            $result = $prepared_query->execute();
+
+            if (MDB2::isError($result)) {
+                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+            }
 
             $affected_rows = $this->db->affectedRows();
             if (MDB2::isError($affected_rows)) {
@@ -861,21 +867,20 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             } else {
                 $this->assertEquals(1, $affected_rows, "Inserting the row $row returned $affected_rows affected row count instead of 1 as expected");
             }
-
-            if (MDB2::isError($result)) {
-                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
-            }
         }
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $prepared_query = $this->db->prepare('UPDATE users SET user_password=? WHERE user_id < ?', array('text', 'integer'));
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $this->db->setParam($prepared_query, 0, "another_password_$row");
-            $this->db->setParam($prepared_query, 1, $row);
+            $password = "another_password_$row";
+            if ($row == 0) {
+                $prepared_query->bindParam(0, $password);
+                $prepared_query->bindParam(1, $row);
+            }
 
-            $result = $this->db->execute($prepared_query);
+            $result = $prepared_query->execute();
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -889,14 +894,16 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             }
         }
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $prepared_query = $this->db->prepare('DELETE FROM users WHERE user_id >= ?', array('integer'));
 
+        $row = intval($total_rows / 2);
+        $prepared_query->bindParam(0, $row);
         for ($row = $total_rows; $total_rows; $total_rows = $row) {
-            $this->db->setParam($prepared_query, 0, $row = intval($total_rows / 2));
+            $row = intval($total_rows / 2);
 
-            $result = $this->db->execute($prepared_query);
+            $result = $prepared_query->execute();
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -912,7 +919,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         }
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
     }
 
     /**
@@ -940,7 +947,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
         $this->insertTestValues($prepared_query, $data);
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
         $this->db->rollback();
 
         $result =& $this->db->query('SELECT * FROM users');
@@ -952,7 +959,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $result->free();
 
         $this->insertTestValues($prepared_query, $data);
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
         $this->db->commit();
 
         $result =& $this->db->query('SELECT * FROM users');
@@ -972,7 +979,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $autocommit = $this->db->autocommit(1);
         $this->assertTrue(!MDB2::isError($autocommit), 'Error autocommiting transactions');
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $result =& $this->db->query('SELECT * FROM users');
         if (MDB2::isError($result)) {
@@ -992,7 +999,8 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $prepared_query = $this->db->prepare('INSERT INTO files (ID, document, picture) VALUES (1,?,?)', array('clob', 'blob'), array('document', 'picture'));
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1,?,?)';
+        $prepared_query = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'));
 
         $character_lob = '';
         for ($code = 32; $code <= 127; $code++) {
@@ -1003,16 +1011,16 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $binary_lob .= chr($code);
         }
 
-        $this->db->setParam($prepared_query, 0, $character_lob);
-        $this->db->setParam($prepared_query, 1, $binary_lob);
+        $prepared_query->bindParam('document', $character_lob);
+        $prepared_query->bindParam('picture', $binary_lob);
 
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query: '.$result->getUserInfo());
         }
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $result =& $this->db->query('SELECT document, picture FROM files', array('clob', 'blob'));
         if (MDB2::isError($result)) {
@@ -1060,7 +1068,8 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $prepared_query = $this->db->prepare('INSERT INTO files (ID, document, picture) VALUES (1,?,?)', array('clobfile', 'blobfile'), array('document', 'picture'));
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1,?,?)';
+        $prepared_query = $this->db->prepare($query, array('document' => 'clobfile', 'picture' => 'blobfile'));
 
         $character_data_file = 'character_data';
         if (($file = fopen($character_data_file, 'w'))) {
@@ -1080,13 +1089,13 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             fclose($file);
         }
 
-        $this->db->setParam($prepared_query, 0, $character_data_file);
-        $this->db->setParam($prepared_query, 1, $binary_data_file);
+        $prepared_query->bindParam('document', $character_data_file);
+        $prepared_query->bindParam('picture', $binary_data_file);
 
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
         $this->assertTrue(!MDB2::isError($result), 'Error executing prepared query - inserting LOB from files');
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $result =& $this->db->query('SELECT document, picture FROM files', array('clob', 'blob'));
         if (MDB2::isError($result)) {
@@ -1139,15 +1148,17 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             return;
         }
 
-        $prepared_query = $this->db->prepare('INSERT INTO files (ID, document,picture) VALUES (1,?,?)', array('clob', 'blob'), array('document', 'picture'));
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1,?,?)';
+        $prepared_query = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'));
 
-        $this->db->setParam($prepared_query, 0, null);
-        $this->db->setParam($prepared_query, 1, null);
+        $null = null;
+        $prepared_query->bindParam('document', $null);
+        $prepared_query->bindParam('picture', $null);
 
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
         $this->assertTrue(!MDB2::isError($result), 'Error executing prepared query - inserting NULL lobs');
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $result =& $this->db->query('SELECT document, picture FROM files', array('clob', 'blob'));
         if (MDB2::isError($result)) {

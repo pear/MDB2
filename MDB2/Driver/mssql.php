@@ -251,12 +251,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         return $this->query('BEGIN TRANSACTION');
     }
 
-    function _doQuery($query)
-    {
-        $this->current_row = $this->affected_rows = -1;
-        return @mssql_query($query, $this->connection);
-    }
-
     // }}}
     // {{{ connect()
 
@@ -311,7 +305,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
         if ($this->supports('transactions')
             && !$this->auto_commit
-            && MDB2::isError($this->_doQuery('BEGIN TRANSACTION'))
+            && !@mssql_query('BEGIN TRANSACTION', $this->connection)
         ) {
             @mssql_close($this->connection);
             $this->connection = 0;
@@ -332,16 +326,18 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
+            $result = true;
             if ($this->supports('transactions') && !$this->auto_commit) {
-                $result = $this->_doQuery('ROLLBACK TRANSACTION');
+                $result = !@mssql_query('ROLLBACK TRANSACTION', $this->connection)
             }
             @mssql_close($this->connection);
             $this->connection = 0;
             $this->affected_rows = -1;
             unset($GLOBALS['_MDB2_databases'][$this->db_index]);
 
-            if (isset($result) && MDB2::isError($result)) {
-                return $result;
+            if (!$result) {
+                $error = $this->raiseError();
+                return $error;
             }
 
         }
@@ -424,34 +420,14 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             }
             $this->connected_database_name = $this->database_name;
         }
-        if ($result = $this->_doQuery($query)) {
-            if ($ismanip) {
-                return MDB2_OK;
-            } else {
-                if (!$result_class) {
-                    $result_class = $this->options['result_buffering']
-                        ? $this->options['buffered_result_class'] : $this->options['result_class'];
-                }
-                $class_name = sprintf($result_class, $this->phptype);
-                $result =& new $class_name($this, $result, $offset, $limit);
-                if ($types) {
-                    $err = $result->setResultTypes($types);
-                    if (MDB2::isError($err)) {
-                        $result->free();
-                        return $err;
-                    }
-                }
-                if (!$result_wrap_class) {
-                    $result_wrap_class = $this->options['result_wrap_class'];
-                }
-                if ($result_wrap_class) {
-                    $result =& new $result_wrap_class($result);
-                }
-                return $result;
-            }
+
+        $result = @mssql_query($query, $this->connection);
+        if (!$result) {
+            $error =& $this->raiseError();
+            return $error;
         }
-        $error =& $this->raiseError();
-        return $error;
+        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
+        return $result_obj;
     }
 
     // }}}
@@ -800,6 +776,11 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
         }
         return $rows;
     }
+}
+
+class MDB2_Statement_mssql extends MDB2_Statement_Common
+{
+
 }
 
 ?>

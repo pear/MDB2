@@ -396,6 +396,32 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ _modifyQuery()
+
+    /**
+     * This method is used by backends to alter queries for various
+     * reasons.
+     *
+     * @param string $query  query to modify
+     * @return the new (modified) query
+     * @access private
+     */
+    function _modifyQuery($query, $ismanip, $offset, $limit)
+    {
+        if ($limit > 0) {
+            if ($ismanip) {
+                $manip = preg_replace('/^(DELETE FROM|UPDATE).*$/', '\\1', $query);
+                $form = $match[2];
+                $where = $match[3];
+                $query = $manip.' '.$from." WHERE ctid=(SELECT ctid FROM $from $where LIMIT $limit");
+            } else {
+                $query .= " LIMIT $limit OFFSET $offset";
+            }
+        }
+        return $query;
+    }
+
+    // }}}
     // {{{ query()
 
     /**
@@ -416,6 +442,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
+        $query = $this->_modifyQuery($query, $ismanip, $offset, $limit);
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
@@ -430,70 +457,22 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $connected;
         }
 
-        if (!$ismanip && $limit > 0) {
-            if ($this->auto_commit && MDB2::isError($result = $this->_doQuery('BEGIN'))) {
-                return $result;
-            }
-            $result = $this->_doQuery('DECLARE select_cursor SCROLL CURSOR FOR '.$query);
-            if (!MDB2::isError($result)) {
-                if ($offset > 0
-                    && MDB2::isError($result = $this->_doQuery("MOVE FORWARD $offset FROM select_cursor"))
-                ) {
-                    @pg_free_result($result);
-                    return $result;
-                }
-                $result = $this->_doQuery("FETCH FORWARD $limit FROM select_cursor");
-                if (MDB2::isError($result)) {
-                    @pg_free_result($result);
-                    return $result;
-                }
-            } else {
-                return $result;
-            }
-            if ($this->auto_commit && MDB2::isError($result2 = $this->_doQuery('END'))) {
-                @pg_free_result($result);
-                return $result2;
-            }
+        $result = $this->_doQuery($query);
+        if (MDB::isError($result)) {
+            return $result;
+        }
+        if ($ismanip) {
+            $this->affected_rows = @pg_affected_rows($result);
+        } elseif ((preg_match('/^\s*\(?\s*SELECT\s+/si', $query)
+                && !preg_match('/^\s*\(?\s*SELECT\s+INTO\s/si', $query))
+            || preg_match('/^\s*EXPLAIN/si',$query)
+        ) {
+            $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
+            return $result_obj;
         } else {
-            $result = $this->_doQuery($query);
-            if (MDB2::isError($result)) {
-                return $result;
-            }
+            $this->affected_rows = 0;
+            return MDB2_OK;
         }
-        if (!MDB2::isError($result)) {
-            if ($ismanip) {
-                $this->affected_rows = @pg_affected_rows($result);
-                return MDB2_OK;
-            } elseif ((preg_match('/^\s*\(?\s*SELECT\s+/si', $query)
-                    && !preg_match('/^\s*\(?\s*SELECT\s+INTO\s/si', $query))
-                || preg_match('/^\s*EXPLAIN/si',$query)
-            ) {
-                if (!$result_class) {
-                    $result_class = $this->options['result_buffering']
-                        ? $this->options['buffered_result_class'] : $this->options['result_class'];
-                }
-                $class_name = sprintf($result_class, $this->phptype);
-                $result =& new $class_name($this, $result, $offset, $limit);
-                if ($types) {
-                    $err = $result->setResultTypes($types);
-                    if (MDB2::isError($err)) {
-                        $result->free();
-                        return $err;
-                    }
-                }
-                if (!$result_wrap_class) {
-                    $result_wrap_class = $this->options['result_wrap_class'];
-                }
-                if ($result_wrap_class) {
-                    $result =& new $result_wrap_class($result);
-                }
-                return $result;
-            } else {
-                $this->affected_rows = 0;
-                return MDB2_OK;
-            }
-        }
-        return $result;
     }
 
     // }}}
@@ -805,4 +784,8 @@ class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
     }
 }
 
+class MDB2_Statement_pgsql extends MDB2_Statement_Common
+{
+
+}
 ?>

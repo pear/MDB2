@@ -279,24 +279,23 @@ class MDB2
      * @return  mixed   a newly created MDB2 object, or false on error
      * @access  public
      */
-    function &factory($type, $debug = false)
+    function &factory($type)
     {
-        $class_name    = 'MDB2_Driver_'.$type;
-        $include       = 'MDB2/Driver/'.$type.'.php';
+        $class_name = 'MDB2_Driver_'.$type;
+        $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
 
-        if ($debug) {
-            include_once $include;
-            $db =& new $class_name();
-        } else {
-            @include_once $include;
-            if (!class_exists($class_name)) {
-                $error =& MDB2_Driver_Common::raiseError(MDB2_ERROR_NOT_FOUND,
-                    null, null, 'Unable to include the '.$include.' file');
-                return $error;
-            }
-            @$db =& new $class_name();
+        if (!MDB2::fileExists($file_name)) {
+            $error =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'unable to find: '.$file_name);
+            return $error;
+        }
+        if (!include_once($file_name)) {
+            $error =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'unable to load driver class: '.$file_name);
+            return $error;
         }
 
+       $db =& new $class_name();
         return $db;
     }
 
@@ -339,16 +338,7 @@ class MDB2
         }
         $type = $dsninfo['phptype'];
 
-        if (is_array($options)
-            && isset($options['debug'])
-            && $options['debug'] >= 2
-        ) {
-            $debug = true;
-        } else {
-            $debug = false;
-        }
-
-        $db =& MDB2::factory($type, $debug);
+        $db =& MDB2::factory($type);
         if (MDB2::isError($db)) {
             return $db;
         }
@@ -364,6 +354,7 @@ class MDB2
             $err = $db->connect();
             if (MDB2::isError($err)) {
                 $dsn = $db->getDSN();
+                $db->disconnect();
                 $err->addUserInfo($dsn);
                 return $err;
             }
@@ -427,9 +418,7 @@ class MDB2
                 }
             }
         } else {
-            if (is_array($GLOBALS['_MDB2_databases'])
-                && reset($GLOBALS['_MDB2_databases'])
-            ) {
+            if (is_array($GLOBALS['_MDB2_databases']) && reset($GLOBALS['_MDB2_databases'])) {
                 $db =& $GLOBALS['_MDB2_databases'][key($GLOBALS['_MDB2_databases'])];
                 return $db;
             }
@@ -445,12 +434,23 @@ class MDB2
      * load a file (like 'Date')
      *
      * @param  string     $file  name of the file in the MDB2 directory (without '.php')
-     * @return $module    name of the file to be included from the MDB2 modules dir
+     * @return string     name of the file that was included
      * @access public
      */
     function loadFile($file)
     {
-        include_once 'MDB2/'.$file.'.php';
+        $file_name = 'MDB2'.DIRECTORY_SEPARATOR.$file.'.php';
+        if (!MDB2::fileExists($file_name)) {
+            $error =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'unable to find: '.$file_name);
+            return $error;
+        }
+        if (!include_once($file_name)) {
+            $error =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'unable to load driver class: '.$file_name);
+            return $error;
+        }
+        return $file_name;
     }
 
     // }}}
@@ -767,6 +767,28 @@ class MDB2
 
         return $parsed;
     }
+
+    // }}}
+    // {{{ fileExists()
+
+    /**
+     * checks if a file exists in the include path
+     *
+     * @access public
+     * @param  string   filename
+     *
+     * @return boolean true success and false on error
+     */
+    function fileExists($file)
+    {
+        $dirs = split(PATH_SEPARATOR, ini_get('include_path'));
+        foreach ($dirs as $dir) {
+            if (file_exists($dir . DIRECTORY_SEPARATOR . $file)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 /**
@@ -778,14 +800,6 @@ class MDB2
  */
 class MDB2_Driver_Common extends PEAR
 {
-    // {{{ properties
-    /**
-     * php version used
-     * @var integer
-     * @access public
-     */
-    var $phpversion = 5;
-
     /**
      * index of the MDB2 object within the $GLOBALS['_MDB2_databases'] array
      * @var integer
@@ -1375,16 +1389,47 @@ class MDB2_Driver_Common extends PEAR
         if (!$property) {
             $property = $module;
         }
+
         if (!isset($this->{$property})) {
-            $include_dir = 'MDB2/';
-            if (@include_once($include_dir.ucfirst($module).'.php')) {
-                $class_name = 'MDB2_'.ucfirst($module);
-            } elseif (@include_once($include_dir.'/Driver/'.ucfirst($module).'/'.$this->phptype.'.php')) {
+            $version = false;
+            $class_name = 'MDB2_'.ucfirst($module);
+            $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
+            if (!MDB2::fileExists($file_name)) {
                 $class_name = 'MDB2_Driver_'.ucfirst($module).'_'.$this->phptype;
-            } else {
+                $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
+                $version = true;
+                if (!MDB2::fileExists($file_name)) {
+                    $error =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
+                        'unable to find module: '.$file_name);
+                    return $error;
+                }
+            }
+
+            if (!include_once($file_name)) {
                 $error =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
-                    'unable to find module: '.$module);
+                    'unable to load manager driver class: '.$file_name);
                 return $error;
+            }
+
+            // load modul in a specific version
+            if ($version) {
+                if (method_exists($class_name, 'factory')) {
+                    $class_name_new = call_user_func(array($class_name, 'factory'), $this->db_index);
+                    if ($class_name != $class_name_new) {
+                        $class_name != $class_name_new;
+                        $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
+                        if (!MDB2::fileExists($file_name)) {
+                            $error =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
+                                'unable to find module: '.$file_name);
+                            return $error;
+                        }
+                        if (!include_once($file_name)) {
+                            $error =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
+                                'unable to load manager driver class: '.$file_name);
+                            return $error;
+                        }
+                    }
+                }
             }
 
             if (!class_exists($class_name)) {
@@ -1393,6 +1438,11 @@ class MDB2_Driver_Common extends PEAR
                 return $error;
             }
             $this->{$property} =& new $class_name($this->db_index);
+            if ($version) {
+                // this wil be used in the connect method to determine if the module
+                // needs to be loaded with a different version
+                $this->loaded_version_modules[] = $property;
+            }
         } else if (!is_object($this->{$property})) {
             $error =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                 'unable to load module: '.$module.' into property: '.$property);
@@ -1650,6 +1700,47 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ _wrapResult()
+
+    /**
+     * wrap a result set into the correct class
+     *
+     * @param ressource $result
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function _wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit)
+    {
+        if (!$ismanip) {
+            if (!$result_class) {
+                $result_class = $this->options['result_buffering']
+                    ? $this->options['buffered_result_class'] : $this->options['result_class'];
+            }
+            $class_name = sprintf($result_class, $this->phptype);
+            $result =& new $class_name($this, $result, $offset, $limit);
+            if ($types) {
+                $err = $result->setResultTypes($types);
+                if (MDB2::isError($err)) {
+                    $result->free();
+                    return $err;
+                }
+            }
+            if (!$result_wrap_class) {
+                $result_wrap_class = $this->options['result_wrap_class'];
+            }
+            if ($result_wrap_class) {
+                $result =& new $result_wrap_class($result);
+            }
+            return $result;
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
     // {{{ setLimit()
 
     /**
@@ -1850,14 +1941,12 @@ class MDB2_Driver_Common extends PEAR
      *    ? - a quoted scalar value, i.e. strings, integers
      *
      * @param string $query the query to prepare
-     * @param array $types specifies the types of the fields
-     * @param array $fields specifies the names of the fields (required for LOBs only)
      * @return mixed resource handle for the prepared query on success, a DB
      *        error on failure
      * @access public
      * @see execute
      */
-    function prepare($query, $types = null, $fields = array())
+    function prepare($query, $types = null, $result_types = null)
     {
         $this->debug($query, 'prepare');
         $positions = array();
@@ -1870,264 +1959,30 @@ class MDB2_Driver_Common extends PEAR
                         'prepare: query with an unterminated text string specified');
                 }
                 switch ($this->escape_quotes) {
-                    case '':
-                    case "'":
+                case '':
+                case "'":
+                    $position = $end_quote + 1;
+                    break;
+                default:
+                    if ($end_quote == $quote + 1) {
                         $position = $end_quote + 1;
-                        break;
-                    default:
-                        if ($end_quote == $quote + 1) {
-                            $position = $end_quote + 1;
+                    } else {
+                        if ($query[$end_quote-1] == $this->escape_quotes) {
+                            $position = $end_quote;
                         } else {
-                            if ($query[$end_quote-1] == $this->escape_quotes) {
-                                $position = $end_quote;
-                            } else {
-                                $position = $end_quote + 1;
-                            }
+                            $position = $end_quote + 1;
                         }
-                        break;
+                    }
+                    break;
                 }
             } else {
                 $positions[] = $question;
                 $position = $question + 1;
             }
         }
-        if (!$types) {
-            if ($count = count($positions)) {
-                $types = array_fill(0, $count, null);
-            } else {
-                $types = array();
-            }
-        } elseif (!is_array($types)) {
-            if ($count = count($positions)) {
-                $types = array_fill(0, $count, $types);
-            } else {
-                $types = array();
-            }
-        }
-        $result = $this->loadModule('datatype');
-        if (MDB2::isError($result)) {
-            return $result;
-        }
-        end($this->prepared_queries);
-        $prepared_query = key($this->prepared_queries)+1;
-        $this->prepared_queries[$prepared_query] = array(
-            'query' => $query,
-            'positions' => $positions,
-            'fields' => array_values($fields),
-            'types' => array_values($types),
-            'values' => array(),
-        );
-        if ($this->row_limit > 0) {
-            $this->prepared_queries[$prepared_query]['offset'] = $this->row_offset;
-            $this->prepared_queries[$prepared_query]['limit'] = $this->row_limit;
-        }
-        return $prepared_query;
-    }
-
-    // }}}
-    // {{{ _validatePrepared()
-
-    /**
-     * validate that a handle is infact a prepared query
-     *
-     * @param int $prepared_query argument is a handle that was returned by
-     *       the function prepare()
-     * @access private
-     */
-    function _validatePrepared($prepared_query)
-    {
-        if ($prepared_query < 1 || $prepared_query > count($this->prepared_queries)) {
-            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'invalid prepared query');
-        }
-        if (!is_array($this->prepared_queries[$prepared_query])) {
-            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'prepared query was already freed');
-        }
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ setParam()
-
-    /**
-     * Set the value of a parameter of a prepared query.
-     *
-     * @param int $prepared_query argument is a handle that was returned
-     *       by the function prepare()
-     * @param int $parameter the order number of the parameter in the query
-     *       statement. The order number of the first parameter is 1.
-     * @param mixed $value value that is meant to be assigned to specified
-     *       parameter. The type of the value depends on the $type argument.
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function setParam($prepared_query, $parameter, $value)
-    {
-       $result = $this->_validatePrepared($prepared_query);
-        if (MDB2::isError($result)) {
-            return $result;
-        }
-
-        $this->prepared_queries[$prepared_query]['values'][$parameter] = $value;
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ setParamArray()
-
-    /**
-     * Set the values of multiple a parameter of a prepared query in bulk.
-     *
-     * @param int $prepared_query argument is a handle that was returned by
-     *       the function prepare()
-     * @param array $params array thats specifies all necessary infromation
-     *       for setParam() the array elements must use keys corresponding to
-     *       the number of the position of the parameter.
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     * @see setParam()
-     */
-    function setParamArray($prepared_query, $params)
-    {
-        foreach ($params as $name => $param) {
-            $success = $this->setParam($prepared_query, $name, $param);
-            if (MDB2::isError($success)) {
-                return $success;
-            }
-        }
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ freePrepared()
-
-    /**
-     * Release resources allocated for the specified prepared query.
-     *
-     * @param int $prepared_query argument is a handle that was returned by
-     *       the function prepare()
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function freePrepared($prepared_query)
-    {
-        $result = $this->_validatePrepared($prepared_query);
-        if (MDB2::isError($result)) {
-            return $result;
-        }
-        $this->prepared_queries[$prepared_query] = '';
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ _executePrepared()
-
-    /**
-     * Execute a prepared query statement.
-     *
-     * @param int $prepared_query argument is a handle that was returned by
-     *       the function prepare()
-     * @param string $query query to be executed
-     * @param array $types array that contains the types of the columns in
-     *       the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access private
-     */
-    function &_executePrepared($prepared_query, $query, $types = null,
-        $result_class = false, $result_wrap_class = false)
-    {
-        $result =& $this->query($query, $types, $result_class, $result_wrap_class);
-        return $result;
-    }
-
-    // }}}
-    // {{{ execute()
-
-    /**
-     * Execute a prepared query statement.
-     *
-     * @param int $prepared_query argument is a handle that was returned by
-     *       the function prepare()
-     * @param array $types array that contains the types of the columns in the
-     *       result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function &execute($prepared_query, $types = null,
-        $result_class = false, $result_wrap_class = false)
-    {
-        $result = $this->_validatePrepared($prepared_query);
-        if (MDB2::isError($result)) {
-            return $result;
-        }
-        $query = '';
-        $this->clobs[$prepared_query] = $this->blobs[$prepared_query] = array();
-        $count = count($this->prepared_queries[$prepared_query]['positions']);
-        for ($last_position = $parameter = 0; $parameter < $count; $parameter++) {
-            $current_position = $this->prepared_queries[$prepared_query]['positions'][$parameter];
-            $query .= substr($this->prepared_queries[$prepared_query]['query'],
-                $last_position, $current_position - $last_position);
-            if (!isset($this->prepared_queries[$prepared_query]['values'][$parameter])) {
-                $value_quoted = 'NULL';
-            } else {
-                $value = $this->prepared_queries[$prepared_query]['values'][$parameter];
-                $type = $this->prepared_queries[$prepared_query]['types'][$parameter];
-                $lob_type = substr($type, 0, 4);
-                if ($lob_type == 'clob' || $lob_type == 'blob') {
-                    if (is_array($value)) {
-                        $lob = $value;
-                    } elseif ($type == 'clobfile' || $type == 'blobfile') {
-                        $lob = array('type' => 'inputfile', 'file_name' => $value);
-                    } else {
-                        $lob = array('data' => $value);
-                    }
-                    $type = $lob_type;
-                    $lob['prepared_query'] = $prepared_query;
-                    $lob['parameter'] = $parameter;
-                    $value = $this->datatype->createLOB($lob);
-                    if (MDB2::isError($value)) {
-                        return $value;
-                    }
-                }
-                $value_quoted = $this->quote($value, $type);
-                if (MDB2::isError($value_quoted)) {
-                    return $value_quoted;
-                }
-                if (is_numeric($value)) {
-                    if ($type == 'clob') {
-                        $this->clobs[$prepared_query][$value] = $value_quoted;
-                    } elseif ($type == 'blob') {
-                        $this->blobs[$prepared_query][$value] = $value_quoted;
-                    }
-                }
-            }
-            $query .= $value_quoted;
-            $last_position = $current_position + 1;
-        }
-        $query .= substr($this->prepared_queries[$prepared_query]['query'], $last_position);
-
-        if ($this->row_limit > 0 || $this->row_offset > 0) {
-            $this->prepared_queries[$prepared_query]['offset'] = $this->row_offset;
-            $this->prepared_queries[$prepared_query]['limit'] = $this->row_limit;
-        }
-        $success =& $this->_executePrepared($prepared_query, $query, $types, $result_class, $result_wrap_class);
-
-        foreach ($this->clobs[$prepared_query] as $key => $value) {
-             $this->datatype->destroyLOB($key);
-             $this->datatype->freeCLOBValue($key, $value);
-        }
-        unset($this->clobs[$prepared_query]);
-        foreach ($this->blobs[$prepared_query] as $key => $value) {
-             $this->datatype->destroyLOB($key);
-             $this->datatype->freeBLOBValue($key, $value);
-        }
-        unset($this->blobs[$prepared_query]);
-        return $success;
+        $class_name = 'MDB2_Statement_'.$this->phptype;
+        $statement =& new $class_name($this, $query, $positions, $types, $result_types);
+        return $statement;
     }
 
     // }}}
@@ -2974,6 +2829,171 @@ class MDB2_Row
     function MDB2_Row(&$row)
     {
         $this->__construct($row);
+    }
+}
+
+class MDB2_Statement_Common
+{
+    var $mdb;
+    var $query;
+    var $positions;
+    var $result_types;
+    var $row_offset;
+    var $row_limit;
+    var $types;
+    var $values;
+
+    // {{{ constructor
+
+    /**
+     * Constructor
+     */
+    function __construct(&$mdb, $query, $positions, $types, $result_types, $statement = null)
+    {
+        $this->mdb =& $mdb;
+        $this->query = $query;
+        $this->positions = $positions;
+        $this->types = $types;
+        $this->result_types = $result_types;
+        $this->statement = $statement;
+        $this->mdb->loadModule('datatype');
+    }
+
+    function MDB2_Statement_Common(&$mdb, $query, $positions, $types, $result_types, $statement = null)
+    {
+        $this->__construct($mdb, $query, $positions, $types, $result_types, $statement);
+    }
+
+    // }}}
+    // {{{ bindParam()
+
+    /**
+     * Set the value of a parameter of a prepared query.
+     *
+     * @param int $parameter the order number of the parameter in the query
+     *       statement. The order number of the first parameter is 1.
+     * @param mixed $value value that is meant to be assigned to specified
+     *       parameter. The type of the value depends on the $type argument.
+     * @param string $type specifies the type of the field
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function bindParam($parameter, &$value)
+    {
+        $this->values[$parameter] =& $value;
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ bindParamArray()
+
+    /**
+     * Set the values of multiple a parameter of a prepared query in bulk.
+     *
+     * @param array $values array thats specifies all necessary infromation
+     *       for setParam() the array elements must use keys corresponding to
+     *       the number of the position of the parameter.
+     * @param array $types specifies the types of the fields
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     * @see setParam()
+     */
+    function bindParamArray(&$values)
+    {
+        $this->values =& $values;
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _executePrepared()
+
+    /**
+     * Execute a prepared query statement.
+     *
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function &_executePrepared($result_class = false, $result_wrap_class = false)
+    {
+        $query = '';
+        $this->clobs = $this->blobs = array();
+        $last_position = $parameter_num = 0;
+        foreach ($this->values as $parameter => $value) {
+            $current_position = $this->positions[$parameter_num];
+            $query .= substr($this->query,
+                $last_position, $current_position - $last_position);
+            if (!isset($value)) {
+                $value_quoted = 'NULL';
+            } else {
+                $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
+                $lob_type = substr($type, 0, 4);
+                if ($lob_type == 'clob' || $lob_type == 'blob') {
+                    if ($type == 'clobfile' || $type == 'blobfile') {
+                        $value = file_get_contents($value);
+                        $type = $lob_type;
+                    } elseif (is_resource($value)) {
+                        $value = @fread($value);
+                    }
+                }
+                $value_quoted = $this->mdb->quote($value, $type);
+                if (MDB2::isError($value_quoted)) {
+                    return $value_quoted;
+                }
+            }
+            $query .= $value_quoted;
+            $last_position = $current_position + 1;
+            ++$parameter_num;
+        }
+        $query .= substr($this->query, $last_position);
+
+        $this->mdb->row_offset = $this->row_offset;
+        $this->mdb->row_limit = $this->row_limit;
+        $result =& $this->mdb->query($query, $this->result_types, $result_class, $result_wrap_class);
+        return $result;
+    }
+
+    // }}}
+    // {{{ execute()
+
+    /**
+     * Execute a prepared query statement.
+     *
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function &execute($result_class = false, $result_wrap_class = false)
+    {
+        $success =& $this->_executePrepared($result_class, $result_wrap_class);
+
+        foreach ($this->clobs as $key => $value) {
+             $this->mdb->datatype->destroyLOB($key);
+             $this->mdb->datatype->freeCLOBValue($key, $value);
+        }
+        unset($this->clobs);
+        foreach ($this->blobs as $key => $value) {
+             $this->mdb->datatype->destroyLOB($key);
+             $this->mdb->datatype->freeBLOBValue($key, $value);
+        }
+        unset($this->blobs);
+        return $success;
+    }
+
+    // }}}
+    // {{{ free()
+
+    /**
+     * Release resources allocated for the specified prepared query.
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function free()
+    {
+        return MDB2_OK;
     }
 }
 

@@ -74,9 +74,6 @@ class MDB2_LOB
         if (isset($arguments['data'])) {
             $this->data = $arguments['data'];
         }
-        if (isset($arguments['prepared_query'])) {
-            $this->prepared_query = $arguments['prepared_query'];
-        }
         if (isset($arguments['parameter'])) {
             $this->parameter = $arguments['parameter'];
         }
@@ -163,9 +160,6 @@ class MDB2_LOB_Input_File extends MDB2_LOB
 
     function create(&$arguments)
     {
-        if (isset($arguments['prepared_query'])) {
-            $this->prepared_query = $arguments['prepared_query'];
-        }
         if (isset($arguments['parameter'])) {
             $this->parameter = $arguments['parameter'];
         }

@@ -114,9 +114,9 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         }
     }
 
-    function insertTestValues($prepared_query, &$data) {
+    function insertTestValues(&$prepared_query, &$data) {
         for ($i = 0; $i < count($this->fields); $i++) {
-            $this->db->setParam($prepared_query, $i, $data[$this->fields[$i]]);
+            $prepared_query->bindParam($i, $data[$this->fields[$i]]);
         }
     }
 
@@ -140,13 +140,13 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $this->insertTestValues($prepared_query, $data);
 
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $result =& $this->db->query('SELECT * FROM users ORDER BY user_name');
 
@@ -203,7 +203,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
         $this->insertTestValues($prepared_query, $data);
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
         $result = $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
@@ -215,7 +215,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $data['user_id'] = 2;
 
         $this->insertTestValues($prepared_query, $data);
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
         $result = $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
@@ -225,7 +225,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $data['user_name'] = null;
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
     }
 
     /**
@@ -249,13 +249,13 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
         $this->insertTestValues($prepared_query, $data);
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
         $result = $this->db->query('SELECT * FROM users');
         $numrows = $result->numRows();
         $this->assertEquals(1, $numrows, "Numrows is not returning proper value");
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
     }
 
     /**
@@ -274,12 +274,12 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
         $this->insertTestValues($prepared_query, $data);
-        $result = $this->db->execute($prepared_query);
+        $result = $prepared_query->execute();
 
         $row = $this->db->queryRow('SELECT a.user_id, b.user_id FROM users a, users b where a.user_id = b.user_id', array('integer', 'integer'), MDB2_FETCHMODE_ORDERED);
         $this->assertEquals(2, count($row), "Columns with the same name get overwritten in ordered mode");
 
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
     }
 
     /**
@@ -304,13 +304,13 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
             $this->insertTestValues($prepared_query, $data[$row]);
 
-            $result = $this->db->execute($prepared_query);
+            $result = $prepared_query->execute();
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
         }
-        $this->db->freePrepared($prepared_query);
+        $prepared_query->free();
 
         $this->db->setLimit(3, 1);
         $result = $this->db->query('SELECT * FROM users');

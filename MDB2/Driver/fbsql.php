@@ -402,34 +402,13 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
 
         // Add ; to the end of the query. This is required by FrontBase
         $query .= ';';
-        if ($result = @fbsql_query($query, $this->connection)) {
-            if ($ismanip) {
-                return MDB2_OK;
-            } else {
-                if (!$result_class) {
-                    $result_class = $this->options['result_buffering']
-                        ? $this->options['buffered_result_class'] : $this->options['result_class'];
-                }
-                $class_name = sprintf($result_class, $this->phptype);
-                $result =& new $class_name($this, $result, $offset, $limit);
-                if ($types) {
-                    $err = $result->setResultTypes($types);
-                    if (MDB2::isError($err)) {
-                        $result->free();
-                        return $err;
-                    }
-                }
-                if (!$result_wrap_class) {
-                    $result_wrap_class = $this->options['result_wrap_class'];
-                }
-                if ($result_wrap_class) {
-                    $result =& new $result_wrap_class($result);
-                }
-                return $result;
-            }
+        $result = @fbsql_query($query, $this->connection);
+        if (!$result) {
+            $error =& $this->raiseError();
+            return $error;
         }
-        $error =& $this->raiseError();
-        return $error;
+        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
+        return $result_obj;
     }
 
     // }}}
@@ -784,6 +763,11 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
         }
         return $rows;
     }
+}
+
+class MDB2_Statement_fbsql extends MDB2_Statement_Common
+{
+
 }
 
 ?>
