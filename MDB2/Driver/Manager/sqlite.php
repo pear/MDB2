@@ -101,8 +101,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR_CANNOT_DROP, null, null,
                 'dropDatabase: database does not exist');
         }
-        $success = @unlink($database_file);
-        if (!$success) {
+        $result = @unlink($database_file);
+        if (!$result) {
             return $db->raiseError(MDB2_ERROR_CANNOT_DROP, null, null,
                 'dropDatabase: '.(isset($php_errormsg) ? $php_errormsg : 'could not remove the database file'));
         }

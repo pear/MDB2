@@ -10,7 +10,7 @@ $testcases = array(
 );
 
 // use a user that has full permissions on a database named "driver_test"
-$dbarray[] = array(
+$mysql = array(
     'dsn' => array(
         'phptype' => 'mysql',
         'username' => 'username',
@@ -22,7 +22,7 @@ $dbarray[] = array(
     )
 );
 
-$dbarray[] = array(
+$pgsql = array(
     'dsn' => array(
         'phptype' => 'pgsql',
         'username' => 'username',
@@ -31,7 +31,7 @@ $dbarray[] = array(
     )
 );
 
-$dbarray[] = array(
+$oci8 = array(
     'dsn' => array(
         'phptype' => 'oci8',
         'username' => '',
@@ -44,7 +44,7 @@ $dbarray[] = array(
     )
 );
 
-$dbarray[] = array(
+$sqlite = array(
     'dsn' => array(
         'phptype' => 'sqlite',
         'username' => '',
@@ -58,7 +58,7 @@ $dbarray[] = array(
 );
 
 // must be a user with system administrator privileges
-$dbarray[] = array(
+$mssql = array(
     'dsn' => array(
         'phptype' => 'mssql',
         'username' => 'username',
@@ -67,7 +67,7 @@ $dbarray[] = array(
     )
 );
 
-$dbarray[] = array(
+$fbsql] = array(
     'dsn' => array(
         'phptype' => 'fbsql',
         'username' => 'username',
@@ -75,6 +75,25 @@ $dbarray[] = array(
         'hostspec' => 'hostname',
     )
 );
+
+
+$ibase = array(
+    'dsn' => array(
+        'phptype' => 'ibase',
+        'username' => 'username',
+        'password' => 'password',
+        'hostspec' => 'hostname',
+    )
+);
+
+$dbarray = array();
+#$dbarray[] = $mysql;
+#$dbarray[] = $pgsql;
+#$dbarray[] = $oci8;
+#$dbarray[] = $sqlite;
+#$dbarray[] = $mssql;
+#$dbarray[] = $fbsql;
+#$dbarray[] = $ibase;
 
 // you may need to uncomment the line and modify the multiplier as you see fit
 #set_time_limit(60*count($dbarray));
