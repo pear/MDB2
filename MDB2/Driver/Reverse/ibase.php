@@ -56,52 +56,51 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
 {
+    // }}}
     // {{{ tableInfo()
 
     /**
-     * Returns information about a table or a result set.
+     * Returns information about a table or a result set
      *
      * NOTE: only supports 'table' and 'flags' if <var>$result</var>
      * is a table name.
      *
      * @param object|string  $result  MDB2_result object from a query or a
-     *                                string containing the name of a table
+     *                                 string containing the name of a table.
+     *                                 While this also accepts a query result
+     *                                 resource identifier, this behavior is
+     *                                 deprecated.
      * @param int            $mode    a valid tableInfo mode
-     * @return array  an associative array with the information requested
-     *                or an error object if something is wrong
-     * @access public
-     * @internal
-     * @see MDB2_Driver_Common::tableInfo()
+     *
+     * @return array  an associative array with the information requested.
+     *                 A MDB2_Error object on failure.
+     *
+     * @see MDB2_common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $case_func = 'strtolower';
-        } else {
-            $case_func = 'strval';
-        }
-
         if (is_string($result)) {
             /*
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            if (MDB2::isError($connect = $db->connect())) {
-                return $connect;
-            }
-            $id = @ibase_query($db->connection,
-                "SELECT * FROM $result WHERE 1=0");
+            $id = $db->_doQuery("SELECT * FROM $result WHERE 1=0");
             $got_string = true;
-        } else {
+        } elseif (MDB2::isResultCommon($result)) {
             /*
              * Probably received a result object.
              * Extract the result resource identifier.
              */
             $id = $result->getResource();
-            if (empty($id)) {
-                return $db->raiseError();
-            }
+            $got_string = false;
+        } else {
+            /*
+             * Probably received a result resource identifier.
+             * Copy it.
+             * Deprecated.  Here for compatibility only.
+             */
+            $id = $result;
             $got_string = false;
         }
 
@@ -109,35 +108,34 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $case_func = 'strtolower';
+        } else {
+            $case_func = 'strval';
+        }
+
         $count = @ibase_num_fields($id);
+        $res   = array();
 
-        // made this IF due to performance (one if is faster than $count if's)
-        if (!$mode) {
-            for ($i=0; $i<$count; $i++) {
-                $info = @ibase_field_info($id, $i);
-                $res[$i]['table'] = $got_string ? $case_func($result) : '';
-                $res[$i]['name']  = $case_func($info['name']);
-                $res[$i]['type']  = $info['type'];
-                $res[$i]['len']   = $info['length'];
-                $res[$i]['flags'] = ($got_string) ? $this->_ibaseFieldFlags($info['name'], $result) : '';
+        if ($mode) {
+            $res['num_fields'] = $count;
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $info = @ibase_field_info($id, $i);
+            $res[$i] = array(
+                'table' => $got_string ? $case_func($result) : '',
+                'name'  => $case_func($info['name']),
+                'type'  => $info['type'],
+                'len'   => $info['length'],
+                'flags' => ($got_string)
+                            ? $this->_ibaseFieldFlags($info['name'], $result) : '',
+            );
+            if ($mode & MDB2_TABLEINFO_ORDER) {
+                $res['order'][$res[$i]['name']] = $i;
             }
-        } else { // full
-            $res['num_fields']= $count;
-
-            for ($i=0; $i<$count; $i++) {
-                $info = @ibase_field_info($id, $i);
-                $res[$i]['table'] = $got_string ? $case_func($result) : '';
-                $res[$i]['name']  = $case_func($info['name']);
-                $res[$i]['type']  = $info['type'];
-                $res[$i]['len']   = $info['length'];
-                $res[$i]['flags'] = ($got_string) ? $this->_ibaseFieldFlags($info['name'], $result) : '';
-
-                if ($mode & MDB2_TABLEINFO_ORDER) {
-                    $res['order'][$res[$i]['name']] = $i;
-                }
-                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
-                }
+            if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
+                $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
             }
         }
 
@@ -148,18 +146,20 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         return $res;
     }
 
-
     // }}}
     // {{{ _ibaseFieldFlags()
 
     /**
-     * get the Flags of a Field
+     * Get the column's flags
      *
-     * @param string $field_name the name of the field
-     * @param string $table_name the name of the table
+     * Supports "primary_key", "unique_key", "not_null", "default",
+     * "computed" and "blob".
      *
-     * @return string The flags of the field ("primary_key", "unique_key", "not_null"
-     *                "default", "computed" and "blob" are supported)
+     * @param string $field_name  the name of the field
+     * @param string $table_name  the name of the table
+     *
+     * @return string  the flags
+     *
      * @access private
      */
     function _ibaseFieldFlags($field_name, $table_name)
@@ -172,9 +172,9 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                .' WHERE I.RDB$FIELD_NAME=\'' . $field_name . '\''
                .'  AND UPPER(R.RDB$RELATION_NAME)=\'' . strtoupper($table_name) . '\'';
 
-        $result = @ibase_query($db->connection, $query);
-        if (!$result) {
-            return $db->raiseError();
+        $result = $db->_doQuery($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
 
         $flags = '';
@@ -197,10 +197,11 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                .' WHERE UPPER(R.RDB$RELATION_NAME)=\'' . strtoupper($table_name) . '\''
                .'  AND R.RDB$FIELD_NAME=\'' . $field_name . '\'';
 
-        $result = @ibase_query($db->connection, $query);
-        if (!$result) {
-            return $db->raiseError();
+        $result = $db->_doQuery($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
+
         if ($obj = @ibase_fetch_object($result)) {
             @ibase_free_result($result);
             if (isset($obj->NFLAG)) {

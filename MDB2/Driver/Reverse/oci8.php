@@ -56,10 +56,11 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 {
+    // }}}
     // {{{ tableInfo()
 
     /**
-     * Returns information about a table or a result set.
+     * Returns information about a table or a result set
      *
      * NOTE: only supports 'table' and 'flags' if <var>$result</var>
      * is a table name.
@@ -67,13 +68,16 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
      * NOTE: flags won't contain index information.
      *
      * @param object|string  $result  MDB2_result object from a query or a
-     *                                string containing the name of a table
+     *                                 string containing the name of a table.
+     *                                 While this also accepts a query result
+     *                                 resource identifier, this behavior is
+     *                                 deprecated.
      * @param int            $mode    a valid tableInfo mode
-     * @return array  an associative array with the information requested
-     *                or an error object if something is wrong
-     * @access public
-     * @internal
-     * @see MDB2_Driver_Common::tableInfo()
+     *
+     * @return array  an associative array with the information requested.
+     *                 A MDB2_Error object on failure.
+     *
+     * @see MDB2_common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {
@@ -84,37 +88,33 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $case_func = 'strval';
         }
 
+        $res = array();
+
         if (is_string($result)) {
             /*
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            if (MDB2::isError($connect = $db->connect())) {
-                return $connect;
-            }
             $result = strtoupper($result);
-            $q_fields = 'SELECT column_name, data_type, data_length, '
+            $query = 'SELECT column_name, data_type, data_length, '
                         . 'nullable '
                         . 'FROM user_tab_columns '
                         . "WHERE table_name='$result' ORDER BY column_id";
 
-            $db->last_query = $q_fields;
-
-            if (!$stmt = @OCIParse($db->connection, $q_fields)) {
-                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
-            }
-            if (!@OCIExecute($stmt, OCI_DEFAULT)) {
-                return $db->raiseError($stmt);
+            $stmt = $db->_doQuery($query);
+            if (PEAR::isError($stmt)) {
+                return $stmt;
             }
 
             $i = 0;
             while (@OCIFetch($stmt)) {
-                $res[$i]['table'] = $case_func($result);
-                $res[$i]['name']  = $case_func(@OCIResult($stmt, 1));
-                $res[$i]['type']  = @OCIResult($stmt, 2);
-                $res[$i]['len']   = @OCIResult($stmt, 3);
-                $res[$i]['flags'] = (@OCIResult($stmt, 4) == 'N') ? 'not_null' : '';
-
+                $res[$i] = array(
+                    'table' => $case_func($result),
+                    'name'  => $case_func(@OCIResult($stmt, 1)),
+                    'type'  => @OCIResult($stmt, 2),
+                    'len'   => @OCIResult($stmt, 3),
+                    'flags' => (@OCIResult($stmt, 4) == 'N') ? 'not_null' : '',
+                );
                 if ($mode & MDB2_TABLEINFO_ORDER) {
                     $res['order'][$res[$i]['name']] = $i;
                 }
@@ -130,25 +130,29 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             @OCIFreeStatement($stmt);
 
         } else {
-            /*
-             * Probably received a result object.
-             * Extract the result resource identifier.
-             */
-            $id = $result->getResource();
-            if (empty($id)) {
-                return $db->raiseError();
+            if (MDB2::isResultCommon($result)) {
+                /*
+                 * Probably received a result object.
+                 * Extract the result resource identifier.
+                 */
+                $result = $result->getResource();
             }
 
-#            if ($result === $db->last_stmt) {
-                $count = @OCINumCols($id);
+            $res = array();
 
-                for ($i=0; $i<$count; $i++) {
-                    $res[$i]['table'] = '';
-                    $res[$i]['name']  = $case_func(@OCIColumnName($id, $i+1));
-                    $res[$i]['type']  = @OCIColumnType($id, $i+1);
-                    $res[$i]['len']   = @OCIColumnSize($id, $i+1);
-                    $res[$i]['flags'] = '';
-
+            if ($result === $db->last_stmt) {
+                $count = @OCINumCols($result);
+                if ($mode) {
+                    $res['num_fields'] = $count;
+                }
+                for ($i = 0; $i < $count; $i++) {
+                    $res[$i] = array(
+                        'table' => '',
+                        'name'  => $case_func(@OCIColumnName($result, $i+1)),
+                        'type'  => @OCIColumnType($result, $i+1),
+                        'len'   => @OCIColumnSize($result, $i+1),
+                        'flags' => '',
+                    );
                     if ($mode & MDB2_TABLEINFO_ORDER) {
                         $res['order'][$res[$i]['name']] = $i;
                     }
@@ -156,14 +160,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                         $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
                     }
                 }
-
-                if ($mode) {
-                    $res['num_fields'] = $i;
-                }
-
-#            } else {
-#                return $db->raiseError(MDB2_ERROR_NOT_CAPABLE);
-#            }
+            } else {
+                return $db->raiseError(MDB2_ERROR_NOT_CAPABLE);
+            }
         }
         return $res;
     }

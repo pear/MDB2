@@ -56,48 +56,48 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
 {
+    // }}}
     // {{{ tableInfo()
 
     /**
-     * Returns information about a table or a result set.
+     * Returns information about a table or a result set
      *
      * @param object|string  $result  MDB2_result object from a query or a
-     *                                string containing the name of a table
+     *                                 string containing the name of a table.
+     *                                 While this also accepts a query result
+     *                                 resource identifier, this behavior is
+     *                                 deprecated.
      * @param int            $mode    a valid tableInfo mode
-     * @return array  an associative array with the information requested
-     *                or an error object if something is wrong
-     * @access public
-     * @internal
-     * @see MDB2_Driver_Common::tableInfo()
+     *
+     * @return array  an associative array with the information requested.
+     *                 A MDB2_Error object on failure.
+     *
+     * @see MDB2_common::tableInfo()
      */
-    function tableInfo($result, $mode = null) {
+    function tableInfo($result, $mode = null)
+    {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $case_func = 'strtolower';
-        } else {
-            $case_func = 'strval';
-        }
-
         if (is_string($result)) {
             /*
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            if (MDB2::isError($connect = $db->connect())) {
-                return $connect;
-            }
-            $id = @fbsql_list_fields($db->database_name,
-                $result, $db->connection);
+            $id = @fbsql_list_fields($db->database_name, $result, $db->connection);
             $got_string = true;
-        } else {
+        } elseif (MDB2::isResultCommon($result)) {
             /*
              * Probably received a result object.
              * Extract the result resource identifier.
              */
             $id = $result->getResource();
-            if (empty($id)) {
-                return $db->raiseError();
-            }
+            $got_string = false;
+        } else {
+            /*
+             * Probably received a result resource identifier.
+             * Copy it.
+             * Deprecated.  Here for compatibility only.
+             */
+            $id = $result;
             $got_string = false;
         }
 
@@ -105,33 +105,32 @@ class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $case_func = 'strtolower';
+        } else {
+            $case_func = 'strval';
+        }
+
         $count = @fbsql_num_fields($id);
+        $res   = array();
 
-        // made this IF due to performance (one if is faster than $count if's)
-        if (!$mode) {
-            for ($i=0; $i<$count; $i++) {
-                $res[$i]['table'] = $case_func(@fbsql_field_table($id, $i));
-                $res[$i]['name']  = $case_func(@fbsql_field_name($id, $i));
-                $res[$i]['type']  = @fbsql_field_type($id, $i);
-                $res[$i]['len']   = @fbsql_field_len($id, $i);
-                $res[$i]['flags'] = @fbsql_field_flags($id, $i);
+        if ($mode) {
+            $res['num_fields'] = $count;
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $res[$i] = array(
+                'table' => $case_func(@fbsql_field_table($id, $i)),
+                'name'  => $case_func(@fbsql_field_name($id, $i)),
+                'type'  => @fbsql_field_type($id, $i),
+                'len'   => @fbsql_field_len($id, $i),
+                'flags' => @fbsql_field_flags($id, $i),
+            );
+            if ($mode & MDB2_TABLEINFO_ORDER) {
+                $res['order'][$res[$i]['name']] = $i;
             }
-        } else { // full
-            $res["num_fields"]= $count;
-
-            for ($i=0; $i<$count; $i++) {
-                $res[$i]['table'] = $case_func(@fbsql_field_table($id, $i));
-                $res[$i]['name']  = $case_func(@fbsql_field_name($id, $i));
-                $res[$i]['type']  = @fbsql_field_type($id, $i);
-                $res[$i]['len']   = @fbsql_field_len($id, $i);
-                $res[$i]['flags'] = @fbsql_field_flags($id, $i);
-
-                if ($mode & MDB2_TABLEINFO_ORDER) {
-                    $res['order'][$res[$i]['name']] = $i;
-                }
-                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
-                }
+            if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
+                $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
             }
         }
 

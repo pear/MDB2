@@ -372,51 +372,44 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         return $definition;
     }
 
-
     // }}}
     // {{{ tableInfo()
 
     /**
-     * Returns information about a table or a result set.
+     * Returns information about a table or a result set
      *
      * @param object|string  $result  MDB2_result object from a query or a
-     *                                string containing the name of a table
+     *                                 string containing the name of a table.
+     *                                 While this also accepts a query result
+     *                                 resource identifier, this behavior is
+     *                                 deprecated.
      * @param int            $mode    a valid tableInfo mode
-     * @return array  an associative array with the information requested
-     *                or an error object if something is wrong
-     * @access public
-     * @internal
-     * @see MDB2_Driver_Common::tableInfo()
+     *
+     * @return array  an associative array with the information requested.
+     *                 A MDB2_Error object on failure.
+     *
+     * @see MDB2_common::setOption()
      */
-    function tableInfo($result, $mode = null) {
+    function tableInfo($result, $mode = null)
+    {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $case_func = 'strtolower';
-        } else {
-            $case_func = 'strval';
-        }
-
-        if (isset($result->result)) {
+        if (is_string($result)) {
+            /*
+             * Probably received a table name.
+             * Create a result resource identifier.
+             */
+            $id = $db->_doQuery("SELECT * FROM $result LIMIT 0");
+            if (PEAR::isError($id)) {
+                return $id;
+            }
+            $got_string = true;
+        } elseif (MDB2::isResultCommon($result)) {
             /*
              * Probably received a result object.
              * Extract the result resource identifier.
              */
             $id = $result->getResource();
-            if (empty($id)) {
-                return $db->raiseError();
-            }
             $got_string = false;
-        } elseif (is_string($result)) {
-            /*
-             * Probably received a table name.
-             * Create a result resource identifier.
-             */
-            if (MDB2::isError($connect = $db->connect())) {
-                return $connect;
-            }
-            @mysqli_select_db($db->connection, $db->database_name);
-            $id = @mysqli_query($db->connection, "SELECT * FROM $result LIMIT 0");
-            $got_string = true;
         } else {
             /*
              * Probably received a result resource identifier.
@@ -431,59 +424,48 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $case_func = 'strtolower';
+        } else {
+            $case_func = 'strval';
+        }
+
         $count = @mysqli_num_fields($id);
+        $res   = array();
 
-        // made this IF due to performance (one if is faster than $count if's)
-        if (!$mode) {
-            for ($i=0; $i<$count; $i++) {
-                $tmp = @mysqli_fetch_field($id);
-                $res[$i]['table'] = $case_func($tmp->table);
-                $res[$i]['name']  = $case_func($tmp->name);
-                $res[$i]['type']  = isset($this->mysqli_types[$tmp->type]) ?
-                                          $this->mysqli_types[$tmp->type] :
-                                          'unknown';
-                $res[$i]['len']   = $tmp->max_length;
+        if ($mode) {
+            $res['num_fields'] = $count;
+        }
 
-                $res[$i]['flags'] = '';
-                foreach ($this->mysqli_flags as $const => $means) {
-                    if ($tmp->flags & $const) {
-                        $res[$i]['flags'] .= $means . ' ';
-                    }
+        for ($i = 0; $i < $count; $i++) {
+            $tmp = @mysqli_fetch_field($id);
+
+            $flags = '';
+            foreach ($this->mysqli_flags as $const => $means) {
+                if ($tmp->flags & $const) {
+                    $flags .= $means . ' ';
                 }
-                if ($tmp->def) {
-                    $res[$i]['flags'] .= 'default_' . rawurlencode($tmp->def);
-                }
-                $res[$i]['flags'] = trim($res[$i]['flags']);
             }
-        } else { // full
-            $res['num_fields']= $count;
+            if ($tmp->def) {
+                $flags .= 'default_' . rawurlencode($tmp->def);
+            }
+            $flags = trim($flags);
 
-            for ($i=0; $i<$count; $i++) {
-                $tmp = @mysqli_fetch_field($id);
-                $res[$i]['table'] = $case_func($tmp->table);
-                $res[$i]['name']  = $case_func($tmp->name);
-                $res[$i]['type']  = isset($this->mysqli_types[$tmp->type]) ?
-                                          $this->mysqli_types[$tmp->type] :
-                                          'unknown';
-                $res[$i]['len']   = $tmp->max_length;
+            $res[$i] = array(
+                'table' => $case_func($tmp->table),
+                'name'  => $case_func($tmp->name),
+                'type'  => isset($this->mysqli_types[$tmp->type])
+                                    ? $this->mysqli_types[$tmp->type]
+                                    : 'unknown',
+                'len'   => $tmp->max_length,
+                'flags' => $flags,
+            );
 
-                $res[$i]['flags'] = '';
-                foreach ($this->mysqli_flags as $const => $means) {
-                    if ($tmp->flags & $const) {
-                        $res[$i]['flags'] .= $means . ' ';
-                    }
-                }
-                if ($tmp->def) {
-                    $res[$i]['flags'] .= 'default_' . rawurlencode($tmp->def);
-                }
-                $res[$i]['flags'] = trim($res[$i]['flags']);
-
-                if ($mode & MDB2_TABLEINFO_ORDER) {
-                    $res['order'][$res[$i]['name']] = $i;
-                }
-                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
-                }
+            if ($mode & MDB2_TABLEINFO_ORDER) {
+                $res['order'][$res[$i]['name']] = $i;
+            }
+            if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
+                $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
             }
         }
 

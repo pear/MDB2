@@ -152,7 +152,6 @@ class MDB2_Driver_Reverse_Common
         return $definition;
     }
 
-
     // }}}
     // {{{ tableInfo()
 
@@ -270,11 +269,11 @@ class MDB2_Driver_Reverse_Common
      *                     <kbd>MDB2_TABLEINFO_FULL</kbd> (which does both).
      *                     These are bitwise, so the first two can be
      *                     combined using <kbd>|</kbd>.
-     * @return array  an associative array with the information requested.
-     *                If something goes wrong an error object is returned.
      *
-     * @see MDB2_Driver_Common::setOption()
-     * @access public
+     * @return array  an associative array with the information requested.
+     *                 A MDB2_Error object on failure.
+     *
+     * @see MDB2_common::setOption()
      */
     function tableInfo($result, $mode = null)
     {

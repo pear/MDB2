@@ -56,52 +56,55 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
 {
+    // }}}
     // {{{ tableInfo()
 
     /**
-     * Returns information about a table or a result set.
+     * Returns information about a table or a result set
      *
      * NOTE: only supports 'table' and 'flags' if <var>$result</var>
      * is a table name.
      *
      * @param object|string  $result  MDB2_result object from a query or a
-     *                                string containing the name of a table
+     *                                 string containing the name of a table.
+     *                                 While this also accepts a query result
+     *                                 resource identifier, this behavior is
+     *                                 deprecated.
      * @param int            $mode    a valid tableInfo mode
-     * @return array  an associative array with the information requested
-     *                or an error object if something is wrong
-     * @access public
-     * @internal
-     * @see MDB2_Driver_Common::tableInfo()
+     *
+     * @return array  an associative array with the information requested.
+     *                 A MDB2_Error object on failure.
+     *
+     * @see MDB2_common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $case_func = 'strtolower';
-        } else {
-            $case_func = 'strval';
-        }
-
         if (is_string($result)) {
             /*
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            if (MDB2::isError($connect = $db->connect())) {
-                return $connect;
+            $id = $db->_doQuery("SELECT * FROM $result LIMIT 0");
+            if (PEAR::isError($id)) {
+                return $id;
             }
-            $id = @mssql_query("SELECT * FROM $result WHERE 1=0",
-                $db->connection);
+
             $got_string = true;
-        } else {
+        } elseif (MDB2::isResultCommon($result)) {
             /*
              * Probably received a result object.
              * Extract the result resource identifier.
              */
             $id = $result->getResource();
-            if (empty($id)) {
-                return $db->raiseError();
-            }
+            $got_string = false;
+        } else {
+            /*
+             * Probably received a result resource identifier.
+             * Copy it.
+             * Deprecated.  Here for compatibility only.
+             */
+            $id = $result;
             $got_string = false;
         }
 
@@ -109,36 +112,34 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $case_func = 'strtolower';
+        } else {
+            $case_func = 'strval';
+        }
+
         $count = @mssql_num_fields($id);
+        $res   = array();
 
-        // made this IF due to performance (one if is faster than $count if's)
-        if (!$mode) {
-            for ($i=0; $i<$count; $i++) {
-                $res[$i]['table'] = $got_string ? $case_func($result) : '';
-                $res[$i]['name']  = $case_func(@mssql_field_name($id, $i));
-                $res[$i]['type']  = @mssql_field_type($id, $i);
-                $res[$i]['len']   = @mssql_field_length($id, $i);
-                // We only support flags for tables
-                $res[$i]['flags'] = $got_string ? $this->_mssql_field_flags($result, $res[$i]['name']) : '';
+        if ($mode) {
+            $res['num_fields'] = $count;
+        }
+
+        for ($i = 0; $i < $count; $i++) {
+            $res[$i] = array(
+                'table' => $got_string ? $case_func($result) : '',
+                'name'  => $case_func(@mssql_field_name($id, $i)),
+                'type'  => @mssql_field_type($id, $i),
+                'len'   => @mssql_field_length($id, $i),
+                // We only support flags for table
+                'flags' => $got_string
+                           ? $this->_mssql_field_flags($result, $case_func($result)) : '',
+            );
+            if ($mode & MDB2_TABLEINFO_ORDER) {
+                $res['order'][$res[$i]['name']] = $i;
             }
-
-        } else { // full
-            $res['num_fields']= $count;
-
-            for ($i=0; $i<$count; $i++) {
-                $res[$i]['table'] = $got_string ? $case_func($result) : '';
-                $res[$i]['name']  = $case_func(@mssql_field_name($id, $i));
-                $res[$i]['type']  = @mssql_field_type($id, $i);
-                $res[$i]['len']   = @mssql_field_length($id, $i);
-                // We only support flags for tables
-                $res[$i]['flags'] = $got_string ? $this->_mssql_field_flags($result, $res[$i]['name']) : '';
-
-                if ($mode & MDB2_TABLEINFO_ORDER) {
-                    $res['order'][$res[$i]['name']] = $i;
-                }
-                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
-                }
+            if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
+                $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
             }
         }
 
@@ -149,12 +150,13 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         return $res;
     }
 
-
     // }}}
     // {{{ _mssql_field_flags()
 
     /**
-     * Get the flags for a field, currently supports "not_null", "primary_key",
+     * Get a column's flags
+     *
+     * Supports "not_null", "primary_key",
      * "auto_increment" (mssql identity), "timestamp" (mssql timestamp),
      * "unique_key" (mssql unique index, unique check or primary_key) and
      * "multiple_key" (multikey index)
@@ -163,10 +165,13 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
      * not useful at all - is the behaviour of mysql_field_flags that primary
      * keys are alway unique? is the interpretation of multiple_key correct?
      *
-     * @param string The table name
-     * @param string The field
-     * @author Joern Barthel <j_barthel@web.de>
+     * @param string $table   the table name
+     * @param string $column  the field name
+     *
+     * @return string  the flags
+     *
      * @access private
+     * @author Joern Barthel <j_barthel@web.de>
      */
     function _mssql_field_flags($table, $column)
     {
@@ -221,7 +226,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         }
 
         if (array_key_exists($column, $flags)) {
-            return implode(' ', $flags[$column]);
+            return(implode(' ', $flags[$column]));
         }
         return '';
     }
@@ -231,10 +236,13 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
 
     /**
      * Adds a string to the flags array if the flag is not yet in there
-     * - if there is no flag present the array is created.
+     * - if there is no flag present the array is created
      *
-     * @param reference  Reference to the flag-array
-     * @param value      The flag value
+     * @param array  &$array  the reference to the flag-array
+     * @param string $value   the flag value
+     *
+     * @return void
+     *
      * @access private
      * @author Joern Barthel <j_barthel@web.de>
      */
