@@ -88,11 +88,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $db->options['database_size'] = false;
     }
 
-    function MDB2_Driver_mssql()
-    {
-        $this->__construct();
-    }
-
     // }}}
     // {{{ errorInfo()
 

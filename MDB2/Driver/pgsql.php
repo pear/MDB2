@@ -84,11 +84,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['auto_increment'] = false;
     }
 
-    function MDB2_Driver_pgsql()
-    {
-        $this->__construct();
-    }
-
     // }}}
     // {{{ errorInfo()
 

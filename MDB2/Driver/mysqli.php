@@ -89,11 +89,6 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->options['default_table_type'] = null;
     }
 
-    function MDB2_Driver_mysqli()
-    {
-        $this->__construct();
-    }
-
     // }}}
     // {{{ errorInfo()
 

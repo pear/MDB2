@@ -98,14 +98,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ PHP4 constructor
-
-    function MDB2_Driver_ibase()
-    {
-        $this->__construct();
-    }
-
-    // }}}
     // {{{ errorInfo()
 
     /**

@@ -94,11 +94,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->options['database_extension'] = '';
     }
 
-    function MDB2_Driver_sqlite()
-    {
-        $this->__construct();
-    }
-
     // }}}
     // {{{ errorInfo()
 

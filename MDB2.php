@@ -1048,6 +1048,17 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ MDB2_Driver_Common
+
+    /**
+     * PHP 4 Constructor
+     */
+    function MDB2_Driver_Common()
+    {
+        $this->__construct();
+    }
+
+    // }}}
     // {{{ Destructor
 
     /**

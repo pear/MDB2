@@ -88,11 +88,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->supported['auto_increment'] = true;
     }
 
-    function MDB2_Driver_fbsql()
-    {
-        $this->__construct();
-    }
-
     // }}}
     // {{{ errorInfo()
 
@@ -451,7 +446,8 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function currID($seq_name)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        return $this->queryOne("SELECT MAX(".$this->options['seqname_col_name'].") FROM $sequence_name", 'integer');
+        $query = "SELECT MAX(".$this->options['seqname_col_name'].") FROM $sequence_name";
+        return $this->queryOne($query, 'integer');
     }
 
 }
