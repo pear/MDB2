@@ -82,7 +82,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableFieldDefinition: show columns does not return the column '.$column);
         }
-        $query = $result->fetch();
+        $query = $result->fetchOne();
         if (MDB2::isError($columns = $this->_getTableColumns($query))) {
             return $columns;
         }
@@ -269,7 +269,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db->raiseError('getTableIndexDefinition: show index does not return the table creation sql');
         }
 
-        $query = strtolower($result->fetch());
+        $query = strtolower($result->fetchOne());
         $unique = strstr($query, ' unique ');
         $key_name = $index;
         $start_pos = strpos($query, '(');
