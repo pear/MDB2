@@ -21,7 +21,6 @@
     <name>trans_en</name>
     <type>text</type>
     <length>100</length>
-    <notnull>1</notnull>
     <default></default>
    </field>
 
@@ -29,7 +28,6 @@
     <name>trans_fr</name>
     <type>text</type>
     <length>100</length>
-    <notnull>1</notnull>
     <default></default>
    </field>
 
@@ -55,7 +53,7 @@
     <type>text</type>
     <length>30</length>
     <notnull>1</notnull>
-    <default></default>
+    <default>no name</default>
    </field>
 
    <field>
