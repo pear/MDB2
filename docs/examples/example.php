@@ -90,7 +90,7 @@ ini_set('include_path', '../..'.PATH_SEPARATOR.ini_get('include_path'));
     echo('<br>row:<br>');
     echo(Var_Dump::display($array).'<br>');
     // run the query and get a result handler
-    $result = $db->query($query, null, 'Result');
+    $result = $db->query($query);
     // lets just get row:0 and free the result
     $array = $result->fetchRow();
     $result->free();
