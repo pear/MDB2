@@ -889,7 +889,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['result_class'] -> class used for result sets
      * $options['buffered_result_class'] -> class used for buffered result sets
      * $options['result_wrap_class'] -> class used to wrap result sets into
-     * $options['result_buffering'] -> boolean should results be buffered or not?
+     * $options['result_buffering'] -> boolean|integer should results be buffered or not?
      * $options['fetch_class'] -> class to use when fetch mode object is used
      * $options['persistent'] -> boolean persistent connection?
      * $options['debug'] -> integer numeric debug level
@@ -901,6 +901,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['use_transactions'] -> boolean
      * $options['decimal_places'] -> integer
      * $options['portability'] -> portability constant
+     * $options['modules'] -> short to long module name mapping for __call()
      * @var array
      * @access public
      */
@@ -922,6 +923,13 @@ class MDB2_Driver_Common extends PEAR
             'use_transactions' => false,
             'decimal_places' => 2,
             'portability' => MDB2_PORTABILITY_ALL,
+            'modules' => array(
+                'ex' => 'Extended',
+                'dt' => 'Datatype',
+                'mg' => 'Manager',
+                'rv' => 'Reverse',
+                'na' => 'Native',
+            ),
         );
 
     /**
@@ -1021,6 +1029,13 @@ class MDB2_Driver_Common extends PEAR
     * @access private
     */
     var $blobs = array();
+
+    /**
+     * array of module instances
+     * @var array
+     * @access private
+     */
+    var $modules = array();
 
     /**
      * determines of the PHP4 destructor emulation has been enabled yet
@@ -1486,16 +1501,54 @@ class MDB2_Driver_Common extends PEAR
                     'unable to load module: '.$module.' into property: '.$property);
             }
             $this->{$property} =& new $class_name($this->db_index);
+            $this->modules[$module] =& $this->{$property};
             if ($version) {
                 // this wil be used in the connect method to determine if the module
-                // needs to be loaded with a different version
+                // needs to be loaded with a different version if the server
+                // version changed in between connects
                 $this->loaded_version_modules[] = $property;
             }
-        } elseif (!is_object($this->{$property})) {
-            return $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
-                'unable to load module: '.$module.' into property: '.$property);
         }
+
         return $this->{$property};
+    }
+
+    /**
+     * Calls a module method using the __call magic method
+     *
+     * @param string Method name.
+     * @param array Arguments.
+     * @return mixed Returned value.
+     */
+    function __call($method, $params)
+    {
+        $module = null;
+        if(preg_match('/^([a-z]+)([A-Z])(.*)$/', $method, $match)
+            && isset($this->options['modules'][$match[1]])
+        ) {
+            $module = $this->options['modules'][$match[1]];
+            $method = strtolower($match[2]).$match[3];
+            if (!isset($this->modules[$module]) || !is_object($this->modules[$module])) {
+                $result =& $this->loadModule($module);
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+            }
+        } else {
+            foreach($this->modules as $key => $foo) {
+                if (is_object($this->modules[$key])
+                    && method_exists($this->modules[$key], $method)
+                ) {
+                    $module = $key;
+                    break;
+                }
+            }
+        }
+        if (is_null($module)) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                $method.': method not implemented');
+        }
+        return  call_user_func_array(array(&$this->modules[$module], $method), $params);
     }
 
     // }}}
