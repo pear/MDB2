@@ -45,4 +45,17 @@ $dbarray[] = array(
         'DBA_password' => 'password'
     )
 );
+
+$dbarray[] = array(
+    'dsn' => array(
+        'phptype' => 'sqlite',
+        'username' => '',
+        'password' => 'password',
+        'hostspec' => 'hostname',
+    ),
+    'options' => array(
+        'database_path' => '',
+        'database_extension' => '',
+    )
+);
 ?>
