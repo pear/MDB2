@@ -76,6 +76,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->supported['sequences'] = true;
         $this->supported['indexes'] = true;
         $this->supported['affected_rows'] = true;
+        $this->supported['transactions'] = false;
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
         $this->supported['current_id'] = true;
@@ -85,7 +86,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->supported['sub_selects'] = false;
         $this->supported['auto_increment'] = true;
 
-        $this->options['default_table_type'] = false;
+        $this->options['default_table_type'] = null;
     }
 
     function MDB2_Driver_mysql()
@@ -207,6 +208,10 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
+        if (!$this->destructor_registered && $this->opened_persistent) {
+            $this->destructor_registered = true;
+            register_shutdown_function('MDB2_closeOpenTransactions');
+        }
         $result = $this->_doQuery('SET AUTOCOMMIT = 0');
         if (MDB2::isError($result)) {
             return $result;
@@ -294,7 +299,11 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            $this->_close();
+            if ($this->opened_persistent) {
+                $this->connection = 0;
+            } else {
+                $this->disconnect();
+            }
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
@@ -325,50 +334,49 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
 
-        if ($this->options['use_transactions']) {
-            $this->supported['transactions'] = true;
-            $this->options['default_table_type'] = 'BDB';
-        } else {
-            $this->options['default_table_type'] = '';
-        }
-
-        $default_table_type = $this->options['default_table_type'];
-        if ($default_table_type) {
-            switch ($this->options['default_table_type'] = strtoupper($default_table_type)) {
+        $this->supported['transactions'] = false;
+        if ($this->options['default_table_type']) {
+            switch (strtoupper($this->options['default_table_type'])) {
             case 'BERKELEYDB':
                 $this->options['default_table_type'] = 'BDB';
             case 'BDB':
             case 'INNODB':
             case 'GEMINI':
+                $this->supported['transactions'] = true;
                 break;
             case 'HEAP':
             case 'ISAM':
             case 'MERGE':
             case 'MRG_MYISAM':
             case 'MYISAM':
-                if ($this->supports('transactions')) {
-                    $this->warnings[] = $default_table_type.
-                        ' is not a transaction-safe default table type';
-                }
                 break;
             default:
                 $this->warnings[] = $default_table_type.
                     ' is not a supported default table type';
             }
         }
+
+        if ($this->options['use_transactions'] && !$this->supports('transactions')) {
+            $this->warnings[] = $this->options['default_table_type'].
+                ' is not a transaction-safe default table type; switched to INNODB';
+            $this->options['default_table_type'] = 'INNODB';
+            $this->supported['transactions'] = true;
+        }
+
         return MDB2_OK;
     }
 
     // }}}
-    // {{{ _close()
-    
+    // {{{ disconnect()
+
     /**
-     * all the RDBMS specific things needed close a DB connection
+     * Log out and disconnect from the database.
      *
-     * @return boolean
-     * @access private
+     * @return mixed true on success, false if not connected and error
+     *                object on error
+     * @access public
      */
-    function _close()
+    function disconnect()
     {
         if ($this->connection != 0) {
             @mysql_close($this->connection);
