@@ -474,7 +474,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function _quoteDate($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return "TO_DATE('$value','YYYY-MM-DD')";
+        return "'$value 00:00:00'";
     }
 
     // }}}
@@ -492,7 +492,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function _quoteTimestamp($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return "TO_DATE('$value','YYYY-MM-DD HH24:MI:SS')";
+        return "'$value'";
     }
 
     // }}}
@@ -510,7 +510,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function _quoteTime($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return "TO_DATE('0001-01-01 $value','YYYY-MM-DD HH24:MI:SS')";
+        return "'0001-01-01 $value'";
     }
 
     // }}}
