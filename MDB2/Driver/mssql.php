@@ -517,10 +517,12 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     /**
      * returns the autoincrement ID if supported
      *
+     * @param miced id value as returned by getBeforeId()
+     * @param string $table name of the table
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getAfterID()
+    function getAfterID($id, $table)
     {
         $this->loadModule('native');
         return $this->native->getInsertID();
