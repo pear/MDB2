@@ -400,6 +400,12 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
+            if (!$this->connection) {
+                $error = $this->connect();
+                if (MDB2::isError($error)) {
+                    $error;
+                }
+            }
             $connection = $this->connection;
         }
         if (is_null($database_name)) {

@@ -431,9 +431,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             if ($this->in_transaction) {
                 $connection = $this->transaction_id;
             } else {
-                $err = $this->connect();
-                if (MDB2::isError($err)) {
-                    return $err;
+                if (!$this->connection) {
+                    $error = $this->connect();
+                    if (MDB2::isError($error)) {
+                        $error;
+                    }
                 }
                 $connection = $this->connection;
             }

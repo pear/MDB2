@@ -416,6 +416,12 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
+            if (!$this->connection) {
+                $error = $this->connect();
+                if (MDB2::isError($error)) {
+                    $error;
+                }
+            }
             $connection = $this->connection;
         }
 
