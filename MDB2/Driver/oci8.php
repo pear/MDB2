@@ -930,7 +930,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
 
         $row = true;
         while ((is_null($rownum) || $this->buffer_rownum < $rownum)
-            && (!isset($this->limits) || ($this->buffer_rownum + 1) < $this->limits['limit'])
+            && (!isset($this->limits) || $this->buffer_rownum < $this->limits['limit'])
             && ($row = @OCIFetchInto($this->result, $buffer, OCI_RETURN_NULLS))
         ) {
             $this->buffer_rownum++;
