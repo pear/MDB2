@@ -128,7 +128,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableFieldDefinition: '.$db->dummy_primary_key.' is an hidden column');
         }
-        $result = $db->query("SHOW COLUMNS FROM $table"null, true, false);
+        $result = $db->query("SHOW COLUMNS FROM $table", null, true, false);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -338,7 +338,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableIndexDefinition: PRIMARY is an hidden index');
         }
-        $result = $db->query("SHOW INDEX FROM $table"null, true, false);
+        $result = $db->query("SHOW INDEX FROM $table", null, true, false);
         if (PEAR::isError($result)) {
             return $result;
         }
