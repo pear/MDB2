@@ -502,84 +502,180 @@ class MDB2_Tools_Parser extends XML_Parser
         switch ($this->element) {
         /* Initialization */
         case 'database-table-initialization-insert-field-name':
-            @$this->init_name .= $data;
+            if (isset($this->init_name)) {
+                $this->init_name .= $data;
+            } else {
+                $this->init_name = $data;
+            }
             break;
         case 'database-table-initialization-insert-field-value':
-            @$this->init_value .= $data;
+            if (isset($this->init_value)) {
+                $this->init_value .= $data;
+            } else {
+                $this->init_value = $data;
+            }
             break;
 
         /* Database */
         case 'database-name':
-            @$this->database_definition['name'] .= $data;
+            if (isset($this->database_definition['name'])) {
+                $this->database_definition['name'] .= $data;
+            } else {
+                $this->database_definition['name'] = $data;
+            }
             break;
         case 'database-create':
-            @$this->database_definition['create'] .= $data;
+            if (isset($this->database_definition['create'])) {
+                $this->database_definition['create'] .= $data;
+            } else {
+                $this->database_definition['create'] = $data;
+            }
             break;
         case 'database-overwrite':
-            @$this->database_definition['overwrite'] .= $data;
+            if (isset($this->database_definition['overwrite'])) {
+                $this->database_definition['overwrite'] .= $data;
+            } else {
+                $this->database_definition['overwrite'] = $data;
+            }
             break;
         case 'database-table-name':
-            @$this->table_name .= $data;
+            if (isset($this->table_name)) {
+                $this->table_name .= $data;
+            } else {
+                $this->table_name = $data;
+            }
             break;
         case 'database-table-was':
-            @$this->table['was'] .= $data;
+            if (isset($this->table['was'])) {
+                $this->table['was'] .= $data;
+            } else {
+                $this->table['was'] = $data;
+            }
             break;
 
         /* Field declaration */
         case 'database-table-declaration-field-name':
-            @$this->field_name .= $data;
+            if (isset($this->field_name)) {
+                $this->field_name .= $data;
+            } else {
+                $this->field_name = $data;
+            }
             break;
         case 'database-table-declaration-field-type':
-            @$this->field['type'] .= $data;
+            if (isset($this->field['type'])) {
+                $this->field['type'] .= $data;
+            } else {
+                $this->field['type'] = $data;
+            }
             break;
         case 'database-table-declaration-field-was':
-            @$this->field['was'] .= $data;
+            if (isset($this->field['was'])) {
+                $this->field['was'] .= $data;
+            } else {
+                $this->field['was'] = $data;
+            }
             break;
         case 'database-table-declaration-field-notnull':
-            @$this->field['notnull'] .= $data;
+            if (isset($this->field['notnull'])) {
+                $this->field['notnull'] .= $data;
+            } else {
+                $this->field['notnull'] = $data;
+            }
             break;
         case 'database-table-declaration-field-unsigned':
-            @$this->field['unsigned'] .= $data;
+            if (isset($this->field['unsigned'])) {
+                $this->field['unsigned'] .= $data;
+            } else {
+                $this->field['unsigned'] = $data;
+            }
             break;
         case 'database-table-declaration-field-default':
-            @$this->field['default'] .= $data;
+            if (isset($this->field['default'])) {
+                $this->field['default'] .= $data;
+            } else {
+                $this->field['default'] = $data;
+            }
             break;
         case 'database-table-declaration-field-length':
-            @$this->field['length'] .= $data;
+            if (isset($this->field['length'])) {
+                $this->field['length'] .= $data;
+            } else {
+                $this->field['length'] = $data;
+            }
             break;
 
         /* Index declaration */
         case 'database-table-declaration-index-name':
-            @$this->index_name .= $data;
+            if (isset($this->index_name)) {
+                $this->index_name .= $data;
+            } else {
+                $this->index_name = $data;
+            }
             break;
         case 'database-table-declaration-index-unique':
-            @$this->index['unique'] .= $data;
+            if (isset($this->index['unique'])) {
+                $this->index['unique'] .= $data;
+            } else {
+                $this->index['unique'] = $data;
+            }
             break;
         case 'database-table-declaration-index-was':
-            @$this->index['was'] .= $data;
+            if (isset($this->index['was'])) {
+                $this->index['was'] .= $data;
+            } else {
+                $this->index['was'] = $data;
+            }
             break;
         case 'database-table-declaration-index-field-name':
-            @$this->field_name .= $data;
+            if (isset($this->field_name)) {
+                $this->field_name .= $data;
+            } else {
+                $this->field_name = $data;
+            }
             break;
         case 'database-table-declaration-index-field-sorting':
-            @$this->field['sorting'] .= $data;
+            if (isset($this->field['sorting'])) {
+                $this->field['sorting'] .= $data;
+            } else {
+                $this->field['sorting'] = $data;
+            }
             break;
 
         /* Sequence declaration */
         case 'database-sequence-name':
-            @$this->seq_name .= $data;
+            if (isset($this->seq_name)) {
+                $this->seq_name .= $data;
+            } else {
+                $this->seq_name = $data;
+            }
             break;
         case 'database-sequence-was':
-            @$this->seq['was'] .= $data;
+            if (isset($this->seq['was'])) {
+                $this->seq['was'] .= $data;
+            } else {
+                $this->seq['was'] = $data;
+            }
             break;
         case 'database-sequence-start':
-            @$this->seq['start'] .= $data;
+            if (isset($this->seq['start'])) {
+                $this->seq['start'] .= $data;
+            } else {
+                $this->seq['start'] = $data;
+            }
             break;
         case 'database-sequence-on-table':
-            @$this->seq['on']['table'] .= $data;
+            if (isset($this->seq['on']['table'])) {
+                $this->seq['on']['table'] .= $data;
+            } else {
+                $this->seq['on']['table'] = $data;
+            }
             break;
         case 'database-sequence-on-field':
-            @$this->seq['on']['field'] .= $data;
+            if (isset($this->seq['on']['field'])) {
+                $this->seq['on']['field'] .= $data;
+            } else {
+                $this->seq['on']['field'] = $data;
+            }
             break;
         }
     }
