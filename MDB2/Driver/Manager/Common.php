@@ -96,12 +96,6 @@ class MDB2_Driver_Manager_Common
      *          Boolean flag that indicates whether this field is constrained
      *          to not be set to null.
      *
-     *      default
-     *          Boolean value to be used as default for this field.
-     *
-     *      notnull
-     *          Boolean flag that indicates whether this field is constrained
-     *          to not be set to null.
      * @return mixed string on success, a MDB2 error on failure
      * @access public
      */
