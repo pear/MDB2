@@ -128,8 +128,8 @@ class MDB2_Extended
      * @see autoPrepare
      * @access public
     */
-    function &autoExecute($table, $fields_values, $types = null, $result_types = null,
-        $mode = MDB2_AUTOQUERY_INSERT, $where = false, $result_class = true)
+    function &autoExecute($table, $fields_values, $mode = MDB2_AUTOQUERY_INSERT,
+        $where = false, $types = null, $result_types = null, $result_class = true)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $stmt = $this->autoPrepare($table, array_keys($fields_values), $types, $result_types, $mode, $where);
