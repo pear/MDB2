@@ -290,11 +290,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             ) {
                 return MDB2_OK;
             }
-            if ($this->opened_persistent) {
-                $this->connection = 0;
-            } else {
-                $this->disconnect();
-            }
+            $this->disconnect(false);
         }
 
         $connection = $this->_doConnect(
@@ -311,21 +307,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
         $error = $this->_doQuery($query);
         if (MDB2::isError($error)) {
-            if ($this->opened_persistent) {
-                $this->connection = 0;
-            } else {
-                $this->disconnect();
-            }
+            $this->disconnect(false);
             return $error;
         }
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
         $error = $this->_doQuery($query);
         if (MDB2::isError($error)) {
-            if ($this->opened_persistent) {
-                $this->connection = 0;
-            } else {
-                $this->disconnect();
-            }
+            $this->disconnect(false);
             return $error;
         }
         return MDB2_OK;
@@ -341,9 +329,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      *                object on error
      * @access public
      */
-    function disconnect()
+    function disconnect($force = true)
     {
-        if ($this->connection != 0) {
+        if (($this->opened_persisten || $force)
+            && $this->connection != 0
+        ) {
             if (version_compare(phpversion(), '5.0.0', '>=')) {
                 $ret = @oci_close($this->connection);
             } else {
@@ -495,10 +485,22 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     {
         $this->debug($query, 'prepare');
         $query = $this->_modifyQuery($query);
+        $contains_lobs = false;
+        if (is_array($types)) {
+            $columns = $variables = '';
+            foreach ($types as $parameter => $type) {
+                if ($type == 'clob' || $type == 'blob') {
+                    $contains_lobs = true;
+                    $columns.= ($columns ? ', ' : ' RETURNING ').$parameter;
+                    $variables.= ($variables ? ', ' : ' INTO ').':'.$parameter;
+                }
+            }
+        }
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
-        $position = $parameter = 0;
+        $position = 0;
+        $parameter = -1;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
             $c_position = strpos($query, $colon, $position);
@@ -537,28 +539,42 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     break;
                 }
             } elseif ($query[$position] == $placeholder_type_guess) {
-                if ($placeholder_type_guess == ':') {
+                if ($placeholder_type_guess == ':' && !$contains_lobs) {
                     break;
                 }
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
                 }
-                $query = substr_replace($query, ':'.$parameter++, $p_position, 1);
-                $position = $p_position + strlen($parameter);
+                if ($contains_lobs) {
+                    if ($placeholder_type == ':') {
+                        $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/i', '\\1', $query);
+                        if ($parameter === '') {
+                            return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                                'prepare: named parameter with an empty name');
+                        }
+                    } else {
+                        ++$parameter;
+                    }
+                    if (isset($types[$parameter])
+                        && ($types[$parameter] == 'clob' || $types[$parameter] == 'blob')
+                    ) {
+                        $value = $this->quote(null, $types[$parameter]);
+                        $query = substr_replace($query, $value, $p_position, (strlen($parameter)+1));
+                        $position = $p_position + strlen($value) - 1;
+                    } elseif ($placeholder_type == '?') {
+                        $query = substr_replace($query, ':'.$parameter, $p_position, 1);
+                        $position = $p_position + strlen($parameter);
+                    }
+                } else {
+                    $query = substr_replace($query, ':'.++$parameter, $p_position, 1);
+                    $position = $p_position + strlen($parameter);
+                }
             } else {
                 $position = $p_position;
             }
         }
         if (is_array($types)) {
-            $columns = '';
-            $variables = '';
-            foreach ($types as $parameter => $type) {
-                if ($type == 'clob' || $type == 'blob') {
-                    $columns.= ($columns ? ', ' : ' RETURNING ').$parameter;
-                    $variables.= ($variables ? ', ' : ' INTO ').':'.$parameter;
-                }
-            }
             $query.= $columns.$variables;
         }
         $statement = @OCIParse($this->connection, $query);
