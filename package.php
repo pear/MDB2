@@ -24,6 +24,9 @@ $notes = <<<EOT
 - removed requirement for LOB inserts to pass the parameters as an array
 - placeholders are now numbered starting from 0 (BC break in setParam() !)
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
+- for PHP versions lower than 4 the transaction shutdown function is registered on load of MDB2.php (used to be a BC hack in the constructor of MDB_Driver_Common)
+- allow errorInfo() to be called when no connection has been established yet
+- cleaned up constructor handling
 EOT;
 
 $description =<<<EOT
