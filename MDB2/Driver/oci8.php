@@ -484,7 +484,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @access public
      * @see execute
      */
-    function prepare($query, $types = null, $result_types = null)
+    function &prepare($query, $types = null, $result_types = null)
     {
         $this->debug($query, 'prepare');
         if (is_array($types)) {

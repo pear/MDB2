@@ -676,7 +676,7 @@ class MDB2_PEARProxy extends PEAR
         return $this->db_object->manager->dropSequence($seq_name);
     }
 
-    function _wrapResource($result)
+    function &_wrapResource($result)
     {
         if (is_resource($result)) {
             $result_class = $this->db_object->getOption('result_buffering')
