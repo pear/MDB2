@@ -1104,6 +1104,40 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $result->free();
     }
+
+    /**
+     * Test retrieval of result metadata
+     *
+     * This tests the result metadata by executing a prepared query and
+     * select the data, and checking the result contains the correct
+     * number of columns and that the column names are in the correct order
+     */
+    function testConvertEmpty2Null() {
+#$this->db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL);
+
+        $data = $this->getSampleData(1234);
+        $data['user_password'] = '';
+
+        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+
+        $this->insertTestValues($stmt, $data);
+
+        $result = $stmt->execute();
+
+        $stmt->free();
+
+        if (MDB2::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+        }
+
+        $row = $this->db->queryRow('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users WHERE user_password IS NULL', $this->types);
+
+        if (MDB2::isError($row)) {
+            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+        }
+
+        $this->assertEquals(count($this->fields), count($row), "The query result returned a number of columns unlike ".count($this->fields) .' as expected');
+    }
 }
 
 ?>
