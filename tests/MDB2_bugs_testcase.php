@@ -128,11 +128,11 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $prepared_query = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
-        $data['user_name'] = "user_=";
+        $data['user_name'] = 'user_=';
         $data['user_password'] = 'somepassword';
         $data['subscribed'] = true;
         $data['user_id'] = 0;
-        $data['quota'] = sprintf("%.2f",strval(2/100));
+        $data['quota'] = sprintf("%.2f", strval(2/100));
         $data['weight'] = sqrt(0);
         $data['access_date'] = MDB2_Date::mdbToday();
         $data['access_time'] = MDB2_Date::mdbTime();
@@ -156,6 +156,19 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
 
+        $firstRow = $result->fetchRow();
+        $this->assertEquals($firstRow['user_name'], $data['user_name'], "The data returned ($firstRow[user_name]) does not match that expected (".$data['user_name'].")");
+
+
+
+
+
+        $result = $this->db->query('SELECT user_name, user_id, quota FROM users ORDER BY user_name');
+        if (MDB2::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+        }
+        $this->db->setFetchMode(MDB2_FETCHMODE_ORDERED);
+
         $value = $result->fetch();
         $this->assertEquals($data['user_name'], $value, "The data returned ($value) does not match that expected (".$data['user_name'].")");
         $result->free();
@@ -173,7 +186,6 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $this->db->popErrorHandling();
         $this->assertFalse(MDB2::isError($data), "Error messages for a query affect result reading of other queries");
     }
-
 
     /**
      * http://pear.php.net/bugs/bug.php?id=670
