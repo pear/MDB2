@@ -451,7 +451,7 @@ class MDB2
      */
     function apiVersion()
     {
-        return '2.0.0';
+        return '@package_version@';
     }
 
     // }}}
