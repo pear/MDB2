@@ -1902,8 +1902,6 @@ class MDB2_Tools_Manager extends PEAR
         }
 
         $this->database_definition = $database_definition;
-        $copy = false;
-
         if ($previous_schema_file && file_exists($previous_schema_file)) {
             $errorcodes = array(MDB2_ERROR_UNSUPPORTED, MDB2_ERROR_NOT_CAPABLE);
             $this->db->expectError($errorcodes);
@@ -1944,12 +1942,12 @@ class MDB2_Tools_Manager extends PEAR
             if (MDB2::isError($result)) {
                 return $result;
             }
-            $copy = true;
+            if ($previous_schema_file && !copy($current_schema_file, $previous_schema_file)) {
+                return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
+                    'Could not copy the new database definition file to the current file');
+            }
         }
-        if ($copy && $previous_schema_file && !copy($current_schema_file, $previous_schema_file)) {
-            return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
-                'Could not copy the new database definition file to the current file');
-        }
+
         return MDB2_OK;
     }
 
