@@ -260,8 +260,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $user = $dsninfo['username'];
         $pw = $dsninfo['password'];
         $dbhost = $dsninfo['hostspec'] ? $dsninfo['hostspec'] : 'localhost';
-        $port   = $dsninfo['port'] ? ',' . $dsninfo['port'] : '';
-        $dbhost .= $port;
+        if ($dsninfo['port']) {
+            $dbhost .= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':')
+                     . $dsninfo['port'];
+        }
 
         if ($dbhost && $user && $pw) {
             $connection = @$function($dbhost, $user, $pw);
