@@ -158,7 +158,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $this->destructor_registered = true;
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
-        $result = $this->_doQuery('BEGIN');
+        $result = $this->_doQuery('BEGIN', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -183,7 +183,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto committed');
         }
-        $result = $this->_doQuery('COMMIT');
+        $result = $this->_doQuery('COMMIT', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -208,7 +208,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result = $this->_doQuery('ROLLBACK');
+        $result = $this->_doQuery('ROLLBACK', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -654,7 +654,7 @@ class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
     */
     function seek($rownum = 0)
     {
-        if (!@pg_result_seek($this->result, $rownum)) {
+        if ($this->rownum != ($rownum - 1) && !@pg_result_seek($this->result, $rownum)) {
             if (is_null($this->result)) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'seek: resultset has already been freed');

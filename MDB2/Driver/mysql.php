@@ -212,7 +212,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             $this->destructor_registered = true;
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
-        $result = $this->_doQuery('SET AUTOCOMMIT = 0');
+        $result = $this->_doQuery('SET AUTOCOMMIT = 0', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -241,11 +241,11 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto committed');
         }
-        $result = $this->_doQuery('COMMIT');
+        $result = $this->_doQuery('COMMIT', true);
         if (MDB2::isError($result)) {
             return $result;
         }
-        $result = $this->_doQuery('SET AUTOCOMMIT = 1');
+        $result = $this->_doQuery('SET AUTOCOMMIT = 1', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -274,11 +274,11 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result = $this->_doQuery('ROLLBACK');
+        $result = $this->_doQuery('ROLLBACK', true);
         if (MDB2::isError($result)) {
             return $result;
         }
-        $result = $this->_doQuery('SET AUTOCOMMIT = 1');
+        $result = $this->_doQuery('SET AUTOCOMMIT = 1', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -650,7 +650,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $value = $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value";
-            $result = $this->_doQuery($query);
+            $result = $this->_doQuery($query, true);
             if (MDB2::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
             }

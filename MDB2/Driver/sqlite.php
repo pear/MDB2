@@ -176,7 +176,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
         $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
-        $result = $this->_doQuery($query);
+        $result = $this->_doQuery($query, true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -201,7 +201,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto committed');
         }
-        $result = $this->_doQuery('COMMIT TRANSACTION '.$this->options['base_transaction_name']);
+        $query = 'COMMIT TRANSACTION '.$this->options['base_transaction_name'];
+        $result = $this->_doQuery($query, true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -226,7 +227,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result = $this->_doQuery('ROLLBACK TRANSACTION '.$this->options['base_transaction_name']);
+        $query = 'ROLLBACK TRANSACTION '.$this->options['base_transaction_name'];
+        $result = $this->_doQuery($query, true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -579,7 +581,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
         $value = @sqlite_last_insert_rowid($this->connection);
         if (is_numeric($value)
-            && MDB2::isError($this->_doQuery("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
+            && MDB2::isError($this->_doQuery("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value", true))
         ) {
             $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
         }
