@@ -280,7 +280,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $second_col[$row] = $row;
         }
 
-        $result =& $this->db->query('SELECT user_name, user_id FROM users', array('text', 'integer'));
+        $result =& $this->db->query('SELECT user_name, user_id FROM users ORDER BY user_name', array('text', 'integer'));
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
@@ -292,7 +292,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
         $result->free();
 
-        $result =& $this->db->query('SELECT user_name, user_id FROM users', array('text', 'integer'));
+        $result =& $this->db->query('SELECT user_name, user_id FROM users ORDER BY user_name', array('text', 'integer'));
         if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
@@ -336,7 +336,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             }
         }
         $fields = array_keys($data[0]);
-        $query = 'SELECT '. implode (', ', $fields). ' FROM users';
+        $query = 'SELECT '. implode (', ', $fields). ' FROM users ORDER BY user_name';
 
         $this->db->freePrepared($prepared_query);
 
@@ -596,7 +596,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->db->setLimit($rows, $start_row);
 
-            $result =& $this->db->query('SELECT user_name,user_password,subscribed,user_id,quota,weight,access_date,access_time,approved FROM users ORDER BY user_id', $this->types);
+            $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users ORDER BY user_name', $this->types);
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
@@ -615,7 +615,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->db->setLimit($rows, $start_row);
 
-            $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users ORDER BY user_id', $this->types);
+            $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users ORDER BY user_name', $this->types);
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
