@@ -626,7 +626,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $sequence_name = $this->getSequenceName($seq_name);
         $query = "INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL)";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result =& $this->_doQuery($query);
+        $result = $this->_doQuery($query, true);
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {

@@ -145,11 +145,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     static $ecode_map;
                     if (empty($ecode_map)) {
                         $ecode_map = array(
+                              88 => MDB2_ERROR_NOSUCHTABLE,
                             -104 => MDB2_ERROR_SYNTAX,
                             -150 => MDB2_ERROR_ACCESS_VIOLATION,
                             -151 => MDB2_ERROR_ACCESS_VIOLATION,
                             -155 => MDB2_ERROR_NOSUCHTABLE,
-                              88 => MDB2_ERROR_NOSUCHTABLE,
                             -157 => MDB2_ERROR_NOSUCHFIELD,
                             -158 => MDB2_ERROR_VALUE_COUNT_ON_ROW,
                             -170 => MDB2_ERROR_MISMATCH,
@@ -565,10 +565,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $this->pushErrorHandling(PEAR_ERROR_RETURN);
         $query = 'SELECT GEN_ID('.strtoupper($seq_name).', 1) as the_value FROM RDB$DATABASE';
-        $result = @$this->queryOne($query);
-        $this->popErrorHandling();
+        $this->expectError('*');
+        $result = $this->queryOne($query, 'integer');
+        $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand) {
                 $this->loadModule('manager');

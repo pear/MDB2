@@ -586,8 +586,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
+        $query = "SELECT $seq_name.nextval FROM DUAL";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->queryOne("SELECT $seq_name.nextval FROM DUAL");
+        $result = $this->queryOne($query, 'integer');
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
