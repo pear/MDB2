@@ -20,6 +20,7 @@ All drivers:
 - allow errorInfo() to be called when no connection has been established yet
 - use MDB2_ERROR_UNSUPPORTED instead of MDB2_ERROR_NOT_CAPABLE in common implementations
 - readded MDB2_Error as the baseclass for all MDB2 error objects
+- updated error mappings from DB
 
 - added MDB2_Driver_Common::getDatabase();
 - reworked dsn default handling
@@ -33,6 +34,7 @@ All drivers:
   called by the user
 - instead of having a generic implemention of disconnect() we will rename
   _close() to disconnect() to overwrite the generic implementation
+- added support for 'new_link' dsn option for all supported drivers (mysql, oci8, pgsql)
 
 - transaction API moved over to PDO: removed autoCommit(), added beginTransaction()
   and refactored commit() (it doesn't start a new transaction automatically anymore)
@@ -67,6 +69,10 @@ All drivers:
 - dont convert fetched null values in the Datatype module
 
 - removed executeParams() and moved executeMultiple() from extended module
+
+- updated tableInfo() code from DB
+
+- made LIMIT handling more robust by taking some code from DB
 
 All drivers result:
 - performance tweak in fetchCol()
@@ -128,6 +134,10 @@ DB wrapper
 - fixed a large number of compatibility issues in the PEAR::DB wrapper
 Iterator
 - fixed several bugs and updated the interface to match the final php5 iterator API
+
+Extended module:
+- modified the signature of the auto*() methods to be compatible with DB (bug #3720)
+- tweaked buildManipSQL() to not use loops (bug #3721)
 
 MDB_Tools_Manager
 - updated raiseError method in the Manager to be compatible with
