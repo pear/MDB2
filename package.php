@@ -28,6 +28,9 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
   to increase flexibility
 - removed default_values property from the Manager
   (the user will now need to set the proper defaults himself)
+- extended MDB2::isError() to be able to handle an array or codes
+- added error handling into autoPrepare() and autoExecute()
+- migrade all MDB2::isError calls that dont check for specific errors codes to PEAR::isError
 EOT;
 
 $description =<<<EOT
