@@ -62,11 +62,12 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     // {{{ constructor
 
     /**
-    * Constructor
-    */
-    function MDB2_Driver_mssql()
+     * Constructor
+     */
+    function __construct()
     {
-        $this->MDB2_Driver_Common();
+        parent::__construct();
+
         $this->phptype = 'mssql';
         $this->dbsyntax = 'mssql';
 
@@ -87,6 +88,11 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $db->options['database_size'] = false;
     }
 
+    function MDB2_Driver_mssql()
+    {
+        $this->__construct();
+    }
+
     // }}}
     // {{{ errorInfo()
 
@@ -100,10 +106,12 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function errorInfo($error = null)
     {
         $native_code = null;
-        $result = @mssql_query('select @@ERROR as ErrorCode', $this->connection);
-        if ($result) {
-            $native_code = @mssql_result($result);
-            @mssql_free_result($result);
+        if ($this->connection) {
+            $result = @mssql_query('select @@ERROR as ErrorCode', $this->connection);
+            if ($result) {
+                $native_code = @mssql_result($result);
+                @mssql_free_result($result);
+            }
         }
         $native_msg = @mssql_get_last_message();
         if (is_null($error)) {
@@ -284,7 +292,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $port   = $dsninfo['port'] ? ':' . $dsninfo['port'] : '';
         $dbhost .= $port;
 
-        @ini_set('track_errors', true);
         if ($dbhost && $user && $pw) {
             $connection = @$function($dbhost, $user, $pw);
         } elseif ($dbhost && $user) {
@@ -294,10 +301,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         } else {
             $connection = 0;
         }
-        @ini_restore('track_errors');
         if ($connection <= 0) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-                $php_errormsg);
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
@@ -537,18 +542,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
 class MDB2_Result_mssql extends MDB2_Result_Common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Result_mssql(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ _skipLimitOffset()
 
     /**
@@ -763,18 +756,6 @@ class MDB2_Result_mssql extends MDB2_Result_Common
 
 class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_BufferedResult_mssql(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_mssql($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ valid()
 
     /**

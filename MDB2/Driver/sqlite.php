@@ -68,9 +68,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     /**
     * Constructor
     */
-    function MDB2_Driver_sqlite()
+    function __construct()
     {
-        $this->MDB2_Driver_Common();
+        parent::__construct();
+
         $this->phptype = 'sqlite';
         $this->dbsyntax = 'sqlite';
 
@@ -93,6 +94,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->options['database_extension'] = '';
     }
 
+    function MDB2_Driver_sqlite()
+    {
+        $this->__construct();
+    }
+
     // }}}
     // {{{ errorInfo()
 
@@ -105,7 +111,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function errorInfo($error = null)
     {
-        $native_code = @sqlite_last_error($this->connection);
+        $native_code = null;
+        if ($this->connection) {
+            $native_code = @sqlite_last_error($this->connection);
+        }
         $native_msg  = @sqlite_error_string($native_code);
 
         if (is_null($error)) {
@@ -331,7 +340,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             $function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
             $connection = @$function($database_file);
             if (!$connection) {
-                return $this->raiseError();
+                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
             }
             $this->connection = $connection;
             $this->connected_dsn = $this->dsn;
@@ -687,18 +696,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
 class MDB2_Result_sqlite extends MDB2_Result_Common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Result_sqlite(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ fetch()
 
     /**
@@ -837,18 +834,6 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
 
 class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_BufferedResult_sqlite(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_sqlite($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ seek()
 
     /**

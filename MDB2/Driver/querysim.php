@@ -224,9 +224,10 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     /**
     * Constructor
     */
-    function MDB2_Driver_querysim()
+    function __construct()
     {
-        $this->MDB2_Driver_Common();
+        parent::__construct();
+
         $this->phptype  = 'querysim';
         $this->dbsyntax = 'querysim';
 
@@ -248,6 +249,12 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $this->options['dataDelim'] = '|';
         $this->options['eolDelim'] = "\n";
     }
+
+    function MDB2_Driver_querysim()
+    {
+        $this->__construct();
+    }
+
     // }}}
 
     // {{{ connect()
@@ -538,18 +545,6 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
 
 class MDB2_Result_querysim extends MDB2_Result_Common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Result_querysim(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ fetch()
 
     /**
@@ -691,18 +686,6 @@ class MDB2_Result_querysim extends MDB2_Result_Common
 
 class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_BufferedResult_querysim(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_querysim($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ seek()
 
     /**

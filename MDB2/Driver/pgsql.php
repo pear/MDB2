@@ -63,9 +63,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     /**
     * Constructor
     */
-    function MDB2_Driver_pgsql()
+    function __construct()
     {
-        $this->MDB2_Driver_Common();
+        parent::__construct();
+
         $this->phptype = 'pgsql';
         $this->dbsyntax = 'pgsql';
 
@@ -83,6 +84,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['auto_increment'] = false;
     }
 
+    function MDB2_Driver_pgsql()
+    {
+        $this->__construct();
+    }
+
     // }}}
     // {{{ errorInfo()
 
@@ -97,8 +103,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         if (is_resource($error)) {
             $native_msg = @pg_result_error($error);
-        } else {
+        } elseif($this->connection) {
             $native_msg = @pg_errormessage($this->connection);
+        } else {
+            $native_msg = @pg_errormessage();
         }
 
         // Fall back to MDB2_ERROR if there was no mapping.
@@ -260,20 +268,12 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         putenv('PGDATESTYLE=ISO');
 
         $function = ($persistent ? 'pg_pconnect' : 'pg_connect');
-        // catch error
-        ob_start();
         $connection = @$function($connstr);
-        $error_msg = ob_get_contents();
-        ob_end_clean();
 
         if ($connection > 0) {
             return $connection;
         }
-        if (!$error_msg) {
-            $error_msg = 'Could not connect to PostgreSQL server';
-        }
-        return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-            $error_msg);
+        return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
     }
 
     // }}}
@@ -305,30 +305,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         if ($this->database_name) {
-            if (function_exists('pg_cmdtuples')) {
-                $connection = $this->_doConnect('template1', 0);
-                if (!MDB2::isError($connection)) {
-                    if (($result = @pg_exec($connection, 'BEGIN'))) {
-                        $error_reporting = error_reporting(63);
-                        @pg_cmdtuples($result);
-                        if (!isset($php_errormsg)
-                            || strcmp($php_errormsg, 'This compilation does not support pg_cmdtuples()')
-                        ) {
-                            $this->supported['affected_rows'] = true;
-                        }
-                        error_reporting($error_reporting);
-                    } else {
-                        $err = $this->raiseError($result);
-                    }
-                    @pg_close($connection);
-                } else {
-                    $err = $this->raiseError(MDB2_ERROR, null, null,
-                        'connect: could not execute BEGIN');
-                }
-                if (isset($err) && MDB2::isError($err)) {
-                    return $err;
-                }
-            }
             $connection = $this->_doConnect($this->database_name, $this->options['persistent']);
             if (MDB2::isError($connection)) {
                 return $connection;
@@ -389,7 +365,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         $result = @pg_exec($this->connection, $query);
         if ($result) {
-            $this->affected_rows = (isset($this->supported['affected_rows']) ? @pg_cmdtuples($result) : -1);
+            $this->affected_rows = (isset($this->supported['affected_rows']) ? @pg_affected_rows($result) : -1);
         } else {
             return $this->raiseError($result);
         }
@@ -486,7 +462,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
         if (!MDB2::isError($result)) {
             if ($ismanip) {
-                $this->affected_rows = @pg_cmdtuples($result);
+                $this->affected_rows = @pg_affected_rows($result);
                 return MDB2_OK;
             } elseif ((preg_match('/^\s*\(?\s*SELECT\s+/si', $query)
                     && !preg_match('/^\s*\(?\s*SELECT\s+INTO\s/si', $query))
@@ -572,18 +548,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
 class MDB2_Result_pgsql extends MDB2_Result_Common
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Result_pgsql(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ fetch()
 
     /**
@@ -777,18 +741,6 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
 
 class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_BufferedResult_pgsql(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_pgsql($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ seek()
 
     /**

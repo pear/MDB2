@@ -66,9 +66,10 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     /**
     * Constructor
     */
-    function MDB2_Driver_mysql()
+    function __construct()
     {
-        $this->MDB2_Driver_Common();
+        parent::__construct();
+
         $this->phptype = 'mysql';
         $this->dbsyntax = 'mysql';
 
@@ -87,6 +88,11 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->options['default_table_type'] = false;
     }
 
+    function MDB2_Driver_mysql()
+    {
+        $this->__construct();
+    }
+
     // }}}
     // {{{ errorInfo()
 
@@ -99,8 +105,13 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function errorInfo($error = null)
     {
-        $native_code = @mysql_errno($this->connection);
-        $native_msg  = @mysql_error($this->connection);
+       if($this->connection) {
+           $native_code = @mysql_errno($this->connection);
+           $native_msg  = @mysql_error($this->connection);
+       } else {
+           $native_code = @mysql_errno();
+           $native_msg  = @mysql_error();
+       }
         if (is_null($error)) {
             static $ecode_map;
             if (empty($ecode_map)) {
@@ -319,12 +330,9 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $user = $dsninfo['username'];
         $pw = $dsninfo['password'];
 
-        @ini_set('track_errors', true);
         $connection = @$function($dbhost, $user, $pw, true);
-        @ini_restore('track_errors');
         if ($connection <= 0) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-                $php_errormsg);
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
@@ -746,17 +754,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 class MDB2_Result_mysql extends MDB2_Result_Common
 {
     // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Result_mysql(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ fetch()
 
     /**
@@ -923,17 +920,6 @@ class MDB2_Result_mysql extends MDB2_Result_Common
 
 class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_BufferedResult_mysql(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_mysql($mdb, $result, $offset, $limit);
-    }
-
     // }}}
     // {{{ seek()
 

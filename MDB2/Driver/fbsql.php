@@ -67,9 +67,10 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     /**
     * Constructor
     */
-    function MDB2_fbsql()
+    function __construct()
     {
-        $this->MDB2_Driver_Common();
+        parent::__construct();
+
         $this->phptype = 'fbsql';
         $this->dbsyntax = 'fbsql';
 
@@ -86,6 +87,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->supported['auto_increment'] = true;
     }
 
+    function MDB2_Driver_fbsql()
+    {
+        $this->__construct();
+    }
+
     // }}}
     // {{{ errorInfo()
 
@@ -98,8 +104,13 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function errorInfo($error = null)
     {
-        $native_code = @fbsql_errno($this->connection);
-        $native_msg  = @fbsql_error($this->connection);
+       if($this->connection) {
+           $native_code = @fbsql_errno($this->connection);
+           $native_msg  = @fbsql_error($this->connection);
+       } else {
+           $native_code = @fbsql_errno();
+           $native_msg  = @fbsql_error();
+       }
         if (is_null($error)) {
             static $ecode_map;
             if (empty($ecode_map)) {
@@ -261,7 +272,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $user = $dsninfo['username'];
         $pw = $dsninfo['password'];
 
-        @ini_set('track_errors', true);
         if ($dbhost && $user && $pw) {
             $connection = @$function($dbhost, $user, $pw);
         } elseif ($dbhost && $user) {
@@ -271,10 +281,8 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         } else {
             $connection = 0;
         }
-        @ini_restore('track_errors');
         if ($connection <= 0) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-                $php_errormsg);
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
@@ -528,17 +536,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
 class MDB2_Result_fbsql extends MDB2_Result_Common
 {
     // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Result_fbsql(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ fetch()
 
     /**
@@ -724,17 +721,6 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
 
 class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
 {
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_BufferedResult_mysql(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_mysql($mdb, $result, $offset, $limit);
-    }
-
     // }}}
     // {{{ seek()
 

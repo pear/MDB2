@@ -71,9 +71,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     /**
      * Constructor
      */
-    function MDB2_Driver_ibase()
+    function __construct()
     {
-        $this->MDB2_Driver_Common();
+        parent::__construct();
+
         $this->phptype  = 'ibase';
         $this->dbsyntax = 'ibase';
 
@@ -94,6 +95,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '.gdb';
         $this->options['default_text_field_length'] = 4000;
+    }
+
+    function MDB2_Driver_ibase()
+    {
+        $this->__construct();
     }
 
     // }}}
@@ -332,12 +338,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             @ibase_timefmt("%Y-%m-%d", IBASE_DATE);
             return $connection;
         }
-        if (isset($php_errormsg)) {
-            $error_msg = $php_errormsg;
-        } else {
-            $error_msg = 'Could not connect to FireBird/InterBase server';
-        }
-        return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null, $error_msg);
+
+        return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
     }
 
     // }}}
@@ -633,17 +635,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 class MDB2_Result_ibase extends MDB2_Result_Common
 {
     // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_Result_ibase(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_Common($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ _skipLimitOffset()
 
     /**
@@ -856,18 +847,6 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     var $buffer;
     var $buffer_rownum = - 1;
 
-    // }}}
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function MDB2_BufferedResult_ibase(&$mdb, &$result, $offset, $limit)
-    {
-        parent::MDB2_Result_ibase($mdb, $result, $offset, $limit);
-    }
-
-    // }}}
     // {{{ _fillBuffer()
 
     /**
