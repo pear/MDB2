@@ -1,19 +1,10 @@
+In order of importance:
+- Fix the rest of the drivers (currently only MySQL, PostGreSQL and Oracle have been tested)
+- Expand the test suite to cover the entire API and all possible cases
 - Write Docbook documentation
+- Add mysqli driver
 - Add call to EXPLAIN method to the default debug output handler
 
-New Modules
+The Future:
 - SQL Funtion Abstraction Module (for example SUBSTRING() and SUBSTR())
-- Native Module to exposed RDBMS specific functionality like "auto_increment" etc.
-
-Work moved to DB_Schema
-- Restructure the manager
-    - Change dumpDatabase to use seperate methods to write xml schemas
-    - Seperate xml reverse engineering from the other methods
-    - Rewrite parser to create database while reading to be able to handle large xml files
-    - Add missing features to the manager needed for the MDB_frontend/GTK_MDB_Designer project
-        - Allow creating of SQL query only
-        - Add ability to dump just one table
-        - Improve reservse engineering of existing DB's to xml schema files
-        - Add ability to snyc two databases (structure and/or content)
-        - Improve handling of optional datatypes in the xml reverse engineering code
-- Store the contents of LOB fields into seperate files when dumping
+- move MDB2_Manager functionaloty into DB_Schema
