@@ -783,7 +783,7 @@ class MDB2_Tools_Manager extends PEAR
         }
         $previous_database_name = $this->db->setDatabase($this->database_definition['name']);
         if (($support_transactions = $this->db->supports('transactions'))
-            && MDB2::isError($result = $this->db->autoCommit(false))
+            && MDB2::isError($result = $this->db->beginTransaction())
         ) {
             return $result;
         }
@@ -830,7 +830,7 @@ class MDB2_Tools_Manager extends PEAR
             }
         } else {
             if ($support_transactions) {
-                $res = $this->db->autoCommit(true);
+                $res = $this->db->commit();
                 if (MDB2::isError($res))
                     $result = $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                         'Could not end transaction after successfully created the database ('.
@@ -1535,7 +1535,7 @@ class MDB2_Tools_Manager extends PEAR
             $previous_database_name = $this->db->getDatabase();
         }
         if (($support_transactions = $this->db->supports('transactions'))
-            && MDB2::isError($result = $this->db->autoCommit(false))
+            && MDB2::isError($result = $this->db->beginTransaction())
         ) {
             return $result;
         }
@@ -1569,7 +1569,7 @@ class MDB2_Tools_Manager extends PEAR
             }
         }
         if ($support_transactions) {
-            $result = $this->db->autoCommit(true);
+            $result = $this->db->commit();
             if (MDB2::isError($result)) {
                 $result = $this->raiseError(MDB2_ERROR_MANAGER, null, null,
                     'Could not end transaction after successfully implemented the requested database alterations ('.
