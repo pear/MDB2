@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta3</version>
-    <date>2004-08-05</date>
+    <date>2004-08-06</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- affectedRows() now ensures that the last query was a manipulation query
@@ -102,10 +102,11 @@ Other soon to follow.</description>
 - improved handling of MDB2_PORTABILITY_LOWERCASE in all the reverse
   methods inside the mysql driver to work coherently
 - fixed several issues in the listTablefields() method of manager drivers
-- refactored MDB2_Manager::createDatabase() and related privat methods
+- major refactoring of MDB2_Manager
 - fixed error in MDB2_Manager::_escapeSpecialCharacter() that would lead to
   incorrect handling of integer values (this needs to be explored in more detail)
-- several typo fixes and minor logic errors (among others a fix for bug #2057)</notes>
+- several typo fixes and minor logic errors (among others a fix for bug #2057)
+- added MDB2_Driver_Common::getDatabase();</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -229,7 +230,7 @@ Other soon to follow.</description>
   <changelog>
     <release>
       <version>2.0.0beta3</version>
-      <date>2004-08-05</date>
+      <date>2004-08-06</date>
       <license>BSD License</license>
       <state>beta</state>
       <notes>- affectedRows() now ensures that the last query was a manipulation query
@@ -261,10 +262,11 @@ Other soon to follow.</description>
 - improved handling of MDB2_PORTABILITY_LOWERCASE in all the reverse
   methods inside the mysql driver to work coherently
 - fixed several issues in the listTablefields() method of manager drivers
-- refactored MDB2_Manager::createDatabase() and related privat methods
+- major refactoring of MDB2_Manager
 - fixed error in MDB2_Manager::_escapeSpecialCharacter() that would lead to
   incorrect handling of integer values (this needs to be explored in more detail)
-- several typo fixes and minor logic errors (among others a fix for bug #2057)</notes>
+- several typo fixes and minor logic errors (among others a fix for bug #2057)
+- added MDB2_Driver_Common::getDatabase();</notes>
     </release>
     <release>
       <version>2.0.0beta2</version>

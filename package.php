@@ -33,10 +33,11 @@ $notes = <<<EOT
 - improved handling of MDB2_PORTABILITY_LOWERCASE in all the reverse
   methods inside the mysql driver to work coherently
 - fixed several issues in the listTablefields() method of manager drivers
-- refactored MDB2_Manager::createDatabase() and related privat methods
+- major refactoring of MDB2_Manager
 - fixed error in MDB2_Manager::_escapeSpecialCharacter() that would lead to
   incorrect handling of integer values (this needs to be explored in more detail)
 - several typo fixes and minor logic errors (among others a fix for bug #2057)
+- added MDB2_Driver_Common::getDatabase();
 EOT;
 
 $description =<<<EOT
