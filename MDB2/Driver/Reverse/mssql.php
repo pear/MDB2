@@ -133,7 +133,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                 'len'   => @mssql_field_length($id, $i),
                 // We only support flags for table
                 'flags' => $got_string
-                           ? $this->_mssql_field_flags($result, $case_func($result)) : '',
+                           ? $this->_mssql_field_flags($result, @mssql_field_name($id, $i)) : '',
             );
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
