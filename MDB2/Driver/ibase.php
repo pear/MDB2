@@ -362,7 +362,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function connect()
     {
         $database_file = $this->_getDatabaseFile($this->database_name);
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
                 && $this->connected_database_name == $database_file
                 && $this->opened_persistent == $this->options['persistent']
@@ -402,7 +402,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (!$this->opened_persistent || $force) {
                 @ibase_close($this->connection);
             }

@@ -263,7 +263,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function connect()
     {
         $database_file = $this->_getDatabaseFile($this->database_name);
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
                 && $this->connected_database_name == $database_file
                 && $this->opened_persistent == $this->options['persistent']
@@ -304,10 +304,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 return $this->raiseError(MDB2_ERROR_ACCESS_VIOLATION);
             }
 
-            $function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
+            $connect_function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
             $php_errormsg = '';
             @ini_set('track_errors', true);
-            $connection = @$function($database_file);
+            $connection = @$connect_function($database_file);
             @ini_restore('track_errors');
             $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
             if (!$connection) {
@@ -334,7 +334,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (!$this->opened_persistent || $force) {
                 @sqlite_close($this->connection);
             }

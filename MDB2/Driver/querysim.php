@@ -263,7 +263,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      */
     function connect()
     {
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if ($this->connected_database_name == $this->database_name
                 && ($this->opened_persistent == $this->options['persistent'])
             ) {
@@ -314,7 +314,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      */
     function disconnect()
     {
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (($this->opened_persistent) && (is_resource($this->connection))) {
                 if (!@fclose($this->connection)) {
                     return $this->raiseError();

@@ -231,7 +231,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      **/
     function connect()
     {
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
                 && $this->opened_persistent == $this->options['persistent']
             ) {
@@ -282,7 +282,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (!$this->opened_persistent || $force) {
                 @fbsql_close($this->connection);
             }

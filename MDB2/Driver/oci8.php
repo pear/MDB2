@@ -298,7 +298,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if ($this->database_name && $this->options['emulate_database']) {
              $this->dsn['username'] = $this->options['database_name_prefix'].$this->database_name;
         }
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
                 && $this->opened_persistent == $this->options['persistent']
             ) {
@@ -349,7 +349,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function disconnect($force = true)
     {
-        if ($this->connection != 0) {
+        if (is_resource($this->connection)) {
             if (!$this->opened_persistent || $force) {
                 if (function_exists('oci_close')) {
                     @oci_close($this->connection);
