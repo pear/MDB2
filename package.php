@@ -24,6 +24,10 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - for some reason mysqli didnt like SELECT LAST_INSERT_ID()
 - fixed bug in table alteration when only an index was added
 - updated pgsql API calls to 4.2.0 recommended names (bug #3904)
+- moved logic to compareDefinitions from the Manager into the Datatype module
+  to increase flexibility
+- removed default_values property from the Manager
+  (the user will now need to set the proper defaults himself)
 EOT;
 
 $description =<<<EOT
