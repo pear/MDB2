@@ -249,12 +249,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         if (version_compare(phpversion(), '5.0.0', '>=')) {
+            $function = $persistent ? 'oci_pconnect' : 'oci_connect';
             $charset = empty($dsninfo['charset']) ? null : $dsninfo['charset'];
-            $connection = oci_new_connect($username, $password, $sid, $charset);
+            $connection = @$function($username, $password, $sid, $charset);
             $error = OCIError();
             if (!empty($error) && $error['code'] == 12541) {
                 // Couldn't find TNS listener.  Try direct connection.
-                $connection = oci_new_connect($username, $password, null $charset);
+                $connection = @$function($username, $password, null $charset);
             }
         } else {
             $function = $persistent ? 'OCIPLogon' : 'OCILogon';
