@@ -127,7 +127,7 @@ class MDB2_Extended
      * @access public
     */
     function &autoExecute($table, $fields_values, $types = null, $param_types = null,
-        $mode = MDB2_AUTOQUERY_INSERT, $where = false, $result_class = false)
+        $mode = MDB2_AUTOQUERY_INSERT, $where = false, $result_class = true)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $prepared_query = $this->autoPrepare($table, array_keys($fields_values), $types, $mode, $where);
@@ -214,7 +214,7 @@ class MDB2_Extended
      * @return mixed a valid ressource pointer or a MDB2 Error Object
      * @access public
      */
-    function &limitQuery($query, $types, $count, $from = 0, $result_class = false)
+    function &limitQuery($query, $types, $count, $from = 0, $result_class = true)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $result = $db->setLimit($count, $from);
