@@ -467,16 +467,19 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * Prepares a query for multiple execution with execute().
      * With some database backends, this is emulated.
      * prepare() requires a generic query as string like
-     * 'INSERT INTO numbers VALUES(?,?,?)'. The ? are wildcards.
-     * Types of wildcards:
-     *    ? - a quoted scalar value, i.e. strings, integers
+     * 'INSERT INTO numbers VALUES(?,?)' or
+     * 'INSERT INTO numbers VALUES(:foo,:bar)'.
+     * The ? and :[a-zA-Z] and  are placeholders which can be set using
+     * bindParam() and the query can be send off using the execute() method.
      *
      * @param string $query the query to prepare
-     * @param array $fields specifies the names of the fields (required for LOBs only)
-     * @return mixed resource handle for the prepared query on success, a DB
+     * @param mixed   $types  array that contains the types of the placeholders
+     * @param mixed   $result_types  array that contains the types of the columns in
+     *                        the result set
+     * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
-     * @see execute
+     * @see bindParam, execute
      */
     function &prepare($query, $types = null, $result_types = null)
     {
