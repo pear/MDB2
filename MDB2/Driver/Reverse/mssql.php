@@ -70,104 +70,81 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
     // }}}
     // {{{ tableInfo()
 
-  /**
-     * Returns information about a table or a result set
+    /**
+     * Returns information about a table or a result set.
      *
-     * NOTE: doesn't support table name and flags if called from a db_result
+     * NOTE: only supports 'table' and 'flags' if <var>$result</var>
+     * is a table name.
      *
-     * @param  mixed $resource SQL Server result identifier or table name
-     * @param  int $mode A valid tableInfo mode (MDB2_TABLEINFO_ORDERTABLE or
-     *                   MDB2_TABLEINFO_ORDER)
-     *
-     * @return array An array with all the information
+     * @param object|string  $result  MDB2_result object from a query or a
+     *                                string containing the name of a table
+     * @param int            $mode    a valid tableInfo mode
+     * @return array  an associative array with the information requested
+     *                or an error object if something is wrong
+     * @access public
+     * @internal
+     * @see MDB2_common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $count = 0;
-        $id    = 0;
-        $res   = array();
-
-        /*
-         * depending on $mode, metadata returns the following values:
-         *
-         * - mode is false (default):
-         * $result[]:
-         *   [0]['table']  table name
-         *   [0]['name']   field name
-         *   [0]['type']   field type
-         *   [0]['len']    field length
-         *   [0]['flags']  field flags
-         *
-         * - mode is MDB2_TABLEINFO_ORDER
-         * $result[]:
-         *   ["num_fields"] number of metadata records
-         *   [0]['table']  table name
-         *   [0]['name']   field name
-         *   [0]['type']   field type
-         *   [0]['len']    field length
-         *   [0]['flags']  field flags
-         *   ['order'][field name]  index of field named "field name"
-         *   The last one is used, if you have a field name, but no index.
-         *   Test:  if (isset($result['meta']['myfield'])) { ...
-         *
-         * - mode is MDB2_TABLEINFO_ORDERTABLE
-         *    the same as above. but additionally
-         *   ["ordertable"][table name][field name] index of field
-         *      named "field name"
-         *
-         *      this is, because if you have fields from different
-         *      tables with the same field name * they override each
-         *      other with MDB2_TABLEINFO_ORDER
-         *
-         *      you can combine MDB2_TABLEINFO_ORDER and
-         *      MDB2_TABLEINFO_ORDERTABLE with MDB2_TABLEINFO_ORDER |
-         *      MDB2_TABLEINFO_ORDERTABLE * or with MDB2_TABLEINFO_FULL
-         */
-
-        // if $result is a string, then we want information about a
-        // table without a resultset
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $case_func = 'strtolower';
+        } else {
+            $case_func = 'strval';
+        }
 
         if (is_string($result)) {
-            if (!@mssql_select_db($db->database_name, $db->connection)) {
-                return $db->mssqlRaiseError(MDB2_ERROR_NODBSELECTED);
+            /*
+             * Probably received a table name.
+             * Create a result resource identifier.
+             */
+            if (MDB::isError($connect = $db->connect())) {
+                return $connect;
             }
-            $db->connected_database_name = $db->database_name;
-            $id = @mssql_query("SELECT * FROM $result", $db->connection);
+            $id = @mssql_query("SELECT * FROM $result WHERE 1=0",
+                $db->connection);
+            $got_string = true;
+        } else {
+            /*
+             * Probably received a result object.
+             * Extract the result resource identifier.
+             */
+            $id = $result->getResource();
             if (empty($id)) {
-                return $db->mssqlRaiseError();
+                return $db->raiseError();
             }
-        } else { // else we want information about a resultset
-            $id = $result;
-            if (empty($id)) {
-                return $db->mssqlRaiseError();
-            }
+            $got_string = false;
+        }
+
+        if (!is_resource($id)) {
+            return $db->mssqlRaiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
         $count = @mssql_num_fields($id);
 
         // made this IF due to performance (one if is faster than $count if's)
-        if (empty($mode)) {
-
+        if (!$mode) {
             for ($i=0; $i<$count; $i++) {
-                $res[$i]['table'] = (is_string($result)) ? $result : '';
-                $res[$i]['name']  = @mssql_field_name($id, $i);
+                $res[$i]['table'] = $got_string ? $case_func($result) : '';
+                $res[$i]['name']  = $case_func(@mssql_field_name($id, $i));
                 $res[$i]['type']  = @mssql_field_type($id, $i);
                 $res[$i]['len']   = @mssql_field_length($id, $i);
                 // We only support flags for tables
-                $res[$i]['flags'] = is_string($result) ? $this->_mssql_field_flags($result, $res[$i]['name']) : '';
+                $res[$i]['flags'] = $got_string ? $this->_mssql_field_flags($result, $res[$i]['name']) : '';
             }
 
         } else { // full
             $res['num_fields']= $count;
 
             for ($i=0; $i<$count; $i++) {
-                $res[$i]['table'] = (is_string($result)) ? $result : '';
-                $res[$i]['name']  = @mssql_field_name($id, $i);
+                $res[$i]['table'] = $got_string ? $case_func($result) : '';
+                $res[$i]['name']  = $case_func(@mssql_field_name($id, $i));
                 $res[$i]['type']  = @mssql_field_type($id, $i);
                 $res[$i]['len']   = @mssql_field_length($id, $i);
                 // We only support flags for tables
-                $res[$i]['flags'] = is_string($result) ? $this->_mssql_field_flags($result, $res[$i]['name']) : '';
+                $res[$i]['flags'] = $got_string ? $this->_mssql_field_flags($result, $res[$i]['name']) : '';
+
                 if ($mode & MDB2_TABLEINFO_ORDER) {
                     $res['order'][$res[$i]['name']] = $i;
                 }
@@ -178,59 +155,108 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         }
 
         // free the result only if we were called on a table
-        if (is_string($result)) {
+        if ($got_string) {
             @mssql_free_result($id);
         }
         return $res;
     }
 
+
     // }}}
     // {{{ _mssql_field_flags()
+
     /**
-    * Get the flags for a field, currently only supports "isnullable" and "primary_key"
-    *
-    * @param string The table name
-    * @param string The field
-    * @access private
-    */
+     * Get the flags for a field, currently supports "not_null", "primary_key",
+     * "auto_increment" (mssql identity), "timestamp" (mssql timestamp),
+     * "unique_key" (mssql unique index, unique check or primary_key) and
+     * "multiple_key" (multikey index)
+     *
+     * mssql timestamp is NOT similar to the mysql timestamp so this is maybe
+     * not useful at all - is the behaviour of mysql_field_flags that primary
+     * keys are alway unique? is the interpretation of multiple_key correct?
+     *
+     * @param string The table name
+     * @param string The field
+     * @author Joern Barthel <j_barthel@web.de>
+     * @access private
+     */
     function _mssql_field_flags($table, $column)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        static $current_table = null;
-        static $flags;
-        // At the first call we discover the flags for all fields
-        if ($table != $current_table) {
+
+        static $tableName = null;
+        static $flags = array();
+
+        if ($table != $tableName) {
+
             $flags = array();
-            // find nullable fields
-            $q_nulls = "SELECT syscolumns.name, syscolumns.isnullable
-                        FROM sysobjects
-                        INNER JOIN syscolumns ON sysobjects.id = syscolumns.id
-                        WHERE sysobjects.name ='$table' AND syscolumns.isnullable = 1";
-            $nullables = $db->queryAll($q_nulls, null, MDB2_FETCHMODE_ASSOC);
-            if (MDB2::isError($nullables)) {
-                return $nullables;
-            }
-            foreach ($nullables as $data) {
-                if ($data['isnullable'] == 1) {
-                    $flags[$data['name']][] = 'isnullable';
+            $tableName = $table;
+
+            // get unique and primary keys
+            $res = $db->queryAll("EXEC SP_HELPINDEX[$table]", null, MDB2_FETCHMODE_ASSOC);
+
+            foreach ($res as $val) {
+                $keys = explode(', ', $val['index_keys']);
+
+                if (sizeof($keys) > 1) {
+                    foreach ($keys as $key) {
+                        $this->_add_flag($flags[$key], 'multiple_key');
+                    }
+                }
+
+                if (strpos($val['index_description'], 'primary key')) {
+                    foreach ($keys as $key) {
+                        $this->_add_flag($flags[$key], 'primary_key');
+                    }
+                } elseif (strpos($val['index_description'], 'unique')) {
+                    foreach ($keys as $key) {
+                        $this->_add_flag($flags[$key], 'unique_key');
+                    }
                 }
             }
-            // find primary keys
-            $primarykeys = $db->queryAll("EXEC SP_PKEYS[$table]", null, MDB2_FETCHMODE_ASSOC);
-            if (MDB2::isError($primarykeys)) {
-                return $primarykeys;
-            }
-            foreach ($primarykeys as $data) {
-                if (!empty($data['COLUMN_NAME'])) {
-                    $flags[$data['COLUMN_NAME']][] = 'primary_key';
+
+            // get auto_increment, not_null and timestamp
+            $res = $db->queryAll("EXEC SP_COLUMNS[$table]", null, MDB2_FETCHMODE_ASSOC);
+
+            foreach ($res as $val) {
+                $val = array_change_key_case($val, CASE_LOWER);
+                if ($val['nullable'] == '0') {
+                    $this->_add_flag($flags[$val['column_name']], 'not_null');
+                }
+                if (strpos($val['type_name'], 'identity')) {
+                    $this->_add_flag($flags[$val['column_name']], 'auto_increment');
+                }
+                if (strpos($val['type_name'], 'timestamp')) {
+                    $this->_add_flag($flags[$val['column_name']], 'timestamp');
                 }
             }
-            $current_table = $table;
         }
-        if (isset($flags[$column])) {
-            return implode(',', $flags[$column]);
+
+        if (array_key_exists($column, $flags)) {
+            return implode(' ', $flags[$column]);
         }
         return '';
+    }
+
+    // }}}
+    // {{{ _add_flag()
+
+    /**
+     * Adds a string to the flags array if the flag is not yet in there
+     * - if there is no flag present the array is created.
+     *
+     * @param reference  Reference to the flag-array
+     * @param value      The flag value
+     * @access private
+     * @author Joern Barthel <j_barthel@web.de>
+     */
+    function _add_flag(&$array, $value)
+    {
+        if (!is_array($array)) {
+            $array = array($value);
+        } elseif (!in_array($value, $array)) {
+            array_push($array, $value);
+        }
     }
 }
 ?>

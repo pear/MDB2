@@ -71,116 +71,95 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
     // {{{ tableInfo()
 
     /**
-     * returns meta data about the result set
+     * Returns information about a table or a result set.
      *
-     * @param resource $result result identifier
-     * @param mixed $mode depends on implementation
-     * @return array an nested array, or a MDB2 error
+     * NOTE: only supports 'table' and 'flags' if <var>$result</var>
+     * is a table name.
+     *
+     * NOTE: flags won't contain index information.
+     *
+     * @param object|string  $result  MDB2_result object from a query or a
+     *                                string containing the name of a table
+     * @param int            $mode    a valid tableInfo mode
+     * @return array  an associative array with the information requested
+     *                or an error object if something is wrong
      * @access public
+     * @internal
+     * @see MDB2_common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $count = 0;
-        $res = array();
-        /**
-         * depending on $mode, metadata returns the following values:
-         *
-         * - mode is false (default):
-         * $res[]:
-         *    [0]['table']       table name
-         *    [0]['name']        field name
-         *    [0]['type']        field type
-         *    [0]['len']         field length
-         *    [0]['nullable']    field can be null (boolean)
-         *    [0]['format']      field precision if NUMBER
-         *    [0]['default']     field default value
-         *
-         * - mode is MDB2_TABLEINFO_ORDER
-         * $res[]:
-         *    ['num_fields']     number of fields
-         *    [0]['table']       table name
-         *    [0]['name']        field name
-         *    [0]['type']        field type
-         *    [0]['len']         field length
-         *    [0]['nullable']    field can be null (boolean)
-         *    [0]['format']      field precision if NUMBER
-         *    [0]['default']     field default value
-         *    ['order'][field name] index of field named 'field name'
-         *    The last one is used, if you have a field name, but no index.
-         *    Test:  if (isset($result['order']['myfield'])) { ...
-         *
-         * - mode is MDB2_TABLEINFO_ORDERTABLE
-         *     the same as above. but additionally
-         *    ['ordertable'][table name][field name] index of field
-         *       named 'field name'
-         *
-         *       this is, because if you have fields from different
-         *       tables with the same field name * they override each
-         *       other with MDB2_TABLEINFO_ORDER
-         *
-         *       you can combine DB_TABLEINFO_ORDER and
-         *       MDB2_TABLEINFO_ORDERTABLE with MDB2_TABLEINFO_ORDER |
-         *       MDB2_TABLEINFO_ORDERTABLE * or with MDB2_TABLEINFO_FULL
-         */
-        // if $result is a string, we collect info for a table only
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $case_func = 'strtolower';
+        } else {
+            $case_func = 'strval';
+        }
+
         if (is_string($result)) {
+            /*
+             * Probably received a table name.
+             * Create a result resource identifier.
+             */
             if (MDB::isError($connect = $db->connect())) {
-                return($connect);
+                return $connect;
             }
             $result = strtoupper($result);
-            $q_fields = "SELECT column_name, data_type, data_length, data_precision,
-                     nullable, data_default FROM user_tab_columns
-                     WHERE table_name='$result' order by column_id";
+            $q_fields = 'SELECT column_name, data_type, data_length, '
+                        . 'nullable '
+                        . 'FROM user_tab_columns '
+                        . "WHERE table_name='$result' ORDER BY column_id";
+
+            $db->last_query = $q_fields;
+
             if (!$stmt = @OCIParse($db->connection, $q_fields)) {
-                return $db->oci8RaiseError();
+                return $db->oci8RaiseError(MDB2_ERROR_NEED_MORE_DATA);
             }
             if (!@OCIExecute($stmt, OCI_DEFAULT)) {
                 return $db->oci8RaiseError($stmt);
-            } while (@OCIFetch($stmt)) {
-                $res[$count]['table'] = strtolower($result);
-                $res[$count]['name'] = strtolower(@OCIResult($stmt, 1));
-                $res[$count]['type'] = strtolower(@OCIResult($stmt, 2));
-                $res[$count]['len'] = @OCIResult($stmt, 3);
-                $res[$count]['format'] = @OCIResult($stmt, 4);
-                $res[$count]['nullable'] = (@OCIResult($stmt, 5) == 'Y') ? true : false;
-                $res[$count]['default'] = @OCIResult($stmt, 6);
+            }
+
+            $i = 0;
+            while (@OCIFetch($stmt)) {
+                $res[$i]['table'] = $case_func($result);
+                $res[$i]['name']  = $case_func(@OCIResult($stmt, 1));
+                $res[$i]['type']  = @OCIResult($stmt, 2);
+                $res[$i]['len']   = @OCIResult($stmt, 3);
+                $res[$i]['flags'] = (@OCIResult($stmt, 4) == 'N') ? 'not_null' : '';
+
                 if ($mode & MDB2_TABLEINFO_ORDER) {
-                    $res['order'][$res[$count]['name']] = $count;
+                    $res['order'][$res[$i]['name']] = $i;
                 }
                 if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                    $res['ordertable'][$res[$count]['table']][$res[$count]['name']] = $count;
+                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
                 }
-                $count++;
+                $i++;
             }
+
             if ($mode) {
-                $res['num_fields'] = $count;
+                $res['num_fields'] = $i;
             }
             @OCIFreeStatement($stmt);
-        } else { // else we want information about a resultset
-            #if ($result === $db->last_stmt) {
-                $result = $result->getResource();
-                $count = @OCINumCols($result);
-                for ($i = 0; $i < $count; $i++) {
-                    $res[$i]['name']  = strtolower(@OCIColumnName($result, $i+1));
-                    $res[$i]['type']  = strtolower(@OCIColumnType($result, $i+1));
-                    $res[$i]['len'] = @OCIColumnSize($result, $i + 1);
 
-                    $q_fields = "SELECT table_name, data_precision, nullable, data_default
-                        FROM user_tab_columns
-                        WHERE column_name='$name'";
-                    if (!$stmt = @OCIParse($db->connection, $q_fields)) {
-                        return $db->oci8RaiseError();
-                    }
-                    if (!@OCIExecute($stmt, OCI_DEFAULT)) {
-                        return $db->oci8RaiseError($stmt);
-                    }
-                    @OCIFetch($stmt);
-                    $res[$i]['table'] = strtolower(@OCIResult($stmt, 1));
-                    $res[$i]['format'] = @OCIResult($stmt, 2);
-                    $res[$i]['nullable'] = (@OCIResult($stmt, 3) == 'Y') ? true : false;
-                    $res[$i]['default'] = @OCIResult($stmt, 4);
-                    @OCIFreeStatement($stmt);
+        } else {
+            /*
+             * Probably received a result object.
+             * Extract the result resource identifier.
+             */
+            $id = $result->getResource();
+            if (empty($id)) {
+                return $db->raiseError();
+            }
+
+#            if ($result === $db->last_stmt) {
+                $count = @OCINumCols($id);
+
+                for ($i=0; $i<$count; $i++) {
+                    $res[$i]['table'] = '';
+                    $res[$i]['name']  = $case_func(@OCIColumnName($id, $i+1));
+                    $res[$i]['type']  = @OCIColumnType($id, $i+1);
+                    $res[$i]['len']   = @OCIColumnSize($id, $i+1);
+                    $res[$i]['flags'] = '';
 
                     if ($mode & MDB2_TABLEINFO_ORDER) {
                         $res['order'][$res[$i]['name']] = $i;
@@ -189,12 +168,14 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                         $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
                     }
                 }
+
                 if ($mode) {
-                    $res['num_fields'] = $count;
+                    $res['num_fields'] = $i;
                 }
-            #} else {
-            #    return $db->raiseError(MDB2_ERROR_NOT_CAPABLE);
-            #}
+
+#            } else {
+#                return $db->raiseError(MDB2_ERROR_NOT_CAPABLE);
+#            }
         }
         return $res;
     }

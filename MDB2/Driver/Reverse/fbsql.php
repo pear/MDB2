@@ -67,94 +67,78 @@ class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
         $this->MDB2_Driver_Reverse_Common($db_index);
     }
 
+
     // }}}
     // {{{ tableInfo()
 
     /**
-    * returns meta data about the result set
-    *
-    * @param resource    $result    result identifier
-    * @param mixed $mode depends on implementation
-    * @return array an nested array, or a MDB2 error
-    * @access public
-    */
+     * Returns information about a table or a result set.
+     *
+     * @param object|string  $result  MDB2_result object from a query or a
+     *                                string containing the name of a table
+     * @param int            $mode    a valid tableInfo mode
+     * @return array  an associative array with the information requested
+     *                or an error object if something is wrong
+     * @access public
+     * @internal
+     * @see MDB2_common::tableInfo()
+     */
     function tableInfo($result, $mode = null) {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $count = 0;
-        $id     = 0;
-        $res  = array();
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $case_func = 'strtolower';
+        } else {
+            $case_func = 'strval';
+        }
 
-        /*
-         * depending on $mode, metadata returns the following values:
-         *
-         * - mode is false (default):
-         * $result[]:
-         *   [0]['table']  table name
-         *   [0]['name']   field name
-         *   [0]['type']   field type
-         *   [0]['len']    field length
-         *   [0]['flags']  field flags
-         *
-         * - mode is MDB2_TABLEINFO_ORDER
-         * $result[]:
-         *   ['num_fields'] number of metadata records
-         *   [0]['table']  table name
-         *   [0]['name']   field name
-         *   [0]['type']   field type
-         *   [0]['len']    field length
-         *   [0]['flags']  field flags
-         *   ['order'][field name]  index of field named 'field name'
-         *   The last one is used, if you have a field name, but no index.
-         *   Test:  if (isset($result['meta']['myfield'])) { ...
-         *
-         * - mode is MDB2_TABLEINFO_ORDERTABLE
-         *    the same as above. but additionally
-         *   ['ordertable'][table name][field name] index of field
-         *      named 'field name'
-         *
-         *      this is, because if you have fields from different
-         *      tables with the same field name * they override each
-         *      other with MDB2_TABLEINFO_ORDER
-         *
-         *      you can combine MDB2_TABLEINFO_ORDER and
-         *      MDB2_TABLEINFO_ORDERTABLE with MDB2_TABLEINFO_ORDER |
-         *      MDB2_TABLEINFO_ORDERTABLE * or with MDB2_TABLEINFO_FULL
-         */
-
-        // if $result is a string, then we want information about a
-        // table without a resultset
         if (is_string($result)) {
-            $id = @fbsql_list_fields($db->database_name, $result, $db->connection);
-            if (empty($id)) {
-                return $db->fbsqlRaiseError();
+            /*
+             * Probably received a table name.
+             * Create a result resource identifier.
+             */
+            if (MDB::isError($connect = $db->connect())) {
+                return $connect;
             }
-        } else { // else we want information about a resultset
-            $id = $result;
+            $id = @fbsql_list_fields($db->database_name,
+                $result, $db->connection);
+            $got_string = true;
+        } else {
+            /*
+             * Probably received a result object.
+             * Extract the result resource identifier.
+             */
+            $id = $result->getResource();
             if (empty($id)) {
-                return $db->fbsqlRaiseError();
+                return $db->raiseError();
             }
+            $got_string = false;
+        }
+
+        if (!is_resource($id)) {
+            return $db->fbsqlRaiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
         $count = @fbsql_num_fields($id);
 
         // made this IF due to performance (one if is faster than $count if's)
-        if (empty($mode)) {
-            for ($i = 0; $i<$count; $i++) {
-                $res[$i]['table'] = @fbsql_field_table ($id, $i);
-                $res[$i]['name'] = @fbsql_field_name  ($id, $i);
-                $res[$i]['type'] = @fbsql_field_type  ($id, $i);
-                $res[$i]['len']  = @fbsql_field_len   ($id, $i);
-                $res[$i]['flags'] = @fbsql_field_flags ($id, $i);
+        if (!$mode) {
+            for ($i=0; $i<$count; $i++) {
+                $res[$i]['table'] = $case_func(@fbsql_field_table($id, $i));
+                $res[$i]['name']  = $case_func(@fbsql_field_name($id, $i));
+                $res[$i]['type']  = @fbsql_field_type($id, $i);
+                $res[$i]['len']   = @fbsql_field_len($id, $i);
+                $res[$i]['flags'] = @fbsql_field_flags($id, $i);
             }
         } else { // full
-            $res['num_fields'] = $count;
+            $res["num_fields"]= $count;
 
-            for ($i = 0; $i<$count; $i++) {
-                $res[$i]['table'] = @fbsql_field_table ($id, $i);
-                $res[$i]['name'] = @fbsql_field_name  ($id, $i);
-                $res[$i]['type'] = @fbsql_field_type  ($id, $i);
-                $res[$i]['len']  = @fbsql_field_len   ($id, $i);
-                $res[$i]['flags'] = @fbsql_field_flags ($id, $i);
+            for ($i=0; $i<$count; $i++) {
+                $res[$i]['table'] = $case_func(@fbsql_field_table($id, $i));
+                $res[$i]['name']  = $case_func(@fbsql_field_name($id, $i));
+                $res[$i]['type']  = @fbsql_field_type($id, $i);
+                $res[$i]['len']   = @fbsql_field_len($id, $i);
+                $res[$i]['flags'] = @fbsql_field_flags($id, $i);
+
                 if ($mode & MDB2_TABLEINFO_ORDER) {
                     $res['order'][$res[$i]['name']] = $i;
                 }
@@ -165,7 +149,7 @@ class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
         }
 
         // free the result only if we were called on a table
-        if (is_string($result)) {
+        if ($got_string) {
             @fbsql_free_result($id);
         }
         return $res;

@@ -130,7 +130,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
                 preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
                 $length = 0;
                 if (is_array($matches)) {
-                    foreach($matches[0] as $value) {
+                    foreach ($matches[0] as $value) {
                         $length = max($length, strlen($value)-2);
                     }
                 }
@@ -284,95 +284,83 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         return $definition;
     }
 
+
     // }}}
     // {{{ tableInfo()
 
     /**
-     * returns meta data about the result set
+     * Returns information about a table or a result set.
      *
-     * @param  mixed $resource PostgreSQL result identifier or table name
-     * @param mixed $mode depends on implementation
-     * @return array an nested array, or a MDB2 error
+     * NOTE: only supports 'table' and 'flags' if <var>$result</var>
+     * is a table name.
+     *
+     * @param object|string  $result  MDB2_result object from a query or a
+     *                                string containing the name of a table
+     * @param int            $mode    a valid tableInfo mode
+     * @return array  an associative array with the information requested
+     *                or an error object if something is wrong
      * @access public
+     * @internal
+     * @see MDB2_common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $count = 0;
-        $id = 0;
-        $res = array();
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $case_func = 'strtolower';
+        } else {
+            $case_func = 'strval';
+        }
 
-        /**
-         * depending on $mode, metadata returns the following values:
-         *
-         * - mode is false (default):
-         * $result[]:
-         *    [0]['table']  table name
-         *    [0]['name']   field name
-         *    [0]['type']   field type
-         *    [0]['len']    field length
-         *    [0]['flags']  field flags
-         *
-         * - mode is MDB2_TABLEINFO_ORDER
-         * $result[]:
-         *    ['num_fields'] number of metadata records
-         *    [0]['table']  table name
-         *    [0]['name']   field name
-         *    [0]['type']   field type
-         *    [0]['len']    field length
-         *    [0]['flags']  field flags
-         *    ['order'][field name]  index of field named 'field name'
-         *    The last one is used, if you have a field name, but no index.
-         *    Test:  if (isset($result['meta']['myfield'])) { ...
-         *
-         * - mode is MDB2_TABLEINFO_ORDERTABLE
-         *     the same as above. but additionally
-         *    ['ordertable'][table name][field name] index of field
-         *       named 'field name'
-         *
-         *       this is, because if you have fields from different
-         *       tables with the same field name * they override each
-         *       other with MDB2_TABLEINFO_ORDER
-         *
-         *       you can combine MDB2_TABLEINFO_ORDER and
-         *       MDB2_TABLEINFO_ORDERTABLE with MDB2_TABLEINFO_ORDER |
-         *       MDB2_TABLEINFO_ORDERTABLE * or with MDB2_TABLEINFO_FULL
-         **/
-
-        // if $result is a string, then we want information about a
-        // table without a resultset
         if (is_string($result)) {
-            $id = @pg_exec($db->connection, "SELECT * FROM $result LIMIT 0");
-            if (empty($id)) {
-                return $db->pgsqlRaiseError();
+            /*
+             * Probably received a table name.
+             * Create a result resource identifier.
+             */
+            if (MDB::isError($connect = $db->connect())) {
+                return $connect;
             }
-        } else { // else we want information about a resultset
-            $id = $result;
+            $id = @pg_exec($this->connection, "SELECT * FROM $result LIMIT 0");
+            $got_string = true;
+        } else {
+            /*
+             * Probably received a result object.
+             * Extract the result resource identifier.
+             */
+            $id = $result->getResource();
             if (empty($id)) {
-                return $db->pgsqlRaiseError();
+                return $db->raiseError();
             }
+            $got_string = false;
+        }
+
+        if (!is_resource($id)) {
+            return $db->pgsqlRaiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
         $count = @pg_numfields($id);
 
         // made this IF due to performance (one if is faster than $count if's)
-        if (empty($mode)) {
-            for ($i = 0; $i < $count; $i++) {
-                $res[$i]['table'] = (is_string($result)) ? $result : '';
-                $res[$i]['name'] = @pg_fieldname ($id, $i);
-                $res[$i]['type'] = @pg_fieldtype ($id, $i);
-                $res[$i]['len'] = @pg_fieldsize ($id, $i);
-                $res[$i]['flags'] = (is_string($result)) ? $this->_pgFieldflags($id, $i, $result) : '';
-            }
-        } else { // full
-            $res['num_fields'] = $count;
+        if (!$mode) {
 
-            for ($i = 0; $i < $count; $i++) {
-                $res[$i]['table'] = (is_string($result)) ? $result : '';
-                $res[$i]['name'] = @pg_fieldname ($id, $i);
-                $res[$i]['type'] = @pg_fieldtype ($id, $i);
-                $res[$i]['len'] = @pg_fieldsize ($id, $i);
-                $res[$i]['flags'] = (is_string($result)) ? $this->_pgFieldFlags($id, $i, $result) : '';
+            for ($i=0; $i<$count; $i++) {
+                $res[$i]['table'] = $got_string ? $case_func($result) : '';
+                $res[$i]['name']  = $case_func(@pg_fieldname($id, $i));
+                $res[$i]['type']  = @pg_fieldtype($id, $i);
+                $res[$i]['len']   = @pg_fieldsize($id, $i);
+                $res[$i]['flags'] = $got_string ? $this->_pgFieldflags($id, $i, $result) : '';
+            }
+
+        } else { // full
+            $res['num_fields']= $count;
+
+            for ($i=0; $i<$count; $i++) {
+                $res[$i]['table'] = $got_string ? $case_func($result) : '';
+                $res[$i]['name']  = $case_func(@pg_fieldname($id, $i));
+                $res[$i]['type']  = @pg_fieldtype($id, $i);
+                $res[$i]['len']   = @pg_fieldsize($id, $i);
+                $res[$i]['flags'] = $got_string ? $this->_pgFieldFlags($id, $i, $result) : '';
+
                 if ($mode & MDB2_TABLEINFO_ORDER) {
                     $res['order'][$res[$i]['name']] = $i;
                 }
@@ -383,7 +371,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         }
 
         // free the result only if we were called on a table
-        if (is_string($result) && is_resource($id)) {
+        if ($got_string) {
             @pg_freeresult($id);
         }
         return $res;
@@ -397,44 +385,49 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
      *
      * @param int $resource PostgreSQL result identifier
      * @param int $num_field the field number
-     * @return string The flags of the field ('not_null', 'default_xx', 'primary_key',
-     *                 'unique' and 'multiple_key' are supported)
+     *
+     * @return string The flags of the field ("not_null", "default_value",
+     *                "primary_key", "unique_key" and "multiple_key"
+     *                are supported).  The default value is passed
+     *                through rawurlencode() in case there are spaces in it.
      * @access private
-     **/
+     */
     function _pgFieldFlags($resource, $num_field, $table_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+
         $field_name = @pg_fieldname($resource, $num_field);
 
         $result = @pg_exec($db->connection, "SELECT f.attnotnull, f.atthasdef
-            FROM pg_attribute f, pg_class tab, pg_type typ
-            WHERE tab.relname = typ.typname
-            AND typ.typrelid = f.attrelid
-            AND f.attname = '$field_name'
-            AND tab.relname = '$table_name'");
+                                FROM pg_attribute f, pg_class tab, pg_type typ
+                                WHERE tab.relname = typ.typname
+                                AND typ.typrelid = f.attrelid
+                                AND f.attname = '$field_name'
+                                AND tab.relname = '$table_name'");
         if (@pg_numrows($result) > 0) {
             $row = @pg_fetch_row($result, 0);
-            $flags = ($row[0] == 't') ? 'not_null ' : '';
+            $flags  = ($row[0] == 't') ? 'not_null ' : '';
 
             if ($row[1] == 't') {
                 $result = @pg_exec($db->connection, "SELECT a.adsrc
-                    FROM pg_attribute f, pg_class tab, pg_type typ, pg_attrdef a
-                    WHERE tab.relname = typ.typname AND typ.typrelid = f.attrelid
-                    AND f.attrelid = a.adrelid AND f.attname = '$field_name'
-                    AND tab.relname = '$table_name'");
+                                    FROM pg_attribute f, pg_class tab, pg_type typ, pg_attrdef a
+                                    WHERE tab.relname = typ.typname AND typ.typrelid = f.attrelid
+                                    AND f.attrelid = a.adrelid AND f.attname = '$field_name'
+                                    AND tab.relname = '$table_name' AND f.attnum = a.adnum");
                 $row = @pg_fetch_row($result, 0);
-                $num = str_replace('\'', '', $row[0]);
-
-                $flags .= "default_$num ";
+                $num = preg_replace("/'(.*)'::\w+/", "\\1", $row[0]);
+                $flags .= 'default_' . rawurlencode($num) . ' ';
             }
+        } else {
+            $flags = '';
         }
         $result = @pg_exec($db->connection, "SELECT i.indisunique, i.indisprimary, i.indkey
-            FROM pg_attribute f, pg_class tab, pg_type typ, pg_index i
-            WHERE tab.relname = typ.typname
-            AND typ.typrelid = f.attrelid
-            AND f.attrelid = i.indrelid
-            AND f.attname = '$field_name'
-            AND tab.relname = '$table_name'");
+                                FROM pg_attribute f, pg_class tab, pg_type typ, pg_index i
+                                WHERE tab.relname = typ.typname
+                                AND typ.typrelid = f.attrelid
+                                AND f.attrelid = i.indrelid
+                                AND f.attname = '$field_name'
+                                AND tab.relname = '$table_name'");
         $count = @pg_numrows($result);
 
         for ($i = 0; $i < $count ; $i++) {
@@ -442,8 +435,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
             $keys = explode(' ', $row[2]);
 
             if (in_array($num_field + 1, $keys)) {
-                $flags .= ($row[0] == 't') ? 'unique ' : '';
-                $flags .= ($row[1] == 't') ? 'primary ' : '';
+                $flags .= ($row[0] == 't' && $row[1] == 'f') ? 'unique_key ' : '';
+                $flags .= ($row[1] == 't') ? 'primary_key ' : '';
                 if (count($keys) > 1)
                     $flags .= 'multiple_key ';
             }
