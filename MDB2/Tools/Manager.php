@@ -1389,7 +1389,7 @@ class MDB2_Tools_Manager extends PEAR
                         }
                         if ($table_changes) {
                             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                                'index alteration not yet supported');
+                                'index alteration not yet supported: '.implode(', ', array_keys($index)));
                         }
                     }
                 }
@@ -1480,6 +1480,11 @@ class MDB2_Tools_Manager extends PEAR
         $alterations = 0;
         if (is_array($changes)) {
             foreach ($changes as $table_name => $table) {
+                $indexes = null;
+                if (isset($table['indexes']) && isset($current_definition[$table_name]['indexes'])) {
+                    $indexes = $table['indexes'];
+                    unset($table['indexes']);
+                }
                 if (isset($table['remove'])) {
                     $result = $this->dropTable($table_name);
                     if (MDB2::isError($result)) {
@@ -1492,17 +1497,17 @@ class MDB2_Tools_Manager extends PEAR
                         return $result;
                     }
                     $alterations++;
-                } else {
-                    $result = $this->db->manager->alterTable($table_name, $changes[$table_name], false);
+                } elseif(!empty($table)) {
+                    $result = $this->db->manager->alterTable($table_name, $table, false);
                     if (MDB2::isError($result)) {
                         return $result;
                     }
                     $alterations++;
                 }
-                if (isset($table['indexes']) && isset($current_definition[$table_name]['indexes'])) {
+                if ($indexes) {
                     $result = $this->alterDatabaseIndexes(
                         $table_name,
-                        $table['indexes']
+                        $indexes
                     );
                     if (MDB2::isError($result)) {
                         return $result;
