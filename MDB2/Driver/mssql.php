@@ -176,7 +176,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             $this->destructor_registered = true;
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
-        $result = $this->_doQuery('BEGIN TRANSACTION');
+        $result = $this->_doQuery('BEGIN TRANSACTION', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -201,7 +201,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto committed');
         }
-        $result = $this->_doQuery('COMMIT TRANSACTION');
+        $result = $this->_doQuery('COMMIT TRANSACTION', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -226,7 +226,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result = $this->_doQuery('ROLLBACK TRANSACTION');
+        $result = $this->_doQuery('ROLLBACK TRANSACTION', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -433,7 +433,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $value = $this->queryOne("SELECT @@IDENTITY FROM $sequence_name", 'integer');
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value";
-            $result = $this->_doQuery($query);
+            $result = $this->_doQuery($query, true);
             if (MDB2::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values';
             }
@@ -556,12 +556,16 @@ class MDB2_Result_mssql extends MDB2_Result_Common
      * Retrieve the names of columns returned by the DBMS in a query result.
      *
      * @param resource $result result identifier
-     * @return mixed associative array variable
-     *      that holds the names of columns. The indexes of the array are
-     *      the column names mapped to lower case and the values are the
-     *      respective numbers of the columns starting from 0. Some DBMS may
-     *      not return any columns when the result set does not contain any
-     *      rows.
+     * @return mixed                an associative array variable
+     *                              that will hold the names of columns. The
+     *                              indexes of the array are the column names
+     *                              mapped to lower case and the values are the
+     *                              respective numbers of the columns starting
+     *                              from 0. Some DBMS may not return any
+     *                              columns when the result set does not
+     *                              contain any rows.
+     *
+     *                              a MDB2 error on failure
      * @access public
      */
     function getColumnNames()
@@ -648,6 +652,30 @@ class MDB2_Result_mssql extends MDB2_Result_Common
 
 class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
 {
+    // }}}
+    // {{{ seek()
+
+    /**
+    * seek to a specific row in a result set
+    *
+    * @param int    $rownum    number of the row where the data can be found
+    * @return mixed MDB2_OK on success, a MDB2 error on failure
+    * @access public
+    */
+    function seek($rownum = 0)
+    {
+        if ($this->rownum != ($rownum - 1) && !@mssql_data_seek($this->result, $rownum)) {
+            if (is_null($this->result)) {
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                    'seek: resultset has already been freed');
+            }
+            return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
+                'seek: tried to seek to an invalid row number ('.$rownum.')');
+        }
+        $this->rownum = $rownum - 1;
+        return MDB2_OK;
+    }
+
     // {{{ valid()
 
     /**
