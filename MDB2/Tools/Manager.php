@@ -60,7 +60,7 @@ define('MDB2_MANAGER_DUMP_CONTENT',      2);
  * @category Database
  * @author  Lukas Smith <smith@backendmedia.com>
  */
-class MDB2_Tools_Manager extends PEAR
+class MDB2_Tools_Manager
 {
     // {{{ properties
 
