@@ -118,7 +118,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
 
         if (!is_resource($id)) {
-            return $db->ibaseRaiseError(MDB2_ERROR_NEED_MORE_DATA);
+            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
         $count = @ibase_num_fields($id);
@@ -186,7 +186,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
 
         $result = @ibase_query($db->connection, $sql);
         if (!$result) {
-            return $db->ibaseRaiseError();
+            return $db->raiseError();
         }
 
         $flags = '';
@@ -211,7 +211,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
 
         $result = @ibase_query($db->connection, $sql);
         if (!$result) {
-            return $db->ibaseRaiseError();
+            return $db->raiseError();
         }
         if ($obj = @ibase_fetch_object($result)) {
             @ibase_free_result($result);

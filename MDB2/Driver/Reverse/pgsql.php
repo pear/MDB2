@@ -335,7 +335,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
         }
 
         if (!is_resource($id)) {
-            return $db->pgsqlRaiseError(MDB2_ERROR_NEED_MORE_DATA);
+            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
         $count = @pg_numfields($id);

@@ -417,7 +417,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                         break;
                     }
                     if (!pg_lowrite($handle, $data)) {
-                        $result = $db->pgsqlRaiseError();
+                        $result = $db->raiseError();
                         break;
                     }
                 }
@@ -426,13 +426,13 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                     $value = strval($lo);
                 }
             } else {
-                $result = $db->pgsqlRaiseError();
+                $result = $db->raiseError();
             }
             if (MDB2::isError($result)) {
                 $result = @pg_lounlink($db->connection, $lo);
             }
         } else {
-            $result = $db->pgsqlRaiseError();
+            $result = $db->raiseError();
         }
         if ($db->auto_commit) {
             @pg_exec($db->connection, 'END');
@@ -559,7 +559,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (!isset($db->lobs[$lob]['handle'])) {
             if ($db->auto_commit) {
                 if (!pg_exec($db->connection, 'BEGIN')) {
-                    return $db->pgsqlRaiseError();
+                    return $db->raiseError();
                 }
                 $db->lobs[$lob]['in_transaction'] = true;
             }
@@ -571,7 +571,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                     unset($db->lobs[$lob]['in_transaction']);
                 }
                 unset($db->lobs[$lob]['value']);
-                return $db->pgsqlRaiseError();
+                return $db->raiseError();
             }
         }
         return MDB2_OK;
@@ -621,7 +621,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         }
         $data = @pg_loread($db->lobs[$lob]['handle'], $length);
         if (!is_string($data)) {
-             return $db->pgsqlRaiseError();
+             return $db->raiseError();
         }
         if (($length = strlen($data)) == 0) {
             $db->lobs[$lob]['end_of_LOB'] = true;

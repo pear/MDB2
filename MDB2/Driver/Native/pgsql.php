@@ -80,7 +80,7 @@ class MDB2_Driver_Native_pgsql
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (!@pg_lounlink($db->connection, $OID)) {
-            return $db->pgsqlRaiseError();
+            return $db->raiseError();
         }
         return MDB2_OK;
     }

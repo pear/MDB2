@@ -84,7 +84,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $result;
         }
         if (!@fbsql_create_db($name, $db->connection)) {
-            return $db->fbsqlRaiseError();
+            return $db->raiseError();
         }
 
         return MDB2_OK;
@@ -107,10 +107,10 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $result;
         }
         if (!@fbsql_stop_db($name, $db->connection)) {
-            return $db->fbsqlRaiseError();
+            return $db->raiseError();
         }
         if (!@fbsql_drop_db($name, $db->connection)) {
-            return $db->fbsqlRaiseError();
+            return $db->raiseError();
         }
         return $db->disconnect();
     }

@@ -113,10 +113,10 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $db->last_query = $q_fields;
 
             if (!$stmt = @OCIParse($db->connection, $q_fields)) {
-                return $db->oci8RaiseError(MDB2_ERROR_NEED_MORE_DATA);
+                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
             }
             if (!@OCIExecute($stmt, OCI_DEFAULT)) {
-                return $db->oci8RaiseError($stmt);
+                return $db->raiseError($stmt);
             }
 
             $i = 0;

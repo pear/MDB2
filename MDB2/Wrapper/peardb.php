@@ -300,7 +300,6 @@ class MDB2_PEARProxy
     {
         $this->MDB2_object =& $MDB2_object;
         $this->MDB2_object->option['sequence_prefix'] = '_seq_';
-        $this->MDB2_object->option['optimize'] = 'performance';
     }
 
     function connect($dsninfo, $persistent = false)
