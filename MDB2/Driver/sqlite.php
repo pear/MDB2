@@ -387,10 +387,12 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      * Execute a query
      * @param string $query  query
      * @param boolean $ismanip  if the query is a manipulation query
+     * @param resource $connection
+     * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false)
+    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
@@ -401,25 +403,27 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return null;
         }
 
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
+        if (is_null($connection)) {
+            $connection = $this->connection;
+        }
+        if (is_null($database_name)) {
+            $database_name = $this->database_name;
         }
 
-        if ($this->database_name
-            && $this->database_name != $this->connected_database_name
-        ) {
-            if (!@mysql_select_db($this->database_name, $this->connection)) {
-                $error =& $this->raiseError();
-                return $error;
+         if ($database_name) {
+            if ($database_name != $this->connected_database_name) {
+                if (!@mysql_select_db($database_name, $this->connection)) {
+                    $error =& $this->raiseError();
+                    return $error;
+                }
+                $this->connected_database_name = $database_name;
             }
-            $this->connected_database_name = $this->database_name;
         }
 
         $function = $this->options['result_buffering']
             ? 'sqlite_query' : 'sqlite_unbuffered_query';
         ini_set('track_errors', true);
-        $result = @$function($query.';', $this->connection);
+        $result = @$function($query.';', $connection);
         ini_restore('track_errors');
         $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
         if (!$result) {
@@ -427,7 +431,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
 
         if ($ismanip) {
-            return @sqlite_changes($this->connection);
+            return @sqlite_changes($connection);
         }
         return $result;
     }

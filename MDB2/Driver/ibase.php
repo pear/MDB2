@@ -450,17 +450,15 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
     /**
      * Execute a query
-     * @param string $query the SQL query
-     * @return mixed result identifier if query executed, else MDB2_error
+     * @param string $query  query
+     * @param boolean $ismanip  if the query is a manipulation query
+     * @param resource $connection
+     * @param string $database_name
+     * @return result or error object
      * @access private
      */
-    function _doQuery($query, $isManip = false)
+    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
     {
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
-        }
-        $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
@@ -469,7 +467,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             }
             return null;
         }
-        
+
+        if (is_null($connection)) {
+            $connection = ($this->auto_commit ? $connection : $this->transaction_id);
+        }
+
         $result = ibase_query($connection, $query);
         if (!$result) {
             return $this->raiseError();
@@ -946,7 +948,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
      *
      * @access private
      */
-    function &_executePrepared($result_class = false, $result_wrap_class = false)
+    function &_executePrepared($result_class = true, $result_wrap_class = false)
     {
         $isManip = MDB2::isManip($this->query);
         $query = $this->db->_modifyQuery($this->query);
@@ -983,13 +985,14 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             $this->db->affected_rows = (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
             return $this->db->affected_rows;
         }
-        
+
+        // return empty result ...
         if ($result === true) {
             return true;
         }
 
-        $result_obj =& $this->db->_wrapResult($result, $isManip, $this->types,
-            $result_class, $result_wrap_class, $this->row_offset, $this->row_limit);
+        $result_obj =& $this->db->_wrapResult($result, $this->types,
+            $result_class, $result_wrap_class, $this->row_limit, $this->row_offset);
         return $result_obj;
     }
 

@@ -416,10 +416,12 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      * Execute a query
      * @param string $query  query
      * @param boolean $ismanip  if the query is a manipulation query
+     * @param resource $connection
+     * @param string $database_name
      * @return result or error object
      * @access private
      */
-    function _doQuery($query, $ismanip = false)
+    function _doQuery($query, $ismanip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
@@ -430,30 +432,32 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return null;
         }
 
-        $connected = $this->connect();
-        if (MDB2::isError($connected)) {
-            return $connected;
+        if (is_null($connection)) {
+            $connection = $this->connection;
+        }
+        if (is_null($database_name)) {
+            $database_name = $this->database_name;
         }
 
-        if ($this->database_name
-            && $this->database_name != $this->connected_database_name
-        ) {
-            if (!@mysql_select_db($this->database_name, $this->connection)) {
-                $error =& $this->raiseError();
-                return $error;
+        if ($database_name) {
+            if ($database_name != $this->connected_database_name) {
+                if (!@mysql_select_db($database_name, $connection)) {
+                    $error =& $this->raiseError();
+                    return $error;
+                }
+                $this->connected_database_name = $database_name;
             }
-            $this->connected_database_name = $this->database_name;
         }
 
         $function = $this->options['result_buffering']
             ? 'mysql_query' : 'mysql_unbuffered_query';
-        $result = @$function($query, $this->connection);
+        $result = @$function($query, $connection);
         if (!$result) {
             return $this->raiseError();
         }
 
         if ($ismanip) {
-            return @mysql_affected_rows($this->connection);
+            return @mysql_affected_rows($connection);
         }
         return $result;
     }
@@ -661,10 +665,12 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return $result;
         }
         $value = $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
-        if (is_numeric($value)
-            && MDB2::isError($this->_doQuery("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
-        ) {
-            $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
+        if (is_numeric($value)) {
+            $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value";
+            $result = $this->_doQuery($query);
+            if (MDB2::isError($result)) {
+                $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
+            }
         }
         return $value;
     }
