@@ -62,15 +62,16 @@ $user = $conn->query('
     102|Hal|Helms|22
     103|Bert|Dawson|11
 ');
+
 if (MDB2::isError($user)) {
     die ('Database Error: '.$user->getMessage()."\n<br />\n<pre>".$user->getUserInfo()."\n</pre>\n<br />");
 }
 
-printf("Result contains %d rows and %d columns\n<br /><br />\n", $conn->numRows($user), $conn->numCols($user));
+printf("Result contains %d rows and %d columns\n<br /><br />\n", $user->numRows(), $user->numCols());
 
 //Note that you may return ordered or associative results, as well as specific single rows
 while (is_array($row = $user->fetchRow(MDB2_FETCHMODE_ASSOC))) {
-    printf("%d, %s %s, %s\n<br />\n", $row['useriD'], $row['firstname'], $row['lastname'], $row['usergroups']);
+    printf("%d, %s %s, %s\n<br />\n", $row['userid'], $row['firstname'], $row['lastname'], $row['usergroups']);
 }//end while
 
 $user->free();
