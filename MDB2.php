@@ -2652,37 +2652,34 @@ class MDB2_Result_Common
         $force_array = false, $group = false)
     {
         $all = array();
-        $row = $this->fetchRow($fetchmode);
-        if (is_array($row)) {
+        while (is_array($row = $this->fetchRow($fetchmode))) {
             if ($rekey && count($row) < 2) {
                 return $this->mdb->raiseError(MDB2_ERROR_TRUNCATED);
             }
-            do {
-                if ($rekey) {
-                    if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-                        $key = reset($row);
-                        unset($row[key($row)]);
-                    } else {
-                        $key = array_shift($row);
-                    }
-                    if (!$force_array && count($row) == 1) {
-                        $row = array_shift($row);
-                    }
-                    if ($group) {
-                        $all[$key][] = $row;
-                    } else {
-                        $all[$key] = $row;
+            if ($rekey) {
+                if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
+                    $key = reset($row);
+                    unset($row[key($row)]);
+                } else {
+                    $key = array_shift($row);
+                }
+                if (!$force_array && count($row) == 1) {
+                    $row = array_shift($row);
+                }
+                if ($group) {
+                    $all[$key][] = $row;
+                } else {
+                    $all[$key] = $row;
+                }
+            } else {
+                if ($fetchmode & MDB2_FETCHMODE_FLIPPED) {
+                    foreach ($row as $key => $val) {
+                        $all[$key][] = $val;
                     }
                 } else {
-                    if ($fetchmode & MDB2_FETCHMODE_FLIPPED) {
-                        foreach ($row as $key => $val) {
-                            $all[$key][] = $val;
-                        }
-                    } else {
-                        $all[] = $row;
-                    }
+                    $all[] = $row;
                 }
-            } while (is_array($row = $this->fetchRow($fetchmode)));
+            }
         }
 
         if (MDB2::isError($row)) {
