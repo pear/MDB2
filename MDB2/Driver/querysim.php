@@ -362,7 +362,6 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         if ($limit > 0) {
             $result[1] = array_slice($result[1], $offset-1, $limit);
         }
-
         return $result;
     }
     // }}}
