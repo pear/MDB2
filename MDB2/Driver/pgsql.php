@@ -411,7 +411,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if ($limit > 0) {
             if ($ismanip) {
                 $manip = preg_replace('/^(DELETE FROM|UPDATE).*$/', '\\1', $query);
-                $form = $match[2];
+                $from = $match[2];
                 $where = $match[3];
                 $query = $manip.' '.$from.' WHERE ctid=(SELECT ctid FROM '.$from.' '.$where.' LIMIT '.$limit.')';
             } else {
