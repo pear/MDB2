@@ -1149,7 +1149,7 @@ class MDB2_Driver_Common extends PEAR
         return PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
     }
 
-        
+
     // }}}
     // {{{ errorNative()
 
@@ -1763,7 +1763,8 @@ class MDB2_Driver_Common extends PEAR
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
-    function &_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit)
+    function &_wrapResult($result, $ismanip = false, $types = array(),
+        $result_class = null, $result_wrap_class = null, $offset = null, $limit = null)
     {
         if (!$ismanip) {
             if (!$result_class) {
@@ -2222,7 +2223,7 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
 
-        $one = $result->fetch();
+        $one = $result->fetchOne();
         $result->free();
         return $one;
     }
@@ -2441,8 +2442,8 @@ class MDB2_Result_Common extends MDB2_Result
      * Define the list of types to be associated with the columns of a given
      * result set.
      *
-     * This function may be called before invoking fetch(),
-     * fetchRow(), fetchCol() and fetchAll() so that the necessary data type
+     * This function may be called before invoking fetchRow(), fetchOne(),
+     * fetchCol() and fetchAll() so that the necessary data type
      * conversions are performed on the data to be retrieved by them. If this
      * function is not called, the type of all result set columns is assumed
      * to be text, thus leading to not perform any conversions.
@@ -2463,23 +2464,6 @@ class MDB2_Result_Common extends MDB2_Result
             return $load;
         }
         return $this->db->datatype->setResultTypes($this, $types);
-    }
-
-    // }}}
-    // {{{ fetch()
-
-    /**
-     * fetch value from a result set
-     *
-     * @param int $rownum number of the row where the data can be found
-     * @param int $colnum field number where the data can be found
-     * @return mixed string on success, a MDB2 error on failure
-     * @access public
-     */
-    function fetch($rownum = 0, $colnum = 0)
-    {
-        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, NULL, NULL,
-            'fetch: method not implemented');
     }
 
     // }}}
@@ -2506,6 +2490,23 @@ class MDB2_Result_Common extends MDB2_Result
     }
 
     // }}}
+    // {{{ bindColumn()
+
+    /**
+     * Set the value of a parameter of a prepared query.
+     *
+     * @param string $column name of the column.
+     * @param mixed $variable variable to which the data should be bound
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function bindColumn($column, &$variable)
+    {
+        $this->columns[$column] =& $variable;
+        return MDB2_OK;
+    }
+
+    // }}}
     // {{{ fetchRow()
 
     /**
@@ -2518,64 +2519,27 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        $columns = $this->numCols();
-        if (MDB2::isError($columns)) {
-            return $columns;
-        }
-        if (!is_null($rownum)) {
-            $seek = $this->seek($rownum);
-            if (MDB2::isError($seek)) {
-                return $seek;
-            }
-        }
-        $rownum = ++$this->rownum;
-        if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
-            $fetchmode = $this->db->fetchmode;
-        }
-        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $fetchmode = MDB2_FETCHMODE_ASSOC;
-            $object_class = $this->db->options['fetch_class'];
-        }
-        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            $column_names = $this->getColumnNames();
-            if (MDB2::isError($column_names)) {
-                return $column_names;
-            }
-        }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $null_value = '';
-        } else {
-            $null_value = null;
-        }
-        for ($column = 0; $column < $columns; $column++) {
-            if (!$this->resultIsNull($rownum, $column)) {
-                $value = $this->fetch($rownum, $column);
-                if (is_null($value)) {
-                    return null;
-                }
-            } else {
-                $value = $null_value;
-            }
-            $row[$column] = $value;
-        }
-        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            $column_names = $this->getColumnNames();
-            foreach ($column_names as $name => $i) {
-                $column_names[$name] = $row[$i];
-            }
-            $row = $column_names;
-            if (is_array($row)
-                && $this->options['portability'] & MDB2_PORTABILITY_LOWERCASE
-            ) {
-                $row = array_change_key_case($row, CASE_LOWER);
-            }
-        }
-        if (isset($object_class)) {
-            if ($object_class == 'stdClass') {
-                $row = (object) $row;
-            } else {
-                $row = &new $object_class($row);
-            }
+        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, NULL, NULL,
+            'fetch: method not implemented');
+    }
+
+    // }}}
+    // {{{ fetchOne()
+
+    /**
+     * fetch single column from the first row from a result set
+     *
+     * @param int $colnum the column number to fetch
+     * @return string data on success, a MDB2 error on failure
+     * @access public
+     */
+    function fetchOne($colnum = 0)
+    {
+        $column = array();
+        $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
+        $row = $this->fetchRow($fetchmode);
+        if (is_array($row) && array_key_exists($colnum, $row)) {
+            return $row[$colnum];
         }
         return $row;
     }
@@ -2747,27 +2711,6 @@ class MDB2_Result_Common extends MDB2_Result
     }
 
     // }}}
-    // {{{ resultIsNull()
-
-    /**
-     * Determine whether the value of a query result located in given row and
-     *    field is a null.
-     *
-     * @param int $rownum number of the row where the data can be found
-     * @param int $colnum field number where the data can be found
-     * @return mixed true or false on success, a MDB2 error on failure
-     * @access public
-     */
-    function resultIsNull($rownum, $colnum)
-    {
-        $value = $this->fetch($rownum, $colnum);
-        if (MDB2::isError($value)) {
-            return $value;
-        }
-        return !isset($value);
-    }
-
-    // }}}
     // {{{ getResource()
 
     /**
@@ -2872,9 +2815,12 @@ class MDB2_Statement_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function bindParam($parameter, &$value)
+    function bindParam($parameter, &$value, $type = null)
     {
         $this->values[$parameter] =& $value;
+        if (!is_null($type)) {
+            $this->types[$parameter] = $type;
+        }
         return MDB2_OK;
     }
 
@@ -2892,9 +2838,12 @@ class MDB2_Statement_Common
      * @access public
      * @see bindParam()
      */
-    function bindParamArray(&$values)
+    function bindParamArray(&$values, $types = null)
     {
         $this->values =& $values;
+        if (!is_null($types)) {
+            $this->types = $types;
+        }
         return MDB2_OK;
     }
 
@@ -2922,15 +2871,6 @@ class MDB2_Statement_Common
                 $value_quoted = 'NULL';
             } else {
                 $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
-                $lob_type = substr($type, 0, 4);
-                if ($lob_type == 'clob' || $lob_type == 'blob') {
-                    if ($type == 'clobfile' || $type == 'blobfile') {
-                        $value = file_get_contents($value);
-                        $type = $lob_type;
-                    } elseif (is_resource($value)) {
-                        $value = @fread($value);
-                    }
-                }
                 $value_quoted = $this->db->quote($value, $type);
                 if (MDB2::isError($value_quoted)) {
                     return $value_quoted;
