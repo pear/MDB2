@@ -147,38 +147,25 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ autoCommit()
+    // {{{ beginTransaction()
 
     /**
-     * Define whether database changes done on the database be automatically
-     * committed. This function may also implicitly start or end a transaction.
+     * Start a transaction.
      *
-     * @param boolean $auto_commit flag that indicates whether the database
-     *                                 changes should be committed right after
-     *                                 executing every query statement. If this
-     *                                 argument is 0 a transaction implicitly
-     *                                 started. Otherwise, if a transaction is
-     *                                 in progress it is ended by committing any
-     *                                 database changes that were pending.
-     * @access public
      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
-    function autoCommit($auto_commit)
+    function beginTransaction()
     {
-        $this->debug(($auto_commit ? 'On' : 'Off'), 'autoCommit');
-        if ($this->auto_commit == $auto_commit) {
-            return MDB2_OK;
+        $this->debug('starting transaction', 'beginTransaction');
+        if ($this->in_transaction) {
+            return MDB2_OK;  //nothing to do
         }
-        if ($auto_commit) {
-            if ($this->connection && MDB2::isError($commit = $this->commit())) {
-                return $commit;
-            }
-        } elseif (!$this->destructor_registered) {
+        if (!$this->destructor_registered) {
             $this->destructor_registered = true;
             $this->PEAR();
         }
-        $this->auto_commit = $auto_commit;
-        $this->in_transaction = !$auto_commit;
+        $this->in_transaction = true;
         return MDB2_OK;
     }
 
@@ -187,12 +174,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
     /**
      * Commit the database changes done during a transaction that is in
-     * progress. This function may only be called when auto-committing is
-     * disabled, otherwise it will fail. Therefore, a new transaction is
-     * implicitly started after committing the pending changes.
+     * progress.
      *
-     * @access public
      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
     function commit()
     {
@@ -201,9 +186,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'commit: transactions are not in use');
         }
-        if ($this->auto_commit) {
+        if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
-            'commit: transaction changes are being auto commited');
+                'commit: transaction changes are being auto committed');
         }
         if ($this->uncommitedqueries) {
             if (!@OCICommit($this->connection)) {
@@ -211,6 +196,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             $this->uncommitedqueries = 0;
         }
+        $this->in_transaction = false;
         return MDB2_OK;
     }
 
@@ -219,19 +205,17 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
     /**
      * Cancel any database changes done during a transaction that is in
-     * progress. This function may only be called when auto-committing is
-     * disabled, otherwise it will fail. Therefore, a new transaction is
-     * implicitly started after canceling the pending changes.
+     * progress.
      *
-     * @access public
      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
     function rollback()
     {
         $this->debug('rolling back transaction', 'rollback');
-        if ($this->auto_commit) {
+        if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
-                'rollback: transactions can not be rolled back when changes are auto commited');
+                'rollback: transactions can not be rolled back when changes are auto committed');
         }
         if ($this->uncommitedqueries) {
             if (!@OCIRollback($this->connection)) {
@@ -239,6 +223,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             $this->uncommitedqueries = 0;
         }
+        $this->in_transaction = false;
         return MDB2_OK;
     }
 

@@ -157,55 +157,34 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ autoCommit()
+    // {{{ beginTransaction()
 
     /**
-     * Define whether database changes done on the database be automatically
-     * committed. This function may also implicitly start or end a transaction.
-     *
-     * @param boolean $auto_commit    flag that indicates whether the database
-     *                                changes should be committed right after
-     *                                executing every query statement. If this
-     *                                argument is 0 a transaction implicitly
-     *                                started. Otherwise, if a transaction is
-     *                                in progress it is ended by committing any
-     *                                database changes that were pending.
-     *
-     * @access public
+     * Start a transaction.
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
-    function autoCommit($auto_commit)
+    function beginTransaction()
     {
-        $this->debug(($auto_commit ? 'On' : 'Off'), 'autoCommit');
-        if (!isset($this->supported['transactions'])) {
+        $this->debug('starting transaction', 'beginTransaction');
+        if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'autoCommit: transactions are not in use');
+                'commit: transactions are not in use');
         }
-        if ($this->auto_commit == $auto_commit) {
-            return MDB2_OK;
+        if ($this->in_transaction) {
+            return MDB2_OK;  //nothing to do
         }
-        if ($this->connection) {
-            if ($auto_commit) {
-                $query = 'END TRANSACTION '.$this->options['base_transaction_name'];
-                $result = $this->_doQuery($query);
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-            } else {
-                if (!$this->destructor_registered) {
-                    $this->destructor_registered = true;
-                    $this->PEAR();
-                }
-                $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
-                $result = $this->_doQuery($query);
-                if (MDB2::isError($result)) {
-                    return $result;
-                }
-            }
+        if (!$this->destructor_registered) {
+            $this->destructor_registered = true;
+            $this->PEAR();
         }
-        $this->auto_commit = $auto_commit;
-        $this->in_transaction = !$auto_commit;
+        $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
+        $result = $this->_doQuery($query);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        $this->in_transaction = true;
         return MDB2_OK;
     }
 
@@ -214,30 +193,28 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
     /**
      * Commit the database changes done during a transaction that is in
-     * progress. This function may only be called when auto-committing is
-     * disabled, otherwise it will fail. Therefore, a new transaction is
-     * implicitly started after committing the pending changes.
-     *
-     * @access public
+     * progress.
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
     function commit()
     {
         $this->debug('commit transaction', 'commit');
-        if (!isset($this->supported['transactions'])) {
+        if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'commit: transactions are not in use');
         }
-        if ($this->auto_commit) {
+        if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
-            'commit: transaction changes are being auto commited');
+                'commit: transaction changes are being auto committed');
         }
         $result = $this->_doQuery('COMMIT TRANSACTION '.$this->options['base_transaction_name']);
         if (MDB2::isError($result)) {
             return $result;
         }
-        return $this->_doQuery('BEGIN TRANSACTION '.$this->options['base_transaction_name']);
+        $this->in_transaction = false;
+        return MDB2_OK;
     }
 
     // }}}
@@ -245,13 +222,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
     /**
      * Cancel any database changes done during a transaction that is in
-     * progress. This function may only be called when auto-committing is
-     * disabled, otherwise it will fail. Therefore, a new transaction is
-     * implicitly started after canceling the pending changes.
-     *
-     * @access public
+     * progress.
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
     function rollback()
     {
@@ -260,15 +234,16 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'rollback: transactions are not in use');
         }
-        if ($this->auto_commit) {
+        if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
-                'rollback: transactions can not be rolled back when changes are auto commited');
+                'rollback: transactions can not be rolled back when changes are auto committed');
         }
         $result = $this->_doQuery('ROLLBACK TRANSACTION '.$this->options['base_transaction_name']);
         if (MDB2::isError($result)) {
             return $result;
         }
-        return $this->_doQuery('BEGIN TRANSACTION '.$this->options['base_transaction_name']);
+        $this->in_transaction = false;
+        return MDB2_OK;
     }
 
     // }}}

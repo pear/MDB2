@@ -1471,25 +1471,19 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ autoCommit()
+    // {{{ beginTransaction()
 
     /**
-     * Define whether database changes done on the database be automatically
-     * committed. This function may also implicitly start or end a transaction.
+     * Start a transaction.
      *
-     * @param boolean $auto_commit flag that indicates whether the database
-     *      changes should be committed right after executing every query
-     *      statement. If this argument is 0 a transaction implicitly started.
-     *      Otherwise, if a transaction is in progress it is ended by committing
-     *      any database changes that were pending.
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function autoCommit($auto_commit)
+    function beginTransaction()
     {
-        $this->debug(($auto_commit ? 'On' : 'Off'), 'autoCommit');
+        $this->debug('Starting transaction', 'beginTransaction');
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'autoCommit: transactions are not supported');
+            'beginTransaction: transactions are not supported');
     }
 
     // }}}
@@ -1544,7 +1538,7 @@ class MDB2_Driver_Common extends PEAR
     {
         if ($this->in_transaction
             && !MDB2::isError($this->rollback())
-            && !MDB2::isError($this->autoCommit(true))
+            //&& !MDB2::isError($this->commmit())
         ) {
             $this->in_transaction = false;
         }
@@ -1976,7 +1970,7 @@ class MDB2_Driver_Common extends PEAR
                 'replace: not specified which fields are keys');
         }
         $in_transaction = $this->in_transaction;
-        if (!$in_transaction && MDB2::isError($result = $this->autoCommit(false))) {
+        if (!$in_transaction && MDB2::isError($result = $this->beginTransaction())) {
             return $result;
         }
         $query = "DELETE FROM $table$condition";
@@ -1991,15 +1985,14 @@ class MDB2_Driver_Common extends PEAR
         }
 
         if (!$in_transaction) {
-            if (!MDB2::isError($success)) {
-                if (!MDB2::isError($success = $this->autoCommit(true))
-                    && isset($this->supported['affected_rows'])
-                ) {
-                    return $affected_rows;
-                }
-            } else {
+            if (MDB2::isError($success)) {
                 $this->rollback();
-                $this->autoCommit(true);
+                //$this->autoCommit(true);
+            }
+            if (!MDB2::isError($success = $this->commit())
+                && isset($this->supported['affected_rows'])
+            ) {
+                return $affected_rows;
             }
         }
 
@@ -2390,9 +2383,12 @@ class MDB2_Driver_Common extends PEAR
     */
     function __destruct()
     {
-        if ($this->in_transaction && !MDB2::isError($this->rollback())) {
-            $this->autoCommit(true);
+        /*
+        if ($this->in_transaction) {
+            $this->rollback();
         }
+        */
+        $this->_close();
     }
     function _MDB2_Driver_Common()
     {

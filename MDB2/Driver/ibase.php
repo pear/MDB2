@@ -206,47 +206,31 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ autoCommit()
+    // {{{ beginTransaction()
 
     /**
-     * Define whether database changes done on the database be automatically
-     * committed. This function may also implicitly start or end a transaction.
+     * Start a transaction.
      *
-     * @param boolean $auto_commit flag that indicates whether the database
-     *     changes should be committed right after executing every query
-     *     statement. If this argument is 0 a transaction implicitly started.
-     *     Otherwise, if a transaction is in progress it is ended by committing
-     *     any database changes that were pending.
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function autoCommit($auto_commit)
+    function beginTransaction()
     {
-        $this->debug(($auto_commit ? 'On' : 'Off'), 'autoCommit');
-        if ($this->auto_commit == $auto_commit) {
-            return MDB2_OK;
+        $this->debug('starting transaction', 'beginTransaction');
+        if ($this->in_transaction) {
+            return MDB2_OK;  //nothing to do
         }
-        if ($this->connection) {
-            if (!$auto_commit && !$this->destructor_registered) {
-                $this->destructor_registered = true;
-                $this->PEAR();
-            }
-            if ($auto_commit) {
-                //$result = $this->commit(); //@ibase_commit($this->connection);
-                $result = @ibase_commit($this->transaction_id);
-                $msg = 'autoCommit: could not commit a transaction';
-            } else {
-                $result = @ibase_trans();
-                $msg = 'autoCommit: could not start a transaction';
-            }
-            //if (!$result || MDB2::isError($result)) {
-            if (!$result) {
-                return $this->raiseError(MDB2_ERROR, null, null, $msg);
-            }
-            $this->transaction_id = $result;
+        if (!$this->destructor_registered) {
+            $this->destructor_registered = true;
+            $this->PEAR();
         }
-        $this->in_transaction = !$auto_commit;
-        $this->auto_commit    = $auto_commit;
+        $result = ibase_trans();
+        if (!$result) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'beginTransaction: could not start a transaction');
+        }
+        $this->transaction_id = $result;
+        $this->in_transaction = true;
         return MDB2_OK;
     }
 
@@ -255,9 +239,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
     /**
      * Commit the database changes done during a transaction that is in
-     * progress. This function may only be called when auto-committing is
-     * disabled, otherwise it will fail. Therefore, a new transaction is
-     * implicitly started after committing the pending changes.
+     * progress. 
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
@@ -265,19 +247,20 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function commit()
     {
         $this->debug('commit transaction', 'commit');
-        if ($this->auto_commit) {
-            return $this->raiseError(MDB2_ERROR, null, null,
-                'commit: transaction changes are being auto commited');
+        if (!$this->supports('transactions')) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'commit: transactions are not in use');
         }
-        if (!$this->transaction_id || !@ibase_commit($this->transaction_id)) {
+        if (!$this->in_transaction) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'commit: transaction changes are being auto committed');
+        }
+        if (!ibase_commit($this->transaction_id)) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: could not commit a transaction');
         }
-        $this->transaction_id = @ibase_trans();
-        if (!$this->transaction_id) {
-            return $this->raiseError(MDB2_ERROR, null, null,
-                'commit: could not start a transaction');
-        }
+        $this->in_transaction = false;
+        //$this->transaction_id = 0;
         return MDB2_OK;
     }
 
@@ -286,9 +269,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
     /**
      * Cancel any database changes done during a transaction that is in
-     * progress. This function may only be called when auto-committing is
-     * disabled, otherwise it will fail. Therefore, a new transaction is
-     * implicitly started after canceling the pending changes.
+     * progress. 
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
@@ -296,19 +277,16 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function rollback()
     {
         $this->debug('rolling back transaction', 'rollback');
-        if ($this->auto_commit) {
+        if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
-                'rollback: transactions can not be rolled back when changes are auto commited');
+                'rollback: transactions can not be rolled back when changes are auto committed');
         }
-
-        if ($this->transaction_id && !@ibase_rollback($this->transaction_id)) {
+        if ($this->transaction_id && !ibase_rollback($this->transaction_id)) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: Could not rollback a pending transaction: '.ibase_errmsg());
         }
-        if (!$this->transaction_id = @ibase_trans(IBASE_COMMITTED, $this->connection)) {
-            return $this->raiseError(MDB2_ERROR, null, null,
-                'rollback: Could not start a new transaction: '.ibase_errmsg());
-        }
+        $this->in_transaction = false;
+        $this->transaction_id = 0;
         return MDB2_OK;
     }
 
@@ -404,21 +382,23 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             if (MDB2::isError($connection)) {
                 return $connection;
             }
-            $this->connection = $connection;
+            $this->connection =& $connection;
             $this->connected_dsn = $this->dsn;
             $this->connected_database_name = $database_file;
             $this->opened_persistent = $this->options['persistent'];
-
-            if (!$this->auto_commit && MDB2::isError($trans_result = $this->_doQuery('BEGIN'))) {
+/*
+            if (!$this->in_transaction && MDB2::isError($trans_result = $this->beginTransaction())) {
                 $this->_close();
                 return $trans_result;
             }
+*/
         }
         return MDB2_OK;
     }
 
     // }}}
     // {{{ _close()
+    
     /**
      * Close the database connection
      *
@@ -428,17 +408,22 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            if ($this->supports('transactions') && !$this->auto_commit) {
+            /*
+            //done automatically by ibase_close();
+            if ($this->supports('transactions') && $this->in_transaction) {
                 $result = $this->rollback();
                 if (MDB2::isError($result)) {
                     return $result;
                 }
             }
-            @ibase_close($this->connection);
+            */
+            ibase_close($this->connection);
             $this->connection = 0;
+            /*
             if (isset($result) && MDB2::isError($result)) {
                 return $result;
             }
+            */
         }
         return MDB2_OK;
     }
@@ -467,9 +452,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
+            if ($this->in_transaction) {
+                $connection = $this->transaction_id;
+            } else {
+                $err = $this->connect();
+                $connection = $this->connection;
+            }
+            //$connection = ($this->in_transaction ? $this->transaction_id : $this->connection);
         }
-
         $result = ibase_query($connection, $query);
 
         if ($result === false) {
@@ -477,6 +467,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
 
         if ($isManip) {
+            //return $result;
             return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
         }
         return $result;
@@ -555,7 +546,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
                 }
-                $name = preg_replace('/^.{'.($position+1).'}([a-zA-Z]+).*$/', "\\1", $query);
+                $name = preg_replace('/^.{'.($position+1).'}([a-z]+).*$/i', '\\1', $query);
                 if ($name === '') {
                     return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                         'prepare: named parameter with an empty name');
@@ -566,9 +557,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 $position = $p_position;
             }
         }
-        $connection = ($this->auto_commit ? $this->connection : $this->transaction_id);
+        $connection = ($this->in_transaction ? $this->transaction_id : $this->connection);
         $statement = ibase_prepare($connection, $query);
-
+        
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $obj =& new $class_name($this, $statement, $query, $types, $result_types);
         return $obj;
@@ -1026,7 +1017,6 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
 
 class MDB2_Statement_ibase extends MDB2_Statement_Common
 {
-    // }}}
     // {{{ execute()
 
     /**
@@ -1043,17 +1033,14 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         $this->db->last_query = $this->query;
         $this->db->debug($this->query, 'query');
         if ($this->db->getOption('disable_query')) {
-            if ($isManip) {
-                return MDB2_OK;
-            }
-            return null;
+            return $isManip ? MDB2_OK : null;
         }
 
         $connected = $this->db->connect();
         if (MDB2::isError($connected)) {
             return $connected;
         }
-        $connection = ($this->db->auto_commit ? $this->db->connection : $this->db->transaction_id);
+        $connection = ($this->db->in_transaction ? $this->db->transaction_id : $this->db->connection);
 
         $parameters = $this->quoteParamsForPreparedQuery();
 
@@ -1062,12 +1049,12 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
 
         array_unshift($parameters, $this->statement);
         $result = call_user_func_array('ibase_execute', $parameters);
-
         if ($result === false) {
             return $this->db->raiseError();
         }
 
         if ($isManip) {
+            //return $result;
             return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
         }
 
@@ -1088,7 +1075,6 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             } else {
                 $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
                 if (in_array($type, $must_quote)) {
-                    //var_dump($value); var_dump($type);
                     if ($type == 'boolean') {
                         $value = ($value ? 'Y' : 'N');
                     } else {
