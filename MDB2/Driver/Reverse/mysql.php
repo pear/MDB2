@@ -81,7 +81,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         if (MDB2::isError($columns)) {
             return $columns;
         }
-        if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+        if (!($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE)) {
             $columns = array_change_key_case($columns, CASE_LOWER);
         }
         if (!isset($columns[$column = 'field'])
@@ -93,6 +93,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         $field_column = $columns['field'];
         $type_column = $columns['type'];
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ORDERED))) {
+            if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+                $row[$field_column] = strtolower($row[$field_column]);
+            }
             if ($field_name == $row[$field_column]) {
                 $db_type = strtolower($row[$type_column]);
                 $db_type = strtok($db_type, '(), ');
@@ -232,11 +235,11 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     $query = "SHOW INDEX FROM $table";
                     $indexes = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
                     if (MDB2::isError($indexes)) {
-                        return $result;
+                        return $indexes;
                     }
                     $is_primary = false;
                     foreach ($indexes as $index) {
-                        if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+                        if (!($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE)) {
                             $index = array_change_key_case($index, CASE_LOWER);
                         }
                         if ($index['key_name'] == 'PRIMARY' && $index['column_name'] == $field_name) {
@@ -287,7 +290,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         }
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
-            if (!$db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            if (!($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE)) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
             $key_name = $row['key_name'];
