@@ -56,7 +56,6 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     private $row;
     private $buffer;
 
-    // }}}
     // {{{ constructor
 
     /**
@@ -198,7 +197,6 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
 
 class MDB2_BufferedIterator extends MDB2_Iterator implements Iterator
 {
-    // }}}
     // {{{ seek()
 
     /**
