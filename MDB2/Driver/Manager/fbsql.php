@@ -302,7 +302,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     function listDatabases()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->queryCol('SHOW DATABASES');
+        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE);
     }
 
     // }}}

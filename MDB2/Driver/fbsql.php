@@ -151,7 +151,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             $this->destructor_registered = true;
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
-        $result = $this->_doQuery('SET COMMIT FALSE', true);
+        $result = $this->_doQuery('SET COMMIT FALSE;', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -176,11 +176,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto commited');
         }
-        $result = $this->_doQuery('COMMIT', true);
+        $result = $this->_doQuery('COMMIT;', true);
         if (MDB2::isError($result)) {
             return $result;
         }
-        $result = $this->_doQuery('SET COMMIT TRUE', true);
+        $result = $this->_doQuery('SET COMMIT TRUE;', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -205,11 +205,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result = $this->_doQuery('ROLLBACK', true);
+        $result = $this->_doQuery('ROLLBACK;', true);
         if (MDB2::isError($result)) {
             return $result;
         }
-        $result = $this->_doQuery('SET COMMIT TRUE', true);
+        $result = $this->_doQuery('SET COMMIT TRUE;', true);
         if (MDB2::isError($result)) {
             return $result;
         }
@@ -386,7 +386,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function nextID($seq_name, $ondemand = true)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        $query = "INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL)";
+        $query = "INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL);";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);
         $this->popExpect();
@@ -409,7 +409,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
         $value = $this->queryOne("SELECT UNIQUE FROM $sequence_name", 'integer');
         if (is_numeric($value)) {
-            $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value";
+            $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value;";
             $result = $this->_doQuery($query, true);
             if(MDB2::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
