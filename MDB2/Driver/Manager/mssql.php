@@ -193,20 +193,17 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($check) {
-            for ($change = 0, reset($changes);
-                $change < count($changes);
-                next($changes), $change++)
-            {
-                switch (key($changes)) {
-                    case 'added_fields':
-                        break;
-                    case 'removed_fields':
-                    case 'name':
-                    case 'renamed_fields':
-                    case 'changed_fields':
-                    default:
-                        return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
-                            'alterTable: change type "'.key($changes).'" not yet supported');
+            foreach ($changes as $change_name => $change) {
+                switch ($change_name) {
+                case 'added_fields':
+                    break;
+                case 'removed_fields':
+                case 'name':
+                case 'renamed_fields':
+                case 'changed_fields':
+                default:
+                    return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
+                        'alterTable: change type "'.$change_name.'" not yet supported');
                 }
             }
             return MDB2_OK;
@@ -214,29 +211,26 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             if (isset($changes[$change = 'removed_fields'])
                 || isset($changes[$change = 'name'])
                 || isset($changes[$change = 'renamed_fields'])
-                || isset($changes[$change = 'changed_fields']))
-            {
+                || isset($changes[$change = 'changed_fields'])
+            ) {
                 return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
                     'alterTable: change type "'.$change.'" is not supported by the server"');
             }
-            $query='';
+            $query = '';
             if (isset($changes['added_fields'])) {
-                if (strcmp($query, '')) {
+                if ($query) {
                     $query.= ', ';
                 }
                 $query.= 'ADD ';
                 $fields = $changes['added_fields'];
-                for ($field = 0, reset($fields);
-                    $field < count($fields);
-                    next($fields), $field++)
-                {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field) {
+                    if ($query) {
                         $query.= ', ';
                     }
-                    $query.= $fields[key($fields)]['declaration'];
+                    $query.= $field['declaration'];
                 }
             }
-            return strcmp($query, '') ? $db->query("ALTER TABLE $name $query") : MDB2_OK;
+            return $query ? $db->query("ALTER TABLE $name $query") : MDB2_OK;
         }
     }
 

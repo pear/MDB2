@@ -103,30 +103,27 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function checkSupportedChanges(&$changes)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        for ($change=0, reset($changes);
-            $change<count($changes);
-            next($changes), $change++)
-        {
-            switch (key($changes)) {
-                case 'changed_not_null':
-                case 'notnull':
-                    return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
-                        'checkSupportedChanges: it is not supported changes to field not null constraint');
-                case 'ChangedDefault':
-                case 'default':
-                    return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
-                        'checkSupportedChanges: it is not supported changes to field default value');
-                case 'length':
-                    return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
-                        'checkSupportedChanges: it is not supported changes to field default length');
-                case 'unsigned':
-                case 'type':
-                case 'declaration':
-                case 'definition':
-                    break;
-                default:
-                    return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
-                        'checkSupportedChanges: it is not supported change of type' . key($changes));
+        foreach ($changes as $change_name => $change) {
+            switch ($change_name) {
+            case 'changed_not_null':
+            case 'notnull':
+                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                    'checkSupportedChanges: it is not supported changes to field not null constraint');
+            case 'ChangedDefault':
+            case 'default':
+                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                    'checkSupportedChanges: it is not supported changes to field default value');
+            case 'length':
+                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                    'checkSupportedChanges: it is not supported changes to field default length');
+            case 'unsigned':
+            case 'type':
+            case 'declaration':
+            case 'definition':
+                break;
+            default:
+                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                    'checkSupportedChanges: it is not supported change of type' . $change_name);
             }
         }
         return MDB2_OK;
@@ -233,29 +230,23 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($check) {
-            for ($change=0, reset($changes);
-                $change<count($changes);
-                next($changes), $change++)
-            {
-                switch (key($changes)) {
-                    case 'added_fields':
-                    case 'removed_fields':
-                    case 'renamed_fields':
-                        break;
-                    case 'changed_fields':
-                        $fields = $changes['changed_fields'];
-                        for ($field=0, reset($fields);
-                            $field < count($fields);
-                            next($fields), $field++)
-                        {
-                            if (MDB2::isError($err = $this->checkSupportedChanges($fields[key($fields)]))) {
-                                return $err;
-                            }
+            foreach ($changes as $change_name => $change) {
+                switch ($change_name) {
+                case 'added_fields':
+                case 'removed_fields':
+                case 'renamed_fields':
+                    break;
+                case 'changed_fields':
+                    $fields = $changes['changed_fields'];
+                    foreach ($fields as $field) {
+                        if (MDB2::isError($err = $this->checkSupportedChanges($field))) {
+                            return $err;
                         }
-                        break;
-                    default:
-                        return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
-                            'alterTable: change type ' . key($changes) . ' not yet supported');
+                    }
+                    break;
+                default:
+                    return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                        'alterTable: change type ' . $change_name . ' not yet supported');
                 }
             }
             return MDB2_OK;
@@ -263,43 +254,42 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $query = '';
             if (isset($changes['added_fields'])) {
                 $fields = $changes['added_fields'];
-                for ($field=0, reset($fields); $field < count($fields); next($fields), $field++) {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field_name => $field) {
+                    if ($query) {
                         $query .= ', ';
                     }
-                    $query .= 'ADD ' . $fields[key($fields)]['declaration'];
+                    $query .= 'ADD ' . $field['declaration'];
                 }
             }
             if (isset($changes['removed_fields'])) {
                 $fields = $changes['removed_fields'];
-                for ($field=0, reset($fields); $field < count($fields); next($fields), $field++) {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field_name => $field) {
+                    if ($query) {
                         $query .= ', ';
                     }
-                    $query .= 'DROP ' . key($fields);
+                    $query .= 'DROP ' . $field_name;
                 }
             }
             if (isset($changes['renamed_fields'])) {
                 $fields = $changes['renamed_fields'];
-                for ($field=0, reset($fields); $field < count($fields); next($fields), $field++) {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field_name => $field) {
+                    if ($query) {
                         $query .= ', ';
                     }
-                    $query .= 'ALTER ' . key($fields) . ' TO ' . $fields[key($fields)]['name'];
+                    $query .= 'ALTER ' . $field_name . ' TO ' . $field['name'];
                 }
             }
             if (isset($changes['changed_fields'])) {
                 $fields = $changes['changed_fields'];
-                for ($field=0, reset($fields); $field < count($fields); next($fields), $field++) {
-                    $field_name = key($fields);
-                    if (MDB2::isError($err = $this->checkSupportedChanges($fields[$field_name]))) {
+                foreach ($fields as $field_name => $field) {
+                    if (MDB2::isError($err = $this->checkSupportedChanges($field))) {
                         return $err;
                     }
-                    if (strcmp($query, '')) {
+                    if ($query) {
                         $query .= ', ';
                     }
                     $db->loadModule('datatype');
-                    $query .= 'ALTER '.$field_name.' TYPE '.$db->datatype->getTypeDeclaration($fields[$field_name]['definition']);
+                    $query .= 'ALTER '.$field_name.' TYPE '.$db->datatype->getTypeDeclaration($field['definition']);
                 }
             }
             if (MDB2::isError($err = $db->query("ALTER TABLE $name $query"))) {
@@ -388,26 +378,23 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function createIndex($table, $name, $definition)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        for ($query_sort='', $query_fields='', $field=0, reset($definition['fields']);
-            $field<count($definition['fields']);
-            $field++, next($definition['fields'])
-        ) {
-            if ($field > 0) {
+        $query_sort = $query_fields = '';
+        foreach ($definition['fields'] as $field_name => $field) {
+            if ($query_fields) {
                 $query_fields .= ',';
             }
-            $field_name = key($definition['fields']);
             $query_fields .= $field_name;
             if (!strcmp($query_sort, '')
                 && $db->support('index_sorting')
                 && isset($definition['fields'][$field_name]['sorting'])
             ) {
                 switch ($definition['fields'][$field_name]['sorting']) {
-                    case 'ascending':
-                        $query_sort = ' ASC';
-                        break;
-                    case 'descending':
-                        $query_sort = ' DESC';
-                        break;
+                case 'ascending':
+                    $query_sort = ' ASC';
+                    break;
+                case 'descending':
+                    $query_sort = ' DESC';
+                    break;
                 }
             }
         }

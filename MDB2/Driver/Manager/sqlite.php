@@ -208,8 +208,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (MDB2::isError($table_names)) {
             return $table_names;
         }
-        for ($i = 0, $j = count($table_names), $tables = array(); $i < $j; ++$i)
-        {
+        $tables = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if (!$this->_isSequenceName($table_names[$i]))
                 $tables[] = $table_names[$i];
         }
@@ -320,14 +320,13 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'CREATE '.(isset($definition['unique']) ? 'UNIQUE' : '')." INDEX $name ON $table (";
-        for ($field = 0, reset($definition['fields']);
-            $field < count($definition['fields']);
-            $field++, next($definition['fields']))
-        {
-            if ($field > 0) {
+        $skipped_first = false;
+        foreach ($definition['fields'] as $field_name => $field) {
+            if ($skipped_first) {
                 $query .= ',';
             }
-            $query .= key($definition['fields']);
+            $query .= $field_name;
+            $skipped_first = true;
         }
         $query .= ')';
         return $db->query($query);
@@ -368,14 +367,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (MDB2::isError($indexes_all)) {
             return $indexes_all;
         }
-        for ($found = $indexes = array(), $index = 0, $indexes_all_cnt = count($indexes_all);
-            $index < $indexes_all_cnt;
-            $index++)
-        {
-            if (!isset($found[$indexes_all[$index]]))
-            {
-                $indexes[] = $indexes_all[$index];
-                $found[$indexes_all[$index]] = true;
+        $found = $indexes = array();
+        foreach ($indexes_all as $index_name) {
+            if ($indexes_all[$index] != 'PRIMARY' && !isset($found[$index_name])) {
+                $indexes[] = $index_name;
+                $found[$index_name] = true;
             }
         }
         return $indexes;
@@ -455,8 +451,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (MDB2::isError($table_names)) {
             return $table_names;
         }
-        for ($i = 0, $j = count($table_names), $sequences = array(); $i < $j; ++$i)
-        {
+        $sequences = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if ($sqn = $this->_isSequenceName($table_names[$i]))
                 $sequences[] = $sqn;
         }

@@ -275,20 +275,17 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($check) {
-            for ($change = 0,reset($changes);
-                $change < count($changes);
-                next($changes), $change++)
-            {
-                switch (key($changes)) {
-                    case 'added_fields':
-                    case 'removed_fields':
-                    case 'changed_fields':
-                    case 'renamed_fields':
-                    case 'name':
-                        break;
-                    default:
-                        return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
-                            'alterTable: change type "'.key($changes).'" not yet supported');
+            foreach ($changes as $change_name => $change){
+                switch ($change_name) {
+                case 'added_fields':
+                case 'removed_fields':
+                case 'changed_fields':
+                case 'renamed_fields':
+                case 'name':
+                    break;
+                default:
+                    return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
+                        'alterTable: change type "'.$change_name.'" not yet supported');
                 }
             }
             return MDB2_OK;
@@ -296,66 +293,50 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             $query = (isset($changes['name']) ? 'RENAME AS '.$changes['name'] : '');
             if (isset($changes['added_fields'])) {
                 $fields = $changes['added_fields'];
-                for ($field = 0, reset($fields);
-                    $field<count($fields);
-                    next($fields), $field++)
-                {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field_name => $field) {
+                    if ($query) {
                         $query .= ',';
                     }
-                    $query .= 'ADD '.$fields[key($fields)]['declaration'];
+                    $query .= 'ADD '.$field['declaration'];
                 }
             }
             if (isset($changes['removed_fields'])) {
                 $fields = $changes['removed_fields'];
-                for ($field = 0,reset($fields);
-                    $field<count($fields);
-                    next($fields), $field++)
-                {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field_name => $field) {
+                    if ($query) {
                         $query .= ',';
                     }
-                    $query .= 'DROP '.key($fields);
+                    $query .= 'DROP '.$field_name;
                 }
             }
             $renamed_fields = array();
             if (isset($changes['renamed_fields'])) {
                 $fields = $changes['renamed_fields'];
-                for ($field = 0,reset($fields);
-                    $field<count($fields);
-                    next($fields), $field++)
-                {
-                    $renamed_fields[$fields[key($fields)]['name']] = key($fields);
+                foreach ($fields as $field_name => $field) {
+                    $renamed_fields[$field['name']] = $field_name;
                 }
             }
             if (isset($changes['changed_fields'])) {
                 $fields = $changes['changed_fields'];
-                for ($field = 0,reset($fields);
-                    $field<count($fields);
-                    next($fields), $field++)
-                {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field_name => $field) {
+                    if ($query) {
                         $query .= ',';
                     }
-                    if (isset($renamed_fields[key($fields)])) {
-                        $field_name = $renamed_fields[key($fields)];
-                        unset($renamed_fields[key($fields)]);
+                    if (isset($renamed_fields[$field_name])) {
+                        $old_field_name = $renamed_fields[$field_name];
+                        unset($renamed_fields[$field_name]);
                     } else {
-                        $field_name = key($fields);
+                        $old_field_name = $field_name;
                     }
-                    $query .= "CHANGE $field_name ".$fields[key($fields)]['declaration'];
+                    $query .= "CHANGE $old_field_name ".$field['declaration'];
                 }
             }
-            if (count($renamed_fields))
-            {
-                for ($field = 0,reset($renamed_fields);
-                    $field<count($renamed_fields);
-                    next($renamed_fields), $field++)
-                {
-                    if (strcmp($query, '')) {
+            if (count($renamed_fields)) {
+                foreach ($renamed_fields as $renamed_field_name => $renamed_field) {
+                    if ($query) {
                         $query .= ',';
                     }
-                    $old_field_name = $renamed_fields[key($renamed_fields)];
+                    $old_field_name = $renamed_fields[$renamed_field_name];
                     $query .= "CHANGE $old_field_name ".$changes['renamed_fields'][$old_field_name]['declaration'];
                 }
             }
@@ -475,14 +456,13 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "CREATE ".(isset($definition['unique']) ? 'UNIQUE INDEX' : 'INDEX')." $name on $table (";
-        for ($field = 0, reset($definition['fields']);
-            $field < count($definition['fields']);
-            $field++, next($definition['fields']))
-        {
-            if ($field > 0) {
+        $skipped_first = false;
+        foreach ($definition['fields'] as $field_name => $field) {
+            if ($skipped_first) {
                 $query .= ',';
             }
-            $query .= key($definition['fields']);
+            $skipped_first = true;
+            $query .= $field_name;
         }
         $query .= ')';
         return $db->query($query);
@@ -523,15 +503,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $indexes_all;
         }
 
-        for ($found = $indexes = array(), $index = 0, $indexes_all_cnt = count($indexes_all);
-            $index < $indexes_all_cnt;
-            $index++
-        ) {
-            if ($indexes_all[$index] != 'PRIMARY'
-                && !isset($found[$indexes_all[$index]]))
-            {
-                $indexes[] = $indexes_all[$index];
-                $found[$indexes_all[$index]] = true;
+        $found = $indexes = array();
+        foreach ($indexes_all as $index_name) {
+            if ($indexes_all[$index] != 'PRIMARY' && !isset($found[$index_name])) {
+                $indexes[] = $index_name;
+                $found[$index_name] = true;
             }
         }
         return $indexes;
@@ -611,8 +587,8 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         if (MDB2::isError($table_names)) {
             return $table_names;
         }
-        for ($i = 0, $j = count($table_names), $sequences = array(); $i < $j; ++$i)
-        {
+        $sequences = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if ($sqn = $this->_isSequenceName($table_names[$i]))
                 $sequences[] = $sqn;
         }

@@ -239,22 +239,19 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($check) {
-            for ($change = 0, reset($changes);
-                $change < count($changes);
-                next($changes), $change++
-            ) {
-                switch (key($changes)) {
-                    case 'added_fields':
-                        break;
-                    case 'removed_fields':
-                        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                        'alterTable: database server does not support dropping table columns');
-                    case 'name':
-                    case 'renamed_fields':
-                    case 'changed_fields':
-                    default:
-                        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                            'alterTable: change type "'.key($changes).'\" not yet supported');
+            foreach ($changes as $change_name => $change) {
+                switch ($change_name) {
+                case 'added_fields':
+                    break;
+                case 'removed_fields':
+                    return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'alterTable: database server does not support dropping table columns');
+                case 'name':
+                case 'renamed_fields':
+                case 'changed_fields':
+                default:
+                    return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                        'alterTable: change type "'.$change_name.'\" not yet supported');
                 }
             }
             return MDB2_OK;
@@ -269,11 +266,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
             $query = '';
             if (isSet($changes['added_fields'])) {
                 $fields = $changes['added_fields'];
-                for ($field = 0, reset($fields);
-                    $field < count($fields);
-                    next($fields), $field++
-                ) {
-                    $result = $db->query("ALTER TABLE $name ADD ".$fields[key($fields)]['declaration']);
+                foreach ($fields as $field) {
+                    $result = $db->query("ALTER TABLE $name ADD ".$field['declaration']);
                     if (MDB2::isError($result)) {
                         return $result;
                     }
@@ -281,11 +275,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
             }
             if (isSet($changes['removed_fields'])) {
                 $fields = $changes['removed_fields'];
-                for ($field = 0, reset($fields);
-                    $field < count($fields);
-                    next($fields), $field++
-                 ) {
-                    $result = $db->query("ALTER TABLE $name DROP ".key($fields));
+                foreach ($fields as $field_name => $field) {
+                    $result = $db->query("ALTER TABLE $name DROP ".$field_name);
                     if (MDB2::isError($result)) {
                         return $result;
                     }

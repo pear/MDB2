@@ -218,20 +218,17 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($check) {
-            for ($change = 0, reset($changes);
-                $change < count($changes);
-                next($changes), $change++)
-            {
-                switch (key($changes)) {
-                    case 'added_fields':
-                    case 'removed_fields':
-                    case 'changed_fields':
-                    case 'name':
-                        break;
-                    case 'renamed_fields':
-                    default:
-                        return $db->raiseError(MDB2_ERROR, null, null,
-                            'alterTable: change type "'.key($changes).'" not yet supported');
+            foreach ($changes as $change_name => $change) {
+                switch ($change_name) {
+                case 'added_fields':
+                case 'removed_fields':
+                case 'changed_fields':
+                case 'name':
+                    break;
+                case 'renamed_fields':
+                default:
+                    return $db->raiseError(MDB2_ERROR, null, null,
+                        'alterTable: change type "'.$change_name.'" not yet supported');
                 }
             }
             return MDB2_OK;
@@ -239,14 +236,13 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (isset($changes['removed_fields'])) {
             $query = ' DROP (';
             $fields = $changes['removed_fields'];
-            for ($field = 0, reset($fields);
-                $field < count($fields);
-                next($fields), $field++)
-            {
-                if ($field > 0) {
+            $skipped_first = false;
+            foreach ($fields as $field_name => $field) {
+                if ($skipped_first) {
                     $query .= ', ';
                 }
-                $query .= key($fields);
+                $query .= $field_name;
+                $skipped_first = true;
             }
             $query .= ')';
             if (MDB2::isError($result = $db->query("ALTER TABLE $name $query"))) {
@@ -257,50 +253,43 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $query = (isset($changes['name']) ? 'RENAME TO '.$changes['name'] : '');
         if (isset($changes['added_fields'])) {
             $fields = $changes['added_fields'];
-            for ($field = 0, reset($fields);
-                $field < count($fields);
-                next($fields), $field++)
-            {
-                $query .= ' ADD ('.$fields[key($fields)]['declaration'].')';
+            foreach ($fields as $field) {
+                $query .= ' ADD ('.$field['declaration'].')';
             }
         }
         if (isset($changes['changed_fields'])) {
             $fields = $changes['changed_fields'];
-            for ($field = 0, reset($fields);
-                $field < count($fields);
-                next($fields), $field++)
-            {
-                $current_name = key($fields);
-                if (isset($renamed_fields[$current_name])) {
-                    $field_name = $renamed_fields[$current_name];
-                    unset($renamed_fields[$current_name]);
+            foreach ($fields as $field_name => $field) {
+                if (isset($renamed_fields[$field_name])) {
+                    $old_field_name = $renamed_fields[$field_name];
+                    unset($renamed_fields[$field_name]);
                 } else {
-                    $field_name = $current_name;
+                    $old_field_name = $field_name;
                 }
                 $change = '';
                 $change_type = $change_default = false;
-                if (isset($fields[$current_name]['type'])) {
+                if (isset($field['type'])) {
                     $change_type = $change_default = true;
                 }
-                if (isset($fields[$current_name]['length'])) {
+                if (isset($field['length'])) {
                     $change_type = true;
                 }
-                if (isset($fields[$current_name]['changed_default'])) {
+                if (isset($field['changed_default'])) {
                     $change_default = true;
                 }
                 if ($change_type) {
                     $db->loadModule('datatype');
-                    $change .= ' '.$db->datatype->getTypeDeclaration($fields[$current_name]['definition']);
+                    $change .= ' '.$db->datatype->getTypeDeclaration($field['definition']);
                 }
                 if ($change_default) {
-                    $default = (isset($fields[$current_name]['definition']['default']) ? $fields[$current_name]['definition']['default'] : null);
-                    $change .= ' DEFAULT '.$db->quote($default, $fields[$current_name]['definition']['type']);
+                    $default = (isset($field['definition']['default']) ? $field['definition']['default'] : null);
+                    $change .= ' DEFAULT '.$db->quote($default, $field['definition']['type']);
                 }
-                if (isset($fields[$current_name]['changed_not_null'])) {
-                    $change .= (isset($fields[$current_name]['notnull']) ? ' NOT' : '').' NULL';
+                if (isset($field['changed_not_null'])) {
+                    $change .= (isset($field['notnull']) ? ' NOT' : '').' NULL';
                 }
-                if (strcmp($change, '')) {
-                    $query .= " MODIFY ($field_name$change)";
+                if ($change) {
+                    $query .= " MODIFY ($old_field_name$change)";
                 }
             }
         }

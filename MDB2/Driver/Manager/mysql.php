@@ -74,26 +74,26 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch (strtoupper($table_type)) {
-            case 'BERKELEYDB':
-            case 'BDB':
-                $check = array('have_bdb');
-                break;
-            case 'INNODB':
-                $check = array('have_innobase', 'have_innodb');
-                break;
-            case 'GEMINI':
-                $check = array('have_gemini');
-                break;
-            case 'HEAP':
-            case 'ISAM':
-            case 'MERGE':
-            case 'MRG_MYISAM':
-            case 'MYISAM':
-            case '':
-                return MDB2_OK;
-            default:
-                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    $table_type.' is not a supported table type');
+        case 'BERKELEYDB':
+        case 'BDB':
+            $check = array('have_bdb');
+            break;
+        case 'INNODB':
+            $check = array('have_innobase', 'have_innodb');
+            break;
+        case 'GEMINI':
+            $check = array('have_gemini');
+            break;
+        case 'HEAP':
+        case 'ISAM':
+        case 'MERGE':
+        case 'MRG_MYISAM':
+        case 'MYISAM':
+        case '':
+            return MDB2_OK;
+        default:
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                $table_type.' is not a supported table type');
         }
         if (isset($this->verified_table_types[$table_type])
             && $this->verified_table_types[$table_type] == $db->connection
@@ -336,20 +336,17 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($check) {
-            for ($change = 0,reset($changes);
-                $change < count($changes);
-                next($changes), $change++)
-            {
-                switch (key($changes)) {
-                    case 'added_fields':
-                    case 'removed_fields':
-                    case 'changed_fields':
-                    case 'renamed_fields':
-                    case 'name':
-                        break;
-                    default:
-                        return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
-                            'alterTable: change type "'.key($changes).'" not yet supported');
+            foreach ($changes as $change_name => $change) {
+                switch ($change_name) {
+                case 'added_fields':
+                case 'removed_fields':
+                case 'changed_fields':
+                case 'renamed_fields':
+                case 'name':
+                    break;
+                default:
+                    return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
+                        'alterTable: change type "'.$change_name.'" not yet supported');
                 }
             }
             return MDB2_OK;
@@ -357,66 +354,50 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             $query = (isset($changes['name']) ? 'RENAME AS '.$changes['name'] : '');
             if (isset($changes['added_fields'])) {
                 $fields = $changes['added_fields'];
-                for ($field = 0, reset($fields);
-                    $field<count($fields);
-                    next($fields), $field++)
-                {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field) {
+                    if ($query) {
                         $query .= ',';
                     }
-                    $query .= 'ADD '.$fields[key($fields)]['declaration'];
+                    $query .= 'ADD '.$field['declaration'];
                 }
             }
             if (isset($changes['removed_fields'])) {
                 $fields = $changes['removed_fields'];
-                for ($field = 0,reset($fields);
-                    $field<count($fields);
-                    next($fields), $field++)
-                {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field_name => $field) {
+                    if ($query) {
                         $query .= ',';
                     }
-                    $query .= 'DROP '.key($fields);
+                    $query .= 'DROP '.$field_name;
                 }
             }
             $renamed_fields = array();
             if (isset($changes['renamed_fields'])) {
                 $fields = $changes['renamed_fields'];
-                for ($field = 0,reset($fields);
-                    $field<count($fields);
-                    next($fields), $field++)
-                {
-                    $renamed_fields[$fields[key($fields)]['name']] = key($fields);
+                foreach ($fields as $field_name => $field) {
+                    $renamed_fields[$field['name']] = $field_name;
                 }
             }
             if (isset($changes['changed_fields'])) {
                 $fields = $changes['changed_fields'];
-                for ($field = 0,reset($fields);
-                    $field<count($fields);
-                    next($fields), $field++)
-                {
-                    if (strcmp($query, '')) {
+                foreach ($fields as $field_name => $field) {
+                    if ($query) {
                         $query .= ',';
                     }
-                    if (isset($renamed_fields[key($fields)])) {
-                        $field_name = $renamed_fields[key($fields)];
-                        unset($renamed_fields[key($fields)]);
+                    if (isset($renamed_fields[$field_name])) {
+                        $old_field_name = $renamed_fields[$field_name];
+                        unset($renamed_fields[$field_name]);
                     } else {
-                        $field_name = key($fields);
+                        $old_field_name = $field_name;
                     }
-                    $query .= "CHANGE $field_name ".$fields[key($fields)]['declaration'];
+                    $query .= "CHANGE $old_field_name ".$field['declaration'];
                 }
             }
-            if (count($renamed_fields))
-            {
-                for ($field = 0,reset($renamed_fields);
-                    $field<count($renamed_fields);
-                    next($renamed_fields), $field++)
-                {
-                    if (strcmp($query, '')) {
+            if (count($renamed_fields)) {
+                foreach ($renamed_fields as $renamed_fields_name => $renamed_field) {
+                    if ($query) {
                         $query .= ',';
                     }
-                    $old_field_name = $renamed_fields[key($renamed_fields)];
+                    $old_field_name = $renamed_field;
                     $query .= "CHANGE $old_field_name ".$changes['renamed_fields'][$old_field_name]['declaration'];
                 }
             }
@@ -472,8 +453,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         if (MDB2::isError($table_names)) {
             return $table_names;
         }
-        for ($i = 0, $j = count($table_names), $tables = array(); $i < $j; ++$i)
-        {
+        $tables = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if (!$this->_isSequenceName($table_names[$i]))
                 $tables[] = $table_names[$i];
         }
@@ -548,14 +529,13 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "ALTER TABLE $table ADD ".(isset($definition['unique']) ? 'UNIQUE' : 'INDEX')." $name (";
-        for ($field = 0, reset($definition['fields']);
-            $field < count($definition['fields']);
-            $field++, next($definition['fields']))
-        {
-            if ($field > 0) {
+        $skipped_first = false;
+        foreach ($definition['fields'] as $field_name => $field) {
+            if ($skipped_first) {
                 $query .= ',';
             }
-            $query .= key($definition['fields']);
+            $query .= $field_name;
+            $skipped_first = true;
         }
         $query .= ')';
         return $db->query($query);
@@ -694,8 +674,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         if (MDB2::isError($table_names)) {
             return $table_names;
         }
-        for ($i = 0, $j = count($table_names), $sequences = array(); $i < $j; ++$i)
-        {
+        $sequences = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if ($sqn = $this->_isSequenceName($table_names[$i]))
                 $sequences[] = $sqn;
         }

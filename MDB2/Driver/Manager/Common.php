@@ -504,22 +504,21 @@ class MDB2_Driver_Manager_Common
             $query .= ' UNIQUE';
         }
         $query .= " INDEX $name ON $table (";
-        for ($field = 0,reset($definition['fields']);
-            $field<count($definition['fields']); $field++,next($definition['fields']))
-        {
-            if ($field>0) {
+        $skipped_first = false;
+        foreach ($definition['fields'] as $field_name => $field) {
+            if ($skipped_first) {
                 $query.= ', ';
             }
-            $field_name = key($definition['fields']);
             $query.= $field_name;
+            $skipped_first = true;
             if ($db->supports('index_sorting') && isset($definition['fields'][$field_name]['sorting'])) {
                 switch ($definition['fields'][$field_name]['sorting']) {
-                    case 'ascending':
-                        $query.= ' ASC';
-                        break;
-                    case 'descending':
-                        $query.= ' DESC';
-                        break;
+                case 'ascending':
+                    $query.= ' ASC';
+                    break;
+                case 'descending':
+                    $query.= ' DESC';
+                    break;
                 }
             }
         }
