@@ -657,7 +657,6 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $value = $this->db->nextId($sequence_name, false);
 
                 $this->assertEquals($sequence_value, $value, "The returned sequence value is $value and not $sequence_value as expected with sequence start value with $start_value");
-
             }
 
             $result = $this->db->manager->dropSequence($sequence_name);
@@ -670,7 +669,9 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         // Test ondemand creation of sequences
         $sequence_name = 'test_ondemand';
+        $this->db->expectError(MDB2_ERROR_NOSUCHTABLE);
         $this->db->manager->dropSequence($sequence_name);
+        $this->db->popExpect();
 
         for ($sequence_value = 1; $sequence_value < 4; $sequence_value++) {
             $value = $this->db->nextId($sequence_name);
