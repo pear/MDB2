@@ -896,7 +896,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
 
         $buffer = true;
         while ((is_null($rownum) || $this->buffer_rownum < $rownum)
-            && (!$this->limit || $this->buffer_rownum < $this->limit)
+            && (!$this->limit || $this->buffer_rownum <= $this->limit)
             && ($buffer = @ibase_fetch_row($this->result))
         ) {
             ++$this->buffer_rownum;
