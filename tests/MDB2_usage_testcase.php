@@ -333,13 +333,19 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
      * selecting, and testing a number of null / not null values
      */
     function testNulls() {
+        $portability = $this->db->getOption('portability');
+        if ($portability & MDB2_PORTABILITY_NULL_TO_EMPTY) {
+            $emptyisnull = true;
+        } else {
+            $emptyisnull = false;
+        }
         $test_values = array(
-                             array('test', false),
-                             array('NULL', false),
-                             array('null', false),
-                             array('', false),
-                             array(null, true)
-                             );
+            array('test', false),
+            array('NULL', false),
+            array('null', false),
+            array('', $emptyisnull),
+            array(null, true)
+        );
 
         for ($test_value = 0; $test_value <= count($test_values); $test_value++) {
             if ($test_value == count($test_values)) {
