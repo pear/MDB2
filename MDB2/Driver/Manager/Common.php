@@ -110,7 +110,7 @@ class MDB2_Driver_Manager_Common
                 }
                 $query_fields[] = $query;
             }
-            return implode(',',$query_fields);
+            return implode(',', $query_fields);
         }
         return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
             'getFieldDeclarationList: the definition of the table "'.$table_name.'" does not contain any fields');
@@ -442,24 +442,6 @@ class MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ getTableFieldDefinition()
-
-    /**
-     * get the stucture of a field into an array
-     *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $fields     name of field that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
-     */
-    function getTableFieldDefinition($table, $field)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTableFieldDefinition: table field definition is not supported');
-    }
-
-    // }}}
     // {{{ createIndex()
 
     /**
@@ -556,24 +538,6 @@ class MDB2_Driver_Manager_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listTableIndexes: List Indexes is not supported');
-    }
-
-    // }}}
-    // {{{ getTableIndexDefinition()
-
-    /**
-     * get the stucture of an index into an array
-     *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $index      name of index that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
-     */
-    function getTableIndexDefinition($table, $index)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTableIndexDefinition: getting index definition is not supported');
     }
 
     // }}}
