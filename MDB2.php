@@ -498,6 +498,20 @@ class MDB2
      */
     function isResult($value)
     {
+        return is_a($value, 'MDB2_Result');
+    }
+
+    // }}}
+    // {{{ isResultCommon()
+    /**
+     * Tell whether a value is a MDB2 result implementing the common interface
+     *
+     * @param mixed $value value to test
+     * @return bool whether $value is a MDB2 result implementing the common interface
+     * @access public
+     */
+    function isResultCommon($value)
+    {
         return is_a($value, 'MDB2_Result_Common');
     }
 
@@ -813,6 +827,9 @@ class MDB2_Driver_Common extends PEAR
     var $supported = array();
 
     /**
+     * $options['result_class'] -> class used for result sets
+     * $options['buffered_result_class'] -> class used for buffered result sets
+     * $options['result_wrap_class'] -> class used to wrap result sets into
      * $options['result_buffering'] -> boolean should results be buffered or not?
      * $options['persistent'] -> boolean persistent connection?
      * $options['debug'] -> integer numeric debug level
@@ -830,6 +847,7 @@ class MDB2_Driver_Common extends PEAR
     var $options = array(
             'result_class' => 'MDB2_Result_%s',
             'buffered_result_class' => 'MDB2_BufferedResult_%s',
+            'result_wrap_class' => false,
             'result_buffering' => true,
             'persistent' => false,
             'debug' => 0,
@@ -1573,10 +1591,11 @@ class MDB2_Driver_Common extends PEAR
      * @param mixed   $types  array that contains the types of the columns in
      *                        the result set
      * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &query($query, $types = null, $result_class = false)
+    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
     {
         $this->debug($query, 'query');
         $error =& $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
@@ -1971,12 +1990,14 @@ class MDB2_Driver_Common extends PEAR
      * @param array $types array that contains the types of the columns in
      *       the result set
      * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
-    function &_executePrepared($prepared_query, $query, $types = null, $result_class = false)
+    function &_executePrepared($prepared_query, $query, $types = null,
+        $result_class = false, $result_wrap_class = false)
     {
-        $result =& $this->query($query, $types, $result_class);
+        $result =& $this->query($query, $types, $result_class, $result_wrap_class);
         return $result;
     }
 
@@ -1991,10 +2012,12 @@ class MDB2_Driver_Common extends PEAR
      * @param array $types array that contains the types of the columns in the
      *       result set
      * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &execute($prepared_query, $types = null, $result_class = false)
+    function &execute($prepared_query, $types = null,
+        $result_class = false, $result_wrap_class = false)
     {
         $result = $this->_validatePrepared($prepared_query);
         if (MDB2::isError($result)) {
@@ -2056,7 +2079,7 @@ class MDB2_Driver_Common extends PEAR
         } else {
             $this->row_offset = $this->row_limit = 0;
         }
-        $success =& $this->_executePrepared($prepared_query, $query, $types, $result_class);
+        $success =& $this->_executePrepared($prepared_query, $query, $types, $result_class, $result_wrap_class);
 
         foreach ($this->clobs[$prepared_query] as $key => $value) {
              $this->datatype->destroyLOB($key);
@@ -2277,7 +2300,7 @@ class MDB2_Driver_Common extends PEAR
     function queryOne($query, $type = null)
     {
         $result = $this->query($query, $type);
-        if (!MDB2::isResult($result)) {
+        if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
@@ -2306,7 +2329,7 @@ class MDB2_Driver_Common extends PEAR
     function queryRow($query, $types = null, $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         $result = $this->query($query, $types);
-        if (!MDB2::isResult($result)) {
+        if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
@@ -2334,7 +2357,7 @@ class MDB2_Driver_Common extends PEAR
     function queryCol($query, $type = null, $colnum = 0)
     {
         $result = $this->query($query, $type);
-        if (!MDB2::isResult($result)) {
+        if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
@@ -2372,7 +2395,7 @@ class MDB2_Driver_Common extends PEAR
         $rekey = false, $force_array = false, $group = false)
     {
         $result = $this->query($query, $types);
-        if (!MDB2::isResult($result)) {
+        if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
@@ -2454,7 +2477,11 @@ class MDB2_Driver_Common extends PEAR
     }
 }
 
-class MDB2_Result_Common
+class MDB2_Result
+{
+}
+
+class MDB2_Result_Common extends MDB2_Result
 {
     var $mdb;
     var $result;
