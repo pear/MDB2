@@ -2,11 +2,11 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0alpha2';
+$version = '2.0.0beta1';
 $notes = <<<EOT
 - fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
-- added PEAR::DB wrapper
+- added PEAR::DB wrapper (not working yet)
 - fixed several bugs in the ibase driver
 - fixed several PHP5 related issues
 - fixed bug in sequence creation on MySQL
@@ -19,6 +19,7 @@ $notes = <<<EOT
 - removed optimize option and added portability option instead (ported from DB)
 - added quoteIdentifier() method (ported from DB)
 - added STATUS document to make the status of the drivers more transparent
+- fixed a few bugs in querysim driver
 EOT;
 
 $description =<<<EOT
