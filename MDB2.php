@@ -914,7 +914,7 @@ class MDB2_Driver_Common extends PEAR
     var $prepared_queries = array();
 
     /**
-     * the last query send to the driver
+     * the last query sent to the driver
      * @var string
      * @access public
      */
@@ -935,21 +935,21 @@ class MDB2_Driver_Common extends PEAR
     var $affected_rows = -1;
 
     /**
-     * contains all LOB objects created with this MDb2 instance
+     * contains all LOB objects created with this MDB2 instance
     * @var array
     * @access private
     */
     var $lobs = array();
 
     /**
-     * contains all CLOB objects created with this MDb2 instance
+     * contains all CLOB objects created with this MDB2 instance
     * @var array
     * @access private
     */
     var $clobs = array();
 
     /**
-     * contains all BLOB objects created with this MDb2 instance
+     * contains all BLOB objects created with this MDB2 instance
     * @var array
     * @access private
     */
