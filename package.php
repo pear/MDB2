@@ -37,6 +37,15 @@ stable release.
   and the get*() query+fetch methods
 - added tests for fetchAll() and fetchCol()
 - performance tweaks for fetchAll() and fetchCol()
+- fixed MDB2_Driver_Manager_mysql::listTableIndexes()
+- fixed MDB2_Driver_Common::debug()
+- renamed MDB2::isResult() to MDB2::isResultCommon()
+- added base result class MDB2_Result from which all result sets should be
+  inherited and added MDB2::isResult() which checks if a given object extends from it
+- added 'result_wrap_class' option and optional parameter to query() to enable
+  wrapping of result classes into an arbitrary class
+- added \$result_class param to all drivers where it was missing from the
+  query() and _executePrepared() methods
 EOT;
 
 $description =<<<EOT

@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0beta2</version>
-    <date>2004-04-21</date>
+    <date>2004-04-23</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
@@ -105,7 +105,16 @@ stable release.
 - fixed potential warning due to manipulation query detection in the query*()
   and the get*() query+fetch methods
 - added tests for fetchAll() and fetchCol()
-- performance tweaks for fetchAll() and fetchCol()</notes>
+- performance tweaks for fetchAll() and fetchCol()
+- fixed MDB2_Driver_Manager_mysql::listTableIndexes()
+- fixed MDB2_Driver_Common::debug()
+- renamed MDB2::isResult() to MDB2::isResultCommon()
+- added base result class MDB2_Result from which all result sets should be
+  inherited and added MDB2::isResult() which checks if a given object extends from it
+- added 'result_wrap_class' option and optional parameter to query() to enable
+  wrapping of result classes into an arbitrary class
+- added $result_class param to all drivers where it was missing from the
+  query() and _executePrepared() methods</notes>
     <deps>
       <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
@@ -228,7 +237,7 @@ stable release.
   <changelog>
     <release>
       <version>2.0.0beta2</version>
-      <date>2004-04-21</date>
+      <date>2004-04-23</date>
       <license>BSD License</license>
       <state>beta</state>
       <notes>The core of MDB2 is not fairly stable API-wise. The modules, especially the
@@ -263,7 +272,16 @@ stable release.
 - fixed potential warning due to manipulation query detection in the query*()
   and the get*() query+fetch methods
 - added tests for fetchAll() and fetchCol()
-- performance tweaks for fetchAll() and fetchCol()</notes>
+- performance tweaks for fetchAll() and fetchCol()
+- fixed MDB2_Driver_Manager_mysql::listTableIndexes()
+- fixed MDB2_Driver_Common::debug()
+- renamed MDB2::isResult() to MDB2::isResultCommon()
+- added base result class MDB2_Result from which all result sets should be
+  inherited and added MDB2::isResult() which checks if a given object extends from it
+- added 'result_wrap_class' option and optional parameter to query() to enable
+  wrapping of result classes into an arbitrary class
+- added $result_class param to all drivers where it was missing from the
+  query() and _executePrepared() methods</notes>
     </release>
     <release>
       <version>2.0.0beta1</version>
