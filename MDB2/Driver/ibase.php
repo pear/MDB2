@@ -341,8 +341,13 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $function = ($persistent ? 'ibase_pconnect' : 'ibase_connect');
         $connection = @call_user_func_array($function, $params);
         if ($connection > 0) {
-            @ibase_timefmt("%Y-%m-%d %H:%M:%S", IBASE_TIMESTAMP);
-            @ibase_timefmt("%Y-%m-%d", IBASE_DATE);
+            if (function_exists('ibase_timefmt')) {
+                @ibase_timefmt("%Y-%m-%d %H:%M:%S", IBASE_TIMESTAMP);
+                @ibase_timefmt("%Y-%m-%d", IBASE_DATE);
+            } else {
+                @ini_set("ibase.timestampformat", "%Y-%m-%d %H:%M:%S");
+                @ini_set("ibase.dateformat", "%Y-%m-%d");
+            }
             return $connection;
         }
 
