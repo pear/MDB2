@@ -216,12 +216,12 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         return $tables;
     }
 
-    function _getTableColumns($sql)
+    function _getTableColumns($query)
     {
-        $start_pos = strpos($sql,"(");
-        $end_pos = strrpos($sql,")");
-        $column_def = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
-        $column_sql = split(",", $column_def);
+        $start_pos = strpos($query, '(');
+        $end_pos = strrpos($query, ')');
+        $column_def = substr($query, $start_pos+1, $end_pos-$start_pos-1);
+        $column_sql = split(',', $column_def);
         $columns = array();
         $count = count($column_sql);
         if ($count == 0) {

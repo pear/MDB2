@@ -166,13 +166,13 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
 
-        $sql = 'SELECT R.RDB$CONSTRAINT_TYPE CTYPE'
+        $query = 'SELECT R.RDB$CONSTRAINT_TYPE CTYPE'
                .' FROM RDB$INDEX_SEGMENTS I'
                .'  JOIN RDB$RELATION_CONSTRAINTS R ON I.RDB$INDEX_NAME=R.RDB$INDEX_NAME'
                .' WHERE I.RDB$FIELD_NAME=\'' . $field_name . '\''
                .'  AND UPPER(R.RDB$RELATION_NAME)=\'' . strtoupper($table_name) . '\'';
 
-        $result = @ibase_query($db->connection, $sql);
+        $result = @ibase_query($db->connection, $query);
         if (!$result) {
             return $db->raiseError();
         }
@@ -188,7 +188,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             }
         }
 
-        $sql = 'SELECT R.RDB$NULL_FLAG AS NFLAG,'
+        $query = 'SELECT R.RDB$NULL_FLAG AS NFLAG,'
                .'  R.RDB$DEFAULT_SOURCE AS DSOURCE,'
                .'  F.RDB$FIELD_TYPE AS FTYPE,'
                .'  F.RDB$COMPUTED_SOURCE AS CSOURCE'
@@ -197,7 +197,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                .' WHERE UPPER(R.RDB$RELATION_NAME)=\'' . strtoupper($table_name) . '\''
                .'  AND R.RDB$FIELD_NAME=\'' . $field_name . '\'';
 
-        $result = @ibase_query($db->connection, $sql);
+        $result = @ibase_query($db->connection, $query);
         if (!$result) {
             return $db->raiseError();
         }

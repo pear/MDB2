@@ -82,8 +82,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableFieldDefinition: show columns does not return the column '.$column);
         }
-        $sql=$result->fetch();
-        if (MDB2::isError($columns = $this->_getTableColumns($sql))) {
+        $query = $result->fetch();
+        if (MDB2::isError($columns = $this->_getTableColumns($query))) {
             return $columns;
         }
         $count = count($columns);
@@ -269,13 +269,13 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db->raiseError('getTableIndexDefinition: show index does not return the table creation sql');
         }
 
-        $sql = strtolower($result->fetch());
-        $unique = strstr($sql, " unique ");
+        $query = strtolower($result->fetch());
+        $unique = strstr($query, ' unique ');
         $key_name = $index;
-        $start_pos = strpos($sql, "(");
-        $end_pos = strrpos($sql, ")");
-        $column_names = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
-        $column_names = split(",", $column_names);
+        $start_pos = strpos($query, '(');
+        $end_pos = strrpos($query, ')');
+        $column_names = substr($query, $start_pos+1, $end_pos-$start_pos-1);
+        $column_names = split(',', $column_names);
 
         $definition = array();
         if ($unique) {

@@ -188,11 +188,11 @@ class MDB2_Extended
                     }
                     $set .= "$value = ?";
                 }
-                $sql = "UPDATE $table SET $set";
+                $query = "UPDATE $table SET $set";
                 if ($where) {
-                    $sql .= " WHERE $where";
+                    $query .= " WHERE $where";
                 }
-                return $sql;
+                return $query;
                 break;
             default:
                 $db->raiseError(MDB2_ERROR_SYNTAX);
