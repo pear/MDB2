@@ -1682,7 +1682,7 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
 
-        return $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
+        return $this->_wrapResult($result, $types, true, false, $limit, $offset);
     }
 
     // }}}
