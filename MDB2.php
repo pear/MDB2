@@ -2615,14 +2615,11 @@ class MDB2_Result_Common
     {
         $column = array();
         $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
-        $row = $this->fetchRow($fetchmode);
-        if (is_array($row)) {
+        while (is_array($row = $this->fetchRow($fetchmode))) {
             if (!array_key_exists($colnum, $row)) {
                 return($this->mdb->raiseError(MDB2_ERROR_TRUNCATED));
             }
-            do {
-                $column[] = $row[$colnum];
-            } while (is_array($row = $this->fetchRow($fetchmode)));
+            $column[] = $row[$colnum];
         }
 
         if (MDB2::isError($row)) {
