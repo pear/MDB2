@@ -385,10 +385,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function _modifyQuery($query, $isManip, $limit, $offset)
     {
         if ($limit > 0) {
-            $query = rtrim($query);
-            if (substr($query, -1) == ';') {
-                $query = substr($query, 0, -1);
-            }
             $fetch = $offset + $limit;
             if (!$isManip) {
                 return preg_replace('/^([\s(])*SELECT(?!\s*TOP\s*\()/i',
