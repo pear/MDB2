@@ -109,7 +109,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         if ($this->connection) {
             $result = @mssql_query('select @@ERROR as ErrorCode', $this->connection);
             if ($result) {
-                $native_code = @mssql_result($result);
+                $native_code = @mssql_result($result, 0, 0);
                 @mssql_free_result($result);
             }
         }
@@ -316,7 +316,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
        if ((bool) ini_get('mssql.datetimeconvert')) {
            ini_set('mssql.datetimeconvert', '0');
        }
-       @mssql_query('SET DATEFORMAT ymd', $this->conenction);
+       @mssql_query('SET DATEFORMAT ymd', $this->connection);
 
         return MDB2_OK;
     }
@@ -390,7 +390,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
 
         if ($isManip) {
-            return @mssql_affected_rows($connection);
+            return @mssql_rows_affected($connection);
         }
         return $result;
     }
