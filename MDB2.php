@@ -1675,8 +1675,28 @@ class MDB2_Driver_Common extends PEAR
      */
     function &standaloneQuery($query, $types = null)
     {
-        $result =& $this->query($query, $types);
-        return $result;
+        $ismanip = MDB2::isManip($query);
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
+        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
+
+        $connected = $this->connect();
+        if (MDB2::isError($connected)) {
+            return $connected;
+        }
+
+        $result = $this->_doQuery($query, $ismanip, $this->connection, false);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+
+        if ($ismanip) {
+            return $result;
+        }
+
+        $result_obj =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
+        return $result_obj;
     }
 
     // }}}
@@ -1745,7 +1765,7 @@ class MDB2_Driver_Common extends PEAR
             return $connected;
         }
 
-        $result = $this->_doQuery($query, $ismanip);
+        $result = $this->_doQuery($query, $ismanip, $this->connection, $this->database_name);
         if (MDB2::isError($result)) {
             return $result;
         }

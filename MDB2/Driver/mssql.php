@@ -340,48 +340,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ standaloneQuery()
-
-   /**
-     * execute a query as DBA
-     *
-     * @param string $query the SQL query
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function &standaloneQuery($query)
-    {
-        if (!PEAR::loadExtension($this->phptype)) {
-            return $this->raiseError(null, MDB2_ERROR_NOT_FOUND, null, null,
-                'standaloneQuery: extension '.$this->phptype.' is not compiled into PHP');
-        }
-
-        $connection = @mssql_connect($this->dsn['hostspec'],$this->dsn['username'],$this->dsn['password']);
-        if ($connection == 0) {
-            return $this->raiseError('standaloneQuery: Could not connect to the Microsoft SQL server');
-        }
-
-        $ismanip = MDB2::isManip($query);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $ismanip, $limit, $offset);
-
-        $result = $this->_doQuery($query, $ismanip, $connection, false);
-        @mssql_close($connection);
-        if (MDB2::isError($result)) {
-            return $result;
-        }
-
-        if ($ismanip) {
-            return $result;
-        }
-
-        $result_obj =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
-        return $result_obj;
-    }
-
-    // }}}
     // {{{ _doQuery()
 
     /**
