@@ -67,6 +67,7 @@ $notes = <<<EOT
   Bug 1919. (danielc)
 - accommodate changes made to PostgreSQL so "no such field" errors get properly
   indicated rather than being mislabeled as "no such table." (danielc)
+- fixed typo in MDB2_Driver_Manager_oci8::listTables() (fix for bug #2434)
 EOT;
 
 $description =<<<EOT
