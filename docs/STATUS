@@ -38,8 +38,8 @@ sequences        -    -   [4]   -    -    -    o    -    o    -    o    o    -
 replace          -    -    n    -    -    -    o    -    o    -    o    o    -
 affectedrows     -    -   [1]   -    -    -    o    -    o    -    o   [3]   -
 transactions     -    -   [2]   -    -    -    o    -    o    -    o    o    -
-lobstorage       -    -    X    -    -    -    o    -    o    -    o    o    -
-lobfiles         -    -    X    -    -    -    o    -    o    -    o    o    -
+lobstorage       -    -   [1]   -    -    -    o    -    o    -    o    o    -
+lobfiles         -    -   [1]   -    -    -    o    -    o    -    o    o    -
 lobnulls         -    -   [1]   -    -    -    o    -    o    -    o    o    -
 **[ BUGS ]********************************************************************
 fetchmodebug     -    -    o    -    -    -    o    -    o    -    o    o    -

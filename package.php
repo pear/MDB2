@@ -9,6 +9,7 @@ $notes = <<<EOT
 - reversed parameter order of getValue(), type parameter is now optional and
   will then be autodetected
 - renamed get*Value() to quote*()
+- ibase driver: fixed LOB management
 EOT;
 
 $description =<<<EOT
