@@ -89,7 +89,7 @@ $package->addMaintainer('pgc', 'contributor', 'Paul Cooper', 'pgc@ucecom.com');
 $package->addMaintainer('fmk', 'contributor', 'Frank M. Kromann', 'frank@kromann.info');
 $package->addMaintainer('quipo', 'contributor', 'Lorenzo Alberton', 'l.alberton@quipo.it');
 
-$package->addDependency('php', '4.2.0', 'ge', 'pkg', false);
+$package->addDependency('php', '4.2.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
 $package->addDependency('XML_Parser', true, 'has', 'pkg', false);
 

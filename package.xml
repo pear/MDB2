@@ -70,7 +70,7 @@ Other soon to follow.</description>
   </maintainers>
   <release>
     <version>2.0.0alpha2</version>
-    <date>2004-02-11</date>
+    <date>2004-02-18</date>
     <license>BSD License</license>
     <state>alpha</state>
     <notes>Please note that currently only the MySQL, the PostGreSQL and the Oracle driver
@@ -83,7 +83,7 @@ have been tested to pass the test suite.
 - fixed several PHP5 related issues
 - fixed bug in sequence creation on MySQL</notes>
     <deps>
-      <dep type="php" rel="ge" version="4.1.0"/>
+      <dep type="php" rel="ge" version="4.2.0" optional="no"/>
       <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
       <dep type="pkg" rel="has" optional="no">XML_Parser</dep>
     </deps>
@@ -201,7 +201,7 @@ have been tested to pass the test suite.
   <changelog>
     <release>
       <version>2.0.0alpha2</version>
-      <date>2004-02-11</date>
+      <date>2004-02-18</date>
       <license>BSD License</license>
       <state>alpha</state>
       <notes>Please note that currently only the MySQL, the PostGreSQL and the Oracle driver
