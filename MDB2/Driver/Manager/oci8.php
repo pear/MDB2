@@ -347,7 +347,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'SELECT table_name FROM sys.user_tables';
-        return($db->queryCol($sql));
+        return($db->queryCol($query));
     }
 
     // }}}
