@@ -637,6 +637,7 @@ class MDB2_Tools_Manager extends PEAR
      */
     function initializeTable($table_name, $table)
     {
+        $result = MDB2_OK;
         foreach ($table['initialization'] as $instruction) {
             switch ($instruction['type']) {
             case 'insert':
@@ -649,23 +650,17 @@ class MDB2_Tools_Manager extends PEAR
                     }
                     $query_fields = implode(',',$query_fields);
                     $query_values = implode(',',$query_values);
-                    $result = $prepared_query = $this->db->prepare(
+                    $prepared_query = $this->db->prepare(
                         "INSERT INTO $table_name ($query_fields) VALUES ($query_values)", $query_types);
                     if (MDB2::isError($prepared_query)) {
                         return $prepared_query;
                     }
-                    $field_number = 0;
-                    foreach ($instruction['fields'] as $field_name => $field) {
-                        $result = $this->db->setParam($prepared_query, $field_number, $field);
-                        if (MDB2::isError($result)) {
-                            break;
-                        }
-                        $field_number++;
+                    $result = $prepared_query->bindParamArray($instruction['fields']);
+                    if (MDB2::isError($result)) {
+                        return $result;
                     }
-                    if (!MDB2::isError($result)) {
-                        $result = $this->db->execute($prepared_query);
-                    }
-                    $this->db->freePrepared($prepared_query);
+                    $result = $prepared_query->execute();
+                    $prepared_query->free();
                 }
                 break;
             }
