@@ -303,6 +303,45 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ listTableIndexes()
+
+    /**
+     * list all indexes in a table
+     *
+     * @param string    $table     name of table that should be used in method
+     * @return mixed data array on success, a MDB error on failure
+     * @access public
+     */
+    function listTableIndexes($table)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $key_name = 'INDEX_NAME';
+        $pk_name = 'PK_NAME';
+        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+            $key_name = strtolower($key_name);
+            $pk_name = strtolower($pk_name);
+        }
+        $query = "EXEC sp_statistics @table_name='$table'";
+        $indexes_all = $db->query($query, 'text', $key_name);
+        if (MDB2::isError($indexes_all)) {
+            return $indexes_all;
+        }
+        $query = "EXEC sp_pkeys @table_name='$table'";
+        $pk_all = $db->queryCol($query, 'text', $pk_name);
+        $found = $indexes = array();
+        for ($index = 0, $j = count($indexes_all); $index < $j; ++$index) {
+            if (!in_array($indexes_all[$index], $pk_all) 
+                && $indexes_all[$index] != null
+                && !isset($found[$indexes_all[$index]])
+            ) {
+                $indexes[] = $indexes_all[$index];
+                $found[$indexes_all[$index]] = 1;
+            }
+        }
+        return $indexes;
+    }
+
+    // }}}
     // {{{ createSequence()
 
     /**
