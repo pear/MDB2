@@ -130,8 +130,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     }
 
     function verifyFetchedValues(&$result, $rownum, &$data) {
-        $result->seek($rownum);
-        $row = $result->fetchRow();
+        $row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
         for ($i = 0; $i < count($this->fields); $i++) {
             $value = $row[$i];
             $field = $this->fields[$i];
