@@ -184,9 +184,9 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
         if ($this->connection) {
             if ($auto_commit) {
-                $result = $this->query('COMMIT TRANSACTION');
+                $result = $this->_doQuery('COMMIT TRANSACTION');
             } else {
-                $result = $this->query('BEGIN TRANSACTION');
+                $result = $this->_doQuery('BEGIN TRANSACTION');
             }
             if (MDB2::isError($result)) {
                 return $result;
@@ -217,11 +217,11 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
             'commit: transaction changes are being auto commited');
         }
-        $result = $this->query('COMMIT TRANSACTION');
+        $result = $this->_doQuery('COMMIT TRANSACTION');
         if (MDB2::isError($result)) {
             return $result;
         }
-        return $this->query('BEGIN TRANSACTION');
+        return $this->_doQuery('BEGIN TRANSACTION');
     }
 
     // }}}
@@ -244,11 +244,11 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto commited');
         }
-        $result = $this->query('ROLLBACK TRANSACTION');
+        $result = $this->_doQuery('ROLLBACK TRANSACTION');
         if (MDB2::isError($result)) {
             return $result;
         }
-        return $this->query('BEGIN TRANSACTION');
+        return $this->_doQuery('BEGIN TRANSACTION');
     }
 
     // }}}
@@ -267,9 +267,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             {
                 return MDB2_OK;
             }
-            @mssql_close($this->connection);
-            $this->connection = 0;
-            $this->affected_rows = -1;
+            $this->_close();
         }
 
         if (!PEAR::loadExtension($this->phptype)) {
@@ -307,11 +305,15 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             && !$this->auto_commit
             && !@mssql_query('BEGIN TRANSACTION', $this->connection)
         ) {
-            @mssql_close($this->connection);
-            $this->connection = 0;
-            $this->affected_rows = -1;
+            $this->_close();
             return $this->raiseError('connect: Could not begin the initial transaction');
         }
+
+       if ((bool) ini_get('mssql.datetimeconvert')) {
+           ini_set('mssql.datetimeconvert', '0');
+       }
+       @mssql_query('SET DATEFORMAT ymd', $this->conenction);
+
         return MDB2_OK;
     }
 
@@ -326,20 +328,9 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function _close()
     {
         if ($this->connection != 0) {
-            $result = true;
-            if ($this->supports('transactions') && !$this->auto_commit) {
-                $result = !@mssql_query('ROLLBACK TRANSACTION', $this->connection);
-            }
             @mssql_close($this->connection);
             $this->connection = 0;
-            $this->affected_rows = -1;
             unset($GLOBALS['_MDB2_databases'][$this->db_index]);
-
-            if (!$result) {
-                $error = $this->raiseError();
-                return $error;
-            }
-
         }
         return MDB2_OK;
     }
@@ -373,39 +364,24 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ query()
+    // {{{ _doQuery()
 
     /**
-     * Send a query to the database and return any results
-     *
-     * @param string  $query  the SQL query
-     * @param mixed   $types  array that contains the types of the columns in
-     *                        the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access public
+     * Execute a query
+     * @param string $query  query
+     * @param boolean $ismanip  if the query is a manipulation query
+     * @return result or error object
+     * @access private
      */
-    function &query($query, $types = null, $result_class = false, $result_wrap_class = false)
+    function _doQuery($query, $ismanip = false)
     {
-        $ismanip = MDB2::isManip($query);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
-        if ($limit > 0) {
-            $fetch = $offset + $limit;
-            if (!$ismanip) {
-                $query = str_replace('SELECT', "SELECT TOP $fetch", $query);
-            }
-        }
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
             if ($ismanip) {
                 return MDB2_OK;
             }
-            return NULL;
+            return null;
         }
 
         $connected = $this->connect();
@@ -413,7 +389,9 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $connected;
         }
 
-        if ($this->database_name) {
+        if ($this->database_name
+            && $this->database_name != $this->connected_database_name
+        ) {
             if (!@mssql_select_db($this->database_name, $this->connection)) {
                 $error =& $this->raiseError();
                 return $error;
@@ -423,33 +401,35 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
         $result = @mssql_query($query, $this->connection);
         if (!$result) {
-            $error =& $this->raiseError();
-            return $error;
+            return $this->raiseError();
         }
-        $result_obj =& $this->_wrapResult($result, $ismanip, $types, $result_class, $result_wrap_class, $offset, $limit);
-        return $result_obj;
+
+        if ($ismanip) {
+            return @mssql_affected_rows($this->connection);
+        }
+        return $result;
     }
 
     // }}}
-    // {{{ affectedRows()
+    // {{{ _modifyQuery()
 
     /**
-     * returns the affected rows of a query
+     * This method is used by backends to alter queries for various
+     * reasons.
      *
-     * @return mixed MDB2 Error Object or number of rows
-     * @access public
+     * @param string $query  query to modify
+     * @return the new (modified) query
+     * @access private
      */
-    function affectedRows()
+    function _modifyQuery($query, $ismanip, $limit, $offset)
     {
-        if (MDB2::isManip($this->last_query)) {
-            $affected_rows = @mssql_affected_rows($this->connection);
-        } else {
-            $affected_rows = 0;
+        if ($limit > 0) {
+            $fetch = $offset + $limit;
+            if (!$ismanip) {
+                $query = str_replace('SELECT', "SELECT TOP $fetch", $query);
+            }
         }
-        if ($affected_rows === false) {
-            return $this->raiseError(MDB2_ERROR_NEED_MORE_DATA);
-        }
-        return $affected_rows;
+        return $query;
     }
 
     // }}}
@@ -470,7 +450,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->query("INSERT INTO $sequence_name DEFAULT VALUES");
+        $result = $this->_doQuery("INSERT INTO $sequence_name DEFAULT VALUES");
         $this->popExpect();
         if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -491,7 +471,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
         $value = $this->queryOne("SELECT @@IDENTITY FROM $sequence_name", 'integer');
         if (is_numeric($value)
-            && MDB2::isError($this->query("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
+            && MDB2::isError($this->_doQuery("DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value"))
         ) {
             $this->warnings[] = 'nextID: could not delete previous sequence table values';
         }
