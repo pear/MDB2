@@ -71,8 +71,9 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         if (MDB2::isError($result = $db->connect())) {
             return $result;
         }
-        if (!@fbsql_create_db($name, $db->connection)) {
-            return $db->raiseError();
+        $query = "CREATE DATABASE $name";
+        if (MDB2::isError($result = $db->query($query))) {
+            return $result;
         }
 
         return MDB2_OK;
@@ -94,8 +95,9 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         if (MDB2::isError($result = $db->connect())) {
             return $result;
         }
-        if (!@fbsql_stop_db($name, $db->connection)) {
-            return $db->raiseError();
+        $query = "DELETE DATABASE $name";
+        if (MDB2::isError($result = $db->query($query))) {
+            return $result;
         }
 
         return MDB2_OK;
