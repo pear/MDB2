@@ -327,7 +327,7 @@ class MDB2_xxx extends MDB2_Driver_Common
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function nextId($seq_name, $ondemand = false)
+    function nextID($seq_name, $ondemand = false)
     {
         // take this from the corresponding PEAR DB driver: nextId()
     }
@@ -343,7 +343,7 @@ class MDB2_xxx extends MDB2_Driver_Common
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function currId($seq_name)
+    function currID($seq_name)
     {
         // take this from the corresponding Metabase driver: GetSequenceCurrentValue()
     }
