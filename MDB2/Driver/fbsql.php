@@ -329,11 +329,15 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function _modifyQuery($query)
     {
-        // "DELETE FROM table" gives 0 affected rows in fbsql.
-        // This little hack lets you know how many rows were deleted.
-        if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
-            $query = preg_replace('/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
-                                  'DELETE FROM \1 WHERE 1=1', $query);
+        if ($this->options['portability'] & MDB2_PORTABILITY_DELETE_COUNT) {
+            // "DELETE FROM table" gives 0 affected rows in fbsql.
+            // This little hack lets you know how many rows were deleted.
+            if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
+                $query = preg_replace(
+                    '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
+                    'DELETE FROM \1 WHERE 1=1', $query
+                );
+            }
         }
         return $query;
     }
@@ -363,9 +367,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 $query = str_replace('SELECT', "SELECT TOP($offset,$limit)", $query);
             }
         }
-        if ($this->options['optimize'] == 'portability') {
-            $query = $this->_modifyQuery($query);
-        }
+        $query = $this->_modifyQuery($query);
         $this->last_query = $query;
         $this->debug($query, 'query');
 
@@ -508,20 +510,29 @@ class MDB2_Result_mysql extends MDB2_Result_Common
     * fetch value from a result set
     *
     * @param int    $rownum    number of the row where the data can be found
-    * @param int    $field    field number where the data can be found
+    * @param int    $colnum    field number where the data can be found
     * @return mixed string on success, a MDB2 error on failure
     * @access public
     */
-    function fetch($rownum = 0, $field = 0)
+    function fetch($rownum = 0, $colnum = 0)
     {
-        $value = @fbsql_result($this->result, $rownum, $field);
+        $value = @fbsql_result($this->result, $rownum, $colnum);
         if (!$value) {
             if (is_null($this->result)) {
                 return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetch: resultset has already been freed');
             }
-        } elseif (isset($this->types[$field])) {
-            $value = $this->mdb->datatype->convertResult($value, $this->types[$field]);
+        }
+        if (isset($this->types[$colnum])) {
+            $value = $this->mdb->datatype->convertResult($value, $this->types[$colnum]);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            $value = rtrim($value);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY
+            && is_null($value)
+        ) {
+            $value = '';
         }
         return $value;
     }
@@ -543,7 +554,9 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @fbsql_fetch_assoc($this->result);
-            if (is_array($row) && $this->mdb->options['optimize'] == 'portability') {
+            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && is_array($row)
+            ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
         } else {
@@ -558,6 +571,9 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
+            $this->mdb->_convertNullArrayValuesToEmpty($row);
         }
         ++$this->rownum;
         return $row;
@@ -590,7 +606,7 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_name = @fbsql_field_name($this->result, $column);
-            if ($this->mdb->options['optimize'] == 'portability') {
+            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
                 $column_name = strtolower($column_name);
             }
             $columns[$column_name] = $column;

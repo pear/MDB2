@@ -349,8 +349,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function _modifyQuery($query)
     {
         // "SELECT 2+2" must be "SELECT 2+2 FROM dual" in Oracle
-        if (preg_match('/^\s*SELECT/i', $query) &&
-            !preg_match('/\sFROM\s/i', $query)) {
+        if (preg_match('/^\s*SELECT/i', $query)
+            && !preg_match('/\sFROM\s/i', $query)
+        ) {
             $query .= " FROM dual";
         }
         return $query;
@@ -579,9 +580,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        if ($this->options['optimize'] == 'portability') {
-            $query = $this->_modifyQuery($query);
-        }
+        $query = $this->_modifyQuery($query);
         $this->last_query = $query;
         $this->debug($query, 'query');
 
@@ -750,13 +749,13 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
         $row = $this->fetchRow($fetchmode);
-        if (MDB2::isError($row)) {
-            return($row);
+        if (!$row || MDB2::isError($row)) {
+            return $row;
         }
         if (!array_key_exists($colnum, $row)) {
-            return(NULL);
+            return null;
         }
-        return($row[$colnum]);
+        return $row[$colnum];
     }
 
     // }}}
@@ -778,8 +777,10 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             return null;
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            @OCIFetchInto($this->result, $row, OCI_RETURN_NULLS);
-            if (is_array($row) && $this->mdb->options['optimize'] == 'portability') {
+            @OCIFetchInto($this->result, $row, OCI_ASSOC+OCI_RETURN_NULLS);
+            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && is_array($row)
+            ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
         } else {
@@ -794,6 +795,12 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            $this->mdb->_rtrimArrayValues($row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
+            $this->mdb->_convertNullArrayValuesToEmpty($row);
         }
         ++$this->rownum;
         return $row;
@@ -822,7 +829,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_name = @OCIColumnName($this->result, $column + 1);
-            if ($this->mdb->options['optimize'] == 'portability') {
+            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
                 $column_name = strtolower($column_name);
             }
             $columns[$column_name] = $column;
@@ -911,7 +918,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
                     return false;
                 }
             } else if (isset($this->buffer[$rownum])) {
-                return (bool) $this->buffer[$rownum];
+                return (bool)$this->buffer[$rownum];
             }
         }
 
@@ -928,7 +935,9 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             $this->buffer[$this->buffer_rownum] = $buffer;
         }
 
-        if (!$row || (isset($this->limits) && $this->buffer_rownum >= $this->limits['limit'])) {
+        if ((isset($this->limits) && $this->buffer_rownum >= $this->limits['limit'])
+            || !$row
+        ) {
             $this->buffer_rownum++;
             $this->buffer[$this->buffer_rownum] = false;
             return false;
@@ -948,27 +957,33 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
      */
     function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
+        if (is_null($this->result)) {
+            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'fetchRow: resultset has already been freed');
+        }
         $target_rownum = $this->rownum + 1;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
         if (!$this->_fillBuffer($target_rownum)) {
-            if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'fetchRow: resultset has already been freed');
-            }
             return null;
         }
         $row = $this->buffer[$target_rownum];
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $column_names = $this->getColumnNames();
-            foreach($column_names as $name => $i) {
+            foreach ($column_names as $name => $i) {
                 $column_names[$name] = $row[$i];
             }
             $row = $column_names;
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            $this->mdb->_rtrimArrayValues($row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
+            $this->mdb->_convertNullArrayValuesToEmpty($row);
         }
         ++$this->rownum;
         return $row;

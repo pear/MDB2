@@ -659,30 +659,25 @@ class MDB2_Result_ibase extends MDB2_Result_Common
     * fetch value from a result set
     *
     * @param int    $rownum    number of the row where the data can be found
-    * @param int    $field    field number where the data can be found
+    * @param int    $colnum    field number where the data can be found
     * @return mixed string on success, a MDB2 error on failure
     * @access public
     */
-    function fetch($rownum = 0, $field = 0)
+    function fetch($rownum = 0, $colnum = 0)
     {
         $seek = $this->seek($rownum);
         if (MDB2::isError($seek)) {
             return $seek;
         }
-        //  TODO: buffering, need to check mysql_result behavior with unuffered queries?
-        if (is_numeric($field)) {
-            $row = $this->fetchRow(MDB2_FETCHMODE_ORDERED);
-        } else {
-            $field = strtolower($field);
-            $row = $this->fetchRow(MDB2_FETCHMODE_ASSOC);
-        }
-        if (MDB2::isError($row)) {
+        $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
+        $row = $this->fetchRow($fetchmode);
+        if (!$row || MDB2::isError($row)) {
             return $row;
         }
-        if (!isset($row[$field])) {
+        if (!array_key_exists($colnum, $row)) {
             return null;
         }
-        return $row[$field];
+        return $row[$colnum];
     }
 
     // }}}
@@ -697,32 +692,37 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
-        if ($this->result === true) {
-            //query successfully executed, but without results...
-            return null;
-        }
-
-        $target_rownum = $this->rownum + 1;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
-        if (!$this->_fillBuffer($target_rownum)) {
+        if (!$this->_skipLimitOffset()) {
+            return null;
+        }
+        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
+            $row = @ibase_fetch_assoc($this->result);
+            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && is_array($row)
+            ) {
+                $row = array_change_key_case($row, CASE_LOWER);
+            }
+        } else {
+            $row = @ibase_fetch_row($this->result);
+        }
+        if (!$row) {
             if (is_null($this->result)) {
                 return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
             return null;
         }
-        $row = $this->buffer[$target_rownum];
-        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            $column_names = $this->getColumnNames();
-            foreach($column_names as $name => $i) {
-                $column_names[$name] = $row[$i];
-            }
-            $row = $column_names;
-        }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            $this->mdb->_rtrimArrayValues($row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
+            $this->mdb->_convertNullArrayValuesToEmpty($row);
         }
         ++$this->rownum;
         return $row;
@@ -751,7 +751,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_info = @ibase_field_info($this->result, $column);
-            if ($this->mdb->options['optimize'] == 'portability') {
+            if ($this->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
                 $column_name = strtolower($column_info['name']);
             }
             $columns[$column_name] = $column;
@@ -857,16 +857,18 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             return false;
         }
 
-        //$row = true;
+        $buffer = true;
         while ((is_null($rownum) || $this->buffer_rownum < $rownum)
             && (!isset($this->limits) || ($this->buffer_rownum + 1) < $this->limits['limit'])
-            && ($buffer = @ibase_fetch_assoc($this->result))
+            && ($buffer = @ibase_fetch_row($this->result))
         ) {
             $this->buffer_rownum++;
             $this->buffer[$this->buffer_rownum] = $buffer;
         }
 
-        if (!$buffer || (isset($this->limits) && $this->buffer_rownum >= $this->limits['limit'])) {
+        if ((isset($this->limits) && $this->buffer_rownum >= $this->limits['limit'])
+            || !$buffer
+        ) {
             $this->buffer_rownum++;
             $this->buffer[$this->buffer_rownum] = false;
             return false;
@@ -886,35 +888,33 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
      */
     function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
+        if (is_null($this->result)) {
+            return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'fetchRow: resultset has already been freed');
+        }
         $target_rownum = $this->rownum + 1;
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->mdb->fetchmode;
         }
-        if (!isset($this->buffer[$target_rownum])) {
-            $this->_fillBuffer($target_rownum);
-        }
-        if (!isset($this->buffer[$target_rownum])
-            || !$this->buffer[$target_rownum]
-        ) {
-            if (is_null($this->result)) {
-                return $this->mdb->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'fetchRow: resultset has already been freed');
-            }
+        if (!$this->_fillBuffer($target_rownum)) {
             return null;
         }
         $row = $this->buffer[$target_rownum];
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            if ($this->mdb->options['optimize'] == 'portability') {
-                $row = array_change_key_case($row, CASE_LOWER);
+            $column_names = $this->getColumnNames();
+            foreach ($column_names as $name => $i) {
+                $column_names[$name] = $row[$i];
             }
-        } else {
-            $row = array_values($row);
-        }
-        foreach ($row as $key => $value_with_space) {
-            $row[$key] = rtrim($value_with_space, ' ');
+            $row = $column_names;
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            $this->mdb->_rtrimArrayValues($row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
+            $this->mdb->_convertNullArrayValuesToEmpty($row);
         }
         ++$this->rownum;
         return $row;

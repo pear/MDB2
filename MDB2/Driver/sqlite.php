@@ -376,11 +376,15 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function _modifyQuery($query)
     {
-        // "DELETE FROM table" gives 0 affected rows in sqlite.
-        // This little hack lets you know how many rows were deleted.
-        if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
-            $query = preg_replace('/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
-                                  'DELETE FROM \1 WHERE 1=1', $query);
+        if ($this->options['portability'] & MDB2_PORTABILITY_DELETE_COUNT) {
+            // "DELETE FROM table" gives 0 affected rows in sqlite.
+            // This little hack lets you know how many rows were deleted.
+            if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
+                $query = preg_replace(
+                    '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
+                    'DELETE FROM \1 WHERE 1=1', $query
+                );
+            }
         }
         return $query;
     }
@@ -413,9 +417,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 $query .= " LIMIT $limit OFFSET $offset";
             }
         }
-        if ($this->options['optimize'] == 'portability') {
-            $query = $this->_modifyQuery($query);
-        }
+        $query = $this->_modifyQuery($query);
         $this->last_query = $query;
         $this->debug($query, 'query');
 
@@ -542,12 +544,12 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function replace($table, $fields)
     {
         $count = count($fields);
-        for ($keys = 0, $query = $values = '',reset($fields), $field = 0;
-            $field < $count;
-            next($fields), $field++)
+        for ($keys = 0, $query = $values = '',reset($fields), $colnum = 0;
+            $colnum < $count;
+            next($fields), $colnum++)
         {
             $name = key($fields);
-            if ($field > 0) {
+            if ($colnum > 0) {
                 $query .= ',';
                 $values .= ',';
             }
@@ -655,29 +657,25 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
     * fetch value from a result set
     *
     * @param int    $rownum    number of the row where the data can be found
-    * @param int    $field    field number where the data can be found
+    * @param int    $colnum    field number where the data can be found
     * @return mixed string on success, a MDB2 error on failure
     * @access public
     */
-    function fetch($rownum = 0, $field = 0)
+    function fetch($rownum = 0, $colnum = 0)
     {
         $seek = $this->seek($rownum);
         if (MDB2::isError($seek)) {
             return $seek;
         }
-        if (is_numeric($field)) {
-            $row = $this->fetchRow(MDB2_FETCHMODE_ORDERED);
-        } else {
-            $field = strtolower($field);
-            $row = $this->fetchRow(MDB2_FETCHMODE_ASSOC);
-        }
-        if (MDB2::isError($row)) {
+        $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
+        $row = $this->fetchRow($fetchmode);
+        if (!$row || MDB2::isError($row)) {
             return $row;
         }
-        if (!isset($row[$field])) {
+        if (!array_key_exists($colnum, $row)) {
             return null;
         }
-        return $row[$field];
+        return $row[$colnum];
     }
 
     // }}}
@@ -697,7 +695,9 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
         }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @sqlite_fetch_array($this->result, SQLITE_ASSOC);
-            if (is_array($row) && $this->mdb->options['optimize'] == 'portability') {
+            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && is_array($row)
+            ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
         } else {
@@ -712,6 +712,9 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
         }
         if (isset($this->types)) {
             $row = $this->mdb->datatype->convertResultRow($this->types, $row);
+        }
+        if ($this->mdb->options['portability'] & MDB2_PORTABILITY_NULL_TO_EMPTY) {
+            $this->mdb->_convertNullArrayValuesToEmpty($row);
         }
         ++$this->rownum;
         return $row;
@@ -744,7 +747,7 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
         }
         for ($column = 0; $column < $numcols; $column++) {
             $column_name = @sqlite_field_name($this->result, $column);
-            if ($this->mdb->options['optimize'] == 'portability') {
+            if ($this->mdb->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
                 $column_name = strtolower($column_name);
             }
             $columns[$column_name] = $column;
