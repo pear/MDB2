@@ -340,6 +340,9 @@ class MDB2
         }
 
         $db =& MDB2::factory($type, $debug);
+        if (MDB2::isError($db)) {
+            return $db;
+        }
 
         $db->setDSN($dsninfo);
         $err = MDB2::setOptions($db, $options);
@@ -452,7 +455,7 @@ class MDB2
      */
     function apiVersion()
     {
-        return '2';
+        return '2.0.0';
     }
 
     // }}}
@@ -1458,7 +1461,6 @@ class MDB2_Driver_Common extends PEAR
             'hostspec' => false,
             'port'     => false,
             'socket'   => false,
-            'database' => false,
             'mode'     => false,
         );
         $dsn = MDB2::parseDSN($dsn);
