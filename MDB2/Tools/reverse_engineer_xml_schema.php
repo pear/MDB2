@@ -104,9 +104,9 @@ echo ('
                 }
             } else if ($_REQUEST['action'] == 'create') {
                 if (class_exists('Var_Dump')) {
-                    Var_Dump::display($manager->updateDatabase($_REQUEST['file']));
+                    Var_Dump::display($manager->updateDatabase($_REQUEST['file'], 'old_'.$_REQUEST['file']));
                 } else {
-                    var_dump($manager->updateDatabase($_REQUEST['file']));
+                    var_dump($manager->updateDatabase($_REQUEST['file'], 'old_'.$_REQUEST['file']));
                 }
             } else {
                 $error = 'no action selected';
