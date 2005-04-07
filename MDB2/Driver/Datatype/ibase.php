@@ -41,30 +41,31 @@
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
 // | Author: Lukas Smith <smith@backendmedia.com>                         |
+// |         Lorenzo Alberton <l.alberton@quipo.it>                       |
 // +----------------------------------------------------------------------+
 //
 // $Id$
-//
 
 require_once 'MDB2/Driver/Datatype/Common.php';
 
 /**
- * MDB2 MySQL driver
+ * MDB2 Firebird/Interbase driver
  *
  * @package MDB2
  * @category Database
  * @author  Lukas Smith <smith@backendmedia.com>
+ * @author  Lorenzo Alberton <l.alberton@quipo.it>
  */
 class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
 {
     // {{{ convertResult()
 
     /**
-     * convert a value to a RDBMS indepdenant MDB2 type
+     * convert a value to a RDBMS independent MDB2 type
      *
      * @param mixed  $value   value to be converted
      * @param int    $type    constant that specifies which type to convert to
-     * @return mixed converted value
+     * @return mixed converted value or a MDB2 error on failure
      * @access public
      */
     function convertResult($value, $type)
@@ -142,11 +143,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     // {{{ _getTextDeclaration()
 
     /**
-     * Obtain DBMS specific SQL code portion needed to declare an text type
+     * Obtain DBMS specific SQL code portion needed to declare a text type
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name   name the field to be declared.
-     * @param array $field  associative array with the name of the properties
+     * @param array  $field  associative array with the name of the properties
      *      of the field being declared as array indexes. Currently, the types
      *      of supported field properties are as follows:
      *
@@ -167,9 +168,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getTextDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $type = $this->getTypeDeclaration($field);
-        $default = isset($field['default']) ? ' DEFAULT TIME'.
+        $type = $this->_getTypeDeclaration($field);
+        $default = isset($field['default']) ? ' DEFAULT'.
             $this->quote($field['default'], 'text') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
@@ -179,7 +179,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     // {{{ _getCLOBDeclaration()
 
     /**
-     * Obtain DBMS specific SQL code portion needed to declare an character
+     * Obtain DBMS specific SQL code portion needed to declare a character
      * large object type field to be used in statements like CREATE TABLE.
      *
      * @param string $name   name the field to be declared.
@@ -201,16 +201,15 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->getTypeDeclaration($field).$notnull;
+        return $name.' '.$this->_getTypeDeclaration($field).$notnull;
     }
 
     // }}}
     // {{{ _getBLOBDeclaration()
 
     /**
-     * Obtain DBMS specific SQL code portion needed to declare an binary large
+     * Obtain DBMS specific SQL code portion needed to declare a binary large
      * object type field to be used in statements like CREATE TABLE.
      *
      * @param string $name   name the field to be declared.
@@ -232,9 +231,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->getTypeDeclaration($field).$notnull;
+        return $name.' '.$this->_getTypeDeclaration($field).$notnull;
     }
 
     // }}}
@@ -261,44 +259,10 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
-    }
-
-    // }}}
-    // {{{ _getTimestampDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare an timestamp
-     * type field to be used in statements like CREATE TABLE.
-     *
-     * @param string  $name   name the field to be declared.
-     * @param string  $field  associative array with the name of the properties
-     *                        of the field being declared as array indexes.
-     *                        Currently, the types of supported field
-     *                        properties are as follows:
-     *
-     *                       default
-     *                        Time stamp value to be used as default for this
-     *                        field.
-     *
-     *                       notnull
-     *                        Boolean flag that indicates whether this field is
-     *                        constrained to not be set to null.
-     * @return string  DBMS specific SQL code portion that should be used to
-     *                 declare the specified field.
-     * @access private
-     */
-    function _getTimestampDeclaration($name, $field)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quote($field['default'], 'timestamp') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
@@ -325,11 +289,40 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+    }
+
+    // }}}
+    // {{{ _getTimestampDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare a timestamp
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string  $name   name the field to be declared.
+     * @param array   $field  associative array with the name of the properties
+     *       of the field being declared as array indexes. Currently, the types
+     *       of supported field properties are as follows:
+     *
+     *       default
+     *           Timestamp value to be used as default for this field.
+     *
+     *       notnull
+     *           Boolean flag that indicates whether this field is constrained
+     *           to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *                 declare the specified field.
+     * @access private
+     */
+    function _getTimestampDeclaration($name, $field)
+    {
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'timestamp') : '';
+        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
@@ -356,11 +349,10 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
@@ -387,12 +379,10 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getDecimalDeclaration($name, $field)
     {
-
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
         $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
@@ -511,10 +501,10 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     // {{{ _retrieveLOB()
 
     /**
-     * fetch a lob value from a result set
+     * retrieve LOB from the database
      *
      * @param int $lob handle to a lob created by the createLob() function
-     * @return mixed MDB2_OK on success, a MDB error on failure
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
     function _retrieveLOB($lob)
@@ -522,7 +512,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
 
         if (!isset($db->lobs[$lob])) {
-            return $db->raiseError(MDB2_ERROR, NULL, NULL,
+            return $db->raiseError(MDB2_ERROR_INVALID, null, null,
                 '_retrieveLOB: it was not specified a valid lob');
         }
 
@@ -535,7 +525,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                     '_retrieveLOB: Could not open fetched large object field' . @ibase_errmsg());
             }
         }
-
         return MDB2_OK;
     }
 
@@ -571,7 +560,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      *      read from the large object input stream
      * @param int $length integer value that indicates the largest ammount of
      *      data to be read from the large object input stream.
-     * @return mixed length on success, a MDB error on failure
+     * @return mixed length on success, a MDB2 error on failure
      * @access private
      */
     function _readResultLOB($lob, &$data, $length)
@@ -612,6 +601,75 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         }
     }
 
+    // }}}
+    // {{{ mapNativeDatatype()
+
+    /**
+     * Maps a native array description of a field to a MDB2 datatype and length
+     *
+     * @param array  $field native field description
+     * @return array containing the various possible types and the length
+     * @access public
+     */
+    function mapNativeDatatype($field)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db_type = preg_replace('/\d/','', strtolower($field['typname']) );
+        $length = $field['attlen'];
+        if ($length == '-1') {
+            $length = $field['atttypmod']-4;
+        }
+        if ((int)$length <= 0) {
+            $length = null;
+        }
+        $type = array();
+        switch ($db_type) {
+        case 'smallint':
+        case 'integer':
+            $type[] = 'integer';
+            if ($length == '1') {
+                $type[] = 'boolean';
+            }
+            break;
+        case 'char':
+        case 'varchar':
+            $type[] = 'text';
+            if ($length == '1') {
+                $type[] = 'boolean';
+            }
+            break;
+        case 'date':
+            $type[] = 'date';
+            $length = null;
+            break;
+        case 'timestamp':
+            $type[] = 'timestamp';
+            $length = null;
+            break;
+        case 'time':
+            $type[] = 'time';
+            $length = null;
+            break;
+        case 'float':
+        case 'double precision':
+            $type[] = 'float';
+            break;
+        case 'decimal':
+        case 'numeric':
+            $type[] = 'decimal';
+            break;
+        case 'blob':
+            $type[] = 'blob';
+            $length = null;
+            break;
+        default:
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableFieldDefinition: unknown database attribute type');
+        }
+
+        return array($type, $length);
+    }
+    
     // }}}
 }
 ?>
