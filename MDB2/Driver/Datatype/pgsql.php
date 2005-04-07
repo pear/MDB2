@@ -53,13 +53,12 @@ require_once 'MDB2/Driver/Datatype/Common.php';
  * @category Database
  * @author  Paul Cooper <pgc@ucecom.com>
  */
-
 class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
 {
     // {{{ convertResult()
 
     /**
-     * convert a value to a RDBMS indepdenant MDB2 type
+     * convert a value to a RDBMS independent MDB2 type
      *
      * @param mixed $value value to be converted
      * @param int $type constant that specifies which type to convert to
@@ -92,7 +91,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     // {{{ _getTextDeclaration()
 
     /**
-     * Obtain DBMS specific SQL code portion needed to declare an text type
+     * Obtain DBMS specific SQL code portion needed to declare a text type
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name   name the field to be declared.
@@ -129,7 +128,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     // {{{ _getCLOBDeclaration()
 
     /**
-     * Obtain DBMS specific SQL code portion needed to declare an character
+     * Obtain DBMS specific SQL code portion needed to declare a character
      * large object type field to be used in statements like CREATE TABLE.
      *
      * @param string $name   name the field to be declared.
@@ -160,7 +159,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     // {{{ _getBLOBDeclaration()
 
     /**
-     * Obtain DBMS specific SQL code portion needed to declare an binary large
+     * Obtain DBMS specific SQL code portion needed to declare a binary large
      * object type field to be used in statements like CREATE TABLE.
      *
      * @param string $name   name the field to be declared.
@@ -501,7 +500,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteBoolean($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value ? "'t'" : "'f'");
     }
 
@@ -556,7 +554,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (!isset($db->lobs[$lob])) {
             return $db->raiseError(MDB2_ERROR_INVALID, null, null,
-                'did not specified a valid lob');
+                'did not specify a valid lob');
         }
         if (!isset($db->lobs[$lob]['handle'])) {
             if (!$db->in_transaction) {
@@ -745,6 +743,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
 
         return array($type, $length);
     }
+    
+    // }}}
 }
-
 ?>
