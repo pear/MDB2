@@ -1582,7 +1582,7 @@ class MDB2_Driver_Common extends PEAR
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 $method.': method not implemented');
         }
-        return  call_user_func_array(array(&$this->modules[$module], $method), $params);
+        return call_user_func_array(array(&$this->modules[$module], $method), $params);
     }
 
     // }}}
