@@ -86,6 +86,9 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
              * Create a result resource identifier.
              */
             $id = $db->_doQuery("SELECT * FROM $result WHERE 1=0");
+            if (PEAR::isError($id)) {
+                return $id;
+            }
             $got_string = true;
         } elseif (MDB2::isResultCommon($result)) {
             /*
