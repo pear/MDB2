@@ -49,20 +49,19 @@
  * @category Database
  * @author   Lukas Smith <smith@backendmedia.com>
  */
-class MDB2_Iterator extends MDB2_Result implements Iterator
+class MDB2_Iterator implements Iterator
 {
-    private $result;
-    private $row;
-    private $buffer;
+    protected $result;
+    protected $row;
 
     // {{{ constructor
 
     /**
      * Constructor
      */
-    function __construct(&$result)
+    public function __construct($result)
     {
-        $this->result =& $result;
+        $this->result = $result;
     }
 
     // }}}
@@ -75,9 +74,12 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     * @return void
     * @access public
     */
-    function seek($rownum = 0)
+    public function seek($rownum)
     {
-        $this->result->seek($rownum);
+        $this->row = null;
+        if ($this->result) {
+            $this->result->seek($rownum);
+        }
     }
 
     // }}}
@@ -89,19 +91,9 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     * @return void
     * @access public
     */
-    function next()
+    public function next()
     {
-        if ($this->buffer) {
-            $this->row = $this->buffer;
-            $this->buffer = null;
-        } else {
-            $row = $this->result->fetchRow();
-            if (PEAR::isError($row)) {
-                $this->row = null;
-            } else {
-                $this->row = $row;
-            }
-        }
+        $this->row = null;
     }
 
     // }}}
@@ -113,8 +105,15 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     * @return void
     * @access public
     */
-    function current()
+    public function current()
     {
+        if (is_null($this->row)) {
+            $row = $this->result->fetchRow();
+            if (PEAR::isError($row)) {
+                $row = false;
+            }
+            $this->row = $row;
+        }
         return $this->row;
     }
 
@@ -127,9 +126,9 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     * @return mixed true or false on sucess, a MDB2 error on failure
     * @access public
     */
-    function valid()
+    public function valid()
     {
-        return $this->result->valid();
+        return (bool)$this->current();
     }
 
     // }}}
@@ -141,20 +140,14 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
      * @return boolean true on success, false if result is invalid
      * @access public
      */
-    function free()
+    public function free()
     {
-        return $this->result->free();
-    }
-
-    // }}}
-    // {{{ destructor
-
-    /**
-     * Destructor
-     */
-    function __destruct()
-    {
-        $this->free();
+        if ($this->result) {
+            return $this->result->free();
+        }
+        $this->result = null;
+        $this->row = null;
+        return false;
     }
 
     // }}}
@@ -166,9 +159,12 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     * @return void
     * @access public
     */
-    function key()
+    public function key()
     {
-        $this->result->getRowCount();
+        if ($this->result) {
+            return $this->result->getRowCounter();
+        }
+        return false;
     }
 
     // }}}
@@ -180,61 +176,39 @@ class MDB2_Iterator extends MDB2_Result implements Iterator
     * @return void
     * @access public
     */
-    function rewind()
+    public function rewind()
     {
-        MDB2::raiseError(MDB2_ERROR_NOT_CAPABLE);
+    }
+
+    // }}}
+    // {{{ destructor
+
+    /**
+     * Destructor
+     */
+    public function __destruct()
+    {
+        $this->free();
     }
 }
 
 class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
 {
-    // {{{ seek()
-
-    /**
-    * seek to a specific row in a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @return void
-    * @access public
-    */
-    function seek($rownum)
-    {
-        $this->row = null;
-        $this->result->seek($rownum);
-    }
-
     // }}}
     // {{{ valid()
 
     /**
     * check if the end of the result set has been reached
     *
-    * @return void
+    * @return mixed true or false on sucess, a MDB2 error on failure
     * @access public
     */
-    function valid()
+    public function valid()
     {
-        return $this->result->valid();
-    }
-
-    // }}}
-    // {{{ next()
-
-    /**
-    * Fetch next row of data
-    *
-    * @return void
-    * @access public
-    */
-    function next()
-    {
-        $row = $this->result->fetchRow();
-        if (PEAR::isError($row)) {
-            $this->row = null;
-            return false;
+        if ($this->result) {
+            return $this->result->valid();
         }
-        $this->row = $row;
-        return true;
+        return false;
     }
 
     // }}}
@@ -246,9 +220,12 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
      * @return mixed MDB2 Error Object or the number of rows
      * @access public
      */
-    function count()
+    public function count()
     {
-        return $this->result->numRows();
+        if ($this->result) {
+            return $this->result->numRows();
+        }
+        return false;
     }
 
     // }}}
@@ -260,9 +237,12 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     * @return mixed true or false on sucess, a MDB2 error on failure
     * @access public
     */
-    function hasPrev()
+    public function hasPrev()
     {
-        return $this->result->rownum > - 1;
+        if ($this->result) {
+            return $this->result->getRowCounter() > 0;
+        }
+        return false;
     }
 
     // }}}
@@ -274,7 +254,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     * @return mixed MDB2_OK on success, a MDB2 error on failure
     * @access public
     */
-    function rewind()
+    public function rewind()
     {
         $this->seek(0);
     }
@@ -289,10 +269,10 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     * @return void
     * @access public
     */
-    function prev()
+    public function prev()
     {
         if ($this->hasPrev()) {
-            $this->seek($this->result->rownum - 1);
+            $this->seek($this->result->getRowCounter() - 1);
         } else {
             return false;
         }
