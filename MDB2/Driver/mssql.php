@@ -407,7 +407,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function nextID($seq_name, $ondemand = true)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        $query = "INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (0)";
+        $query = "INSERT INTO $sequence_name (".$this->options['seqcol_name'].") VALUES (0)";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);
         $this->popExpect();
@@ -430,7 +430,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
         $value = $this->queryOne("SELECT @@IDENTITY FROM $sequence_name", 'integer');
         if (is_numeric($value)) {
-            $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value";
+            $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqcol_name']." < $value";
             $result = $this->_doQuery($query, true);
             if (PEAR::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values';

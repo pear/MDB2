@@ -387,7 +387,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function nextID($seq_name, $ondemand = true)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        $query = "INSERT INTO $sequence_name (".$this->options['seqname_col_name'].") VALUES (NULL);";
+        $query = "INSERT INTO $sequence_name (".$this->options['seqcol_name'].") VALUES (NULL);";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);
         $this->popExpect();
@@ -410,7 +410,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
         $value = $this->queryOne("SELECT UNIQUE FROM $sequence_name", 'integer');
         if (is_numeric($value)) {
-            $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqname_col_name']." < $value;";
+            $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqcol_name']." < $value;";
             $result = $this->_doQuery($query, true);
             if(PEAR::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
@@ -449,7 +449,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function currID($seq_name)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        $query = "SELECT MAX(".$this->options['seqname_col_name'].") FROM $sequence_name";
+        $query = "SELECT MAX(".$this->options['seqcol_name'].") FROM $sequence_name";
         return $this->queryOne($query, 'integer');
     }
 

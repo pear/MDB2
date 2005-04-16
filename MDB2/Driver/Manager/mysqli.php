@@ -606,13 +606,13 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
-        $seqname_col_name = $db->options['seqname_col_name'];
+        $seqcol_name = $db->options['seqcol_name'];
         $result = $this->_verifyTableType($db->options['default_table_type']);
         if (PEAR::isError($result)) {
             return $result;
         }
         $res = $db->query("CREATE TABLE $sequence_name".
-            "($seqname_col_name INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ($seqname_col_name))".
+            "($seqcol_name INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ($seqcol_name))".
             (strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : '')
         );
         if (PEAR::isError($res)) {
@@ -621,7 +621,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         if ($start == 1) {
             return MDB2_OK;
         }
-        $res = $db->query("INSERT INTO $sequence_name ($seqname_col_name) VALUES (".($start-1).')');
+        $res = $db->query("INSERT INTO $sequence_name ($seqcol_name) VALUES (".($start-1).')');
         if (!PEAR::isError($res)) {
             return MDB2_OK;
         }
