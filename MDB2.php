@@ -840,7 +840,7 @@ class MDB2_Error extends PEAR_Error
      * @param smixed  $debuginfo additional debug info, such as the last query
      */
     function MDB2_Error($code = MDB2_ERROR, $mode = PEAR_ERROR_RETURN,
-              $level = E_USER_NOTICE, $debuginfo = NULL)
+              $level = E_USER_NOTICE, $debuginfo = null)
     {
         if (is_int($code)) {
             $this->PEAR_Error('MDB2 Error: '.MDB2::errorMessage($code), $code,
@@ -931,7 +931,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['lob_buffer_length'] -> integer LOB buffer length
      * $options['log_line_break'] -> string line-break format
      * $options['seqname_format'] -> string pattern for sequence name
-     * $options['sequence_col_name'] -> string sequence column name
+     * $options['seqcol_name'] -> string sequence column name
      * $options['use_transactions'] -> boolean
      * $options['decimal_places'] -> integer
      * $options['portability'] -> portability constant
@@ -953,7 +953,7 @@ class MDB2_Driver_Common extends PEAR
             'lob_buffer_length' => 8192,
             'log_line_break' => "\n",
             'seqname_format' => '%s_seq',
-            'seqname_col_name' => 'sequence',
+            'seqcol_name' => 'sequence',
             'use_transactions' => false,
             'decimal_places' => 2,
             'portability' => MDB2_PORTABILITY_ALL,
@@ -1021,13 +1021,6 @@ class MDB2_Driver_Common extends PEAR
      * @access private
      */
     var $dbsyntax;
-
-    /**
-     * contains metadata about all prepared queries
-     * @var array
-     * @access private
-     */
-    var $prepared_queries = array();
 
     /**
      * the last query sent to the driver
@@ -1713,7 +1706,7 @@ class MDB2_Driver_Common extends PEAR
     /**
      * return the DSN as a string
      *
-     * @param string     $type    type to return
+     * @param string     $type    format to return ("array", "string")
      * @param string     $hidepw  string to hide the password with
      * @return mixed DSN in the chosen type
      * @access public
@@ -1733,6 +1726,9 @@ class MDB2_Driver_Common extends PEAR
                 $dsn['password'].'@'.$dsn['hostspec'].
                 ($dsn['port'] ? (':'.$dsn['port']) : '').
                 '/'.$dsn['database'];
+            break;
+        case 'array':
+        default:
             break;
         }
         return $dsn;
@@ -2066,34 +2062,34 @@ class MDB2_Driver_Common extends PEAR
             return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,
                 'replace: not specified which fields are keys');
         }
+        $result = null;
         $in_transaction = $this->in_transaction;
         if (!$in_transaction && PEAR::isError($result = $this->beginTransaction())) {
             return $result;
         }
         $query = "DELETE FROM $table$condition";
-        $success = $this->_doQuery($query, true);
-        if (!PEAR::isError($success)) {
-            $affected_rows = $success;
+        $affected_rows = $result = $this->_doQuery($query, true);
+        if (!PEAR::isError($result)) {
             $query = "INSERT INTO $table ($insert) VALUES ($values)";
-            $success = $this->_doQuery($query, true);
-            if (!PEAR::isError($success)) {
-                $affected_rows += $success;
+            $result = $this->_doQuery($query, true);
+            if (!PEAR::isError($result)) {
+                $affected_rows += $result;
             }
         }
 
         if (!$in_transaction) {
-            if (PEAR::isError($success)) {
+            if (PEAR::isError($result)) {
                 $this->rollback();
-                //$this->autoCommit(true);
-            }
-            if (!PEAR::isError($success = $this->commit())
-                && $this->supports('affected_rows')
-            ) {
-                return $affected_rows;
+            } else {
+                $result = $this->commit();
             }
         }
 
-        return $success;
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        return $affected_rows;
     }
 
     // }}}
@@ -2357,14 +2353,7 @@ class MDB2_Driver_Common extends PEAR
     {
         $this->warnings[] = 'database does not support getting current
             sequence value, the sequence value was incremented';
-        $this->expectError(MDB2_ERROR_UNSUPPORTED);
-        $id = $this->nextID($seq_name);
-        $this->popExpect(MDB2_ERROR_UNSUPPORTED);
-        if (MDB2::isError($id, MDB2_ERROR_UNSUPPORTED)) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'currID: getting current sequence value not supported');
-        }
-        return $id;
+        return $this->nextID($seq_name);
     }
 
     // }}}
@@ -2568,7 +2557,7 @@ class MDB2_Result_Common extends MDB2_Result
     {
         $target_rownum = $rownum - 1;
         if ($this->rownum > $target_rownum) {
-            return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, NULL, NULL,
+            return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'seek: seeking to previous rows not implemented');
         }
         while ($this->rownum < $target_rownum) {
@@ -2590,7 +2579,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, NULL, NULL,
+        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'fetch: method not implemented');
     }
 
@@ -2609,10 +2598,13 @@ class MDB2_Result_Common extends MDB2_Result
         $column = array();
         $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
         $row = $this->fetchRow($fetchmode);
-        if (is_array($row) && array_key_exists($colnum, $row)) {
-            return $row[$colnum];
+        if (!is_array($row) || PEAR::isError($row)) {
+            return $row;
         }
-        return $row;
+        if (!array_key_exists($colnum, $row)) {
+            return $this->db->raiseError(MDB2_ERROR_TRUNCATED);
+        }
+        return $row[$colnum];
     }
 
     // }}}
@@ -2668,7 +2660,7 @@ class MDB2_Result_Common extends MDB2_Result
         $force_array = false, $group = false)
     {
         $row = $this->fetchRow($fetchmode);
-        if (PEAR::isError($row) || !$row) {
+        if (!$row || PEAR::isError($row)) {
             return $row;
         }
 
@@ -2871,7 +2863,6 @@ class MDB2_Statement_Common
         $this->query = $query;
         $this->types = $types;
         $this->result_types = $result_types;
-        $this->db->loadModule('Datatype');
     }
 
     function MDB2_Statement_Common(&$db, &$statement, $query, $types, $result_types)
@@ -2895,6 +2886,13 @@ class MDB2_Statement_Common
      */
     function bindParam($parameter, &$value, $type = null)
     {
+        if (!array_key_exists($parameter, $this->statement)) {
+            $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
+            if (!array_key_exists($parameter, $this->values)) {
+                return $this->db->raiseError(MDB2_ERROR_MISSING, null, null,
+                    'bindParam: value passed for non existant parameter: '.$parameter);
+            }
+        }
         $this->values[$parameter] =& $value;
         if (!is_null($type)) {
             $this->types[$parameter] = $type;
@@ -2918,9 +2916,21 @@ class MDB2_Statement_Common
      */
     function bindParamArray(&$values, $types = null)
     {
-        $this->values =& $values;
-        if (is_array($types)) {
-            $this->types = $types;
+        $parameters = array_keys($values);
+        foreach ($parameters as $parameter) {
+            $tpye = null;
+            if (array_key_exists($parameter, $types)) {
+                $type = $types[$parameter];
+                unset($types[$parameter]);
+            }
+            $result = $this->bindParam($parameter, $values[$parameter], $type);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+        if (!empty($types)) {
+            return $this->db->raiseError(MDB2_ERROR_MISSING, null, null,
+                'bindParamArray: type array cotains values for non existant parameters');
         }
         return MDB2_OK;
     }
@@ -2942,8 +2952,7 @@ class MDB2_Statement_Common
         $last_position = 0;
         foreach ($this->values as $parameter => $value) {
             $current_position = $this->statement[$parameter];
-            $query .= substr($this->query,
-                $last_position, $current_position - $last_position);
+            $query .= substr($this->query, $last_position, $current_position - $last_position);
             if (!isset($value)) {
                 $value_quoted = 'NULL';
             } else {
