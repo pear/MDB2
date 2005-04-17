@@ -36,6 +36,12 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
   datatype module mapNativeDatatype() method (mysql, sqlite, pgsql and ibase drivers)
 - fixes for listTables() in sqlite and pgsql driver
 - ensure that mysql drivers use the dummy_primary_key property
+- severely reworked how data is fetched and buffered and freed in the iterator
+- added mapNativeDatatype() to ibase driver
+- getTypeDeclaration() => _getTypeDeclaration() in ibase driver
+- cosmetic fixes and tweaks (replace(). fetchOne() ..)
+- renamed 'seqname_col_name' option to 'seqcol_name'
+- added checks into binParam() and binParamArray() (this breaks the ibase and obi8 driver for now)
 EOT;
 
 $description =<<<EOT

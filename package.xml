@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.0a9">
+<package version="1.0" packagerversion="1.4.0a10">
  <name>MDB2</name>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
@@ -79,7 +79,7 @@ Other soon to follow.
   </maintainers>
  <release>
   <version>2.0.0beta4</version>
-  <date>2005-04-02</date>
+  <date>2005-04-17</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
@@ -110,6 +110,16 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - do not disable result wrapping when doing internal calls to query() (bug #3997)
 - _wrapResult() now ensures that the result class is an instance of MDB2_Result_Common
 - unbundled the MDB2_Tools_Manager into a separate package PEAR::MDB2_Schema
+- improved getTableFieldDefinition() and moved native type mapping to the
+  datatype module mapNativeDatatype() method (mysql, sqlite, pgsql and ibase drivers)
+- fixes for listTables() in sqlite and pgsql driver
+- ensure that mysql drivers use the dummy_primary_key property
+- severely reworked how data is fetched and buffered and freed in the iterator
+- added mapNativeDatatype() to ibase driver
+- getTypeDeclaration() =&gt; _getTypeDeclaration() in ibase driver
+- cosmetic fixes and tweaks (replace(). fetchOne() ..)
+- renamed 'seqname_col_name' option to 'seqcol_name'
+- added checks into binParam() and binParamArray() (this breaks the ibase and obi8 driver for now)
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>
@@ -404,7 +414,7 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
  <changelog>
    <release>
     <version>2.0.0beta4</version>
-    <date>2005-04-02</date>
+    <date>2005-04-17</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
@@ -435,6 +445,16 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - do not disable result wrapping when doing internal calls to query() (bug #3997)
 - _wrapResult() now ensures that the result class is an instance of MDB2_Result_Common
 - unbundled the MDB2_Tools_Manager into a separate package PEAR::MDB2_Schema
+- improved getTableFieldDefinition() and moved native type mapping to the
+  datatype module mapNativeDatatype() method (mysql, sqlite, pgsql and ibase drivers)
+- fixes for listTables() in sqlite and pgsql driver
+- ensure that mysql drivers use the dummy_primary_key property
+- severely reworked how data is fetched and buffered and freed in the iterator
+- added mapNativeDatatype() to ibase driver
+- getTypeDeclaration() =&gt; _getTypeDeclaration() in ibase driver
+- cosmetic fixes and tweaks (replace(). fetchOne() ..)
+- renamed 'seqname_col_name' option to 'seqcol_name'
+- added checks into binParam() and binParamArray() (this breaks the ibase and obi8 driver for now)
     </notes>
    </release>
    <release>
