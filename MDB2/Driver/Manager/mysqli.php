@@ -68,7 +68,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      *
      * @param string $table_type name of the table handler
      * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access private
+     * @access protected
      */
     function _verifyTableType($table_type)
     {

@@ -871,42 +871,42 @@ class MDB2_Driver_Common extends PEAR
     /**
      * DSN used for the next query
      * @var array
-     * @access private
+     * @access protected
      */
     var $dsn = array();
 
     /**
      * DSN that was used to create the current connection
      * @var array
-     * @access private
+     * @access protected
      */
     var $connected_dsn = array();
 
     /**
      * connection resource
      * @var mixed
-     * @access private
+     * @access protected
      */
     var $connection = 0;
 
     /**
      * if the current opened connection is a persistent connection
      * @var boolean
-     * @access private
+     * @access protected
      */
     var $opened_persistent;
 
     /**
      * the name of the database for the next query
      * @var string
-     * @access private
+     * @access protected
      */
     var $database_name = '';
 
     /**
      * the name of the database currrently selected
      * @var string
-     * @access private
+     * @access protected
      */
     var $connected_database_name = '';
 
@@ -969,14 +969,14 @@ class MDB2_Driver_Common extends PEAR
     /**
      * escape character
      * @var string
-     * @access private
+     * @access protected
      */
     var $escape_quotes = '';
 
     /**
      * warnings
      * @var array
-     * @access private
+     * @access protected
      */
     var $warnings = array();
 
@@ -990,35 +990,35 @@ class MDB2_Driver_Common extends PEAR
     /**
      * determine if there is an open transaction
      * @var boolean
-     * @access private
+     * @access protected
      */
     var $in_transaction = false;
 
     /**
      * result offset used in the next query
      * @var integer
-     * @access private
+     * @access protected
      */
     var $row_offset = 0;
 
     /**
      * result limit used in the next query
      * @var integer
-     * @access private
+     * @access protected
      */
     var $row_limit = 0;
 
     /**
      * Database backend used in PHP (mysql, odbc etc.)
      * @var string
-     * @access private
+     * @access protected
      */
     var $phptype;
 
     /**
      * Database used with regards to SQL syntax etc.
      * @var string
-     * @access private
+     * @access protected
      */
     var $dbsyntax;
 
@@ -1032,42 +1032,42 @@ class MDB2_Driver_Common extends PEAR
     /**
      * the default fetchmode used
      * @var integer
-     * @access private
+     * @access protected
      */
     var $fetchmode = MDB2_FETCHMODE_ORDERED;
 
     /**
      * contains all LOB objects created with this MDB2 instance
     * @var array
-    * @access private
+    * @access protected
     */
     var $lobs = array();
 
     /**
      * contains all CLOB objects created with this MDB2 instance
     * @var array
-    * @access private
+    * @access protected
     */
     var $clobs = array();
 
     /**
      * contains all BLOB objects created with this MDB2 instance
     * @var array
-    * @access private
+    * @access protected
     */
     var $blobs = array();
 
     /**
      * array of module instances
      * @var array
-     * @access private
+     * @access protected
      */
     var $modules = array();
 
     /**
      * determines of the PHP4 destructor emulation has been enabled yet
     * @var array
-    * @access private
+    * @access protected
     */
     var $destructor_registered;
 
@@ -1436,7 +1436,7 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param array  $array  the array to be trimmed (passed by reference)
      * @return void
-     * @access private
+     * @access protected
      */
     function _rtrimArrayValues(&$array)
     {
@@ -1455,7 +1455,7 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param array  $array  the array to be de-nullified (passed by reference)
      * @return void
-     * @access private
+     * @access protected
      */
     function _convertEmptyArrayValuesToNull(&$array)
     {
@@ -1779,7 +1779,7 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param string $query  query to modify
      * @return the new (modified) query
-     * @access private
+     * @access protected
      */
     function _modifyQuery($query)
     {
@@ -1796,7 +1796,7 @@ class MDB2_Driver_Common extends PEAR
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
-     * @access private
+     * @access protected
      */
     function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
@@ -1859,7 +1859,7 @@ class MDB2_Driver_Common extends PEAR
      * @param string $limit number of rows to select
      * @param string $offset first row to select
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access private
+     * @access protected
      */
     function &_wrapResult($result, $types = array(), $result_class = true,
         $result_wrap_class = false, $limit = null, $offset = null)

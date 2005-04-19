@@ -57,7 +57,7 @@
  *
  * @package MDB2
  * @category Database
- * @access private
+ * @access protected
  * @author  Lukas Smith <smith@backendmedia.com>
  */
 class MDB2_LOB
@@ -104,7 +104,7 @@ class MDB2_LOB
  *
  * @package MDB2
  * @category Database
- * @access private
+ * @access protected
  * @author  Lukas Smith <smith@backendmedia.com>
  */
 class MDB2_LOB_Result extends MDB2_LOB
@@ -150,7 +150,7 @@ class MDB2_LOB_Result extends MDB2_LOB
  *
  * @package MDB2
  * @category Database
- * @access private
+ * @access protected
  * @author  Lukas Smith <smith@backendmedia.com>
  */
 class MDB2_LOB_Output_File extends MDB2_LOB

@@ -297,7 +297,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * Builds the string with path+dbname+extension
      *
      * @return string full database path+file
-     * @access private
+     * @access protected
      */
     function _getDatabaseFile($database_name)
     {
@@ -314,7 +314,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * Does the grunt work of connecting to the database
      *
      * @return mixed connection resource on success, MDB2 Error Object on failure
-     * @access private
+     * @access protected
      */
     function _doConnect($database_name, $persistent = false)
     {
@@ -421,7 +421,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
-     * @access private
+     * @access protected
      */
     function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
@@ -466,7 +466,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      *
      * @param string $query  query to modify
      * @return the new (modified) query
-     * @access private
+     * @access protected
      */
     function _modifyQuery($query, $isManip, $limit, $offset)
     {
@@ -648,7 +648,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      *
      * @param resource $result
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access private
+     * @access protected
      */
     function _skipLimitOffset()
     {
@@ -844,7 +844,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
      * @param int $rownum   row number upto which the buffer should be filled
      *                      if the row number is null all rows are ready into the buffer
      * @return boolean true on success, false on failure
-     * @access private
+     * @access protected
      */
     function _fillBuffer($rownum = null)
     {

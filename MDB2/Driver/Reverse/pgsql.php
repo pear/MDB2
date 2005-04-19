@@ -299,7 +299,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
      *
      * @return string  the flags
      *
-     * @access private
+     * @access protected
      */
     function _pgFieldFlags($resource, $num_field, $table_name)
     {

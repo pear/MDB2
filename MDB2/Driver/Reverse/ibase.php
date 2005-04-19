@@ -163,7 +163,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      *
      * @return string  the flags
      *
-     * @access private
+     * @access protected
      */
     function _ibaseFieldFlags($field_name, $table_name)
     {

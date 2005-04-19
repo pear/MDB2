@@ -324,7 +324,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
-     * @access private
+     * @access protected
      */
     function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
@@ -376,7 +376,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      *
      * @param string $query  query to modify
      * @return the new (modified) query
-     * @access private
+     * @access protected
      */
     function _modifyQuery($query, $isManip, $limit, $offset)
     {
@@ -466,7 +466,7 @@ class MDB2_Result_mssql extends MDB2_Result_Common
      *
      * @param resource $result
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access private
+     * @access protected
      */
     function _skipLimitOffset()
     {

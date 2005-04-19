@@ -112,7 +112,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *          to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *      declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getTextDeclaration($name, $field)
     {
@@ -146,7 +146,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *          to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *      declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getCLOBDeclaration($name, $field)
     {
@@ -177,7 +177,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *          to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *      declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getBLOBDeclaration($name, $field)
     {
@@ -206,7 +206,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getBooleanDeclaration($name, $field)
     {
@@ -237,7 +237,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *          to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *      declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getDateDeclaration($name, $field)
     {
@@ -268,7 +268,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *          to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *      declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getTimeDeclaration($name, $field)
     {
@@ -299,7 +299,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *           to not be set to null.
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getTimestampDeclaration($name, $field)
     {
@@ -330,7 +330,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *          to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *      declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getFloatDeclaration($name, $field)
     {
@@ -361,7 +361,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *          to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *      declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getDecimalDeclaration($name, $field)
     {
@@ -382,7 +382,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @param           $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
-     * @access private
+     * @access protected
      */
     function _quoteLOB($value)
     {
@@ -462,7 +462,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @param           $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
-     * @access private
+     * @access protected
      */
     function _quoteCLOB($value)
     {
@@ -479,7 +479,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @param           $value
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
-     * @access private
+     * @access protected
      */
     function _quoteBLOB($value)
     {
@@ -496,7 +496,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access private
+     * @access protected
      */
     function _quoteBoolean($value)
     {
@@ -513,7 +513,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
-     * @access private
+     * @access protected
      */
     function _quoteFloat($value)
     {
@@ -531,7 +531,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @param string $value text string value that is intended to be converted.
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
-     * @access private
+     * @access protected
      */
     function _quoteDecimal($value)
     {
@@ -547,7 +547,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *
      * @param int $lob handle to a lob created by the createLOB() function
      * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access private
+     * @access protected
      */
     function _retrieveLOB($lob)
     {
@@ -586,7 +586,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *
      * @param int    $lob handle to a lob created by the createLOB() function
      * @return mixed true or false on success, a MDB2 error on failure
-     * @access private
+     * @access protected
      */
     function _endOfResultLOB($lob)
     {
@@ -610,7 +610,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @param int $length integer value that indicates the largest ammount of
      *      data to be read from the large object input stream.
      * @return mixed length on success, a MDB2 error on failure
-     * @access private
+     * @access protected
      */
     function _readResultLOB($lob, &$data, $length)
     {
@@ -637,7 +637,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * handler object.
      *
      * @param int $lob handle to a lob created by the createLOB() function
-     * @access private
+     * @access protected
      */
     function _destroyResultLOB($lob)
     {

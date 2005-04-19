@@ -128,7 +128,7 @@
             Renamed some variables for consistancy.
         </history>
         <history author="Alan Richmond" email="arichmond@bigfoot.com" type="Update" date="30-July-2002">
-            Removed private function _empty2null().  Turns out preg_split()
+            Removed protected function _empty2null().  Turns out preg_split()
             deals with empty elemants by making them zero length strings, just
             what they ended up being anyway.  This should speed things up a little.
             Affected functions:
@@ -335,7 +335,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
-     * @access private
+     * @access protected
      */
     function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
@@ -368,7 +368,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      *
      * @param string filepath/filename
      *
-     * @access private
+     * @access protected
      *
      * @return string the contents of a file
      */
@@ -397,7 +397,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      *
      * @param string Text of simulated query
      *
-     * @access private
+     * @access protected
      *
      * @return multi-dimensional array containing the column names and data
      *                                 from the QuerySim
@@ -476,7 +476,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      * @param string $thisLine Text of simulated query
      * @param string $delim    The delimiter to split on
      *
-     * @access private
+     * @access protected
      *
      * @return array containing parsed string
      */

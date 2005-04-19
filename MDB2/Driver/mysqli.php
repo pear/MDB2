@@ -422,7 +422,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
-     * @access private
+     * @access protected
      */
     function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
@@ -476,7 +476,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      *
      * @param string $query  query to modify
      * @return the new (modified) query
-     * @access private
+     * @access protected
      */
     function _modifyQuery($query, $isManip, $limit, $offset)
     {

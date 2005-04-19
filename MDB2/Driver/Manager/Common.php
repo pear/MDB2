@@ -124,7 +124,7 @@ class MDB2_Driver_Manager_Common
      *
      * @param string $sqn string that containts name of a potential sequence
      * @return mixed name of the sequence if $sqn is a name of a sequence, else false
-     * @access private
+     * @access protected
      */
     function _isSequenceName($sqn)
     {

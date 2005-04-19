@@ -170,7 +170,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
      *
      * @return string  the flags
      *
-     * @access private
+     * @access protected
      * @author Joern Barthel <j_barthel@web.de>
      */
     function _mssql_field_flags($table, $column)
@@ -243,7 +243,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
      *
      * @return void
      *
-     * @access private
+     * @access protected
      * @author Joern Barthel <j_barthel@web.de>
      */
     function _add_flag(&$array, $value)

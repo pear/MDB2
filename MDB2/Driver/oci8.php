@@ -237,7 +237,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * do the grunt work of the connect
      *
      * @return connection on success or MDB2 Error Object on failure
-     * @access private
+     * @access protected
      */
     function _doConnect($username, $password, $persistent = false)
     {
@@ -413,7 +413,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      *
      * @param string $query  query to modify
      * @return the new (modified) query
-     * @access private
+     * @access protected
      */
     function _modifyQuery($query)
     {
@@ -436,7 +436,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
-     * @access private
+     * @access protected
      */
     function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
     {
@@ -669,7 +669,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
      *
      * @param resource $result
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access private
+     * @access protected
      */
     function _skipLimitOffset()
     {
@@ -840,7 +840,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
      * @param int $rownum   row number upto which the buffer should be filled
                             if the row number is null all rows are ready into the buffer
      * @return boolean true on success, false on failure
-     * @access private
+     * @access protected
      */
     function _fillBuffer($rownum = null)
     {

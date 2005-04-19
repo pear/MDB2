@@ -103,7 +103,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getIntegerDeclaration($name, $field)
     {
@@ -140,7 +140,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      *                        is constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getCLOBDeclaration($name, $field)
     {
@@ -191,7 +191,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getBLOBDeclaration($name, $field)
     {
@@ -240,7 +240,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getDateDeclaration($name, $field)
     {
@@ -273,7 +273,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getTimestampDeclaration($name, $field)
     {
@@ -305,7 +305,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getTimeDeclaration($name, $field)
     {
@@ -338,7 +338,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getFloatDeclaration($name, $field)
     {
@@ -372,7 +372,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      *                        constrained to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access private
+     * @access protected
      */
     function _getDecimalDeclaration($name, $field)
     {
@@ -394,7 +394,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      * @param           $value
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
-     * @access private
+     * @access protected
      */
     function _quoteBLOB($value)
     {
@@ -412,7 +412,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      * @param string  $value text string value that is intended to be converted.
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
-     * @access private
+     * @access protected
      */
     function _quoteFloat($value)
     {
@@ -430,7 +430,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      * @param string  $value text string value that is intended to be converted.
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
-     * @access private
+     * @access protected
      */
     function _quoteDecimal($value)
     {
