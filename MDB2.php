@@ -2918,8 +2918,8 @@ class MDB2_Statement_Common
     {
         $parameters = array_keys($values);
         foreach ($parameters as $parameter) {
-            $tpye = null;
-            if (array_key_exists($parameter, $types)) {
+            $type = null;
+            if (!empty($types) && array_key_exists($parameter, $types)) {
                 $type = $types[$parameter];
                 unset($types[$parameter]);
             }
