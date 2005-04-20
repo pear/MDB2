@@ -2886,7 +2886,7 @@ class MDB2_Statement_Common
      */
     function bindParam($parameter, &$value, $type = null)
     {
-        if (!array_key_exists($parameter, $this->statement)) {
+        if (is_array($this->statement) && !array_key_exists($parameter, $this->statement)) {
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
             if (!array_key_exists($parameter, $this->values)) {
                 return $this->db->raiseError(MDB2_ERROR_MISSING, null, null,
