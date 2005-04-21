@@ -170,7 +170,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                     $implicit_sequence['on'] = array();
                     $implicit_sequence['on']['table'] = $table;
                     $implicit_sequence['on']['field'] = $field_name;
-                    $definition[1]['name'] = $table.'_'.$field_name;
+                    $definition[1]['name'] = $table;
                     $definition[1]['definition'] = $implicit_sequence;
                 }
                 if (isset($column['key']) && $column['key'] == 'PRI') {
