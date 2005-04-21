@@ -474,22 +474,15 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
                 }
             }
             break;
-        case 'tinytext':
-        case 'mediumtext':
-        case 'longtext':
-        case 'text':
         case 'char':
         case 'varchar':
             $type[] = 'text';
-            if ($decimal == 'binary') {
-                $type[] = 'blob';
-            } elseif ($length == '1') {
+            if ($length == '1') {
                 $type[] = 'boolean';
                 if (preg_match('/[is|has]/', $field['field'])) {
                     $type = array_reverse($type);
                 }
-            } elseif (strstr($db_type, 'text'))
-                $type[] = 'clob';
+            }
             break;
         case 'enum':
             preg_match_all('/\'.+\'/U', $field['type'], $matches);
@@ -524,6 +517,16 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         case 'decimal':
         case 'numeric':
             $type[] = 'decimal';
+            break;
+        case 'tinytext':
+        case 'mediumtext':
+        case 'longtext':
+        case 'text':
+            if ($decimal == 'binary') {
+                $type[] = 'blob';
+            }
+            $type[] = 'clob';
+            $type[] = 'text';
             break;
         case 'tinyblob':
         case 'mediumblob':
