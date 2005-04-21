@@ -924,6 +924,9 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             }
             $row = $column_names;
         }
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $this->db->_convertEmptyArrayValuesToNull($row);
+        }
         if (isset($this->types)) {
             $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
