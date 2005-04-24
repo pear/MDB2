@@ -117,6 +117,8 @@ class MDB2_Driver_Datatype_Common
 
         if (!is_array($types)) {
             $types = array($types);
+        } else {
+            $types = array_values($types);
         }
         foreach ($types as $key => $type) {
             if (!isset($this->valid_types[$type])) {
