@@ -2490,7 +2490,6 @@ class MDB2_Result_Common extends MDB2_Result
     var $result;
     var $rownum = -1;
     var $types;
-    var $bindtypes;
     var $values;
     var $offset;
     var $offset_count = 0;
@@ -2842,19 +2841,17 @@ class MDB2_Result_Common extends MDB2_Result
     function bindColumn($column, &$value, $type = null)
     {
         if (is_numeric($column)) {
-            --$column;
-            $this->values[$column] =& $value;
-            if (!is_null($type)) {
-                $this->types[$column] = $type;
-            }
+             --$column;
         } else {
+            $column_names = $this->getColumnNames();
             if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                $column = array_change_key_case($column, CASE_LOWER);
+                $column = strtolower($column);
             }
-            $this->values[$column] =& $value;
-            if (!is_null($type)) {
-                $this->bindtypes[$column] = $type;
-            }
+            $column = $column_names[$column];
+        }
+        $this->values[$column] =& $value;
+        if (!is_null($type)) {
+            $this->types[$column] = $type;
         }
         return MDB2_OK;
     }
@@ -2871,16 +2868,6 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function _assignBindColumns($row)
     {
-        if (is_array($this->bindtypes)) {
-            // map string column-type to numeric
-            $column_names = $this->getColumnNames();
-            foreach ($this->bindtypes as $column => $type) {
-                if (isset($column_names[$column])) {
-                    $this->types[$column_names[$column]] = $type;
-                }
-            }
-            unset($this->bindtypes);
-        }
         foreach ($row as $column => $value) {
             if (array_key_exists($column, $this->values)) {
                 $this->values[$column] = $value;
