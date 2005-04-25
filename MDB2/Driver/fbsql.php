@@ -499,6 +499,9 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->db->_convertEmptyArrayValuesToNull($row);
         }
+        if (isset($this->values)) {
+            $this->_assignBindColumns($row);
+        }
         if (isset($this->types)) {
             $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
@@ -515,7 +518,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
     }
 
     // }}}
-    // {{{ getColumnNames()
+    // {{{ _getColumnNames()
 
     /**
      * Retrieve the names of columns returned by the DBMS in a query result.
@@ -530,9 +533,9 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
      *                              contain any rows.
      *
      *                              a MDB2 error on failure
-     * @access public
+     * @access private
      */
-    function getColumnNames()
+    function _getColumnNames()
     {
         $columns = array();
         $numcols = $this->numCols();

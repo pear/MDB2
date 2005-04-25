@@ -724,6 +724,9 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->db->_convertEmptyArrayValuesToNull($row);
         }
+        if (isset($this->values)) {
+            $this->_assignBindColumns($row);
+        }
         if (isset($this->types)) {
             $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
@@ -740,7 +743,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
     }
 
     // }}}
-    // {{{ getColumnNames()
+    // {{{ _getColumnNames()
 
     /**
      * Retrieve the names of columns returned by the DBMS in a query result.
@@ -751,9 +754,9 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      *      respective numbers of the columns starting from 0. Some DBMS may
      *      not return any columns when the result set does not contain any
      *      rows.
-     * @access public
+     * @access private
      */
-    function getColumnNames()
+    function _getColumnNames()
     {
         $columns = array();
         $numcols = $this->numCols();
@@ -926,6 +929,9 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->db->_convertEmptyArrayValuesToNull($row);
+        }
+        if (isset($this->values)) {
+            $this->_assignBindColumns($row);
         }
         if (isset($this->types)) {
             $row = $this->db->datatype->convertResultRow($this->types, $row);
