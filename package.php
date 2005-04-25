@@ -41,7 +41,14 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - getTypeDeclaration() => _getTypeDeclaration() in ibase driver
 - cosmetic fixes and tweaks (replace(). fetchOne() ..)
 - renamed 'seqname_col_name' option to 'seqcol_name'
-- added checks into binParam() and binParamArray() (this breaks the ibase and obi8 driver for now)
+- moved schema documentation, xml_reverse_engineering.php, MDB.dtd
+  and MDB.xls to MDB_Schema package
+- Mysqli: implicit sequence is named as table by default
+- Mysqli: text types now map to clob first
+- ensure that types are numerically keyed in setResultTypes()
+- added caching to getColumnNames()
+- added bindColumn() support
+- made bindParam() 1-indexed for numeric parameters (as PDO does; BC break!)
 EOT;
 
 $description =<<<EOT
