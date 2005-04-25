@@ -2490,9 +2490,12 @@ class MDB2_Result_Common extends MDB2_Result
     var $result;
     var $rownum = -1;
     var $types;
+    var $bindtypes;
+    var $values;
     var $offset;
     var $offset_count = 0;
     var $limit;
+    var $column_names;
 
     // {{{ constructor
 
@@ -2748,7 +2751,8 @@ class MDB2_Result_Common extends MDB2_Result
     // {{{ getColumnNames()
 
     /**
-     * Retrieve the names of columns returned by the DBMS in a query result.
+     * Retrieve the names of columns returned by the DBMS in a query result or
+     * from the cache.
      *
      * @return mixed associative array variable
      *       that holds the names of columns. The indexes of the array are
@@ -2760,6 +2764,33 @@ class MDB2_Result_Common extends MDB2_Result
      * @access public
      */
     function getColumnNames()
+    {
+        if (!isset($this->column_names)) {
+            $result = $this->_getColumnNames();
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+            $this->column_names = $result;
+        }
+        return $this->column_names;
+    }
+
+    // }}}
+    // {{{ _getColumnNames()
+
+    /**
+     * Retrieve the names of columns returned by the DBMS in a query result.
+     *
+     * @return mixed associative array variable
+     *       that holds the names of columns. The indexes of the array are
+     *       the column names mapped to lower case and the values are the
+     *       respective numbers of the columns starting from 0. Some DBMS may
+     *       not return any columns when the result set does not contain any
+     *       rows.
+     *      a MDB2 error on failure
+     * @access private
+     */
+    function _getColumnNames()
     {
         return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getColumnNames: method not implemented');
@@ -2793,6 +2824,69 @@ class MDB2_Result_Common extends MDB2_Result
     function getResource()
     {
         return $this->result;
+    }
+
+
+    // }}}
+    // {{{ bindColumn()
+
+    /**
+     * Set bind variable to a column.
+     *
+     * @param int $column
+     * @param mixed $value
+     * @param string $type specifies the type of the field
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function bindColumn($column, &$value, $type = null)
+    {
+        if (is_numeric($column)) {
+            --$column;
+            $this->values[$column] =& $value;
+            if (!is_null($type)) {
+                $this->types[$column] = $type;
+            }
+        } else {
+            if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+                $column = array_change_key_case($column, CASE_LOWER);
+            }
+            $this->values[$column] =& $value;
+            if (!is_null($type)) {
+                $this->bindtypes[$column] = $type;
+            }
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _assignBindColumns()
+
+    /**
+     * Bind a variable to a value in the result row.
+     *
+     * @param array $row
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function _assignBindColumns($row)
+    {
+        if (is_array($this->bindtypes)) {
+            // map string column-type to numeric
+            $column_names = $this->getColumnNames();
+            foreach ($this->bindtypes as $column => $type) {
+                if (isset($column_names[$column])) {
+                    $this->types[$column_names[$column]] = $type;
+                }
+            }
+            unset($this->bindtypes);
+        }
+        foreach ($row as $column => $value) {
+            if (array_key_exists($column, $this->values)) {
+                $this->values[$column] = $value;
+            }
+        }
+        return MDB2_OK;
     }
 
     // }}}
@@ -2886,12 +2980,10 @@ class MDB2_Statement_Common
      */
     function bindParam($parameter, &$value, $type = null)
     {
-        if (is_array($this->statement) && !array_key_exists($parameter, $this->statement)) {
+        if (is_numeric($parameter)) {
+            --$parameter;
+        } else {
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
-            if (!array_key_exists($parameter, $this->values)) {
-                return $this->db->raiseError(MDB2_ERROR_MISSING, null, null,
-                    'bindParam: value passed for non existant parameter: '.$parameter);
-            }
         }
         $this->values[$parameter] =& $value;
         if (!is_null($type)) {
@@ -2916,21 +3008,10 @@ class MDB2_Statement_Common
      */
     function bindParamArray(&$values, $types = null)
     {
+        $types = is_array($types) ? array_values($types) : array_fill(0, count($values), null);
         $parameters = array_keys($values);
-        foreach ($parameters as $parameter) {
-            $type = null;
-            if (!empty($types) && array_key_exists($parameter, $types)) {
-                $type = $types[$parameter];
-                unset($types[$parameter]);
-            }
-            $result = $this->bindParam($parameter, $values[$parameter], $type);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
-        }
-        if (!empty($types)) {
-            return $this->db->raiseError(MDB2_ERROR_MISSING, null, null,
-                'bindParamArray: type array cotains values for non existant parameters');
+        foreach ($parameters as $key => $parameter) {
+            $result = $this->bindParam($parameter, $values[$parameter], $types[$key]);
         }
         return MDB2_OK;
     }
