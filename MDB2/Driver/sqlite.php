@@ -374,18 +374,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             }
             $connection = $this->connection;
         }
-        if (is_null($database_name)) {
-            $database_name = $this->database_name;
-        }
-
-         if ($database_name) {
-            if ($database_name != $this->connected_database_name) {
-                if (!@mysql_select_db($database_name, $this->connection)) {
-                    return $this->raiseError();
-                }
-                $this->connected_database_name = $database_name;
-            }
-        }
 
         $function = $this->options['result_buffering']
             ? 'sqlite_query' : 'sqlite_unbuffered_query';
