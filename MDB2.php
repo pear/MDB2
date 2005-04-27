@@ -1265,20 +1265,17 @@ class MDB2_Driver_Common extends PEAR
      * Sets which fetch mode should be used by default on queries
      * on this connection
      *
-     * @param integer $fetchmode MDB2_FETCHMODE_ORDERED or
-     *        MDB2_FETCHMODE_ASSOC, possibly bit-wise OR'ed with
-     *        MDB2_FETCHMODE_FLIPPED.
+     * @param integer $fetchmode    MDB2_FETCHMODE_ORDERED, MDB2_FETCHMODE_ASSOC
+     *                               or MDB2_FETCHMODE_OBJECT
+     * @param string $object_class  the class name of the object to be returned
+     *                               by the fetch methods when the
+     *                               MDB2_FETCHMODE_OBJECT mode is selected.
+     *                               If no class is specified by default a cast
+     *                               to object from the assoc array row will be
+     *                               done.  There is also the posibility to use
+     *                               and extend the 'MDB2_row' class.
      *
-     * @param string $object_class The class of the object
-     *                      to be returned by the fetch methods when
-     *                      the MDB2_FETCHMODE_OBJECT mode is selected.
-     *                      If no class is specified by default a cast
-     *                      to object from the assoc array row will be done.
-     *
-     * @see MDB2_FETCHMODE_ORDERED
-     * @see MDB2_FETCHMODE_ASSOC
-     * @see MDB2_FETCHMODE_FLIPPED
-     * @see MDB2_FETCHMODE_OBJECT
+     * @see MDB2_FETCHMODE_ORDERED, MDB2_FETCHMODE_ASSOC, MDB2_FETCHMODE_OBJECT
      * @access public
      */
     function setFetchMode($fetchmode, $object_class = 'stdClass')
@@ -2644,7 +2641,11 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Fetch and return a column of data (it uses fetchRow for that)
      *
-     * @param int $fetchmode how the array data should be indexed
+     * @param int    $fetchmode  the fetch mode to use:
+     *                            + MDB2_FETCHMODE_ORDERED
+     *                            + MDB2_FETCHMODE_ASSOC
+     *                            + MDB2_FETCHMODE_ORDERED | MDB2_FETCHMODE_FLIPPED
+     *                            + MDB2_FETCHMODE_ASSOC | MDB2_FETCHMODE_FLIPPED
      * @param boolean $rekey if set to true, the $all will have the first
      *       column as its first dimension
      * @param boolean $force_array used only when the query returns exactly
@@ -2841,7 +2842,7 @@ class MDB2_Result_Common extends MDB2_Result
     function bindColumn($column, &$value, $type = null)
     {
         if (is_numeric($column)) {
-             --$column;
+            --$column;
         } else {
             $column_names = $this->getColumnNames();
             if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
