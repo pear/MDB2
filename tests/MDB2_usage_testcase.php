@@ -125,7 +125,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
     function insertTestValues(&$stmt, &$data) {
         for ($i = 0; $i < count($this->fields); $i++) {
-            $stmt->bindParam($i+1, $data[$this->fields[$i]]);
+            $stmt->bindParam($i, $data[$this->fields[$i]]);
         }
     }
 
@@ -349,7 +349,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 1)", array('text'));
 
         $value = 'Sure!';
-        $stmt->bindParam(1, $value);
+        $stmt->bindParam(0, $value);
 
         $result = $stmt->execute();
 
@@ -809,8 +809,8 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         for ($row = 0; $row < $total_rows; $row++) {
             $password = "another_password_$row";
             if ($row == 0) {
-                $stmt->bindParam(1, $password);
-                $stmt->bindParam(2, $row);
+                $stmt->bindParam(0, $password);
+                $stmt->bindParam(1, $row);
             }
 
             $result = $stmt->execute();
@@ -827,7 +827,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare('DELETE FROM users WHERE user_id >= ?', array('integer'));
 
         $row = intval($total_rows / 2);
-        $stmt->bindParam(1, $row);
+        $stmt->bindParam(0, $row);
         for ($row = $total_rows; $total_rows; $total_rows = $row) {
             $row = intval($total_rows / 2);
 

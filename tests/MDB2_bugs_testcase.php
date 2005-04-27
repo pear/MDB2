@@ -116,7 +116,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
     function insertTestValues(&$stmt, &$data) {
         for ($i = 0; $i < count($this->fields); $i++) {
-            $stmt->bindParam($i+1, $data[$this->fields[$i]]);
+            $stmt->bindParam($i, $data[$this->fields[$i]]);
         }
     }
 

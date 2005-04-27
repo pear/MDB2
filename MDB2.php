@@ -2842,7 +2842,7 @@ class MDB2_Result_Common extends MDB2_Result
     function bindColumn($column, &$value, $type = null)
     {
         if (is_numeric($column)) {
-            --$column;
+// todo     --$column;
         } else {
             $column_names = $this->getColumnNames();
             if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
@@ -2969,7 +2969,7 @@ class MDB2_Statement_Common
     function bindParam($parameter, &$value, $type = null)
     {
         if (is_numeric($parameter)) {
-            --$parameter;
+// todo     --$parameter;
         } else {
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
         }

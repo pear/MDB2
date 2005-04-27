@@ -48,7 +48,6 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - ensure that types are numerically keyed in setResultTypes()
 - added caching to getColumnNames()
 - added bindColumn() support
-- made bindParam() 1-indexed for numeric parameters (as PDO does; BC break!)
 EOT;
 
 $description =<<<EOT
