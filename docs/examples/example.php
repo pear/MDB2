@@ -60,10 +60,9 @@
     }
 
     MDB2::loadFile('Schema');
-    $manager =& new MDB2_Schema;
-    $input_file = 'metapear_test_db.schema';
     // you can either pass a dsn string, a dsn array or an exisiting db connection
-    $manager->connect($db);
+    $manager =& MDB2_Schema::factory($db);
+    $input_file = 'metapear_test_db.schema';
     // lets create the database using 'metapear_test_db.schema'
     // if you have allready run this script you should have 'metapear_test_db.schema.before'
     // in that case MDB2 will just compare the two schemas and make any necessary modifications to the existing DB
