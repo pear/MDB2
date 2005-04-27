@@ -267,8 +267,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
             $charset = empty($this->dsn['charset']) ? null : $this->dsn['charset'];
             $connection = @$connect_function($username, $password, $sid, $charset);
-            $error = OCIError();
-            if (!empty($error) && $error['code'] == 12541) {
+            $error = @OCIError();
+            if (isset($error['code']) && $error['code'] == 12541) {
                 // Couldn't find TNS listener.  Try direct connection.
                 $connection = @$connect_function($username, $password, null, $charset);
             }
