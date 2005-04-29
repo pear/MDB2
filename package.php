@@ -48,6 +48,9 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - ensure that types are numerically keyed in setResultTypes()
 - added caching to getColumnNames()
 - added bindColumn() support
+- use MDB2_Schema::factory()
+- phpdoc fixes in regards to flipped fetchmode
+- remove renegate mysql code in sqlite driver
 EOT;
 
 $description =<<<EOT

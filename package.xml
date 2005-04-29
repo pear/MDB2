@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.0a10">
+<package version="1.0" packagerversion="1.4.0a11">
  <name>MDB2</name>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
@@ -79,7 +79,7 @@ Other soon to follow.
   </maintainers>
  <release>
   <version>2.0.0beta4</version>
-  <date>2005-04-17</date>
+  <date>2005-04-29</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
@@ -119,7 +119,16 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - getTypeDeclaration() =&gt; _getTypeDeclaration() in ibase driver
 - cosmetic fixes and tweaks (replace(). fetchOne() ..)
 - renamed 'seqname_col_name' option to 'seqcol_name'
-- added checks into binParam() and binParamArray() (this breaks the ibase and obi8 driver for now)
+- moved schema documentation, xml_reverse_engineering.php, MDB.dtd
+  and MDB.xls to MDB_Schema package
+- Mysqli: implicit sequence is named as table by default
+- Mysqli: text types now map to clob first
+- ensure that types are numerically keyed in setResultTypes()
+- added caching to getColumnNames()
+- added bindColumn() support
+- use MDB2_Schema::factory()
+- phpdoc fixes in regards to flipped fetchmode
+- remove renegate mysql code in sqlite driver
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>
@@ -164,12 +173,6 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
      <file role="doc" name="MAINTAINERS">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
-     <file role="doc" name="MDB.dtd">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="doc" name="MDB.xsl">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
      <file role="doc" name="querysim_readme.txt">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
@@ -180,9 +183,6 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="doc" name="TODO">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="doc" name="xml_schema_documentation.html">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
     </dir> <!-- /docs -->
@@ -414,7 +414,7 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
  <changelog>
    <release>
     <version>2.0.0beta4</version>
-    <date>2005-04-17</date>
+    <date>2005-04-29</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
@@ -454,7 +454,16 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - getTypeDeclaration() =&gt; _getTypeDeclaration() in ibase driver
 - cosmetic fixes and tweaks (replace(). fetchOne() ..)
 - renamed 'seqname_col_name' option to 'seqcol_name'
-- added checks into binParam() and binParamArray() (this breaks the ibase and obi8 driver for now)
+- moved schema documentation, xml_reverse_engineering.php, MDB.dtd
+  and MDB.xls to MDB_Schema package
+- Mysqli: implicit sequence is named as table by default
+- Mysqli: text types now map to clob first
+- ensure that types are numerically keyed in setResultTypes()
+- added caching to getColumnNames()
+- added bindColumn() support
+- use MDB2_Schema::factory()
+- phpdoc fixes in regards to flipped fetchmode
+- remove renegate mysql code in sqlite driver
     </notes>
    </release>
    <release>
