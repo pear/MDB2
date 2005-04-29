@@ -247,6 +247,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function _getDatabaseFile($database_name)
     {
+        if ($database_name == '') {
+            return $database_name;
+        }
         $this->database_path = $this->options['database_path'];
         $this->database_extension = $this->options['database_extension'];
 
