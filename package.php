@@ -2,55 +2,12 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0beta4';
+$version = '2.0.0beta5';
 $notes = <<<EOT
 Warning: this release features numerous BC breaks to make the MDB2 API be as
 similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
-- fixed bugs in MDB2_Extended::buildManipSQL() introduced in latest tweaks (bug #3725)
-- mysqli has connection objects instead of resources
-- fix mssql tableInfo() so flags are returned (bug #3691)
-- fixed bug in handling of force_array when 2 or less columns are fetched in fetchAll()
-- added map error message for sqlite multi-column unique constraints.
-- added listUsers(), listViews(), listFunctions() to oracle manager
-- added listFunctions() to pgsql manager
-- updated listViews() in pgsql manager
-- added __call() support for module handling
-- mysql driver now uses mysqli implementations where feasible
-- ensure that internal calls to query dont wrap the result
-- for some reason mysqli didnt like SELECT LAST_INSERT_ID()
-- fixed bug in table alteration when only an index was added
-- updated pgsql API calls to 4.2.0 recommended names (bug #3904)
-- moved logic to compareDefinitions from the Manager into the Datatype module
-  to increase flexibility
-- extended MDB2::isError() to be able to handle an array or codes
-- added error handling into autoPrepare() and autoExecute()
-- migrade all MDB2::isError calls that dont check for specific errors codes to PEAR::isError
-- don't pass new_link to mysql_pconnect() (bug #3993)
-- use MDB2::raiseError() instead of MDB2_Driver_Common::raiseError()
-- do not disable result wrapping when doing internal calls to query() (bug #3997)
-- _wrapResult() now ensures that the result class is an instance of MDB2_Result_Common
-- unbundled the MDB2_Tools_Manager into a separate package PEAR::MDB2_Schema
-- improved getTableFieldDefinition() and moved native type mapping to the
-  datatype module mapNativeDatatype() method (mysql, sqlite, pgsql and ibase drivers)
-- fixes for listTables() in sqlite and pgsql driver
-- ensure that mysql drivers use the dummy_primary_key property
-- severely reworked how data is fetched and buffered and freed in the iterator
-- added mapNativeDatatype() to ibase driver
-- getTypeDeclaration() => _getTypeDeclaration() in ibase driver
-- cosmetic fixes and tweaks (replace(). fetchOne() ..)
-- renamed 'seqname_col_name' option to 'seqcol_name'
-- moved schema documentation, xml_reverse_engineering.php, MDB.dtd
-  and MDB.xls to MDB_Schema package
-- Mysqli: implicit sequence is named as table by default
-- Mysqli: text types now map to clob first
-- ensure that types are numerically keyed in setResultTypes()
-- added caching to getColumnNames()
-- added bindColumn() support
-- use MDB2_Schema::factory()
-- phpdoc fixes in regards to flipped fetchmode
-- remove renegate mysql code in sqlite driver
 - refactored LOB support (BC breaks)
 EOT;
 
