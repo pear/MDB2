@@ -201,7 +201,6 @@ define('MDB2_PORTABILITY_ALL', 63);
  */
 
 $GLOBALS['_MDB2_databases'] = array();
-$GLOBALS['_MDB2_LOBs'] = array();
 $GLOBALS['_MDB2_dsninfo_default'] = array(
     'phptype'  => false,
     'dbsyntax' => false,
@@ -1037,27 +1036,6 @@ class MDB2_Driver_Common extends PEAR
     var $fetchmode = MDB2_FETCHMODE_ORDERED;
 
     /**
-     * contains all LOB objects created with this MDB2 instance
-    * @var array
-    * @access protected
-    */
-    var $lobs = array();
-
-    /**
-     * contains all CLOB objects created with this MDB2 instance
-    * @var array
-    * @access protected
-    */
-    var $clobs = array();
-
-    /**
-     * contains all BLOB objects created with this MDB2 instance
-    * @var array
-    * @access protected
-    */
-    var $blobs = array();
-
-    /**
      * array of module instances
      * @var array
      * @access protected
@@ -1069,7 +1047,7 @@ class MDB2_Driver_Common extends PEAR
     * @var array
     * @access protected
     */
-    var $destructor_registered;
+    var $destructor_registered = true;
 
     // }}}
     // {{{ constructor
@@ -1083,10 +1061,6 @@ class MDB2_Driver_Common extends PEAR
         $db_index = key($GLOBALS['_MDB2_databases']) + 1;
         $GLOBALS['_MDB2_databases'][$db_index] = &$this;
         $this->db_index = $db_index;
-
-        if (substr(PHP_VERSION, 0, 1) >= 5) {
-            $this->destructor_registered = true;
-        }
     }
 
     // }}}
@@ -1097,6 +1071,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function MDB2_Driver_Common()
     {
+        $this->destructor_registered = false;
         $this->__construct();
     }
 
