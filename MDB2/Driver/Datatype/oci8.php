@@ -550,6 +550,31 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
+    // {{{ writeLOBToFile()
+
+    /**
+     * retrieve LOB from the database
+     *
+     * @param int $lob handle to a lob created by the createLOB() function
+     * @param string $file name of the file into which the LOb should be fetched
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access protected
+     */
+    function writeLOBToFile($lob, $file)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $id = (int)$lob;
+        if (!isset($this->lob_ressource_map[$id])) {
+            return $db->raiseError();
+        }
+        $lob_index = $this->lob_ressource_map[$id];
+        if (!@$this->lobs[$lob_index]['value']->writelobtofile($file)) {
+            return $db->raiseError();
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
     // {{{ _retrieveLOB()
 
     /**
@@ -559,20 +584,15 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
-    function _retrieveLOB($lob)
+    function _retrieveLOB(&$lob)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (!isset($db->lobs[$lob])) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'it was not specified a valid lob');
-        }
-        if (!isset($db->lobs[$lob]['loaded'])) {
-            if (!is_object($db->lobs[$lob]['value'])) {
+        if (!isset($lob['loaded'])) {
+            if (!is_object($lob['ressource'])) {
                return $db->raiseError(MDB2_ERROR, null, null,
                    'attemped to retrieve LOB from non existing or NULL column');
             }
-            $db->lobs[$lob]['value'] = $db->lobs[$lob]['value']->load();
-            $db->lobs[$lob]['loaded'] = true;
+            $lob['value'] = $lob['ressource']->load();
+            $lob['loaded'] = true;
         }
         return MDB2_OK;
     }

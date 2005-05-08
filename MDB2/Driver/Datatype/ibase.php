@@ -461,7 +461,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         return $this->_quoteLOB($value);
     }
-    
+
     // }}}
     // {{{ _quoteBoolean()
 
@@ -507,20 +507,13 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
-    function _retrieveLOB($lob)
+    function _retrieveLOB(&$lob)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
 
-        if (!isset($db->lobs[$lob])) {
-            return $db->raiseError(MDB2_ERROR_INVALID, null, null,
-                '_retrieveLOB: it was not specified a valid lob');
-        }
-
-        if (!isset($db->lobs[$lob]['handle'])) {
-            $db->lobs[$lob]['handle'] =
-                @ibase_blob_open($db->lobs[$lob]['value']);
-            if (!$db->lobs[$lob]['handle']) {
-                unset($db->lobs[$lob]['value']);
+        if (!isset($lob['handle'])) {
+            $lob['handle'] = @ibase_blob_open($lob['ressource']);
+            if (!$lob['handle']) {
+                $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
                 return $db->raiseError(MDB2_ERROR, null, null,
                     '_retrieveLOB: Could not open fetched large object field' . @ibase_errmsg());
             }
@@ -529,28 +522,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ _endOfResultLOB()
-
-    /**
-     * Determine whether it was reached the end of the large object and
-     * therefore there is no more data to be read for the its input stream.
-     *
-     * @param int    $lob handle to a lob created by the createLOB() function
-     * @return mixed true or false on success, a MDB2 error on failure
-     * @access protected
-     */
-    function _endOfResultLOB($lob)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $lobresult = $this->_retrieveLOB($lob);
-        if (PEAR::isError($lobresult)) {
-            return $lobresult;
-        }
-        return isset($db->lobs[$lob]['EndOfLOB']);
-    }
-
-    // }}}
-    // {{{ _readResultLOB()
+    // {{{ _readLOB()
 
     /**
      * Read data from large object input stream.
@@ -563,25 +535,19 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * @return mixed length on success, a MDB2 error on failure
      * @access protected
      */
-    function _readResultLOB($lob, &$data, $length)
+    function _readLOB($lob, $length)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (PEAR::isError($lobresult = $this->_retrieveLOB($lob))) {
-            return $lobresult;
-        }
-        $data = @ibase_blob_get($db->lobs[$lob]['handle'], $length);
+        $data = @ibase_blob_get($lob['handle'], $length);
         if (!is_string($data)) {
-            $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR, null, null,
                 'Read Result LOB: ' . @ibase_errmsg());
         }
-        if (($length = strlen($data)) == 0) {
-            $db->lobs[$lob]['EndOfLOB'] = 1;
-        }
-        return $length;
+        return $data;
     }
 
     // }}}
-    // {{{ _destroyResultLOB()
+    // {{{ _destroyLOB()
 
     /**
      * Free any resources allocated during the lifetime of the large object
@@ -590,14 +556,13 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * @param int $lob handle to a lob created by the createLob() function
      * @access protected
      */
-    function _destroyResultLOB($lob)
+    function _destroyLOB($lob_index)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (isset($db->lobs[$lob])) {
-            if (isset($db->lobs[$lob]['value'])) {
-               @ibase_blob_close($db->lobs[$lob]['handle']);
+        if (isset($this->lobs[$lob_index])) {
+            if (isset($this->lobs[$lob_index]['handle'])) {
+               @ibase_blob_close($this->lobs[$lob_index]['handle']);
             }
-            $db->lobs[$lob] = '';
+            unset($this->lobs[$lob_index]);
         }
     }
 
@@ -669,7 +634,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
 
         return array($type, $length);
     }
-    
+
     // }}}
 }
 ?>
