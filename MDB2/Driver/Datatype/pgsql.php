@@ -540,6 +540,31 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
+    // {{{ writeLOBToFile()
+
+    /**
+     * retrieve LOB from the database
+     *
+     * @param int $lob handle to a lob created by the createLOB() function
+     * @param string $file name of the file into which the LOb should be fetched
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access protected
+     */
+    function writeLOBToFile($lob, $file)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $id = (int)$lob;
+        if (!isset($this->lob_ressource_map[$id])) {
+            return $db->raiseError();
+        }
+        $lob_index = $this->lob_ressource_map[$id];
+        if (!pg_lo_export($db->connection, $this->lobs[$lob_index]['ressource'], $file)) {
+            return $db->raiseError();
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
     // {{{ _retrieveLOB()
 
     /**
@@ -549,28 +574,22 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
-    function _retrieveLOB($lob)
+    function _retrieveLOB(&$lob)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (!isset($db->lobs[$lob])) {
-            return $db->raiseError(MDB2_ERROR_INVALID, null, null,
-                'did not specify a valid lob');
-        }
-        if (!isset($db->lobs[$lob]['handle'])) {
+        if (!isset($lob['handle'])) {
+            $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
             if (!$db->in_transaction) {
-                if (!pg_query($db->connection, 'BEGIN')) {
+                if (!@pg_query($db->connection, 'BEGIN')) {
                     return $db->raiseError();
                 }
-                $db->lobs[$lob]['in_transaction'] = true;
+                $lob['in_transaction'] = true;
             }
-            $db->lobs[$lob]['handle'] =
-                @pg_lo_open($db->connection, $db->lobs[$lob]['value'], 'r');
-            if (!$db->lobs[$lob]['handle']) {
-                if (isset($db->lobs[$lob]['in_transaction'])) {
+            $lob['handle'] = pg_lo_open($db->connection, $lob['ressource'], 'r');
+            if (!$lob['handle']) {
+                if (isset($lob['in_transaction'])) {
                     @pg_query($db->connection, 'END');
-                    unset($db->lobs[$lob]['in_transaction']);
+                    unset($lob['in_transaction']);
                 }
-                unset($db->lobs[$lob]['value']);
                 return $db->raiseError();
             }
         }
@@ -578,28 +597,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ _endOfResultLOB()
-
-    /**
-     * Determine whether it was reached the end of the large object and
-     * therefore there is no more data to be read for the its input stream.
-     *
-     * @param int    $lob handle to a lob created by the createLOB() function
-     * @return mixed true or false on success, a MDB2 error on failure
-     * @access protected
-     */
-    function _endOfResultLOB($lob)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $lobresult = $this->_retrieveLOB($lob);
-        if (PEAR::isError($lobresult)) {
-            return $lobresult;
-        }
-        return isset($db->lobs[$lob]['end_of_LOB']);
-    }
-
-    // }}}
-    // {{{ _readResultLOB()
+    // {{{ _readLOB()
 
     /**
      * Read data from large object input stream.
@@ -612,25 +610,18 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @return mixed length on success, a MDB2 error on failure
      * @access protected
      */
-    function _readResultLOB($lob, &$data, $length)
+    function _readLOB($lob, $length)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $lobresult = $this->_retrieveLOB($lob);
-        if (PEAR::isError($lobresult)) {
-            return $lobresult;
-        }
-        $data = @pg_lo_read($db->lobs[$lob]['handle'], $length);
+        $data = @pg_lo_read($lob['handle'], $length);
         if (!is_string($data)) {
              return $db->raiseError();
         }
-        if (($length = strlen($data)) == 0) {
-            $db->lobs[$lob]['end_of_LOB'] = true;
-        }
-        return $length;
+        return $data;
     }
 
     // }}}
-    // {{{ _destroyResultLOB()
+    // {{{ _destroyLOB()
 
     /**
      * Free any resources allocated during the lifetime of the large object
@@ -639,17 +630,16 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * @param int $lob handle to a lob created by the createLOB() function
      * @access protected
      */
-    function _destroyResultLOB($lob)
+    function _destroyLOB($lob_index)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (isset($db->lobs[$lob])) {
-            if (isset($db->lobs[$lob]['value'])) {
-                @pg_lo_close($db->lobs[$lob]['handle']);
-                if (isset($db->lobs[$lob]['in_transaction'])) {
+        if (isset($this->lobs[$lob_index])) {
+            if (isset($this->lobs[$lob_index]['handle'])) {
+                @pg_lo_close($this->lobs[$lob_index]['handle']);
+                if (isset($this->lobs[$lob_index]['in_transaction'])) {
                     @pg_query($db->connection, 'END');
                 }
             }
-            $db->lobs[$lob] = '';
+            unset($this->lobs[$lob_index]);
         }
     }
 
@@ -743,7 +733,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
 
         return array($type, $length);
     }
-    
+
     // }}}
 }
 ?>

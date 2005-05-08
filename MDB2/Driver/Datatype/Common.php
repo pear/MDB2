@@ -44,6 +44,8 @@
 //
 // $Id$
 
+require_once 'MDB2/LOB.php';
+
 /**
  * @package  MDB2
  * @category Database
@@ -72,6 +74,14 @@ class MDB2_Driver_Datatype_Common
         'blob'      => true,
     );
     var $db_index;
+    var $lob_ressource_map;
+
+    /**
+     * contains all LOB objects created with this MDB2 instance
+    * @var array
+    * @access protected
+    */
+    var $lobs = array();
 
     // {{{ constructor
 
@@ -86,6 +96,7 @@ class MDB2_Driver_Datatype_Common
     function MDB2_Driver_Datatype_Common($db_index)
     {
         $this->__construct($db_index);
+        $this->lob_ressource_map = array();
     }
 
     // }}}
@@ -163,18 +174,24 @@ class MDB2_Driver_Datatype_Common
             return $value;
         case 'clob':
         case 'blob':
-            $db->lobs[] = array(
-                'value' => $value,
-                'position' => 0
+            $this->lobs[] = array(
+                'value' => '',
+                'buffer' => null,
+                'position' => 0,
+                'ressource' => $value,
+                'lob_index' => null,
+                'lob_id' => null,
+                'endOfLOB' => false,
             );
-            end($db->lobs);
-            $lob = key($db->lobs);
-            $dst_lob = array(
-                'database' => &$db,
-                'type' => 'resultlob',
-                'resultLOB' => $lob,
-            );
-            $lob = $this->createLOB($dst_lob);
+            end($this->lobs);
+            $lob_index = key($this->lobs);
+            $this->lobs[$lob_index]['lob_index'] = $lob_index;
+            $lob = fopen('MDB2LOB://'.$lob_index.'@'.$this->db_index, 'r+');
+            $lob_id = (int)$lob;
+            $this->lobs[$lob_index]['lob_id'] = $lob_id;
+            if (is_array($this->lob_ressource_map)) {
+                $this->lob_ressource_map[$lob_id] = $lob_index;
+            }
             return $lob;
         default:
             return $db->raiseError(MDB2_ERROR_INVALID, null, null,
@@ -973,21 +990,6 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ freeCLOBValue()
-
-    /**
-     * free a character large object
-     *
-     * @param int $value lob index
-     * @access public
-     */
-    function freeCLOBValue($value)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($db->lobs[$value]);
-    }
-
-    // }}}
     // {{{ _quoteBLOB()
 
     /**
@@ -1002,21 +1004,6 @@ class MDB2_Driver_Datatype_Common
     function _quoteBLOB($value)
     {
         return $this->_quoteLOB($value);
-    }
-
-    // }}}
-    // {{{ freeBLOBValue()
-
-    /**
-     * free a binary large object
-     *
-     * @param int $value lob index
-     * @access public
-     */
-    function freeBLOBValue($value)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        unset($db->lobs[$value]);
     }
 
     // }}}
@@ -1122,190 +1109,7 @@ class MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ createLOB()
-
-    /**
-     * Create a handler object of a specified class with functions to
-     * retrieve data from a large object data stream.
-     *
-     * @param array $arguments An associative array with parameters to create
-     *                  the handler object. The array indexes are the names of
-     *                  the parameters and the array values are the respective
-     *                  parameter values.
-     *
-     *                  Some parameters are specific of the class of each type
-     *                  of handler object that is created. The following
-     *                  parameters are common to all handler object classes:
-     *
-     *                  type
-     *
-     *                      Name of the type of the built-in supported class
-     *                      that will be used to create the handler object.
-     *                      There are currently four built-in types of handler
-     *                      object classes: data, resultlob, inputfile and
-     *                      outputfile.
-     *
-     *                      The data handler class is the default class. It
-     *                      simply reads data from a given data string.
-     *
-     *                      The resultlob handler class is meant to read data
-     *                      from a large object retrieved from a query result.
-     *                      This class is not used directly by applications.
-     *
-     *                      The inputfile handler class is meant to read data
-     *                      from a file to use in prepared queries with large
-     *                      object field parameters.
-     *
-     *                      The outputfile handler class is meant to write to
-     *                      a file data from result columns with large object
-     *                      fields. The functions to read from this type of
-     *                      large object do not return any data. Instead, the
-     *                      data is just written to the output file with the
-     *                      data retrieved from a specified large object handle.
-     *
-     *                  class
-     *
-     *                      Name of the class of the handler object that will be
-     *                      created if the Type argument is not specified. This
-     *                      argument should be used when you need to specify a
-     *                      custom handler class.
-     *
-     *                  database
-     *
-     *                      Database object as returned by MDB2::connect.
-     *                      This is an option argument needed by some handler
-     *                      classes like resultlob.
-     *
-     *                  The following arguments are specific of the inputfile
-     *                  handler class:
-     *
-     *                      file
-     *
-     *                          Integer handle value of a file already opened
-     *                          for writing.
-     *
-     *                      file_name
-     *
-     *                          Name of a file to be opened for writing if the
-     *                          File argument is not specified.
-     *
-     *                  The following arguments are specific of the outputfile
-     *                  handler class:
-     *
-     *                      file
-     *
-     *                          Integer handle value of a file already opened
-     *                          for writing.
-     *
-     *                      file_name
-     *
-     *                          Name of a file to be opened for writing if the
-     *                          File argument is not specified.
-     *
-     *                      buffer_length
-     *
-     *                          Integer value that specifies the length of a
-     *                          buffer that will be used to read from the
-     *                          specified large object.
-     *
-     *                      LOB
-     *
-     *                          Integer handle value that specifies a large
-     *                          object from which the data to be stored in the
-     *                          output file will be written.
-     *
-     *                      result
-     *
-     *                          Integer handle value as returned by the function
-     *                          MDB2::query() or MDB2::execute() that specifies
-     *                          the result set that contains the large object value
-     *                          to be retrieved. If the LOB argument is specified,
-     *                          this argument is ignored.
-     *
-     *                      row
-     *
-     *                          Integer value that specifies the number of the
-     *                          row of the result set that contains the large
-     *                          object value to be retrieved. If the LOB
-     *                          argument is specified, this argument is ignored.
-     *
-     *                      field
-     *
-     *                          Integer or string value that specifies the
-     *                          number or the name of the column of the result
-     *                          set that contains the large object value to be
-     *                          retrieved. If the LOB argument is specified,
-     *                          this argument is ignored.
-     *
-     *                      binary
-     *
-     *                          Boolean value that specifies whether the large
-     *                          object column to be retrieved is of binary type
-     *                          (blob) or otherwise is of character type (clob).
-     *                          If the LOB argument is specified, this argument
-     *                          is ignored.
-     *
-     *                  The following argument is specific of the data
-     *                  handler class:
-     *
-     *                  data
-     *
-     *                      String of data that will be returned by the class
-     *                      when it requested with the readLOB() method.
-     *
-     *                  The following argument is specific of the resultlob
-     *                  handler class:
-     *
-     *                      resultLOB
-     *
-     *                          Integer handle value of a large object result
-     *                          row field.
-     * @return integer handle value that should be passed as argument insubsequent
-     * calls to functions that retrieve data from the large object input stream.
-     * @access public
-     */
-    function createLOB($arguments)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $result = MDB2::loadFile('LOB');
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        $class_name = 'MDB2_LOB';
-        if (isset($arguments['type'])) {
-            switch ($arguments['type']) {
-            case 'data':
-                break;
-            case 'resultlob':
-                $class_name = 'MDB2_LOB_Result';
-                break;
-            case 'outputfile':
-                $class_name = 'MDB2_LOB_Output_File';
-                break;
-            default:
-                return $db->raiseError('createLOB: '.$arguments['type']
-                    . ' is not a valid type of large object');
-            }
-        } else {
-            if (isset($arguments['class'])) {
-                $class = $arguments['class'];
-            }
-        }
-        end($GLOBALS['_MDB2_LOBs']);
-        $lob = key($GLOBALS['_MDB2_LOBs'])+1;
-        $GLOBALS['_MDB2_LOBs'][$lob] =& new $class_name;
-        $GLOBALS['_MDB2_LOBs'][$lob]->db = &$db;
-
-        $result = $GLOBALS['_MDB2_LOBs'][$lob]->create($arguments);
-        if (PEAR::isError($result)) {
-            $GLOBALS['_MDB2_LOBs'][$lob]->db->datatype->destroyLOB($lob);
-            return $result;
-        }
-        return $lob;
-    }
-
-    // }}}
-    // {{{ setLOBFile()
+    // {{{ writeLOBToFile()
 
     /**
      * retrieve LOB from the database
@@ -1315,16 +1119,23 @@ class MDB2_Driver_Datatype_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
-    function setLOBFile($lob, $file)
+    function writeLOBToFile($lob, $file)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $dst_lob = array(
-            'database' => &$db,
-            'LOB' => $lob,
-            'file_name' => $file,
-            'type' => 'outputfile'
-        );
-        return $this->createLOB($dst_lob);
+        $fp = fopen($file, 'wb');
+        while (!feof($lob)) {
+            $result = fread($lob, $db->options['lob_buffer_length']);
+            $read = strlen($result);
+            if ($read <= 0) {
+                return MDB2::raiseError(MDB2_ERROR, null, null,
+                    'writeLOBToFile: could not read from LOB source');
+            }
+            if (fwrite($fp, $result, $read)!= $read) {
+                return MDB2::raiseError(MDB2_ERROR, null, null,
+                    'writeLOBToFile: could not write to the output file');
+            }
+        }
+        return MDB2_OK;
     }
 
     // }}}
@@ -1337,41 +1148,12 @@ class MDB2_Driver_Datatype_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
-    function _retrieveLOB($lob)
+    function _retrieveLOB(&$lob)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (!isset($db->lobs[$lob])) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'it was not specified a valid lob');
+        if ($lob['value']) {
+            $lob['value'] = $lob['ressource'];
         }
         return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ _readResultLOB()
-
-    /**
-     * Read data from large object input stream.
-     *
-     * @param int $lob handle to a lob created by the createLOB() function
-     * @param blob $data reference to a variable that will hold data to be
-     *       read from the large object input stream
-     * @param int $length integer value that indicates the largest ammount of
-     *       data to be read from the large object input stream.
-     * @return mixed length on success, a MDB2 error on failure
-     * @access protected
-     */
-    function _readResultLOB($lob, &$data, $length)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $lobresult = $this->_retrieveLOB($lob);
-        if (PEAR::isError($lobresult)) {
-            return $lobresult;
-        }
-        $length = min($length, strlen($db->lobs[$lob]['value']) - $db->lobs[$lob]['position']);
-        $data = substr($db->lobs[$lob]['value'], $db->lobs[$lob]['position'], $length);
-        $db->lobs[$lob]['position'] += $length;
-        return $length;
     }
 
     // }}}
@@ -1391,67 +1173,25 @@ class MDB2_Driver_Datatype_Common
      * @access public
      * @see endOfLOB()
      */
-    function readLOB($lob, &$data, $length)
+    function _readLOB($lob, $length)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $GLOBALS['_MDB2_LOBs'][$lob]->readLOB($data, $length);
+        return substr($lob['value'], $lob['position'], $length);
     }
 
     // }}}
-    // {{{ _endOfResultLOB()
+    // {{{ _endOfLOB()
 
     /**
      * Determine whether it was reached the end of the large object and
      * therefore there is no more data to be read for the its input stream.
      *
-     * @param int $lob handle to a lob created by the createLOB() function
+     * @param int    $lob handle to a lob created by the createLOB() function
      * @return mixed true or false on success, a MDB2 error on failure
      * @access protected
      */
-    function _endOfResultLOB($lob)
+    function _endOfLOB($lob)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $lobresult = $this->_retrieveLOB($lob);
-        if (PEAR::isError($lobresult)) {
-            return $lobresult;
-        }
-        return $db->lobs[$lob]['position'] >= strlen($db->lobs[$lob]['value']);
-    }
-
-    // }}}
-    // {{{ endOfLOB()
-
-    /**
-     * Determine whether it was reached the end of the large object and
-     * therefore there is no more data to be read for the its input stream.
-     *
-     * @param integer $lob argument handle that is returned by the
-     *                          MDB2::createLOB() method.
-     * @access public
-     * @return boolean flag that indicates whether it was reached the end of the large object input stream
-     */
-    function endOfLOB($lob)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $GLOBALS['_MDB2_LOBs'][$lob]->endOfLOB();
-    }
-
-    // }}}
-    // {{{ _destroyResultLOB()
-
-    /**
-     * Free any resources allocated during the lifetime of the large object
-     * handler object.
-     *
-     * @param int $lob handle to a lob created by the createLOB() function
-     * @access protected
-     */
-    function _destroyResultLOB($lob)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (isset($db->lobs[$lob])) {
-            $db->lobs[$lob] = '';
-        }
+        return $lob['endOfLOB'];
     }
 
     // }}}
@@ -1467,9 +1207,32 @@ class MDB2_Driver_Datatype_Common
      */
     function destroyLOB($lob)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $GLOBALS['_MDB2_LOBs'][$lob]->destroy();
-        unset($GLOBALS['_MDB2_LOBs'][$lob]);
+        $id = (int)$lob;
+        if (isset($this->lob_ressource_map[$id])) {
+            $lob_index = $this->lob_ressource_map[$id];
+            $this->_destroyLOB($lob_index);
+            unset($this->lob_ressource_map[$id]);
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _destroyLOB()
+
+    /**
+     * Free any resources allocated during the lifetime of the large object
+     * handler object.
+     *
+     * @param integer $lob argument handle that is returned by the
+     *                          MDB2::createLOB() method.
+     * @access private
+     */
+    function _destroyLOB($lob_index)
+    {
+        if (isset($this->lobs[$lob_index])) {
+            unset($this->lobs[$lob_index]);
+        }
+        return MDB2_OK;
     }
 
     // }}}
