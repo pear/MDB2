@@ -167,7 +167,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
      */
     function testStorage() {
         $data = $this->getSampleData(1234);
-        
+
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
 
         $this->insertTestValues($stmt, $data);
@@ -967,8 +967,10 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $row = $result->fetchRow();
         $clob = $row[0];
         if (!PEAR::isError($clob)) {
-            for ($value = ''; !$this->db->datatype->endOfLOB($clob);) {
-                $this->assertTrue(($this->db->datatype->readLOB($clob, $data, 8192) >= 0), 'Could not read CLOB');
+            $value = '';
+            while (!feof($clob)) {
+                $data = fread($clob, 8192);
+                $this->assertTrue(strlen($data) >= 0, 'Could not read CLOB');
                 $value .= $data;
             }
             $this->db->datatype->destroyLOB($clob);
@@ -979,8 +981,10 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $blob = $row[1];
         if (!PEAR::isError($blob)) {
-            for ($value = ''; !$this->db->datatype->endOfLOB($blob);) {
-                $this->assertTrue(($this->db->datatype->readLOB($blob, $data, 8192) >= 0), 'Could not read BLOB');
+            $value = '';
+            while (!feof($blob)) {
+                $data = fread($blob, 8192);
+                $this->assertTrue(strlen($data) >= 0, 'Could not read BLOB');
                 $value .= $data;
             }
 
@@ -1047,8 +1051,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $row = $result->fetchRow();
         $clob = $row[0];
         if (!PEAR::isError($clob)) {
-            $clob = $this->db->datatype->setLOBFile($clob, $character_data_file);
-            $this->assertTrue(($this->db->datatype->readLOB($clob, $data, 0) >= 0), 'Error reading CLOB ');
+            $clob = $this->db->datatype->writeLOBToFile($clob, $character_data_file);
             $this->db->datatype->destroyLOB($clob);
 
             $this->assertTrue(($file = fopen($character_data_file, 'r')), "Error opening character data file: $character_data_file");
@@ -1062,8 +1065,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $blob = $row[1];
         if (!PEAR::isError($blob)) {
-            $blob = $this->db->datatype->setLOBFile($blob, $binary_data_file);
-            $this->assertTrue(($this->db->datatype->readLOB($blob, $data, 0) >= 0), 'Error reading BLOB ');
+            $blob = $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
             $this->db->datatype->destroyLOB($blob);
 
             $this->assertTrue(($file = fopen($binary_data_file, 'rb')), "Error opening binary data file: $binary_data_file");
