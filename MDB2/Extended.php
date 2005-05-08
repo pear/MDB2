@@ -257,7 +257,7 @@ class MDB2_Extended
         $result->free();
         return $one;
     }
- 
+
     // }}}
     // {{{ getRow()
 
