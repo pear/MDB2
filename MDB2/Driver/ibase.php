@@ -59,9 +59,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
     var $transaction_id = 0;
 
-    var $database_path = '';
-    var $database_extension = '';
-
     var $query_parameters = array();
     var $query_parameter_values = array();
 
@@ -243,7 +240,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
     /**
      * Commit the database changes done during a transaction that is in
-     * progress. 
+     * progress.
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
@@ -269,7 +266,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
     /**
      * Cancel any database changes done during a transaction that is in
-     * progress. 
+     * progress.
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
@@ -304,10 +301,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($database_name == '') {
             return $database_name;
         }
-        $this->database_path = $this->options['database_path'];
-        $this->database_extension = $this->options['database_extension'];
-
-        return $this->database_path.$database_name.$this->database_extension;
+        return $this->options['database_path'].$database_name.$this->options['database_extension'];
     }
 
     // }}}

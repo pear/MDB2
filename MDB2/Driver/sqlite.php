@@ -57,8 +57,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 {
     // {{{ properties
     var $escape_quotes = "'";
-    var $database_path = '';
-    var $database_extension = '';
 
     var $_lasterror = '';
 
@@ -250,10 +248,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         if ($database_name == '') {
             return $database_name;
         }
-        $this->database_path = $this->options['database_path'];
-        $this->database_extension = $this->options['database_extension'];
-
-        return $this->database_path.$database_name.$this->database_extension;
+        return $this->options['database_path'].$database_name.$this->options['database_extension'];
     }
 
     // }}}
