@@ -49,6 +49,7 @@ class MDB2_LOB
 
     function stream_write($data)
     {
+        return 0;
     }
 
     function stream_tell()
@@ -67,11 +68,14 @@ class MDB2_LOB
 
     function stream_seek($offset, $whence)
     {
+        return false;
     }
 
-    function __destruct()
+    function stream_close()
     {
-        if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
+        if (isset($GLOBALS['_MDB2_databases'][$this->db_index])
+            && isset($this->lob['lob_id'])
+        ) {
             $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
             $db->datatype->destroyLOB($this->lob['lob_id']);
         }
