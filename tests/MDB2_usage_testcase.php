@@ -1051,7 +1051,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $row = $result->fetchRow();
         $clob = $row[0];
         if (!PEAR::isError($clob)) {
-            $clob = $this->db->datatype->writeLOBToFile($clob, $character_data_file);
+            $this->db->datatype->writeLOBToFile($clob, $character_data_file);
             $this->db->datatype->destroyLOB($clob);
 
             $this->assertTrue(($file = fopen($character_data_file, 'r')), "Error opening character data file: $character_data_file");
@@ -1065,7 +1065,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $blob = $row[1];
         if (!PEAR::isError($blob)) {
-            $blob = $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
+            $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
             $this->db->datatype->destroyLOB($blob);
 
             $this->assertTrue(($file = fopen($binary_data_file, 'rb')), "Error opening binary data file: $binary_data_file");
