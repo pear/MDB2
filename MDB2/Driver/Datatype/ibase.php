@@ -429,57 +429,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ _quoteCLOB()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param  $value
-     * @return string text string that represents the given argument value in
-     *      a DBMS specific format.
-     * @access protected
-     */
-    function _quoteCLOB($value)
-    {
-        return $this->_quoteLOB($value);
-    }
-
-    // }}}
-    // {{{ _quoteBLOB()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param  $value
-     * @return string text string that represents the given argument value in
-     *      a DBMS specific format.
-     * @access protected
-     */
-    function _quoteBLOB($value)
-    {
-        return $this->_quoteLOB($value);
-    }
-
-    // }}}
-    // {{{ _quoteBoolean()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string $value text string value that is intended to be converted.
-     * @return string text string that represents the given argument value in
-     *       a DBMS specific format.
-     * @access protected
-     */
-    function _quoteBoolean($value)
-    {
-        return ($value ? "'Y'" : "'N'");
-    }
-
-    // }}}
     // {{{ _quoteDecimal()
 
     /**
