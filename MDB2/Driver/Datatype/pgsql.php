@@ -553,11 +553,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     function writeLOBToFile($lob, $file)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $id = (int)$lob;
-        if (!isset($this->lob_ressource_map[$id])) {
-            return $db->raiseError();
-        }
-        $lob_index = $this->lob_ressource_map[$id];
+        $lob_data = stream_get_meta_data($lob);
+        $lob_index = $lob_data['wrapper_data']->lob_index;
         if (!pg_lo_export($db->connection, $this->lobs[$lob_index]['ressource'], $file)) {
             return $db->raiseError();
         }
@@ -632,14 +629,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _destroyLOB($lob_index)
     {
-        if (isset($this->lobs[$lob_index])) {
-            if (isset($this->lobs[$lob_index]['handle'])) {
-                @pg_lo_close($this->lobs[$lob_index]['handle']);
-                if (isset($this->lobs[$lob_index]['in_transaction'])) {
-                    @pg_query($db->connection, 'END');
-                }
+        if (isset($this->lobs[$lob_index]['handle'])) {
+            @pg_lo_close($this->lobs[$lob_index]['handle']);
+            if (isset($this->lobs[$lob_index]['in_transaction'])) {
+                @pg_query($db->connection, 'END');
             }
-            unset($this->lobs[$lob_index]);
         }
     }
 

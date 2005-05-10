@@ -74,7 +74,6 @@ class MDB2_Driver_Datatype_Common
         'blob'      => true,
     );
     var $db_index;
-    var $lob_ressource_map;
 
     /**
      * contains all LOB objects created with this MDB2 instance
@@ -96,7 +95,6 @@ class MDB2_Driver_Datatype_Common
     function MDB2_Driver_Datatype_Common($db_index)
     {
         $this->__construct($db_index);
-        $this->lob_ressource_map = array();
     }
 
     // }}}
@@ -175,7 +173,7 @@ class MDB2_Driver_Datatype_Common
         case 'clob':
         case 'blob':
             $this->lobs[] = array(
-                'value' => '',
+                'value' => null,
                 'buffer' => null,
                 'position' => 0,
                 'ressource' => $value,
@@ -189,9 +187,6 @@ class MDB2_Driver_Datatype_Common
             $lob = fopen('MDB2LOB://'.$lob_index.'@'.$this->db_index, 'r+');
             $lob_id = (int)$lob;
             $this->lobs[$lob_index]['lob_id'] = $lob_id;
-            if (is_array($this->lob_ressource_map)) {
-                $this->lob_ressource_map[$lob_id] = $lob_index;
-            }
             return $lob;
         default:
             return $db->raiseError(MDB2_ERROR_INVALID, null, null,
@@ -1126,10 +1121,6 @@ class MDB2_Driver_Datatype_Common
         while (!feof($lob)) {
             $result = fread($lob, $db->options['lob_buffer_length']);
             $read = strlen($result);
-            if ($read <= 0) {
-                return MDB2::raiseError(MDB2_ERROR, null, null,
-                    'writeLOBToFile: could not read from LOB source');
-            }
             if (fwrite($fp, $result, $read)!= $read) {
                 return MDB2::raiseError(MDB2_ERROR, null, null,
                     'writeLOBToFile: could not write to the output file');
@@ -1150,7 +1141,7 @@ class MDB2_Driver_Datatype_Common
      */
     function _retrieveLOB(&$lob)
     {
-        if ($lob['value']) {
+        if (is_null($lob['value'])) {
             $lob['value'] = $lob['ressource'];
         }
         return MDB2_OK;
@@ -1207,11 +1198,11 @@ class MDB2_Driver_Datatype_Common
      */
     function destroyLOB($lob)
     {
-        $id = (int)$lob;
-        if (isset($this->lob_ressource_map[$id])) {
-            $lob_index = $this->lob_ressource_map[$id];
+        $lob_data = stream_get_meta_data($lob);
+        $lob_index = $lob_data['wrapper_data']->lob_index;
+        if (isset($this->lobs[$lob_index])) {
             $this->_destroyLOB($lob_index);
-            unset($this->lob_ressource_map[$id]);
+            unset($this->lobs[$lob_index]);
         }
         return MDB2_OK;
     }
@@ -1229,9 +1220,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _destroyLOB($lob_index)
     {
-        if (isset($this->lobs[$lob_index])) {
-            unset($this->lobs[$lob_index]);
-        }
         return MDB2_OK;
     }
 

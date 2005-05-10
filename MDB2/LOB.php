@@ -73,11 +73,12 @@ class MDB2_LOB
 
     function stream_close()
     {
-        if (isset($GLOBALS['_MDB2_databases'][$this->db_index])
-            && isset($this->lob['lob_id'])
-        ) {
+        if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
             $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-            $db->datatype->destroyLOB($this->lob['lob_id']);
+            if (isset($db->datatype->lobs[$this->lob_index])) {
+                $db->datatype->_destroyLOB($this->lob_index);
+                unset($db->datatype->lobs[$this->lob_index]);
+            }
         }
     }
 }

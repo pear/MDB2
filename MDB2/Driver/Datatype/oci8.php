@@ -563,11 +563,8 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function writeLOBToFile($lob, $file)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $id = (int)$lob;
-        if (!isset($this->lob_ressource_map[$id])) {
-            return $db->raiseError();
-        }
-        $lob_index = $this->lob_ressource_map[$id];
+        $lob_data = stream_get_meta_data($lob);
+        $lob_index = $lob_data['wrapper_data']->lob_index;
         if (!@$this->lobs[$lob_index]['value']->writelobtofile($file)) {
             return $db->raiseError();
         }
