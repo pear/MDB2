@@ -173,21 +173,17 @@ class MDB2_Driver_Datatype_Common
         case 'clob':
         case 'blob':
             $this->lobs[] = array(
-                'value' => null,
                 'buffer' => null,
                 'position' => 0,
-                'ressource' => $value,
                 'lob_index' => null,
-                'lob_id' => null,
                 'endOfLOB' => false,
+                'ressource' => $value,
+                'value' => null,
             );
             end($this->lobs);
             $lob_index = key($this->lobs);
             $this->lobs[$lob_index]['lob_index'] = $lob_index;
-            $lob = fopen('MDB2LOB://'.$lob_index.'@'.$this->db_index, 'r+');
-            $lob_id = (int)$lob;
-            $this->lobs[$lob_index]['lob_id'] = $lob_id;
-            return $lob;
+            return fopen('MDB2LOB://'.$lob_index.'@'.$this->db_index, 'r+');
         default:
             return $db->raiseError(MDB2_ERROR_INVALID, null, null,
                 'attempt to convert result value to an unknown type ' . $type);
