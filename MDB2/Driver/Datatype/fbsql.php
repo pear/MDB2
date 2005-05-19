@@ -475,7 +475,6 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     function _quoteDate($value)
     {
         return 'DATE'.$this->_quoteText($value);
-;
     }
 
     // }}}
