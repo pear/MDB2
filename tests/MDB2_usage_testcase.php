@@ -123,12 +123,6 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         return true;
     }
 
-    function insertTestValues(&$stmt, &$data) {
-        for ($i = 0; $i < count($this->fields); $i++) {
-            $stmt->bindParam($i, $data[$this->fields[$i]]);
-        }
-    }
-
     function verifyFetchedValues(&$result, $rownum, &$data) {
         $row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
         for ($i = 0; $i < count($this->fields); $i++) {
@@ -169,11 +163,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = $this->getSampleData(1234);
 
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
-
-        $this->insertTestValues($stmt, $data);
-
-        $result = $stmt->execute();
-
+        $result = $stmt->execute(array_values($data));
         $stmt->free();
 
         if (PEAR::isError($result)) {
@@ -204,10 +194,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
-
-            $this->insertTestValues($stmt, $data[$row]);
-
-            $result = $stmt->execute();
+            $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -245,10 +232,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
-
-            $this->insertTestValues($stmt, $data[$row]);
-
-            $result = $stmt->execute();
+            $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -305,10 +289,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
-
-            $this->insertTestValues($stmt, $data[$row]);
-
-            $result = $stmt->execute();
+            $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -349,7 +330,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 1)", array('text'));
 
         $value = 'Sure!';
-        $stmt->bindParam(0, $value);
+        $stmt->bindParam(1, $value);
 
         $result = $stmt->execute();
 
@@ -391,11 +372,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = $this->getSampleData(1234);
 
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
-
-        $this->insertTestValues($stmt, $data);
-
-        $result = $stmt->execute();
-
+        $result = $stmt->execute(array_values($data));
         $stmt->free();
 
         if (PEAR::isError($result)) {
@@ -540,10 +517,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
-
-            $this->insertTestValues($stmt, $data[$row]);
-
-            $result = $stmt->execute();
+            $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -790,10 +764,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
-
-            $this->insertTestValues($stmt, $data[$row]);
-
-            $result = $stmt->execute();
+            $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
@@ -809,8 +780,8 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         for ($row = 0; $row < $total_rows; $row++) {
             $password = "another_password_$row";
             if ($row == 0) {
-                $stmt->bindParam(0, $password);
-                $stmt->bindParam(1, $row);
+                $stmt->bindParam(1, $password);
+                $stmt->bindParam(2, $row);
             }
 
             $result = $stmt->execute();
@@ -827,7 +798,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare('DELETE FROM users WHERE user_id >= ?', array('integer'));
 
         $row = intval($total_rows / 2);
-        $stmt->bindParam(0, $row);
+        $stmt->bindParam(1, $row);
         for ($row = $total_rows; $total_rows; $total_rows = $row) {
             $row = intval($total_rows / 2);
 
@@ -856,10 +827,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $this->db->beginTransaction();
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
-
-        $this->insertTestValues($stmt, $data);
-        $result = $stmt->execute();
-
+        $result = $stmt->execute(array_values($data));
         $this->db->rollback();
         $stmt->free();
 
@@ -883,8 +851,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $this->db->beginTransaction();
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
-        $this->insertTestValues($stmt, $data);
-        $result = $stmt->execute();
+        $result = $stmt->execute(array_values($data));
         $this->db->commit();
         $stmt->free();
 
@@ -1129,11 +1096,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data['user_password'] = '';
 
         $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
-
-        $this->insertTestValues($stmt, $data);
-
-        $result = $stmt->execute();
-
+        $result = $stmt->execute(array_values($data));
         $stmt->free();
 
         if (PEAR::isError($result)) {
