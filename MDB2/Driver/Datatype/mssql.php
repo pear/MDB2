@@ -126,7 +126,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         }
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' INT'.$default.$notnull;
     }
 
@@ -163,7 +163,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $type = isset($field['length']) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -206,7 +206,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         } else {
             $type = 'TEXT';
         }
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' '.$type.$notnull;
     }
 
@@ -249,7 +249,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         } else {
             $type = 'IMAGE';
         }
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' '.$type.$notnull;
     }
 
@@ -280,7 +280,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'boolean') : '';
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' BIT'.$default.$notnull;
     }
 
@@ -311,7 +311,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' CHAR ('.strlen('YYYY-MM-DD').')'.$default.$notnull;
     }
 
@@ -342,7 +342,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' CHAR ('.strlen('YYYY-MM-DD HH:MM:SS').')'.$default.$notnull;
     }
 
@@ -373,7 +373,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' CHAR ('.strlen('HH:MM:SS').')'.$default.$notnull;
     }
 
@@ -406,7 +406,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' FLOAT'.$default.$notnull;
     }
 
@@ -440,7 +440,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
         return $name.' '.$type.$default.$notnull;
     }
 
