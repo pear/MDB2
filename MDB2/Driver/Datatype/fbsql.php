@@ -121,13 +121,13 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     function _getIntegerDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (isset($field['unsigned'])) {
+        if (isset($field['unsigned']) && $field['unsigned']) {
             $this->warnings[] = "unsigned integer field \"$name\" is being
                 declared as signed integer";
         }
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$default.$notnull;
     }
 
@@ -163,7 +163,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         $length = isset($field['length']) ? $field['length'] : $db->max_text_length;
         return $name.' VARCHAR ('.$length.')'.$default.$notnull;
     }
@@ -196,7 +196,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        return "$name CLOB".(isset($field['notnull']) ? ' NOT NULL' : '');
+        return "$name CLOB".((isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '');
     }
 
     // }}}
@@ -227,7 +227,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        return "$name BLOB".(isset($field['notnull']) ? ' NOT NULL' : '');
+        return "$name BLOB".((isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '');
     }
 
     // }}}
@@ -257,7 +257,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'boolean') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' BOOLEAN)'.$default.$notnull;
     }
 
@@ -289,7 +289,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT DATE '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
 
@@ -322,7 +322,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT TIMESTAMP '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIMESTAMP'.$default.$notnull;
     }
 
@@ -354,7 +354,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT TIME '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME'.$default.$notnull;
     }
 
@@ -387,7 +387,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' FLOAT'.$default.$notnull;
     }
 
@@ -421,7 +421,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -474,8 +474,8 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteDate($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return "DATE'$value'";
+        return 'DATE'.$this->_quoteText($value);
+;
     }
 
     // }}}
@@ -492,8 +492,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteTimestamp($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return "TIMESTAMP'$value'";
+        return 'TIMESTAMP'.$this->_quoteText($value);
     }
 
     // }}}
@@ -510,8 +509,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteTime($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return "TIME'$value'";
+        return 'TIME'.$this->_quoteText($value);
     }
 
     // }}}
@@ -528,7 +526,6 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteFloat($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return (float)$value;
     }
 
@@ -547,7 +544,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     function _quoteDecimal($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $value;
+        return $db->escape($value);
     }
 }
 

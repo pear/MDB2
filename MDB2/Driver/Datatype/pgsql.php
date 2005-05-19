@@ -120,7 +120,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $type = isset($field['length']) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
         $default = isset($field['default']) ? ' DEFAULT'.
             $this->quote($field['default'], 'text') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -151,7 +151,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     function _getCLOBDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' OID'.$notnull;
     }
 
@@ -182,7 +182,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     function _getBLOBDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' OID'.$notnull;
     }
 
@@ -213,7 +213,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'boolean') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' BOOLEAN'.$default.$notnull;
     }
 
@@ -244,7 +244,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
 
@@ -275,7 +275,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME without time zone'.$default.$notnull;
     }
 
@@ -306,7 +306,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIMESTAMP without time zone'.$default.$notnull;
     }
 
@@ -337,7 +337,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' FLOAT8'.$default.$notnull;
     }
 
@@ -368,7 +368,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' NUMERIC(18, '.$db->options['decimal_places'].')'.$default.$notnull;
     }
 
@@ -517,8 +517,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteFloat($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $value;
+        return (float)$value;
     }
 
     // }}}
@@ -536,7 +535,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     function _quoteDecimal($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $value;
+        return $db->escape($value);
     }
 
     // }}}

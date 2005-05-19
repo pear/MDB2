@@ -113,10 +113,10 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     function _getIntegerDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $unsigned = isset($field['unsigned']) ? ' UNSIGNED' : '';
+        $unsigned = (isset($field['unsigned']) && $field['unsigned']) ? ' UNSIGNED' : '';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$unsigned.$default.$notnull;
        ;
     }
@@ -168,7 +168,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         } else {
             $type = 'LONGTEXT';
         }
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$notnull;
     }
 
@@ -220,7 +220,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         else {
             $type = 'LONGBLOB';
         }
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$notnull;
     }
 
@@ -252,7 +252,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
 
@@ -285,7 +285,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATETIME'.$default.$notnull;
     }
 
@@ -317,7 +317,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME'.$default.$notnull;
     }
 
@@ -348,10 +348,11 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     function _getFloatDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $type = 'DOUBLE'.($db->options['fixed_float'] ? '('.($db->options['fixed_float']+2).','.$db->options['fixed_float'].')' : '');
+        $type = 'DOUBLE'.($db->options['fixed_float'] ? '('.
+            ($db->options['fixed_float']+2).','.$db->options['fixed_float'].')' : '');
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -385,7 +386,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $type = 'BIGINT';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -403,7 +404,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _quoteFloat($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return (float)$value;
     }
 
@@ -422,7 +422,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     function _quoteDecimal($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return (strval(round(doubleval($value)*pow(10.0, $db->options['decimal_places']))));
+        return $db->escape($value);
     }
 
     // }}}

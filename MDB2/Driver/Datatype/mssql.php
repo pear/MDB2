@@ -121,7 +121,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     function _getIntegerDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (isset($field['unsigned'])) {
+        if (isset($field['unsigned']) && $field['unsigned']) {
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -476,7 +476,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _quoteBoolean($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return ($value ? 1 : 0);
     }
 
@@ -494,8 +493,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _quoteFloat($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $value;
+        return (float)$value;
     }
 
     // }}}
@@ -513,7 +511,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     function _quoteDecimal($value)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $value;
+        return $db->escape($value);
     }
 }
 

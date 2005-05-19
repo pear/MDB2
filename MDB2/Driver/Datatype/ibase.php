@@ -171,7 +171,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $type = $this->_getTypeDeclaration($field);
         $default = isset($field['default']) ? ' DEFAULT'.
             $this->quote($field['default'], 'text') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -201,7 +201,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$notnull;
     }
 
@@ -231,7 +231,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$notnull;
     }
 
@@ -261,7 +261,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -291,7 +291,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -321,7 +321,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -351,7 +351,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -381,7 +381,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
-        $notnull = isset($field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
