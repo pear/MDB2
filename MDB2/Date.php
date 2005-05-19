@@ -121,7 +121,7 @@ class MDB2_Date
     function date2Mdbstamp($hour = null, $minute = null, $second = null,
         $month = null, $day = null, $year = null)
     {
-        return MDB2_Date::unix2Mdbstamp(mktime($hour, $minute, $second, $month, $day, $year, 0));
+        return MDB2_Date::unix2Mdbstamp(mktime($hour, $minute, $second, $month, $day, $year, -1));
     }
 
     // }}}
@@ -136,9 +136,6 @@ class MDB2_Date
      */
     function unix2Mdbstamp($unix_timestamp)
     {
-        if (date('I', $unix_timestamp)) {
-            $unix_timestamp -= 3600;
-        }
         return date('Y-m-d H:i:s', $unix_timestamp);
     }
 
@@ -156,7 +153,7 @@ class MDB2_Date
     {
         $arr = MDB2_Date::mdbstamp2Date($mdb_timestamp);
 
-        return mktime($arr['hour'], $arr['minute'], $arr['second'], $arr['month'], $arr['day'], $arr['year'], 0);
+        return mktime($arr['hour'], $arr['minute'], $arr['second'], $arr['month'], $arr['day'], $arr['year'], -1);
         }
 
     // }}}
