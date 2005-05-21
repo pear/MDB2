@@ -162,7 +162,7 @@ class MDB2_Iterator implements Iterator
     public function key()
     {
         if ($this->result) {
-            return $this->result->getRowCounter();
+            return $this->result->rowCount();
         }
         return false;
     }
@@ -240,7 +240,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     public function hasPrev()
     {
         if ($this->result) {
-            return $this->result->getRowCounter() > 0;
+            return $this->result->rowCount() > 0;
         }
         return false;
     }
@@ -272,7 +272,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     public function prev()
     {
         if ($this->hasPrev()) {
-            $this->seek($this->result->getRowCounter() - 1);
+            $this->seek($this->result->rowCount() - 1);
         } else {
             return false;
         }

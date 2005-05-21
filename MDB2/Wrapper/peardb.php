@@ -301,7 +301,7 @@ class DB_result extends MDB2_Result_Common
 
     function getRowCounter()
     {
-        return $this->result->getRowCounter()+1;
+        return $this->result->rowCount()+1+$this->result->offset;
     }
 }
 
