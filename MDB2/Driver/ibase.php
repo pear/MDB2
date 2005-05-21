@@ -562,7 +562,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $statement = ibase_prepare($connection, $query);
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $query, $types, $result_types);
+        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
@@ -1032,21 +1032,21 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
 
 class MDB2_Statement_ibase extends MDB2_Statement_Common
 {
-    // {{{ execute()
+    // {{{ _execute()
 
     /**
-     * Execute a prepared query statement.
+     * Execute a prepared query statement helper method.
      *
      * @param mixed $result_class string which specifies which result class to use
      * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @access private
      */
-    function &execute($result_class = true, $result_wrap_class = false)
+    function &_execute($result_class = true, $result_wrap_class = false)
     {
         $isManip = MDB2::isManip($this->query);
         $this->db->last_query = $this->query;
-        $this->db->debug($this->query, 'query');
+        $this->db->debug($this->query, 'execute');
         if ($this->db->getOption('disable_query')) {
             return $isManip ? MDB2_OK : null;
         }
@@ -1055,21 +1055,23 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         if (PEAR::isError($connected)) {
             return $connected;
         }
-        $connection = ($this->db->in_transaction ? $this->db->transaction_id : $this->db->connection);
+        $connection = $this->db->in_transaction
+            ? $this->db->transaction_id : $this->db->connection;
 
-        $parameters = $this->quoteParamsForPreparedQuery();
+        $parameters = array(0 => $this->statement);
+        $values = array_values($this->values);
+        $types = array_values($this->types);
+        foreach ($values as $parameter => $value) {
+            $type = isset($types[$parameter]) ? $types[$parameter] : null;
+            $parameters[] = $this->db->quote($value, $type, false);
+        }
 
-        $this->db->row_offset = $this->row_offset;
-        $this->db->row_limit  = $this->row_limit;
-
-        array_unshift($parameters, $this->statement);
         $result = call_user_func_array('ibase_execute', $parameters);
         if ($result === false) {
             return $this->db->raiseError();
         }
 
         if ($isManip) {
-            //return $result;
             return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
         }
 
@@ -1078,32 +1080,22 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
     }
 
     // }}}
-    // {{{ quoteParamsForPreparedQuery()
-
-    function quoteParamsForPreparedQuery()
-    {
-        $parameters = array();
-        $must_quote = array('decimal', 'boolean', 'blob', 'clob');
-        foreach ($this->values as $parameter => $value) {
-            if (!isset($value)) {
-                $parameters[] = null;
-            } else {
-                $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
-                if (in_array($type, $must_quote)) {
-                    if ($type == 'boolean') {
-                        $value = ($value ? 'Y' : 'N');
-                    } else {
-                        $value = $this->db->quote($value, $type);
-                    }
-                } elseif (strpos($value, '?') !== false) {
-                    $value = "'".$this->db->escape($value)."'";
-                }
-                $parameters[] = $value;
-            }
-        }
-        return $parameters;
-    }
 
     // }}}
+    // {{{ free()
+
+    /**
+     * Release resources allocated for the specified prepared query.
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function free()
+    {
+        if (!@ibase_free_query($this->statement)) {
+            return $this->db->raiseError();
+        }
+        return MDB2_OK;
+    }
 }
 ?>

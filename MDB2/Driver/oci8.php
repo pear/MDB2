@@ -606,7 +606,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $query, $types, $result_types);
+        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
@@ -1020,21 +1020,21 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
 class MDB2_Statement_oci8 extends MDB2_Statement_Common
 {
     // }}}
-    // {{{ execute()
+    // {{{ _execute()
 
     /**
-     * Execute a prepared query statement.
+     * Execute a prepared query statement helper method.
      *
      * @param mixed $result_class string which specifies which result class to use
      * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @access private
      */
-    function &execute($result_class = true, $result_wrap_class = false)
+    function &_execute($result_class = true, $result_wrap_class = false)
     {
         $isManip = MDB2::isManip($this->query);
         $this->db->last_query = $this->query;
-        $this->db->debug($this->query, 'query');
+        $this->db->debug($this->query, 'execute');
         if ($this->db->getOption('disable_query')) {
             if ($isManip) {
                 return MDB2_OK;
@@ -1052,20 +1052,18 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         foreach ($this->values as $parameter => $value) {
             $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
             if ($type == 'clob' || $type == 'blob') {
-                $lobs[$parameter]['file'] = true;
+                $lobs[$parameter]['file'] = false;
                 if (is_resource($value)) {
                     $fp = $value;
                     $value = '';
                     while (!feof($fp)) {
                         $value.= fread($fp, 8192);
                     }
-                    $lobs[$parameter]['file'] = false;
                 } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+                    $lobs[$parameter]['file'] = true;
                     if ($match[1] == 'file://') {
                         $value = $match[2];
                     }
-                } else {
-                    $lobs[$parameter]['file'] = false;
                 }
                 $lobs[$parameter]['value'] = $value;
                 $descriptors[$parameter] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
@@ -1074,7 +1072,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     break;
                 }
             } else {
-                $descriptors[$parameter] = $this->db->quote($value, $type);
+                $descriptors[$parameter] = $this->db->quote($value, $type, false);
                 if (PEAR::isError($descriptors[$parameter])) {
                     return $descriptors[$parameter];
                 }
@@ -1086,11 +1084,6 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     break;
                 }
             } else {
-                if ($descriptors[$parameter] === 'NULL') {
-                    $descriptors[$parameter] = null;
-                } elseif ($descriptors[$parameter][0] === "'") {
-                    $descriptors[$parameter] = substr($descriptors[$parameter], 1, -1);
-                }
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1)) {
                     $result = $this->db->raiseError($this->statement);
                     break;
@@ -1160,7 +1153,9 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
      */
     function free()
     {
-        @OCIFreeStatement($this->statement);
+        if (!@OCIFreeStatement($this->statement)) {
+            return $this->db->raiseError();
+        }
         return MDB2_OK;
     }
 }
