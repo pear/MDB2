@@ -125,7 +125,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
                 $delta = 0;
             }
 
-            $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" ($value) doesn't match what was stored ($data[$field]) into the row $rownum", $delta);
+            $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" doesn't match what was stored into the row $rownum", $delta);
         }
     }
 
@@ -164,7 +164,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
 
         $firstRow = $result->fetchRow();
-        $this->assertEquals($firstRow['user_name'], $data['user_name'], "The data returned ($firstRow[user_name]) does not match that expected (".$data['user_name'].")");
+        $this->assertEquals($firstRow['user_name'], $data['user_name'], "The data returned does not match that expected");
 
         $result = $this->db->query('SELECT user_name, user_id, quota FROM users ORDER BY user_name');
         if (PEAR::isError($result)) {
@@ -173,7 +173,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $this->db->setFetchMode(MDB2_FETCHMODE_ORDERED);
 
         $value = $result->fetchOne();
-        $this->assertEquals($data['user_name'], $value, "The data returned ($value) does not match that expected (".$data['user_name'].")");
+        $this->assertEquals($data['user_name'], $value, "The data returned does not match that expected");
         $result->free();
     }
 

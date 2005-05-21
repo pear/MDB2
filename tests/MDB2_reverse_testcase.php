@@ -130,11 +130,11 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
         if (PEAR::isError($table_info)) {
             $this->assertTrue(false, 'Error in tableInfo(): '.$table_info->getMessage());
         } else {
-            $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved ('.count($table_info).') is different from the expected one ('.count($this->fields).')');
+            $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
-                $this->assertEquals('users', $field_info['table'], "the table name is not correct (expected: 'users'; actual: $field_info[table])");
+                $this->assertEquals('users', $field_info['table'], "the table name is not correct");
                 if (!in_array(strtolower($field_info['name']), $this->fields)) {
-                    $this->assertTrue(false, 'Field names do not match ('.$field_info['name'].' is unknown');
+                    $this->assertTrue(false, 'Field names do not match ('.$field_info['name'].' is unknown)');
                 }
                 //expand test, for instance adding a check on types...
             }

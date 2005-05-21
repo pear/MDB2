@@ -134,7 +134,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $delta = 0;
             }
 
-            $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" ($value) doesn't match what was stored ($data[$field]) into the row $rownum", $delta);
+            $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" doesn't match what was stored into the row $rownum", $delta);
         }
     }
 
@@ -212,7 +212,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 if (PEAR::isError($value)) {
                     $this->assertTrue(false, 'Error fetching row '.$row.' for field '.$field.' of type '.$this->types[$i]);
                 } else {
-                    $this->assertEquals(strval($data[$row][$field]), strval(trim($value)), 'the query field '.$field.' of type '.$this->types[$i].' for row '.$row.' was returned as "'.$value.'" unlike "'.$data[$row][$field].'" as expected');
+                    $this->assertEquals(strval($data[$row][$field]), strval(trim($value)), 'the query field '.$field.' of type '.$this->types[$i].' for row '.$row);
                     $result->free();
                 }
             }
@@ -312,7 +312,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         } else {
             for ($i=0; $i<$total_rows; $i++) {
                 foreach ($data[$i] as $key => $val) {
-                    $this->assertEquals(strval($values[$i][$key]), strval($val), 'Row #'.$i.' ['.$key.'], expected "'.$val.'", actual "'.$values[$i][$key].'"');
+                    $this->assertEquals(strval($values[$i][$key]), strval($val), 'Row #'.$i.' ['.$key.']');
                 }
             }
         }
@@ -387,11 +387,11 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $numcols = $result->numCols();
 
-        $this->assertEquals(count($this->fields), $numcols, "The query result returned a number of $numcols columns unlike ".count($this->fields) .' as expected');
+        $this->assertEquals(count($this->fields), $numcols, "The query result returned an incorrect number of columns unlike expected");
 
         $column_names = $result->getColumnNames();
         for ($column = 0; $column < $numcols; $column++) {
-            $this->assertEquals($column, $column_names[$this->fields[$column]], "The query result column \"".$this->fields[$column]."\" was returned in position ".$column_names[$this->fields[$column]]." unlike $column as expected");
+            $this->assertEquals($column, $column_names[$this->fields[$column]], "The query result column \"".$this->fields[$column]."\" was returned in an incorrect position");
         }
 
     }
@@ -445,7 +445,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             if ($is_null) {
                 $error_message = 'A query result column is not NULL unlike what was expected';
             } else {
-                $error_message = 'A query result column is NULL even though it was expected to be "' . $test_values[$test_value][0] . '"';
+                $error_message = 'A query result column is NULL even though it was expected to be differnt';
             }
 
             $row = $result->fetchRow();
@@ -496,7 +496,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $value = $result->fetchOne();
             $result->free();
 
-            $this->assertEquals($test_strings[$string], rtrim($value), "the value retrieved for field \"user_name\" (\"$value\") doesn't match what was stored (".$test_strings[$string].')');
+            $this->assertEquals($test_strings[$string], rtrim($value), "the value retrieved for field \"user_name\" doesn't match what was stored");
         }
     }
 
@@ -590,7 +590,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             for ($sequence_value = $start_value; $sequence_value < ($start_value + 4); $sequence_value++) {
                 $value = $this->db->nextId($sequence_name, false);
 
-                $this->assertEquals($sequence_value, $value, "The returned sequence value is $value and not $sequence_value as expected with sequence start value with $start_value");
+                $this->assertEquals($sequence_value, $value, "The returned sequence value is not expected with sequence start value with $start_value");
             }
 
             $result = $this->db->manager->dropSequence($sequence_name);
@@ -610,7 +610,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         for ($sequence_value = 1; $sequence_value < 4; $sequence_value++) {
             $value = $this->db->nextId($sequence_name);
 
-            $this->assertEquals($sequence_value, $value, "Error in ondemand sequences. The returned sequence value is $value and not $sequence_value as expected");
+            $this->assertEquals($sequence_value, $value, "Error in ondemand sequences. The returned sequence value is not expected value");
         }
 
         $result = $this->db->manager->dropSequence($sequence_name);
@@ -705,7 +705,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         if ($this->db->supports('affected_rows')) {
             $affected_rows = $result;
 
-            $this->assertEquals(1, $result, "replacing a row in an empty table returned $result unlike 1 as expected");
+            $this->assertEquals(1, $result, "replacing a row in an empty table returned incorrect value");
         }
 
         $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
@@ -732,7 +732,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Replace failed');
         }
         if ($this->db->supports('affected_rows')) {
-            $this->assertEquals(2, $result, "replacing a row returned $result unlike 2 as expected");
+            $this->assertEquals(2, $result, "replacing a row returned incorrect result");
         }
 
         $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
@@ -770,7 +770,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
 
-            $this->assertEquals(1, $result, "Inserting the row $row returned $result affected row count instead of 1 as expected");
+            $this->assertEquals(1, $result, "Inserting the row $row returned incorrect affected row count");
         }
 
         $stmt->free();
@@ -790,7 +790,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
 
-            $this->assertEquals($row, $result, "Updating the $row rows returned $result affected row count");
+            $this->assertEquals($row, $result, "Updating the $row rows returned incorrect affected row count");
         }
 
         $stmt->free();
@@ -808,7 +808,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
             }
 
-            $this->assertEquals(($total_rows - $row), $result, 'Deleting '.($total_rows - $row)." rows returned $result affected row count");
+            $this->assertEquals(($total_rows - $row), $result, 'Deleting rows returned incorrect affected row count');
 
         }
 
@@ -941,7 +941,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
                 $value .= $data;
             }
             $this->db->datatype->destroyLOB($clob);
-            $this->assertEquals($character_lob, $value, 'Retrieved character LOB value ("' . $value . '") is different from what was stored ("' . $character_lob . '")');
+            $this->assertEquals($character_lob, $value, 'Retrieved character LOB value is different from what was stored');
         } else {
             $this->assertTrue(false, 'Error retrieving CLOB result');
         }
@@ -956,7 +956,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             }
 
             $this->db->datatype->destroyLOB($blob);
-            $this->assertEquals($binary_lob, $value, 'Retrieved binary LOB value ("'.$value.'") is different from what was stored ("'.$binary_lob.'")');
+            $this->assertEquals($binary_lob, $value, 'Retrieved binary LOB value is different from what was stored');
         } else {
             $this->assertTrue(false, 'Error retrieving CLOB result');
         }
@@ -1021,11 +1021,16 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->db->datatype->writeLOBToFile($clob, $character_data_file);
             $this->db->datatype->destroyLOB($clob);
 
-            $this->assertTrue(($file = fopen($character_data_file, 'r')), "Error opening character data file: $character_data_file");
-            $this->assertEquals('string', gettype($value = fread($file, filesize($character_data_file))), "Could not read from character LOB file: $character_data_file");
+            $file = fopen($character_data_file, 'r');
+            $this->assertTrue($file, "Error opening character data file: $character_data_file");
+            $value = '';
+            while (!feof($file)) {
+                $value.= fread($file, 8192);
+            }
+            $this->assertEquals('string', gettype($value), "Could not read from character LOB file: $character_data_file");
             fclose($file);
 
-            $this->assertEquals($character_data, $value, "retrieved character LOB value (\"".$value."\") is different from what was stored (\"".$character_data."\")");
+            $this->assertEquals($character_data, $value, "retrieved character LOB value is different from what was stored");
         } else {
             $this->assertTrue(false, 'Error creating character LOB in a file');
         }
@@ -1035,12 +1040,16 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
             $this->db->datatype->destroyLOB($blob);
 
-            $this->assertTrue(($file = fopen($binary_data_file, 'rb')), "Error opening binary data file: $binary_data_file");
-            $this->assertEquals('string', gettype($value = fread($file, filesize($binary_data_file))), "Could not read from binary LOB file: $binary_data_file");
+            $file = fopen($binary_data_file, 'rb');
+            $this->assertTrue($file, "Error opening binary data file: $binary_data_file");
+            $value = '';
+            while (!feof($file)) {
+                $value.= fread($file, 8192);
+            }
+            $this->assertEquals('string', gettype($value), "Could not read from binary LOB file: $binary_data_file");
             fclose($file);
 
-            $this->assertEquals($binary_data, $value,
-            "retrieved binary LOB value (\"".$value."\") is different from what was stored (\"".$binary_data."\")");
+            $this->assertEquals($binary_data, $value, "retrieved binary LOB value is different from what was stored");
         } else {
             $this->assertTrue(false, 'Error creating binary LOB in a file');
         }
