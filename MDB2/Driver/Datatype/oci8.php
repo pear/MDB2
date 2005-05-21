@@ -551,7 +551,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     /**
      * retrieve LOB from the database
      *
-     * @param int $lob handle to a lob created by the createLOB() function
+     * @param resource $lob stream handle
      * @param string $file name of the file into which the LOb should be fetched
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
@@ -573,7 +573,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     /**
      * retrieve LOB from the database
      *
-     * @param int $lob handle to a lob created by the createLOB() function
+     * @param int $lob_index from the lob array
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */

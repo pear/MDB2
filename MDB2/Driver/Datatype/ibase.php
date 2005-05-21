@@ -452,7 +452,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     /**
      * retrieve LOB from the database
      *
-     * @param int $lob handle to a lob created by the createLob() function
+     * @param resource $lob stream handle
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
@@ -476,7 +476,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     /**
      * Read data from large object input stream.
      *
-     * @param int $lob handle to a lob created by the createLob() function
+     * @param resource $lob stream handle
      * @param blob $data reference to a variable that will hold data to be
      *      read from the large object input stream
      * @param int $length integer value that indicates the largest ammount of
@@ -502,7 +502,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * Free any resources allocated during the lifetime of the large object
      * handler object.
      *
-     * @param int $lob handle to a lob created by the createLob() function
+     * @param resource $lob stream handle
      * @access protected
      */
     function _destroyLOB($lob_index)
