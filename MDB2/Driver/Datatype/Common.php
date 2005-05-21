@@ -1112,7 +1112,7 @@ class MDB2_Driver_Datatype_Common
     /**
      * retrieve LOB from the database
      *
-     * @param int $lob handle to a lob created by the createLOB() function
+     * @param resource $lob stream handle
      * @param string $file name of the file into which the LOb should be fetched
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
@@ -1124,11 +1124,13 @@ class MDB2_Driver_Datatype_Common
         while (!feof($lob)) {
             $result = fread($lob, $db->options['lob_buffer_length']);
             $read = strlen($result);
-            if (fwrite($fp, $result, $read)!= $read) {
+            if (fwrite($fp, $result, $read) != $read) {
+                fclose($fp);
                 return MDB2::raiseError(MDB2_ERROR, null, null,
                     'writeLOBToFile: could not write to the output file');
             }
         }
+        fclose($fp);
         return MDB2_OK;
     }
 
@@ -1138,7 +1140,7 @@ class MDB2_Driver_Datatype_Common
     /**
      * retrieve LOB from the database
      *
-     * @param int $lob handle to a lob created by the createLOB() function
+     * @param resource $lob stream handle
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
@@ -1156,8 +1158,7 @@ class MDB2_Driver_Datatype_Common
     /**
      * Read data from large object input stream.
      *
-     * @param integer $lob argument handle that is returned by the
-     *                          MDB2::createLOB() method.
+     * @param resource $lob stream handle
      * @param string $data reference to a variable that will hold data
      *                          to be read from the large object input stream
      * @param integer $length    value that indicates the largest ammount ofdata
@@ -1179,7 +1180,7 @@ class MDB2_Driver_Datatype_Common
      * Determine whether it was reached the end of the large object and
      * therefore there is no more data to be read for the its input stream.
      *
-     * @param int    $lob handle to a lob created by the createLOB() function
+     * @param resource $lob stream handle
      * @return mixed true or false on success, a MDB2 error on failure
      * @access protected
      */
@@ -1195,14 +1196,14 @@ class MDB2_Driver_Datatype_Common
      * Free any resources allocated during the lifetime of the large object
      * handler object.
      *
-     * @param integer $lob argument handle that is returned by the
-     *                          MDB2::createLOB() method.
+     * @param resource $lob stream handle
      * @access public
      */
     function destroyLOB($lob)
     {
         $lob_data = stream_get_meta_data($lob);
         $lob_index = $lob_data['wrapper_data']->lob_index;
+        fclose($lob);
         if (isset($this->lobs[$lob_index])) {
             $this->_destroyLOB($lob_index);
             unset($this->lobs[$lob_index]);
@@ -1217,8 +1218,7 @@ class MDB2_Driver_Datatype_Common
      * Free any resources allocated during the lifetime of the large object
      * handler object.
      *
-     * @param integer $lob argument handle that is returned by the
-     *                          MDB2::createLOB() method.
+     * @param int $lob_index from the lob array
      * @access private
      */
     function _destroyLOB($lob_index)
