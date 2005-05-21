@@ -1047,7 +1047,8 @@ class MDB2_Driver_Common extends PEAR
     * @var array
     * @access protected
     */
-    var $destructor_registered = true;
+    // todo: fix php5 destruct which is broken by global ref
+    var $destructor_registered = false;
 
     // }}}
     // {{{ constructor
@@ -2169,13 +2170,13 @@ class MDB2_Driver_Common extends PEAR
      *       a DBMS specific format.
      * @access public
      */
-    function quote($value, $type = null)
+    function quote($value, $type = null, $quote = true)
     {
         $result = $this->loadModule('Datatype');
         if (PEAR::isError($result)) {
             return $result;
         }
-        return $this->datatype->quote($value, $type);
+        return $this->datatype->quote($value, $type, $quote);
     }
 
     // }}}
@@ -2695,15 +2696,15 @@ class MDB2_Result_Common extends MDB2_Result
     }
 
     // }}}
-    // {{{ getRowCounter()
+    // {{{ rowCount()
 
     /**
      * returns the actual row number that was last fetched (count from 0)
      * @return integer
      */
-    function getRowCounter()
+    function rowCount()
     {
-        return $this->rownum + 1 + $this->offset;
+        return $this->rownum + 1;
     }
 
     // }}}
@@ -2817,7 +2818,7 @@ class MDB2_Result_Common extends MDB2_Result
     function bindColumn($column, &$value, $type = null)
     {
         if (is_numeric($column)) {
-// todo     --$column;
+            --$column;
         } else {
             $column_names = $this->getColumnNames();
             if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
@@ -2903,28 +2904,30 @@ class MDB2_Statement_Common
     var $statement;
     var $query;
     var $result_types;
-    var $row_offset;
-    var $row_limit;
     var $types;
     var $values;
+    var $row_limit;
+    var $row_offset;
 
     // {{{ constructor
 
     /**
      * Constructor
      */
-    function __construct(&$db, &$statement, $query, $types, $result_types)
+    function __construct(&$db, &$statement, $query, $types, $result_types, $limit = null, $offset = null)
     {
         $this->db =& $db;
-        $this->statement = $statement;
+        $this->statement =& $statement;
         $this->query = $query;
         $this->types = $types;
         $this->result_types = $result_types;
+        $this->row_limit = $limit;
+        $this->row_offset = $offset;
     }
 
-    function MDB2_Statement_Common(&$db, &$statement, $query, $types, $result_types)
+    function MDB2_Statement_Common(&$db, &$statement, $query, $types, $result_types, $limit = null, $offset = null)
     {
-        $this->__construct($db, $statement, $query, $types, $result_types);
+        $this->__construct($db, $statement, $query, $types, $result_types, $limit, $offset);
     }
 
     // }}}
@@ -2944,7 +2947,7 @@ class MDB2_Statement_Common
     function bindParam($parameter, &$value, $type = null)
     {
         if (is_numeric($parameter)) {
-// todo     --$parameter;
+            --$parameter;
         } else {
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
         }
@@ -2973,8 +2976,14 @@ class MDB2_Statement_Common
     {
         $types = is_array($types) ? array_values($types) : array_fill(0, count($values), null);
         $parameters = array_keys($values);
-        foreach ($parameters as $key => $parameter) {
-            $result = $this->bindParam($parameter, $values[$parameter], $types[$key]);
+        if (is_numeric(reset($parameters))) {
+            foreach ($parameters as $key => $parameter) {
+                $this->bindParam(($parameter+1), $values[$parameter], $types[$key]);
+            }
+       } else {
+            foreach ($parameters as $key => $parameter) {
+                $this->bindParam($parameter, $values[$parameter], $types[$key]);
+            }
         }
         return MDB2_OK;
     }
@@ -2985,12 +2994,38 @@ class MDB2_Statement_Common
     /**
      * Execute a prepared query statement.
      *
+     * @param array $values array thats specifies all necessary infromation
+     *       for bindParam() the array elements must use keys corresponding to
+     *       the number of the position of the parameter.
      * @param mixed $result_class string which specifies which result class to use
      * @param mixed $result_wrap_class string which specifies which class to wrap results in
      * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &execute($result_class = true, $result_wrap_class = false)
+    function &execute($values = null, $result_class = true, $result_wrap_class = false)
+    {
+        if (!empty($values)) {
+            $this->bindParamArray($values);
+        }
+        $result =& $this->_execute($result_class, $result_wrap_class);
+        if (is_numeric($result)) {
+            $this->rownum = $result - 1;
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ _execute()
+
+    /**
+     * Execute a prepared query statement helper method.
+     *
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function &_execute($result_class = true, $result_wrap_class = false)
     {
         $query = '';
         $last_position = 0;
