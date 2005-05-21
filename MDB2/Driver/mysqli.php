@@ -497,6 +497,98 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ prepare()
+
+    /**
+     * Prepares a query for multiple execution with execute().
+     * With some database backends, this is emulated.
+     * prepare() requires a generic query as string like
+     * 'INSERT INTO numbers VALUES(?,?)' or
+     * 'INSERT INTO numbers VALUES(:foo,:bar)'.
+     * The ? and :[a-zA-Z] and  are placeholders which can be set using
+     * bindParam() and the query can be send off using the execute() method.
+     *
+     * @param string $query the query to prepare
+     * @param mixed   $types  array that contains the types of the placeholders
+     * @param mixed   $result_types  array that contains the types of the columns in
+     *                        the result set
+     * @return mixed resource handle for the prepared query on success, a MDB2
+     *        error on failure
+     * @access public
+     * @see bindParam, execute
+     */
+    function &prepare($query, $types = null, $result_types = null)
+    {
+        $isManip = MDB2::isManip($query);
+        $query = $this->_modifyQuery($query, $isManip, $this->row_limit, $this->row_offset);
+        $this->debug($query, 'prepare');
+        $placeholder_type_guess = $placeholder_type = null;
+        $question = '?';
+        $colon = ':';
+        $position = 0;
+        while ($position < strlen($query)) {
+            $q_position = strpos($query, $question, $position);
+            $c_position = strpos($query, $colon, $position);
+            if ($q_position && $c_position) {
+                $p_position = min($q_position, $c_position);
+            } elseif($q_position) {
+                $p_position = $q_position;
+            } elseif($c_position) {
+                $p_position = $c_position;
+            } else {
+                break;
+            }
+            if (is_null($placeholder_type)) {
+                $placeholder_type_guess = $query[$p_position];
+            }
+            if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
+                if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
+                    return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        'prepare: query with an unterminated text string specified');
+                }
+                switch ($this->escape_quotes) {
+                case '':
+                case "'":
+                    $position = $end_quote + 1;
+                    break;
+                default:
+                    if ($end_quote == $quote + 1) {
+                        $position = $end_quote + 1;
+                    } else {
+                        if ($query[$end_quote-1] == $this->escape_quotes) {
+                            $position = $end_quote;
+                        } else {
+                            $position = $end_quote + 1;
+                        }
+                    }
+                    break;
+                }
+            } elseif ($query[$position] == $placeholder_type_guess) {
+                if ($placeholder_type_guess == '?') {
+                    break;
+                }
+                if (is_null($placeholder_type)) {
+                    $placeholder_type = $query[$p_position];
+                    $question = $colon = $placeholder_type;
+                }
+                $name = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/i', '\\1', $query);
+                if ($name === '') {
+                    return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        'prepare: named parameter with an empty name');
+                }
+                $query = substr_replace($query, '?', $position, strlen($name)+1);
+                $position = $p_position + 1;
+            } else {
+                $position = $p_position;
+            }
+        }
+        $statement = @mysqli_prepare($this->connection, $query);
+        $class_name = 'MDB2_Statement_'.$this->phptype;
+        $obj =& new $class_name($this, $statement, $query, $types, $result_types);
+        return $obj;
+    }
+
+    // }}}
     // {{{ subSelect()
 
     /**
@@ -919,6 +1011,83 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
 
 class MDB2_Statement_mysqli extends MDB2_Statement_Common
 {
+    // {{{ _execute()
 
+    /**
+     * Execute a prepared query statement helper method.
+     *
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function &_execute($result_class = true, $result_wrap_class = false)
+    {
+        $isManip = MDB2::isManip($this->query);
+        $this->db->last_query = $this->query;
+        $this->db->debug($this->query, 'execute');
+        if ($this->db->getOption('disable_query')) {
+            return $isManip ? MDB2_OK : null;
+        }
+
+        $connected = $this->db->connect();
+        if (PEAR::isError($connected)) {
+            return $connected;
+        }
+        $parameters = array(0 => $this->statement, 1 => '');
+        $values = array_values($this->values);
+        $types = array_values($this->types);
+        foreach ($values as $parameter => $value) {
+            $type = isset($types[$parameter]) ? $types[$parameter] : null;
+            if (strlen($value) > $this->db->options['lob_buffer_length']) {
+                do {
+                    $data = substr($value, 0, $this->db->options['lob_buffer_length']);
+                    $value = substr($value, $this->db->options['lob_buffer_length']);
+                    mysqli_stmt_send_long_data($this->statement, $parameter, $data);
+                } while($value);
+                $parameters[] = null;
+                $parameters[1].= 'b';
+            } else {
+                $parameters[] = $this->db->quote($value, $type, false);
+                $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
+            }
+        }
+        $result = call_user_func_array('mysqli_stmt_bind_param', $parameters);
+        if ($result === false) {
+            return $this->db->raiseError();
+        }
+
+        if (!@mysqli_stmt_execute($this->statement)) {
+            return $this->db->raiseError();
+        }
+
+        if ($isManip) {
+            return @mysqli_stmt_affected_rows($this->statement);
+        }
+
+        return $this->db->_wrapResult($result, $this->types,
+            $result_class, $result_wrap_class);
+    }
+
+    // }}}
+
+    // }}}
+
+    // }}}
+    // {{{ free()
+
+    /**
+     * Release resources allocated for the specified prepared query.
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function free()
+    {
+        if (!@mysqli_stmt_close($this->statement)) {
+            return $this->db->raiseError();
+        }
+        return MDB2_OK;
+    }
 }
 ?>
