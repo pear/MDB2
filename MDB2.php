@@ -1523,7 +1523,7 @@ class MDB2_Driver_Common extends PEAR
     function __call($method, $params)
     {
         $module = null;
-        if(preg_match('/^([a-z]+)([A-Z])(.*)$/', $method, $match)
+        if (preg_match('/^([a-z]+)([A-Z])(.*)$/', $method, $match)
             && isset($this->options['modules'][$match[1]])
         ) {
             $module = $this->options['modules'][$match[1]];
@@ -1535,7 +1535,7 @@ class MDB2_Driver_Common extends PEAR
                 }
             }
         } else {
-            foreach($this->modules as $key => $foo) {
+            foreach ($this->modules as $key => $foo) {
                 if (is_object($this->modules[$key])
                     && method_exists($this->modules[$key], $method)
                 ) {
@@ -2099,9 +2099,9 @@ class MDB2_Driver_Common extends PEAR
             $c_position = strpos($query, $colon, $position);
             if ($q_position && $c_position) {
                 $p_position = min($q_position, $c_position);
-            } elseif($q_position) {
+            } elseif ($q_position) {
                 $p_position = $q_position;
-            } elseif($c_position) {
+            } elseif ($c_position) {
                 $p_position = $c_position;
             } else {
                 break;
@@ -2570,7 +2570,6 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function fetchOne($colnum = 0)
     {
-        $column = array();
         $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
         $row = $this->fetchRow($fetchmode);
         if (!is_array($row) || PEAR::isError($row)) {
@@ -2645,7 +2644,7 @@ class MDB2_Result_Common extends MDB2_Result
 
         $shift_array = $rekey ? false : null;
         if (!is_null($shift_array)) {
-            if(is_object($row)) {
+            if (is_object($row)) {
                 $colnum = count(get_object_vars($row));
             } else {
                 $colnum = count($row);
@@ -2845,6 +2844,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function _assignBindColumns($row)
     {
+        $row = array_values($row);
         foreach ($row as $column => $value) {
             if (array_key_exists($column, $this->values)) {
                 $this->values[$column] = $value;
