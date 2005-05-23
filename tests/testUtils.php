@@ -37,7 +37,7 @@ function testCheck($testcase, $testmethod)
 function getBacktrace()
 {
     $message = '';
-    if(!function_exists('debug_backtrace')) {
+    if (!function_exists('debug_backtrace')) {
         $message.= 'function debug_backtrace does not exists'."\n";
     }
 
@@ -45,20 +45,20 @@ function getBacktrace()
     array_shift($debug_backtrace);
     $message.= 'Debug backtrace:'."\n";
 
-    foreach($debug_backtrace as $trace_item) {
+    foreach ($debug_backtrace as $trace_item) {
         $message.= "\t" . '    @ ';
-        if(isset($trace_item['file'])) {
+        if (isset($trace_item['file'])) {
             $message.= basename($trace_item['file']) . ':' . $trace_item['line'];
         } else {
             $message.= '- PHP inner-code - ';
         }
         $message.= ' -- ';
-        if(isset($trace_item['class'])) {
+        if (isset($trace_item['class'])) {
             $message.= $trace_item['class'] . $trace_item['type'];
         }
         $message.= $trace_item['function'];
 
-        if(isset($trace_item['args']) && is_array($trace_item['args'])) {
+        if (isset($trace_item['args']) && is_array($trace_item['args'])) {
             $message.= '('.@implode(', ', $trace_item['args']).')';
         } else {
             $message.= '()';
@@ -84,7 +84,7 @@ PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'errorHandlerPEAR');
 $GLOBALS['_show_silenced'] = false;
 function errorHandler($errno, $errstr, $errfile, $errline)
 {
-    if((!$GLOBALS['_show_silenced'] && !error_reporting()) || $errno == 2048) {
+    if ((!$GLOBALS['_show_silenced'] && !error_reporting()) || $errno == 2048) {
         return;
     }
     $message = "\n";
@@ -113,7 +113,7 @@ function errorHandler($errno, $errstr, $errfile, $errline)
 }
 
 set_error_handler('errorHandler');
-if(function_exists('xdebug_disable')) {
+if (function_exists('xdebug_disable')) {
     xdebug_disable();
 }
 ?>

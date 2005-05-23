@@ -531,9 +531,9 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $c_position = strpos($query, $colon, $position);
             if ($q_position && $c_position) {
                 $p_position = min($q_position, $c_position);
-            } elseif($q_position) {
+            } elseif ($q_position) {
                 $p_position = $q_position;
-            } elseif($c_position) {
+            } elseif ($c_position) {
                 $p_position = $c_position;
             } else {
                 break;
@@ -852,7 +852,7 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
         if (isset($this->values)) {
             $this->_assignBindColumns($row);
         }
-        if (isset($this->types)) {
+z        if (isset($this->types)) {
             $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
@@ -1044,7 +1044,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                     $data = substr($value, 0, $this->db->options['lob_buffer_length']);
                     $value = substr($value, $this->db->options['lob_buffer_length']);
                     mysqli_stmt_send_long_data($this->statement, $parameter, $data);
-                } while($value);
+                } while ($value);
                 $parameters[] = null;
                 $parameters[1].= 'b';
             } else {

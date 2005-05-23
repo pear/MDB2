@@ -507,9 +507,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $c_position = strpos($query, $colon, $position);
             if ($q_position && $c_position) {
                 $p_position = min($q_position, $c_position);
-            } elseif($q_position) {
+            } elseif ($q_position) {
                 $p_position = $q_position;
-            } elseif($c_position) {
+            } elseif ($c_position) {
                 $p_position = $c_position;
             } else {
                 break;

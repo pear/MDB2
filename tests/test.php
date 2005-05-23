@@ -65,7 +65,7 @@ require_once 'HTML_TestListener.php';
 
 function htmlErrorHandler($errno, $errstr, $errfile, $errline)
 {
-    if((!$GLOBALS['_show_silenced'] && !error_reporting()) || $errno == 2048) {
+    if ((!$GLOBALS['_show_silenced'] && !error_reporting()) || $errno == 2048) {
         return;
     }
     echo '<pre>';

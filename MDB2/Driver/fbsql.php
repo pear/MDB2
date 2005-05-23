@@ -412,7 +412,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqcol_name']." < $value;";
             $result = $this->_doQuery($query, true);
-            if(PEAR::isError($result)) {
+            if (PEAR::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
             }
         }
