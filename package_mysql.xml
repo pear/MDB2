@@ -2,7 +2,7 @@
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
 <package version="1.0">
  <name>MDB2_Driver_mysql</name>
- <summary>database abstraction layer</summary>
+ <summary>mysql MDB2 driver</summary>
  <description>This is the MySQL MDB2 driver.</description>
  <maintainers>
   <maintainer>

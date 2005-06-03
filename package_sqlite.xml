@@ -2,7 +2,7 @@
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
 <package version="1.0" packagerversion="1.4.0a11">
  <name>MDB2_Driver_sqlite</name>
- <summary>database abstraction layer</summary>
+ <summary>sqlite MDB2 driver</summary>
  <description>This is the SQLite MDB2 driver.
  </description>
  <maintainers>

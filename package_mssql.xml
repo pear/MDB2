@@ -2,14 +2,14 @@
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
 <package version="1.0" packagerversion="1.4.0a11">
  <name>MDB2_Driver_mssql</name>
- <summary>database abstraction layer</summary>
+ <summary>mssql MDB2 driver</summary>
  <description>This is the MS SQL Server MDB2 driver.
  </description>
  <maintainers>
   <maintainer>
    <user>davidc</user>
    <name>David Coallier</name>
-   <email>XXX</email>
+   <email>david@jaws.com.mx</email>
    <role>lead</role>
   </maintainer>
   <maintainer>
