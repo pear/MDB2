@@ -1060,7 +1060,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
 
         $parameters = array(0 => $this->statement);
         $i = 0;
-        foreach ($values as $parameter => $value) {
+        foreach ($this->values as $parameter => $value) {
             $type = isset($types[$i]) ? $types[$i] : null;
             $parameters[] = $this->db->quote($value, $type, false);
             ++$i;
