@@ -852,7 +852,7 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
         if (isset($this->values)) {
             $this->_assignBindColumns($row);
         }
-z        if (isset($this->types)) {
+        if (isset($this->types)) {
             $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
@@ -1034,27 +1034,53 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
         if (PEAR::isError($connected)) {
             return $connected;
         }
-        $parameters = array(0 => $this->statement, 1 => '');
-        $values = array_values($this->values);
-        $types = array_values($this->types);
-        foreach ($values as $parameter => $value) {
-            $type = isset($types[$parameter]) ? $types[$parameter] : null;
-            if (strlen($value) > $this->db->options['lob_buffer_length']) {
-                do {
-                    $data = substr($value, 0, $this->db->options['lob_buffer_length']);
-                    $value = substr($value, $this->db->options['lob_buffer_length']);
-                    mysqli_stmt_send_long_data($this->statement, $parameter, $data);
-                } while ($value);
-                $parameters[] = null;
-                $parameters[1].= 'b';
-            } else {
-                $parameters[] = $this->db->quote($value, $type, false);
-                $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
+
+        if (!empty($this->values)) {
+            $parameters = array(0 => $this->statement, 1 => '');
+            $i = 0;
+            foreach ($this->values as $parameter => $value) {
+                $type = isset($types[$i]) ? $types[$i] : null;
+                $close = false;
+                if ($type == 'clob' || $type == 'blob') {
+                    if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+                        $close = true;
+                        if ($match[1] == 'file://') {
+                            $value = $match[2];
+                        }
+                        $value = @fopen($value, 'r');
+                    }
+                }
+                if (is_resource($value)) {
+                    while (!@feof($value)) {
+                        $data = @fread($value, $db->options['lob_buffer_length']);
+                        @mysqli_stmt_send_long_data($this->statement, $i, $data);
+                    }
+                    if ($close) {
+                        @fclose($value);
+                    }
+                    $parameters[] = null;
+                    $parameters[1].= 'b';
+                } else {
+                    $value = $this->db->quote($value, $type, false);
+                    if (strlen($value) > $this->db->options['lob_buffer_length']) {
+                        do {
+                            $data = substr($value, 0, $this->db->options['lob_buffer_length']);
+                            $value = substr($value, $this->db->options['lob_buffer_length']);
+                            @mysqli_stmt_send_long_data($this->statement, $i, $data);
+                        } while ($value);
+                        $parameters[] = null;
+                        $parameters[1].= 'b';
+                    } else {
+                        $parameters[] = $this->db->quote($value, $type, false);
+                        $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
+                    }
+                }
+                ++$i;
             }
-        }
-        $result = call_user_func_array('mysqli_stmt_bind_param', $parameters);
-        if ($result === false) {
-            return $this->db->raiseError();
+            $result = @call_user_func_array('mysqli_stmt_bind_param', $parameters);
+            if ($result === false) {
+                return $this->db->raiseError();
+            }
         }
 
         if (!@mysqli_stmt_execute($this->statement)) {
