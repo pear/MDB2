@@ -1059,11 +1059,11 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             ? $this->db->transaction_id : $this->db->connection;
 
         $parameters = array(0 => $this->statement);
-        $values = array_values($this->values);
-        $types = array_values($this->types);
+        $i = 0;
         foreach ($values as $parameter => $value) {
-            $type = isset($types[$parameter]) ? $types[$parameter] : null;
+            $type = isset($types[$i]) ? $types[$i] : null;
             $parameters[] = $this->db->quote($value, $type, false);
+            ++$i;
         }
 
         $result = call_user_func_array('ibase_execute', $parameters);
