@@ -9,6 +9,19 @@ similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
 - refactored LOB support (BC breaks)
+- moved all drivers into separate packages MDB2_Driver_* (BC break)
+- bindParam() and bindColumn() are now 1-indexed (BC break)
+- removed special handling for day light saving time (bug #4341) (BC break)
+- ensure SQL injection protection in all _quote() methods
+  (was missing in some decimal, float, time, date and timestamp implementations)
+- renamed getRowCount() to rowCount() for PDO compliance (BC break)
+  (doesnt take into account the offset anymore)
+- added new quote() parameter to remove quotes (ugly hack will get cleaned up)
+- renamed execute() to _execute() since common provides some common functionality via execute()
+- fixed some issues regarding limit/offset in prepared statements
+- added a note that due to the fact that all MDB2 instances end up in a
+  superglobal, the destructor will never be used
+- fixed bug in _assignBindColumns() when using associative fetches
 EOT;
 
 $description =<<<EOT
@@ -39,20 +52,9 @@ portability. Among other things MDB2 features:
 * Table information interface
 * RDBMS management methods (creating, dropping, altering)
 * RDBMS independent xml based schema definition management
-* Reverse engineering schemas from an existing DB (currently only MySQL)
+* Reverse engineering schemas from an existing DB
 * Full integration into the PEAR Framework
 * PHPDoc API documentation
-
-Currently supported RDBMS:
-MySQL (mysql and mysqli extension)
-PostGreSQL
-Oracle
-Frontbase
-Querysim
-Interbase/Firebird
-MSSQL
-SQLite
-Other soon to follow.
 EOT;
 
 $package = new PEAR_PackageFileManager();
@@ -66,7 +68,7 @@ $result = $package->setOptions(
         'state'             => 'beta',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
-        'ignore'            => array('package.php', 'package.xml'),
+        'ignore'            => array('package*.php', 'package*.xml', 'sqlite*', 'mssql*', 'oci8*', 'pgsql*', 'mysqli*', 'mysql*', 'fbsql*', 'querysim*', 'ibase*'),
         'notes'             => $notes,
         'changelogoldtonew' => false,
         'simpleoutput'      => true,
@@ -88,8 +90,8 @@ if (PEAR::isError($result)) {
 
 $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@backendmedia.com');
 $package->addMaintainer('pgc', 'contributor', 'Paul Cooper', 'pgc@ucecom.com');
-$package->addMaintainer('fmk', 'contributor', 'Frank M. Kromann', 'frank@kromann.info');
 $package->addMaintainer('quipo', 'contributor', 'Lorenzo Alberton', 'l.alberton@quipo.it');
+$package->addMaintainer('danielc', 'helper', 'Daniel Convissor', 'danielc@php.net');
 
 $package->addDependency('php', '4.2.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
