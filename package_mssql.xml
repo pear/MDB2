@@ -3,8 +3,7 @@
 <package version="1.0" packagerversion="1.4.0a11">
  <name>MDB2_Driver_mssql</name>
  <summary>mssql MDB2 driver</summary>
- <description>This is the MS SQL Server MDB2 driver.
- </description>
+ <description>This is the Microsoft SQL Server MDB2 driver.</description>
  <maintainers>
   <maintainer>
    <user>davidc</user>
