@@ -277,7 +277,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        if ($database_file) {
+        if (!empty($this->database_name)) {
             if (!file_exists($database_file)) {
                 if (!touch($database_file)) {
                     return $this->raiseError(MDB2_ERROR_NOT_FOUND);
