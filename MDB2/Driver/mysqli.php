@@ -1038,8 +1038,10 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
         if (!empty($this->values)) {
             $parameters = array(0 => $this->statement, 1 => '');
             $i = 0;
+            $types_numeric = is_numeric(key($this->types));
             foreach ($this->values as $parameter => $value) {
-                $type = isset($types[$i]) ? $types[$i] : null;
+                $type_key = $types_numeric ? $i : $parameter;
+                $type = isset($this->types[$type_key]) ? $this->types[$type_key] : null;
                 $close = false;
                 if ($type == 'clob' || $type == 'blob') {
                     if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
@@ -1052,7 +1054,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                 }
                 if (is_resource($value)) {
                     while (!@feof($value)) {
-                        $data = @fread($value, $db->options['lob_buffer_length']);
+                        $data = @fread($value, $this->db->options['lob_buffer_length']);
                         @mysqli_stmt_send_long_data($this->statement, $i, $data);
                     }
                     if ($close) {
