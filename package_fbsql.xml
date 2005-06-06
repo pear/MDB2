@@ -28,6 +28,7 @@
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
+   <dep type="pkg" rel="ge" version="2.0.0beta5" optional="no">MDB2</dep>
    <dep type="php" rel="has" optional="no">fbsql</dep>
   </deps>
   <filelist>
