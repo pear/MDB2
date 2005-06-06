@@ -57,30 +57,6 @@ require_once 'MDB2/Driver/Datatype/Common.php';
  */
 class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
 {
-    // {{{ convertResult()
-
-    /**
-     * convert a value to a RDBMS indepdenant MDB2 type
-     *
-     * @param mixed  $value   value to be converted
-     * @param int    $type    constant that specifies which type to convert to
-     * @return mixed converted value
-     * @access public
-     */
-    function convertResult($value, $type)
-    {
-        if (is_null($value)) {
-            return null;
-        }
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        switch ($type) {
-        case 'decimal':
-            return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
-        default:
-            return $this->_baseConvertResult($value, $type);
-        }
-    }
-
     // }}}
     // {{{ _getIntegerDeclaration()
 
