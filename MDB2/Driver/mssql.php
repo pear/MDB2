@@ -84,8 +84,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = true;
 
-        $db->options['database_device'] = false;
-        $db->options['database_size'] = false;
+        $this->options['database_device'] = false;
+        $this->options['database_size'] = false;
     }
 
     // }}}
