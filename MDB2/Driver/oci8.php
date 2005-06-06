@@ -59,12 +59,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
     var $uncommitedqueries = 0;
 
-    /**
-     * The result or statement handle from the most recently executed query
-     * @var resource
-     */
-    var $last_stmt;
-
     // }}}
     // {{{ constructor
 
@@ -462,11 +456,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
         }
-        $this->last_stmt = $result;
 
         $mode = $this->in_transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
-        $return = @OCIExecute($result, $mode);
-        if (!$return) {
+        if (!@OCIExecute($result, $mode)) {
             return $this->raiseError($result);
         }
 
@@ -1048,11 +1040,16 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         $result = MDB2_OK;
-        $lobs = $descriptors = array();
+        $lobs = array();
+        $i = 0;
+        $types_numeric = is_numeric(key($this->types));
         foreach ($this->values as $parameter => $value) {
-            $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
+            $type_key = $types_numeric ? $i : $parameter;
+            $type = isset($this->types[$type_key]) ? $this->types[$type_key] : null;
+            $lob_type = null;
             if ($type == 'clob' || $type == 'blob') {
-                $lobs[$parameter]['file'] = false;
+                $lob_type = ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB);
+                $lobs[$i]['file'] = false;
                 if (is_resource($value)) {
                     $fp = $value;
                     $value = '';
@@ -1060,74 +1057,66 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                         $value.= fread($fp, 8192);
                     }
                 } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
-                    $lobs[$parameter]['file'] = true;
+                    $lobs[$i]['file'] = true;
                     if ($match[1] == 'file://') {
                         $value = $match[2];
                     }
                 }
-                $lobs[$parameter]['value'] = $value;
-                $descriptors[$parameter] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
-                if (!is_object($descriptors[$parameter])) {
+                $lobs[$i]['value'] = $value;
+                $quoted_value = $lobs[$i]['descriptor'] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
+                if (!is_object($quoted_value)) {
                     $result = $this->db->raiseError();
                     break;
                 }
             } else {
-                $descriptors[$parameter] = $this->db->quote($value, $type, false);
-                if (PEAR::isError($descriptors[$parameter])) {
-                    return $descriptors[$parameter];
+                $quoted_value = $this->db->quote($value, $type, false);
+                if (PEAR::isError($quoted_value)) {
+                    return $quoted_value;
                 }
             }
-            if ($type == 'clob' || $type == 'blob') {
-                $lob_type = ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB);
-                if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1, $lob_type)) {
-                    $result = $this->db->raiseError($this->statement);
-                    break;
-                }
-            } else {
-                if (!@OCIBindByName($this->statement, ':'.$parameter, $descriptors[$parameter], -1)) {
-                    $result = $this->db->raiseError($this->statement);
-                    break;
-                }
+            if (!@OCIBindByName($this->statement, ':'.$parameter, $quoted_value, -1, $lob_type)) {
+                $result = $this->db->raiseError($this->statement);
+                break;
             }
+            ++$i;
         }
 
-        $mode = (!empty($lobs) || $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
-        $return = @OCIExecute($this->statement, $mode);
-        if (!$return) {
-            return $this->db->raiseError($this->statement);
-        }
+        if (PEAR::isError($result)) {
+            $mode = (!empty($lobs) || $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
+            if (!@OCIExecute($this->statement, $mode)) {
+                return $this->db->raiseError($this->statement);
+            }
 
-        if (!empty($lobs)) {
-            foreach ($lobs as $parameter => $stream) {
-                if (!is_null($stream['value']) && $stream['value'] !== '') {
-                    if ($stream['file']) {
-                        $result = @$descriptors[$parameter]->savefile($stream['value']);
+            if (!empty($lobs)) {
+                foreach ($lobs as $i => $stream) {
+                    if (!is_null($stream['value']) && $stream['value'] !== '') {
+                        if ($stream['file']) {
+                            $result = $lobs[$i]['descriptor']->savefile($stream['value']);
+                        } else {
+                            $result = $lobs[$i]['descriptor']->save($stream['value']);
+                        }
+                        if (!$result) {
+                            $result = $this->db->raiseError();
+                            break;
+                        }
+                    }
+                }
+
+                if (!PEAR::isError($result)) {
+                    if (!$this->db->in_transaction) {
+                        if (!@OCICommit($this->db->connection)) {
+                            $result = $this->db->raiseError();
+                        }
                     } else {
-                        $result = @$descriptors[$parameter]->save($stream['value']);
+                        ++$this->db->uncommitedqueries;
                     }
-                    if (!$result) {
-                        $result = $this->db->raiseError();
-                        break;
-                    }
-                }
-            }
-
-            if (!PEAR::isError($result)) {
-                if (!$this->db->in_transaction) {
-                    if (!@OCICommit($this->db->connection)) {
-                        $result = $this->db->raiseError();
-                    }
-                } else {
-                    ++$this->db->uncommitedqueries;
                 }
             }
         }
 
-        foreach ($descriptors as $parameter => $foo) {
-            if (is_object($descriptors[$parameter])) {
-                @$descriptors[$parameter]->close();
-                @$descriptors[$parameter]->free();
-            }
+        foreach ($lobs as $i => $foo) {
+            $lobs[$i]['descriptor']->close();
+            $lobs[$i]['descriptor']->free();
         }
 
         if (PEAR::isError($result)) {
