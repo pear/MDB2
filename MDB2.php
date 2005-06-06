@@ -3027,14 +3027,16 @@ class MDB2_Statement_Common
     function &_execute($result_class = true, $result_wrap_class = false)
     {
         $query = '';
-        $last_position = 0;
+        $last_position = $i = 0;
+        $types_numeric = is_numeric(key($this->types));
         foreach ($this->values as $parameter => $value) {
             $current_position = $this->statement[$parameter];
             $query .= substr($this->query, $last_position, $current_position - $last_position);
             if (!isset($value)) {
                 $value_quoted = 'NULL';
             } else {
-                $type = isset($this->types[$parameter]) ? $this->types[$parameter] : null;
+                $type_key = $types_numeric ? $i : $parameter;
+                $type = isset($this->types[$type_key]) ? $this->types[$type_key] : null;
                 $value_quoted = $this->db->quote($value, $type);
                 if (PEAR::isError($value_quoted)) {
                     return $value_quoted;
@@ -3042,6 +3044,7 @@ class MDB2_Statement_Common
             }
             $query .= $value_quoted;
             $last_position = $current_position + 1;
+            ++$i;
         }
         $query .= substr($this->query, $last_position);
 
