@@ -68,36 +68,30 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     function createDatabase($name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $tablespace = $db->options['default_tablespace'];
-        if (!PEAR::isError($tablespace) && $tablespace) {
-            $tablespace = ' DEFAULT TABLESPACE '.$tablespace;
-        } else {
-            $tablespace = '';
-        }
-        if (!($password = $db->dsn['password'])) {
-            $password = $name;
-        }
+
         $username = $db->options['database_name_prefix'].$name;
+        $password = $db->dsn['password'] ? $db->dsn['password'] : $name;
+        $tablespace = $db->options['default_tablespace']
+            ? ' DEFAULT TABLESPACE '.$db->options['default_tablespace'] : '';
+
         $query = 'CREATE USER '.$username.' IDENTIFIED BY '.$password.$tablespace;
         $result = $db->standaloneQuery($query);
-        if (!PEAR::isError($result)) {
-            $query = 'GRANT CREATE SESSION, CREATE TABLE, UNLIMITED TABLESPACE, CREATE SEQUENCE TO '.$username;
-            $result = $db->standaloneQuery($query);
-            if (!PEAR::isError($result)) {
-                return MDB2_OK;
-            } else {
-                $query = 'DROP USER '.$username.' CASCADE';
-                $result2 = $db->standaloneQuery($query);
-                if (PEAR::isError($result2)) {
-                    return $db->raiseError(MDB2_ERROR, null, null,
-                        'createDatabase: could not setup the database user ('.$result->getUserinfo().
-                            ') and then could drop its records ('.$result2->getUserinfo().')');
-                }
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'createDatabase: could not setup the database user ('.$result->getUserinfo().')');
-            }
+        if (PEAR::isError($result)) {
+            return $result;
         }
-        return $result;
+        $query = 'GRANT CREATE SESSION, CREATE TABLE, UNLIMITED TABLESPACE, CREATE SEQUENCE TO '.$username;
+        $result = $db->standaloneQuery($query);
+        if (PEAR::isError($result)) {
+            $query = 'DROP USER '.$username.' CASCADE';
+            $result2 = $db->standaloneQuery($query);
+            if (PEAR::isError($result2)) {
+                return $db->raiseError(MDB2_ERROR, null, null,
+                    'createDatabase: could not setup the database user ('.$result->getUserinfo().
+                        ') and then could drop its records ('.$result2->getUserinfo().')');
+            }
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}
