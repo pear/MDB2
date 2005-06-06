@@ -368,6 +368,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             }
             $this->disconnect(false);
         }
+
         if (!PEAR::loadExtension('interbase')) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
@@ -649,7 +650,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function _skipLimitOffset()
     {
-        if ($db->dsn['dbsyntax'] == 'firebird') {
+        if ($this->db->dsn['dbsyntax'] == 'firebird') {
             return true;
         }
         if ($this->limit) {
@@ -1060,8 +1061,10 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
 
         $parameters = array(0 => $this->statement);
         $i = 0;
+        $types_numeric = is_numeric(key($this->types));
         foreach ($this->values as $parameter => $value) {
-            $type = isset($types[$i]) ? $types[$i] : null;
+            $type_key = $types_numeric ? $i : $parameter;
+            $type = isset($this->types[$type_key]) ? $this->types[$type_key] : null;
             $parameters[] = $this->db->quote($value, $type, false);
             ++$i;
         }
