@@ -11,7 +11,7 @@ At these URLs you will also find the licensing information on these two
 projects along with the credits.
 
 Actually MDB2 is the second major version of MDB.
-The main differences between the new and the old MDB version is
+The main differences between the new MDB2 and the old MDB version is
 that the API has been drastically refactored to clean up the API
 and improve performance.
 
@@ -21,13 +21,9 @@ at this email address:
 Co-Author is Christopher Linn:
   clinn@backendmedia.com
 
-Or even better post a message to these 3 mailinglists (please include
-all of these because there are people on each of these mailinglists that
-care about this project and have asked to be included in any
-discussion):
-  pear-dev@lists.php.net
-  metabase-dev@yahoogroups.com
-  dev@binarycloud.tigris.org
+Or even better post a message to pear-dev@lists.php.net mailinglist for
+development related questions of the MDB2 package itself. For questions
+using MDB2 pelase direct your questions at pear-general@lists.php.net.
 
 ** Features
 
@@ -77,18 +73,18 @@ The current release can be found at the PEAR webpage:
 
 As a user the only php script you will need to include is MDB2.php which will
 install to your PEAR root directory. All other files and their containing
-classes will be included via MDB::factory(), MDB::connect(), MDB::loadFile().
+classes will be included via MDB2::factory(), MDB2::connect(), MDB2::singleton().
 
 These will load additional classes. Most classes are loaded on demand.
 
-Furthermore MDB provides an extensive testing framework that works through a
+Furthermore MDB2 provides an extensive testing framework that works through a
 browser and command line interface. There are several other test that test the
 two wrappers. These files will install into your test dir found in the
 PEAR root dir.
 
 ** Documentation:
 
-You can find the still incomplete documentation for MDB 2.0 here:
+You can find the still incomplete documentation for MDB2 here:
 http://pear.php.net/manual/en/package.database.mdb2.php
 
 PHPDoc generated documentation can be found at:
@@ -96,18 +92,18 @@ http://www.backendmedia.com/MDB2/docs/
 
 The entire "public" API and most of the "private" methods (except for some of
 the lob classes) have been documented with PHPDoc comments. Most of the API
-is borrowed from PEAR DB, so you can look there for detailed documentation.
+is borrowed from extPDO, so you can look there for detailed documentation.
 Since there are a large number of new methods available thanks to the Metabase
-heritage of MDB you will also have to take a look in the Metabase documentation
+heritage of MDB2 you will also have to take a look in the Metabase documentation
 (which can be found at the URL mentioned above, but does require that
 you register with phpclasses). Most of these Metabase functions have
-been renamed. Looking at the metabase_wrapper.php file should help finding
-the new method name in MDB2.
+been renamed and changed considerably. The main things left are the datatypes
+and the manager module.
 
-For example ($db being an MDB object):
+For example ($db being an MDB2 object):
   $converted_value = MetabaseGetTimestampFieldValue($database, $value);
 would now be
-  $converted_value = $db->getValue('timestamp', $value);
+  $converted_value = $db->quote($value, 'timestamp');
 
 If you want to help out with documentation please email me.
 
@@ -117,9 +113,9 @@ For most of the tests you can set the username/password/hostname in the relevant
 config file. The user will need to have the right to create new databases.
 
 test.php/clitest.php/testchoose.php: Is the native testing suite provided by
-MDB. Please see the README in the tests directory for details.
+MDB2. Please see the README in the tests directory for details.
 
-example.php: Several test calls to MDB's native API. It require PEAR::VAR_Dump
+example.php: Several test calls to MDB2's native API. It require PEAR::VAR_Dump
 package and are configured to use the following settings:
 username = metapear
 password = funky
@@ -127,33 +123,15 @@ hostname = localhost
 
 ** How to write new Drivers:
 
-Skeleton drivers are provided in the docs directory of the MDB package.
+Skeleton drivers are provided in the docs directory of the MDB2 package.
 
-MDB2 is mostly based in Metabase. The method naming and formatting is
-changed to better match the PEAR CS however. Therefore the best starting
-point is to first take one of the Metabase drivers (metabase_[DRIVER NAME].php)
-and compare it with a corresponding MDB driver ([DRIVER NAME].php and
-manager_[DRIVER NAME].php). This will give a good idea what changes you have to
-make to an existing Metabase driver in order to make it MDB compatible.
+The best course of action would be to take a MDB2 driver and hack it to fit
+the new RDBMS. This will surely be faster and it will ensure that the new
+driver takes full advantage of the MDB2 framework. I would however recommend
+working with the existing Metabase driver for inspiration that RDBMS when
+doing those changes.
 
-(Note: In order to get the Metabase code you will need to download it from
-phpclasses using the URL provided at the top).
-
-Alot of methods have been renamed from the original Metabase API. The best
-place to find the name to what a method has been renamed you should look
-at the metabase_wrapper.php file.
-
-Please also note that some methods have been taken from PEAR DB so for some
-missing methods you can check the PEAR DB driver.
-
-Another alternative would be to take a MDB2 driver and hack it to fit
-the new RDBMS. I would however recommend working with the existing
-Metabase driver for that RDBMS when doing those changes. This will
-surely be faster and it will ensure that the new driver takes full
-advantage of the MDB2 framework (which is to large parts based on
-Metabase).
-
-In order to check compliance of the driver with MDB you can use the testing
+In order to check compliance of the driver with MDB2 you can use the testing
 suite (see the "testing" section above)
 
 ** History
