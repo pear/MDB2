@@ -19,31 +19,19 @@
   </maintainer>
  </maintainers>
  <release>
-  <version>0.1.0</version>
-  <date>2005-04-29</date>
+  <version>0.1.1</version>
+  <date>2005-06-08</date>
   <license>BSD License</license>
-  <state>alpha</state>
-  <notes>first unbundled release from MDB2 core
-
-- cosmetic fixes to _getDatabaseFile()
-- removed redundant code from datatype module
-- dont just check for isset() for boolean values in order to support
-  setting them false as well (bug #4373)
-- ensure SQL injection protection in all _quote() methods (was missing in
-  some decimal, float, time, date and timestamp implementations)
-- use new quote() parameter
-- renamed execute() to _execute() since common provides some common
-  functionality via execute()
-- fixed decimal result conversion in datatype module
-- typo fixes in result class
-- support numeric and string keys in types array for prepared queries
-- Warning: this release is untested
+  <state>beta</state>
+  <notes>
+- fixed LOB management and package dependencies
+- fully tested
   </notes>
   <deps>
-   <dep type="php" rel="ge" version="4.2.0" optional="no"/>
+   <dep type="php" rel="ge" version="5.0.4" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
    <dep type="pkg" rel="ge" version="2.0.0beta5" optional="no">MDB2</dep>
-   <dep type="ext" rel="has" optional="no">ibase</dep>
+   <dep type="ext" rel="has" optional="no">interbase</dep>
   </deps>
   <filelist>
    <dir name="/" baseinstalldir="/">
@@ -77,4 +65,28 @@
    </dir> <!-- / -->
   </filelist>
  </release>
+ <changelog>
+   <release>
+    <version>0.1.0</version>
+    <date>2005-06-08</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>first unbundled release from MDB2 core
+
+- cosmetic fixes to _getDatabaseFile()
+- removed redundant code from datatype module
+- dont just check for isset() for boolean values in order to support
+  setting them false as well (bug #4373)
+- ensure SQL injection protection in all _quote() methods (was missing in
+  some decimal, float, time, date and timestamp implementations)
+- use new quote() parameter
+- renamed execute() to _execute() since common provides some common
+  functionality via execute()
+- fixed decimal result conversion in datatype module
+- typo fixes in result class
+- support numeric and string keys in types array for prepared queries
+- Warning: this release is untested
+    </notes>
+   </release>
+  </changelog>
 </package>
