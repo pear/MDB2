@@ -17,7 +17,10 @@
   <date>2005-04-29</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes></notes>
+  <notes>first unbundled release from MDB2 core
+
+- 
+  </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>

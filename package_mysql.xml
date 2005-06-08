@@ -16,8 +16,16 @@
   <version>0.1.0</version>
   <date>2005-04-29</date>
   <license>BSD License</license>
-  <state>alpha</state>
-  <notes></notes>
+  <state>beta</state>
+  <notes>first unbundled release from MDB2 core
+
+- fixed new_link support (bug #4308)
+- dont just check for isset() for boolean values in order to support
+  setting them false as well (bug #4373)
+- ensure SQL injection protection in all _quote() methods (was missing in
+  some decimal, float, time, date and timestamp implementations)
+- dont inherite from the mysqli driver anymore to prevent indirect dependency on mysqli
+  </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>

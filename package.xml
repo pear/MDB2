@@ -81,8 +81,9 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - renamed execute() to _execute() since common provides some common functionality via execute()
 - fixed some issues regarding limit/offset in prepared statements
 - fixed bug in _assignBindColumns() when using associative fetches
- - support numeric and string keys in types array for prepared queries
- - call trigger error if __call() is unable to find a method in any of the modules
+- support numeric and string keys in types array for prepared queries
+- call trigger error if __call() is unable to find a method in any of the modules
+- work around php5 bugs in the test suite
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>
@@ -253,8 +254,9 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - renamed execute() to _execute() since common provides some common functionality via execute()
 - fixed some issues regarding limit/offset in prepared statements
 - fixed bug in _assignBindColumns() when using associative fetches
- - support numeric and string keys in types array for prepared queries
- - call trigger error if __call() is unable to find a method in any of the modules
+- support numeric and string keys in types array for prepared queries
+- call trigger error if __call() is unable to find a method in any of the modules
+- work around php5 bugs in the test suite
     </notes>
    </release>
    <release>
