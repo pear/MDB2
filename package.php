@@ -19,9 +19,9 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - added new quote() parameter to remove quotes (ugly hack will get cleaned up)
 - renamed execute() to _execute() since common provides some common functionality via execute()
 - fixed some issues regarding limit/offset in prepared statements
-- added a note that due to the fact that all MDB2 instances end up in a
-  superglobal, the destructor will never be used
 - fixed bug in _assignBindColumns() when using associative fetches
+ - support numeric and string keys in types array for prepared queries
+ - call trigger error if __call() is unable to find a method in any of the modules
 EOT;
 
 $description =<<<EOT
