@@ -958,7 +958,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->db->datatype->destroyLOB($blob);
             $this->assertEquals($binary_lob, $value, 'Retrieved binary LOB value is different from what was stored');
         } else {
-            $this->assertTrue(false, 'Error retrieving CLOB result');
+            $this->assertTrue(false, 'Error retrieving BLOB result');
         }
         $result->free();
     }
