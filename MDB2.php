@@ -1047,8 +1047,7 @@ class MDB2_Driver_Common extends PEAR
     * @var array
     * @access protected
     */
-    // todo: fix php5 destruct which is broken by global ref
-    var $destructor_registered = false;
+    var $destructor_registered = true;
 
     // }}}
     // {{{ constructor
@@ -1093,7 +1092,6 @@ class MDB2_Driver_Common extends PEAR
                 $this->disconnect();
             }
         }
-        unset($GLOBALS['_MDB2_databases'][$this->db_index]);
     }
 
     // }}}
