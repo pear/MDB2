@@ -124,11 +124,7 @@ class MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
 
-        if (!is_array($types)) {
-            $types = array($types);
-        } else {
-            $types = array_values($types);
-        }
+        $types = is_array($types) ? array_values($types) : array($types);
         foreach ($types as $key => $type) {
             if (!isset($this->valid_types[$type])) {
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
@@ -228,9 +224,7 @@ class MDB2_Driver_Datatype_Common
             $current_column = -1;
             foreach ($row as $key => $column) {
                 ++$current_column;
-                if (!isset($column)
-                   || !isset($types[$current_column])
-                ) {
+                if (!isset($column) || !isset($types[$current_column])) {
                     continue;
                 }
                 $value = $this->convertResult($row[$key], $types[$current_column]);
@@ -838,7 +832,9 @@ class MDB2_Driver_Datatype_Common
                 return null;
             }
             return 'NULL';
-        } elseif (is_null($type)) {
+        }
+
+        if (is_null($type)) {
             switch (gettype($value)) {
             case 'integer':
                 $type = 'integer';
@@ -873,9 +869,12 @@ class MDB2_Driver_Datatype_Common
             return $db->raiseError('type not defined: '.$type);
         }
         $value = $this->{"_quote{$type}"}($value);
+
+        // ugly hack to remove single quotes
         if (!$quote && isset($value[0]) && $value[0] === "'") {
             $value = substr($value, 1, -1);
         }
+
         return $value;
     }
 
