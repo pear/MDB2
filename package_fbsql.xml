@@ -29,6 +29,7 @@
   setting them false as well (bug #4373)
 - ensure SQL injection protection in all _quote() methods (was missing in
   some decimal, float, time, date and timestamp implementations)
+- Warning: this release is untested (new maintainer wanted!)
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>

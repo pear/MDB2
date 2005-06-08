@@ -25,6 +25,7 @@
 - ensure SQL injection protection in all _quote() methods (was missing in
   some decimal, float, time, date and timestamp implementations)
 - check if database_name is empty to determine if to connect in connect()
+- Warning: there are some serious issues on php5 HEAD on windows
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>

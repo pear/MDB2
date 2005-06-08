@@ -30,6 +30,7 @@
 - support numeric and string keys in types array for prepared queries
 - removed last_stmt property
 - simplified _execute() code
+- Warning: there are some stability issues
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>

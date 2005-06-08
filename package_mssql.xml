@@ -30,6 +30,7 @@
 - ensure SQL injection protection in all _quote() methods (was missing in
   some decimal, float, time, date and timestamp implementations)
 - typo fixes in constructor
+- Warning: this release is untested
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>

@@ -37,6 +37,7 @@
 - fixed decimal result conversion in datatype module
 - typo fixes in result class
 - support numeric and string keys in types array for prepared queries
+- Warning: this release is untested
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>
