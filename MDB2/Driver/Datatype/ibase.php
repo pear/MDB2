@@ -418,14 +418,14 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $value = $fp;
         }
         if ($db->in_transaction) {
-            $value = @ibase_blob_import($db->transaction_id, $value);
+            $blob_id = @ibase_blob_import($db->transaction_id, $value);
         } else {
-            $value = @ibase_blob_import($db->connection, $value);
+            $blob_id = @ibase_blob_import($db->connection, $value);
         }
         if ($close) {
             @fclose($value);
         }
-        return $value;
+        return $blob_id;
     }
 
     // }}}
@@ -458,7 +458,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _retrieveLOB(&$lob)
     {
-
         if (!isset($lob['handle'])) {
             $lob['handle'] = @ibase_blob_open($lob['ressource']);
             if (!$lob['handle']) {
@@ -486,9 +485,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _readLOB($lob, $length)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $data = @ibase_blob_get($lob['handle'], $length);
+        $data = ibase_blob_get($lob['handle'], $length);
         if (!is_string($data)) {
+            $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
             return $db->raiseError(MDB2_ERROR, null, null,
                 'Read Result LOB: ' . @ibase_errmsg());
         }
