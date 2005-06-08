@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.0a11">
+<package version="1.0" packagerversion="1.4.0a12">
  <name>MDB2_Driver_sqlite</name>
  <summary>sqlite MDB2 driver</summary>
  <description>This is the SQLite MDB2 driver.</description>
