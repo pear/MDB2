@@ -17,45 +17,45 @@ Symbols:
                     fbsql      ifx      mssql     mysqli     odbc     sqlite
                dbase  |  ibase  |  msql   |  mysql  |   oci8  |  pgsql  |  sybase
 **[ API ]*********************************************************************
-connect          -    -    o    -    -    -    o    -    o    -    o    o    -
-getoption        -    -    o    -    -    -    o    -    o    -    o    o    -
-setoption        -    -    o    -    -    -    o    -    o    -    o    o    -
-loadmodule       -    -    o    -    -    -    o    -    o    -    o    o    -
-query            -    -    o    -    -    -    o    -    o    -    o    o    -
-fetchrow         -    -    o    -    -    -    o    -    o    -    o    o    -
-numrows          -    -    o    -    -    -    o    -    o    -    o    o    -
-numcols          -    -    o    -    -    -    o    -    o    -    o    o    -
-singleton        -    -    o    -    -    -    o    -    o    -    o    o    -
+connect          -    -    o    -    -    -    o    o    o    -    o    o    -
+getoption        -    -    o    -    -    -    o    o    o    -    o    o    -
+setoption        -    -    o    -    -    -    o    o    o    -    o    o    -
+loadmodule       -    -    o    -    -    -    o    o    o    -    o    o    -
+query            -    -    o    -    -    -    o    o    o    -    o    o    -
+fetchrow         -    -    o    -    -    -    o    o    o    -    o    o    -
+numrows          -    -    o    -    -    -    o    o    o    -    o    o    -
+numcols          -    -    o    -    -    -    o    o    o    -    o    o    -
+singleton        -    -    o    -    -    -    o    o    o    -    o    o    -
 **[ USAGE ]*******************************************************************
-storage          -    -    o    -    -    -    o    -    o    -    o    o    -
-bulkfetch        -    -    o    -    -    -    o    -    o    -    o    o    -
-preparedqueries  -    -    o    -    -    -    o    -    o    -    o    o    -
-metadata         -    -    o    -    -    -    o    -    o    -    o    o    -
-nulls            -    -    o    -    -    -    o    -    o    -    o    o    -
-escapesequences  -    -    o    -    -    -    o    -    o    -    o    o    -
-ranges           -    -    o    -    -    -    o    -    o    -    o    o    -
-sequences        -    -    o    -    -    -    o    -    o    -    o    o    -
-replace          -    -    n    -    -    -    o    -    o    -    o    o    -
-affectedrows     -    -    o    -    -    -    o    -    o    -    o   [1]   -
-transactions     -    -    o    -    -    -    o    -    o    -    o    o    -
-lobstorage       -    -    o    -    -    -    o    -    o    -    o    o    -
-lobfiles         -    -    o    -    -    -    o    -    o    -    o    o    -
+storage          -    -    o    -    -    -    o    o    o    -    o    o    -
+bulkfetch        -    -    o    -    -    -    o    o    o    -    o    o    -
+preparedqueries  -    -    o    -    -    -    o    o    o    -    o    o    -
+metadata         -    -    o    -    -    -    o    o    o    -    o    o    -
+nulls            -    -    o    -    -    -    o    o    o    -    o    o    -
+escapesequences  -    -    o    -    -    -    o    o    o    -    o    o    -
+ranges           -    -    o    -    -    -    o    o    o    -    o    o    -
+sequences        -    -    o    -    -    -    o    o    o    -    o    o    -
+replace          -    -    n    -    -    -    o    o    o    -    o    o    -
+affectedrows     -    -    o    -    -    -    o    o    o    -    o   [1]   -
+transactions     -    -    o    -    -    -    o    o    o    -    o    o    -
+lobstorage       -    -    o    -    -    -    o    x    o    -    o    o    -
+lobfiles         -    -    o    -    -    -    o    x    o    -    o    o    -
 lobnulls         -    -    o    -    -    -    o    -    o    -    o    o    -
 **[ BUGS ]********************************************************************
-fetchmodebug     -    -    o    -    -    -    o    -    o    -    o    o    -
-bug22328         -    -    o    -    -    -    o    -    o    -    o    o    -
-bug670           -    -    o    -    -    -    o    -    o    -    o    o    -
-bug681           -    -    o    -    -    -    o    -    o    -    o    o    -
-bug718           -    -    o    -    -    -    o    -    o    -    o    o    -
-bug946           -    -    o    -    -    -    o    -    o    -    o    o    -
+fetchmodebug     -    -    o    -    -    -    o    o    o    -    o    o    -
+bug22328         -    -    o    -    -    -    o    o    o    -    o    o    -
+bug670           -    -    o    -    -    -    o    o    o    -    o    o    -
+bug681           -    -    o    -    -    -    o    o    o    -    o    o    -
+bug718           -    -    o    -    -    -    o    o    o    -    o    o    -
+bug946           -    -    o    -    -    -    o    o    o    -    o    o    -
 **[ MANAGER ]*****************************************************************
-createdatabase   -    -    -    -    -    -    o    -    o    -    o    o    -
-updatedatabase   -    -    o    -    -    -    o    -    o    -    o    o    -
+createdatabase   -    -    -    -    -    -    o    o    o    -    o    o    -
+updatedatabase   -    -    o    -    -    -    o    o    o    -    o    o    -
 **[ NATIVE ]******************************************************************
 getinsertid      -    -    n    -    -    -    -    -    n    -    n    -    -
 deleteoid        n    n    n    n    n    n    n    n    n    n    -    n    n
 **[ REVERSE ]*****************************************************************
-tableinfo        -    -    o    -    -    -    o    -    o    -    o    o    -
+tableinfo        -    -    o    -    -    -    o    o    o    -    o    o    -
 
 
 [1] test fails because sqlite does not return the correct number of affected rows
