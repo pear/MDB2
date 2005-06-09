@@ -169,7 +169,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _getTextDeclaration($name, $field)
     {
         $type = $this->_getTypeDeclaration($field);
-        $default = isset($field['default']) ? ' DEFAULT'.
+        $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;

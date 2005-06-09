@@ -118,7 +118,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = isset($field['length']) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
-        $default = isset($field['default']) ? ' DEFAULT'.
+        $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
