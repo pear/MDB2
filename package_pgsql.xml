@@ -13,17 +13,12 @@
   </maintainer>
  </maintainers>
  <release>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <date>2005-04-29</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>first unbundled release from MDB2 core
-
-- dont just check for isset() for boolean values in order to support
-  setting them false as well (bug #4373)
-- ensure SQL injection protection in all _quote() methods (was missing in
-  some decimal, float, time, date and timestamp implementations)
-
+  <notes>
+- fixed typo in _getTextDeclaration()
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.2.0" optional="no"/>

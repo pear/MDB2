@@ -19,13 +19,12 @@
   </maintainer>
  </maintainers>
  <release>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <date>2005-06-08</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>
-- fixed LOB management and package dependencies
-- fully tested
+- fixed typo in _getTextDeclaration()
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.4" optional="no"/>
