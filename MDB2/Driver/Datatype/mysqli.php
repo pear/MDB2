@@ -89,11 +89,21 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
     function _getIntegerDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+
+        if (isset($field['autoincrement'])) {
+            $autoinc = ' AUTO_INCREMENT';
+            if ($field['autoincrement'] > '1') {
+                $autoinc .= ' = ' . $field['autoincrement'];
+            }
+        } else {
+            $autoinc = '';
+        }
+
         $unsigned = (isset($field['unsigned']) && $field['unsigned']) ? ' UNSIGNED' : '';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
-        return $name.' INT'.$unsigned.$default.$notnull;
+        return $name.' INT'.$unsigned.$default.$notnull.$autoinc;
     }
 
     // }}}
