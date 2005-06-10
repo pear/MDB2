@@ -290,6 +290,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function listTableIndexes($table)
     {
+
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $key_name = 'INDEX_NAME';
         $pk_name = 'PK_NAME';
@@ -299,13 +300,17 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         $query = "EXEC sp_statistics @table_name='$table'";
         // third parameter is wrong! should this be a prepared query?
-        $indexes_all = $db->query($query, 'text', $key_name);
+        // alexmerz: the comment above isn't understandable
+        $indexes_all = $db->queryCol($query, 'text', $key_name);
+
         if (PEAR::isError($indexes_all)) {
             return $indexes_all;
         }
         $query = "EXEC sp_pkeys @table_name='$table'";
         // third parameter is wrong! should this be a prepared query?
+        // alexmerz: the comment above isn't understandable
         $pk_all = $db->queryCol($query, 'text', $pk_name);
+
         $found = $indexes = array();
         for ($index = 0, $j = count($indexes_all); $index < $j; ++$index) {
             if (!in_array($indexes_all[$index], $pk_all)
