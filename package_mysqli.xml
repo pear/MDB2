@@ -3,7 +3,8 @@
 <package version="1.0" packagerversion="1.4.0a12">
  <name>MDB2_Driver_mysqli</name>
  <summary>mysqli MDB2 driver</summary>
- <description>This is the MySQLi MDB2 driver.</description>
+ <description>This is the MySQLi MDB2 driver.
+ </description>
  <maintainers>
   <maintainer>
    <user>lsmith</user>
@@ -11,20 +12,13 @@
    <email>smith@backendmedia.com</email>
    <role>lead</role>
   </maintainer>
- </maintainers>
+  </maintainers>
  <release>
-  <version>0.1.0</version>
-  <date>2005-04-29</date>
+  <version>0.1.1</version>
+  <date>2005-06-10</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes>first unbundled release from MDB2 core
-
-- dont just check for isset() for boolean values in order to support
-  setting them false as well (bug #4373)
-- ensure SQL injection protection in all _quote() methods (was missing in
-  some decimal, float, time, date and timestamp implementations)
-- added native prepared query support (LOB support is still broken)
-- removed redundant code from datatype module
+  <notes>-
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.0" optional="no"/>
@@ -33,37 +27,43 @@
    <dep type="ext" rel="has" optional="no">mysqli</dep>
   </deps>
   <filelist>
-   <dir name="/" baseinstalldir="/">
-    <dir name="MDB2">
-     <dir name="Driver">
-      <dir name="Datatype">
-       <file role="php" name="mysqli.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Datatype -->
-      <dir name="Manager">
-       <file role="php" name="mysqli.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Manager -->
-      <dir name="Native">
-       <file role="php" name="mysqli.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Native -->
-      <dir name="Reverse">
-       <file role="php" name="mysqli.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Reverse -->
+   <dir name="MDB2" baseinstalldir="/">
+    <dir name="Driver">
+     <dir name="Datatype">
       <file role="php" name="mysqli.php">
        <replace type="package-info" from="@package_version@" to="version"/>
       </file>
-     </dir> <!-- /MDB2/Driver -->
-    </dir> <!-- /MDB2 -->
-   </dir> <!-- / -->
+     </dir> <!-- /MDB2/Driver/Datatype -->
+     <dir name="Manager">
+      <file role="php" name="mysqli.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Manager -->
+     <dir name="Native">
+      <file role="php" name="mysqli.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Native -->
+     <dir name="Reverse">
+      <file role="php" name="mysqli.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Reverse -->
+     <file role="php" name="mysqli.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.1.1</version>
+    <date>2005-06-10</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>-
+    </notes>
+   </release>
  </changelog>
 </package>

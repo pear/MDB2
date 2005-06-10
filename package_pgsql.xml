@@ -3,7 +3,8 @@
 <package version="1.0" packagerversion="1.4.0a12">
  <name>MDB2_Driver_pgsql</name>
  <summary>pgsql MDB2 driver</summary>
- <description>This is the PostGreSQL MDB2 driver.</description>
+ <description>This is the PostGreSQL MDB2 driver.
+ </description>
  <maintainers>
   <maintainer>
    <user>lsmith</user>
@@ -11,53 +12,60 @@
    <email>smith@backendmedia.com</email>
    <role>lead</role>
   </maintainer>
- </maintainers>
+  </maintainers>
  <release>
   <version>0.1.1</version>
-  <date>2005-04-29</date>
+  <date>2005-06-10</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>
+  <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
 - fixed typo in _getTextDeclaration()
   </notes>
   <deps>
-   <dep type="php" rel="ge" version="4.2.0" optional="no"/>
+   <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
    <dep type="pkg" rel="ge" version="2.0.0beta5" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">pgsql</dep>
   </deps>
   <filelist>
-   <dir name="/" baseinstalldir="/">
-    <dir name="MDB2">
-     <dir name="Driver">
-      <dir name="Datatype">
-       <file role="php" name="pgsql.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Datatype -->
-      <dir name="Manager">
-       <file role="php" name="pgsql.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Manager -->
-      <dir name="Native">
-       <file role="php" name="pgsql.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Native -->
-      <dir name="Reverse">
-       <file role="php" name="pgsql.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Reverse -->
+   <dir name="MDB2" baseinstalldir="/">
+    <dir name="Driver">
+     <dir name="Datatype">
       <file role="php" name="pgsql.php">
        <replace type="package-info" from="@package_version@" to="version"/>
       </file>
-     </dir> <!-- /MDB2/Driver -->
-    </dir> <!-- /MDB2 -->
-   </dir> <!-- / -->
+     </dir> <!-- /MDB2/Driver/Datatype -->
+     <dir name="Manager">
+      <file role="php" name="pgsql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Manager -->
+     <dir name="Native">
+      <file role="php" name="pgsql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Native -->
+     <dir name="Reverse">
+      <file role="php" name="pgsql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Reverse -->
+     <file role="php" name="pgsql.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.1.1</version>
+    <date>2005-06-10</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+- fixed typo in _getTextDeclaration()
+    </notes>
+   </release>
  </changelog>
 </package>

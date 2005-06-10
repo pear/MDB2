@@ -3,7 +3,8 @@
 <package version="1.0" packagerversion="1.4.0a12">
  <name>MDB2_Driver_querysim</name>
  <summary>querysim MDB2 driver</summary>
- <description>This is the Querysim MDB2 driver.</description>
+ <description>This is the Querysim MDB2 driver.
+ </description>
  <maintainers>
   <maintainer>
    <user>lsmith</user>
@@ -11,23 +12,26 @@
    <email>smith@backendmedia.com</email>
    <role>lead</role>
   </maintainer>
- </maintainers>
+  </maintainers>
  <release>
-  <version>0.1.0</version>
-  <date>2005-04-29</date>
+  <version>0.1.1</version>
+  <date>2005-06-10</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes>first unbundled release from MDB2 core
-
-- 
+  <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
   </notes>
   <deps>
-   <dep type="php" rel="ge" version="4.2.0" optional="no"/>
+   <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
    <dep type="pkg" rel="ge" version="2.0.0beta5" optional="no">MDB2</dep>
   </deps>
   <filelist>
    <dir name="/" baseinstalldir="/">
+    <dir name="docs">
+     <file role="doc" name="querysim_readme.txt">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+    </dir> <!-- /docs -->
     <dir name="MDB2">
      <dir name="Driver">
       <file role="php" name="querysim.php">
@@ -39,5 +43,23 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.1.1</version>
+    <date>2005-06-10</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+    </notes>
+   </release>
+   <release>
+    <version>0.1.0</version>
+    <date>2005-04-29</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>first unbundled release from MDB2 core
+
+-
+    </notes>
+   </release>
  </changelog>
 </package>

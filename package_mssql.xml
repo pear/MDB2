@@ -3,7 +3,8 @@
 <package version="1.0" packagerversion="1.4.0a12">
  <name>MDB2_Driver_mssql</name>
  <summary>mssql MDB2 driver</summary>
- <description>This is the Microsoft SQL Server MDB2 driver.</description>
+ <description>This is the Microsoft SQL Server MDB2 driver.
+ </description>
  <maintainers>
   <maintainer>
    <user>davidc</user>
@@ -17,13 +18,65 @@
    <email>smith@backendmedia.com</email>
    <role>lead</role>
   </maintainer>
- </maintainers>
+  </maintainers>
  <release>
-  <version>0.1.0</version>
-  <date>2005-04-29</date>
+  <version>0.1.1</version>
+  <date>2005-06-10</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes>first unbundled release from MDB2 core
+  <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+  </notes>
+  <deps>
+   <dep type="php" rel="ge" version="4.3.0" optional="no"/>
+   <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
+   <dep type="pkg" rel="ge" version="2.0.0beta5" optional="no">MDB2</dep>
+   <dep type="ext" rel="has" optional="no">mssql</dep>
+  </deps>
+  <filelist>
+   <dir name="MDB2" baseinstalldir="/">
+    <dir name="Driver">
+     <dir name="Datatype">
+      <file role="php" name="mssql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Datatype -->
+     <dir name="Manager">
+      <file role="php" name="mssql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Manager -->
+     <dir name="Native">
+      <file role="php" name="mssql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Native -->
+     <dir name="Reverse">
+      <file role="php" name="mssql.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Reverse -->
+     <file role="php" name="mssql.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
+  </filelist>
+ </release>
+ <changelog>
+   <release>
+    <version>0.1.1</version>
+    <date>2005-06-10</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+    </notes>
+   </release>
+   <release>
+    <version>0.1.0</version>
+    <date>2005-04-29</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>first unbundled release from MDB2 core
 
 - dont just check for isset() for boolean values in order to support
   setting them false as well (bug #4373)
@@ -31,43 +84,7 @@
   some decimal, float, time, date and timestamp implementations)
 - typo fixes in constructor
 - Warning: this release is untested
-  </notes>
-  <deps>
-   <dep type="php" rel="ge" version="4.2.0" optional="no"/>
-   <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0beta5" optional="no">MDB2</dep>
-   <dep type="ext" rel="has" optional="no">mssql</dep>
-  </deps>
-  <filelist>
-   <dir name="/" baseinstalldir="/">
-    <dir name="MDB2">
-     <dir name="Driver">
-      <dir name="Datatype">
-       <file role="php" name="mssql.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Datatype -->
-      <dir name="Manager">
-       <file role="php" name="mssql.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Manager -->
-      <dir name="Native">
-       <file role="php" name="mssql.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Native -->
-      <dir name="Reverse">
-       <file role="php" name="mssql.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Reverse -->
-      <file role="php" name="mssql.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
-      </file>
-     </dir> <!-- /MDB2/Driver -->
-    </dir> <!-- /MDB2 -->
-   </dir> <!-- / -->
-  </filelist>
- </release>
+    </notes>
+   </release>
+ </changelog>
 </package>
