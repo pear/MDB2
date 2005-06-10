@@ -8,25 +8,7 @@ Warning: this release features numerous BC breaks to make the MDB2 API be as
 similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
-- refactored LOB support (BC breaks)
-- moved all drivers into separate packages MDB2_Driver_* (BC break)
-- bindParam() and bindColumn() are now 1-indexed (BC break)
-- removed special handling for day light saving time (bug #4341) (BC break)
-- ensure SQL injection protection in all _quote() methods
-  (was missing in some decimal, float, time, date and timestamp implementations)
-- renamed getRowCount() to rowCount() for PDO compliance (BC break)
-  (doesnt take into account the offset anymore)
-- added new quote() parameter to remove quotes (ugly hack will get cleaned up)
-- renamed execute() to _execute() since common provides some common functionality via execute()
-- fixed some issues regarding limit/offset in prepared statements
-- fixed bug in _assignBindColumns() when using associative fetches
-- support numeric and string keys in types array for prepared queries
-- call trigger error if __call() is unable to find a method in any of the modules
-- work around php5 bugs in the test suite
 - increased php dependency to 4.3.0 due to the usage of the streams API since beta5
-- MDB2_MSSQL_Driver: fixed a bug about missing $msg variable,
-  fixed problem with database creation (incorrect ON clause)
-
 EOT;
 
 $description =<<<EOT

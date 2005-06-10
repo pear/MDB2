@@ -5,6 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.1.1';
 $notes = <<<EOT
 - increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+- ensure that instance is connected before using connection property in tableInfo()
 EOT;
 
 $package = new PEAR_PackageFileManager();
