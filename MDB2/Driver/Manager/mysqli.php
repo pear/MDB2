@@ -662,7 +662,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ dropSequence()
+    // {{{ _addAutoIncrement()
 
 
     function _addAutoIncrement($field, $table, $start)
