@@ -69,7 +69,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     function createDatabase($name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-//        var_dump($db->options);die;
         $database_device = (isset($db->options['database_device']) && $db->options['database_device']) ? $db->options['database_device'] : '';
         $database_size = (isset($db->options['database_size']) && $db->options['database_size']) ? '='.$db->options['database_size'] : '';
         $onclause = '';
