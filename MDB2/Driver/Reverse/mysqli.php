@@ -142,6 +142,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             } else {
                 $column = array_change_key_case($column, CASE_LOWER);
             }
+
             if ($field_name == $column['field']) {
                 list($types, $length) = $db->datatype->mapNativeDatatype($column);
                 unset($notnull);
@@ -165,14 +166,17 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                         $definition[0][$key]['length'] = $length;
                     }
                 }
+
                 if (isset($column['extra']) && $column['extra'] == 'auto_increment') {
                     $implicit_sequence = array();
                     $implicit_sequence['on'] = array();
+                    $implicit_sequence['on']['autoincrement'] = true;
                     $implicit_sequence['on']['table'] = $table;
                     $implicit_sequence['on']['field'] = $field_name;
                     $definition[1]['name'] = $table;
                     $definition[1]['definition'] = $implicit_sequence;
                 }
+
                 if (isset($column['key']) && $column['key'] == 'PRI') {
                     // check that its not just a unique field
                     $query = "SHOW INDEX FROM $table";
@@ -192,14 +196,16 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                             break;
                         }
                     }
+
                     if ($is_primary) {
                         $implicit_index = array();
-                        $implicit_index['unique'] = true;
+                        $implicit_index['primary'] = true;
                         $implicit_index['fields'][$field_name] = '';
                         $definition[2]['name'] = $field_name;
                         $definition[2]['definition'] = $implicit_index;
                     }
                 }
+
                 return $definition;
             }
         }
