@@ -679,30 +679,41 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-    	$definition = array(
-    	    'primary' => true,
-    	    'fields' => array(
-    	        $field => array(),
-    	    ),
-    	);
-    	$result = $this->createIndex($table, 'PRIMARY', $definition);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-
         $db->loadModule('Reverse');
         $field_info = $db->reverse->getTableFieldDefinition($table, $field);
         if (PEAR::isError($field_info)) {
             return $field_info;
         }
 
+
+   	    $definition = array(
+            'primary' => true,
+   	        'fields' => array(
+                $field => array(),
+            ),
+    	);
+
+    	if (array_diff_assoc($field_info[2]['definition'], $definition)) {    
+    	    $result = $this->createIndex($table, 'PRIMARY', $definition);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
         $changes = array();
         $changes['changed_fields'][$field] = $field_info[0][0];
-        $changes['changed_fields'][$field]['autoincrement'] = $start;
+        $changes['changed_fields'][$field]['autoincrement'] = true;
 
         $result = $db->manager->alterTable($table, $changes, false);
         if (PEAR::isError($result)) {
             return $result;
+        }
+
+        if ($start > 1) {
+            $result = $db->query("ALTER TABLE $table AUTO_INCREMENT = $start");
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
 
         return true;
