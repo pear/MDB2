@@ -233,6 +233,10 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
+            $connected = $db->connect();
+            if (PEAR::isError($connected)) {
+                return $connected;
+            }
             $id = @mysql_list_fields($db->database_name, $result, $db->connection);
             $got_string = true;
         } elseif (MDB2::isResultCommon($result)) {
