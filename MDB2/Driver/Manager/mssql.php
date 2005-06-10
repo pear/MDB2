@@ -117,9 +117,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                 of the fields to be added. The properties of the fields should
      *                                 be the same as defined by the Metabase parser.
      *
-     *                                Additionally, there should be an entry named Declaration that
-     *                                 is expected to contain the portion of the field declaration already
-     *                                 in DBMS specific SQL code as it is used in the CREATE TABLE statement.
      *
      *                            removed_fields
      *
@@ -154,9 +151,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                 if the notnull constraint is to be added or removed, there should also be
      *                                 an entry with index ChangedNotNull assigned to 1.
      *
-     *                                Additionally, there should be an entry named Declaration that is expected
-     *                                 to contain the portion of the field changed declaration already in DBMS
-     *                                 specific SQL code as it is used in the CREATE TABLE statement.
      *                            Example
      *                                array(
      *                                    'name' => 'userlist',
@@ -164,7 +158,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                        'quota' => array(
      *                                            'type' => 'integer',
      *                                            'unsigned' => 1
-     *                                            'declaration' => 'quota INT'
      *                                        )
      *                                    ),
      *                                    'removed_fields' => array(
@@ -175,13 +168,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                        'gender' => array(
      *                                            'default' => 'M',
      *                                            'change_default' => 1,
-     *                                            'declaration' => "gender CHAR(1) DEFAULT 'M'"
      *                                        )
      *                                    ),
      *                                    'renamed_fields' => array(
      *                                        'sex' => array(
      *                                            'name' => 'gender',
-     *                                            'declaration' => "gender CHAR(1) DEFAULT 'M'"
      *                                        )
      *                                    )
      *                                )
@@ -209,9 +200,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                     'alterTable: change type "'.$change_name.'" not yet supported');
             }
         }
+
         if ($check) {
             return MDB2_OK;
         }
+
         $query = '';
         if (isset($changes['added_fields'])) {
             if ($query) {
@@ -219,16 +212,18 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             }
             $query.= 'ADD ';
             $fields = $changes['added_fields'];
-            foreach ($fields as $field) {
+            foreach ($fields as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
                 }
-                $query.= $field['declaration'];
+                $query .=  $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
+
         if (!$query) {
             return MDB2_OK;
         }
+
         return $db->query("ALTER TABLE $name $query");
     }
 
@@ -332,10 +327,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *
      * @param string    $seq_name     name of the sequence to be created
      * @param string    $start         start value of the sequence; default is 1
+     * @param boolean   $auto_increment if the seq should be auto inc or not; default is false
+     * @param string    $field name of the field that's being turned into auto increment
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createSequence($seq_name, $start = 1)
+    function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);

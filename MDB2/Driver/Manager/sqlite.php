@@ -297,9 +297,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      * @param string    $seq_name     name of the sequence to be created
      * @param string    $start         start value of the sequence; default is 1
      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @param boolean   $auto_increment if the seq should be auto inc or not; default is false
+     * @param string    $field name of the field that's being turned into auto increment
      * @access public
      */
-    function createSequence($seq_name, $start = 1)
+    function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
