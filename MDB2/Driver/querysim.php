@@ -244,6 +244,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $this->supported['sub_selects'] = true;
         $this->supported['transactions'] = false;
         $this->supported['auto_increment'] = false;
+        // I have no idea if this is right
+        $this->supported['primary_key'] = true;
 
         $this->options['columnDelim'] = ',';
         $this->options['dataDelim'] = '|';

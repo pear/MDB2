@@ -86,6 +86,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = true;
+        $this->supported['primary_key'] = true;
     }
 
     // }}}
