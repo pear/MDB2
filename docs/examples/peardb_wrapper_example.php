@@ -34,7 +34,7 @@
     $db_name = 'metapear_test_db';
     // Data Source Name: This is the universal connection string
     $dsn = "mysql://$user:$pass@$host/$db_name";
-    // MDB2::connect will return a Pear DB object on success
+    // DB::connect will return a Pear DB object on success
     // or a Pear DB Error object on error
     // You can also set to true the second param
     // if you want a persistent connection:
