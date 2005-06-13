@@ -12,6 +12,10 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - moved logic from MDB2::connect() to MDB2::factory(), the only difference is
   that MDB2::connect will immediatly try to connect to the database
 - MDB2::singleton now uses MDB2::factory()
+- added support for auto increment and primary key in schema. (mysql[i])
+- alterTable (Manager) now needs the full definition to work (use getTableFieldDefinition
+ from Reverse module if you do not have a definition at hand) this eliminates the need
+ of the declaration part in the alterTable array.
 EOT;
 
 $description =<<<EOT
