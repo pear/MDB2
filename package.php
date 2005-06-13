@@ -9,6 +9,9 @@ similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
 - increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+- moved logic from MDB2::connect() to MDB2::factory(), the only difference is
+  that MDB2::connect will immediatly try to connect to the database
+- MDB2::singleton now uses MDB2::factory()
 EOT;
 
 $description =<<<EOT
