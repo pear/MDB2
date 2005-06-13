@@ -51,7 +51,7 @@ require_once 'MDB2.php';
 
 $dsn = 'querysim';
 
-$conn =& MDB2::connect($dsn);
+$conn =& MDB2::factory($dsn);
 if (PEAR::isError($conn)) {
     die ('Cannot connect: '.$conn->getMessage()."\n<br />\n<pre>".$conn->getUserInfo()."\n</pre>\n<br />");
 }
@@ -84,7 +84,7 @@ External CSV file usage example (only showing lines that are different than inli
 $dsn = "querysim:///c:/weblogs/webserver.log";
 
 // notice that we change the dataDelim to a ','
-$conn = MDB2::connect($dsn, array('persistent'=>true, 'dataDelim'=>','));
+$conn = MDB2::factory($dsn, array('persistent'=>true, 'dataDelim'=>','));
 
 $user = $conn->query('read CSV file');
 

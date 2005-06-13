@@ -65,7 +65,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
         $this->dsn = $GLOBALS['dsn'];
         $this->options = $GLOBALS['options'];
         $this->database = $GLOBALS['database'];
-        $this->db =& MDB2::connect($this->dsn, $this->options);
+        $this->db =& MDB2::factory($this->dsn, $this->options);
         if (PEAR::isError($this->db)) {
             $this->assertTrue(false, 'Could not connect to database in setUp - ' .$this->db->getMessage() . ' - ' .$this->db->getUserInfo());
             exit;
@@ -116,7 +116,7 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
 
     //test stuff in common.php
     function testConnect() {
-        $db =& MDB2::connect($this->dsn, $this->options);
+        $db =& MDB2::factory($this->dsn, $this->options);
         if (PEAR::isError($db)) {
             $this->assertTrue(false, 'Connect failed bailing out - ' .$db->getMessage() . ' - ' .$db->getUserInfo());
         }

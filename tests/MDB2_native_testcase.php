@@ -66,7 +66,7 @@ class MDB2_Native_TestCase extends PHPUnit_TestCase
         $this->dsn = $GLOBALS['dsn'];
         $this->options = $GLOBALS['options'];
         $this->database = $GLOBALS['database'];
-        $this->db =& MDB2::connect($this->dsn, $this->options);
+        $this->db =& MDB2::factory($this->dsn, $this->options);
         if (PEAR::isError($this->db)) {
             $this->assertTrue(false, 'Could not connect to database in setUp - ' .$this->db->getMessage() . ' - ' .$this->db->getUserInfo());
             exit;

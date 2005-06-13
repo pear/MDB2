@@ -44,15 +44,15 @@
     $dsn['password'] = $pass;
     $dsn['hostspec'] = $host;
     $dsn['phptype'] = $db_type;
-    // MDB2::connect will return a Pear DB object on success
+    // MDB2::factory will return a Pear DB object on success
     // or a Pear MDB2 error object on error
     // You can also set to true the second param
     // if you want a persistent connection:
-    // $db = MDB2::connect($dsn, true);
+    // $db = MDB2::factory($dsn, true);
     // you can alternatively build a dsn here
    //$dsn = "$db_type://$user:$pass@$host/$db_name";
     Var_Dump($dsn);
-    $db =& MDB2::connect($dsn);
+    $db =& MDB2::factory($dsn);
     // With PEAR::isError you can differentiate between an error or
     // a valid connection.
     if (PEAR::isError($db)) {
