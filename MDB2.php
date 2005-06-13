@@ -277,15 +277,34 @@ class MDB2
 
     /**
      * Create a new MDB2 object for the specified database type
-     * type
      *
-     * @param   string  $type   database type, for example 'mysql'
+     * IMPORTANT: In order for MDB2 to work properly it is necessary that
+     * you make sure that you work with a reference of the original
+     * object instead of a copy (this is a PHP4 quirk).
+     *
+     * For example:
+     *     $db =& MDB2::factory($dsn);
+     *          ^^
+     * And not:
+     *     $db = MDB2::factory($dsn);
+     *
+     * @param   mixed   $dsn      'data source name', see the MDB2::parseDSN
+     *                            method for a description of the dsn format.
+     *                            Can also be specified as an array of the
+     *                            format returned by MDB2::parseDSN.
+     * @param   array   $options  An associative array of option names and
+     *                            their values.
      * @return  mixed   a newly created MDB2 object, or false on error
      * @access  public
      */
-    function &factory($type)
+    function &factory($dsn, $options = false)
     {
-        $class_name = 'MDB2_Driver_'.$type;
+        $dsninfo = MDB2::parseDSN($dsn);
+        if (!isset($dsninfo['phptype'])) {
+            return MDB2::raiseError(MDB2_ERROR_NOT_FOUND,
+                null, null, 'no RDBMS driver specified');
+        }
+        $class_name = 'MDB2_Driver_'.$dsninfo['phptype'];
 
         if (!class_exists($class_name)) {
             $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
@@ -300,6 +319,12 @@ class MDB2
         }
 
         $obj =& new $class_name();
+        $obj->setDSN($dsninfo);
+        $err = MDB2::setOptions($obj, $options);
+        if (PEAR::isError($err)) {
+            return $err;
+        }
+
         return $obj;
     }
 
@@ -334,35 +359,20 @@ class MDB2
      */
     function &connect($dsn, $options = false)
     {
-        $dsninfo = MDB2::parseDSN($dsn);
-        if (!isset($dsninfo['phptype'])) {
-            return MDB2::raiseError(MDB2_ERROR_NOT_FOUND,
-                null, null, 'no RDBMS driver specified');
-        }
-        $type = $dsninfo['phptype'];
-
-        $db =& MDB2::factory($type);
-        if (PEAR::isError($db)) {
-            return $db;
+        $obj =& MDB2::factory($dsn, $options);
+        if (PEAR::isError($obj)) {
+            return $obj;
         }
 
-        $db->setDSN($dsninfo);
-        $err = MDB2::setOptions($db, $options);
+        $err = $obj->connect();
         if (PEAR::isError($err)) {
-            $db->disconnect();
+            $dsn = $obj->getDSN('string', 'xxx');
+            $obj->disconnect();
+            $err->addUserInfo($dsn);
             return $err;
         }
 
-        if (isset($dsninfo['database'])) {
-            $err = $db->connect();
-            if (PEAR::isError($err)) {
-                $dsn = $db->getDSN('string', 'xxx');
-                $db->disconnect();
-                $err->addUserInfo($dsn);
-                return $err;
-            }
-        }
-        return $db;
+        return $obj;
     }
 
     // }}}
@@ -414,7 +424,7 @@ class MDB2
                 return $db;
             }
         }
-        return MDB2::connect($dsn, $options);
+        return MDB2::factory($dsn, $options);
     }
 
     // }}}
