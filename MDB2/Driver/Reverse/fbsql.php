@@ -82,7 +82,7 @@ class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-             
+
             $connected = $db->connect();
             if (PEAR::isError($connected)) {
                 return $connected;
