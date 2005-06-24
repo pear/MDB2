@@ -58,8 +58,6 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     // {{{ properties
     var $escape_quotes = "\\";
 
-    var $dummy_primary_key = 'dummy_primary_key';
-
     // }}}
     // {{{ constructor
 
