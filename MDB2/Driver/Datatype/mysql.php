@@ -90,18 +90,16 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
 
-        if (isset($field['autoincrement'])) {
-            $autoinc = ' AUTO_INCREMENT';
-            if ($field['autoincrement'] > '1') {
-                $autoinc .= ' = ' . $field['autoincrement'];
-            }
+        if (isset($field['autoincrement']) && $field['autoincrement']) {
+            $autoinc = ' AUTO_INCREMENT PRIMARY KEY';
+            $default = '';
         } else {
             $autoinc = '';
+            $default = isset($field['default']) ? ' DEFAULT '.
+                $this->quote($field['default'], 'integer') : '';
         }
 
         $unsigned = (isset($field['unsigned']) && $field['unsigned']) ? ' UNSIGNED' : '';
-        $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quote($field['default'], 'integer') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$unsigned.$default.$notnull.$autoinc;
     }
