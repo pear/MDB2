@@ -128,10 +128,6 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        if ($field_name == $db->dummy_primary_key) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableFieldDefinition: '.$db->dummy_primary_key.' is an hidden column');
-        }
         $columns = $db->queryAll("SHOW COLUMNS FROM $table", null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($columns)) {
             return $columns;
@@ -155,55 +151,20 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 }
                 $definition = array();
                 foreach ($types as $key => $type) {
-                    $definition[0][$key] = array('type' => $type);
+                    $definition[$key] = array('type' => $type);
                     if (isset($notnull)) {
-                        $definition[0][$key]['notnull'] = true;
+                        $definition[$key]['notnull'] = true;
                     }
                     if (isset($default)) {
-                        $definition[0][$key]['default'] = $default;
+                        $definition[$key]['default'] = $default;
                     }
                     if (isset($length)) {
-                        $definition[0][$key]['length'] = $length;
+                        $definition[$key]['length'] = $length;
                     }
                 }
 
                 if (isset($column['extra']) && $column['extra'] == 'auto_increment') {
-                    $implicit_sequence = array();
-                    $implicit_sequence['on'] = array();
-                    $implicit_sequence['on']['autoincrement'] = true;
-                    $implicit_sequence['on']['table'] = $table;
-                    $implicit_sequence['on']['field'] = $field_name;
-                    $definition[1]['name'] = $table;
-                    $definition[1]['definition'] = $implicit_sequence;
-                }
-
-                if (isset($column['key']) && $column['key'] == 'PRI') {
-                    // check that its not just a unique field
-                    $query = "SHOW INDEX FROM $table";
-                    $indexes = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
-                    if (PEAR::isError($indexes)) {
-                        return $indexes;
-                    }
-                    $is_primary = false;
-                    foreach ($indexes as $index) {
-                        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                            $index['column_name'] = strtolower($index['column_name']);
-                        } else {
-                            $index = array_change_key_case($index, CASE_LOWER);
-                        }
-                        if ($index['key_name'] == 'PRIMARY' && $index['column_name'] == $field_name) {
-                            $is_primary = true;
-                            break;
-                        }
-                    }
-
-                    if ($is_primary) {
-                        $implicit_index = array();
-                        $implicit_index['primary'] = true;
-                        $implicit_index['fields'][$field_name] = '';
-                        $definition[2]['name'] = $field_name;
-                        $definition[2]['definition'] = $implicit_index;
-                    }
+                    $definition[$key]['autoincrement'] = true;
                 }
 
                 return $definition;
@@ -228,10 +189,6 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
     function getTableIndexDefinition($table, $index_name)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if ($index_name == 'PRIMARY') {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableIndexDefinition: PRIMARY is an hidden index');
-        }
         $result = $db->query("SHOW INDEX FROM $table");
         if (PEAR::isError($result)) {
             return $result;
@@ -246,7 +203,9 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 $key_name = strtolower($key_name);
             }
             if ($index_name == $key_name) {
-                if (!$row['non_unique']) {
+                if ($row['key_name'] == 'PRIMARY') {
+                    $definition['primary'] = true;
+                } elseif (!$row['non_unique']) {
                     $definition['unique'] = true;
                 }
                 $column_name = $row['column_name'];
