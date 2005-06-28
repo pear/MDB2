@@ -529,7 +529,8 @@ class MDB2_Result_querysim extends MDB2_Result_Common
             $fetchmode = $this->db->fetchmode;
         }
         if (!isset($this->result[1][$target_rownum])) {
-            return null;
+            $null = null;
+            return $null;
         }
         $row = $this->result[1][$target_rownum];
         // make row associative

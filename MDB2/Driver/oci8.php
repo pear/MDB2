@@ -697,7 +697,8 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (!$this->_skipLimitOffset()) {
-            return null;
+            $null = null;
+            return $null;
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
@@ -723,7 +724,8 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
-            return null;
+            $null = null;
+            return $null;
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->db->_rtrimArrayValues($row);
@@ -902,7 +904,8 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_fillBuffer($target_rownum)) {
-            return null;
+            $null = null;
+            return $null;
         }
         $row = $this->buffer[$target_rownum];
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
@@ -1032,7 +1035,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             if ($isManip) {
                 return MDB2_OK;
             }
-            return null;
+            $null = null;
+            return $null;
         }
 
         $connected = $this->db->connect();

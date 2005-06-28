@@ -843,7 +843,8 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
-            return null;
+            $null = null;
+            return $null;
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->db->_convertEmptyArrayValuesToNull($row);
