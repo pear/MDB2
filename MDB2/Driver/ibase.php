@@ -686,10 +686,12 @@ class MDB2_Result_ibase extends MDB2_Result_Common
     {
         if ($this->result === true) {
             //query successfully executed, but without results...
-            return null;
+            $null = null;
+            return $null;
         }
         if (!$this->_skipLimitOffset()) {
-            return null;
+            $null = null;
+            return $null;
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
@@ -715,7 +717,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
-            return null;
+            $null = null;
+            return $null;
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->db->_rtrimArrayValues($row);
@@ -899,7 +902,8 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     {
         if ($this->result === true) {
             //query successfully executed, but without results...
-            return null;
+            $null = null;
+            return $null;
         }
         if (is_null($this->result)) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
@@ -916,7 +920,8 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_fillBuffer($target_rownum)) {
-            return null;
+            $null = null;
+            return $null;
         }
         $row = $this->buffer[$target_rownum];
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
