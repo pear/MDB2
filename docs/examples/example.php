@@ -28,8 +28,8 @@
     }
 
     // just for kicks you can mess up this part to see some pear error handling
-    $user = 'metapear';
-    $pass = 'funky';
+    $user = 'root';
+    $pass = '';
     $host = 'localhost';
     $db_name = 'metapear_test_db';
     if (isset($_GET['db_type'])) {
@@ -59,7 +59,7 @@
         die (__LINE__.$db->getMessage());
     }
 
-    MDB2::loadFile('Schema');
+    require_once 'MDB2/Schema.php';
     // you can either pass a dsn string, a dsn array or an exisiting db connection
     $manager =& MDB2_Schema::factory($db);
     $input_file = 'metapear_test_db.schema';
@@ -204,7 +204,7 @@
             MDB2_MANAGER_DUMP_STRUCTURE
         )).'<br>');
         if ($manager->db->getOption('debug') === true) {
-            echo($manager->debugOutput().'<br>');
+            echo($manager->db->debugOutput().'<br>');
         }
         // this is the database definition as an array
         echo(Var_Dump($manager->database_definition).'<br>');
