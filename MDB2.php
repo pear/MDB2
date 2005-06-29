@@ -2926,8 +2926,8 @@ class MDB2_Statement_Common
         $this->db =& $db;
         $this->statement =& $statement;
         $this->query = $query;
-        $this->types = $types;
-        $this->result_types = $result_types;
+        $this->types = (array)$types;
+        $this->result_types = (array)$result_types;
         $this->row_limit = $limit;
         $this->row_offset = $offset;
     }
