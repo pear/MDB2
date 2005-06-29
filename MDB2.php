@@ -1876,7 +1876,7 @@ class MDB2_Driver_Common extends PEAR
                 return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     '_wrapResult: result wrap class does not exist '.$result_wrap_class);
             }
-            $result =& new $result_wrap_class($result);
+            $result =& new $result_wrap_class($result, $this->fetchmode);
         }
         return $result;
     }

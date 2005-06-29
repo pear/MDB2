@@ -51,6 +51,7 @@
  */
 class MDB2_Iterator implements Iterator
 {
+    protected $fetchmode;
     protected $result;
     protected $row;
 
@@ -59,9 +60,10 @@ class MDB2_Iterator implements Iterator
     /**
      * Constructor
      */
-    public function __construct($result)
+    public function __construct($result, $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         $this->result = $result;
+        $this->fetchmode = $fetchmode;
     }
 
     // }}}
@@ -108,7 +110,7 @@ class MDB2_Iterator implements Iterator
     public function current()
     {
         if (is_null($this->row)) {
-            $row = $this->result->fetchRow();
+            $row = $this->result->fetchRow($this->fetchmode);
             if (PEAR::isError($row)) {
                 $row = false;
             }
