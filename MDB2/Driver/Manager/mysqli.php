@@ -522,10 +522,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
 
-        if (isset($definition['primary']) && $definition['primary']) {
-            $type = 'PRIMARY KEY';
-            $name = '';
-        } elseif (isset($definition['unique']) && $definition['unique']) {
+        if (isset($definition['unique']) && $definition['unique']) {
             $type = 'UNIQUE';
         } else {
             $type = 'INDEX';
@@ -579,15 +576,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $indexes_all;
         }
 
-        $found = $indexes = array();
-        for ($index = 0, $j = count($indexes_all); $index < $j; ++$index) {
-            if ($indexes_all[$index] != 'PRIMARY'
-                && !isset($found[$indexes_all[$index]])
-            ) {
-                $indexes[] = $indexes_all[$index];
-                $found[$indexes_all[$index]] = true;
-            }
-        }
+        $indexes = array_unique($indexes_all);
 
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $indexes = array_flip(array_change_key_case(array_flip($indexes), CASE_LOWER));
@@ -612,15 +601,6 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-
-        if ($auto_increment) {
-            $result = $this->_addAutoIncrement($field, $seq_name, $start);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
-
-            return MDB2_OK;
-        }
 
         $sequence_name = $db->getSequenceName($seq_name);
         $seqcol_name = $db->options['seqcol_name'];
@@ -658,57 +638,6 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         return $db->raiseError(MDB2_ERROR, null, null,
             'createSequence: could not create sequence table ('.
             $res->getMessage().' ('.$res->getUserinfo().'))');
-    }
-
-    // }}}
-    // {{{ _addAutoIncrement()
-
-    function _addAutoIncrement($field, $table, $start)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        if (!$db->supports('auto_increment')) {
-            $db->debug('Auto increment is not supported');
-            return MDB2_OK;
-        }
-
-        $db->loadModule('Reverse');
-        $field_info = $db->reverse->getTableFieldDefinition($table, $field);
-        if (PEAR::isError($field_info)) {
-            return $field_info;
-        }
-
-
-        $definition = array(
-            'primary' => true,
-            'fields' => array(
-                $field => array(),
-            ),
-        );
-
-        if (array_diff_assoc($field_info[2]['definition'], $definition)) {
-            $result = $this->createIndex($table, 'PRIMARY', $definition);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
-        }
-
-        $changes = array();
-        $changes['changed_fields'][$field] = $field_info[0][0];
-        $changes['changed_fields'][$field]['autoincrement'] = true;
-
-        $result = $db->manager->alterTable($table, $changes, false);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-
-        if ($start > 1) {
-            $result = $db->query("ALTER TABLE $table AUTO_INCREMENT = $start");
-            if (PEAR::isError($result)) {
-                return $result;
-            }
-        }
-
-        return true;
     }
 
     // }}}
