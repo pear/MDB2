@@ -89,11 +89,19 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     function _getIntegerDeclaration($name, $field)
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+
+        if (isset($field['autoincrement']) && $field['autoincrement']) {
+            $autoinc = ' PRIMARY KEY AUTO_INCREMENT';
+            $default = '';
+        } else {
+            $autoinc = '';
+            $default = isset($field['default']) ? ' DEFAULT '.
+                $this->quote($field['default'], 'integer') : '';
+        }
+
         $unsigned = (isset($field['unsigned']) && $field['unsigned']) ? ' UNSIGNED' : '';
-        $default = isset($field['default']) ? ' DEFAULT '.
-            $this->quote($field['default'], 'integer') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
-        return $name.' INT'.$unsigned.$default.$notnull;
+        return $name.' INT'.$unsigned.$default.$notnull.$autoinc;
     }
 
     // }}}
