@@ -528,5 +528,55 @@ class MDB2_Extended
         }
         return MDB2_OK;
     }
+
+    // }}}
+    // {{{ getBeforeID()
+
+    /**
+     * returns the next free id of a sequence if the RDBMS
+     * does not support auto increment
+     *
+     * @param string $table name of the table into which a new row was inserted
+     * @param boolean $ondemand when true the seqence is
+     *                          automatic created, if it
+     *                          not exists
+     *
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function getBeforeID($table, $field, $ondemand = true)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if (!$db->supports('auto_increment')) {
+            $seq = $table.(empty($field) ? '' : '_'.$field);
+            $id = $db->nextID($seq, $ondemand);
+            if (PEAR::isError($id)) {
+                return $id;
+            }
+            return $db->quote($id, 'integer');
+        }
+        return 'NULL';
+    }
+
+    // }}}
+    // {{{ getAfterID()
+
+    /**
+     * returns the autoincrement ID if supported or $id
+     *
+     * @param mixed $id value as returned by getBeforeId()
+     * @param string $table name of the table into which a new row was inserted
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function getAfterID($id, $table, $field)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if (!$db->supports('auto_increment')) {
+            return $id;
+        }
+        return $db->lastInsertID($table, $field);
+    }
+
 }
 ?>
