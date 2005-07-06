@@ -81,7 +81,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
-        $this->supported['auto_increment'] = false;
+        $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
     }
 
@@ -97,25 +97,29 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function errorInfo($error = null)
     {
+        // Fall back to MDB2_ERROR if there was no mapping.
+        $error_code = MDB2_ERROR;
+
         $native_msg = '';
         if (is_resource($error)) {
             $native_msg = @pg_result_error($error);
         } elseif ($this->connection) {
             $native_msg = @pg_last_error($this->connection);
+            if (!$native_msg && @pg_connection_status($this->connection) === PGSQL_CONNECTION_BAD) {
+                $native_msg = 'Database connection has been lost.';
+                $error_code = MDB2_ERROR_CONNECT_FAILED;
+            }
         }
-
-        // Fall back to MDB2_ERROR if there was no mapping.
-        $error = MDB2_ERROR;
 
         static $error_regexps;
         if (empty($error_regexps)) {
             $error_regexps = array(
+                '/column .* (of relation .*)?does not exist/i'
+                    => MDB2_ERROR_NOSUCHFIELD,
                 '/(relation|sequence|table).*does not exist|class .* not found/i'
                     => MDB2_ERROR_NOSUCHTABLE,
                 '/index .* does not exist/'
                     => MDB2_ERROR_NOT_FOUND,
-                '/column .* does not exist/i'
-                    => MDB2_ERROR_NOSUCHFIELD,
                 '/relation .* already exists/i'
                     => MDB2_ERROR_ALREADY_EXISTS,
                 '/(divide|division) by zero$/i'
@@ -154,12 +158,12 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
         foreach ($error_regexps as $regexp => $code) {
             if (preg_match($regexp, $native_msg)) {
-                $error = $code;
+                $error_code = $code;
                 break;
             }
         }
 
-        return array($error, null, $native_msg);
+        return array($error_code, null, $native_msg);
     }
 
     // }}}
@@ -459,6 +463,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         if ($isManip) {
             return @pg_affected_rows($result);
+        }  elseif (!preg_match('/^\s*\(*\s*(SELECT|EXPLAIN|FETCH|SHOW)\s/si', $query)) {
+            return 0;
         }
         return $result;
     }
