@@ -421,7 +421,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ getAfterID()
+    // {{{ lastInsertID()
 
     /**
      * returns the autoincrement ID if supported or $id
@@ -431,10 +431,13 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getAfterID($id, $table)
+    function lastInsertID($table = null, $field = null)
     {
-        $this->loadModule('Native');
-        return $this->native->getInsertID();
+        $value = @fbsql_insert_id($this->connection);
+        if (!$value) {
+            return $this->raiseError();
+        }
+        return $value;
     }
 
     // }}}

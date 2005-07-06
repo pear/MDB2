@@ -688,7 +688,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ getAfterID()
+    // {{{ lastInsertID()
 
     /**
      * returns the autoincrement ID if supported or $id
@@ -698,10 +698,9 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getAfterID($id, $table)
+    function lastInsertID($table = null, $field = null)
     {
-        $this->loadModule('Native');
-        return $this->native->getInsertID();
+        return $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
     }
 
     // }}}
