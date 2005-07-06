@@ -88,6 +88,47 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
+    // {{{ _getIntegerDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare an integer type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name name the field to be declared.
+     * @param array $field associative array with the name of the properties
+     *       of the field being declared as array indexes. Currently, the types
+     *       of supported field properties are as follows:
+     *
+     *       unsigned
+     *           Boolean flag that indicates whether the field should be
+     *           declared as unsigned integer if possible.
+     *
+     *       default
+     *           Integer value to be used as default for this field.
+     *
+     *       notnull
+     *           Boolean flag that indicates whether this field is constrained
+     *           to not be set to null.
+     * @return string DBMS specific SQL code portion that should be used to
+     *       declare the specified field.
+     * @access protected
+     */
+    function _getIntegerDeclaration($name, $field)
+    {
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        if (isset($field['unsigned']) && $field['unsigned']) {
+            $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
+        }
+        if (isset($field['autoincrement']) && $field['autoincrement']) {
+            return $name.' SERIAL PRIMARY KEY';
+        }
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'integer') : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' INT'.$default.$notnull;
+    }
+
+    // }}}
     // {{{ _getTextDeclaration()
 
     /**
