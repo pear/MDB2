@@ -70,21 +70,5 @@ class MDB2_Driver_Native_mssql
     {
         $this->__construct($db_index);
     }
-
-    // }}}
-    // {{{ getInsertID()
-
-    /**
-     * get last insert ID
-     *
-     * @param string $table name of the table
-     * @return mixed MDB2 Error Object or id
-     * @access public
-     */
-    function getInsertID($table)
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $this->queryOne("SELECT @@IDENTITY FROM $table", 'integer');
-    }
 }
 ?>

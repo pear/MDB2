@@ -70,21 +70,5 @@ class MDB2_Driver_Native_mysql
     {
         $this->__construct($db_index);
     }
-
-    // }}}
-    // {{{ getInsertID()
-
-    /**
-     * get last insert ID
-     *
-     * @return mixed MDB2 Error Object or id
-     * @access public
-     */
-    function getInsertID()
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $value = $db->queryOne('SELECT LAST_INSERT_ID()', 'integer');
-        return $value;
-    }
 }
 ?>

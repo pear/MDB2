@@ -70,20 +70,5 @@ class MDB2_Driver_Native_sqlite
     {
         $this->__construct($db_index);
     }
-
-    // }}}
-    // {{{ getInsertID()
-
-    /**
-     * get last insert ID
-     *
-     * @return mixed MDB2 Error Object or id
-     * @access public
-     */
-    function getInsertID()
-    {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return @sqlite_last_insert_rowid($db->connection);
-    }
 }
 ?>
