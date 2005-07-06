@@ -568,6 +568,20 @@ class MDB2
     }
 
     // }}}
+    // {{{ isStatement()
+    /**
+     * Tell whether a value is a MDB2 statement interface
+     *
+     * @param mixed $value value to test
+     * @return bool whether $value is a MDB2 statement interface
+     * @access public
+     */
+    function isStatement($value)
+    {
+        return is_a($value, 'MDB2_Statement');
+    }
+
+    // }}}
     // {{{ isManip()
 
     /**
@@ -2262,29 +2276,6 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ getBeforeID()
-
-    /**
-     * returns the next free id of a sequence if the RDBMS
-     * does not support auto increment
-     *
-     * @param string $table name of the table into which a new row was inserted
-     * @param boolean $ondemand when true the seqence is
-     *                          automatic created, if it
-     *                          not exists
-     *
-     * @return mixed MDB2 Error Object or id
-     * @access public
-     */
-    function getBeforeID($table, $ondemand = true)
-    {
-        if (!$this->supports('auto_increment')) {
-            return $thid->nextID($table, $ondemand);
-        }
-        return null;
-    }
-
-    // }}}
     // {{{ nextID()
 
     /**
@@ -2304,7 +2295,7 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ getAfterID()
+    // {{{ lastInsertID()
 
     /**
      * returns the autoincrement ID if supported or $id
@@ -2314,9 +2305,10 @@ class MDB2_Driver_Common extends PEAR
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getAfterID($id, $table)
+    function lastInsertID($table = null, $field = null)
     {
-        return $id;
+        $seq = $table.(empty($field) ? '' : '_'.$field);
+        return $this->currID($seq);
     }
 
     // }}}
