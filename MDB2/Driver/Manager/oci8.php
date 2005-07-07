@@ -306,17 +306,23 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($db->options['database_name_prefix']) {
-            $query = "SELECT SUBSTR(table_name, ".strlen($db->options['database_name_prefix'])
-                .") FROM user_tables WHERE table_name LIKE '"
+            $query = "SELECT SUBSTR(username, "
+                .(strlen($db->options['database_name_prefix'])+1)
+                .") FROM dba_users WHERE username LIKE '"
                 .$db->options['database_name_prefix']."%'";
         } else {
-            $query = "SELECT table_name FROM user_tables WHERE table_name LIKE '%'";
+            $query = "SELECT username FROM dba_users WHERE username LIKE '%'";
         }
         $result = $db->standaloneQuery($query);
         if (PEAR::isError($result)) {
             return $result;
         }
         $databases = $result->fetchCol();
+        if (PEAR::isError($databases)) {
+            return $databases;
+        }
+        // is it legit to force this to lowercase?
+        $databases = array_keys(array_change_key_case(array_flip($databases), CASE_LOWER));
         $result->free();
         return $databases;
     }
