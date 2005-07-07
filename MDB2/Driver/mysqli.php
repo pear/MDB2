@@ -1076,7 +1076,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                         $parameters[] = null;
                         $parameters[1].= 'b';
                     } else {
-                        $parameters[] = $this->db->quote($value, $type, false);
+                        $parameters[] = $value;
                         $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
                     }
                 }
