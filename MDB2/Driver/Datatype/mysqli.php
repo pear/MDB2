@@ -442,7 +442,6 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
                 return 'i';
             case 'float':
                 return 'd';
-            case 'clob':
             case 'blob':
                 return 'b';
             default:
