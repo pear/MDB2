@@ -904,6 +904,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $character_lob = '';
         $binary_lob = '';
+
         for ($i = 0; $i < 100; $i++) {
             for ($code = 32; $code <= 127; $code++) {
                 $character_lob .= chr($code);
@@ -933,7 +934,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $row = $result->fetchRow();
         $clob = $row[0];
-        if (!PEAR::isError($clob)) {
+        if (!PEAR::isError($clob) && is_resource($clob)) {
             $value = '';
             while (!feof($clob)) {
                 $data = fread($clob, 8192);
@@ -947,7 +948,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
 
         $blob = $row[1];
-        if (!PEAR::isError($blob)) {
+        if (!PEAR::isError($blob) && is_resource($blob)) {
             $value = '';
             while (!feof($blob)) {
                 $data = fread($blob, 8192);
@@ -1017,7 +1018,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $row = $result->fetchRow();
         $clob = $row[0];
-        if (!PEAR::isError($clob)) {
+        if (!PEAR::isError($clob) && is_resource($clob)) {
             $this->db->datatype->writeLOBToFile($clob, $character_data_file);
             $this->db->datatype->destroyLOB($clob);
 
@@ -1036,7 +1037,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
 
         $blob = $row[1];
-        if (!PEAR::isError($blob)) {
+        if (!PEAR::isError($blob) && is_resource($blob)) {
             $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
             $this->db->datatype->destroyLOB($blob);
 
