@@ -118,21 +118,6 @@ class MDB2_Native_TestCase extends PHPUnit_TestCase
     }
 
     /**
-     * Test getInsertID()
-     */
-    function testGetInsertID()
-    {
-        if (!$this->methodExists($this->db->native, 'getInsertID')) {
-            return;
-        }
-        if (PEAR::isError($connect = $this->db->connect())) {
-            $this->assertTrue(false, 'Cannot connect to the db'.$connect->getMessage());
-        }
-
-        $this->assertTrue(false, 'TEST NOT IMPLEMENTED YET');
-    }
-
-    /**
      * Test deleteOID()
      */
     function testDeleteOID()
