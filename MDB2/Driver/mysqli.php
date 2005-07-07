@@ -1065,20 +1065,17 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                     }
                     $parameters[] = null;
                     $parameters[1].= 'b';
+                } elseif ($type == 'clob' || $type == 'blob') {
+                    do {
+                        $data = substr($value, 0, $this->db->options['lob_buffer_length']);
+                        $value = substr($value, $this->db->options['lob_buffer_length']);
+                        @mysqli_stmt_send_long_data($this->statement, $i, $data);
+                    } while ($value);
+                    $parameters[] = null;
+                    $parameters[1].= 'b';
                 } else {
-                    $value = $this->db->quote($value, $type, false);
-                    if (strlen($value) > $this->db->options['lob_buffer_length']) {
-                        do {
-                            $data = substr($value, 0, $this->db->options['lob_buffer_length']);
-                            $value = substr($value, $this->db->options['lob_buffer_length']);
-                            @mysqli_stmt_send_long_data($this->statement, $i, $data);
-                        } while ($value);
-                        $parameters[] = null;
-                        $parameters[1].= 'b';
-                    } else {
-                        $parameters[] = $value;
-                        $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
-                    }
+                    $parameters[] = $this->db->quote($value, $type, false);
+                    $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
                 }
                 ++$i;
             }
