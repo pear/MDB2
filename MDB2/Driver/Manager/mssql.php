@@ -173,7 +173,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                        'sex' => array(
      *                                            'name' => 'gender',
      *                                        )
-     *                                    )
+     *                                    ),
+     *                                   'dropped_fields' => array(
+     *                                       'name' => array(
+     *                                            'column' => array()
+     *                                       )
+     *                                   ),
      *                                )
      *
      * @param boolean $check     indicates whether the function should just check if the DBMS driver
@@ -191,6 +196,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             case 'added_fields':
                 break;
             case 'removed_fields':
+            case 'dropped_fields':
+                break;
             case 'name':
             case 'renamed_fields':
             case 'changed_fields':
@@ -218,6 +225,20 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $query .=  $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
+        if(isset($changes['dropped_fields'])) {
+            if ($query) {
+            $query.= ', ';
+            }
+            $query.= 'DROP COLUMN';
+            $fields = $changes['dropped_fields'];
+            foreach ($fields as $field_name => $field) {
+                if ($query) {
+                    $query.= ', ';
+                }
+                $query .= $db->getDeclaration($field['type'], $field_name, $field);
+            }
+        }
+            
 
         if (!$query) {
             return MDB2_OK;
@@ -238,7 +259,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     function listTables()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $query = 'EXECUTE sp_tables @table_type = "\'TABLE\'"';
+        $query = 'SELECT name FROM SYSOBJECTS WHERE xtype = \'U\'';
         $table_names = $db->queryCol($query, null, 2);
         if (PEAR::isError($table_names)) {
             return $table_names;
@@ -289,7 +310,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function listTableIndexes($table)
     {
-
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $key_name = 'INDEX_NAME';
         $pk_name = 'PK_NAME';
@@ -298,18 +318,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $pk_name = strtolower($pk_name);
         }
         $query = "EXEC sp_statistics @table_name='$table'";
-        // third parameter is wrong! should this be a prepared query?
-        // alexmerz: the comment above isn't understandable
         $indexes_all = $db->queryCol($query, 'text', $key_name);
-
         if (PEAR::isError($indexes_all)) {
             return $indexes_all;
         }
         $query = "EXEC sp_pkeys @table_name='$table'";
-        // third parameter is wrong! should this be a prepared query?
-        // alexmerz: the comment above isn't understandable
         $pk_all = $db->queryCol($query, 'text', $pk_name);
-
         $found = $indexes = array();
         for ($index = 0, $j = count($indexes_all); $index < $j; ++$index) {
             if (!in_array($indexes_all[$index], $pk_all)
@@ -339,10 +353,35 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+
         $sequence_name = $db->getSequenceName($seq_name);
-        $query = "CREATE TABLE $sequence_name (".$db->options['seqcol_name']
-            ." INT NOT NULL IDENTITY($start,1) PRIMARY KEY CLUSTERED)";
-        return $db->query($query);
+        $seqcol_name   = $db->options['seqcol_name'];
+        $query = "CREATE TABLE $sequence_name ($seqcol_name)"
+                ." INT PRIMARY KEY CLUSTERED IDENTITY($start,1) NOT NULL";
+        $res = $db->query($query);
+        if(PEAR::isError($res)) {
+            return $res;
+        }
+
+        if ($start == 1) {
+            return MDB2_OK;
+        }
+
+        $res = $db->query("INSERT INTO $sequence_name ($seqcol_name) VALUES (".($start-1).")");
+        if(!PEAR::isError($res)) {
+            return MDB2_OK;
+        }
+
+        $result = $db->query("DROP TABLE $sequence_name");
+        if(PEAR::isError($result)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                   'createSequence: could not drop inconsisten sequence table ('.
+                   $result->getMessage().' ('.$result->getUserInfo(). '))');
+        }
+
+        return $db->raiseError(MDB2_ERROR, null, null,
+               'createSequence: could not create sequence table ('.
+               $res->getMessage(). ' ('.$res->getUserInfo(). '))');
     }
 
     // }}}
@@ -359,7 +398,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
-        return $db->Query("DROP TABLE $sequence_name");
+        return $db->query("DROP TABLE $sequence_name");
     }
 
     // }}}
@@ -374,7 +413,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     function listSequences()
     {
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $query = "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE_TABLE'";
+        $query = "SELECT name FROM sysobjects WHERE xtype = 'U'";
         $table_names = $db->queryCol($query);
         if (PEAR::isError($table_names)) {
             return $table_names;
@@ -386,5 +425,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             }
         }
         return $sequences;
-    }}
+    }
+}
 ?>
