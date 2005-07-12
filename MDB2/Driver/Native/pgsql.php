@@ -51,25 +51,8 @@
  * @category Database
  * @author  Paul Cooper <pgc@ucecom.com>
  */
-class MDB2_Driver_Native_pgsql
+class MDB2_Driver_Native_pgsql extends MDB2_Module_Common
 {
-    var $db_index;
-
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function __construct($db_index)
-    {
-        $this->db_index = $db_index;
-    }
-
-    function MDB2_Driver_Native_pgsql($db_index)
-    {
-        $this->__construct($db_index);
-    }
-
     // }}}
     // {{{ deleteOID()
 
@@ -82,7 +65,11 @@ class MDB2_Driver_Native_pgsql
      */
     function deleteOID($OID)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (!@pg_lo_unlink($db->connection, $OID)) {
             return $db->raiseError();
         }
