@@ -83,7 +83,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function createDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: CreateDatabase()
     }
 
@@ -99,7 +98,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function dropDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: DropDatabase()
     }
 
@@ -138,7 +136,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function createTable($name, $fields)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: CreateTable()
     }
 
@@ -243,7 +240,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function alterTable($name, $changes, $check)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: AlterTable()
     }
 
@@ -258,7 +254,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function listDatabases()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // new in MDB2
     }
 
@@ -273,7 +268,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function listUsers()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // new in MDB2
     }
 
@@ -288,7 +282,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function listTables()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // new in MDB2
     }
 
@@ -304,7 +297,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function listTableFields($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // new in MDB2
     }
 
@@ -345,7 +337,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function createIndex($table, $name, $definition)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: CreateIndex()
     }
 
@@ -362,7 +353,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function dropIndex($table, $name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: DropIndex()
     }
 
@@ -378,7 +368,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function listTableIndexes($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // new in MDB2
     }
 
@@ -396,7 +385,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function createSequence($seq_name, $start)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: CreateSequence()
     }
 
@@ -412,7 +400,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function dropSequence($seq_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: DropSequence()
     }
 
@@ -427,7 +414,6 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      */
     function listSequences()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // new in MDB2
     }
 }

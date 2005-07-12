@@ -84,7 +84,6 @@ class MDB2_Reverse_xxx extends MDB2_Reverse_Common
      */
     function getTableFieldDefinition($table, $field_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // new in MDB2
     }
 
@@ -101,7 +100,6 @@ class MDB2_Reverse_xxx extends MDB2_Reverse_Common
      */
     function getTableIndexDefinition($table, $index_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // new in MDB2
     }
 
@@ -117,7 +115,6 @@ class MDB2_Reverse_xxx extends MDB2_Reverse_Common
      */
     function getSequenceDefinition($sequence)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // new in MDB2
     }
 }

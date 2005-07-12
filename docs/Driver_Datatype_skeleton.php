@@ -84,7 +84,6 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
     */
     function convertResult($value, $type)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: ConvertResult()
     }
 
@@ -95,7 +94,6 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
 
     function get*Declaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: Get*FieldValue()
     }
 
@@ -115,7 +113,6 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
      */
     function quote*($prepared_query, $parameter, $clob)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: Get*FieldValue()
     }
 
@@ -135,7 +132,6 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
      */
     function quoteClob($prepared_query, $parameter, $clob)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: GetCLOBFieldValue()
     }
 
@@ -155,7 +151,6 @@ class MDB2_Datatype_xxx extends MDB2_Datatype_Common
      */
     function quoteBlob($prepared_query, $parameter, $blob)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         // take this from the corresponding Metabase driver: GetBLOBFieldValue()
     }
 

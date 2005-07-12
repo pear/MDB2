@@ -52,23 +52,7 @@
  * @category Database
  * @author  YOUR NAME <YOUR EMAIL>
  */
-class MDB2_Native_xxx extends MDB2_Native_Common
+class MDB2_Native_xxx extends MDB2_Module_Common
 {
-    var $db_index;
-
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function __construct($db_index)
-    {
-        $this->db_index = $db_index;
-    }
-
-    function MDB2_Native_xxx($db_index)
-    {
-        $this->__construct($db_index);
-    }
 }
 ?>
