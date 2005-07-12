@@ -62,43 +62,40 @@ require_once 'PEAR.php';
  * version of it in MDB2::errorMessage().
  */
 
-define('MDB2_OK',                         1);
+define('MDB2_OK',                       '00000');    // No error
 define('MDB2_ERROR',                     -1);
-define('MDB2_ERROR_SYNTAX',              -2);
-define('MDB2_ERROR_CONSTRAINT',          -3);
+define('MDB2_ERROR_SYNTAX',             '42000');    // Syntax error or access violation
+define('MDB2_ERROR_CONSTRAINT',         '23000');    // Integrity constraint violation
 define('MDB2_ERROR_NOT_FOUND',           -4);
 define('MDB2_ERROR_ALREADY_EXISTS',      -5);
-define('MDB2_ERROR_UNSUPPORTED',         -6);
+define('MDB2_ERROR_UNSUPPORTED',        'IM001');    // Driver does not support this function
 define('MDB2_ERROR_MISMATCH',            -7);
-define('MDB2_ERROR_INVALID',             -8);
+define('MDB2_ERROR_INVALID',            'HY024');    // Invalid attribute value
 define('MDB2_ERROR_NOT_CAPABLE',         -9);
 define('MDB2_ERROR_TRUNCATED',          -10);
-define('MDB2_ERROR_INVALID_NUMBER',     -11);
-define('MDB2_ERROR_INVALID_DATE',       -12);
-define('MDB2_ERROR_DIVZERO',            -13);
+define('MDB2_ERROR_INVALID_NUMBER',     'HY093');    // Invalid parameter number
+define('MDB2_ERROR_INVALID_DATE',       '22007');    // Invalid datetime format
+define('MDB2_ERROR_DIVZERO',            '22012');    // Division by zero
 define('MDB2_ERROR_NODBSELECTED',       -14);
 define('MDB2_ERROR_CANNOT_CREATE',      -15);
 define('MDB2_ERROR_CANNOT_DELETE',      -16);
 define('MDB2_ERROR_CANNOT_DROP',        -17);
-define('MDB2_ERROR_NOSUCHTABLE',        -18);
-define('MDB2_ERROR_NOSUCHFIELD',        -19);
+define('MDB2_ERROR_NOSUCHTABLE',        '42S02');    // Base table or view not found
+define('MDB2_ERROR_NOSUCHFIELD',        '42S22');    // Column not found
 define('MDB2_ERROR_NEED_MORE_DATA',     -20);
 define('MDB2_ERROR_NOT_LOCKED',         -21);
 define('MDB2_ERROR_VALUE_COUNT_ON_ROW', -22);
-define('MDB2_ERROR_INVALID_DSN',        -23);
-define('MDB2_ERROR_CONNECT_FAILED',     -24);
+define('MDB2_ERROR_INVALID_DSN',        'IM002');    // Data source name not found and no default driver specified
+define('MDB2_ERROR_CONNECT_FAILED',     '08001');    // Client unable to establish connection
 define('MDB2_ERROR_EXTENSION_NOT_FOUND',-25);
 define('MDB2_ERROR_NOSUCHDB',           -26);
-define('MDB2_ERROR_ACCESS_VIOLATION',   -27);
+define('MDB2_ERROR_ACCESS_VIOLATION',   '42000');    // Syntax error or access violation
 define('MDB2_ERROR_CANNOT_REPLACE',     -28);
 define('MDB2_ERROR_CONSTRAINT_NOT_NULL',-29);
 define('MDB2_ERROR_DEADLOCK',           -30);
 define('MDB2_ERROR_CANNOT_ALTER',       -31);
-define('MDB2_ERROR_MANAGER',            -32);
-define('MDB2_ERROR_MANAGER_PARSE',      -33);
-define('MDB2_ERROR_LOADMODULE',         -34);
+define('MDB2_ERROR_LOADMODULE',         'IM003');    // Specified driver could not be loaded
 define('MDB2_ERROR_INSUFFICIENT_DATA',  -35);
-
 
 /**
  * This is a special constant that tells MDB2 the user hasn't specified
@@ -318,14 +315,14 @@ class MDB2
             }
         }
 
-        $obj =& new $class_name();
-        $obj->setDSN($dsninfo);
-        $err = MDB2::setOptions($obj, $options);
+        $db =& new $class_name();
+        $db->setDSN($dsninfo);
+        $err = MDB2::setOptions($db, $options);
         if (PEAR::isError($err)) {
             return $err;
         }
 
-        return $obj;
+        return $db;
     }
 
     // }}}
@@ -359,20 +356,20 @@ class MDB2
      */
     function &connect($dsn, $options = false)
     {
-        $obj =& MDB2::factory($dsn, $options);
-        if (PEAR::isError($obj)) {
-            return $obj;
+        $db =& MDB2::factory($dsn, $options);
+        if (PEAR::isError($db)) {
+            return $db;
         }
 
-        $err = $obj->connect();
+        $err = $db->connect();
         if (PEAR::isError($err)) {
-            $dsn = $obj->getDSN('string', 'xxx');
-            $obj->disconnect();
+            $dsn = $db->getDSN('string', 'xxx');
+            $db->disconnect();
             $err->addUserInfo($dsn);
             return $err;
         }
 
-        return $obj;
+        return $db;
     }
 
     // }}}
@@ -418,11 +415,9 @@ class MDB2
                     return $GLOBALS['_MDB2_databases'][$keys[$i]];
                 }
             }
-        } else {
-            if (is_array($GLOBALS['_MDB2_databases']) && reset($GLOBALS['_MDB2_databases'])) {
-                $db =& $GLOBALS['_MDB2_databases'][key($GLOBALS['_MDB2_databases'])];
-                return $db;
-            }
+        } elseif (is_array($GLOBALS['_MDB2_databases']) && reset($GLOBALS['_MDB2_databases'])) {
+            $db =& $GLOBALS['_MDB2_databases'][key($GLOBALS['_MDB2_databases'])];
+            return $db;
         }
         return MDB2::factory($dsn, $options);
     }
@@ -505,8 +500,8 @@ class MDB2
      * @param   mixed $data   the value to test
      * @param   int   $code   if $data is an error object, return true
      *                        only if $code is a string and
-     *                        $obj->getMessage() == $code or
-     *                        $code is an integer and $obj->getCode() == $code
+     *                        $db->getMessage() == $code or
+     *                        $code is an integer and $db->getCode() === $code
      * @access  public
      * @return  bool    true if parameter is an error
      */
@@ -516,7 +511,7 @@ class MDB2
             if (is_null($code)) {
                 return true;
             } elseif (is_string($code)) {
-                return $data->getMessage() == $code;
+                return $data->getMessage() === $code;
             } else {
                 $code = (array)$code;
                 return in_array($data->getCode(), $code);
@@ -652,8 +647,6 @@ class MDB2
                 MDB2_ERROR_EXTENSION_NOT_FOUND=> 'extension not found',
                 MDB2_ERROR_NOSUCHDB           => 'no such database',
                 MDB2_ERROR_ACCESS_VIOLATION   => 'insufficient permissions',
-                MDB2_ERROR_MANAGER            => 'manager error',
-                MDB2_ERROR_MANAGER_PARSE      => 'manager schema parse error',
                 MDB2_ERROR_LOADMODULE         => 'error while including on demand module',
                 MDB2_ERROR_TRUNCATED          => 'truncated',
                 MDB2_ERROR_DEADLOCK           => 'deadlock detected',
@@ -865,13 +858,8 @@ class MDB2_Error extends PEAR_Error
     function MDB2_Error($code = MDB2_ERROR, $mode = PEAR_ERROR_RETURN,
               $level = E_USER_NOTICE, $debuginfo = null)
     {
-        if (is_int($code)) {
-            $this->PEAR_Error('MDB2 Error: '.MDB2::errorMessage($code), $code,
-                $mode, $level, $debuginfo);
-        } else {
-            $this->PEAR_Error("MDB2 Error: $code", MDB2_ERROR, $mode, $level,
-                $debuginfo);
-        }
+        $this->PEAR_Error('MDB2 Error: '.MDB2::errorMessage($code), $code,
+            $mode, $level, $debuginfo);
     }
 }
 
@@ -1119,6 +1107,22 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ free()
+
+    /**
+     * Free the internal references so that the instance can be destroyed
+     *
+     * @return boolean true on success, false if result is invalid
+     * @access public
+     */
+    function free()
+    {
+        unset($GLOBALS['_MDB2_databases'][$this->db_index]);
+        unset($this->db_index);
+        return MDB2_OK;
+    }
+
+    // }}}
     // {{{ __toString()
 
     /**
@@ -1190,28 +1194,35 @@ class MDB2_Driver_Common extends PEAR
                 $mode    = $this->_default_error_mode;
                 $options = $this->_default_error_options;
             }
-            return MDB2::raiseError($code, $mode, $options);
-        }
-
-        if (is_null($userinfo) && isset($this->connection)) {
-            if (!empty($this->last_query)) {
-                $userinfo = "[Last query: {$this->last_query}]\n";
-            }
-            $native_errno = $native_msg = null;
-            list($code, $native_errno, $native_msg) = $this->errorInfo($code);
-            if (!is_null($native_errno)) {
-                $userinfo .= "[Native code: $native_errno]\n";
-            }
-            if (!is_null($native_msg)) {
-                $userinfo .= "[Native message: ". strip_tags($native_msg) ."]\n";
-            }
         } else {
-            $userinfo = "[Error message: $userinfo]\n";
+            if (is_null($userinfo) && isset($this->connection)) {
+                if (!empty($this->last_query)) {
+                    $userinfo = "[Last query: {$this->last_query}]\n";
+                }
+                $native_errno = $native_msg = null;
+                list($code, $native_errno, $native_msg) = $this->errorInfo($code);
+                if (!is_null($native_errno)) {
+                    $userinfo .= "[Native code: $native_errno]\n";
+                }
+                if (!is_null($native_msg)) {
+                    $userinfo .= "[Native message: ". strip_tags($native_msg) ."]\n";
+                }
+            } else {
+                $userinfo = "[Error message: $userinfo]\n";
+            }
         }
 
-        return MDB2::raiseError($code, $mode, $options, $userinfo);
-    }
+        if (isset($this) && isset($this->_expected_errors)
+            && count($this->_expected_errors) && count($exp = end($this->_expected_errors))
+        ) {
+            if ($exp[0] == "*" || in_array($code, $exp)) {
+                $mode = PEAR_ERROR_RETURN;
+            }
+        }
 
+        $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        return $err;
+    }
 
     // }}}
     // {{{ errorNative()
@@ -1832,10 +1843,13 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
 
-        if ($isManip) {
+        // check for integers instead of manip since drivers may do some
+        // custom checks not covered by MDB2::isManip()
+        if (is_int($result)) {
             return $result;
         }
-        $res = $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
+
+        $res =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
         return $res;
     }
 
@@ -3065,6 +3079,53 @@ class MDB2_Statement_Common
     function free()
     {
         return MDB2_OK;
+    }
+}
+
+class MDB2_Module_Common
+{
+    /**
+     * contains the key to the global MDB2 instance array of the associated 
+     * MDB2 instance
+     *
+     * @var integer
+     * @access protected
+     */
+    var $db_index;
+
+    // {{{ constructor
+
+    /**
+     * Constructor
+     */
+    function __construct($db_index)
+    {
+        $this->db_index = $db_index;
+    }
+
+    function MDB2_Module_Common($db_index)
+    {
+        $this->__construct($db_index);
+    }
+
+
+    // }}}
+    // {{{ getDBInstance()
+
+    /**
+     * get the instance of MDB2 associated with the module instance
+     *
+     * @return object MDB2 instance or a MDB2 error on failure
+     * @access public
+     */
+    function &getDBInstance()
+    {
+        if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
+            $result =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        } else {
+            $result =& MDB2::raiseError(MDB2_ERROR, null, null, 'could not find MDB2 instance');
+        }
+        return $result;
     }
 }
 
