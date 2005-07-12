@@ -88,8 +88,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-
         if (isset($field['autoincrement']) && $field['autoincrement']) {
             $autoinc = ' PRIMARY KEY AUTO_INCREMENT';
             $default = '';
@@ -132,7 +130,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['length'])) {
             $length = $field['length'];
             if ($length <= 255) {
@@ -183,7 +180,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['length'])) {
             $length = $field['length'];
             if ($length <= 255) {
@@ -232,7 +228,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -265,7 +260,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -297,7 +291,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -330,7 +323,11 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $type = 'DOUBLE'.($db->options['fixed_float'] ? '('.
             ($db->options['fixed_float']+2).','.$db->options['fixed_float'].')' : '');
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -365,7 +362,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getDecimalDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = 'BIGINT';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
@@ -404,7 +400,11 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _quoteDecimal($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->escape($value);
     }
 
@@ -420,7 +420,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $db_type = $field['type'];
         $length = isset($field['length']) ? $field['length'] : null;
         $type = array();
@@ -503,6 +502,11 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
             $length = null;
             break;
         default:
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableFieldDefinition: unknown database attribute type');
         }

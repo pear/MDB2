@@ -73,7 +73,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         if (is_null($value)) {
             return null;
         }
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         switch ($type) {
         case 'decimal':
             return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
@@ -112,7 +116,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getTypeDeclaration($field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         switch ($field['type']) {
         case 'text':
             $length = (isset($field['length']) ? $field['length'] : (!PEAR::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
@@ -399,7 +407,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _quoteLOB($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (PEAR::isError($connect = $db->connect())) {
             return $connect;
         }
@@ -442,7 +454,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _quoteDecimal($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return (strval(round($value*pow(10.0, $db->options['decimal_places']))));
     }
 
@@ -461,7 +477,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         if (!isset($lob['handle'])) {
             $lob['handle'] = @ibase_blob_open($lob['ressource']);
             if (!$lob['handle']) {
-                $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+                $db =& $this->getDBInstance();
+                if (PEAR::isError($db)) {
+                    return $db;
+                }
+
                 return $db->raiseError(MDB2_ERROR, null, null,
                     '_retrieveLOB: Could not open fetched large object field' . @ibase_errmsg());
             }
@@ -487,7 +507,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $data = ibase_blob_get($lob['handle'], $length);
         if (!is_string($data)) {
-            $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             return $db->raiseError(MDB2_ERROR, null, null,
                 'Read Result LOB: ' . @ibase_errmsg());
         }
@@ -523,7 +547,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $db_type = preg_replace('/\d/','', strtolower($field['typname']) );
         $length = $field['attlen'];
         if ($length == '-1') {
@@ -573,6 +596,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $length = null;
             break;
         default:
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableFieldDefinition: unknown database attribute type');
         }

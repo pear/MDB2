@@ -73,7 +73,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         if (is_null($value)) {
             return null;
         }
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
         case 'boolean':
             return $value == '1';
@@ -120,8 +119,12 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['unsigned']) && $field['unsigned']) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -159,7 +162,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getTextDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = isset($field['length']) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
@@ -195,7 +197,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['length'])) {
             $length = $field['length'];
             if ($length <= 8000) {
@@ -238,7 +239,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['length'])) {
             $length = $field['length'];
             if ($length <= 8000) {
@@ -277,7 +277,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getBooleanDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'boolean') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
@@ -308,7 +307,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
@@ -339,7 +337,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
@@ -370,7 +367,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
@@ -403,7 +399,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
@@ -436,7 +431,11 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _getDecimalDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
@@ -510,7 +509,11 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _quoteDecimal($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->escape($value);
     }
 }
