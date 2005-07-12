@@ -63,25 +63,8 @@ define('MDB2_AUTOQUERY_UPDATE', 2);
  * @category Database
  * @author Lukas Smith <smith@backendmedia.com>
  */
-class MDB2_Extended
+class MDB2_Extended extends MDB2_Module_Common
 {
-    var $db_index;
-
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function __construct($db_index)
-    {
-        $this->db_index = $db_index;
-    }
-
-    function MDB2_Extended($db_index)
-    {
-        $this->__construct($db_index);
-    }
-
     // }}}
     // {{{ autoPrepare()
 
@@ -102,11 +85,15 @@ class MDB2_Extended
     function autoPrepare($table, $table_fields, $mode = MDB2_AUTOQUERY_INSERT,
         $where = false, $types = null, $result_types = null)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = $this->buildManipSQL($table, $table_fields, $mode, $where);
         if (PEAR::isError($query)) {
             return $query;
         }
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->prepare($query, $types, $result_types);
     }
 
@@ -132,7 +119,6 @@ class MDB2_Extended
     function &autoExecute($table, $fields_values, $mode = MDB2_AUTOQUERY_INSERT,
         $where = false, $types = null, $result_types = null, $result_class = true)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $stmt = $this->autoPrepare($table, array_keys($fields_values), $mode, $where, $types, $result_types);
         if (PEAR::isError($stmt)) {
             return $stmt;
@@ -165,7 +151,11 @@ class MDB2_Extended
      */
     function buildManipSQL($table, $table_fields, $mode, $where = false)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (count($table_fields) == 0) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
@@ -204,7 +194,11 @@ class MDB2_Extended
      */
     function &limitQuery($query, $types, $count, $from = 0, $result_class = true)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $result = $db->setLimit($count, $from);
         if (PEAR::isError($result)) {
             return $result;
@@ -234,7 +228,11 @@ class MDB2_Extended
     function getOne($query, $type = null, $params = array(),
         $param_types = null, $colnum = 0)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         settype($params, 'array');
         settype($type, 'array');
         if (count($params) == 0) {
@@ -279,7 +277,11 @@ class MDB2_Extended
     function getRow($query, $types = null, $params = array(),
         $param_types = null, $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         settype($params, 'array');
         if (count($params) == 0) {
             return $db->queryRow($query, $types, $fetchmode);
@@ -323,7 +325,11 @@ class MDB2_Extended
     function getCol($query, $type = null, $params = array(),
         $param_types = null, $colnum = 0)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         settype($params, 'array');
         settype($type, 'array');
         if (count($params) == 0) {
@@ -377,7 +383,11 @@ class MDB2_Extended
         $param_types = null, $fetchmode = MDB2_FETCHMODE_DEFAULT,
         $rekey = false, $force_array = false, $group = false)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         settype($params, 'array');
         if (count($params) == 0) {
             return $db->queryAll($query, $types, $fetchmode, $rekey, $force_array, $group);
@@ -476,7 +486,11 @@ class MDB2_Extended
     function getAssoc($query, $types = null, $params = array(), $param_types = null,
         $fetchmode = MDB2_FETCHMODE_DEFAULT, $force_array = false, $group = false)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         settype($params, 'array');
         if (count($params) == 0) {
             return $db->queryAll($query, $types, $fetchmode, true, $force_array, $group);
@@ -546,7 +560,11 @@ class MDB2_Extended
      */
     function getBeforeID($table, $field, $ondemand = true)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (!$db->supports('auto_increment')) {
             $seq = $table.(empty($field) ? '' : '_'.$field);
             $id = $db->nextID($seq, $ondemand);
@@ -571,7 +589,11 @@ class MDB2_Extended
      */
     function getAfterID($id, $table, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (!$db->supports('auto_increment')) {
             return $id;
         }
