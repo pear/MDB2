@@ -70,7 +70,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (is_null($value)) {
             return null;
         }
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
         case 'boolean':
             return $value == 't';
@@ -115,8 +114,12 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['unsigned']) && $field['unsigned']) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
         if (isset($field['autoincrement']) && $field['autoincrement']) {
@@ -157,7 +160,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getTextDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = isset($field['length']) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
@@ -191,7 +193,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' OID'.$notnull;
     }
@@ -222,7 +223,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' OID'.$notnull;
     }
@@ -251,7 +251,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getBooleanDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'boolean') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -282,7 +281,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -313,7 +311,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -344,7 +341,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -375,7 +371,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -406,7 +401,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getDecimalDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -427,7 +426,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteLOB($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $connect = $db->connect();
         if (PEAR::isError($connect)) {
             return $connect;
@@ -575,7 +578,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteDecimal($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->escape($value);
     }
 
@@ -592,7 +599,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function writeLOBToFile($lob, $file)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $lob_data = stream_get_meta_data($lob);
         $lob_index = $lob_data['wrapper_data']->lob_index;
         if (!pg_lo_export($db->connection, $this->lobs[$lob_index]['ressource'], $file)) {
@@ -614,14 +625,17 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     function _retrieveLOB(&$lob)
     {
         if (!isset($lob['handle'])) {
-            $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
             if (!$db->in_transaction) {
                 if (!@pg_query($db->connection, 'BEGIN')) {
                     return $db->raiseError();
                 }
                 $lob['in_transaction'] = true;
             }
-            $lob['handle'] = pg_lo_open($db->connection, $lob['ressource'], 'r');
+            $lob['handle'] = @pg_lo_open($db->connection, $lob['ressource'], 'r');
             if (!$lob['handle']) {
                 if (isset($lob['in_transaction'])) {
                     @pg_query($db->connection, 'END');
@@ -649,10 +663,14 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _readLOB($lob, $length)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $data = @pg_lo_read($lob['handle'], $length);
         if (!is_string($data)) {
-             return $db->raiseError();
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
+            return $db->raiseError();
         }
         return $data;
     }
@@ -671,8 +689,17 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     {
         if (isset($this->lobs[$lob_index]['handle'])) {
             @pg_lo_close($this->lobs[$lob_index]['handle']);
+            unset($this->lobs[$lob_index]['handle']);
             if (isset($this->lobs[$lob_index]['in_transaction'])) {
+/*
+for some reason this piece of code causes an apache crash
+                $db =& $this->getDBInstance();
+                if (PEAR::isError($db)) {
+                    return $db;
+                }
+
                 @pg_query($db->connection, 'END');
+*/
             }
         }
     }
@@ -689,7 +716,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $db_type = preg_replace('/\d/','', strtolower($field['typname']) );
         $length = $field['attlen'];
         if ($length == '-1') {
@@ -761,6 +787,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             $length = null;
             break;
         default:
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableFieldDefinition: unknown database attribute type');
         }
