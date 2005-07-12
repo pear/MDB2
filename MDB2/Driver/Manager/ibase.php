@@ -66,7 +66,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      **/
     function createDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null, 'Create database',
                 'createDatabase: PHP Interbase API does not support direct queries. You have to '.
                 'create the db manually by using isql command or a similar program');
@@ -84,7 +88,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      **/
     function dropDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null, 'Drop database',
                 'dropDatabase: PHP Interbase API does not support direct queries. You have '.
                 'to drop the db manually by using isql command or a similar program');
@@ -102,19 +110,23 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      **/
     function checkSupportedChanges(&$changes)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
             case 'changed_not_null':
             case 'notnull':
-                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                return $db->raiseError(MDB2_ERROR, null, null,
                     'checkSupportedChanges: it is not supported changes to field not null constraint');
             case 'ChangedDefault':
             case 'default':
-                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                return $db->raiseError(MDB2_ERROR, null, null,
                     'checkSupportedChanges: it is not supported changes to field default value');
             case 'length':
-                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                return $db->raiseError(MDB2_ERROR, null, null,
                     'checkSupportedChanges: it is not supported changes to field default length');
             case 'unsigned':
             case 'type':
@@ -122,7 +134,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             case 'definition':
                 break;
             default:
-                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                return $db->raiseError(MDB2_ERROR, null, null,
                     'checkSupportedChanges: it is not supported change of type' . $change_name);
             }
         }
@@ -219,7 +231,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      **/
     function alterTable($name, &$changes, $check)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
             case 'added_fields':
@@ -235,7 +251,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 }
                 break;
             default:
-                return $this->raiseError(MDB2_ERROR_MANAGER, '', '',
+                return $db->raiseError(MDB2_ERROR, null, null,
                     'alterTable: change type ' . $change_name . ' not yet supported');
             }
         }
@@ -306,7 +322,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      */
     function listTableFields($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = 'SELECT RDB$FIELD_SOURCE FROM RDB$RELATION_FIELDS WHERE RDB$RELATION_NAME=\'$table\'';
         $result = $db->query($query);
         if (PEAR::isError($result)) {
@@ -331,7 +351,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      **/
     function listViews()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->queryCol('SELECT RDB$VIEW_NAME');
     }
 
@@ -372,7 +396,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      */
     function createIndex($table, $name, $definition)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query_sort = $query_fields = '';
         foreach ($definition['fields'] as $field_name => $field) {
             if ($query_fields) {
@@ -404,21 +432,23 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *
      * @param string $seq_name name of the sequence to be created
      * @param string $start start value of the sequence; default is 1
-     * @param boolean   $auto_increment if the seq should be auto inc or not; default is false
-     * @param string    $field name of the field that's being turned into auto increment
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      **/
-    function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
+    function createSequence($seq_name, $start = 1)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         if (PEAR::isError($result = $db->query('CREATE GENERATOR '.strtoupper($sequence_name)))) {
             return $result;
         }
         if (PEAR::isError($result = $db->query('SET GENERATOR '.strtoupper($sequence_name).' TO '.($start-1)))) {
             if (PEAR::isError($err = $db->dropSequence($seq_name))) {
-                return $this->raiseError(MDB2_ERROR_MANAGER, null, null,
+                return $db->raiseError(MDB2_ERROR, null, null,
                     'createSequence: Could not setup sequence start value and then it was not possible to drop it: '.
                     $err->getMessage().' - ' .$err->getUserInfo());
             }
@@ -438,7 +468,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      **/
     function dropSequence($seq_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->query('DELETE FROM RDB$GENERATORS WHERE RDB$GENERATOR_NAME=\''.strtoupper($sequence_name).'\'');
     }
@@ -454,7 +488,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      **/
     function listSequences()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS';
         $table_names = $db->queryCol($query);
         if (PEAR::isError($table_names)) {
