@@ -1089,8 +1089,12 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             return $this->db->raiseError();
         }
 
-        if ($isManip) {
+        if (!mysqli_stmt_result_metadata($this->statement)) {
             return @mysqli_stmt_affected_rows($this->statement);
+        }
+
+        if ($this->db->options['result_buffering']) {
+            mysqli_stmt_store_result($this->statement);
         }
 
         return $this->db->_wrapResult($result, $this->types,
