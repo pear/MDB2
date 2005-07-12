@@ -409,7 +409,7 @@ class MDB2_PEARProxy extends PEAR
 
     // remove?
     function &raiseError($code = MDB2_ERROR, $mode = null, $options = null,
-                         $userinfo = null, $nativecode = null)
+        $userinfo = null, $nativecode = null)
     {
         return $this->db_object->raiseError($code, $mode, $options, $userinfo, $nativecode);
     }
@@ -649,12 +649,6 @@ class MDB2_PEARProxy extends PEAR
     function nextId($seq_name, $ondemand = true)
     {
         return $this->db_object->nextID($seq_name, $ondemand);
-/*
-        if (MDB2::isResultCommon($id)) {
-            $id = $id->fetchOne();
-        }
-        return $id;
-*/
     }
 
     function createSequence($seq_name)
@@ -748,7 +742,7 @@ class MDB2_PEARProxy extends PEAR
         case 'databases':
             return $this->db_object->manager->listDatabases();
         default:
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
+            return $this->db_object->raiseError(MDB2_ERROR_UNSUPPORTED);
         }
     }
 }
