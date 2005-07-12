@@ -52,31 +52,7 @@
  * @category Database
  * @author  Lukas Smith <smith@dybnet.de>
  */
-class MDB2_Driver_Native_ibase
+class MDB2_Driver_Native_ibase extends MDB2_Module_Common
 {
-    var $db_index;
-
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function __construct($db_index)
-    {
-        $this->db_index = $db_index;
-    }
-
-    // }}}
-    // {{{ constructor
-
-    /**
-     * PHP4 Constructor
-     */
-    function MDB2_Driver_Native_ibase($db_index)
-    {
-        $this->__construct($db_index);
-    }
-
-    // }}}
 }
 ?>

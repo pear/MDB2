@@ -52,23 +52,7 @@
  * @category Database
  * @author  Lukas Smith <smith@dybnet.de>
  */
-class MDB2_Driver_Native_fbsql
+class MDB2_Driver_Native_fbsql extends MDB2_Module_Common
 {
-    var $db_index;
-
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function __construct($db_index)
-    {
-        $this->db_index = $db_index;
-    }
-
-    function MDB2_Driver_Native_fbsql($db_index)
-    {
-        $this->__construct($db_index);
-    }
 }
 ?>
