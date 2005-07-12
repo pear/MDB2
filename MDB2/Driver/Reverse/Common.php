@@ -67,25 +67,8 @@ define('MDB2_TABLEINFO_FULL',       3);
  * @category Database
  * @author  Lukas Smith <smith@backendmedia.com>
  */
-class MDB2_Driver_Reverse_Common
+class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
 {
-    var $db_index;
-
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function __construct($db_index)
-    {
-        $this->db_index = $db_index;
-    }
-
-    function MDB2_Driver_Reverse_Common($db_index)
-    {
-        $this->__construct($db_index);
-    }
-
     // }}}
     // {{{ getTableFieldDefinition()
 
@@ -99,7 +82,11 @@ class MDB2_Driver_Reverse_Common
      */
     function getTableFieldDefinition($table, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getTableFieldDefinition: table field definition is not supported');
     }
@@ -117,7 +104,11 @@ class MDB2_Driver_Reverse_Common
      */
     function getTableIndexDefinition($table, $index)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getTableIndexDefinition: getting index definition is not supported');
     }
@@ -134,7 +125,11 @@ class MDB2_Driver_Reverse_Common
      */
     function getSequenceDefinition($sequence)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $start = $db->currId($sequence);
         if (PEAR::isError($start)) {
             return $start;
@@ -273,16 +268,15 @@ class MDB2_Driver_Reverse_Common
      * @return array  an associative array with the information requested.
      *                 A MDB2_Error object on failure.
      *
-     * @see MDB2_common::setOption()
+     * @see MDB2_Driver_Common::setOption()
      */
     function tableInfo($result, $mode = null)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        /*
-         * If the MDB2_Driver_Reverse_<driver> class has a tableInfo() method,
-         * that one overrides this one.  But, if the driver doesn't have one,
-         * this method runs and tells users about that fact.
-         */
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'tableInfo: method not implemented');
     }

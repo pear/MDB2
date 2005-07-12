@@ -59,7 +59,7 @@ require_once 'MDB2/LOB.php';
  * @category Database
  * @author Lukas Smith <smith@backendmedia.com>
  */
-class MDB2_Driver_Datatype_Common
+class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 {
     var $valid_types = array(
         'text'      => true,
@@ -73,7 +73,6 @@ class MDB2_Driver_Datatype_Common
         'clob'      => true,
         'blob'      => true,
     );
-    var $db_index;
 
     /**
      * contains all LOB objects created with this MDB2 instance
@@ -81,21 +80,6 @@ class MDB2_Driver_Datatype_Common
     * @access protected
     */
     var $lobs = array();
-
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function __construct($db_index)
-    {
-        $this->db_index = $db_index;
-    }
-
-    function MDB2_Driver_Datatype_Common($db_index)
-    {
-        $this->__construct($db_index);
-    }
 
     // }}}
     // {{{ setResultTypes()
@@ -122,11 +106,14 @@ class MDB2_Driver_Datatype_Common
      */
     function setResultTypes(&$result, $types)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-
         $types = is_array($types) ? array_values($types) : array($types);
         foreach ($types as $key => $type) {
             if (!isset($this->valid_types[$type])) {
+                $db =& $this->getDBInstance();
+                if (PEAR::isError($db)) {
+                    return $db;
+                }
+
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'setResultTypes: ' . $type . ' is not a supported column type');
             }
@@ -148,7 +135,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _baseConvertResult($value, $type)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
         case 'text':
             return $value;
@@ -180,10 +166,15 @@ class MDB2_Driver_Datatype_Common
             $lob_index = key($this->lobs);
             $this->lobs[$lob_index]['lob_index'] = $lob_index;
             return fopen('MDB2LOB://'.$lob_index.'@'.$this->db_index, 'r+');
-        default:
-            return $db->raiseError(MDB2_ERROR_INVALID, null, null,
-                'attempt to convert result value to an unknown type ' . $type);
         }
+
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_INVALID, null, null,
+            'attempt to convert result value to an unknown type ' . $type);
     }
 
     // }}}
@@ -202,7 +193,6 @@ class MDB2_Driver_Datatype_Common
         if (is_null($value)) {
             return null;
         }
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         return $this->_baseConvertResult($value, $type);
     }
 
@@ -219,7 +209,6 @@ class MDB2_Driver_Datatype_Common
      */
     function convertResultRow($types, $row)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (is_array($types)) {
             $current_column = -1;
             foreach ($row as $key => $column) {
@@ -253,8 +242,12 @@ class MDB2_Driver_Datatype_Common
      */
     function getDeclaration($type, $name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (!method_exists($this, "_get{$type}Declaration")) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             return $db->raiseError('type not defined: '.$type);
         }
         return $this->{"_get{$type}Declaration"}($name, $field);
@@ -288,8 +281,12 @@ class MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['unsigned']) && $field['unsigned']) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -327,7 +324,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _getTextDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -361,7 +357,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         $type = isset($field['length']) ? 'CHAR ('.$field['length'].')' : 'TEXT';
         return $name.' '.$type.$notnull;
@@ -393,7 +388,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         $type = isset($field['length']) ? 'CHAR ('.$field['length'].')' : 'TEXT';
         return $name.' '.$type.$notnull;
@@ -423,7 +417,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _getBooleanDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'boolean') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -454,7 +447,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -485,7 +477,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -516,7 +507,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -547,7 +537,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -578,7 +567,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _getDecimalDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -598,10 +586,14 @@ class MDB2_Driver_Datatype_Common
      */
     function compareDefinition($current, $previous)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = isset($current['type']) ? $current['type'] : null;
 
         if (!method_exists($this, "_compare{$type}Definition")) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'type "'.$current['type'].'" is not yet supported');
         }
@@ -648,7 +640,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _compareIntegerDefinition($current, $previous)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $change = array();
         $previous_unsigned = isset($previous['unsigned']);
         $unsigned = isset($current['unsigned']);
@@ -671,7 +662,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _compareTextDefinition($current, $previous)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $change = array();
         $previous_length = (isset($previous['length']) ? $previous['length'] : 0);
         $length = (isset($current['length']) ? $current['length'] : 0);
@@ -824,7 +814,11 @@ class MDB2_Driver_Datatype_Common
      */
     function quote($value, $type = null, $quote = true)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (is_null($value)
             || ($value === '' && $db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)
         ) {
@@ -909,7 +903,11 @@ class MDB2_Driver_Datatype_Common
      */
     function _quoteText($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return "'".$db->escape($value)."'";
     }
 
@@ -927,7 +925,6 @@ class MDB2_Driver_Datatype_Common
      */
     function _readFile($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $close = false;
         if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
             $close = true;
@@ -938,6 +935,11 @@ class MDB2_Driver_Datatype_Common
         }
 
         if (is_resource($value)) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             $fp = $value;
             $value = '';
             while (!@feof($fp)) {
@@ -1118,14 +1120,18 @@ class MDB2_Driver_Datatype_Common
      */
     function writeLOBToFile($lob, $file)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $fp = fopen($file, 'wb');
         while (!feof($lob)) {
             $result = fread($lob, $db->options['lob_buffer_length']);
             $read = strlen($result);
             if (fwrite($fp, $result, $read) != $read) {
                 fclose($fp);
-                return MDB2::raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError(MDB2_ERROR, null, null,
                     'writeLOBToFile: could not write to the output file');
             }
         }
@@ -1241,13 +1247,12 @@ class MDB2_Driver_Datatype_Common
      */
     function implodeArray($array, $type = false)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (!is_array($array) || empty($array)) {
             return 'NULL';
         }
         if ($type) {
             foreach ($array as $value) {
-                $return[] = $db->quote($value, $type);
+                $return[] = $this->quote($value, $type);
             }
         } else {
             $return = $array;
