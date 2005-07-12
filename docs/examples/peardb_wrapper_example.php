@@ -27,8 +27,8 @@
     }
 
     // just for kicks you can mess up this part to see some pear error handling
-    $user = 'metapear';
-    $pass = 'funky';
+    $user = 'root';
+    $pass = '';
     //$pass = '';
     $host = 'localhost';
     $db_name = 'metapear_test_db';
