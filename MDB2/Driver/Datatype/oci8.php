@@ -70,7 +70,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         if (is_null($value)) {
             return null;
         }
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         switch ($type) {
         case 'date':
             return substr($value, 0, strlen('YYYY-MM-DD'));
@@ -109,7 +108,11 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getTypeDeclaration($field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         switch ($field['type']) {
         case 'text':
             $length = (isset($field['length']) ? $field['length'] : (($length = $db->options['default_text_field_length']) ? $length : 4000));
@@ -162,8 +165,12 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if (isset($field['unsigned']) && $field['unsigned']) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             $db->warning = "unsigned integer field \"$name\" is being declared as signed integer";
         }
         $default = isset($field['default']) ? ' DEFAULT '.
@@ -201,7 +208,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getTextDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $type = $this->_getTypeDeclaration($field);
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
@@ -235,7 +241,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$notnull;
     }
@@ -266,7 +271,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$notnull;
     }
@@ -295,7 +299,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -326,7 +329,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quoteTimstamp($field['default']) : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -356,9 +358,8 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
-            $db->quoteime($field['default']) : '';
+            $this->quote($field['default'], 'time') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
@@ -387,7 +388,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -418,7 +418,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _getDecimalDeclaration($name, $field)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $default = isset($field['default']) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
         $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
@@ -541,7 +540,11 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _quoteDecimal($value)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->escape($value);
     }
 
@@ -558,10 +561,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function writeLOBToFile($lob, $file)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $lob_data = stream_get_meta_data($lob);
         $lob_index = $lob_data['wrapper_data']->lob_index;
         if (!@$this->lobs[$lob_index]['value']->writelobtofile($file)) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
             return $db->raiseError();
         }
         return MDB2_OK;
@@ -581,6 +588,11 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     {
         if (!isset($lob['loaded'])) {
             if (!is_object($lob['ressource'])) {
+                $db =& $this->getDBInstance();
+                if (PEAR::isError($db)) {
+                    return $db;
+                }
+
                return $db->raiseError(MDB2_ERROR, null, null,
                    'attemped to retrieve LOB from non existing or NULL column');
             }
