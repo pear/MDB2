@@ -53,7 +53,7 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  * @category Database
  * @author  Paul Cooper <pgc@ucecom.com>
  */
-class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
+class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 {
     // {{{ getTableFieldDefinition()
 
@@ -67,7 +67,11 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
      */
     function getTableFieldDefinition($table, $field_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $result = $db->loadModule('Datatype');
         if (PEAR::isError($result)) {
             return $result;
@@ -163,7 +167,11 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
      */
     function getTableIndexDefinition($table, $index_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "SELECT * FROM pg_index, pg_class
             WHERE (pg_class.relname='$index_name') AND (pg_class.oid=pg_index.indexrelid)";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
@@ -210,11 +218,15 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
      * @return array  an associative array with the information requested.
      *                 A MDB2_Error object on failure.
      *
-     * @see MDB2_common::tableInfo()
+     * @see MDB2_Driver_Common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (is_string($result)) {
             /*
              * Probably received a table name.
@@ -303,7 +315,11 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_common
      */
     function _pgFieldFlags($resource, $num_field, $table_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $field_name = @pg_field_name($resource, $num_field);
 
         $result = @pg_query($db->connection, "SELECT f.attnotnull, f.atthasdef

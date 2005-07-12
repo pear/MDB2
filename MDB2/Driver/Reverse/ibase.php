@@ -75,11 +75,15 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      * @return array  an associative array with the information requested.
      *                 A MDB2_Error object on failure.
      *
-     * @see MDB2_common::tableInfo()
+     * @see MDB2_Driver_Common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (is_string($result)) {
             /*
              * Probably received a table name.
@@ -167,7 +171,10 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      */
     function _ibaseFieldFlags($field_name, $table_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
 
         $query = 'SELECT R.RDB$CONSTRAINT_TYPE CTYPE'
                .' FROM RDB$INDEX_SEGMENTS I'

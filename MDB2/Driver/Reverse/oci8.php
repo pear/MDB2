@@ -77,11 +77,15 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
      * @return array  an associative array with the information requested.
      *                 A MDB2_Error object on failure.
      *
-     * @see MDB2_common::tableInfo()
+     * @see MDB2_Driver_Common::tableInfo()
      */
     function tableInfo($result, $mode = null)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $case_func = 'strtolower';
         } else {

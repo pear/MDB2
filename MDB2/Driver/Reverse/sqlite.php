@@ -108,7 +108,11 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
      */
     function getTableFieldDefinition($table, $field_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $result = $db->loadModule('Datatype');
         if (PEAR::isError($result)) {
             return $result;
@@ -172,7 +176,11 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
      */
     function getTableIndexDefinition($table, $index_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if ($index_name == 'PRIMARY') {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableIndexDefinition: PRIMARY is an hidden index');
@@ -207,7 +215,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             $collation = strtok(" ");
             $definition['fields'][$column_name] = array();
             if (!empty($collation)) {
-                $definition['fields'][$column_name]['sorting'] = ($collation=='ASC' ? 'ascending' : 'descending');
+                $definition['fields'][$column_name]['sorting'] =
+                    ($collation=='ASC' ? 'ascending' : 'descending');
             }
         }
 
@@ -231,12 +240,16 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
      * @return array  an associative array with the information requested.
      *                 A MDB2_Error object on failure.
      *
-     * @see MDB2_common::tableInfo()
+     * @see MDB2_Driver_Common::tableInfo()
      * @since Method available since Release 1.7.0
      */
     function tableInfo($result, $mode = null)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (is_string($result)) {
             /*
              * Probably received a table name.
