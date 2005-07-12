@@ -63,39 +63,39 @@ require_once 'PEAR.php';
  */
 
 define('MDB2_OK',                       '00000');    // No error
-define('MDB2_ERROR',                     -1);
+define('MDB2_ERROR',                     '-1');
 define('MDB2_ERROR_SYNTAX',             '42000');    // Syntax error or access violation
 define('MDB2_ERROR_CONSTRAINT',         '23000');    // Integrity constraint violation
-define('MDB2_ERROR_NOT_FOUND',           -4);
-define('MDB2_ERROR_ALREADY_EXISTS',      -5);
+define('MDB2_ERROR_NOT_FOUND',           '-4');
+define('MDB2_ERROR_ALREADY_EXISTS',      '-5');
 define('MDB2_ERROR_UNSUPPORTED',        'IM001');    // Driver does not support this function
-define('MDB2_ERROR_MISMATCH',            -7);
+define('MDB2_ERROR_MISMATCH',            '-7');
 define('MDB2_ERROR_INVALID',            'HY024');    // Invalid attribute value
-define('MDB2_ERROR_NOT_CAPABLE',         -9);
-define('MDB2_ERROR_TRUNCATED',          -10);
+define('MDB2_ERROR_NOT_CAPABLE',         '-9');
+define('MDB2_ERROR_TRUNCATED',          '-10');
 define('MDB2_ERROR_INVALID_NUMBER',     'HY093');    // Invalid parameter number
 define('MDB2_ERROR_INVALID_DATE',       '22007');    // Invalid datetime format
 define('MDB2_ERROR_DIVZERO',            '22012');    // Division by zero
-define('MDB2_ERROR_NODBSELECTED',       -14);
-define('MDB2_ERROR_CANNOT_CREATE',      -15);
-define('MDB2_ERROR_CANNOT_DELETE',      -16);
-define('MDB2_ERROR_CANNOT_DROP',        -17);
+define('MDB2_ERROR_NODBSELECTED',       '-14');
+define('MDB2_ERROR_CANNOT_CREATE',      '-15');
+define('MDB2_ERROR_CANNOT_DELETE',      '-16');
+define('MDB2_ERROR_CANNOT_DROP',        '-17');
 define('MDB2_ERROR_NOSUCHTABLE',        '42S02');    // Base table or view not found
 define('MDB2_ERROR_NOSUCHFIELD',        '42S22');    // Column not found
-define('MDB2_ERROR_NEED_MORE_DATA',     -20);
-define('MDB2_ERROR_NOT_LOCKED',         -21);
-define('MDB2_ERROR_VALUE_COUNT_ON_ROW', -22);
+define('MDB2_ERROR_NEED_MORE_DATA',     '-20');
+define('MDB2_ERROR_NOT_LOCKED',         '-21');
+define('MDB2_ERROR_VALUE_COUNT_ON_ROW', '-22');
 define('MDB2_ERROR_INVALID_DSN',        'IM002');    // Data source name not found and no default driver specified
 define('MDB2_ERROR_CONNECT_FAILED',     '08001');    // Client unable to establish connection
-define('MDB2_ERROR_EXTENSION_NOT_FOUND',-25);
-define('MDB2_ERROR_NOSUCHDB',           -26);
+define('MDB2_ERROR_EXTENSION_NOT_FOUND','-25');
+define('MDB2_ERROR_NOSUCHDB',           '-26');
 define('MDB2_ERROR_ACCESS_VIOLATION',   '42000');    // Syntax error or access violation
-define('MDB2_ERROR_CANNOT_REPLACE',     -28);
-define('MDB2_ERROR_CONSTRAINT_NOT_NULL',-29);
-define('MDB2_ERROR_DEADLOCK',           -30);
-define('MDB2_ERROR_CANNOT_ALTER',       -31);
+define('MDB2_ERROR_CANNOT_REPLACE',     '-28');
+define('MDB2_ERROR_CONSTRAINT_NOT_NULL','-29');
+define('MDB2_ERROR_DEADLOCK',           '-30');
+define('MDB2_ERROR_CANNOT_ALTER',       '-31');
 define('MDB2_ERROR_LOADMODULE',         'IM003');    // Specified driver could not be loaded
-define('MDB2_ERROR_INSUFFICIENT_DATA',  -35);
+define('MDB2_ERROR_INSUFFICIENT_DATA',  '-35');
 
 /**
  * This is a special constant that tells MDB2 the user hasn't specified
@@ -501,7 +501,7 @@ class MDB2
      * @param   int   $code   if $data is an error object, return true
      *                        only if $code is a string and
      *                        $db->getMessage() == $code or
-     *                        $code is an integer and $db->getCode() === $code
+     *                        $code is an integer and $db->getCode() == $code
      * @access  public
      * @return  bool    true if parameter is an error
      */
