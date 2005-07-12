@@ -58,25 +58,8 @@
  * @category Database
  * @author  Lukas Smith <smith@backendmedia.com>
  */
-class MDB2_Driver_Manager_Common
+class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 {
-    var $db_index;
-
-    // {{{ constructor
-
-    /**
-     * Constructor
-     */
-    function __construct($db_index)
-    {
-        $this->db_index = $db_index;
-    }
-
-    function MDB2_Driver_Manager_Common($db_index)
-    {
-        $this->__construct($db_index);
-    }
-
     // }}}
     // {{{ getFieldDeclarationList()
 
@@ -101,7 +84,11 @@ class MDB2_Driver_Manager_Common
      */
     function getFieldDeclarationList($fields)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (is_array($fields)) {
             foreach ($fields as $field_name => $field) {
                 $query = $db->getDeclaration($field['type'], $field_name, $field);
@@ -128,7 +115,11 @@ class MDB2_Driver_Manager_Common
      */
     function _isSequenceName($sqn)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $seq_pattern = '/^'.preg_replace('/%s/', '([a-z0-9_]+)', $db->options['seqname_format']).'$/i';
         $seq_name = preg_replace($seq_pattern, '\\1', $sqn);
         if ($seq_name && $sqn == $db->getSequenceName($seq_name)) {
@@ -149,7 +140,11 @@ class MDB2_Driver_Manager_Common
      */
     function createDatabase($database)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'createDatabase: database creation is not supported');
     }
@@ -166,7 +161,11 @@ class MDB2_Driver_Manager_Common
      */
     function dropDatabase($database)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'dropDatabase: database dropping is not supported');
     }
@@ -206,7 +205,11 @@ class MDB2_Driver_Manager_Common
      */
     function createTable($name, $fields)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (!$name) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no valid table name specified');
@@ -236,7 +239,11 @@ class MDB2_Driver_Manager_Common
      */
     function dropTable($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->query("DROP TABLE $name");
     }
 
@@ -330,7 +337,11 @@ class MDB2_Driver_Manager_Common
      */
     function alterTable($name, $changes, $check)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'alterTable: database table alterations are not supported');
     }
@@ -346,7 +357,11 @@ class MDB2_Driver_Manager_Common
      */
     function listDatabases()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listDatabases: list databases is not supported');
     }
@@ -362,7 +377,11 @@ class MDB2_Driver_Manager_Common
      */
     function listUsers()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listUsers: list user is not supported');
     }
@@ -378,7 +397,11 @@ class MDB2_Driver_Manager_Common
      */
     function listViews()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listViews: list view is not supported');
     }
@@ -394,7 +417,11 @@ class MDB2_Driver_Manager_Common
      */
     function listFunctions()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listFunctions: list function is not supported');
     }
@@ -410,7 +437,11 @@ class MDB2_Driver_Manager_Common
      */
     function listTables()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listTables: list tables is not supported');
     }
@@ -427,7 +458,11 @@ class MDB2_Driver_Manager_Common
      */
     function listTableFields($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listTableFields: list table fields is not supported');
     }
@@ -469,7 +504,11 @@ class MDB2_Driver_Manager_Common
      */
     function createIndex($table, $name, $definition)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = 'CREATE';
         if (isset($definition['unique']) && $definition['unique']) {
             $query .= ' UNIQUE';
@@ -510,7 +549,11 @@ class MDB2_Driver_Manager_Common
      */
     function dropIndex($table, $name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->query("DROP INDEX $name");
     }
 
@@ -526,7 +569,11 @@ class MDB2_Driver_Manager_Common
      */
     function listTableIndexes($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listTableIndexes: List Indexes is not supported');
     }
@@ -539,14 +586,16 @@ class MDB2_Driver_Manager_Common
      *
      * @param string    $seq_name     name of the sequence to be created
      * @param string    $start         start value of the sequence; default is 1
-     * @param boolean   $auto_increment if the seq should be auto inc or not; default is false
-     * @param string    $field name of the field that's being turned into auto increment
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createSequence($name, $start = 1, $auto_increment = false, $field = '')
+    function createSequence($seq_name, $start = 1)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'createSequence: sequence creation not supported');
     }
@@ -563,7 +612,11 @@ class MDB2_Driver_Manager_Common
      */
     function dropSequence($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'dropSequence: sequence dropping not supported');
     }
@@ -579,7 +632,11 @@ class MDB2_Driver_Manager_Common
      */
     function listSequences()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listSequences: List sequences is not supported');
     }
