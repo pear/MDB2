@@ -67,7 +67,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function createDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $database_file = $db->_getDatabaseFile($name);
         if (file_exists($database_file)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
@@ -95,7 +99,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function dropDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $database_file = $db->_getDatabaseFile($name);
         if (!@file_exists($database_file)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_DROP, null, null,
@@ -120,7 +128,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function listDatabases()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listDatabases: list databases is not supported');
     }
@@ -136,7 +148,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function listUsers()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->queryCol('SELECT DISTINCT USER FROM USER');
     }
 
@@ -151,7 +167,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function listTables()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "SELECT name FROM sqlite_master WHERE type='table' AND sql NOT NULL ORDER BY name";
         $table_names = $db->queryCol($query);
         if (PEAR::isError($table_names)) {
@@ -177,7 +197,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function listTableFields($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "SELECT * FROM $table";
         $db->setLimit(1);
         $result = $db->query($query);
@@ -229,7 +253,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function createIndex($table, $name, $definition)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = 'CREATE '.(isset($definition['unique']) ? 'UNIQUE' : '')." INDEX $name ON $table (";
         $skipped_first = false;
         foreach ($definition['fields'] as $field_name => $field) {
@@ -256,7 +284,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function dropIndex($table, $name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->query("DROP INDEX $name");
     }
 
@@ -272,7 +304,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function listTableIndexes($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
         $indexes_all = $db->queryCol($query);
         if (PEAR::isError($indexes_all)) {
@@ -297,13 +333,15 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      * @param string    $seq_name     name of the sequence to be created
      * @param string    $start         start value of the sequence; default is 1
      * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @param boolean   $auto_increment if the seq should be auto inc or not; default is false
-     * @param string    $field name of the field that's being turned into auto increment
      * @access public
      */
-    function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
+    function createSequence($seq_name, $start = 1)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         $seqcol_name = $db->options['seqcol_name'];
         $query = "CREATE TABLE $sequence_name ($seqcol_name INTEGER PRIMARY KEY DEFAULT 0 NOT NULL)";
@@ -342,7 +380,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function dropSequence($seq_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->query("DROP TABLE $sequence_name");
     }
@@ -358,7 +400,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function listSequences()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "SELECT name FROM sqlite_master WHERE type='table' AND sql NOT NULL ORDER BY name";
         $table_names = $db->queryCol($query);
         if (PEAR::isError($table_names)) {

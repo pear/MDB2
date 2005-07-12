@@ -72,7 +72,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function _verifyTableType($table_type)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         switch (strtoupper($table_type)) {
         case 'BERKELEYDB':
         case 'BDB':
@@ -135,7 +139,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function createDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = 'CREATE DATABASE '.$name;
         $result = $db->query($query);
         if (PEAR::isError($result)) {
@@ -156,7 +164,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function dropDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = 'DROP DATABASE '.$name;
         $result = $db->query($query);
         if (PEAR::isError($result)) {
@@ -200,7 +212,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function createTable($name, $fields)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (!$name) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no valid table name specified');
@@ -316,7 +332,10 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function alterTable($name, $changes, $check)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
 
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
@@ -407,7 +426,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function listDatabases()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $databases = $db->queryCol('SHOW DATABASES');
         return $databases;
     }
@@ -423,7 +446,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function listUsers()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $users = $db->queryCol('SELECT DISTINCT USER FROM USER');
         return $users;
     }
@@ -439,7 +466,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function listTables()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $table_names = $db->queryCol('SHOW TABLES');
         if (PEAR::isError($table_names)) {
             return $table_names;
@@ -470,7 +501,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function listTableFields($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $fields = $db->queryCol("SHOW COLUMNS FROM $table");
         if (PEAR::isError($fields)) {
             return $fields;
@@ -520,7 +555,10 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function createIndex($table, $name, $definition)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
 
         if (isset($definition['unique']) && $definition['unique']) {
             $type = 'UNIQUE';
@@ -548,7 +586,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function dropIndex($table, $name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->query("ALTER TABLE $table DROP INDEX $name");
     }
 
@@ -564,7 +606,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function listTableIndexes($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $key_name = 'Key_name';
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $key_name = strtolower($key_name);
@@ -593,14 +639,15 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      *
      * @param string    $seq_name     name of the sequence to be created
      * @param string    $start         start value of the sequence; default is 1
-     * @param boolean   $auto_increment if the seq should be auto inc or not; default is false
-     * @param string    $field name of the field that's being turned into auto increment
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
+    function createSequence($seq_name, $start = 1)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
 
         $sequence_name = $db->getSequenceName($seq_name);
         $seqcol_name = $db->options['seqcol_name'];
@@ -652,7 +699,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function dropSequence($seq_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->query("DROP TABLE $sequence_name");
     }
@@ -668,7 +719,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      */
     function listSequences()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $table_names = $db->queryCol('SHOW TABLES');
         if (PEAR::isError($table_names)) {
             return $table_names;

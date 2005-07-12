@@ -53,7 +53,7 @@ require_once 'MDB2/Driver/Manager/Common.php';
  * @category Database
  * @author  Paul Cooper <pgc@ucecom.com>
  */
-class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
+class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 {
     // {{{ createDatabase()
 
@@ -66,7 +66,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      **/
     function createDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->standaloneQuery("CREATE DATABASE $name");
     }
 
@@ -82,7 +86,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      **/
     function dropDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->standaloneQuery("DROP DATABASE $name");
     }
 
@@ -176,7 +184,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      **/
     function alterTable($name, &$changes, $check)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
             case 'added_fields':
@@ -233,7 +245,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      **/
     function listDatabases()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $result = $db->standaloneQuery('SELECT datname FROM pg_database');
         if (!MDB2::isResultCommon($result)) {
             return $result;
@@ -255,7 +271,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      **/
     function listUsers()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $result = $db->standaloneQuery('SELECT usename FROM pg_user');
         if (!MDB2::isResultCommon($result)) {
             return $result;
@@ -277,7 +297,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      **/
     function listViews()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = 'SELECT viewname FROM pg_views';
         return $db->queryCol($query);
     }
@@ -293,7 +317,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      */
     function listFunctions()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "
             SELECT
                 proname
@@ -320,7 +348,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      **/
     function listTables()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         // gratuitously stolen from PEAR DB _getSpecialQuery in pgsql.php
         $query = 'SELECT c.relname AS "Name"'
                         . ' FROM pg_class c, pg_user u'
@@ -356,7 +388,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      */
     function listTableFields($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $result = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result)) {
             return $result;
@@ -381,7 +417,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      */
     function listTableIndexes($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->queryCol("SELECT relname
                                 FROM pg_class WHERE oid IN
                                   (SELECT indexrelid FROM pg_index, pg_class
@@ -397,14 +437,16 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      *
      * @param string $seq_name name of the sequence to be created
      * @param string $start start value of the sequence; default is 1
-     * @param boolean   $auto_increment if the seq should be auto inc or not; default is false
-     * @param string    $field name of the field that's being turned into auto increment
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      **/
-    function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
+    function createSequence($seq_name, $start = 1)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->query("CREATE SEQUENCE $sequence_name INCREMENT 1".
             ($start < 1 ? " MINVALUE $start" : '')." START $start");
@@ -422,7 +464,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      **/
     function dropSequence($seq_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->query("DROP SEQUENCE $sequence_name");
     }
@@ -438,7 +484,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_common
      **/
     function listSequences()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "SELECT relname FROM pg_class WHERE relkind = 'S' AND relnamespace IN";
         $query.= "(SELECT oid FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema')";
         $table_names = $db->queryCol($query);

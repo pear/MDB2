@@ -67,7 +67,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function createDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (PEAR::isError($result = $db->connect())) {
             return $result;
         }
@@ -91,7 +95,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function dropDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (PEAR::isError($result = $db->connect())) {
             return $result;
         }
@@ -116,7 +124,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function dropTable($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->query("DROP TABLE $name CASCADE");
     }
 
@@ -212,7 +224,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function alterTable($name, $changes, $check)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         foreach ($changes as $change_name => $change){
             switch ($change_name) {
             case 'added_fields':
@@ -306,7 +322,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function listDatabases()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->raiseError(MDB2_ERROR_NOT_CAPABLE);
     }
 
@@ -321,9 +341,12 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function listUsers()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->queryCol('SELECT "user_name" FROM'
-                             . ' information_schema.users');
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->queryCol('SELECT "user_name" FROM information_schema.users');
     }
 
     // }}}
@@ -337,7 +360,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function listTables()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $table_names = $db->queryCol('SELECT "table_name"'
                 . ' FROM information_schema.tables'
                 . ' t0, information_schema.schemata t1'
@@ -366,7 +393,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function listTableFields($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $fields = $db->queryCol("SHOW COLUMNS FROM $table");
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $fields = array_flip(array_change_key_case(array_flip($fields), CASE_LOWER));
@@ -411,7 +442,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function createIndex($table, $name, $definition)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "CREATE ".(isset($definition['unique']) ? 'UNIQUE INDEX' : 'INDEX')." $name on $table (";
         $skipped_first = false;
         foreach ($definition['fields'] as $field_name => $field) {
@@ -438,7 +473,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function dropIndex($table, $name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->query("ALTER TABLE $table DROP INDEX $name");
     }
 
@@ -454,7 +493,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function listTableIndexes($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $indexes_all = $db->queryCol("SHOW INDEX FROM $table", 'text', 'key_name');
         if (PEAR::isError($indexes_all)) {
             return $indexes_all;
@@ -478,14 +521,16 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      *
      * @param string    $seq_name     name of the sequence to be created
      * @param string    $start         start value of the sequence; default is 1
-     * @param boolean   $auto_increment if the seq should be auto inc or not; default is false
-     * @param string    $field name of the field that's being turned into auto increment
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
+    function createSequence($seq_name, $start = 1)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         $seqcol_name = $db->options['seqcol_name'];
         $query = "CREATE TABLE $sequence_name ($seqcol_name INTEGER DEFAULT UNIQUE, PRIMARY KEY($seqcol_name))";
@@ -525,7 +570,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function dropSequence($seq_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->query("DROP TABLE $sequence_name CASCADE");
     }
@@ -541,7 +590,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      */
     function listSequences()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $table_names = $db->queryCol('SHOW TABLES', 'text');
         if (PEAR::isError($table_names)) {
             return $table_names;

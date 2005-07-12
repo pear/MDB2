@@ -68,7 +68,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function createDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "CREATE DATABASE $name";
         if($db->options['database_device']) {
             $query.= ' ON '.$db->options['database_device'];
@@ -89,7 +93,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function dropDatabase($name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         return $db->standaloneQuery("DROP DATABASE $name");
     }
 
@@ -190,7 +198,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function alterTable($name, $changes, $check)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
             case 'added_fields':
@@ -258,7 +270,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function listTables()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = 'SELECT name FROM SYSOBJECTS WHERE xtype = \'U\'';
         $table_names = $db->queryCol($query, null, 2);
         if (PEAR::isError($table_names)) {
@@ -285,7 +301,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function listTableFields($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $result = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result)) {
             return $result;
@@ -310,7 +330,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function listTableIndexes($table)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $key_name = 'INDEX_NAME';
         $pk_name = 'PK_NAME';
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
@@ -345,14 +369,15 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *
      * @param string    $seq_name     name of the sequence to be created
      * @param string    $start         start value of the sequence; default is 1
-     * @param boolean   $auto_increment if the seq should be auto inc or not; default is false
-     * @param string    $field name of the field that's being turned into auto increment
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createSequence($seq_name, $start = 1, $auto_increment = false, $field = '')
+    function createSequence($seq_name, $start = 1)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
 
         $sequence_name = $db->getSequenceName($seq_name);
         $seqcol_name   = $db->options['seqcol_name'];
@@ -396,7 +421,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function dropSequence($seq_name)
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->query("DROP TABLE $sequence_name");
     }
@@ -412,7 +441,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function listSequences()
     {
-        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $query = "SELECT name FROM sysobjects WHERE xtype = 'U'";
         $table_names = $db->queryCol($query);
         if (PEAR::isError($table_names)) {
