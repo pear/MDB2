@@ -262,17 +262,21 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (isset($changes['added_fields'])) {
             $fields = $changes['added_fields'];
             foreach ($fields as $field_name => $field) {
-                if ($query) {
+                $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
+                if (PEAR::isError($type_declaration)) {
+                    return $err;
+                }
+                if (strlen($query)) {
                     $query .= ', ';
                 }
-                $query .= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
+                $query .= 'ADD ' . $type_declaration;
             }
         }
 
         if (isset($changes['removed_fields'])) {
             $fields = $changes['removed_fields'];
             foreach ($fields as $field_name => $field) {
-                if ($query) {
+                if (strlen($query)) {
                     $query .= ', ';
                 }
                 $query .= 'DROP ' . $field_name;
@@ -282,7 +286,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (isset($changes['renamed_fields'])) {
             $fields = $changes['renamed_fields'];
             foreach ($fields as $field_name => $field) {
-                if ($query) {
+                if (strlen($query)) {
                     $query .= ', ';
                 }
                 $query .= 'ALTER ' . $field_name . ' TO ' . $field['name'];
@@ -295,7 +299,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
                     return $err;
                 }
-                if ($query) {
+                if (strlen($query)) {
                     $query .= ', ';
                 }
                 $db->loadModule('Datatype');
@@ -303,7 +307,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (!$query) {
+        if (!strlen($query)) {
             return MDB2_OK;
         }
 
