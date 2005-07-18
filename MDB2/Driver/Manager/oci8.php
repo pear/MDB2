@@ -256,7 +256,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (isset($changes['added_fields'])) {
             $fields = $changes['added_fields'];
             foreach ($fields as $field_name => $field) {
-                $query .= ' ADD (' . $db->getDeclaration($field['type'], $field_name, $field) . ')';
+                $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
+                if (PEAR::isError($type_declaration)) {
+                    return $err;
+                }
+                $query .= ' ADD (' . $type_declaration . ')';
             }
         }
 

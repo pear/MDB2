@@ -1,4 +1,5 @@
 <?php
+// vim: set et ts=4 sw=4 fdm=marker:
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
@@ -39,471 +40,619 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Lorenzo Alberton <l.alberton@quipo.it>                       |
+// | Author: Lukas Smith <smith@backendmedia.com>                         |
+// |         Lorenzo Alberton <l.alberton@quipo.it>                       |
 // +----------------------------------------------------------------------+
 //
 // $Id$
 
-require_once 'MDB2/Driver/Manager/Common.php';
+require_once 'MDB2/Driver/Datatype/Common.php';
 
 /**
- * MDB2 FireBird/InterBase driver for the management modules
+ * MDB2 Firebird/Interbase driver
  *
  * @package MDB2
  * @category Database
+ * @author  Lukas Smith <smith@backendmedia.com>
  * @author  Lorenzo Alberton <l.alberton@quipo.it>
  */
-class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
+class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
 {
-    // {{{ createDatabase()
+    // {{{ convertResult()
 
     /**
-     * create a new database
+     * convert a value to a RDBMS independent MDB2 type
      *
-     * @param string $name  name of the database that should be created
-     * @return mixed        MDB2_OK on success, a MDB2 error on failure
+     * @param mixed  $value   value to be converted
+     * @param int    $type    constant that specifies which type to convert to
+     * @return mixed converted value or a MDB2 error on failure
      * @access public
-     **/
-    function createDatabase($name)
+     */
+    function convertResult($value, $type)
+    {
+        if (is_null($value)) {
+            return null;
+        }
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        switch ($type) {
+        case 'decimal':
+            return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
+        case 'timestamp':
+            return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
+        default:
+            return $this->_baseConvertResult($value, $type);
+        }
+    }
+
+    // }}}
+    // {{{ _getTypeDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare an text type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param array $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      length
+     *          Integer value that determines the maximum length of the text
+     *          field. If this argument is missing the field should be
+     *          declared to have the longest length allowed by the DBMS.
+     *
+     *      default
+     *          Text value to be used as default for this field.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
+     * @access protected
+     */
+    function _getTypeDeclaration($field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null, 'Create database',
-                'createDatabase: PHP Interbase API does not support direct queries. You have to '.
-                'create the db manually by using isql command or a similar program');
+        switch ($field['type']) {
+        case 'text':
+            $length = (isset($field['length']) ? $field['length'] : (!PEAR::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
+            return 'VARCHAR ('.$length.')';
+        case 'clob':
+            return 'BLOB SUB_TYPE 1';
+        case 'blob':
+            return 'BLOB SUB_TYPE 0';
+        case 'integer':
+            return 'INTEGER';
+        case 'boolean':
+            return 'CHAR (1)';
+        case 'date':
+            return 'DATE';
+        case 'time':
+            return 'TIME';
+        case 'timestamp':
+            return 'TIMESTAMP';
+        case 'float':
+            return 'DOUBLE PRECISION';
+        case 'decimal':
+            return 'DECIMAL(18,'.$db->options['decimal_places'].')';
+        }
+        return '';
     }
 
     // }}}
-    // {{{ dropDatabase()
+    // {{{ _getIntegerDeclaration()
 
     /**
-     * drop an existing database
+     * Obtain DBMS specific SQL code portion needed to declare an integer type
+     * field to be used in statements like CREATE TABLE.
      *
-     * @param string $name  name of the database that should be dropped
-     * @return mixed        MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     **/
-    function dropDatabase($name)
+     * @param string $name name the field to be declared.
+     * @param array $field associative array with the name of the properties
+     *       of the field being declared as array indexes. Currently, the types
+     *       of supported field properties are as follows:
+     *
+     *       unsigned
+     *           Boolean flag that indicates whether the field should be
+     *           declared as unsigned integer if possible.
+     *
+     *       default
+     *           Integer value to be used as default for this field.
+     *
+     *       notnull
+     *           Boolean flag that indicates whether this field is constrained
+     *           to not be set to null.
+     * @return string DBMS specific SQL code portion that should be used to
+     *       declare the specified field.
+     * @access protected
+     */
+    function _getIntegerDeclaration($name, $field)
+    {
+        if (isset($field['unsigned']) && $field['unsigned']) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
+        }
+
+        if (isset($field['autoincrement']) && $field['autoincrement']) {
+            return $name.' SERIAL PRIMARY KEY';
+        }
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'integer') : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' INT'.$default.$notnull;
+    }
+
+    // }}}
+    // {{{ _getTextDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare a text type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name   name the field to be declared.
+     * @param array  $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      length
+     *          Integer value that determines the maximum length of the text
+     *          field. If this argument is missing the field should be
+     *          declared to have the longest length allowed by the DBMS.
+     *
+     *      default
+     *          Text value to be used as default for this field.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
+     * @access protected
+     */
+    function _getTextDeclaration($name, $field)
+    {
+        $type = $this->_getTypeDeclaration($field);
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'text') : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' '.$type.$default.$notnull;
+    }
+
+    // }}}
+    // {{{ _getCLOBDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare a character
+     * large object type field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name   name the field to be declared.
+     * @param array $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      length
+     *          Integer value that determines the maximum length of the large
+     *          object field. If this argument is missing the field should be
+     *          declared to have the longest length allowed by the DBMS.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
+     * @access protected
+     */
+    function _getCLOBDeclaration($name, $field)
+    {
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' '.$this->_getTypeDeclaration($field).$notnull;
+    }
+
+    // }}}
+    // {{{ _getBLOBDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare a binary large
+     * object type field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name   name the field to be declared.
+     * @param array $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      length
+     *          Integer value that determines the maximum length of the large
+     *          object field. If this argument is missing the field should be
+     *          declared to have the longest length allowed by the DBMS.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
+     * @access protected
+     */
+    function _getBLOBDeclaration($name, $field)
+    {
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' '.$this->_getTypeDeclaration($field).$notnull;
+    }
+
+    // }}}
+    // {{{ _getDateDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare a date type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name   name the field to be declared.
+     * @param array $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      default
+     *          Date value to be used as default for this field.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
+     * @access protected
+     */
+    function _getDateDeclaration($name, $field)
+    {
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'date') : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+    }
+
+    // }}}
+    // {{{ _getTimeDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare a time
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name   name the field to be declared.
+     * @param array $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      default
+     *          Time value to be used as default for this field.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
+     * @access protected
+     */
+    function _getTimeDeclaration($name, $field)
+    {
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'time') : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+    }
+
+    // }}}
+    // {{{ _getTimestampDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare a timestamp
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string  $name   name the field to be declared.
+     * @param array   $field  associative array with the name of the properties
+     *       of the field being declared as array indexes. Currently, the types
+     *       of supported field properties are as follows:
+     *
+     *       default
+     *           Timestamp value to be used as default for this field.
+     *
+     *       notnull
+     *           Boolean flag that indicates whether this field is constrained
+     *           to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *                 declare the specified field.
+     * @access protected
+     */
+    function _getTimestampDeclaration($name, $field)
+    {
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'timestamp') : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+    }
+
+    // }}}
+    // {{{ _getFloatDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare a float type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name   name the field to be declared.
+     * @param array $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      default
+     *          Float value to be used as default for this field.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
+     * @access protected
+     */
+    function _getFloatDeclaration($name, $field)
+    {
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'float') : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+    }
+
+    // }}}
+    // {{{ _getDecimalDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare a decimal type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name   name the field to be declared.
+     * @param array $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      default
+     *          Decimal value to be used as default for this field.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
+     * @access protected
+     */
+    function _getDecimalDeclaration($name, $field)
+    {
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'decimal') : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+    }
+
+    // }}}
+    // {{{ _quoteLOB()
+
+    /**
+     * Convert a text value into a DBMS specific format that is suitable to
+     * compose query statements.
+     *
+     * @param  $value
+     * @return string text string that represents the given argument value in
+     *      a DBMS specific format.
+     * @access protected
+     */
+    function _quoteLOB($value)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null, 'Drop database',
-                'dropDatabase: PHP Interbase API does not support direct queries. You have '.
-                'to drop the db manually by using isql command or a similar program');
+        if (PEAR::isError($connect = $db->connect())) {
+            return $connect;
+        }
+        $close = true;
+        if (is_resource($value)) {
+            $close = false;
+        } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+            if ($match[1] == 'file://') {
+                $value = $match[2];
+            }
+            $value = @fopen($value, 'r');
+        } else {
+            $fp = @tmpfile();
+            @fwrite($fp, $value);
+            @rewind($fp);
+            $value = $fp;
+        }
+        if ($db->in_transaction) {
+            $blob_id = @ibase_blob_import($db->transaction_id, $value);
+        } else {
+            $blob_id = @ibase_blob_import($db->connection, $value);
+        }
+        if ($close) {
+            @fclose($value);
+        }
+        return $blob_id;
     }
 
     // }}}
-    // {{{ checkSupportedChanges()
+    // {{{ _quoteDecimal()
 
     /**
-     * check if planned changes are supported
+     * Convert a text value into a DBMS specific format that is suitable to
+     * compose query statements.
      *
-     * @param string $name name of the database that should be dropped
+     * @param string $value text string value that is intended to be converted.
+     * @return string text string that represents the given argument value in
+     *      a DBMS specific format.
+     * @access protected
+     */
+    function _quoteDecimal($value)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return (strval(round($value*pow(10.0, $db->options['decimal_places']))));
+    }
+
+    // }}}
+    // {{{ _retrieveLOB()
+
+    /**
+     * retrieve LOB from the database
+     *
+     * @param resource $lob stream handle
      * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     **/
-    function checkSupportedChanges(&$changes)
+     * @access protected
+     */
+    function _retrieveLOB(&$lob)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
+        if (!isset($lob['handle'])) {
+            $lob['handle'] = @ibase_blob_open($lob['ressource']);
+            if (!$lob['handle']) {
+                $db =& $this->getDBInstance();
+                if (PEAR::isError($db)) {
+                    return $db;
+                }
 
-        foreach ($changes as $change_name => $change) {
-            switch ($change_name) {
-            case 'changed_not_null':
-            case 'notnull':
                 return $db->raiseError(MDB2_ERROR, null, null,
-                    'checkSupportedChanges: it is not supported changes to field not null constraint');
-            case 'ChangedDefault':
-            case 'default':
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'checkSupportedChanges: it is not supported changes to field default value');
-            case 'length':
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'checkSupportedChanges: it is not supported changes to field default length');
-            case 'unsigned':
-            case 'type':
-            case 'declaration':
-            case 'definition':
-                break;
-            default:
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'checkSupportedChanges: it is not supported change of type' . $change_name);
+                    '_retrieveLOB: Could not open fetched large object field' . @ibase_errmsg());
             }
         }
         return MDB2_OK;
     }
 
     // }}}
-    // {{{ alterTable()
+    // {{{ _readLOB()
 
     /**
-     * alter an existing table
+     * Read data from large object input stream.
      *
-     * @param string $name name of the table that is intended to be changed.
-     * @param array $changes associative array that contains the details of each type
-     *                              of change that is intended to be performed. The types of
-     *                              changes that are currently supported are defined as follows:
-     *
-     *                              name
-     *
-     *                                 New name for the table.
-     *
-     *                             added_fields
-     *
-     *                                 Associative array with the names of fields to be added as
-     *                                  indexes of the array. The value of each entry of the array
-     *                                  should be set to another associative array with the properties
-     *                                  of the fields to be added. The properties of the fields should
-     *                                  be the same as defined by the Metabase parser.
-     *
-     *
-     *                             removed_fields
-     *
-     *                                 Associative array with the names of fields to be removed as indexes
-     *                                  of the array. Currently the values assigned to each entry are ignored.
-     *                                  An empty array should be used for future compatibility.
-     *
-     *                             renamed_fields
-     *
-     *                                 Associative array with the names of fields to be renamed as indexes
-     *                                  of the array. The value of each entry of the array should be set to
-     *                                  another associative array with the entry named name with the new
-     *                                  field name and the entry named Declaration that is expected to contain
-     *                                  the portion of the field declaration already in DBMS specific SQL code
-     *                                  as it is used in the CREATE TABLE statement.
-     *
-     *                             changed_fields
-     *
-     *                                 Associative array with the names of the fields to be changed as indexes
-     *                                  of the array. Keep in mind that if it is intended to change either the
-     *                                  name of a field and any other properties, the changed_fields array entries
-     *                                  should have the new names of the fields as array indexes.
-     *
-     *                                 The value of each entry of the array should be set to another associative
-     *                                  array with the properties of the fields to that are meant to be changed as
-     *                                  array entries. These entries should be assigned to the new values of the
-     *                                  respective properties. The properties of the fields should be the same
-     *                                  as defined by the Metabase parser.
-     *
-     *                                 If the default property is meant to be added, removed or changed, there
-     *                                  should also be an entry with index ChangedDefault assigned to 1. Similarly,
-     *                                  if the notnull constraint is to be added or removed, there should also be
-     *                                  an entry with index ChangedNotNull assigned to 1.
-     *
-     *                             Example
-     *                                 array(
-     *                                     'name' => 'userlist',
-     *                                     'added_fields' => array(
-     *                                         'quota' => array(
-     *                                             'type' => 'integer',
-     *                                             'unsigned' => 1
-     *                                         )
-     *                                     ),
-     *                                     'removed_fields' => array(
-     *                                         'file_limit' => array(),
-     *                                         'time_limit' => array()
-     *                                         ),
-     *                                     'changed_fields' => array(
-     *                                         'gender' => array(
-     *                                             'default' => 'M',
-     *                                             'change_default' => 1,
-     *                                         )
-     *                                     ),
-     *                                     'renamed_fields' => array(
-     *                                         'sex' => array(
-     *                                             'name' => 'gender',
-     *                                         )
-     *                                     )
-     *                                 )
-     * @param boolean $check indicates whether the function should just check if the DBMS driver
-     *                              can perform the requested table alterations if the value is true or
-     *                              actually perform them otherwise.
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     **/
-    function alterTable($name, &$changes, $check)
+     * @param resource $lob stream handle
+     * @param blob $data reference to a variable that will hold data to be
+     *      read from the large object input stream
+     * @param int $length integer value that indicates the largest ammount of
+     *      data to be read from the large object input stream.
+     * @return mixed length on success, a MDB2 error on failure
+     * @access protected
+     */
+    function _readLOB($lob, $length)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        foreach ($changes as $change_name => $change) {
-            switch ($change_name) {
-            case 'added_fields':
-            case 'removed_fields':
-            case 'renamed_fields':
-                break;
-            case 'changed_fields':
-                $fields = $changes['changed_fields'];
-                foreach ($fields as $field) {
-                    if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
-                        return $err;
-                    }
-                }
-                break;
-            default:
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'alterTable: change type ' . $change_name . ' not yet supported');
+        $data = ibase_blob_get($lob['handle'], $length);
+        if (!is_string($data)) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
             }
-        }
-        if ($check) {
-            return MDB2_OK;
-        }
-        $query = '';
-        if (isset($changes['added_fields'])) {
-            $fields = $changes['added_fields'];
-            foreach ($fields as $field_name => $field) {
-                if ($query) {
-                    $query .= ', ';
-                }
-                $query .= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
-            }
-        }
 
-        if (isset($changes['removed_fields'])) {
-            $fields = $changes['removed_fields'];
-            foreach ($fields as $field_name => $field) {
-                if ($query) {
-                    $query .= ', ';
-                }
-                $query .= 'DROP ' . $field_name;
-            }
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'Read Result LOB: ' . @ibase_errmsg());
         }
-
-        if (isset($changes['renamed_fields'])) {
-            $fields = $changes['renamed_fields'];
-            foreach ($fields as $field_name => $field) {
-                if ($query) {
-                    $query .= ', ';
-                }
-                $query .= 'ALTER ' . $field_name . ' TO ' . $field['name'];
-            }
-        }
-
-        if (isset($changes['changed_fields'])) {
-            $fields = $changes['changed_fields'];
-            foreach ($fields as $field_name => $field) {
-                if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
-                    return $err;
-                }
-                if ($query) {
-                    $query .= ', ';
-                }
-                $db->loadModule('Datatype');
-                $query .= 'ALTER ' . $field_name.' TYPE ' . $db->datatype->getTypeDeclaration($field['definition']);
-            }
-        }
-
-        if (!$query) {
-            return MDB2_OK;
-        }
-
-        return $db->query("ALTER TABLE $name $query");
+        return $data;
     }
 
     // }}}
-    // {{{ listTableFields()
+    // {{{ _destroyLOB()
 
     /**
-     * list all fields in a tables in the current database
+     * Free any resources allocated during the lifetime of the large object
+     * handler object.
      *
-     * @param string $table name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param resource $lob stream handle
+     * @access protected
+     */
+    function _destroyLOB($lob_index)
+    {
+        if (isset($this->lobs[$lob_index]['handle'])) {
+           @ibase_blob_close($this->lobs[$lob_index]['handle']);
+        }
+    }
+
+    // }}}
+    // {{{ mapNativeDatatype()
+
+    /**
+     * Maps a native array description of a field to a MDB2 datatype and length
+     *
+     * @param array  $field native field description
+     * @return array containing the various possible types and the length
      * @access public
      */
-    function listTableFields($table)
+    function mapNativeDatatype($field)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
+        $db_type = preg_replace('/\d/','', strtolower($field['typname']) );
+        $length = $field['attlen'];
+        if ($length == '-1') {
+            $length = $field['atttypmod']-4;
         }
-
-        $query = 'SELECT RDB$FIELD_SOURCE FROM RDB$RELATION_FIELDS WHERE RDB$RELATION_NAME=\'$table\'';
-        $result = $db->query($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        if ((int)$length <= 0) {
+            $length = null;
         }
-        $columns = $result->getColumnNames();
-        $result->free();
-        if (PEAR::isError($columns)) {
-            return $columns;
-        }
-        return array_flip($columns);
-    }
-
-    // }}}
-    // {{{ listViews()
-
-    /**
-     * list the views in the database
-     *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     **/
-    function listViews()
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->queryCol('SELECT RDB$VIEW_NAME');
-    }
-
-    // }}}
-    // {{{ createIndex()
-
-    /**
-     * get the stucture of a field into an array
-     *
-     * @param string    $table         name of the table on which the index is to be created
-     * @param string    $name         name of the index to be created
-     * @param array     $definition        associative array that defines properties of the index to be created.
-     *                                 Currently, only one property named FIELDS is supported. This property
-     *                                 is also an associative with the names of the index fields as array
-     *                                 indexes. Each entry of this array is set to another type of associative
-     *                                 array that specifies properties of the index that are specific to
-     *                                 each field.
-     *
-     *                                Currently, only the sorting property is supported. It should be used
-     *                                 to define the sorting direction of the index. It may be set to either
-     *                                 ascending or descending.
-     *
-     *                                Not all DBMS support index sorting direction configuration. The DBMS
-     *                                 drivers of those that do not support it ignore this property. Use the
-     *                                 function support() to determine whether the DBMS driver can manage indexes.
-
-     *                                 Example
-     *                                    array(
-     *                                        'fields' => array(
-     *                                            'user_name' => array(
-     *                                                'sorting' => 'ascending'
-     *                                            ),
-     *                                            'last_login' => array()
-     *                                        )
-     *                                    )
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function createIndex($table, $name, $definition)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $query_sort = $query_fields = '';
-        foreach ($definition['fields'] as $field_name => $field) {
-            if ($query_fields) {
-                $query_fields .= ',';
+        $type = array();
+        switch ($db_type) {
+        case 'smallint':
+        case 'integer':
+            $type[] = 'integer';
+            if ($length == '1') {
+                $type[] = 'boolean';
             }
-            $query_fields .= $field_name;
-            if ($query_sort && $db->support('index_sorting')
-                && isset($definition['fields'][$field_name]['sorting'])
-            ) {
-                switch ($definition['fields'][$field_name]['sorting']) {
-                case 'ascending':
-                    $query_sort = ' ASC';
-                    break;
-                case 'descending':
-                    $query_sort = ' DESC';
-                    break;
-                }
+            break;
+        case 'char':
+        case 'varchar':
+            $type[] = 'text';
+            if ($length == '1') {
+                $type[] = 'boolean';
             }
-        }
-        return $db->query('CREATE'.(isset($definition['unique']) ? ' UNIQUE' : '') . $query_sort.
-             " INDEX $name  ON $table ($query_fields)");
-    }
-
-    // }}}
-    // {{{ createSequence()
-
-    /**
-     * create sequence
-     *
-     * @param string $seq_name name of the sequence to be created
-     * @param string $start start value of the sequence; default is 1
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     **/
-    function createSequence($seq_name, $start = 1)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $sequence_name = $db->getSequenceName($seq_name);
-        if (PEAR::isError($result = $db->query('CREATE GENERATOR '.strtoupper($sequence_name)))) {
-            return $result;
-        }
-        if (PEAR::isError($result = $db->query('SET GENERATOR '.strtoupper($sequence_name).' TO '.($start-1)))) {
-            if (PEAR::isError($err = $db->dropSequence($seq_name))) {
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'createSequence: Could not setup sequence start value and then it was not possible to drop it: '.
-                    $err->getMessage().' - ' .$err->getUserInfo());
+            break;
+        case 'date':
+            $type[] = 'date';
+            $length = null;
+            break;
+        case 'timestamp':
+            $type[] = 'timestamp';
+            $length = null;
+            break;
+        case 'time':
+            $type[] = 'time';
+            $length = null;
+            break;
+        case 'float':
+        case 'double precision':
+            $type[] = 'float';
+            break;
+        case 'decimal':
+        case 'numeric':
+            $type[] = 'decimal';
+            break;
+        case 'blob':
+            $type[] = 'blob';
+            $length = null;
+            break;
+        default:
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
             }
+
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableFieldDefinition: unknown database attribute type');
         }
-        return $result;
+
+        return array($type, $length);
     }
 
     // }}}
-    // {{{ dropSequence()
-
-    /**
-     * drop existing sequence
-     *
-     * @param string $seq_name name of the sequence to be dropped
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     **/
-    function dropSequence($seq_name)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $sequence_name = $db->getSequenceName($seq_name);
-        return $db->query('DELETE FROM RDB$GENERATORS WHERE RDB$GENERATOR_NAME=\''.strtoupper($sequence_name).'\'');
-    }
-
-    // }}}
-    // {{{ listSequences()
-
-    /**
-     * list all sequences in the current database
-     *
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
-     **/
-    function listSequences()
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS';
-        $table_names = $db->queryCol($query);
-        if (PEAR::isError($table_names)) {
-            return $table_names;
-        }
-        $sequences = array();
-        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i]))
-                $sequences[] = $sqn;
-        }
-        return $sequences;
-    }
 }
 ?>

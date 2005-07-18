@@ -252,10 +252,14 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         if (isset($changes['added_fields'])) {
             $fields = $changes['added_fields'];
             foreach ($fields as $field_name => $field) {
+                $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
+                if (PEAR::isError($type_declaration)) {
+                    return $err;
+                }
                 if ($query) {
                     $query .= ', ';
                 }
-                $query .= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
+                $query .= 'ADD ' . $type_declaration;
             }
         }
 
