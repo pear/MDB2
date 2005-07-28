@@ -67,10 +67,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function createDatabase($name)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
 
         $username = $db->options['database_name_prefix'].$name;
         $password = $db->dsn['password'] ? $db->dsn['password'] : $name;
@@ -110,11 +107,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function dropDatabase($name)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $username = $db->options['database_name_prefix'].$name;
         return $db->standaloneQuery('DROP USER '.$username.' CASCADE');
     }
@@ -143,6 +136,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *                                  of the fields to be added. The properties of the fields should
      *                                  be the same as defined by the Metabase parser.
      *
+     *                                 Additionally, there should be an entry named Declaration that
+     *                                  is expected to contain the portion of the field declaration already
+     *                                  in DBMS specific SQL code as it is used in the CREATE TABLE statement.
      *
      *                             removed_fields
      *
@@ -177,6 +173,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *                                  if the notnull constraint is to be added or removed, there should also be
      *                                  an entry with index ChangedNotNull assigned to 1.
      *
+     *                                 Additionally, there should be an entry named Declaration that is expected
+     *                                  to contain the portion of the field changed declaration already in DBMS
+     *                                  specific SQL code as it is used in the CREATE TABLE statement.
      *                             Example
      *                                 array(
      *                                     'name' => 'userlist',
@@ -184,6 +183,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *                                         'quota' => array(
      *                                             'type' => 'integer',
      *                                             'unsigned' => 1
+     *                                             'declaration' => 'quota INT'
      *                                         )
      *                                     ),
      *                                     'removed_fields' => array(
@@ -194,11 +194,13 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *                                         'gender' => array(
      *                                             'default' => 'M',
      *                                             'change_default' => 1,
+     *                                             'declaration' => "gender CHAR(1) DEFAULT 'M'"
      *                                         )
      *                                     ),
      *                                     'renamed_fields' => array(
      *                                         'sex' => array(
      *                                             'name' => 'gender',
+     *                                             'declaration' => "gender CHAR(1) DEFAULT 'M'"
      *                                         )
      *                                     )
      *                                 )
@@ -210,11 +212,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function alterTable($name, $changes, $check)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
             case 'added_fields':
@@ -228,11 +226,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                     'alterTable: change type "'.$change_name.'" not yet supported');
             }
         }
-
         if ($check) {
             return MDB2_OK;
         }
-
         if (isset($changes['removed_fields'])) {
             $query = ' DROP (';
             $fields = $changes['removed_fields'];
@@ -250,20 +246,13 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             }
             $query = '';
         }
-
         $query = (isset($changes['name']) ? 'RENAME TO '.$changes['name'] : '');
-
         if (isset($changes['added_fields'])) {
             $fields = $changes['added_fields'];
-            foreach ($fields as $field_name => $field) {
-                $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
-                if (PEAR::isError($type_declaration)) {
-                    return $err;
-                }
-                $query .= ' ADD (' . $type_declaration . ')';
+            foreach ($fields as $field) {
+                $query .= ' ADD ('.$field['declaration'].')';
             }
         }
-
         if (isset($changes['changed_fields'])) {
             $fields = $changes['changed_fields'];
             foreach ($fields as $field_name => $field) {
@@ -300,13 +289,10 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 }
             }
         }
-
         if (!$query) {
             return MDB2_OK;
         }
-
-        return $db->query("ALTER TABLE $name $query");
-    }
+        return $db->query("ALTER TABLE $name $query");}
 
     // }}}
     // {{{ listDatabases()
@@ -319,18 +305,14 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function listDatabases()
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         if ($db->options['database_name_prefix']) {
-            $query = "SELECT SUBSTR(username, "
+            $query = 'SELECT SUBSTR(username, '
                 .(strlen($db->options['database_name_prefix'])+1)
-                .") FROM dba_users WHERE username LIKE '"
+                .") FROM sys.dba_users WHERE username LIKE '"
                 .$db->options['database_name_prefix']."%'";
         } else {
-            $query = "SELECT username FROM dba_users WHERE username LIKE '%'";
+            $query = 'SELECT username FROM sys.dba_users';
         }
         $result = $db->standaloneQuery($query);
         if (PEAR::isError($result)) {
@@ -357,11 +339,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function listUsers()
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'SELECT username FROM sys.all_users';
         $users = $db->queryCol($query);
         if (PEAR::isError($users)) {
@@ -385,11 +363,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function listViews()
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'SELECT view_name FROM sys.user_views';
         $views = $db->queryCol($query);
         if (PEAR::isError($views)) {
@@ -414,11 +388,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function listFunctions()
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT name FROM sys.user_source WHERE line = 1 AND type = 'FUNCTION'";
         $functions = $db->queryCol($query);
         if (PEAR::isError($functions)) {
@@ -443,11 +413,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      **/
     function listTables()
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = 'SELECT table_name FROM sys.user_tables';
         return $db->queryCol($query);
     }
@@ -464,11 +430,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function listTableFields($table)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $table = strtoupper($table);
         $query = "SELECT column_name FROM user_tab_columns WHERE table_name='$table' ORDER BY column_id";
         $fields = $db->queryCol($query);
@@ -495,11 +457,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function createSequence($seq_name, $start = 1)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->query("CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1".
             ($start < 1 ? " MINVALUE $start" : ''));
@@ -518,11 +476,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function dropSequence($seq_name)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $sequence_name = $db->getSequenceName($seq_name);
         return $db->query("DROP SEQUENCE $sequence_name");
     }
@@ -538,11 +492,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function listSequences()
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
+        $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
         $query = "SELECT sequence_name FROM sys.user_sequences";
         $table_names = $db->queryCol($query);
         if (PEAR::isError($table_names)) {
