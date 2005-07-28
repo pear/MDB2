@@ -84,7 +84,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = false;
-        $this->supported['primary_key'] = true;
 
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;
@@ -697,8 +696,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (!$this->_skipLimitOffset()) {
-            $null = null;
-            return $null;
+            return null;
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
@@ -724,8 +722,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
             }
-            $null = null;
-            return $null;
+            return null;
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->db->_rtrimArrayValues($row);
@@ -904,8 +901,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_fillBuffer($target_rownum)) {
-            $null = null;
-            return $null;
+            return null;
         }
         $row = $this->buffer[$target_rownum];
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
@@ -1035,8 +1031,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             if ($isManip) {
                 return MDB2_OK;
             }
-            $null = null;
-            return $null;
+            return null;
         }
 
         $connected = $this->db->connect();
@@ -1045,15 +1040,13 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         $result = MDB2_OK;
-        $lobs = array();
+        $lobs = $quoted_values = array();
         $i = 0;
         $types_numeric = is_numeric(key($this->types));
         foreach ($this->values as $parameter => $value) {
             $type_key = $types_numeric ? $i : $parameter;
             $type = isset($this->types[$type_key]) ? $this->types[$type_key] : null;
-            $lob_type = null;
             if ($type == 'clob' || $type == 'blob') {
-                $lob_type = ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB);
                 $lobs[$i]['file'] = false;
                 if (is_resource($value)) {
                     $fp = $value;
@@ -1068,25 +1061,30 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     }
                 }
                 $lobs[$i]['value'] = $value;
-                $quoted_value = $lobs[$i]['descriptor'] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
-                if (!is_object($quoted_value)) {
+                $lobs[$i]['descriptor'] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
+                if (!is_object($lobs[$i]['descriptor'])) {
                     $result = $this->db->raiseError();
                     break;
                 }
-            } else {
-                $quoted_value = $this->db->quote($value, $type, false);
-                if (PEAR::isError($quoted_value)) {
-                    return $quoted_value;
+                $lob_type = ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB);
+                if (!@OCIBindByName($this->statement, ':'.$parameter, $lobs[$i]['descriptor'], -1, $lob_type)) {
+                    $result = $this->db->raiseError($this->statement);
+                    break;
                 }
-            }
-            if (!@OCIBindByName($this->statement, ':'.$parameter, $quoted_value, -1, $lob_type)) {
-                $result = $this->db->raiseError($this->statement);
-                break;
+            } else {
+                $quoted_values[$i] = $this->db->quote($value, $type, false);
+                if (PEAR::isError($quoted_values[$i])) {
+                    return $quoted_values[$i];
+                }
+                if (!@OCIBindByName($this->statement, ':'.$parameter, $quoted_values[$i])) {
+                    $result = $this->db->raiseError($this->statement);
+                    break;
+                }
             }
             ++$i;
         }
 
-        if (PEAR::isError($result)) {
+        if (!PEAR::isError($result)) {
             $mode = (!empty($lobs) || $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
             if (!@OCIExecute($this->statement, $mode)) {
                 return $this->db->raiseError($this->statement);
