@@ -40,7 +40,7 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Lukas Smith <smith@backendmedia.com>                        |
+// | Authors: Lukas Smith <smith@pooteeweet.org>                        |
 // |          Daniel Convissor <danielc@php.net>                          |
 // +----------------------------------------------------------------------+
 //
@@ -54,7 +54,7 @@ require_once 'MDB2/Driver/Datatype/Common.php';
  *
  * @package MDB2
  * @category Database
- * @author  Lukas Smith <smith@backendmedia.com>
+ * @author  Lukas Smith <smith@pooteeweet.org>
  */
 class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
 {
