@@ -84,6 +84,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = false;
+        $this->supported['primary_key'] = true;
 
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;
@@ -396,7 +397,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if ($isManip) {
             return $result;
         }
-        return $this->_wrapResult($result, $types, true, false, $limit, $offset);
+        $return =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
+        return $return;
     }
 
     // }}}
@@ -530,8 +532,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
                 if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
-                    return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                    $error =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                         'prepare: query with an unterminated text string specified');
+                    return $error;
                 }
                 switch ($this->escape_quotes) {
                 case '':
@@ -562,8 +565,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     if ($placeholder_type == ':') {
                         $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/i', '\\1', $query);
                         if ($parameter === '') {
-                            return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                            $error =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                                 'prepare: named parameter with an empty name');
+                            return $error;
                         }
                         $length = strlen($parameter)+1;
                     } else {
@@ -593,8 +597,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         $statement = @OCIParse($this->connection, $query);
         if (!$statement) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            $error =& $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
+            return $error;
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
@@ -696,7 +701,8 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (!$this->_skipLimitOffset()) {
-            return null;
+            $null = null;
+            return $null;
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
@@ -719,10 +725,13 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         if (!$row) {
             if (is_null($this->result)) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                $error =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
+                return $error;
             }
-            return null;
+            $null = null;
+            return $null;
+
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->db->_rtrimArrayValues($row);
@@ -887,8 +896,9 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (is_null($this->result)) {
-            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            $error =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'fetchRow: resultset has already been freed');
+            return $error;
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
@@ -901,7 +911,8 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_fillBuffer($target_rownum)) {
-            return null;
+            $null = null;
+            return $null;
         }
         $row = $this->buffer[$target_rownum];
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
@@ -1029,9 +1040,12 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         $this->db->debug($this->query, 'execute');
         if ($this->db->getOption('disable_query')) {
             if ($isManip) {
-                return MDB2_OK;
+                $return = MDB2_OK;
+                return $return;
             }
-            return null;
+            $null = null;
+            return $null;
+
         }
 
         $connected = $this->db->connect();
@@ -1087,7 +1101,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         if (!PEAR::isError($result)) {
             $mode = (!empty($lobs) || $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
             if (!@OCIExecute($this->statement, $mode)) {
-                return $this->db->raiseError($this->statement);
+                $error =& $this->db->raiseError($this->statement);
+                return $error;
             }
 
             if (!empty($lobs)) {
@@ -1117,9 +1132,10 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
         }
 
-        foreach ($lobs as $i => $foo) {
-            $lobs[$i]['descriptor']->close();
-            $lobs[$i]['descriptor']->free();
+        $keys = array_keys($lobs);
+        foreach ($keys as $$key) {
+            $lobs[$key]['descriptor']->close();
+            $lobs[$key]['descriptor']->free();
         }
 
         if (PEAR::isError($result)) {
@@ -1127,11 +1143,12 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         if ($isManip) {
-            return @OCIRowCount($this->statement);
+            $return = @OCIRowCount($this->statement);
+        } else {
+            $return = $this->db->_wrapResult($this->statement, $isManip, $this->types,
+                $result_class, $result_wrap_class, $this->row_offset, $this->row_limit);
         }
-
-        return $this->db->_wrapResult($this->statement, $isManip, $this->types,
-            $result_class, $result_wrap_class, $this->row_offset, $this->row_limit);
+        return $return;
     }
 
     // }}}
