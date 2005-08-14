@@ -43,7 +43,7 @@ if (PEAR::isError($result)) {
 }
 
 $package->addMaintainer('quipo', 'lead', 'Lorenzo Alberton', 'l.alberton@quipo.it');
-$package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@backendmedia.com');
+$package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
 
 $package->addDependency('php', '5.0.4', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);

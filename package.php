@@ -82,7 +82,7 @@ if (PEAR::isError($result)) {
     die();
 }
 
-$package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@backendmedia.com');
+$package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
 $package->addMaintainer('pgc', 'contributor', 'Paul Cooper', 'pgc@ucecom.com');
 $package->addMaintainer('quipo', 'contributor', 'Lorenzo Alberton', 'l.alberton@quipo.it');
 $package->addMaintainer('danielc', 'helper', 'Daniel Convissor', 'danielc@php.net');
