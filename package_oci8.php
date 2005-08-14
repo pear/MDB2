@@ -2,10 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.1.1';
+$version = '0.1.2';
 $notes = <<<EOT
-- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
-- fixed typo in _getTextDeclaration()
 - alterTable (Manager) now needs the full definition to work (use getTableFieldDefinition
  from Reverse module if you do not have a definition at hand) this eliminates the need
  of the declaration part in the alterTable array.
