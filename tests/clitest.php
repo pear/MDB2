@@ -57,18 +57,8 @@
  php -q clitest.php teststorage testreplace
 */
 
-// BC hack to define PATH_SEPARATOR for version of PHP prior 4.3
-if (!defined('PATH_SEPARATOR')) {
-    if (defined('DIRECTORY_SEPARATOR') && DIRECTORY_SEPARATOR == "\\") {
-        define('PATH_SEPARATOR', ';');
-    } else {
-        define('PATH_SEPARATOR', ':');
-    }
-}
-ini_set('include_path', '..'.PATH_SEPARATOR.ini_get('include_path'));
-
-require_once 'PHPUnit.php';
 require_once 'test_setup.php';
+require_once 'PHPUnit.php';
 require_once 'testUtils.php';
 require_once 'MDB2.php';
 require_once 'Console_TestListener.php';
