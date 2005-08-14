@@ -47,6 +47,7 @@
 
 /**
  * Wrapper that makes MDB2 behave like PEAR DB
+ * WARNING: this wrapper is broken and unmaintained
  *
  * @package MDB2
  * @category Database
