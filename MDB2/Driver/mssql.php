@@ -472,7 +472,7 @@ class MDB2_Result_mssql extends MDB2_Result_Common
     {
         if ($this->limit) {
             if ($this->rownum >= $this->limit) {
-                return MDB2_ERROR;
+                return false;
             }
         }
         if ($this->offset) {
@@ -480,7 +480,7 @@ class MDB2_Result_mssql extends MDB2_Result_Common
                 ++$this->offset_count;
                 if (!is_array(@mysql_fetch_row($this->result))) {
                     $this->offset_count = $this->limit;
-                    return MDB2_ERROR;
+                    return false;
                 }
             }
         }
