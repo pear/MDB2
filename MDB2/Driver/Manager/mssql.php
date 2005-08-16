@@ -275,7 +275,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'SELECT name FROM sysobjects WHERE xtype = \'U\'';
+        $query = "EXEC sp_tables";
         $table_names = $db->queryCol($query, null, 2);
         if (PEAR::isError($table_names)) {
             return $table_names;
@@ -339,7 +339,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $pk_name = 'PK_NAME';
         if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
             $key_name = strtolower($key_name);
-            $pk_name = strtolower($pk_name);
+            $pk_name  = strtolower($pk_name);
         }
         $query = "EXEC sp_statistics @table_name='$table'";
         $indexes_all = $db->queryCol($query, 'text', $key_name);
@@ -400,7 +400,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $result = $db->query("DROP TABLE $sequence_name");
         if(PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
-                   'createSequence: could not drop inconsisten sequence table ('.
+                   'createSequence: could not drop inconsistent sequence table ('.
                    $result->getMessage().' ('.$result->getUserInfo(). '))');
         }
 
