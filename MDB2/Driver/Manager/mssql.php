@@ -275,7 +275,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = "EXEC sp_tables";
+        $query = 'EXEC sp_tables';
         $table_names = $db->queryCol($query, null, 2);
         if (PEAR::isError($table_names)) {
             return $table_names;
