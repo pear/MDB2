@@ -89,7 +89,7 @@ $package->addMaintainer('danielc', 'helper', 'Daniel Convissor', 'danielc@php.ne
 $package->addMaintainer('davidc', 'helper', 'David Coallier', 'david@jaws.com.mx');
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
-$package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
+$package->addDependency('PEAR', '1.3.6', 'ge', 'pkg', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
 
