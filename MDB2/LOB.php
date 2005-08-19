@@ -112,7 +112,13 @@ class MDB2_LOB
             return true;
         }
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        return $db->datatype->_endOfLOB($this->lob);
+        $result = $db->datatype->_endOfLOB($this->lob);
+        if (version_compare(phpversion(), "5.0", ">=")
+            && version_compare(phpversion(), "5.1", "<")
+        ) {
+            return !$result;
+        }
+        return $result;
     }
 
     function stream_seek($offset, $whence)
