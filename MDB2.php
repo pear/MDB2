@@ -571,20 +571,23 @@ class MDB2
     {
         $dsninfo = MDB2::parseDSN($dsn);
         if (!isset($dsninfo['phptype'])) {
-            return MDB2::raiseError(MDB2_ERROR_NOT_FOUND,
+            $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND,
                 null, null, 'no RDBMS driver specified');
+            return $err;
         }
         $class_name = 'MDB2_Driver_'.$dsninfo['phptype'];
 
         if (!class_exists($class_name)) {
             $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
             if (!MDB2::fileExists($file_name)) {
-                return MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     'unable to find: '.$file_name);
+                return $err;
             }
             if (!include_once($file_name)) {
-                return MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     'unable to load driver class: '.$file_name);
+                return $err;
             }
         }
 
@@ -692,7 +695,8 @@ class MDB2
             $db =& $GLOBALS['_MDB2_databases'][key($GLOBALS['_MDB2_databases'])];
             return $db;
         }
-        return MDB2::factory($dsn, $options);
+        $db =& MDB2::factory($dsn, $options);
+        return $db;
     }
 
     // }}}
@@ -761,7 +765,8 @@ class MDB2
      */
     function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
     {
-        return PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        return $err;
     }
 
     // }}}
@@ -2041,14 +2046,16 @@ class MDB2_Driver_Common extends PEAR
                 $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
                 $version = true;
                 if (!class_exists($class_name) && !MDB2::fileExists($file_name)) {
-                    return $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
+                    $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                         'unable to find module: '.$file_name);
+                    return $err;
                 }
             }
 
             if (!class_exists($class_name) && !include_once($file_name)) {
-                return $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
+                $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                     'unable to load manager driver class: '.$file_name);
+                return $err;
             }
 
             // load modul in a specific version
@@ -2059,20 +2066,23 @@ class MDB2_Driver_Common extends PEAR
                         $class_name = $class_name_new;
                         $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
                         if (!MDB2::fileExists($file_name)) {
-                            return $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
+                            $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                                 'unable to find module: '.$file_name);
+                            return $err;
                         }
                         if (!include_once($file_name)) {
-                            return $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
+                            $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                                 'unable to load manager driver class: '.$file_name);
+                            return $err;
                         }
                     }
                 }
             }
 
             if (!class_exists($class_name)) {
-                return $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
+                $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                     'unable to load module: '.$module.' into property: '.$property);
+                return $err;
             }
             $this->{$property} =& new $class_name($this->db_index);
             $this->modules[$module] =& $this->{$property};
@@ -2314,7 +2324,8 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
 
-        return $this->_wrapResult($result, $types, true, false, $limit, $offset);
+        $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
+        return $result;
     }
 
     // }}}
@@ -2390,8 +2401,8 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
 
-        $res =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
-        return $res;
+        $result =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
+        return $result;
     }
 
     // }}}
@@ -2421,19 +2432,21 @@ class MDB2_Driver_Common extends PEAR
         if ($result_class) {
             $class_name = sprintf($result_class, $this->phptype);
             if (!class_exists($class_name)) {
-                return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $err =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     '_wrapResult: result class does not exist '.$class_name);
+                return $err;
             }
             $result =& new $class_name($this, $result, $limit, $offset);
             if (!MDB2::isResultCommon($result)) {
-                return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $err =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     '_wrapResult: result class is not extended from MDB2_Result_Common');
+                return $err;
             }
             if (!empty($types)) {
-                $error = $result->setResultTypes($types);
-                if (PEAR::isError($error)) {
+                $err = $result->setResultTypes($types);
+                if (PEAR::isError($err)) {
                     $result->free();
-                    return $error;
+                    return $err;
                 }
             }
         }
@@ -2442,8 +2455,9 @@ class MDB2_Driver_Common extends PEAR
         }
         if ($result_wrap_class) {
             if (!class_exists($result_wrap_class)) {
-                return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $err =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     '_wrapResult: result wrap class does not exist '.$result_wrap_class);
+                return $err;
             }
             $result =& new $result_wrap_class($result, $this->fetchmode);
         }
@@ -2687,8 +2701,9 @@ class MDB2_Driver_Common extends PEAR
             }
             if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
                 if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
-                    return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                         'prepare: query with an unterminated text string specified');
+                    return $err;
                 }
                 switch ($this->escape_quotes) {
                 case '':
@@ -2715,8 +2730,9 @@ class MDB2_Driver_Common extends PEAR
                 if ($placeholder_type == ':') {
                     $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/i', '\\1', $query);
                     if ($parameter === '') {
-                        return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'prepare: named parameter with an empty name');
+                        return $err;
                     }
                     $positions[$parameter] = $p_position;
                     $query = substr_replace($query, '?', $position, strlen($parameter)+1);
@@ -3108,8 +3124,9 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        $err =& $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'fetch: method not implemented');
+        return $err;
     }
 
     // }}}
@@ -3258,6 +3275,21 @@ class MDB2_Result_Common extends MDB2_Result
     function rowCount()
     {
         return $this->rownum + 1;
+    }
+
+    // }}}
+    // {{{ numRows()
+
+    /**
+     * returns the number of rows in a result object
+     *
+     * @return mixed MDB2 Error Object or the number of rows
+     * @access public
+     */
+    function numRows()
+    {
+        return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'numRows: method not implemented');
     }
 
     // }}}
@@ -3605,7 +3637,8 @@ class MDB2_Statement_Common
 
         $this->db->row_offset = $this->row_offset;
         $this->db->row_limit = $this->row_limit;
-        return $this->db->query($query, $this->result_types, $result_class, $result_wrap_class);
+        $result =& $this->db->query($query, $this->result_types, $result_class, $result_wrap_class);
+        return $result;
     }
 
     // }}}
