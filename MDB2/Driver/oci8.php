@@ -1133,7 +1133,6 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
 
         $keys = array_keys($lobs);
         foreach ($keys as $key) {
-            $lobs[$key]['descriptor']->close();
             $lobs[$key]['descriptor']->free();
         }
 
