@@ -203,7 +203,8 @@ class MDB2_Extended extends MDB2_Module_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        return $db->query($query, $types, $result_class);
+        $result =& $db->query($query, $types, $result_class);
+        return $result;
     }
 
     // {{{

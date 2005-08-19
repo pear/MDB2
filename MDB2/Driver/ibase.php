@@ -437,9 +437,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             if ($this->in_transaction) {
                 $connection = $this->transaction_id;
             } else {
-                $error = $this->connect();
-                if (PEAR::isError($error)) {
-                    return $error;
+                $err = $this->connect();
+                if (PEAR::isError($err)) {
+                    return $err;
                 }
                 $connection = $this->connection;
             }
@@ -521,8 +521,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             }
             if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
                 if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
-                    return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                         'prepare: query with an unterminated text string specified');
+                    return $err;
                 }
                 switch ($this->escape_quotes) {
                 case '':
@@ -551,8 +552,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 }
                 $name = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/i', '\\1', $query);
                 if ($name === '') {
-                    return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                         'prepare: named parameter with an empty name');
+                    return $err;
                 }
                 $query = substr_replace($query, '?', $position, strlen($name)+1);
                 $position = $p_position + 1;
@@ -714,8 +716,9 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         if (!$row) {
             if (is_null($this->result)) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
+                return $err;
             }
             $null = null;
             return $null;
@@ -906,8 +909,9 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             return $null;
         }
         if (is_null($this->result)) {
-            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'fetchRow: resultset has already been freed');
+            return $err;
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
@@ -1055,7 +1059,12 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         $this->db->last_query = $this->query;
         $this->db->debug($this->query, 'execute');
         if ($this->db->getOption('disable_query')) {
-            return $isManip ? MDB2_OK : null;
+            if ($isManip) {
+                $return = MDB2_OK;
+                return $return;
+            }
+            $null = null;
+            return $null;
         }
 
         $connected = $this->db->connect();
@@ -1077,15 +1086,21 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
 
         $result = call_user_func_array('ibase_execute', $parameters);
         if ($result === false) {
-            return $this->db->raiseError();
+            $err =& $this->db->raiseError();
+            return $err;
         }
 
         if ($isManip) {
-            return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
+            if (function_exists('ibase_affected_rows')) {
+                return ibase_affected_rows($connection);
+            } else {
+                return 0;
+            }
         }
 
-        return $this->db->_wrapResult($result, $this->types,
+        $result =& $this->db->_wrapResult($result, $this->types,
             $result_class, $result_wrap_class, $this->row_limit, $this->row_offset);
+        return $result;
     }
 
     // }}}

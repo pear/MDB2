@@ -515,8 +515,9 @@ class MDB2_Result_querysim extends MDB2_Result_Common
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (is_null($this->result)) {
-            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'fetchRow: resultset has already been freed');
+            return $err;
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);

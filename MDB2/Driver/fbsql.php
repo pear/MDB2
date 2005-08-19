@@ -314,9 +314,9 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $error = $this->connect();
-            if (PEAR::isError($error)) {
-                return $error;
+            $err = $this->connect();
+            if (PEAR::isError($err)) {
+                return $err;
             }
             $connection = $this->connection;
         }
@@ -493,8 +493,9 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         }
         if (!$row) {
             if (is_null($this->result)) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
+                return $err;
             }
             $null = null;
             return $null;

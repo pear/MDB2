@@ -402,8 +402,9 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         $connection = $this->_doConnect('template1', false);
         if (PEAR::isError($connection)) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+            $err =& $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
                 'Cannot connect to template1');
+            return $err;
         }
 
         $isManip = MDB2::isManip($query);
@@ -422,7 +423,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $result;
         }
 
-        return $this->_wrapResult($result, $types, true, false, $limit, $offset);
+        $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
+        return $result;
     }
 
     // }}}
@@ -449,9 +451,9 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $error = $this->connect();
-            if (PEAR::isError($error)) {
-                return $error;
+            $err = $this->connect();
+            if (PEAR::isError($err)) {
+                return $err;
             }
             $connection = $this->connection;
         }
@@ -587,8 +589,9 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
         }
         if (!$row) {
             if (is_null($this->result)) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
+                return $err;
             }
             $null = null;
             return $null;

@@ -316,17 +316,17 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
         $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-        $error = $this->_doQuery($query, true);
-        if (PEAR::isError($error)) {
+        $err = $this->_doQuery($query, true);
+        if (PEAR::isError($err)) {
             $this->disconnect(false);
-            return $error;
+            return $err;
         }
 
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
-        $error = $this->_doQuery($query, true);
-        if (PEAR::isError($error)) {
+        $err = $this->_doQuery($query, true);
+        if (PEAR::isError($err)) {
             $this->disconnect(false);
-            return $error;
+            return $err;
         }
 
         return MDB2_OK;
@@ -446,9 +446,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $error = $this->connect();
-            if (PEAR::isError($error)) {
-                return $error;
+            $err = $this->connect();
+            if (PEAR::isError($err)) {
+                return $err;
             }
             $connection = $this->connection;
         }
@@ -532,9 +532,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
                 if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
-                    $error =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                         'prepare: query with an unterminated text string specified');
-                    return $error;
+                    return $err;
                 }
                 switch ($this->escape_quotes) {
                 case '':
@@ -565,9 +565,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     if ($placeholder_type == ':') {
                         $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/i', '\\1', $query);
                         if ($parameter === '') {
-                            $error =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                            $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                                 'prepare: named parameter with an empty name');
-                            return $error;
+                            return $err;
                         }
                         $length = strlen($parameter)+1;
                     } else {
@@ -597,9 +597,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         $statement = @OCIParse($this->connection, $query);
         if (!$statement) {
-            $error =& $this->raiseError(MDB2_ERROR, null, null,
+            $err =& $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
-            return $error;
+            return $err;
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
@@ -725,9 +725,9 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         if (!$row) {
             if (is_null($this->result)) {
-                $error =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
-                return $error;
+                return $err;
             }
             $null = null;
             return $null;
@@ -896,9 +896,9 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (is_null($this->result)) {
-            $error =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'fetchRow: resultset has already been freed');
-            return $error;
+            return $err;
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
@@ -1045,7 +1045,6 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
             $null = null;
             return $null;
-
         }
 
         $connected = $this->db->connect();
@@ -1101,8 +1100,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         if (!PEAR::isError($result)) {
             $mode = (!empty($lobs) || $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
             if (!@OCIExecute($this->statement, $mode)) {
-                $error =& $this->db->raiseError($this->statement);
-                return $error;
+                $err =& $this->db->raiseError($this->statement);
+                return $err;
             }
 
             if (!empty($lobs)) {
