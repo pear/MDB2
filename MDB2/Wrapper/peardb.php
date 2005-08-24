@@ -153,7 +153,7 @@ class DB
     function &connect($dsn, $options = false)
     {
         if (!is_array($options) && $options) {
-            $options['persistent'] = true;
+            $options = array('persistent' => true);
         }
         $db =& MDB2::connect($dsn, $options);
         if (PEAR::isError($db)) {
