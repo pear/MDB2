@@ -364,7 +364,7 @@ class MDB2_PEARProxy extends PEAR
         if (is_null($string)) {
             return 'NULL';
         }
-        return "'".$this->db_object->quote($string)."'";
+        return $this->db_object->quote($string);
     }
 
     function escapeSimple($str)
