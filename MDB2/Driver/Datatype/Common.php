@@ -115,7 +115,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 }
 
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'setResultTypes: ' . $type . ' is not a supported column type');
+                    'setResultTypes: ' . $type . ' for '. $key .' is not a supported column type');
             }
         }
         $result->types = $types;
