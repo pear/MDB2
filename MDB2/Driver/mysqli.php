@@ -855,10 +855,10 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
         if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $this->db->_convertEmptyArrayValuesToNull($row);
         }
-        if (isset($this->values)) {
+        if (!empty($this->values)) {
             $this->_assignBindColumns($row);
         }
-        if (isset($this->types)) {
+        if (!empty($this->types)) {
             $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
@@ -1049,10 +1049,8 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
         if (!empty($this->values)) {
             $parameters = array(0 => $this->statement, 1 => '');
             $i = 0;
-            $types_numeric = is_numeric(key($this->types));
             foreach ($this->values as $parameter => $value) {
-                $type_key = $types_numeric ? $i : $parameter;
-                $type = isset($this->types[$type_key]) ? $this->types[$type_key] : null;
+                $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
                 $close = false;
                 if ($type == 'clob' || $type == 'blob') {
                     if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
