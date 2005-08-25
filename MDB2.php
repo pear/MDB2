@@ -62,313 +62,42 @@ require_once 'PEAR.php';
  * version of it in MDB2::errorMessage().
  */
 
-define('MDB2_OK',                       '00000');    // No error
-define('MDB2_ERROR',                     '-1');
-define('MDB2_ERROR_SYNTAX',             '42000');    // Syntax error or access violation
-define('MDB2_ERROR_CONSTRAINT',         '23000');    // Integrity constraint violation
-define('MDB2_ERROR_NOT_FOUND',           '-4');
-define('MDB2_ERROR_ALREADY_EXISTS',      '-5');
-define('MDB2_ERROR_UNSUPPORTED',        'IM001');    // Driver does not support this function
-define('MDB2_ERROR_MISMATCH',            '-7');
-define('MDB2_ERROR_INVALID',            'HY024');    // Invalid attribute value
-define('MDB2_ERROR_NOT_CAPABLE',         '-9');
-define('MDB2_ERROR_TRUNCATED',          '-10');
-define('MDB2_ERROR_INVALID_NUMBER',     'HY093');    // Invalid parameter number
-define('MDB2_ERROR_INVALID_DATE',       '22007');    // Invalid datetime format
-define('MDB2_ERROR_DIVZERO',            '22012');    // Division by zero
-define('MDB2_ERROR_NODBSELECTED',       '-14');
-define('MDB2_ERROR_CANNOT_CREATE',      '-15');
-define('MDB2_ERROR_CANNOT_DELETE',      '-16');
-define('MDB2_ERROR_CANNOT_DROP',        '-17');
-define('MDB2_ERROR_NOSUCHTABLE',        '42S02');    // Base table or view not found
-define('MDB2_ERROR_NOSUCHFIELD',        '42S22');    // Column not found
-define('MDB2_ERROR_NEED_MORE_DATA',     '-20');
-define('MDB2_ERROR_NOT_LOCKED',         '-21');
-define('MDB2_ERROR_VALUE_COUNT_ON_ROW', '-22');
-define('MDB2_ERROR_INVALID_DSN',        'IM002');    // Data source name not found and no default driver specified
-define('MDB2_ERROR_CONNECT_FAILED',     '08001');    // Client unable to establish connection
-define('MDB2_ERROR_EXTENSION_NOT_FOUND','-25');
-define('MDB2_ERROR_NOSUCHDB',           '-26');
-define('MDB2_ERROR_ACCESS_VIOLATION',   '42000');    // Syntax error or access violation
-define('MDB2_ERROR_CANNOT_REPLACE',     '-28');
-define('MDB2_ERROR_CONSTRAINT_NOT_NULL','-29');
-define('MDB2_ERROR_DEADLOCK',           '-30');
-define('MDB2_ERROR_CANNOT_ALTER',       '-31');
-define('MDB2_ERROR_LOADMODULE',         'IM003');    // Specified driver could not be loaded
-define('MDB2_ERROR_INSUFFICIENT_DATA',  '-35');
-
-/*
-define('MDB2_OK', '00000'); // No error
-define('MDB2_ERROR_WARNING', '01000'); // Warning
-define('MDB2_ERROR_WARNING_CURSOR_CONFLICT', '01001'); // Cursor operation conflict
-define('MDB2_ERROR_WARNING_ON_DISCONNECT', '01002'); // Disconnect error
-define('MDB2_ERROR_WARNING_NULL_ELEMINATED_IN_SET', '01003'); // NULL value eliminated in set function
-define('MDB2_ERROR_WARNING_RIGHT_TRUNCATED', '01004'); // String data, right truncated
-define('MDB2_ERROR_WARNING_PRIVILEDGE_REVOKED', '01006'); // Privilege not revoked
-define('MDB2_ERROR_WARNING_PRIVILEDGE_NOT_GRANTED', '01007'); // Privilege not granted
-define('MDB2_ERROR_WARNING_IMPLICIT_ZERO_PADDING', '01008'); // Implicit zero bit padding
-define('MDB2_ERROR_WARNING_DYNAMIC_RESULT_SET', '0100C'); // Dynamic result sets returned
-define('MDB2_ERROR_WARNING_DEPRECATED', '01P01'); // Deprecated feature
-define('MDB2_ERROR_WARNING_INVALID_CONNECTION_ATTRIBUTE', '01S00'); // Invalid connection string attribute
-define('MDB2_ERROR_WARNING_ROW', '01S01'); // Error in row
-define('MDB2_ERROR_WARNING_OPTION_CHANGED', '01S02'); // Option value changed
-define('MDB2_ERROR_WARNING_FETCH_BEFORE_RETURN', '01S06'); // Attempt to fetch before the result set returned the first rowset
-define('MDB2_ERROR_WARNING_FRACTIONAL_TRUNCATION', '01S07'); // Fractional truncation
-define('MDB2_ERROR_WARNING_FILE_SAVING', '01S08'); // Error saving File DSN
-define('MDB2_ERROR_WARNING_INVALID_KEYWORD', '01S09'); // Invalid keyword
-define('MDB2_ERROR_NO_DATA', '02000'); // No data
-define('MDB2_ERROR_NO_DYNAMIC_RESULT_SETS', '02001'); // No additional dynamic result sets returned
-define('MDB2_ERROR_SQL_STATEMENT_INCOMPLETE', '03000'); // Sql statement not yet complete
-define('MDB2_ERROR_PARAM_LIST_MISMATCH', '07002'); // Call parameter list or control block is invalid.
-define('MDB2_ERROR_STATEMENT_NOT_CURSOR_DEFINITION', '07005'); // Prepared statement not a cursor-specification
-define('MDB2_ERROR_DATATYPE_ATTRIBUTE_VIOLATION', '07006'); // Restricted data type attribute violation
-define('MDB2_ERROR_INVALID_DESCRIPTOR_INDEX', '07009'); // Invalid descriptor index
-define('MDB2_ERROR_INVALID_DEFAULT_PARAM_USE', '07S01'); // Invalid use of default parameter
-define('MDB2_ERROR_CONNECTION_EXCEPTION', '08000'); // Connection exception
-define('MDB2_ERROR_CLIENT_UNABLE_TO_CONNECT', '08001'); // Client unable to establish connection
-define('MDB2_ERROR_CONNECTION_NAME_IN_USE', '08002'); // Connection name in use
-define('MDB2_ERROR_CONNECTION_NOT_EXIST', '08003'); // Connection does not exist
-define('MDB2_ERROR_SERVER_REJECT', '08004'); // Server rejected the connection
-define('MDB2_ERROR_CONNECTION_FAILURE', '08006'); // Connection failure
-define('MDB2_ERROR_CONNECTION_DURING_TRANSACTION', '08007'); // Connection failure during transaction
-define('MDB2_ERROR_CONNECTION_LINK', '08S01'); // Communication link failure
-define('MDB2_ERROR_TRIGGER_EXCEPTION', '09000'); // Triggered action exception
-define('MDB2_ERROR_NOT_SUPPORTED', '0A000'); // Feature not supported
-define('MDB2_ERROR_INVALID_TRANSACTION_START', '0B000'); // Invalid transaction initiation
-define('MDB2_ERROR_LOCATOR_EXCEPTION', '0F000'); // Locator exception
-define('MDB2_ERROR_INVALID_LOCATOR_DEFINITION', '0F001'); // Invalid locator specification
-define('MDB2_ERROR_INVALID_GRANTOR', '0L000'); // Invalid grantor
-define('MDB2_ERROR_INVALID_GRANT_OPERATION', '0LP01'); // Invalid grant operation
-define('MDB2_ERROR_INVALID_ROLE_DEFINITION', '0P000'); // Invalid role specification
-define('MDB2_ERROR_CARDINALITY_VIOLATION', '21000'); // Cardinality violation
-define('MDB2_ERROR_INSERT_COLUMN_MISMATCH', '21S01'); // Insert value list does not match column list
-define('MDB2_ERROR_TABLE_COLUMN_LIST_MISMATCH', '21S02'); // Degree of derived table does not match column list
-define('MDB2_ERROR_DATA_EXCEPTION', '22000'); // Data exception
-define('MDB2_ERROR_RIGHT_TRUNCATED', '22001'); // String data, right truncated
-define('MDB2_ERROR_ID_MISSING', '22002'); // Indicator variable required but not supplied
-define('MDB2_ERROR_NUMERIC_OUT_OF_RANGE', '22003'); // Numeric value out of range
-define('MDB2_ERROR_NULL_NOT_ALLOWED', '22004'); // Null value not allowed
-define('MDB2_ERROR_ASSIGNMENT', '22005'); // Error in assignment
-define('MDB2_ERROR_INVALID_DATETIME_FORMT', '22007'); // Invalid datetime format
-define('MDB2_ERROR_DATETIME_OVERFLOW', '22008'); // Datetime field overflow
-define('MDB2_ERROR_INVALID_TIMEZONE', '22009'); // Invalid time zone displacement value
-define('MDB2_ERROR_ESCAPE_CHAR_CONFLICT', '2200B'); // Escape character conflict
-define('MDB2_ERROR_INVALID_ESCAPE_CHAR_USE', '2200C'); // Invalid use of escape character
-define('MDB2_ERROR_INVALID_ESCAPE_OCTET', '2200D'); // Invalid escape octet
-define('MDB2_ERROR_ZERO_LENGTH_STRING', '2200F'); // Zero length character string
-define('MDB2_ERROR_TYPE_MISMATCH', '2200G'); // Most specific type mismatch
-define('MDB2_ERROR_INVALID_ID_PARAM_VALUE', '22010'); // Invalid indicator parameter value
-define('MDB2_ERROR_SUBSTRING', '22011'); // Substring error
-define('MDB2_ERROR_DIVISION_BY_ZERO', '22012'); // Division by zero
-define('MDB2_ERROR_FIELD_OVERFLOW', '22015'); // Interval field overflow
-define('MDB2_ERROR_INVALID_CHAR_CAST', '22018'); // Invalid character value for cast specification
-define('MDB2_ERROR_INVALID_ESCAPE_CHAR', '22019'); // Invalid escape character
-define('MDB2_ERROR_INVALID_REGEXP', '2201B'); // Invalid regular expression
-define('MDB2_ERROR_INVALID_ARGUMENT_FOR_LOG', '2201E'); // Invalid argument for logarithm
-define('MDB2_ERROR_INVALID_ARGUMENT_FOR_POWER_FUNCTION', '2201F'); // Invalid argument for power function
-define('MDB2_ERROR_INVALID_ARGUMENT_FOR_WIDTH_BUCKET', '2201G'); // Invalid argument for width bucket function
-define('MDB2_ERROR_INVALID_LIMIT', '22020'); // Invalid limit value
-define('MDB2_ERROR_CHARACTER_NOT_EXIST', '22021'); // Character not in repertoire
-define('MDB2_ERROR_INDICATOR_OVERFLOW', '22022'); // Indicator overflow
-define('MDB2_ERROR_INVALID_PARAM_VALUE', '22023'); // Invalid parameter value
-define('MDB2_ERROR_UNTERMINATED', '22024'); // Unterminated c string
-define('MDB2_ERROR_INVALID_ESCAPE_SEQUENCE', '22025'); // Invalid escape sequence
-define('MDB2_ERROR_LENGTH_MISMATCH', '22026'); // String data, length mismatch
-define('MDB2_ERROR_TRIM', '22027'); // Trim error
-define('MDB2_ERROR_ARRAY_SUBSCRIPT', '2202E'); // Array subscript error
-define('MDB2_ERROR_FLOATING_POINT_EXCEPTION', '22P01'); // Floating point exception
-define('MDB2_ERROR_INVALID_TEXT', '22P02'); // Invalid text representation
-define('MDB2_ERROR_INVALID_BINARY', '22P03'); // Invalid binary representation
-define('MDB2_ERROR_BAD_COPY', '22P04'); // Bad copy file format
-define('MDB2_ERROR_UNTRANSLATEABLE_CHAR', '22P05'); // Untranslatable character
-define('MDB2_ERROR_INTEGRITY_VIOLATION', '23000'); // Integrity constraint violation
-define('MDB2_ERROR_RESTRICT_VIOLATION', '23001'); // Restrict violation
-define('MDB2_ERROR_NOT_NULL_VIOLATION', '23502'); // Not null violation
-define('MDB2_ERROR_FOREIGN_KEY_VIOLATION', '23503'); // Foreign key violation
-define('MDB2_ERROR_UNIQUE_VIOLATION', '23505'); // Unique violation
-define('MDB2_ERROR_CHECK_VIOLATION', '23514'); // Check violation
-define('MDB2_ERROR_INVALID_CURSOR_STATE', '24000'); // Invalid cursor state
-define('MDB2_ERROR_INVALID_TRANSACTION_STATE', '25000'); // Invalid transaction state
-define('MDB2_ERROR_ACTIVE_TRANSACTION', '25001'); // Active sql transaction
-define('MDB2_ERROR_BRANCH_TRANSACTION_ACTIVE', '25002'); // Branch transaction already active
-define('MDB2_ERROR_INVALID_ACCESS_MODE', '25003'); // Inappropriate access mode for branch transaction
-define('MDB2_ERROR_INVALID_ISOLATION_LEVEL', '25004'); // Inappropriate isolation level for branch transaction
-define('MDB2_ERROR_NO_ACTIVE_TRANSACTION_BRANCH', '25005'); // No active sql transaction for branch transaction
-define('MDB2_ERROR_READ_ONLY_TRANSACTION', '25006'); // Read only sql transaction
-define('MDB2_ERROR_SCHEMA_DATA_MIXING_UNSUPPORTED', '25007'); // Schema and data statement mixing not supported
-define('MDB2_ERROR_CURSOR_REQUIRES_ISOLATION_LEVEL', '25008'); // Held cursor requires same isolation level
-define('MDB2_ERROR_NO_ACTIVE_TRANSACTION', '25P01'); // No active sql transaction
-define('MDB2_ERROR_INVALID_TRANSACTION', '25P02'); // In failed sql transaction
-define('MDB2_ERROR_TRANSACTION_STATE', '25S01'); // Transaction state
-define('MDB2_ERROR_TRANSACTION_ALIVE', '25S02'); // Transaction is still active
-define('MDB2_ERROR_TRANSACTION_ROLLBACK', '25S03'); // Transaction is rolled back
-define('MDB2_ERROR_INVALID_STATEMENT_NAME', '26000'); // Invalid sql statement name
-define('MDB2_ERROR_TRIGGER_DATA_CHANGE_VIOLATION', '27000'); // Triggered data change violation
-define('MDB2_ERROR_INVALID_AUTH_DEFINITION', '28000'); // Invalid authorization specification
-define('MDB2_ERROR_DEPENDENT_PRIVILEDGE_EXISTS', '2B000'); // Dependent privilege descriptors still exist
-define('MDB2_ERROR_DEPENDENT_OBJECT_EXISTS', '2BP01'); // Dependent objects still exist
-define('MDB2_ERROR_INVALID_TRANSACTION_END', '2D000'); // Invalid transaction termination
-define('MDB2_ERROR_SQL_EXCEPTION', '2F000'); // Sql routine exception
-define('MDB2_ERROR_MODIFICATION_NOT_ALLOWED', '2F002'); // Modifying sql data not permitted
-define('MDB2_ERROR_PROBHIBITED_STATEMENT_ATTEMPT', '2F003'); // Prohibited sql statement attempted
-define('MDB2_ERROR_READ_NOT_ALLOWED', '2F004'); // Reading sql data not permitted
-define('MDB2_ERROR_FUNCTION_NO_RETURN_STATEMENT', '2F005'); // Function executed no return statement
-define('MDB2_ERROR_INVALID_CURSOR_NAME', '34000'); // Invalid cursor name
-define('MDB2_ERROR_EXTERNAL_EXCEPTION', '38000'); // External routine exception
-define('MDB2_ERROR_EXTERNAL_CONTAINING_SQL_NOT_ALLOWED', '38001'); // Containing sql not permitted
-define('MDB2_ERROR_EXTERNAL_MODIFICATION_NOT_ALLOWED', '38002'); // Modifying sql data not permitted
-define('MDB2_ERROR_EXTERNAL_PROBHIBITED_STATEMENT_ATTEMPT', '38003'); // Prohibited sql statement attempted
-define('MDB2_ERROR_EXTERNAL_READ_NOT_ALLOWED', '38004'); // Reading sql data not permitted
-define('MDB2_ERROR_EXTERNAL_INVOCATION_EXCEPTION', '39000'); // External routine invocation exception
-define('MDB2_ERROR_EXTERNAL_INVALID_SQLSTATE', '39001'); // Invalid sqlstate returned
-define('MDB2_ERROR_EXTERNAL_NULL_NOT_ALLOWED', '39004'); // Null value not allowed
-define('MDB2_ERROR_EXTERNAL_TRIGGER_PROTOCOL_VIOLATION', '39P01'); // Trigger protocol violated
-define('MDB2_ERROR_EXTERNAL_SRF_PROTOCOL_VIOLATION', '39P02'); // Srf protocol violated
-define('MDB2_ERROR_SAVEPPOINT_EXCEPTION', '3B000'); // Savepoint exception
-define('MDB2_ERROR_INVALID_SAVEPOINT_DEFINITION', '3B001'); // Invalid savepoint specification
-define('MDB2_ERROR_DUPLICATE_CURSOR_NAME', '3C000'); // Duplicate cursor name
-define('MDB2_ERROR_INVALID_CATALOG_NAME', '3D000'); // Invalid catalog name
-define('MDB2_ERROR_INVALID_SCHEMA_NAME', '3F000'); // Invalid schema name
-define('MDB2_ERROR_ROLLBACK', '40000'); // Transaction rollback
-define('MDB2_ERROR_SERIALIZATION', '40001'); // Serialization failure
-define('MDB2_ERROR_TRANSACTION_CONTRAINT_VIOLATION', '40002'); // Transaction integrity constraint violation
-define('MDB2_ERROR_STATEMENT_COMPLETION_UNKNOWN', '40003'); // Statement completion unknown
-define('MDB2_ERROR_DEADLOCK', '40P01'); // Deadlock detected
-define('MDB2_ERROR_ACCESS_VIOLATION', '42000'); // Syntax error or access violation
-define('MDB2_ERROR_INSUFFICIENT_PRIVILEDGE', '42501'); // Insufficient privilege
-define('MDB2_ERROR_SYNTAX', '42601'); // Syntax error
-define('MDB2_ERROR_INVALID_NAME', '42602'); // Invalid name
-define('MDB2_ERROR_INVALID_COLUMN_DEFINITION', '42611'); // Invalid column definition
-define('MDB2_ERROR_NAME_TOO_LONG', '42622'); // Name too long
-define('MDB2_ERROR_DUPLICATE_COLUMN', '42701'); // Duplicate column
-define('MDB2_ERROR_AMBIGUOUS_COLUMN', '42702'); // Ambiguous column
-define('MDB2_ERROR_UNDEFINED_COLUMN', '42703'); // Undefined column
-define('MDB2_ERROR_UNDEFINED_OBJECT', '42704'); // Undefined object
-define('MDB2_ERROR_DUPLICATE_OBJECT', '42710'); // Duplicate object
-define('MDB2_ERROR_DUPLICATE_ALIAS', '42712'); // Duplicate alias
-define('MDB2_ERROR_DUPLICATE_FUNCTION', '42723'); // Duplicate function
-define('MDB2_ERROR_AMBIGUOUS_FUNCTION', '42725'); // Ambiguous function
-define('MDB2_ERROR_GROUPING', '42803'); // Grouping error
-define('MDB2_ERROR_DATATYPE_MISMATCH', '42804'); // Datatype mismatch
-define('MDB2_ERROR_INVALID_OBJECT_TYPE', '42809'); // Wrong object type
-define('MDB2_ERROR_INVALID_FOREIGN_KEY', '42830'); // Invalid foreign key
-define('MDB2_ERROR_CANNOT_COERCE', '42846'); // Cannot coerce
-define('MDB2_ERROR_UNDEFINED_FUNCTION', '42883'); // Undefined function
-define('MDB2_ERROR_RESERVED_NAME', '42939'); // Reserved name
-define('MDB2_ERROR_UNDEFINED_TABLE', '42P01'); // Undefined table
-define('MDB2_ERROR_DUPLICATE_PARAM', '42P02'); // Undefined parameter
-define('MDB2_ERROR_DUPLICATE_CURSOR', '42P03'); // Duplicate cursor
-define('MDB2_ERROR_DUPLICATE_DATABASE', '42P04'); // Duplicate database
-define('MDB2_ERROR_DUPLICATE_STATEMENT', '42P05'); // Duplicate prepared statement
-define('MDB2_ERROR_DUPLICATE_SCHEMA', '42P06'); // Duplicate schema
-define('MDB2_ERROR_DUPLICATE_TABLE', '42P07'); // Duplicate table
-define('MDB2_ERROR_AMBIGUPUS_PARAM', '42P08'); // Ambiguous parameter
-define('MDB2_ERROR_AMBIGUOUS_ALIAS', '42P09'); // Ambiguous alias
-define('MDB2_ERROR_INVALID_COLUMN_REFERENCE', '42P10'); // Invalid column reference
-define('MDB2_ERROR_INVALID_CURSOR_DEFINITION', '42P11'); // Invalid cursor definition
-define('MDB2_ERROR_INVALID_DATABASE_DEFINITION', '42P12'); // Invalid database definition
-define('MDB2_ERROR_INVALID_FUNCTION_DEFINITION', '42P13'); // Invalid function definition
-define('MDB2_ERROR_INVALID_STATEMENT_DEFINITION', '42P14'); // Invalid prepared statement definition
-define('MDB2_ERROR_INVALID_SCHEMA_DEFINITION', '42P15'); // Invalid schema definition
-define('MDB2_ERROR_INVALID_TABLE_DEFINITION', '42P16'); // Invalid table definition
-define('MDB2_ERROR_INVALID_OBJECT_DEFINITION', '42P17'); // Invalid object definition
-define('MDB2_ERROR_INDETERMINATE_DATA_TYPE', '42P18'); // Indeterminate datatype
-define('MDB2_ERROR_TABLE_EXISTS', '42S01'); // Base table or view already exists
-define('MDB2_ERROR_TABLE_NOT_FOUND', '42S02'); // Base table or view not found
-define('MDB2_ERROR_INDEX_EXISTS', '42S11'); // Index already exists
-define('MDB2_ERROR_INDEX_NOT_FOUND', '42S12'); // Index not found
-define('MDB2_ERROR_COLUMN_EXISTS', '42S21'); // Column already exists
-define('MDB2_ERROR_COLUMN_NOT_FOUND', '42S22'); // Column not found
-define('MDB2_ERROR_CHECK_OPTION_VIOLATION', '44000'); // WITH CHECK OPTION violation
-define('MDB2_ERROR_INSUFFICIENT_RESOURCES', '53000'); // Insufficient resources
-define('MDB2_ERROR_DISK_FULL', '53100'); // Disk full
-define('MDB2_ERROR_OUT_OF_MEMORY', '53200'); // Out of memory
-define('MDB2_ERROR_TOO_MANY_CONNECTIONS', '53300'); // Too many connections
-define('MDB2_ERROR_LIMIT_EXCEEDED', '54000'); // Program limit exceeded
-define('MDB2_ERROR_STATMENT_TOO_COMPLEX', '54001'); // Statement too complex
-define('MDB2_ERROR_TOO_MANY_COLUMNS', '54011'); // Too many columns
-define('MDB2_ERROR_TOO_MANY_ARGUMENTS', '54023'); // Too many arguments
-define('MDB2_ERROR_OBJECT_STATE', '55000'); // Object not in prerequisite state
-define('MDB2_ERROR_IN_USE', '55006'); // Object in use
-define('MDB2_ERROR_CANNOT_CHANGE_PARAM', '55P02'); // Cant change runtime param
-define('MDB2_ERROR_LOCK_UNAVAILABLE', '55P03'); // Lock not available
-define('MDB2_ERROR_OPERATOR_INTERVENTION', '57000'); // Operator intervention
-define('MDB2_ERROR_QUERY_CANCLED', '57014'); // Query canceled
-define('MDB2_ERROR_ADMIN_SHUTDOWN', '57P01'); // Admin shutdown
-define('MDB2_ERROR_CRASH_SHUTDOWN', '57P02'); // Crash shutdown
-define('MDB2_ERROR_CONNECT', '57P03'); // Cannot connect now
-define('MDB2_ERROR_IO', '58030'); // Io error
-define('MDB2_ERROR_UNDEFINED_FILE', '58P01'); // Undefined file
-define('MDB2_ERROR_DUPLICATE_FILE', '58P02'); // Duplicate file
-define('MDB2_ERROR_CONFIG', 'F0000'); // Config file error
-define('MDB2_ERROR_LOCK_EXISTS', 'F0001'); // Lock file exists
-define('MDB2_ERROR', 'HY000'); // General error
-define('MDB2_ERROR_MEMORY_ALLOCATION', 'HY001'); // Memory allocation error
-define('MDB2_ERROR_INVALID_BUFFER_TYPE', 'HY003'); // Invalid application buffer type
-define('MDB2_ERROR_INVALID_DATA_TYPE', 'HY004'); // Invalid SQL data type
-define('MDB2_ERROR_STATEMENT_NOT_PREPARED', 'HY007'); // Associated statement is not prepared
-define('MDB2_ERROR_CANCLED', 'HY008'); // Operation canceled
-define('MDB2_ERROR_INVALID_NULL_POINTER', 'HY009'); // Invalid use of null pointer
-define('MDB2_ERROR_FUNCTION_SEQUENCE', 'HY010'); // Function sequence error
-define('MDB2_ERROR_SET_ATTRIBUTE', 'HY011'); // Attribute cannot be set now
-define('MDB2_ERROR_INVALID_TRANSACTION_OPERATION_CODE', 'HY012'); // Invalid transaction operation code
-define('MDB2_ERROR_MEMORY', 'HY013'); // Memory management error
-define('MDB2_ERROR_TOO_MANY_HANDLES', 'HY014'); // Limit on the number of handles exceeded
-define('MDB2_ERROR_CURSOR_NAME_MISSING', 'HY015'); // No cursor name available
-define('MDB2_ERROR_CANNOT_MODIFY_DESCRIPTOR', 'HY016'); // Cannot modify an implementation row descriptor
-define('MDB2_ERROR_INVALID_DESCRIPTOR_USE', 'HY017'); // Invalid use of an automatically allocated descriptor handle
-define('MDB2_ERROR_SERVER_DECLINED', 'HY018'); // Server declined cancel request
-define('MDB2_ERROR_NON_CHAR_SENT_IN_PIECES', 'HY019'); // Non-character and non-binary data sent in pieces
-define('MDB2_ERROR_NULL_CONCAT_ATTEMPT', 'HY020'); // Attempt to concatenate a null value
-define('MDB2_ERROR_INCONSISTENT_DESCRIPTOR', 'HY021'); // Inconsistent descriptor information
-define('MDB2_ERROR_INVALID_ATTRIBUTE_VALUE', 'HY024'); // Invalid attribute value
-define('MDB2_ERROR_INVALID_LENGTH', 'HY090'); // Invalid string or buffer length
-define('MDB2_ERROR_INVALID_DESCRIPTOR_ID', 'HY091'); // Invalid descriptor field identifier
-define('MDB2_ERROR_INVALID_ATTRIBUTE_ID', 'HY092'); // Invalid attribute/option identifier
-define('MDB2_ERROR_INVALID_PARAMETER_NUM', 'HY093'); // Invalid parameter number
-define('MDB2_ERROR_FUNCTION_OUT_OF_RANGE', 'HY095'); // Function type out of range
-define('MDB2_ERROR_INVALID_TYPE', 'HY096'); // Invalid information type
-define('MDB2_ERROR_COLUMN_TYPE_OUT_OF_RANGE', 'HY097'); // Column type out of range
-define('MDB2_ERROR_SCOPE_TYPE_OUT_OF_RANGE', 'HY098'); // Scope type out of range
-define('MDB2_ERROR_NULLABLE_OUT_OF_RANGE', 'HY099'); // Nullable type out of range
-define('MDB2_ERROR_UNQIUE_OUT_OF_RANGE', 'HY100'); // Uniqueness option type out of range
-define('MDB2_ERROR_ACCURACY_OUT_OF_RANGE', 'HY101'); // Accuracy option type out of range
-define('MDB2_ERROR_INVALID_RETRIEVAL_CODE', 'HY103'); // Invalid retrieval code
-define('MDB2_ERROR_INVALID_PRECISION', 'HY104'); // Invalid precision or scale value
-define('MDB2_ERROR_INVALID_PARAMETER_TYPE', 'HY105'); // Invalid parameter type
-define('MDB2_ERROR_FETCH_OUT_OF_RANGE', 'HY106'); // Fetch type out of range
-define('MDB2_ERROR_ROW_OUT_OF_RANGE', 'HY107'); // Row value out of range
-define('MDB2_ERROR_INVALID_CURSOR_POSITION', 'HY109'); // Invalid cursor position
-define('MDB2_ERROR_INVALID_COMPLETION', 'HY110'); // Invalid driver completion
-define('MDB2_ERROR_INVALID_BOOKMARK', 'HY111'); // Invalid bookmark value
-define('MDB2_ERROR_OPTION_NOT_IMPLEMENTED', 'HYC00'); // Optional feature not implemented
-define('MDB2_ERROR_TIMEOUT', 'HYT00'); // Timeout expired
-define('MDB2_ERROR_CONNECTION_TIMEOUT', 'HYT01'); // Connection timeout expired
-define('MDB2_ERROR_UNSUPPORTED', 'IM001'); // Driver does not support this function
-define('MDB2_ERROR_DSN_NOT_FOUND', 'IM002'); // Data source name not found and no default driver specified
-define('MDB2_ERROR_DRIVER_LOAD', 'IM003'); // Specified driver could not be loaded
-define('MDB2_ERROR_DRIVER_SET_HANDLE_ON_ENV', 'IM004'); // Driver's SQLAllocHandle on SQL_HANDLE_ENV failed
-define('MDB2_ERROR_DRIVER_SET_HANDLE_ON_DBC', 'IM005'); // Driver's SQLAllocHandle on SQL_HANDLE_DBC failed
-define('MDB2_ERROR_DRIVER_SET_ATTRIBUTE', 'IM006'); // Driver's SQLSetConnectAttr failed
-define('MDB2_ERROR_DSN_MISSING', 'IM007'); // No data source or driver specified; dialog prohibited
-define('MDB2_ERROR_DIALOG', 'IM008'); // Dialog failed
-define('MDB2_ERROR_DLL_LOAD', 'IM009'); // Unable to load translation DLL
-define('MDB2_ERROR_DSN_TOO_LONG', 'IM010'); // Data source name too long
-define('MDB2_ERROR_DRIVER_NAME_TOO_LONG', 'IM011'); // Driver name too long
-define('MDB2_ERROR_DRIVER_KEYWORD_SYNTAX', 'IM012'); // DRIVER keyword syntax error
-define('MDB2_ERROR_TRACE_FILE', 'IM013'); // Trace file error
-define('MDB2_ERROR_INVALID_DSN', 'IM014'); // Invalid name of File DSN
-define('MDB2_ERROR_CORRUPT_FILE_DATA_SOURCE', 'IM015'); // Corrupt file data source
-define('MDB2_ERROR_PLPGSQL', 'P0000'); // Plpgsql error
-define('MDB2_ERROR_RAISE_EXCEPTION', 'P0001'); // Raise exception
-define('MDB2_ERROR_INTERNAL_ERROR', 'XX000'); // Internal error
-define('MDB2_ERROR_DATA_CORRUPTED', 'XX001'); // Data corrupted
-define('MDB2_ERROR_INDEX_CORRUPTED', 'XX002'); // Index corrupted
-
-// delete once done with SQLSTATE
-define('MDB2_ERROR_XXX', MDB2_ERROR);
-
-*/
+define('MDB2_OK',                         1);
+define('MDB2_ERROR',                     -1);
+define('MDB2_ERROR_SYNTAX',              -2);
+define('MDB2_ERROR_CONSTRAINT',          -3);
+define('MDB2_ERROR_NOT_FOUND',           -4);
+define('MDB2_ERROR_ALREADY_EXISTS',      -5);
+define('MDB2_ERROR_UNSUPPORTED',         -6);
+define('MDB2_ERROR_MISMATCH',            -7);
+define('MDB2_ERROR_INVALID',             -8);
+define('MDB2_ERROR_NOT_CAPABLE',         -9);
+define('MDB2_ERROR_TRUNCATED',          -10);
+define('MDB2_ERROR_INVALID_NUMBER',     -11);
+define('MDB2_ERROR_INVALID_DATE',       -12);
+define('MDB2_ERROR_DIVZERO',            -13);
+define('MDB2_ERROR_NODBSELECTED',       -14);
+define('MDB2_ERROR_CANNOT_CREATE',      -15);
+define('MDB2_ERROR_CANNOT_DELETE',      -16);
+define('MDB2_ERROR_CANNOT_DROP',        -17);
+define('MDB2_ERROR_NOSUCHTABLE',        -18);
+define('MDB2_ERROR_NOSUCHFIELD',        -19);
+define('MDB2_ERROR_NEED_MORE_DATA',     -20);
+define('MDB2_ERROR_NOT_LOCKED',         -21);
+define('MDB2_ERROR_VALUE_COUNT_ON_ROW', -22);
+define('MDB2_ERROR_INVALID_DSN',        -23);
+define('MDB2_ERROR_CONNECT_FAILED',     -24);
+define('MDB2_ERROR_EXTENSION_NOT_FOUND',-25);
+define('MDB2_ERROR_NOSUCHDB',           -26);
+define('MDB2_ERROR_ACCESS_VIOLATION',   -27);
+define('MDB2_ERROR_CANNOT_REPLACE',     -28);
+define('MDB2_ERROR_CONSTRAINT_NOT_NULL',-29);
+define('MDB2_ERROR_DEADLOCK',           -30);
+define('MDB2_ERROR_CANNOT_ALTER',       -31);
+define('MDB2_ERROR_MANAGER',            -32);
+define('MDB2_ERROR_MANAGER_PARSE',      -33);
+define('MDB2_ERROR_LOADMODULE',         -34);
+define('MDB2_ERROR_INSUFFICIENT_DATA',  -35);
 
 /**
  * This is a special constant that tells MDB2 the user hasn't specified
@@ -928,274 +657,6 @@ class MDB2
                 MDB2_ERROR_LOADMODULE         => 'error while including on demand module',
                 MDB2_ERROR_TRUNCATED          => 'truncated',
                 MDB2_ERROR_DEADLOCK           => 'deadlock detected',
-/*
-                MDB2_OK => 'No error',
-                MDB2_ERROR_WARNING => 'Warning',
-                MDB2_ERROR_WARNING_CURSOR_CONFLICT => 'Cursor operation conflict',
-                MDB2_ERROR_WARNING_ON_DISCONNECT => 'Disconnect error',
-                MDB2_ERROR_WARNING_NULL_ELEMINATED_IN_SET => 'NULL value eliminated in set function',
-                MDB2_ERROR_WARNING_RIGHT_TRUNCATED => 'String data, right truncated',
-                MDB2_ERROR_WARNING_PRIVILEDGE_REVOKED => 'Privilege not revoked',
-                MDB2_ERROR_WARNING_PRIVILEDGE_NOT_GRANTED => 'Privilege not granted',
-                MDB2_ERROR_WARNING_IMPLICIT_ZERO_PADDING => 'Implicit zero bit padding',
-                MDB2_ERROR_WARNING_DYNAMIC_RESULT_SET => 'Dynamic result sets returned',
-                MDB2_ERROR_WARNING_DEPRECATED => 'Deprecated feature',
-                MDB2_ERROR_WARNING_INVALID_CONNECTION_ATTRIBUTE => 'Invalid connection string attribute',
-                MDB2_ERROR_WARNING_ROW => 'Error in row',
-                MDB2_ERROR_WARNING_OPTION_CHANGED => 'Option value changed',
-                MDB2_ERROR_WARNING_FETCH_BEFORE_RETURN => 'Attempt to fetch before the result set returned the first rowset',
-                MDB2_ERROR_WARNING_FRACTIONAL_TRUNCATION => 'Fractional truncation',
-                MDB2_ERROR_WARNING_FILE_SAVING => 'Error saving File DSN',
-                MDB2_ERROR_WARNING_INVALID_KEYWORD => 'Invalid keyword',
-                MDB2_ERROR_NO_DATA => 'No data',
-                MDB2_ERROR_NO_DYNAMIC_RESULT_SETS => 'No additional dynamic result sets returned',
-                MDB2_ERROR_SQL_STATEMENT_INCOMPLETE => 'Sql statement not yet complete',
-                MDB2_ERROR_PARAM_LIST_MISMATCH => 'Call parameter list or control block is invalid.',
-                MDB2_ERROR_STATEMENT_NOT_CURSOR_DEFINITION => 'Prepared statement not a cursor-specification',
-                MDB2_ERROR_DATATYPE_ATTRIBUTE_VIOLATION => 'Restricted data type attribute violation',
-                MDB2_ERROR_INVALID_DESCRIPTOR_INDEX => 'Invalid descriptor index',
-                MDB2_ERROR_INVALID_DEFAULT_PARAM_USE => 'Invalid use of default parameter',
-                MDB2_ERROR_CONNECTION_EXCEPTION => 'Connection exception',
-                MDB2_ERROR_CLIENT_UNABLE_TO_CONNECT => 'Client unable to establish connection',
-                MDB2_ERROR_CONNECTION_NAME_IN_USE => 'Connection name in use',
-                MDB2_ERROR_CONNECTION_NOT_EXIST => 'Connection does not exist',
-                MDB2_ERROR_SERVER_REJECT => 'Server rejected the connection',
-                MDB2_ERROR_CONNECTION_FAILURE => 'Connection failure',
-                MDB2_ERROR_CONNECTION_DURING_TRANSACTION => 'Connection failure during transaction',
-                MDB2_ERROR_CONNECTION_LINK => 'Communication link failure',
-                MDB2_ERROR_TRIGGER_EXCEPTION => 'Triggered action exception',
-                MDB2_ERROR_NOT_SUPPORTED => 'Feature not supported',
-                MDB2_ERROR_INVALID_TRANSACTION_START => 'Invalid transaction initiation',
-                MDB2_ERROR_LOCATOR_EXCEPTION => 'Locator exception',
-                MDB2_ERROR_INVALID_LOCATOR_DEFINITION => 'Invalid locator specification',
-                MDB2_ERROR_INVALID_GRANTOR => 'Invalid grantor',
-                MDB2_ERROR_INVALID_GRANT_OPERATION => 'Invalid grant operation',
-                MDB2_ERROR_INVALID_ROLE_DEFINITION => 'Invalid role specification',
-                MDB2_ERROR_CARDINALITY_VIOLATION => 'Cardinality violation',
-                MDB2_ERROR_INSERT_COLUMN_MISMATCH => 'Insert value list does not match column list',
-                MDB2_ERROR_TABLE_COLUMN_LIST_MISMATCH => 'Degree of derived table does not match column list',
-                MDB2_ERROR_DATA_EXCEPTION => 'Data exception',
-                MDB2_ERROR_RIGHT_TRUNCATED => 'String data, right truncated',
-                MDB2_ERROR_ID_MISSING => 'Indicator variable required but not supplied',
-                MDB2_ERROR_NUMERIC_OUT_OF_RANGE => 'Numeric value out of range',
-                MDB2_ERROR_NULL_NOT_ALLOWED => 'Null value not allowed',
-                MDB2_ERROR_ASSIGNMENT => 'Error in assignment',
-                MDB2_ERROR_INVALID_DATETIME_FORMT => 'Invalid datetime format',
-                MDB2_ERROR_DATETIME_OVERFLOW => 'Datetime field overflow',
-                MDB2_ERROR_INVALID_TIMEZONE => 'Invalid time zone displacement value',
-                MDB2_ERROR_ESCAPE_CHAR_CONFLICT => 'Escape character conflict',
-                MDB2_ERROR_INVALID_ESCAPE_CHAR_USE => 'Invalid use of escape character',
-                MDB2_ERROR_INVALID_ESCAPE_OCTET => 'Invalid escape octet',
-                MDB2_ERROR_ZERO_LENGTH_STRING => 'Zero length character string',
-                MDB2_ERROR_TYPE_MISMATCH => 'Most specific type mismatch',
-                MDB2_ERROR_INVALID_ID_PARAM_VALUE => 'Invalid indicator parameter value',
-                MDB2_ERROR_SUBSTRING => 'Substring error',
-                MDB2_ERROR_DIVISION_BY_ZERO => 'Division by zero',
-                MDB2_ERROR_FIELD_OVERFLOW => 'Interval field overflow',
-                MDB2_ERROR_INVALID_CHAR_CAST => 'Invalid character value for cast specification',
-                MDB2_ERROR_INVALID_ESCAPE_CHAR => 'Invalid escape character',
-                MDB2_ERROR_INVALID_REGEXP => 'Invalid regular expression',
-                MDB2_ERROR_INVALID_ARGUMENT_FOR_LOG => 'Invalid argument for logarithm',
-                MDB2_ERROR_INVALID_ARGUMENT_FOR_POWER_FUNCTION => 'Invalid argument for power function',
-                MDB2_ERROR_INVALID_ARGUMENT_FOR_WIDTH_BUCKET => 'Invalid argument for width bucket function',
-                MDB2_ERROR_INVALID_LIMIT => 'Invalid limit value',
-                MDB2_ERROR_CHARACTER_NOT_EXIST => 'Character not in repertoire',
-                MDB2_ERROR_INDICATOR_OVERFLOW => 'Indicator overflow',
-                MDB2_ERROR_INVALID_PARAM_VALUE => 'Invalid parameter value',
-                MDB2_ERROR_UNTERMINATED => 'Unterminated c string',
-                MDB2_ERROR_INVALID_ESCAPE_SEQUENCE => 'Invalid escape sequence',
-                MDB2_ERROR_LENGTH_MISMATCH => 'String data, length mismatch',
-                MDB2_ERROR_TRIM => 'Trim error',
-                MDB2_ERROR_ARRAY_SUBSCRIPT => 'Array subscript error',
-                MDB2_ERROR_FLOATING_POINT_EXCEPTION => 'Floating point exception',
-                MDB2_ERROR_INVALID_TEXT => 'Invalid text representation',
-                MDB2_ERROR_INVALID_BINARY => 'Invalid binary representation',
-                MDB2_ERROR_BAD_COPY => 'Bad copy file format',
-                MDB2_ERROR_UNTRANSLATEABLE_CHAR => 'Untranslatable character',
-                MDB2_ERROR_INTEGRITY_VIOLATION => 'Integrity constraint violation',
-                MDB2_ERROR_RESTRICT_VIOLATION => 'Restrict violation',
-                MDB2_ERROR_NOT_NULL_VIOLATION => 'Not null violation',
-                MDB2_ERROR_FOREIGN_KEY_VIOLATION => 'Foreign key violation',
-                MDB2_ERROR_UNIQUE_VIOLATION => 'Unique violation',
-                MDB2_ERROR_CHECK_VIOLATION => 'Check violation',
-                MDB2_ERROR_INVALID_CURSOR_STATE => 'Invalid cursor state',
-                MDB2_ERROR_INVALID_TRANSACTION_STATE => 'Invalid transaction state',
-                MDB2_ERROR_ACTIVE_TRANSACTION => 'Active sql transaction',
-                MDB2_ERROR_BRANCH_TRANSACTION_ACTIVE => 'Branch transaction already active',
-                MDB2_ERROR_INVALID_ACCESS_MODE => 'Inappropriate access mode for branch transaction',
-                MDB2_ERROR_INVALID_ISOLATION_LEVEL => 'Inappropriate isolation level for branch transaction',
-                MDB2_ERROR_NO_ACTIVE_TRANSACTION_BRANCH => 'No active sql transaction for branch transaction',
-                MDB2_ERROR_READ_ONLY_TRANSACTION => 'Read only sql transaction',
-                MDB2_ERROR_SCHEMA_DATA_MIXING_UNSUPPORTED => 'Schema and data statement mixing not supported',
-                MDB2_ERROR_CURSOR_REQUIRES_ISOLATION_LEVEL => 'Held cursor requires same isolation level',
-                MDB2_ERROR_NO_ACTIVE_TRANSACTION => 'No active sql transaction',
-                MDB2_ERROR_INVALID_TRANSACTION => 'In failed sql transaction',
-                MDB2_ERROR_TRANSACTION_STATE => 'Transaction state',
-                MDB2_ERROR_TRANSACTION_ALIVE => 'Transaction is still active',
-                MDB2_ERROR_TRANSACTION_ROLLBACK => 'Transaction is rolled back',
-                MDB2_ERROR_INVALID_STATEMENT_NAME => 'Invalid sql statement name',
-                MDB2_ERROR_TRIGGER_DATA_CHANGE_VIOLATION => 'Triggered data change violation',
-                MDB2_ERROR_INVALID_AUTH_DEFINITION => 'Invalid authorization specification',
-                MDB2_ERROR_DEPENDENT_PRIVILEDGE_EXISTS => 'Dependent privilege descriptors still exist',
-                MDB2_ERROR_DEPENDENT_OBJECT_EXISTS => 'Dependent objects still exist',
-                MDB2_ERROR_INVALID_TRANSACTION_END => 'Invalid transaction termination',
-                MDB2_ERROR_SQL_EXCEPTION => 'Sql routine exception',
-                MDB2_ERROR_MODIFICATION_NOT_ALLOWED => 'Modifying sql data not permitted',
-                MDB2_ERROR_PROBHIBITED_STATEMENT_ATTEMPT => 'Prohibited sql statement attempted',
-                MDB2_ERROR_READ_NOT_ALLOWED => 'Reading sql data not permitted',
-                MDB2_ERROR_FUNCTION_NO_RETURN_STATEMENT => 'Function executed no return statement',
-                MDB2_ERROR_INVALID_CURSOR_NAME => 'Invalid cursor name',
-                MDB2_ERROR_EXTERNAL_EXCEPTION => 'External routine exception',
-                MDB2_ERROR_EXTERNAL_CONTAINING_SQL_NOT_ALLOWED => 'Containing sql not permitted',
-                MDB2_ERROR_EXTERNAL_MODIFICATION_NOT_ALLOWED => 'Modifying sql data not permitted',
-                MDB2_ERROR_EXTERNAL_PROBHIBITED_STATEMENT_ATTEMPT => 'Prohibited sql statement attempted',
-                MDB2_ERROR_EXTERNAL_READ_NOT_ALLOWED => 'Reading sql data not permitted',
-                MDB2_ERROR_EXTERNAL_INVOCATION_EXCEPTION => 'External routine invocation exception',
-                MDB2_ERROR_EXTERNAL_INVALID_SQLSTATE => 'Invalid sqlstate returned',
-                MDB2_ERROR_EXTERNAL_NULL_NOT_ALLOWED => 'Null value not allowed',
-                MDB2_ERROR_EXTERNAL_TRIGGER_PROTOCOL_VIOLATION => 'Trigger protocol violated',
-                MDB2_ERROR_EXTERNAL_SRF_PROTOCOL_VIOLATION => 'Srf protocol violated',
-                MDB2_ERROR_SAVEPPOINT_EXCEPTION => 'Savepoint exception',
-                MDB2_ERROR_INVALID_SAVEPOINT_DEFINITION => 'Invalid savepoint specification',
-                MDB2_ERROR_DUPLICATE_CURSOR_NAME => 'Duplicate cursor name',
-                MDB2_ERROR_INVALID_CATALOG_NAME => 'Invalid catalog name',
-                MDB2_ERROR_INVALID_SCHEMA_NAME => 'Invalid schema name',
-                MDB2_ERROR_ROLLBACK => 'Transaction rollback',
-                MDB2_ERROR_SERIALIZATION => 'Serialization failure',
-                MDB2_ERROR_TRANSACTION_CONTRAINT_VIOLATION => 'Transaction integrity constraint violation',
-                MDB2_ERROR_STATEMENT_COMPLETION_UNKNOWN => 'Statement completion unknown',
-                MDB2_ERROR_DEADLOCK => 'Deadlock detected',
-                MDB2_ERROR_ACCESS_VIOLATION => 'Syntax error or access violation',
-                MDB2_ERROR_INSUFFICIENT_PRIVILEDGE => 'Insufficient privilege',
-                MDB2_ERROR_SYNTAX => 'Syntax error',
-                MDB2_ERROR_INVALID_NAME => 'Invalid name',
-                MDB2_ERROR_INVALID_COLUMN_DEFINITION => 'Invalid column definition',
-                MDB2_ERROR_NAME_TOO_LONG => 'Name too long',
-                MDB2_ERROR_DUPLICATE_COLUMN => 'Duplicate column',
-                MDB2_ERROR_AMBIGUOUS_COLUMN => 'Ambiguous column',
-                MDB2_ERROR_UNDEFINED_COLUMN => 'Undefined column',
-                MDB2_ERROR_UNDEFINED_OBJECT => 'Undefined object',
-                MDB2_ERROR_DUPLICATE_OBJECT => 'Duplicate object',
-                MDB2_ERROR_DUPLICATE_ALIAS => 'Duplicate alias',
-                MDB2_ERROR_DUPLICATE_FUNCTION => 'Duplicate function',
-                MDB2_ERROR_AMBIGUOUS_FUNCTION => 'Ambiguous function',
-                MDB2_ERROR_GROUPING => 'Grouping error',
-                MDB2_ERROR_DATATYPE_MISMATCH => 'Datatype mismatch',
-                MDB2_ERROR_INVALID_OBJECT_TYPE => 'Wrong object type',
-                MDB2_ERROR_INVALID_FOREIGN_KEY => 'Invalid foreign key',
-                MDB2_ERROR_CANNOT_COERCE => 'Cannot coerce',
-                MDB2_ERROR_UNDEFINED_FUNCTION => 'Undefined function',
-                MDB2_ERROR_RESERVED_NAME => 'Reserved name',
-                MDB2_ERROR_UNDEFINED_TABLE => 'Undefined table',
-                MDB2_ERROR_DUPLICATE_PARAM => 'Undefined parameter',
-                MDB2_ERROR_DUPLICATE_CURSOR => 'Duplicate cursor',
-                MDB2_ERROR_DUPLICATE_DATABASE => 'Duplicate database',
-                MDB2_ERROR_DUPLICATE_STATEMENT => 'Duplicate prepared statement',
-                MDB2_ERROR_DUPLICATE_SCHEMA => 'Duplicate schema',
-                MDB2_ERROR_DUPLICATE_TABLE => 'Duplicate table',
-                MDB2_ERROR_AMBIGUPUS_PARAM => 'Ambiguous parameter',
-                MDB2_ERROR_AMBIGUOUS_ALIAS => 'Ambiguous alias',
-                MDB2_ERROR_INVALID_COLUMN_REFERENCE => 'Invalid column reference',
-                MDB2_ERROR_INVALID_CURSOR_DEFINITION => 'Invalid cursor definition',
-                MDB2_ERROR_INVALID_DATABASE_DEFINITION => 'Invalid database definition',
-                MDB2_ERROR_INVALID_FUNCTION_DEFINITION => 'Invalid function definition',
-                MDB2_ERROR_INVALID_STATEMENT_DEFINITION => 'Invalid prepared statement definition',
-                MDB2_ERROR_INVALID_SCHEMA_DEFINITION => 'Invalid schema definition',
-                MDB2_ERROR_INVALID_TABLE_DEFINITION => 'Invalid table definition',
-                MDB2_ERROR_INVALID_OBJECT_DEFINITION => 'Invalid object definition',
-                MDB2_ERROR_INDETERMINATE_DATA_TYPE => 'Indeterminate datatype',
-                MDB2_ERROR_TABLE_EXISTS => 'Base table or view already exists',
-                MDB2_ERROR_TABLE_NOT_FOUND => 'Base table or view not found',
-                MDB2_ERROR_INDEX_EXISTS => 'Index already exists',
-                MDB2_ERROR_INDEX_NOT_FOUND => 'Index not found',
-                MDB2_ERROR_COLUMN_EXISTS => 'Column already exists',
-                MDB2_ERROR_COLUMN_NOT_FOUND => 'Column not found',
-                MDB2_ERROR_CHECK_OPTION_VIOLATION => 'WITH CHECK OPTION violation',
-                MDB2_ERROR_INSUFFICIENT_RESOURCES => 'Insufficient resources',
-                MDB2_ERROR_DISK_FULL => 'Disk full',
-                MDB2_ERROR_OUT_OF_MEMORY => 'Out of memory',
-                MDB2_ERROR_TOO_MANY_CONNECTIONS => 'Too many connections',
-                MDB2_ERROR_LIMIT_EXCEEDED => 'Program limit exceeded',
-                MDB2_ERROR_STATMENT_TOO_COMPLEX => 'Statement too complex',
-                MDB2_ERROR_TOO_MANY_COLUMNS => 'Too many columns',
-                MDB2_ERROR_TOO_MANY_ARGUMENTS => 'Too many arguments',
-                MDB2_ERROR_OBJECT_STATE => 'Object not in prerequisite state',
-                MDB2_ERROR_IN_USE => 'Object in use',
-                MDB2_ERROR_CANNOT_CHANGE_PARAM => 'Cant change runtime param',
-                MDB2_ERROR_LOCK_UNAVAILABLE => 'Lock not available',
-                MDB2_ERROR_OPERATOR_INTERVENTION => 'Operator intervention',
-                MDB2_ERROR_QUERY_CANCLED => 'Query canceled',
-                MDB2_ERROR_ADMIN_SHUTDOWN => 'Admin shutdown',
-                MDB2_ERROR_CRASH_SHUTDOWN => 'Crash shutdown',
-                MDB2_ERROR_CONNECT => 'Cannot connect now',
-                MDB2_ERROR_IO => 'Io error',
-                MDB2_ERROR_UNDEFINED_FILE => 'Undefined file',
-                MDB2_ERROR_DUPLICATE_FILE => 'Duplicate file',
-                MDB2_ERROR_CONFIG => 'Config file error',
-                MDB2_ERROR_LOCK_EXISTS => 'Lock file exists',
-                MDB2_ERROR => 'General error',
-                MDB2_ERROR_MEMORY_ALLOCATION => 'Memory allocation error',
-                MDB2_ERROR_INVALID_BUFFER_TYPE => 'Invalid application buffer type',
-                MDB2_ERROR_INVALID_DATA_TYPE => 'Invalid SQL data type',
-                MDB2_ERROR_STATEMENT_NOT_PREPARED => 'Associated statement is not prepared',
-                MDB2_ERROR_CANCLED => 'Operation canceled',
-                MDB2_ERROR_INVALID_NULL_POINTER => 'Invalid use of null pointer',
-                MDB2_ERROR_FUNCTION_SEQUENCE => 'Function sequence error',
-                MDB2_ERROR_SET_ATTRIBUTE => 'Attribute cannot be set now',
-                MDB2_ERROR_INVALID_TRANSACTION_OPERATION_CODE => 'Invalid transaction operation code',
-                MDB2_ERROR_MEMORY => 'Memory management error',
-                MDB2_ERROR_TOO_MANY_HANDLES => 'Limit on the number of handles exceeded',
-                MDB2_ERROR_CURSOR_NAME_MISSING => 'No cursor name available',
-                MDB2_ERROR_CANNOT_MODIFY_DESCRIPTOR => 'Cannot modify an implementation row descriptor',
-                MDB2_ERROR_INVALID_DESCRIPTOR_USE => 'Invalid use of an automatically allocated descriptor handle',
-                MDB2_ERROR_SERVER_DECLINED => 'Server declined cancel request',
-                MDB2_ERROR_NON_CHAR_SENT_IN_PIECES => 'Non-character and non-binary data sent in pieces',
-                MDB2_ERROR_NULL_CONCAT_ATTEMPT => 'Attempt to concatenate a null value',
-                MDB2_ERROR_INCONSISTENT_DESCRIPTOR => 'Inconsistent descriptor information',
-                MDB2_ERROR_INVALID_ATTRIBUTE_VALUE => 'Invalid attribute value',
-                MDB2_ERROR_INVALID_LENGTH => 'Invalid string or buffer length',
-                MDB2_ERROR_INVALID_DESCRIPTOR_ID => 'Invalid descriptor field identifier',
-                MDB2_ERROR_INVALID_ATTRIBUTE_ID => 'Invalid attribute/option identifier',
-                MDB2_ERROR_INVALID_PARAMETER_NUM => 'Invalid parameter number',
-                MDB2_ERROR_FUNCTION_OUT_OF_RANGE => 'Function type out of range',
-                MDB2_ERROR_INVALID_TYPE => 'Invalid information type',
-                MDB2_ERROR_COLUMN_OUT_OF_RANGE => 'Column type out of range',
-                MDB2_ERROR_SCOPE_OUT_OF_RANGE => 'Scope type out of range',
-                MDB2_ERROR_NULLABLE_OUT_OF_RANGE => 'Nullable type out of range',
-                MDB2_ERROR_UNQIUE_OUT_OF_RANGE => 'Uniqueness option type out of range',
-                MDB2_ERROR_ACCURACY_OUT_OF_RANGE => 'Accuracy option type out of range',
-                MDB2_ERROR_INVALID_RETRIEVAL_CODE => 'Invalid retrieval code',
-                MDB2_ERROR_INVALID_PRECISION => 'Invalid precision or scale value',
-                MDB2_ERROR_INVALID_PARAMETER_TYPE => 'Invalid parameter type',
-                MDB2_ERROR_FETCH_OUT_OF_RANGE => 'Fetch type out of range',
-                MDB2_ERROR_ROW_OUT_OF_RANGE => 'Row value out of range',
-                MDB2_ERROR_INVALID_CURSOR_POSITION => 'Invalid cursor position',
-                MDB2_ERROR_INVALID_COMPLETION => 'Invalid driver completion',
-                MDB2_ERROR_INVALID_BOOKMARK => 'Invalid bookmark value',
-                MDB2_ERROR_OPTIONAL_NOT_IMPLEMENTED => 'Optional feature not implemented',
-                MDB2_ERROR_TIMEOUT => 'Timeout expired',
-                MDB2_ERROR_CONNECTION_TIMEOUT => 'Connection timeout expired',
-                MDB2_ERROR_UNSUPPORTED => 'Driver does not support this function',
-                MDB2_ERROR_DSN_NOT_FOUND => 'Data source name not found and no default driver specified',
-                MDB2_ERROR_DRIVER_LOAD => 'Specified driver could not be loaded',
-                MDB2_ERROR_DRIVER_SET_HANDLE_ON_ENV => 'Driver\'s SQLAllocHandle on SQL_HANDLE_ENV failed',
-                MDB2_ERROR_DRIVER_SET_HANDLE_ON_DBC => 'Driver\'s SQLAllocHandle on SQL_HANDLE_DBC failed',
-                MDB2_ERROR_DRIVER_SET_ATTRIBUTE => 'Driver\'s SQLSetConnectAttr failed',
-                MDB2_ERROR_DSN_MISSING => 'No data source or driver specified; dialog prohibited',
-                MDB2_ERROR_DIALOG => 'Dialog failed',
-                MDB2_ERROR_DLL_LOAD => 'Unable to load translation DLL',
-                MDB2_ERROR_DSN_TOO_LONG => 'Data source name too long',
-                MDB2_ERROR_DRIVER_NAME_TOO_LONG => 'Driver name too long',
-                MDB2_ERROR_DRIVER_KEYWORD_SYNTAX => 'DRIVER keyword syntax error',
-                MDB2_ERROR_TRACE_FILE => 'Trace file error',
-                MDB2_ERROR_INVALID_DSN => 'Invalid name of File DSN',
-                MDB2_ERROR_CORRUPT_FILE_DATA_SOURCE => 'Corrupt file data source',
-                MDB2_ERROR_PLPGSQL => 'Plpgsql error',
-                MDB2_ERROR_RAISE_EXCEPTION => 'Raise exception',
-                MDB2_ERROR_INTERNAL_ERROR => 'Internal error',
-                MDB2_ERROR_DATA_CORRUPTED => 'Data corrupted',
-                MDB2_ERROR_INDEX_CORRUPTED => 'Index corrupted',
-*/
             );
         }
 
@@ -1755,14 +1216,6 @@ class MDB2_Driver_Common extends PEAR
                 }
             } else {
                 $userinfo = "[Error message: $userinfo]\n";
-            }
-        }
-
-        if (isset($this) && isset($this->_expected_errors)
-            && count($this->_expected_errors) && count($exp = end($this->_expected_errors))
-        ) {
-            if ($exp[0] == "*" || in_array($code, $exp)) {
-                $mode = PEAR_ERROR_RETURN;
             }
         }
 
@@ -3402,9 +2855,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function bindColumn($column, &$value, $type = null)
     {
-        if (is_numeric($column)) {
-            --$column;
-        } else {
+        if (!is_numeric($column)) {
             $column_names = $this->getColumnNames();
             if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
                 $column = strtolower($column);
@@ -3532,9 +2983,7 @@ class MDB2_Statement_Common
      */
     function bindParam($parameter, &$value, $type = null)
     {
-        if (is_numeric($parameter)) {
-            --$parameter;
-        } else {
+        if (!is_numeric($parameter)) {
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
         }
         $this->values[$parameter] =& $value;
@@ -3562,14 +3011,8 @@ class MDB2_Statement_Common
     {
         $types = is_array($types) ? array_values($types) : array_fill(0, count($values), null);
         $parameters = array_keys($values);
-        if (is_numeric(reset($parameters))) {
-            foreach ($parameters as $key => $parameter) {
-                $this->bindParam(($parameter+1), $values[$parameter], $types[$key]);
-            }
-       } else {
-            foreach ($parameters as $key => $parameter) {
-                $this->bindParam($parameter, $values[$parameter], $types[$key]);
-            }
+        foreach ($parameters as $key => $parameter) {
+            $this->bindParam($parameter, $values[$parameter], $types[$key]);
         }
         return MDB2_OK;
     }
@@ -3615,15 +3058,13 @@ class MDB2_Statement_Common
     {
         $query = '';
         $last_position = $i = 0;
-        $types_numeric = is_numeric(key($this->types));
         foreach ($this->values as $parameter => $value) {
             $current_position = $this->statement[$parameter];
             $query .= substr($this->query, $last_position, $current_position - $last_position);
             if (!isset($value)) {
                 $value_quoted = 'NULL';
             } else {
-                $type_key = $types_numeric ? $i : $parameter;
-                $type = isset($this->types[$type_key]) ? $this->types[$type_key] : null;
+                $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
                 $value_quoted = $this->db->quote($value, $type);
                 if (PEAR::isError($value_quoted)) {
                     return $value_quoted;
