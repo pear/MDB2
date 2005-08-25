@@ -73,30 +73,17 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
         }
         $this->db->setDatabase($this->database);
         $this->db->loadModule('Reverse');
-
         $this->fields = array(
-                        'user_name',
-                        'user_password',
-                        'subscribed',
-                        'user_id',
-                        'quota',
-                        'weight',
-                        'access_date',
-                        'access_time',
-                        'approved'
-                        );
-
-        $this->types = array(
-                        'text',
-                        'text',
-                        'boolean',
-                        'integer',
-                        'decimal',
-                        'float',
-                        'date',
-                        'time',
-                        'timestamp'
-                    );
+            'user_name' => 'text',
+            'user_password' => 'text',
+            'subscribed' => 'boolean',
+            'user_id' => 'integer',
+            'quota' => 'decimal',
+            'weight' => 'float',
+            'access_date' => 'date',
+            'access_time' => 'time',
+            'approved' => 'timestamp',
+        );
     }
 
     function tearDown() {
@@ -133,7 +120,7 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
                 $this->assertEquals('users', $field_info['table'], "the table name is not correct");
-                if (!in_array(strtolower($field_info['name']), $this->fields)) {
+                if (!array_key_exists(strtolower($field_info['name']), $this->fields)) {
                     $this->assertTrue(false, 'Field names do not match ('.$field_info['name'].' is unknown)');
                 }
                 //expand test, for instance adding a check on types...

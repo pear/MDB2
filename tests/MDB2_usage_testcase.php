@@ -73,27 +73,16 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         }
         $this->db->setDatabase($this->database);
         $this->fields = array(
-                        'user_name',
-                        'user_password',
-                        'subscribed',
-                        'user_id',
-                        'quota',
-                        'weight',
-                        'access_date',
-                        'access_time',
-                        'approved'
-                    );
-        $this->types = array(
-                        'text',
-                        'text',
-                        'boolean',
-                        'integer',
-                        'decimal',
-                        'float',
-                        'date',
-                        'time',
-                        'timestamp'
-                    );
+            'user_name' => 'text',
+            'user_password' => 'text',
+            'subscribed' => 'boolean',
+            'user_id' => 'integer',
+            'quota' => 'decimal',
+            'weight' => 'float',
+            'access_date' => 'date',
+            'access_time' => 'time',
+            'approved' => 'timestamp',
+        );
         $this->clearTables();
     }
 
@@ -125,16 +114,17 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
     function verifyFetchedValues(&$result, $rownum, &$data) {
         $row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
-        for ($i = 0; $i < count($this->fields); $i++) {
-            $value = $row[$i];
-            $field = $this->fields[$i];
-            if ($this->types[$i] == 'float') {
+        reset($row);
+        foreach ($this->fields as $field => $type) {
+            $value = current($row);
+            if ($type == 'float') {
                 $delta = 0.0000000001;
             } else {
                 $delta = 0;
             }
 
             $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" doesn't match what was stored into the row $rownum", $delta);
+            next($row);
         }
     }
 
@@ -162,7 +152,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     function testStorage() {
         $data = $this->getSampleData(1234);
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
@@ -170,7 +160,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
-        $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
+        $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users', $this->fields);
 
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
@@ -190,7 +180,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -203,16 +193,14 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $stmt->free();
 
-        $total_fields = count($this->fields);
-        for ($i = 0; $i < $total_fields; $i++) {
-            $field = $this->fields[$i];
+        foreach ($this->fields as $field => $type) {
             for ($row = 0; $row < $total_rows; $row++) {
-                $result =& $this->db->query('SELECT '.$field.' FROM users WHERE user_id='.$row, $this->types[$i]);
+                $result =& $this->db->query('SELECT '.$field.' FROM users WHERE user_id='.$row, $type);
                 $value = $result->fetchOne();
                 if (PEAR::isError($value)) {
-                    $this->assertTrue(false, 'Error fetching row '.$row.' for field '.$field.' of type '.$this->types[$i]);
+                    $this->assertTrue(false, 'Error fetching row '.$row.' for field '.$field.' of type '.$type);
                 } else {
-                    $this->assertEquals(strval($data[$row][$field]), strval(trim($value)), 'the query field '.$field.' of type '.$this->types[$i].' for row '.$row);
+                    $this->assertEquals(strval($data[$row][$field]), strval(trim($value)), 'the query field '.$field.' of type '.$type.' for row '.$row);
                     $result->free();
                 }
             }
@@ -228,7 +216,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -285,7 +273,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -300,9 +288,9 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         $stmt->free();
 
-        //$result =& $this->db->query('SELECT user_name, user_password, FROM users', $this->types);
+        //$result =& $this->db->query('SELECT user_name, user_password, FROM users', $this->fields);
         //$result =& $this->db->query('SELECT * FROM users');
-        $result =& $this->db->query($query, $this->types);
+        $result =& $this->db->query($query, $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
@@ -330,7 +318,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 1)", array('text'));
 
         $value = 'Sure!';
-        $stmt->bindParam(1, $value);
+        $stmt->bindParam(0, $value);
 
         $result = $stmt->execute();
 
@@ -371,7 +359,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     function testMetadata() {
         $data = $this->getSampleData(1234);
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
@@ -379,7 +367,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
-        $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
+        $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users', $this->fields);
 
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
@@ -390,8 +378,9 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $this->assertEquals(count($this->fields), $numcols, "The query result returned an incorrect number of columns unlike expected");
 
         $column_names = $result->getColumnNames();
+        $fields = array_keys($this->fields);
         for ($column = 0; $column < $numcols; $column++) {
-            $this->assertEquals($column, $column_names[$this->fields[$column]], "The query result column \"".$this->fields[$column]."\" was returned in an incorrect position");
+            $this->assertEquals($column, $column_names[$fields[$column]], "The query result column \"".$fields[$column]."\" was returned in an incorrect position");
         }
 
     }
@@ -513,7 +502,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -530,7 +519,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->db->setLimit($rows, $start_row);
 
-            $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users ORDER BY user_name', $this->types);
+            $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name', $this->fields);
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
@@ -549,7 +538,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
             $this->db->setLimit($rows, $start_row);
 
-            $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users ORDER BY user_name', $this->types);
+            $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name', $this->fields);
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
@@ -708,7 +697,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertEquals(1, $result, "replacing a row in an empty table returned incorrect value");
         }
 
-        $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
+        $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users', $this->fields);
 
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
@@ -735,7 +724,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertEquals(2, $result, "replacing a row returned incorrect result");
         }
 
-        $result =& $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users', $this->types);
+        $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users', $this->fields);
 
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
@@ -760,7 +749,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = array();
         $total_rows = 7;
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -780,8 +769,8 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         for ($row = 0; $row < $total_rows; $row++) {
             $password = "another_password_$row";
             if ($row == 0) {
-                $stmt->bindParam(1, $password);
-                $stmt->bindParam(2, $row);
+                $stmt->bindParam(0, $password);
+                $stmt->bindParam(1, $row);
             }
 
             $result = $stmt->execute();
@@ -798,7 +787,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $stmt = $this->db->prepare('DELETE FROM users WHERE user_id >= ?', array('integer'));
 
         $row = intval($total_rows / 2);
-        $stmt->bindParam(1, $row);
+        $stmt->bindParam(0, $row);
         for ($row = $total_rows; $total_rows; $total_rows = $row) {
             $row = intval($total_rows / 2);
 
@@ -826,7 +815,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = $this->getSampleData(0);
 
         $this->db->beginTransaction();
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
         $result = $stmt->execute(array_values($data));
         $this->db->rollback();
         $stmt->free();
@@ -850,7 +839,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = $this->getSampleData(1);
 
         $this->db->beginTransaction();
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
         $result = $stmt->execute(array_values($data));
         $this->db->commit();
         $stmt->free();
@@ -1105,7 +1094,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
         $data = $this->getSampleData(1234);
         $data['user_password'] = '';
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
@@ -1113,7 +1102,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
-        $row = $this->db->queryRow('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users WHERE user_password IS NULL', $this->types);
+        $row = $this->db->queryRow('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users WHERE user_password IS NULL', $this->fields);
 
         if (PEAR::isError($row)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());

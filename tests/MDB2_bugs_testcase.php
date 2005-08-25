@@ -72,27 +72,16 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         }
         $this->db->setDatabase($this->database);
         $this->fields = array(
-                        'user_name',
-                        'user_password',
-                        'subscribed',
-                        'user_id',
-                        'quota',
-                        'weight',
-                        'access_date',
-                        'access_time',
-                        'approved'
-                    );
-        $this->types = array(
-                        'text',
-                        'text',
-                        'boolean',
-                        'integer',
-                        'decimal',
-                        'float',
-                        'date',
-                        'time',
-                        'timestamp'
-                    );
+            'user_name' => 'text',
+            'user_password' => 'text',
+            'subscribed' => 'boolean',
+            'user_id' => 'integer',
+            'quota' => 'decimal',
+            'weight' => 'float',
+            'access_date' => 'date',
+            'access_time' => 'time',
+            'approved' => 'timestamp',
+        );
         $this->clearTables();
     }
 
@@ -116,16 +105,17 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
 
     function verifyFetchedValues(&$result, $rownum, &$data) {
         $row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
-        for ($i = 0; $i < count($this->fields); $i++) {
-            $value = $row[$i];
-            $field = $this->fields[$i];
-            if ($this->types[$i] == 'float') {
+        reset($row);
+        foreach ($this->fields as $field => $type) {
+            $value = current($row);
+            if ($type == 'float') {
                 $delta = 0.0000000001;
             } else {
                 $delta = 0;
             }
 
             $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" doesn't match what was stored into the row $rownum", $delta);
+            next($row);
         }
     }
 
@@ -135,7 +125,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
     function testFetchModeBug() {
         $data = array();
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
 
         $data['user_name'] = 'user_=';
         $data['user_password'] = 'somepassword';
@@ -204,7 +194,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $data['access_time'] = MDB2_Date::mdbTime();
         $data['approved'] = MDB2_Date::mdbNow();
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
         $result = $stmt->execute(array_values($data));
 
         $result = $this->db->query('SELECT user_name FROM users');
@@ -248,7 +238,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $data['access_time'] = MDB2_Date::mdbTime();
         $data['approved'] = MDB2_Date::mdbNow();
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
         $result = $stmt->execute(array_values($data));
 
         $result = $this->db->query('SELECT * FROM users');
@@ -272,7 +262,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $data['access_time'] = MDB2_Date::mdbTime();
         $data['approved'] = MDB2_Date::mdbNow();
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
         $result = $stmt->execute(array_values($data));
 
         $row = $this->db->queryRow('SELECT a.user_id, b.user_id FROM users a, users b where a.user_id = b.user_id', array('integer', 'integer'), MDB2_FETCHMODE_ORDERED);
@@ -288,7 +278,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row]['user_name'] = "user_$row";
@@ -336,7 +326,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $this->types);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row]['user_name'] = "user_$row";
@@ -356,7 +346,7 @@ class MDB2_Bugs_TestCase extends PHPUnit_TestCase {
         }
         $stmt->free();
 
-        $result = $this->db->query('SELECT user_name, user_password, subscribed, user_id, quota, weight, access_date, access_time, approved FROM users ORDER BY user_id', $this->types);
+        $result = $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_id', $this->fields);
 
         $numrows = $result->numRows($result);
 

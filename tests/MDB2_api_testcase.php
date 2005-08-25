@@ -72,28 +72,16 @@ class MDB2_Api_TestCase extends PHPUnit_TestCase {
         }
         $this->db->setDatabase($this->database);
         $this->fields = array(
-                        'user_name',
-                        'user_password',
-                        'subscribed',
-                        'user_id',
-                        'quota',
-                        'weight',
-                        'access_date',
-                        'access_time',
-                        'approved'
-                        );
-
-        $this->types = array(
-                        'text',
-                        'text',
-                        'boolean',
-                        'integer',
-                        'decimal',
-                        'float',
-                        'date',
-                        'time',
-                        'timestamp'
-                    );
+            'user_name' => 'text',
+            'user_password' => 'text',
+            'subscribed' => 'boolean',
+            'user_id' => 'integer',
+            'quota' => 'decimal',
+            'weight' => 'float',
+            'access_date' => 'date',
+            'access_time' => 'time',
+            'approved' => 'timestamp',
+        );
     }
 
     function tearDown() {
