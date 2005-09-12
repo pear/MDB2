@@ -550,7 +550,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
                 }
-                $name = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/i', '\\1', $query);
+                $name = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
                 if ($name === '') {
                     $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                         'prepare: named parameter with an empty name');
