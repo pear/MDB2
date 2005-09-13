@@ -148,6 +148,81 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
+    // {{{ _getIntegerDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare an integer type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name name the field to be declared.
+     * @param array $field associative array with the name of the properties
+     *       of the field being declared as array indexes. Currently, the types
+     *       of supported field properties are as follows:
+     *
+     *       unsigned
+     *           Boolean flag that indicates whether the field should be
+     *           declared as unsigned integer if possible.
+     *
+     *       default
+     *           Integer value to be used as default for this field.
+     *
+     *       notnull
+     *           Boolean flag that indicates whether this field is constrained
+     *           to not be set to null.
+     * @param string $current_table name of the current table being processed
+     *           by alterTable(), used for autoincrement emulation
+     * @return string DBMS specific SQL code portion that should be used to
+     *       declare the specified field.
+     * @access protected
+     */
+    function _getIntegerDeclaration($name, $field, $current_table=null)
+    {
+        if (isset($field['unsigned']) && $field['unsigned']) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
+        }
+
+        if (isset($field['autoincrement']) && $field['autoincrement']) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            if (is_null($current_table)) {
+                return $db->raiseError(MDB2_ERROR, null, null,
+                    '_getIntegerDeclaration: missing table name');
+            }
+            $db->loadModule('Manager');
+            $result = $db->manager->createSequence($current_table);
+            if (PEAR::isError($result)) {
+                return $db->raiseError(MDB2_ERROR, null, null,
+                    '_getIntegerDeclaration: sequence for autoincrement PK could not be created');
+            }
+            $sequence_name = $db->getSequenceName($current_table);
+            $trigger_name  = $current_table . '_autoincrement_' . $name;
+            $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $current_table . '
+                            ACTIVE BEFORE INSERT POSITION 0
+                            AS
+                            BEGIN
+                            IF (NEW.' . $name . ' IS NULL) THEN
+                                NEW.' . $name . ' = GEN_ID('.strtoupper($sequence_name).', 1);
+                            END';
+
+            $result = $db->query($trigger_sql);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+            return $name.' PRIMARY KEY';
+        }
+        $default = isset($field['default']) ? ' DEFAULT '.
+            $this->quote($field['default'], 'integer') : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        return $name.' INT'.$default.$notnull;
+    }
+
+    // }}}
     // {{{ _getTextDeclaration()
 
     /**
