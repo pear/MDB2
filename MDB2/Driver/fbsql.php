@@ -484,9 +484,9 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @fbsql_fetch_assoc($this->result);
             if (is_array($row)
-                && $this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && $this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             ) {
-                $row = array_change_key_case($row, CASE_LOWER);
+                $row = array_change_key_case($row, $this->db->options['field_case']);
             }
         } else {
            $row = @fbsql_fetch_row($this->result);
@@ -501,7 +501,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
             return $null;
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->db->_convertEmptyArrayValuesToNull($row);
+            $this->db->_fixResultArrayValues($row, MDB2_PORTABILITY_EMPTY_TO_NULL);
         }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
@@ -550,8 +550,8 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
             $column_name = @fbsql_field_name($this->result, $column);
             $columns[$column_name] = $column;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $columns = array_change_key_case($columns, CASE_LOWER);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $columns = array_change_key_case($columns, $this->db->options['field_case']);
         }
         return $columns;
     }

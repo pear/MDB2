@@ -707,9 +707,9 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @ibase_fetch_assoc($this->result);
             if (is_array($row)
-                && $this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && $this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             ) {
-                $row = array_change_key_case($row, CASE_LOWER);
+                $row = array_change_key_case($row, $this->db->options['field_case']);
             }
         } else {
             $row = @ibase_fetch_row($this->result);
@@ -723,11 +723,10 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             $null = null;
             return $null;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->db->_rtrimArrayValues($row);
-        }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->db->_convertEmptyArrayValuesToNull($row);
+        if (($mode = ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM)
+            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL))
+        ) {
+            $this->db->_fixResultArrayValues($row, $mode);
         }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
@@ -772,8 +771,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             $column_info = @ibase_field_info($this->result, $column);
             $columns[$column_info['alias']] = $column;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $columns = array_change_key_case($columns, CASE_LOWER);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $columns = array_change_key_case($columns, $this->db->options['field_case']);
         }
         return $columns;
     }
@@ -935,20 +934,16 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             }
             $row = $column_names;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->db->_convertEmptyArrayValuesToNull($row);
+        if (($mode = ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM)
+            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL))
+        ) {
+            $this->db->_fixResultArrayValues($row, $mode);
         }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
         }
         if (!empty($this->types)) {
             $row = $this->db->datatype->convertResultRow($this->types, $row);
-        }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->db->_rtrimArrayValues($row);
-        }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->db->_convertEmptyArrayValuesToNull($row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
             $object_class = $this->db->options['fetch_class'];

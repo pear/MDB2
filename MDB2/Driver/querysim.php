@@ -542,11 +542,10 @@ class MDB2_Result_querysim extends MDB2_Result_Common
             }
             $row = $column_names;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->db->_rtrimArrayValues($row);
-        }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->db->_convertEmptyArrayValuesToNull($row);
+        if (($mode = ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM)
+            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL))
+        ) {
+            $this->db->_fixResultArrayValues($row, $mode);
         }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
@@ -591,8 +590,8 @@ class MDB2_Result_querysim extends MDB2_Result_Common
                 'getColumnNames: resultset has already been freed');
         }
         $columns = array_flip($this->result[0]);
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $columns = array_change_key_case($columns, CASE_LOWER);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $columns = array_change_key_case($columns, $this->db->options['field_case']);
         }
         return $columns;
     }

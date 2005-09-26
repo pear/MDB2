@@ -716,9 +716,9 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             @OCIFetchInto($this->result, $row, OCI_ASSOC+OCI_RETURN_NULLS);
             if (is_array($row)
-                && $this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && $this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             ) {
-                $row = array_change_key_case($row, CASE_LOWER);
+                $row = array_change_key_case($row, $this->db->options['field_case']);
             }
         } else {
             @OCIFetchInto($this->result, $row, OCI_RETURN_NULLS);
@@ -734,7 +734,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
 
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->db->_rtrimArrayValues($row);
+            $this->db->_fixResultArrayValues($row, MDB2_PORTABILITY_RTRIM);
         }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
@@ -779,8 +779,8 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             $column_name = @OCIColumnName($this->result, $column + 1);
             $columns[$column_name] = $column;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $columns = array_change_key_case($columns, CASE_LOWER);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $columns = array_change_key_case($columns, $this->db->options['field_case']);
         }
         return $columns;
     }
