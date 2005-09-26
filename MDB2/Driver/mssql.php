@@ -45,7 +45,7 @@
 //
 // $Id$
 //
-
+// {{{ Class MDB2_Driver_mssql
 /**
  * MDB2 MSSQL Server driver
  *
@@ -385,12 +385,32 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             $fetch = $offset + $limit;
             if (!$isManip) {
                 return preg_replace('/^([\s(])*SELECT(?!\s*TOP\s*\()/i',
-                    "\\1SELECT TOP($fetch)", $query);
+                    "\\1SELECT TOP $fetch", $query);
             }
         }
         return $query;
     }
-
+    // }}}
+    // {{{ _checkSequence
+    /**
+     * Checks wether there's a sequence that exists.
+     *
+     * @param  string $seq_name    The sequence name to verify.
+     * @return bool   $tableExists The value if the table exists or not 
+     * @access private
+     */
+    function _checkSequence($seq_name)
+    {
+        $query       = "SELECT * FROM $seq_name";
+        $tableExists = $this->_doQuery($query, true);
+        if (PEAR::isError($tableExists)) {
+            if ($tableExists->getCode() == MDB2_ERROR_NOSUCHTABLE) {
+                return 0;
+            }
+        } else {
+            return 1;
+        }
+    }
     // }}}
     // {{{ nextID()
 
@@ -408,12 +428,17 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function nextID($seq_name, $ondemand = true)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        $query = "INSERT INTO $sequence_name (".$this->options['seqcol_name'].") VALUES (0)";
+        if (!$this->_checkSequence($sequence_name)) {
+            $query = "INSERT INTO $sequence_name (".$this->options['seqcol_name'].") VALUES (0)";
+        } else {
+            $query = "SET IDENTITY_INSERT $sequence_name ON ".
+                     "INSERT INTO $sequence_name (".$this->options['seqcol_name'].") VALUES (0)";
+        }
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);
         $this->popExpect();
         if (PEAR::isError($result)) {
-            if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
+            if ($ondemand && !$this->_checkSequence($sequence_name)) {
                 $this->loadModule('Manager');
                 // Since we are creating the sequence on demand
                 // we know the first id = 1 so initialize the
@@ -429,9 +454,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             }
             return $result;
         }
-        $value = $this->queryOne("SELECT @@IDENTITY FROM $sequence_name", 'integer');
+        $value = $this->queryOne("SELECT @@IDENTITY", 'integer');
         if (is_numeric($value)) {
-            $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqcol_name']." < $value";
+            $query = "DELETE FROM $sequence_name WHERE ".
+                     $this->options['seqcol_name']." < $value";
             $result = $this->_doQuery($query, true);
             if (PEAR::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values';
@@ -439,10 +465,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
         return $value;
     }
-
     // }}}
     // {{{ lastInsertID()
-
     /**
      * returns the autoincrement ID if supported or $id
      *
@@ -455,7 +479,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     {
         return $this->queryOne("SELECT @@IDENTITY FROM $table", 'integer');
     }
+    // }}}
 }
+// }}}
+// {{{ Class MDB2_Result_mssql
 
 class MDB2_Result_mssql extends MDB2_Result_Common
 {
@@ -725,10 +752,12 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
         return $rows;
     }
 }
-
+// }}}
+// {{{ MDB2_Statement_mssql
 class MDB2_Statement_mssql extends MDB2_Statement_Common
 {
 
 }
+// }}}
 
 ?>
