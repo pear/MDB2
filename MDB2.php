@@ -143,11 +143,11 @@ define('MDB2_FETCHMODE_FLIPPED',  4);
 define('MDB2_PORTABILITY_NONE', 0);
 
 /**
- * Portability: convert names of tables and fields to lower case
- * when using the query*(), fetch*() and tableInfo() methods.
+ * Portability: convert names of tables and fields to case defined in the
+ * "field_case" option when using the query*(), fetch*() and tableInfo() methods.
  * @see MDB2_Driver_Common::setOption()
  */
-define('MDB2_PORTABILITY_LOWERCASE', 1);
+define('MDB2_PORTABILITY_FIX_CASE', 1);
 
 /**
  * Portability: right trim the data output by query*() and fetch*().
@@ -190,10 +190,16 @@ define('MDB2_PORTABILITY_ERRORS', 16);
 define('MDB2_PORTABILITY_EMPTY_TO_NULL', 32);
 
 /**
+ * Portability: convert names of fields to not include any database or table names.
+ * @see MDB2_Driver_Common::setOption()
+ */
+define('MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES', 64);
+
+/**
  * Portability: turn on all portability features.
  * @see MDB2_Driver_Common::setOption()
  */
-define('MDB2_PORTABILITY_ALL', 63);
+define('MDB2_PORTABILITY_ALL', 127);
 
 /**
  * These are global variables that are used to track the various class instances
@@ -937,6 +943,7 @@ class MDB2_Driver_Common extends PEAR
 
     /**
      * $options['ssl'] -> determines if ssl should be used for connections
+     * $options['field_case'] -> determines what case to force on field/table names
      * $options['disable_query'] -> determines if querys should be executed
      * $options['result_class'] -> class used for result sets
      * $options['buffered_result_class'] -> class used for buffered result sets
@@ -959,6 +966,7 @@ class MDB2_Driver_Common extends PEAR
      */
     var $options = array(
             'ssl' => false,
+            'field_case' => CASE_LOWER,
             'disable_query' => false,
             'result_class' => 'MDB2_Result_%s',
             'buffered_result_class' => 'MDB2_BufferedResult_%s',
@@ -1434,40 +1442,73 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ _rtrimArrayValues()
+    // {{{ _fixResultArrayValues()
 
     /**
-     * Right trim all strings in an array
+     * Do all necessary conversions on result arrays to fix DBMS quirks
      *
-     * @param array  $array  the array to be trimmed (passed by reference)
+     * @param array  $array  the array to be fixed (passed by reference)
      * @return void
      * @access protected
      */
-    function _rtrimArrayValues(&$array)
+    function _fixResultArrayValues(&$array, $mode)
     {
-        foreach ($array as $key => $value) {
-            if (is_string($value)) {
-                $array[$key] = rtrim($value);
+        switch ($mode) {
+        case MDB2_PORTABILITY_RTRIM:
+            foreach ($array as $key => $value) {
+                if (is_string($value)) {
+                    $array[$key] = rtrim($value);
+                }
             }
-        }
-    }
-
-    // }}}
-    // {{{ _convertEmptyArrayValuesToNull()
-
-    /**
-     * Convert all empty values in an array to null strings
-     *
-     * @param array  $array  the array to be de-nullified (passed by reference)
-     * @return void
-     * @access protected
-     */
-    function _convertEmptyArrayValuesToNull(&$array)
-    {
-        foreach ($array as $key => $value) {
-            if ($value === '') {
-                $array[$key] = null;
+        case MDB2_PORTABILITY_EMPTY_TO_NULL:
+            foreach ($array as $key => $value) {
+                if ($value === '') {
+                    $array[$key] = null;
+                }
             }
+        case MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES:
+            $tmp_array = array();
+            foreach ($array as $key => $value) {
+                $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
+            }
+            $array = $tmp_array;
+        case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_EMPTY_TO_NULL):
+            foreach ($array as $key => $value) {
+                if ($value === '') {
+                    $array[$key] = null;
+                } elseif (is_string($value)) {
+                    $array[$key] = rtrim($value);
+                }
+            }
+        case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
+            $tmp_array = array();
+            foreach ($array as $key => $value) {
+                if (is_string($value)) {
+                    $value = rtrim($value);
+                }
+                $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
+            }
+            $array = $tmp_array;
+        case (MDB2_PORTABILITY_EMPTY_TO_NULL + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
+            $tmp_array = array();
+            foreach ($array as $key => $value) {
+                if ($value === '') {
+                    $value = null;
+                }
+                $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
+            }
+            $array = $tmp_array;
+        case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_EMPTY_TO_NULL + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
+            $tmp_array = array();
+            foreach ($array as $key => $value) {
+                if ($value === '') {
+                    $value = null;
+                } elseif (is_string($value)) {
+                    $value = rtrim($value);
+                }
+                $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
+            }
+            $array = $tmp_array;
         }
     }
 
@@ -2661,9 +2702,12 @@ class MDB2_Result_Common extends MDB2_Result
     function fetchAll($fetchmode = MDB2_FETCHMODE_DEFAULT, $rekey = false,
         $force_array = false, $group = false)
     {
+        $all = array();
         $row = $this->fetchRow($fetchmode);
-        if (!$row || PEAR::isError($row)) {
+        if (PEAR::isError($row)) {
             return $row;
+        } elseif (!$row) {
+            return $all;
         }
 
         $shift_array = $rekey ? false : null;
@@ -2679,7 +2723,6 @@ class MDB2_Result_Common extends MDB2_Result
             $shift_array = (!$force_array && $colnum == 2);
         }
 
-        $all = array();
         if ($rekey) {
             do {
                 if (is_object($row)) {
@@ -2857,8 +2900,12 @@ class MDB2_Result_Common extends MDB2_Result
     {
         if (!is_numeric($column)) {
             $column_names = $this->getColumnNames();
-            if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                $column = strtolower($column);
+            if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($this->db->options['field_case'] == CASE_LOWER) {
+                    $column = strtolower($column);
+                } else {
+                    $column = strtoupper($column);
+                }
             }
             $column = $column_names[$column];
         }
