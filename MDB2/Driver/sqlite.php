@@ -641,9 +641,9 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $row = @sqlite_fetch_array($this->result, SQLITE_ASSOC);
             if (is_array($row)
-                && $this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE
+                && $this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             ) {
-                $row = array_change_key_case($row, CASE_LOWER);
+                $row = array_change_key_case($row, $this->db->options['field_case']);
             }
         } else {
            $row = @sqlite_fetch_array($this->result, SQLITE_NUM);
@@ -657,8 +657,10 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
             $null = null;
             return $null;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->db->_convertEmptyArrayValuesToNull($row);
+        if (($mode = ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES)
+            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL))
+        ) {
+            $this->db->_fixResultArrayValues($row, $mode);
         }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
@@ -707,8 +709,11 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
             $column_name = @sqlite_field_name($this->result, $column);
             $columns[$column_name] = $column;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $columns = array_change_key_case($columns, CASE_LOWER);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $columns = array_change_key_case($columns, $this->db->options['field_case']);
+        }
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES) {
+            $this->db->_fixResultArrayValues($columns, MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES);
         }
         return $columns;
     }
