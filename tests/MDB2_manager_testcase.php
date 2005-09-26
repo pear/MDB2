@@ -109,26 +109,25 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $this->manager->db->expectError('*');
         $result = $this->manager->db->manager->dropDatabase($this->database);
         $this->manager->db->popExpect();
-        if (!PEAR::isError($result) || $result->getCode() != MDB2_ERROR_UNSUPPORTED) {
-            if (!$this->methodExists($this->manager, 'updateDatabase')) {
-                return;
-            }
-            $result = $this->manager->updateDatabase(
-                $this->driver_input_file,
-                false,
-                array('create' =>'1', 'name' => $this->database)
-            );
-            if (!PEAR::isError($result)) {
-                $result = $this->manager->updateDatabase(
-                    $this->lob_input_file,
-                    false,
-                    array('create' =>'0', 'name' => $this->database)
-                );
-            }
-            $this->assertFalse(PEAR::isError($result), 'Error creating database');
-        } elseif ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
-            $this->assertTrue(false, 'Database management not supported');
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Database dropping failed: please manually delete the database if needed');
         }
+        if (!$this->methodExists($this->manager, 'updateDatabase')) {
+            return;
+        }
+        $result = $this->manager->updateDatabase(
+            $this->driver_input_file,
+            false,
+            array('create' =>'1', 'name' => $this->database)
+        );
+        if (!PEAR::isError($result)) {
+            $result = $this->manager->updateDatabase(
+                $this->lob_input_file,
+                false,
+                array('create' =>'0', 'name' => $this->database)
+            );
+        }
+        $this->assertFalse(PEAR::isError($result), 'Error creating database');
     }
 
     function testUpdateDatabase() {
