@@ -190,7 +190,7 @@ define('MDB2_PORTABILITY_ERRORS', 16);
 define('MDB2_PORTABILITY_EMPTY_TO_NULL', 32);
 
 /**
- * Portability: convert names of fields to not include any database or table names.
+ * Portability: removes database/table qualifiers from associative indexes
  * @see MDB2_Driver_Common::setOption()
  */
 define('MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES', 64);
