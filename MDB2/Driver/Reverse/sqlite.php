@@ -126,10 +126,14 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $columns;
         }
         foreach ($columns as $column) {
-            if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                $column['name'] = strtolower($column['name']);
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_change'] == CASE_LOWER) {
+                    $column['name'] = strtolower($column['name']);
+                } else {
+                    $column['name'] = strtoupper($column['name']);
+                }
             } else {
-                $column = array_change_key_case($column, CASE_LOWER);
+                $column = array_change_key_case($column, $db->options['field_case']);
             }
             if ($field_name == $column['name']) {
                 list($types, $length) = $db->datatype->mapNativeDatatype($column);
@@ -263,8 +267,12 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                                      ' from result sets');
         }
 
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $case_func = 'strtolower';
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $case_func = 'strtolower';
+            } else {
+                $case_func = 'strtoupper';
+            }
         } else {
             $case_func = 'strval';
         }
@@ -305,6 +313,10 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 'len'   => $len,
                 'flags' => $flags,
             );
+
+            if ($mode & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES) {
+                $res[$i]['name'] = preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $res[$i]['name']);
+            }
 
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
