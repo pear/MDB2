@@ -308,6 +308,38 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
     }
 
     /**
+     * Test different fetch modes
+     *
+     * Test fetching results using different fetch modes
+     * NOTE: several tests still missing
+     */
+    function testFetchModes() {
+        $data = array();
+        $total_rows = 5;
+
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
+
+        for ($row = 0; $row < $total_rows; $row++) {
+            $data[$row] = $this->getSampleData($row);
+            $result = $stmt->execute(array_values($data[$row]));
+
+            if (PEAR::isError($result)) {
+                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+            }
+        }
+
+        $stmt->free();
+
+        // test ASSOC
+        $value = $this->db->queryRow('SELECT A.user_name FROM users A, users B WHERE A.user_id = B.user_id', array($this->fields['user_name']), MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($value)) {
+            $this->assertTrue(false, 'Error fetching the result set');
+        } else {
+            $this->assertTrue(array_key_exists('user_name', $value), 'Error fetching the associative result set from join');
+        }
+    }
+
+    /**
      * Test prepared queries
      *
      * Tests prepared queries, making sure they correctly deal with ?, !, and '
