@@ -250,8 +250,8 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *   + fbsql
      *   + mysql
      *
-     * If the 'portability' option has <samp>MDB2_PORTABILITY_LOWERCASE</samp>
-     * turned on, the names of tables and fields will be lowercased.
+     * If the 'portability' option has <samp>MDB2_PORTABILITY_FIX_CASE</samp>
+     * turned on, the names of tables and fields will be lower or upper cased.
      *
      * @param object|string  $result  MDB2_result object from a query or a
      *                                string containing the name of a table.

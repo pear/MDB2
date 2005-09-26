@@ -82,10 +82,14 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             return $columns;
         }
         foreach ($columns as $column) {
-            if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                $column['field'] = strtolower($column['field']);
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $column['field'] = strtolower($column['field']);
+                } else {
+                    $column['field'] = strtoupper($column['field']);
+                }
             } else {
-                $column = array_change_key_case($column, CASE_LOWER);
+                $column = array_change_key_case($column, $db->options['field_case']);
             }
             if ($field_name == $column['field']) {
                 list($types, $length) = $db->datatype->mapNativeDatatype($column);
@@ -145,12 +149,18 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         }
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
-            if (!($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE)) {
+            if (!($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE)
+                || $db->options['field_case'] != CASE_LOWER
+            ) {
                 $row = array_change_key_case($row, CASE_LOWER);
             }
             $key_name = $row['key_name'];
-            if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                $key_name = strtolower($key_name);
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $key_name = strtolower($key_name);
+                } else {
+                    $key_name = strtoupper($key_name);
+                }
             }
             if ($index_name == $key_name) {
                 if ($row['key_name'] == 'PRIMARY') {
@@ -159,8 +169,12 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     $definition['unique'] = true;
                 }
                 $column_name = $row['column_name'];
-                if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-                    $column_name = strtolower($column_name);
+                if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                    if ($db->options['field_case'] == CASE_LOWER) {
+                        $column_name = strtolower($column_name);
+                    } else {
+                        $column_name = strtoupper($column_name);
+                    }
                 }
                 $definition['fields'][$column_name] = array();
                 if (isset($row['collation'])) {
@@ -234,8 +248,12 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
 
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $case_func = 'strtolower';
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $case_func = 'strtolower';
+            } else {
+                $case_func = 'strtoupper';
+            }
         } else {
             $case_func = 'strval';
         }

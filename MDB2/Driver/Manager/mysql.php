@@ -486,8 +486,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 $tables[] = $table_names[$i];
         }
 
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $tables = array_flip(array_change_key_case(array_flip($tables), CASE_LOWER));
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $tables = array_flip(array_change_key_case(array_flip($tables), $db->options['field_case']));
         }
 
         return $tables;
@@ -515,8 +515,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $fields;
         }
 
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $fields = array_flip(array_change_key_case(array_flip($fields), CASE_LOWER));
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $fields = array_flip(array_change_key_case(array_flip($fields), $db->options['field_case']));
         }
 
         return $fields;
@@ -616,8 +616,12 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $key_name = 'Key_name';
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $key_name = strtolower($key_name);
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $key_name = strtolower($key_name);
+            } else {
+                $key_name = strtoupper($key_name);
+            }
         }
 
         $query = "SHOW INDEX FROM $table";
@@ -628,8 +632,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         $indexes = array_unique($indexes_all);
 
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $indexes = array_flip(array_change_key_case(array_flip($indexes), CASE_LOWER));
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $indexes = array_flip(array_change_key_case(array_flip($indexes), $db->options['field_case']));
         }
 
         return $indexes;

@@ -403,8 +403,8 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
 
         $fields = $db->queryCol("SHOW COLUMNS FROM $table");
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $fields = array_flip(array_change_key_case(array_flip($fields), CASE_LOWER));
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $fields = array_flip(array_change_key_case(array_flip($fields), $db->options['field_case']));
         }
         return $fields;
     }

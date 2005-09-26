@@ -341,7 +341,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $databases;
         }
         // is it legit to force this to lowercase?
-        $databases = array_keys(array_change_key_case(array_flip($databases), CASE_LOWER));
+        $databases = array_keys(array_change_key_case(array_flip($databases), $db->options['field_case']));
         $result->free();
         return $databases;
     }
@@ -367,9 +367,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($users)) {
             return $users;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
             $users = array_flip($users);
-            $users = array_change_key_case($users, CASE_LOWER);
+            $users = array_change_key_case($users, $db->options['field_case']);
             $users = array_flip($users);
         }
         return $users;
@@ -395,9 +397,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($views)) {
             return $views;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
             $views = array_flip($views);
-            $views = array_change_key_case($views, CASE_LOWER);
+            $views = array_change_key_case($views, $db->options['field_case']);
             $views = array_flip($views);
         }
         return $views;
@@ -424,9 +428,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($functions)) {
             return $functions;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
             $functions = array_flip($functions);
-            $functions = array_change_key_case($functions, CASE_LOWER);
+            $functions = array_change_key_case($functions, $db->options['field_case']);
             $functions = array_flip($functions);
         }
         return $functions;
@@ -475,8 +481,10 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $fields = array_flip(array_change_key_case(array_flip($fields), CASE_LOWER));
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $fields = array_flip(array_change_key_case(array_flip($fields), $db->options['field_case']));
         }
         return $fields;
     }
@@ -553,9 +561,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             if ($sqn = $this->_isSequenceName($table_names[$i]))
                 $sequences[] = $sqn;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
             $sequences = array_flip($sequences);
-            $sequences = array_change_key_case($sequences, CASE_LOWER);
+            $sequences = array_change_key_case($sequences, $db->options['field_case']);
             $sequences = array_flip($sequences);
         }
         return $sequences;

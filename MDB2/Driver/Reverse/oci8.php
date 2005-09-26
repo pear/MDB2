@@ -86,8 +86,12 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        if ($db->options['portability'] & MDB2_PORTABILITY_LOWERCASE) {
-            $case_func = 'strtolower';
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $case_func = 'strtolower';
+            } else {
+                $case_func = 'strtoupper';
+            }
         } else {
             $case_func = 'strval';
         }
