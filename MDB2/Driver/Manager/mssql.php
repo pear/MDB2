@@ -283,7 +283,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         $tables = array();
         for ($i = 0, $j = count($table_names); $i <$j; ++$i) {
-            if (!$this->_isSequenceName($table_names[$i])) {
+            if (!$this->_isSequenceName($db, $table_names[$i])) {
                 $tables[] = $table_names[$i];
             }
         }
