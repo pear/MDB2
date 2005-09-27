@@ -1227,7 +1227,7 @@ class MDB2_Driver_Common extends PEAR
             }
         }
 
-        $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        $err = PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
         return $err;
     }
 
