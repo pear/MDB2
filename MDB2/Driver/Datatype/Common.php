@@ -236,11 +236,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * @param string $type type to which the value should be converted to
      * @param string  $name   name the field to be declared.
      * @param string  $field  definition of the field
+     * @param string  $tablename [optional] name of the table, needed by some
+     *                 drivers for autoincrement emulation
      * @return string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
      * @access public
      */
-    function getDeclaration($type, $name, $field)
+    function getDeclaration($type, $name, $field, $tablename = null)
     {
         if (!method_exists($this, "_get{$type}Declaration")) {
             $db =& $this->getDBInstance();
@@ -250,7 +252,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
             return $db->raiseError('type not defined: '.$type);
         }
-        return $this->{"_get{$type}Declaration"}($name, $field);
+        return $this->{"_get{$type}Declaration"}($name, $field, $tablename);
     }
 
     // }}}
