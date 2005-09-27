@@ -46,7 +46,7 @@
 //
 
 require_once 'MDB2/Driver/Manager/Common.php';
-
+// {{{ class MDB2_Driver_Manager_mssql
 /**
  * MDB2 MSSQL driver for the management modules
  *
@@ -56,7 +56,6 @@ require_once 'MDB2/Driver/Manager/Common.php';
  */
 class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 {
-    // }}}
     // {{{ createDatabase()
 
     /**
@@ -271,18 +270,20 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     function listTables()
     {
         $db =& $this->getDBInstance();
+
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $query = 'EXEC sp_tables';
+        $query = 'EXEC sp_tables @table_type = "\'TABLE\'"';
         $table_names = $db->queryCol($query, null, 2);
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
+
         $tables = array();
         for ($i = 0, $j = count($table_names); $i <$j; ++$i) {
-            if (!$this->_isSequenceName($db, $table_names[$i])) {
+            if (!$this->_isSequenceName($table_names[$i])) {
                 $tables[] = $table_names[$i];
             }
         }
@@ -379,6 +380,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function createSequence($seq_name, $start = 1)
     {
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
@@ -386,18 +388,22 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         $sequence_name = $db->getSequenceName($seq_name);
         $seqcol_name   = $db->options['seqcol_name'];
-        $query = "CREATE TABLE $sequence_name ($seqcol_name)"
-                ." INT PRIMARY KEY CLUSTERED IDENTITY($start,1) NOT NULL";
+        $query = "CREATE TABLE $sequence_name ($seqcol_name " .
+                 "INT PRIMARY KEY CLUSTERED IDENTITY($start,1) NOT NULL)";
+
         $res = $db->query($query);
         if(PEAR::isError($res)) {
             return $res;
         }
-
+        
         if ($start == 1) {
             return MDB2_OK;
         }
 
-        $res = $db->query("INSERT INTO $sequence_name ($seqcol_name) VALUES (".($start-1).")");
+        $query = "SET IDENTITY_INSERT $sequence_name ON ".
+                 "INSERT INTO $sequence_name ($seqcol_name) VALUES ($start)";
+        $res = $db->query($query);
+
         if(!PEAR::isError($res)) {
             return MDB2_OK;
         }
@@ -414,6 +420,16 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                $res->getMessage(). ' ('.$res->getUserInfo(). '))');
     }
 
+    // }}}
+    // {{{ createIndex()
+    /**
+     * Adds an index to a table.
+     *
+     * @param string $table      The name of the table
+     * @param string $name       The name of the field
+     * @param array  $definition The definition of the new field.
+     */
+    function createIndex($table, $name, $definition) {}
     // }}}
     // {{{ dropSequence()
 
@@ -464,5 +480,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return $sequences;
     }
+    // }}}        
 }
+// }}}
 ?>
