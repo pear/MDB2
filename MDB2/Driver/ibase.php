@@ -1084,11 +1084,8 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         }
 
         if ($isManip) {
-            if (function_exists('ibase_affected_rows')) {
-                return ibase_affected_rows($connection);
-            } else {
-                return 0;
-            }
+            $affected_rows = (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
+            return $affected_rows;
         }
 
         $result =& $this->db->_wrapResult($result, $this->types,
