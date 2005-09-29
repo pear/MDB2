@@ -487,7 +487,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $tables = array_flip(array_change_key_case(array_flip($tables), $db->options['field_case']));
+            $tables = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $tables);
         }
 
         return $tables;
@@ -516,7 +516,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $fields = array_flip(array_change_key_case(array_flip($fields), $db->options['field_case']));
+            $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
         }
 
         return $fields;
@@ -633,7 +633,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         $indexes = array_unique($indexes_all);
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $indexes = array_flip(array_change_key_case(array_flip($indexes), $db->options['field_case']));
+            $indexes = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $indexes);
         }
 
         return $indexes;

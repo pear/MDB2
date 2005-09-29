@@ -370,9 +370,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $users = array_flip($users);
-            $users = array_change_key_case($users, $db->options['field_case']);
-            $users = array_flip($users);
+            $users = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $users);
         }
         return $users;
     }
@@ -400,9 +398,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $views = array_flip($views);
-            $views = array_change_key_case($views, $db->options['field_case']);
-            $views = array_flip($views);
+            $views = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $views);
         }
         return $views;
     }
@@ -431,9 +427,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $functions = array_flip($functions);
-            $functions = array_change_key_case($functions, $db->options['field_case']);
-            $functions = array_flip($functions);
+            $functions = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $functions);
         }
         return $functions;
     }
@@ -484,7 +478,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $fields = array_flip(array_change_key_case(array_flip($fields), $db->options['field_case']));
+            $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
         }
         return $fields;
     }
@@ -564,9 +558,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $sequences = array_flip($sequences);
-            $sequences = array_change_key_case($sequences, $db->options['field_case']);
-            $sequences = array_flip($sequences);
+            $sequences = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $sequences);
         }
         return $sequences;
     }}
