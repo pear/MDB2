@@ -117,9 +117,9 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            if (db->options['field_case'] == CASE_LOWER) {
+            if ($db->options['field_case'] == CASE_LOWER) {
                 $case_func = 'strtolower';
-            else {
+            } else {
                 $case_func = 'strtoupper';
             }
         } else {
