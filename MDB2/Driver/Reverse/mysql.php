@@ -94,11 +94,11 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             if ($field_name == $column['field']) {
                 list($types, $length) = $db->datatype->mapNativeDatatype($column);
                 unset($notnull);
-                if (isset($column['null']) && $column['null'] != 'YES') {
+                if (array_key_exists('null', $column) && $column['null'] != 'YES') {
                     $notnull = true;
                 }
                 unset($default);
-                if (isset($column['default'])) {
+                if (array_key_exists('default', $column)) {
                     $default = $column['default'];
                 }
                 $definition = array();
@@ -114,7 +114,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                         $definition[$key]['length'] = $length;
                     }
                 }
-                if (isset($column['extra']) && $column['extra'] == 'auto_increment') {
+                if (array_key_exists('extra', $column) && $column['extra'] == 'auto_increment') {
                     $definition[$key]['autoincrement'] = true;
                 }
                 return $definition;
@@ -177,14 +177,14 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     }
                 }
                 $definition['fields'][$column_name] = array();
-                if (isset($row['collation'])) {
+                if (array_key_exists('collation', $row)) {
                     $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
                         ? 'ascending' : 'descending');
                 }
             }
         }
         $result->free();
-        if (!isset($definition['fields'])) {
+        if (!array_key_exists('fields', $definition)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }

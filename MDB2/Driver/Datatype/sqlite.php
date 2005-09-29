@@ -88,17 +88,17 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        if (isset($field['autoincrement']) && $field['autoincrement']) {
+        if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
             $autoinc = ' PRIMARY KEY AUTO_INCREMENT';
             $default = '';
         } else {
             $autoinc = '';
-            $default = isset($field['default']) ? ' DEFAULT '.
+            $default = array_key_exists('default', $field) ? ' DEFAULT '.
                 $this->quote($field['default'], 'integer') : '';
         }
 
-        $unsigned = (isset($field['unsigned']) && $field['unsigned']) ? ' UNSIGNED' : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $unsigned = (array_key_exists('unsigned', $field) && $field['unsigned']) ? ' UNSIGNED' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$unsigned.$default.$notnull.$autoinc;
     }
 
@@ -130,7 +130,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        if (isset($field['length'])) {
+        if (array_key_exists('length', $field)) {
             $length = $field['length'];
             if ($length <= 255) {
                 $type = 'TINYTEXT';
@@ -148,7 +148,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         } else {
             $type = 'LONGTEXT';
         }
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$notnull;
     }
 
@@ -180,7 +180,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        if (isset($field['length'])) {
+        if (array_key_exists('length', $field)) {
             $length = $field['length'];
             if ($length <= 255) {
                 $type = 'TINYBLOB';
@@ -199,7 +199,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         else {
             $type = 'LONGBLOB';
         }
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$notnull;
     }
 
@@ -228,9 +228,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
 
@@ -260,9 +260,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATETIME'.$default.$notnull;
     }
 
@@ -291,9 +291,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME'.$default.$notnull;
     }
 
@@ -330,9 +330,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
 
         $type = 'DOUBLE'.($db->options['fixed_float'] ? '('.
             ($db->options['fixed_float']+2).','.$db->options['fixed_float'].')' : '');
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -363,9 +363,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     function _getDecimalDeclaration($name, $field)
     {
         $type = 'BIGINT';
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -421,7 +421,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     function mapNativeDatatype($field)
     {
         $db_type = $field['type'];
-        $length = isset($field['length']) ? $field['length'] : null;
+        $length = array_key_exists('length', $field) ? $field['length'] : null;
         $type = array();
         switch ($db_type) {
         case 'tinyint':

@@ -283,7 +283,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        if (isset($field['unsigned']) && $field['unsigned']) {
+        if (array_key_exists('unsigned', $field) && $field['unsigned']) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
@@ -291,9 +291,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$default.$notnull;
     }
 
@@ -326,10 +326,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getTextDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
-        $type = isset($field['length']) ? 'CHAR ('.$field['length'].')' : 'TEXT';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
+        $type = array_key_exists('length', $field) ? 'CHAR ('.$field['length'].')' : 'TEXT';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -359,8 +359,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
-        $type = isset($field['length']) ? 'CHAR ('.$field['length'].')' : 'TEXT';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
+        $type = array_key_exists('length', $field) ? 'CHAR ('.$field['length'].')' : 'TEXT';
         return $name.' '.$type.$notnull;
     }
 
@@ -390,8 +390,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
-        $type = isset($field['length']) ? 'CHAR ('.$field['length'].')' : 'TEXT';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
+        $type = array_key_exists('length', $field) ? 'CHAR ('.$field['length'].')' : 'TEXT';
         return $name.' '.$type.$notnull;
     }
 
@@ -419,9 +419,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getBooleanDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'boolean') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' CHAR (1)'.$default.$notnull;
     }
 
@@ -449,9 +449,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' CHAR ('.strlen('YYYY-MM-DD').')'.$default.$notnull;
     }
 
@@ -479,9 +479,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' CHAR ('.strlen('YYYY-MM-DD HH:MM:SS').')'.$default.$notnull;
     }
 
@@ -509,9 +509,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' CHAR ('.strlen('HH:MM:SS').')'.$default.$notnull;
     }
 
@@ -539,9 +539,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TEXT'.$default.$notnull;
     }
 
@@ -569,9 +569,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getDecimalDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TEXT'.$default.$notnull;
     }
 
@@ -588,7 +588,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function compareDefinition($current, $previous)
     {
-        $type = isset($current['type']) ? $current['type'] : null;
+        $type = array_key_exists('type', $current) ? $current['type'] : null;
 
         if (!method_exists($this, "_compare{$type}Definition")) {
             $db =& $this->getDBInstance();
@@ -600,22 +600,22 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 'type "'.$current['type'].'" is not yet supported');
         }
 
-        if (!isset($previous['type']) || $previous['type'] != $type) {
+        if (!array_key_exists('type', $previous) || $previous['type'] != $type) {
             return $current;
         }
 
         $change = $this->{"_compare{$type}Definition"}($current, $previous);
-        $previous_notnull = isset($previous['notnull']);
-        $notnull = isset($current['notnull']);
+        $previous_notnull = array_key_exists('notnull', $previous);
+        $notnull = array_key_exists('notnull', $current);
         if ($previous_notnull != $notnull) {
             $change['changed_not_null'] = true;
             if ($notnull) {
-                $change['notnull'] = isset($current['notnull']);
+                $change['notnull'] = array_key_exists('notnull', $current);
             }
         }
 
-        $previous_default = isset($previous['default']);
-        $default = isset($current['default']);
+        $previous_default = array_key_exists('default', $previous);
+        $default = array_key_exists('default', $current);
         if ($previous_default != $default) {
             $change['changed_default'] = true;
             if ($default) {
@@ -643,8 +643,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _compareIntegerDefinition($current, $previous)
     {
         $change = array();
-        $previous_unsigned = isset($previous['unsigned']);
-        $unsigned = isset($current['unsigned']);
+        $previous_unsigned = array_key_exists('unsigned', $previous);
+        $unsigned = array_key_exists('unsigned', $current);
         if ($previous_unsigned != $unsigned) {
             $change['unsigned'] = $unsigned;
         }
@@ -665,8 +665,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _compareTextDefinition($current, $previous)
     {
         $change = array();
-        $previous_length = (isset($previous['length']) ? $previous['length'] : 0);
-        $length = (isset($current['length']) ? $current['length'] : 0);
+        $previous_length = (array_key_exists('length', $previous) ? $previous['length'] : 0);
+        $length = (array_key_exists('length', $current) ? $current['length'] : 0);
         if ($previous_length != $length) {
             $change['length'] = $length;
         }

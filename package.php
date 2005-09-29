@@ -93,7 +93,7 @@ $package->addDependency('PEAR', '1.3.6', 'ge', 'pkg', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
 
-if (isset($_GET['make']) || (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'make')) {
+if (array_key_exists('make', $_GET) || (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'make')) {
     $result = $package->writePackageFile();
 } else {
     $result = $package->debugPackageFile();

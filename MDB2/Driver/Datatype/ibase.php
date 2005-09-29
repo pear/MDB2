@@ -123,7 +123,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            $length = (isset($field['length']) ? $field['length'] : (!PEAR::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
+            $length = (array_key_exists('length', $field) ? $field['length'] : (!PEAR::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
             return 'VARCHAR ('.$length.')';
         case 'clob':
             return 'BLOB SUB_TYPE 1';
@@ -177,7 +177,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field, $current_table=null)
     {
-        if (isset($field['unsigned']) && $field['unsigned']) {
+        if (array_key_exists('unsigned', $field) && $field['unsigned']) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
@@ -185,7 +185,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
 
-        if (isset($field['autoincrement']) && $field['autoincrement']) {
+        if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
@@ -216,9 +216,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             }
             return $name.' PRIMARY KEY';
         }
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$default.$notnull;
     }
 
@@ -252,9 +252,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _getTextDeclaration($name, $field)
     {
         $type = $this->_getTypeDeclaration($field);
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -284,7 +284,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$notnull;
     }
 
@@ -314,7 +314,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$notnull;
     }
 
@@ -342,9 +342,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -372,9 +372,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -402,9 +402,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -432,9 +432,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -462,9 +462,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getDecimalDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -549,7 +549,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _retrieveLOB(&$lob)
     {
-        if (!isset($lob['handle'])) {
+        if (!array_key_exists('handle', $lob)) {
             $lob['handle'] = @ibase_blob_open($lob['ressource']);
             if (!$lob['handle']) {
                 $db =& $this->getDBInstance();

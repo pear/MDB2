@@ -114,7 +114,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        if (isset($field['unsigned']) && $field['unsigned']) {
+        if (array_key_exists('unsigned', $field) && $field['unsigned']) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
@@ -122,12 +122,12 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
 
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
-        if (isset($field['autoincrement']) && $field['autoincrement']) {
+        if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
             return $name.' SERIAL PRIMARY KEY';
         }
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$default.$notnull;
     }
 
@@ -160,10 +160,10 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getTextDeclaration($name, $field)
     {
-        $type = isset($field['length']) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $type = array_key_exists('length', $field) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -193,7 +193,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' OID'.$notnull;
     }
 
@@ -223,7 +223,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' OID'.$notnull;
     }
 
@@ -251,9 +251,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getBooleanDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'boolean') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' BOOLEAN'.$default.$notnull;
     }
 
@@ -281,9 +281,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
 
@@ -311,9 +311,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME without time zone'.$default.$notnull;
     }
 
@@ -341,9 +341,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIMESTAMP without time zone'.$default.$notnull;
     }
 
@@ -371,9 +371,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' FLOAT8'.$default.$notnull;
     }
 
@@ -406,9 +406,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' NUMERIC(18, '.$db->options['decimal_places'].')'.$default.$notnull;
     }
 
@@ -624,7 +624,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _retrieveLOB(&$lob)
     {
-        if (!isset($lob['handle'])) {
+        if (!array_key_exists('handle', $lob)) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
@@ -637,7 +637,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             }
             $lob['handle'] = @pg_lo_open($db->connection, $lob['ressource'], 'r');
             if (!$lob['handle']) {
-                if (isset($lob['in_transaction'])) {
+                if (array_key_exists('in_transaction', $lob)) {
                     @pg_query($db->connection, 'END');
                     unset($lob['in_transaction']);
                 }

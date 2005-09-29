@@ -32,7 +32,7 @@
     $pass = '';
     $host = 'localhost';
     $db_name = 'metapear_test_db';
-    if (isset($_GET['db_type'])) {
+    if (array_key_exists('db_type', $_GET)) {
         $db_type = $_GET['db_type'];
     } else {
         $db_type = 'mysql';

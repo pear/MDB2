@@ -305,7 +305,7 @@ class MDB2
     function &factory($dsn, $options = false)
     {
         $dsninfo = MDB2::parseDSN($dsn);
-        if (!isset($dsninfo['phptype'])) {
+        if (!array_key_exists('phptype', $dsninfo)) {
             $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND,
                 null, null, 'no RDBMS driver specified');
             return $err;
@@ -1742,7 +1742,7 @@ class MDB2_Driver_Common extends PEAR
     {
         $dsn_default = $GLOBALS['_MDB2_dsninfo_default'];
         $dsn = MDB2::parseDSN($dsn);
-        if (isset($dsn['database'])) {
+        if (array_key_exists('database', $dsn)) {
             $this->database_name = $dsn['database'];
             unset($dsn['database']);
         }

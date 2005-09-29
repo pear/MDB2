@@ -80,7 +80,7 @@ foreach ($testcases as $testcase) {
 
 $database = 'driver_test';
 
-$testmethods = isset($_POST['testmethods']) ? $_POST['testmethods'] : null;
+$testmethods = array_key_exists('testmethods', $_POST) ? $_POST['testmethods'] : null;
 
 if (!is_array($testmethods)) {
     foreach ($testcases as $testcase) {
@@ -99,8 +99,8 @@ if (!is_array($testmethods)) {
 
 foreach ($dbarray as $db) {
     $dsn = $db['dsn'];
-    $options = isset($db['options']) ? $db['options'] : null;
-    $GLOBALS['_show_silenced'] = isset($options['debug']) ? $options['debug'] :false;
+    $options = array_key_exists('options', $db) ? $db['options'] : null;
+    $GLOBALS['_show_silenced'] = array_key_exists('debug', $options) ? $options['debug'] :false;
 
     $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":" . $dsn['password'] . "@" . $dsn['hostspec'] . "/" . $database;
     echo "<div class=\"test\">\n";

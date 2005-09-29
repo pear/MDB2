@@ -119,7 +119,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        if (isset($field['unsigned']) && $field['unsigned']) {
+        if (array_key_exists('unsigned', $field) && $field['unsigned']) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
@@ -128,9 +128,9 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
             $db->warnings[] = "unsigned integer field \"$name\" is being
                 declared as signed integer";
         }
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$default.$notnull;
     }
 
@@ -163,10 +163,10 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getTextDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
-        $length = isset($field['length']) ? $field['length'] : 32768;
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
+        $length = array_key_exists('length', $field) ? $field['length'] : 32768;
         return $name.' VARCHAR ('.$length.')'.$default.$notnull;
     }
 
@@ -198,7 +198,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        return "$name CLOB".((isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '');
+        return "$name CLOB".((array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '');
     }
 
     // }}}
@@ -229,7 +229,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        return "$name BLOB".((isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '');
+        return "$name BLOB".((array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '');
     }
 
     // }}}
@@ -256,9 +256,9 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getBooleanDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'boolean') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' BOOLEAN)'.$default.$notnull;
     }
 
@@ -287,9 +287,9 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT DATE '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT DATE '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
 
@@ -319,9 +319,9 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT TIMESTAMP '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT TIMESTAMP '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIMESTAMP'.$default.$notnull;
     }
 
@@ -350,9 +350,9 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT TIME '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT TIME '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME'.$default.$notnull;
     }
 
@@ -382,9 +382,9 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' FLOAT'.$default.$notnull;
     }
 
@@ -420,9 +420,9 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         }
 
         $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 

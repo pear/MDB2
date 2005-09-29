@@ -88,17 +88,17 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        if (isset($field['autoincrement']) && $field['autoincrement']) {
+        if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
             $autoinc = ' AUTO_INCREMENT PRIMARY KEY';
             $default = '';
         } else {
             $autoinc = '';
-            $default = isset($field['default']) ? ' DEFAULT '.
+            $default = array_key_exists('default', $field) ? ' DEFAULT '.
                 $this->quote($field['default'], 'integer') : '';
         }
 
-        $unsigned = (isset($field['unsigned']) && $field['unsigned']) ? ' UNSIGNED' : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $unsigned = (array_key_exists('unsigned', $field) && $field['unsigned']) ? ' UNSIGNED' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' INT'.$unsigned.$default.$notnull.$autoinc;
     }
 
@@ -130,7 +130,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      */
     function _getCLOBDeclaration($name, $field)
     {
-        if (isset($field['length'])) {
+        if (array_key_exists('length', $field)) {
             $length = $field['length'];
             if ($length <= 255) {
                 $type = 'TINYTEXT';
@@ -148,7 +148,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         } else {
             $type = 'LONGTEXT';
         }
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$notnull;
     }
 
@@ -180,7 +180,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      */
     function _getBLOBDeclaration($name, $field)
     {
-        if (isset($field['length'])) {
+        if (array_key_exists('length', $field)) {
             $length = $field['length'];
             if ($length <= 255) {
                 $type = 'TINYBLOB';
@@ -199,7 +199,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         else {
             $type = 'LONGBLOB';
         }
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$notnull;
     }
 
@@ -228,9 +228,9 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      */
     function _getDateDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATE'.$default.$notnull;
     }
 
@@ -260,9 +260,9 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      */
     function _getTimestampDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' DATETIME'.$default.$notnull;
     }
 
@@ -291,9 +291,9 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      */
     function _getTimeDeclaration($name, $field)
     {
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' TIME'.$default.$notnull;
     }
 
@@ -324,9 +324,9 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
     function _getFloatDeclaration($name, $field)
     {
         $type = 'DOUBLE';
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
@@ -362,9 +362,9 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         }
 
         $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
-        $default = isset($field['default']) ? ' DEFAULT '.
+        $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
-        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         return $name.' '.$type.$default.$notnull;
     }
 
