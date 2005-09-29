@@ -258,7 +258,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'CREATE '.(isset($definition['unique']) ? 'UNIQUE' : '')." INDEX $name ON $table (";
+        $query = 'CREATE '.(array_key_exists('unique', $definition) ? 'UNIQUE' : '')." INDEX $name ON $table (";
         $skipped_first = false;
         foreach ($definition['fields'] as $field_name => $field) {
             if ($skipped_first) {

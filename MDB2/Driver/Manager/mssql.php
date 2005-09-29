@@ -115,7 +115,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *
      *                                New name for the table.
      *
-     *                            added_fields
+     *                            add
      *
      *                                Associative array with the names of fields to be added as
      *                                 indexes of the array. The value of each entry of the array
@@ -124,13 +124,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                 be the same as defined by the Metabase parser.
      *
      *
-     *                            removed_fields
+     *                            remove
      *
      *                                Associative array with the names of fields to be removed as indexes
      *                                 of the array. Currently the values assigned to each entry are ignored.
      *                                 An empty array should be used for future compatibility.
      *
-     *                            renamed_fields
+     *                            rename
      *
      *                                Associative array with the names of fields to be renamed as indexes
      *                                 of the array. The value of each entry of the array should be set to
@@ -139,11 +139,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                 the portion of the field declaration already in DBMS specific SQL code
      *                                 as it is used in the CREATE TABLE statement.
      *
-     *                            changed_fields
+     *                            change
      *
      *                                Associative array with the names of the fields to be changed as indexes
      *                                 of the array. Keep in mind that if it is intended to change either the
-     *                                 name of a field and any other properties, the changed_fields array entries
+     *                                 name of a field and any other properties, the change array entries
      *                                 should have the new names of the fields as array indexes.
      *
      *                                The value of each entry of the array should be set to another associative
@@ -160,23 +160,23 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                            Example
      *                                array(
      *                                    'name' => 'userlist',
-     *                                    'added_fields' => array(
+     *                                    'add' => array(
      *                                        'quota' => array(
      *                                            'type' => 'integer',
      *                                            'unsigned' => 1
      *                                        )
      *                                    ),
-     *                                    'removed_fields' => array(
+     *                                    'remove' => array(
      *                                        'file_limit' => array(),
      *                                        'time_limit' => array()
      *                                        ),
-     *                                    'changed_fields' => array(
+     *                                    'change' => array(
      *                                        'gender' => array(
      *                                            'default' => 'M',
      *                                            'change_default' => 1,
      *                                        )
      *                                    ),
-     *                                    'renamed_fields' => array(
+     *                                    'rename' => array(
      *                                        'sex' => array(
      *                                            'name' => 'gender',
      *                                        )
@@ -204,14 +204,14 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
-            case 'added_fields':
+            case 'add':
                 break;
-            case 'removed_fields':
+            case 'remove':
             case 'dropped_fields':
                 break;
             case 'name':
-            case 'renamed_fields':
-            case 'changed_fields':
+            case 'rename':
+            case 'change':
             default:
                 return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
                     'alterTable: change type "'.$change_name.'" not yet supported');
@@ -223,12 +223,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $query = '';
-        if (isset($changes['added_fields'])) {
+        if (array_key_exists('add', $changes)) {
             if ($query) {
                 $query.= ', ';
             }
             $query.= 'ADD ';
-            $fields = $changes['added_fields'];
+            $fields = $changes['add'];
             foreach ($fields as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -236,7 +236,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $query .=  $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
-        if(isset($changes['dropped_fields'])) {
+        if(array_key_exists('dropped_fields', $changes)) {
             if ($query) {
             $query.= ', ';
             }

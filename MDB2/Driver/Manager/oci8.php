@@ -135,7 +135,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *
      *                                 New name for the table.
      *
-     *                             added_fields
+     *                             add
      *
      *                                 Associative array with the names of fields to be added as
      *                                  indexes of the array. The value of each entry of the array
@@ -144,13 +144,13 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *                                  be the same as defined by the Metabase parser.
      *
      *
-     *                             removed_fields
+     *                             remove
      *
      *                                 Associative array with the names of fields to be removed as indexes
      *                                  of the array. Currently the values assigned to each entry are ignored.
      *                                  An empty array should be used for future compatibility.
      *
-     *                             renamed_fields
+     *                             rename
      *
      *                                 Associative array with the names of fields to be renamed as indexes
      *                                  of the array. The value of each entry of the array should be set to
@@ -159,11 +159,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *                                  the portion of the field declaration already in DBMS specific SQL code
      *                                  as it is used in the CREATE TABLE statement.
      *
-     *                             changed_fields
+     *                             change
      *
      *                                 Associative array with the names of the fields to be changed as indexes
      *                                  of the array. Keep in mind that if it is intended to change either the
-     *                                  name of a field and any other properties, the changed_fields array entries
+     *                                  name of a field and any other properties, the change array entries
      *                                  should have the new names of the fields as array indexes.
      *
      *                                 The value of each entry of the array should be set to another associative
@@ -180,23 +180,23 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *                             Example
      *                                 array(
      *                                     'name' => 'userlist',
-     *                                     'added_fields' => array(
+     *                                     'add' => array(
      *                                         'quota' => array(
      *                                             'type' => 'integer',
      *                                             'unsigned' => 1
      *                                         )
      *                                     ),
-     *                                     'removed_fields' => array(
+     *                                     'remove' => array(
      *                                         'file_limit' => array(),
      *                                         'time_limit' => array()
      *                                         ),
-     *                                     'changed_fields' => array(
+     *                                     'change' => array(
      *                                         'gender' => array(
      *                                             'default' => 'M',
      *                                             'change_default' => 1,
      *                                         )
      *                                     ),
-     *                                     'renamed_fields' => array(
+     *                                     'rename' => array(
      *                                         'sex' => array(
      *                                             'name' => 'gender',
      *                                         )
@@ -217,12 +217,12 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
-            case 'added_fields':
-            case 'removed_fields':
-            case 'changed_fields':
+            case 'add':
+            case 'remove':
+            case 'change':
             case 'name':
                 break;
-            case 'renamed_fields':
+            case 'rename':
             default:
                 return $db->raiseError(MDB2_ERROR, null, null,
                     'alterTable: change type "'.$change_name.'" not yet supported');
@@ -233,9 +233,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        if (isset($changes['removed_fields'])) {
+        if (array_key_exists('remove', $changes)) {
             $query = ' DROP (';
-            $fields = $changes['removed_fields'];
+            $fields = $changes['remove'];
             $skipped_first = false;
             foreach ($fields as $field_name => $field) {
                 if ($skipped_first) {
@@ -251,10 +251,10 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $query = '';
         }
 
-        $query = (isset($changes['name']) ? 'RENAME TO '.$changes['name'] : '');
+        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$changes['name'] : '');
 
-        if (isset($changes['added_fields'])) {
-            $fields = $changes['added_fields'];
+        if (array_key_exists('add', $changes)) {
+            $fields = $changes['add'];
             foreach ($fields as $field_name => $field) {
                 $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
                 if (PEAR::isError($type_declaration)) {
@@ -264,24 +264,24 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (isset($changes['changed_fields'])) {
-            $fields = $changes['changed_fields'];
+        if (array_key_exists('change', $changes)) {
+            $fields = $changes['change'];
             foreach ($fields as $field_name => $field) {
-                if (isset($renamed_fields[$field_name])) {
-                    $old_field_name = $renamed_fields[$field_name];
-                    unset($renamed_fields[$field_name]);
+                if (isset($rename[$field_name])) {
+                    $old_field_name = $rename[$field_name];
+                    unset($rename[$field_name]);
                 } else {
                     $old_field_name = $field_name;
                 }
                 $change = '';
                 $change_type = $change_default = false;
-                if (isset($field['type'])) {
+                if (array_key_exists('type', $field)) {
                     $change_type = $change_default = true;
                 }
-                if (isset($field['length'])) {
+                if (array_key_exists('length', $field)) {
                     $change_type = true;
                 }
-                if (isset($field['changed_default'])) {
+                if (array_key_exists('changed_default', $field)) {
                     $change_default = true;
                 }
                 if ($change_type) {
@@ -292,8 +292,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                     $default = (isset($field['definition']['default']) ? $field['definition']['default'] : null);
                     $change .= ' DEFAULT '.$db->quote($default, $field['definition']['type']);
                 }
-                if (isset($field['changed_not_null'])) {
-                    $change .= (isset($field['notnull']) ? ' NOT' : '').' NULL';
+                if (array_key_exists('changed_not_null', $field)) {
+                    $change .= (array_key_exists('notnull', $field) ? ' NOT' : '').' NULL';
                 }
                 if ($change) {
                     $query .= " MODIFY ($old_field_name$change)";

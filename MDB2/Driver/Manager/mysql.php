@@ -255,7 +255,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      *
      *                                New name for the table.
      *
-     *                            added_fields
+     *                            add
      *
      *                                Associative array with the names of fields to be added as
      *                                 indexes of the array. The value of each entry of the array
@@ -264,13 +264,13 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      *                                 be the same as defined by the Metabase parser.
      *
      *
-     *                            removed_fields
+     *                            remove
      *
      *                                Associative array with the names of fields to be removed as indexes
      *                                 of the array. Currently the values assigned to each entry are ignored.
      *                                 An empty array should be used for future compatibility.
      *
-     *                            renamed_fields
+     *                            rename
      *
      *                                Associative array with the names of fields to be renamed as indexes
      *                                 of the array. The value of each entry of the array should be set to
@@ -279,11 +279,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      *                                 the portion of the field declaration already in DBMS specific SQL code
      *                                 as it is used in the CREATE TABLE statement.
      *
-     *                            changed_fields
+     *                            change
      *
      *                                Associative array with the names of the fields to be changed as indexes
      *                                 of the array. Keep in mind that if it is intended to change either the
-     *                                 name of a field and any other properties, the changed_fields array entries
+     *                                 name of a field and any other properties, the change array entries
      *                                 should have the new names of the fields as array indexes.
      *
      *                                The value of each entry of the array should be set to another associative
@@ -300,23 +300,23 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      *                            Example
      *                                array(
      *                                    'name' => 'userlist',
-     *                                    'added_fields' => array(
+     *                                    'add' => array(
      *                                        'quota' => array(
      *                                            'type' => 'integer',
      *                                            'unsigned' => 1
      *                                        )
      *                                    ),
-     *                                    'removed_fields' => array(
+     *                                    'remove' => array(
      *                                        'file_limit' => array(),
      *                                        'time_limit' => array()
      *                                        ),
-     *                                    'changed_fields' => array(
+     *                                    'change' => array(
      *                                        'gender' => array(
      *                                            'default' => 'M',
      *                                            'change_default' => 1,
      *                                        )
      *                                    ),
-     *                                    'renamed_fields' => array(
+     *                                    'rename' => array(
      *                                        'sex' => array(
      *                                            'name' => 'gender',
      *                                        )
@@ -339,10 +339,10 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
-            case 'added_fields':
-            case 'removed_fields':
-            case 'changed_fields':
-            case 'renamed_fields':
+            case 'add':
+            case 'remove':
+            case 'change':
+            case 'rename':
             case 'name':
                 break;
             default:
@@ -355,10 +355,10 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $query = (isset($changes['name']) ? 'RENAME AS '.$changes['name'] : '');
+        $query = (array_key_exists('name', $changes) ? 'RENAME AS '.$changes['name'] : '');
 
-        if (isset($changes['added_fields'])) {
-            foreach ($changes['added_fields'] as $field_name => $field) {
+        if (array_key_exists('add', $changes)) {
+            foreach ($changes['add'] as $field_name => $field) {
                 $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
                 if (PEAR::isError($type_declaration)) {
                     return $err;
@@ -370,8 +370,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (isset($changes['removed_fields'])) {
-            foreach ($changes['removed_fields'] as $field_name => $field) {
+        if (array_key_exists('remove', $changes)) {
+            foreach ($changes['remove'] as $field_name => $field) {
                 if ($query) {
                     $query .= ', ';
                 }
@@ -379,21 +379,21 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             }
         }
 
-        $renamed_fields = array();
-        if (isset($changes['renamed_fields'])) {
-            foreach ($changes['renamed_fields'] as $field_name => $field) {
-                $renamed_fields[$field['name']] = $field_name;
+        $rename = array();
+        if (array_key_exists('rename', $changes)) {
+            foreach ($changes['rename'] as $field_name => $field) {
+                $rename[$field['name']] = $field_name;
             }
         }
 
-        if (isset($changes['changed_fields'])) {
-            foreach ($changes['changed_fields'] as $field_name => $field) {
+        if (array_key_exists('change', $changes)) {
+            foreach ($changes['change'] as $field_name => $field) {
                 if ($query) {
                     $query .= ', ';
                 }
-                if (isset($renamed_fields[$field_name])) {
-                    $old_field_name = $renamed_fields[$field_name];
-                    unset($renamed_fields[$field_name]);
+                if (isset($rename[$field_name])) {
+                    $old_field_name = $rename[$field_name];
+                    unset($rename[$field_name]);
                 } else {
                     $old_field_name = $field_name;
                 }
@@ -401,13 +401,13 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (!empty($renamed_fields)) {
-            foreach ($renamed_fields as $renamed_fields_name => $renamed_field) {
+        if (!empty($rename)) {
+            foreach ($rename as $rename_name => $renamed_field) {
                 if ($query) {
                     $query .= ', ';
                 }
                 $old_field_name = $renamed_field;
-                $field = $changes['renamed_fields'][$old_field_name];
+                $field = $changes['rename'][$old_field_name];
                 $query .= 'CHANGE ' . $db->getDeclaration($field['type'], $old_field_name, $field);
             }
         }
@@ -564,7 +564,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (isset($definition['unique']) && $definition['unique']) {
+        if (array_key_exists('unique', $definition) && $definition['unique']) {
             $type = 'UNIQUE';
         } else {
             $type = 'INDEX';

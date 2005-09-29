@@ -156,7 +156,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *
      *                                 New name for the table.
      *
-     *                             added_fields
+     *                             add
      *
      *                                 Associative array with the names of fields to be added as
      *                                  indexes of the array. The value of each entry of the array
@@ -165,13 +165,13 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *                                  be the same as defined by the Metabase parser.
      *
      *
-     *                             removed_fields
+     *                             remove
      *
      *                                 Associative array with the names of fields to be removed as indexes
      *                                  of the array. Currently the values assigned to each entry are ignored.
      *                                  An empty array should be used for future compatibility.
      *
-     *                             renamed_fields
+     *                             rename
      *
      *                                 Associative array with the names of fields to be renamed as indexes
      *                                  of the array. The value of each entry of the array should be set to
@@ -180,11 +180,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *                                  the portion of the field declaration already in DBMS specific SQL code
      *                                  as it is used in the CREATE TABLE statement.
      *
-     *                             changed_fields
+     *                             change
      *
      *                                 Associative array with the names of the fields to be changed as indexes
      *                                  of the array. Keep in mind that if it is intended to change either the
-     *                                  name of a field and any other properties, the changed_fields array entries
+     *                                  name of a field and any other properties, the change array entries
      *                                  should have the new names of the fields as array indexes.
      *
      *                                 The value of each entry of the array should be set to another associative
@@ -201,23 +201,23 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *                             Example
      *                                 array(
      *                                     'name' => 'userlist',
-     *                                     'added_fields' => array(
+     *                                     'add' => array(
      *                                         'quota' => array(
      *                                             'type' => 'integer',
      *                                             'unsigned' => 1
      *                                         )
      *                                     ),
-     *                                     'removed_fields' => array(
+     *                                     'remove' => array(
      *                                         'file_limit' => array(),
      *                                         'time_limit' => array()
      *                                         ),
-     *                                     'changed_fields' => array(
+     *                                     'change' => array(
      *                                         'gender' => array(
      *                                             'default' => 'M',
      *                                             'change_default' => 1,
      *                                         )
      *                                     ),
-     *                                     'renamed_fields' => array(
+     *                                     'rename' => array(
      *                                         'sex' => array(
      *                                             'name' => 'gender',
      *                                         )
@@ -238,12 +238,12 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
-            case 'added_fields':
-            case 'removed_fields':
-            case 'renamed_fields':
+            case 'add':
+            case 'remove':
+            case 'rename':
                 break;
-            case 'changed_fields':
-                $fields = $changes['changed_fields'];
+            case 'change':
+                $fields = $changes['change'];
                 foreach ($fields as $field) {
                     if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
                         return $err;
@@ -259,8 +259,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
         $query = '';
-        if (isset($changes['added_fields'])) {
-            $fields = $changes['added_fields'];
+        if (array_key_exists('add', $changes)) {
+            $fields = $changes['add'];
             foreach ($fields as $field_name => $field) {
                 $type_declaration = $db->getDeclaration($field['type'], $field_name, $field, $name);
                 if (PEAR::isError($type_declaration)) {
@@ -273,8 +273,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (isset($changes['removed_fields'])) {
-            $fields = $changes['removed_fields'];
+        if (array_key_exists('remove', $changes)) {
+            $fields = $changes['remove'];
             foreach ($fields as $field_name => $field) {
                 if (strlen($query)) {
                     $query .= ', ';
@@ -283,8 +283,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (isset($changes['renamed_fields'])) {
-            $fields = $changes['renamed_fields'];
+        if (array_key_exists('rename', $changes)) {
+            $fields = $changes['rename'];
             foreach ($fields as $field_name => $field) {
                 if (strlen($query)) {
                     $query .= ', ';
@@ -293,8 +293,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (isset($changes['changed_fields'])) {
-            $fields = $changes['changed_fields'];
+        if (array_key_exists('change', $changes)) {
+            $fields = $changes['change'];
             foreach ($fields as $field_name => $field) {
                 if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
                     return $err;
@@ -424,7 +424,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 }
             }
         }
-        return $db->query('CREATE'.(isset($definition['unique']) ? ' UNIQUE' : '') . $query_sort.
+        return $db->query('CREATE'.(array_key_exists('unique', $definition) ? ' UNIQUE' : '') . $query_sort.
              " INDEX $name  ON $table ($query_fields)");
     }
 
