@@ -214,7 +214,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no valid table name specified');
         }
-        if (!count($fields)) {
+        if (empty($fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no fields specified for table "'.$name.'"');
         }

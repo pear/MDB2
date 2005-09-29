@@ -297,7 +297,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (count($renamed_fields)) {
+        if (!empty($renamed_fields)) {
             foreach ($renamed_fields as $renamed_field_name => $renamed_field) {
                 if ($query) {
                     $query .= ', ';
