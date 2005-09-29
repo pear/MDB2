@@ -195,8 +195,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
                     }
                 }
             }
-        }
-        else {
+        } else {
             $type = 'LONGBLOB';
         }
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
