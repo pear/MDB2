@@ -393,7 +393,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     // }}}
     // {{{ _checkSequence
     /**
-     * Checks wether there's a sequence that exists.
+     * Checks if there's a sequence that exists.
      *
      * @param  string $seq_name    The sequence name to verify.
      * @return bool   $tableExists The value if the table exists or not 
@@ -454,11 +454,14 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             }
             return $result;
         }
-        $value = $this->queryOne("SELECT @@IDENTITY", 'integer');
+        
+        // TODO: Make sure that this works.
+        $value = $this->queryRow("SELECT @@IDENTITY", 'integer');
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE ".
                      $this->options['seqcol_name']." < $value";
             $result = $this->_doQuery($query, true);
+            
             if (PEAR::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values';
             }
