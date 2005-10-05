@@ -564,7 +564,10 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (array_key_exists('unique', $definition) && $definition['unique']) {
+        if (array_key_exists('primary', $definition) && $definition['primary']) {
+            $type = 'PRIMARY';
+            $name = 'KEY';
+        } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
             $type = 'UNIQUE';
         } else {
             $type = 'INDEX';
