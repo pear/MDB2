@@ -404,26 +404,31 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-
-        $query_sort = $query_fields = '';
-        foreach ($definition['fields'] as $field_name => $field) {
-            if ($query_fields) {
-                $query_fields.= ',';
+        if (array_key_exists('primary', $definition) && $definition['primary']) {
+            $query = "ALTER TABLE $table ADD CONSTRAINT $name PRIMARY KEY (";
+        } else {
+            $query = 'CREATE';
+            if (array_key_exists('unique', $definition) && $definition['unique']) {
+                $query.= ' UNIQUE';
             }
-            $query_fields.= $field_name;
-            if ($query_sort && isset($definition['fields'][$field_name]['sorting'])) {
-                switch ($definition['fields'][$field_name]['sorting']) {
-                case 'ascending':
-                    $query_sort = ' ASC';
-                    break;
-                case 'descending':
-                    $query_sort = ' DESC';
-                    break;
+            $query_sort = '';
+            foreach ($definition['fields'] as $field) {
+                if (!strcmp($query_sort, '') && isset($field['sorting'])) {
+                    switch ($field['sorting']) {
+                    case 'ascending':
+                        $query_sort = ' ASC';
+                        break;
+                    case 'descending':
+                        $query_sort = ' DESC';
+                        break;
+                    }
                 }
             }
+            $query .= $query_sort. " INDEX $name ON $table (";
         }
-        return $db->query('CREATE'.(array_key_exists('unique', $definition) ? ' UNIQUE' : '') . $query_sort.
-             " INDEX $name ON $table ($query_fields)");
+        $query .= implode(', ', array_keys($definition['fields'])) . ')';
+
+        return $db->query($query);
     }
 
     // }}}
