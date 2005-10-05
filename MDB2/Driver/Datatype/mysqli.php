@@ -425,31 +425,6 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ mapPrepareDatatype()
-
-    /**
-     * Maps an mdb2 datatype to mysqli prepare type
-     *
-     * @param string $type
-     * @return string
-     * @access public
-     */
-    function mapPrepareDatatype($type)
-    {
-        switch($type) {
-            case 'integer':
-                return 'i';
-            case 'float':
-                return 'd';
-            case 'blob':
-                return 'b';
-            default:
-                break;
-        }
-        return 's';
-    }
-
-    // }}}
     // {{{ mapNativeDatatype()
 
     /**
@@ -562,6 +537,31 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         }
 
         return array($type, $length);
+    }
+
+    // }}}
+    // {{{ mapPrepareDatatype()
+
+    /**
+     * Maps an mdb2 datatype to mysqli prepare type
+     *
+     * @param string $type
+     * @return string
+     * @access public
+     */
+    function mapPrepareDatatype($type)
+    {
+        switch($type) {
+            case 'integer':
+                return 'i';
+            case 'float':
+                return 'd';
+            case 'blob':
+                return 'b';
+            default:
+                break;
+        }
+        return 's';
     }
 }
 
