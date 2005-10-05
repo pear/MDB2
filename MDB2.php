@@ -939,7 +939,21 @@ class MDB2_Driver_Common extends PEAR
      * @var array
      * @access public
      */
-    var $supported = array();
+    var $supported = array(
+        'sequences' => false,
+        'indexes' => false,
+        'affected_rows' => false,
+        'summary_functions' => false,
+        'order_by_text' => false,
+        'transactions' => false,
+        'current_id' => false,
+        'limit_queries' => false,
+        'LOBs' => false,
+        'replace' => false,
+        'sub_selects' => false,
+        'auto_increment' => false,
+        'primary_key' => false,
+    );
 
     /**
      * $options['ssl'] -> determines if ssl should be used for connections
@@ -2009,11 +2023,27 @@ class MDB2_Driver_Common extends PEAR
      */
     function subSelect($query, $type = false)
     {
-        if ($this->supports('sub_selects')) {
+        if ($this->supports('sub_selects') === true) {
             return $query;
         }
-        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'subSelect: method not implemented');
+
+        if (!$this->supports('sub_selects')) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'subSelect: method not implemented');
+        }
+
+        $col = $this->queryCol($query, $type);
+        if (PEAR::isError($col)) {
+            return $col;
+        }
+        if (!is_array($col) || count($col) == 0) {
+            return 'NULL';
+        }
+        if ($type) {
+            $this->loadModule('Datatype');
+            return $this->datatype->implodeArray($col, $type);
+        }
+        return implode(', ', $col);
     }
 
     // }}}
@@ -2316,12 +2346,17 @@ class MDB2_Driver_Common extends PEAR
      * supports a given feature.
      *
      * @param string $feature name of the feature (see the MDB2 class doc)
-     * @return boolean whether this DB implementation supports $feature
+     * @return boolean|string   whether this DB implementation supports $feature
+     *                          false means no, true means native, 'emulated' means emulated
      * @access public
      */
     function supports($feature)
     {
-        return (isset($this->supported[$feature]) && $this->supported[$feature]);
+        if (array_key_exists($feature, $this->supported)) {
+            return $this->supported[$feature];
+        }
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            "unknown support feature $feature");
     }
 
     // }}}
