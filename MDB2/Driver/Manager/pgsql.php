@@ -209,6 +209,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $query = null;
+
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
                 $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
@@ -228,6 +230,15 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                     $query .= ', ';
                 }
                 $query .= 'DROP ' . $field_name;
+            }
+        }
+
+        if (array_key_exists('change', $changes)) {
+            $foreach ($changes['change'] as $field_name => $field) {
+                if ($query) {
+                    $query .= ', ';
+                }
+                $query .= "ALTER $field_name TYPE ".$db->getDeclaration($field['type'];
             }
         }
 
@@ -359,24 +370,24 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         // gratuitously stolen from PEAR DB _getSpecialQuery in pgsql.php
         $query = 'SELECT c.relname AS "Name"'
-                        . ' FROM pg_class c, pg_user u'
-                        . ' WHERE c.relowner = u.usesysid'
-                        . " AND c.relkind = 'r'"
-                        . ' AND NOT EXISTS'
-                        . ' (SELECT 1 FROM pg_views'
-                        . '  WHERE viewname = c.relname)'
-                        . " AND c.relname !~ '^(pg_|sql_)'"
-                        . ' UNION'
-                        . ' SELECT c.relname AS "Name"'
-                        . ' FROM pg_class c'
-                        . " WHERE c.relkind = 'r'"
-                        . ' AND NOT EXISTS'
-                        . ' (SELECT 1 FROM pg_views'
-                        . '  WHERE viewname = c.relname)'
-                        . ' AND NOT EXISTS'
-                        . ' (SELECT 1 FROM pg_user'
-                        . '  WHERE usesysid = c.relowner)'
-                        . " AND c.relname !~ '^pg_'";
+            . ' FROM pg_class c, pg_user u'
+            . ' WHERE c.relowner = u.usesysid'
+            . " AND c.relkind = 'r'"
+            . ' AND NOT EXISTS'
+            . ' (SELECT 1 FROM pg_views'
+            . '  WHERE viewname = c.relname)'
+            . " AND c.relname !~ '^(pg_|sql_)'"
+            . ' UNION'
+            . ' SELECT c.relname AS "Name"'
+            . ' FROM pg_class c'
+            . " WHERE c.relkind = 'r'"
+            . ' AND NOT EXISTS'
+            . ' (SELECT 1 FROM pg_views'
+            . '  WHERE viewname = c.relname)'
+            . ' AND NOT EXISTS'
+            . ' (SELECT 1 FROM pg_user'
+            . '  WHERE usesysid = c.relowner)'
+            . " AND c.relname !~ '^pg_'";
         return $db->queryCol($query);
     }
 
@@ -410,6 +421,63 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ createIndex()
+
+    /**
+     * get the stucture of a field into an array
+     *
+     * @param string    $table         name of the table on which the index is to be created
+     * @param string    $name         name of the index to be created
+     * @param array     $definition        associative array that defines properties of the index to be created.
+     *                                 Currently, only one property named FIELDS is supported. This property
+     *                                 is also an associative with the names of the index fields as array
+     *                                 indexes. Each entry of this array is set to another type of associative
+     *                                 array that specifies properties of the index that are specific to
+     *                                 each field.
+     *
+     *                                Currently, only the sorting property is supported. It should be used
+     *                                 to define the sorting direction of the index. It may be set to either
+     *                                 ascending or descending.
+     *
+     *                                Not all DBMS support index sorting direction configuration. The DBMS
+     *                                 drivers of those that do not support it ignore this property. Use the
+     *                                 function supports() to determine whether the DBMS driver can manage indexes.
+     *
+     *                                 Example
+     *                                    array(
+     *                                        'fields' => array(
+     *                                            'user_name' => array(
+     *                                                'sorting' => 'ascending'
+     *                                            ),
+     *                                            'last_login' => array()
+     *                                        )
+     *                                    )
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function createIndex($table, $name, $definition)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (array_key_exists('primary', $definition) && $definition['primary']) {
+            $query = "ALTER TABLE $table ADD CONSTRAINT $name PRIMARY KEY (";
+        } else {
+            $query = 'CREATE';
+            if (array_key_exists('unique', $definition) && $definition['unique']) {
+                $query .= ' UNIQUE';
+            }
+            $query .= " INDEX $name ON $table (";
+        }
+        $query.= implode(', ', array_keys($definition['fields']));
+        $query.= ')';
+
+        return $db->query($query);
+    }
+
+    // }}}
     // {{{ listTableIndexes()
 
     /**
@@ -426,11 +494,9 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->queryCol("SELECT relname
-                                FROM pg_class WHERE oid IN
-                                  (SELECT indexrelid FROM pg_index, pg_class
-                                   WHERE (pg_class.relname='$table')
-                                   AND (pg_class.oid=pg_index.indrelid))");
+        $subquery = "SELECT indexrelid FROM pg_index, pg_class";
+        $subquery.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_index.indrelid)";
+        return $db->queryCol("SELECT relname FROM pg_class WHERE oid IN ($subquery)");
     }
 
     // }}}
