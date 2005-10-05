@@ -79,12 +79,12 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->supported['current_id'] = true;
         $this->supported['affected_rows'] = true;
         $this->supported['transactions'] = true;
-        $this->supported['limit_queries'] = true;
+        $this->supported['limit_queries'] = 'emulated';
         $this->supported['LOBs'] = true;
-        $this->supported['replace'] = true;
+        $this->supported['replace'] = 'emulated';
         $this->supported['sub_selects'] = true;
-        $this->supported['auto_increment'] = false;
-        $this->supported['primary_key'] = true;
+        $this->supported['auto_increment'] = false; // not implemented
+        $this->supported['primary_key'] =  false; // not implemented
 
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;

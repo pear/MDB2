@@ -79,9 +79,9 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['current_id'] = true;
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
-        $this->supported['replace'] = true;
+        $this->supported['replace'] = 'emulated';
         $this->supported['sub_selects'] = true;
-        $this->supported['auto_increment'] = false;
+        $this->supported['auto_increment'] = 'emulated';
         $this->supported['primary_key'] = true;
     }
 
@@ -508,7 +508,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     /**
      * returns the next free id of a sequence
      *
-     * @param string  $seq_name name of the sequence
+     * @param string $seq_name name of the sequence
      * @param boolean $ondemand when true the seqence is
      *                          automatic created, if it
      *                          not exists
@@ -542,7 +542,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     /**
      * returns the current id of a sequence
      *
-     * @param string  $seq_name name of the sequence
+     * @param string $seq_name name of the sequence
      * @return mixed MDB2 Error Object or id
      * @access public
      */

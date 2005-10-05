@@ -73,19 +73,19 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->phptype = 'sqlite';
         $this->dbsyntax = 'sqlite';
 
-        $this->supported['sequences'] = true;
+        $this->supported['sequences'] = 'emulated';
         $this->supported['indexes'] = true;
         $this->supported['affected_rows'] = true;
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
-        $this->supported['current_id'] = true;
+        $this->supported['current_id'] = 'emulated';
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
         $this->supported['transactions'] = true;
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = true;
-        $this->supported['primary_key'] = true;
+        $this->supported['primary_key'] =  false; // not implemented
 
         $this->options['base_transaction_name'] = '___php_MDB2_sqlite_auto_commit_off';
         $this->options['fixed_float'] = 0;
@@ -536,7 +536,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     /**
      * returns the next free id of a sequence
      *
-     * @param string  $seq_name name of the sequence
+     * @param string $seq_name name of the sequence
      * @param boolean $ondemand when true the seqence is
      *                          automatic created, if it
      *                          not exists
@@ -603,14 +603,15 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     /**
      * returns the current id of a sequence
      *
-     * @param string  $seq_name name of the sequence
+     * @param string $seq_name name of the sequence
      * @return mixed MDB2 Error Object or id
      * @access public
      */
     function currID($seq_name)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        return $this->queryOne("SELECT MAX(".$this->options['seqcol_name'].") FROM $sequence_name", 'integer');
+        $query = "SELECT MAX(".$this->options['seqcol_name'].") FROM $sequence_name";
+        return $this->queryOne($query, 'integer');
     }
 }
 

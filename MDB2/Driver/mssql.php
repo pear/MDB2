@@ -71,16 +71,16 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->phptype = 'mssql';
         $this->dbsyntax = 'mssql';
 
-        $this->supported['sequences'] = true;
+        $this->supported['sequences'] = 'emulated';
         $this->supported['indexes'] = true;
         $this->supported['affected_rows'] = true;
         $this->supported['transactions'] = true;
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
-        $this->supported['current_id'] = false;
-        $this->supported['limit_queries'] = true;
+        $this->supported['current_id'] = 'emulated';
+        $this->supported['limit_queries'] = 'emulated';
         $this->supported['LOBs'] = true;
-        $this->supported['replace'] = true;
+        $this->supported['replace'] = 'emulated';
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
@@ -417,7 +417,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     /**
      * returns the next free id of a sequence
      *
-     * @param string  $seq_name name of the sequence
+     * @param string $seq_name name of the sequence
      * @param boolean $ondemand when true the seqence is
      *                          automatic created, if it
      *                          not exists
