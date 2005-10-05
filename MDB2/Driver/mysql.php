@@ -71,17 +71,17 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->phptype = 'mysql';
         $this->dbsyntax = 'mysql';
 
-        $this->supported['sequences'] = true;
+        $this->supported['sequences'] = 'emulated';
         $this->supported['indexes'] = true;
         $this->supported['affected_rows'] = true;
         $this->supported['transactions'] = false;
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
-        $this->supported['current_id'] = true;
+        $this->supported['current_id'] = 'emulated';
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
-        $this->supported['sub_selects'] = false;
+        $this->supported['sub_selects'] = 'emulated';
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
 
@@ -508,36 +508,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ subSelect()
-
-    /**
-     * simple subselect emulation for Mysql
-     *
-     * @access public
-     *
-     * @param string $query the SQL query for the subselect that may only
-     *                      return a column
-     * @param string $type determines type of the field
-     *
-     * @return string comma seperated values
-     */
-    function subSelect($query, $type = false)
-    {
-        if ($this->supports('sub_selects')) {
-            return $query;
-        }
-        $col = $this->queryCol($query, $type);
-        if (!is_array($col) || count($col) == 0) {
-            return 'NULL';
-        }
-        if ($type) {
-            $this->loadModule('Datatype');
-            return $this->datatype->implodeArray($col, $type);
-        }
-        return implode(', ', $col);
-    }
-
-    // }}}
     // {{{ replace()
 
     /**
@@ -646,7 +616,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     /**
      * returns the next free id of a sequence
      *
-     * @param string  $seq_name name of the sequence
+     * @param string $seq_name name of the sequence
      * @param boolean $ondemand when true the seqence is
      *                          automatic created, if it
      *                          not exists
@@ -711,14 +681,15 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     /**
      * returns the current id of a sequence
      *
-     * @param string  $seq_name name of the sequence
+     * @param string $seq_name name of the sequence
      * @return mixed MDB2 Error Object or id
      * @access public
      */
     function currID($seq_name)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        return $this->queryOne("SELECT MAX(".$this->options['seqcol_name'].") FROM $sequence_name", 'integer');
+        $query = "SELECT MAX(".$this->options['seqcol_name'].") FROM $sequence_name";
+        return $this->queryOne($query, 'integer');
     }
 }
 
