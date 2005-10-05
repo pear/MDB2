@@ -216,27 +216,27 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                     return $err;
                 }
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= 'ADD ' . $type_declaration;
+                $query.= 'ADD ' . $type_declaration;
             }
         }
 
         if (array_key_exists('remove', $changes)) {
             foreach ($changes['remove'] as $field_name => $field) {
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= 'DROP ' . $field_name;
+                $query.= 'DROP ' . $field_name;
             }
         }
 
         if (array_key_exists('change', $changes)) {
-            $foreach ($changes['change'] as $field_name => $field) {
+            foreach ($changes['change'] as $field_name => $field) {
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= "ALTER $field_name TYPE ".$db->getDeclaration($field['type'];
+                $query.= "ALTER $field_name TYPE ".$db->getDeclaration($field['type']);
             }
         }
 
@@ -465,9 +465,9 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         } else {
             $query = 'CREATE';
             if (array_key_exists('unique', $definition) && $definition['unique']) {
-                $query .= ' UNIQUE';
+                $query.= ' UNIQUE';
             }
-            $query .= " INDEX $name ON $table (";
+            $query.= " INDEX $name ON $table (";
         }
         $query.= implode(', ', array_keys($definition['fields']));
         $query.= ')';
