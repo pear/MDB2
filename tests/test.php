@@ -99,7 +99,7 @@ if (!is_array($testmethods)) {
 
 foreach ($dbarray as $db) {
     $dsn = $db['dsn'];
-    $options = array_key_exists('options', $db) ? $db['options'] : null;
+    $options = array_key_exists('options', $db) ? $db['options'] : array();
     $GLOBALS['_show_silenced'] = array_key_exists('debug', $options) ? $options['debug'] :false;
 
     $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":" . $dsn['password'] . "@" . $dsn['hostspec'] . "/" . $database;
