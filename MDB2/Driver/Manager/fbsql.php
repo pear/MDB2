@@ -452,14 +452,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
 
         $query = "CREATE ".(array_key_exists('unique', $definition) ? 'UNIQUE INDEX' : 'INDEX')." $name on $table (";
-        $skipped_first = false;
-        foreach ($definition['fields'] as $field_name => $field) {
-            if ($skipped_first) {
-                $query .= ',';
-            }
-            $skipped_first = true;
-            $query .= $field_name;
-        }
+        $query.= implode(', ', array_keys($definition['fields']));
         $query .= ')';
         return $db->query($query);
     }

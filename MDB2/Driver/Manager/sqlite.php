@@ -259,14 +259,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $query = 'CREATE '.(array_key_exists('unique', $definition) ? 'UNIQUE' : '')." INDEX $name ON $table (";
-        $skipped_first = false;
-        foreach ($definition['fields'] as $field_name => $field) {
-            if ($skipped_first) {
-                $query .= ',';
-            }
-            $query .= $field_name;
-            $skipped_first = true;
-        }
+        $query.= implode(', ', array_keys($definition['fields']));
         $query .= ')';
         return $db->query($query);
     }
