@@ -566,7 +566,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $db;
         }
 
-        if (!$db->supports('auto_increment')) {
+        if ($db->supports('auto_increment') !== true) {
             $seq = $table.(empty($field) ? '' : '_'.$field);
             $id = $db->nextID($seq, $ondemand);
             if (PEAR::isError($id)) {
@@ -595,7 +595,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $db;
         }
 
-        if (!$db->supports('auto_increment')) {
+        if ($db->supports('auto_increment') !== true) {
             return $id;
         }
         return $db->lastInsertID($table, $field);
