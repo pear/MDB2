@@ -323,7 +323,7 @@ class MDB2_xxx extends MDB2_Driver_Common
     /**
      * returns the next free id of a sequence
      *
-     * @param string  $seq_name name of the sequence
+     * @param string $seq_name name of the sequence
      * @param boolean $ondemand when true the seqence is
      *                          automatic created, if it
      *                          not exists
@@ -343,7 +343,7 @@ class MDB2_xxx extends MDB2_Driver_Common
     /**
      * returns the current id of a sequence
      *
-     * @param string  $seq_name name of the sequence
+     * @param string $seq_name name of the sequence
      * @return mixed MDB2 Error Object or id
      * @access public
      */
