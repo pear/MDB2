@@ -192,13 +192,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
             case 'add':
-                break;
             case 'remove':
-                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'alterTable: database server does not support dropping table columns');
-            case 'name':
-            case 'rename':
             case 'change':
+            case 'name':
+                break;
+            case 'rename':
             default:
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'alterTable: change type "'.$change_name.'\" not yet supported');
@@ -209,7 +207,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $query = null;
+        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$changes['name'] : '');
 
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
