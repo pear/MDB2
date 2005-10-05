@@ -945,7 +945,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             $fp = $value;
             $value = '';
             while (!@feof($fp)) {
-                $value .= @fread($fp, $db->options['lob_buffer_length']);
+                $value.= @fread($fp, $db->options['lob_buffer_length']);
             }
             if ($close) {
                 @fclose($fp);

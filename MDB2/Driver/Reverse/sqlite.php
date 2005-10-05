@@ -296,13 +296,13 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
             $flags = '';
             if ($id[$i]['pk']) {
-                $flags .= 'primary_key ';
+                $flags.= 'primary_key ';
             }
             if ($id[$i]['notnull']) {
-                $flags .= 'not_null ';
+                $flags.= 'not_null ';
             }
             if ($id[$i]['dflt_value'] !== null) {
-                $flags .= 'default_' . rawurlencode($id[$i]['dflt_value']);
+                $flags.= 'default_' . rawurlencode($id[$i]['dflt_value']);
             }
             $flags = trim($flags);
 

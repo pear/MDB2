@@ -17,14 +17,14 @@ require_once 'testUtils.php';
 $output = '';
 foreach ($testcases as $testcase) {
     include_once $testcase.'.php';
-    $output .= '<fieldset>'."\n";
-    $output .= '<legend><input type="checkbox" id="selectAll_'.$testcase.'" onclick="return checkAll(\''.$testcase.'\');" /> <b>TestCase : '.$testcase.'</b></legend>'."\n";
+    $output.= '<fieldset>'."\n";
+    $output.= '<legend><input type="checkbox" id="selectAll_'.$testcase.'" onclick="return checkAll(\''.$testcase.'\');" /> <b>TestCase : '.$testcase.'</b></legend>'."\n";
     $testmethods[$testcase] = getTests($testcase);
     foreach ($testmethods[$testcase] as $method) {
-        $output .= testCheck($testcase, $method);
+        $output.= testCheck($testcase, $method);
     }
-    $output .= "</fieldset><br />\n\n";
-    $output .= "<input name=\"submit\" type=\"submit\"><br /> <br />\n\n";
+    $output.= "</fieldset><br />\n\n";
+    $output.= "<input name=\"submit\" type=\"submit\"><br /> <br />\n\n";
 }
 
 ?>

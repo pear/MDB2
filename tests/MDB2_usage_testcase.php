@@ -928,10 +928,10 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
 
         for ($i = 0; $i < 100; $i++) {
             for ($code = 32; $code <= 127; $code++) {
-                $character_lob .= chr($code);
+                $character_lob.= chr($code);
             }
             for ($code = 0; $code <= 255; $code++) {
-                $binary_lob .= chr($code);
+                $binary_lob.= chr($code);
             }
         }
 
@@ -960,7 +960,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             while (!feof($clob)) {
                 $data = fread($clob, 8192);
                 $this->assertTrue(strlen($data) >= 0, 'Could not read CLOB');
-                $value .= $data;
+                $value.= $data;
             }
             $this->db->datatype->destroyLOB($clob);
             $this->assertEquals($character_lob, $value, 'Retrieved character LOB value is different from what was stored');
@@ -974,7 +974,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             while (!feof($blob)) {
                 $data = fread($blob, 8192);
                 $this->assertTrue(strlen($data) >= 0, 'Could not read BLOB');
-                $value .= $data;
+                $value.= $data;
             }
 
             $this->db->datatype->destroyLOB($blob);
@@ -1001,7 +1001,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $character_data = '';
             for ($i = 0; $i < 100; $i++) {
                 for ($code = 32; $code <= 127; $code++) {
-                    $character_data .= chr($code);
+                    $character_data.= chr($code);
                 }
             }
             $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
@@ -1013,7 +1013,7 @@ class MDB2_Usage_TestCase extends PHPUnit_TestCase {
             $binary_data = '';
             for ($i = 0; $i < 100; $i++) {
                 for ($code = 0; $code <= 255; $code++) {
-                    $binary_data .= chr($code);
+                    $binary_data.= chr($code);
                 }
             }
             $this->assertTrue((fwrite($file, $binary_data, strlen($binary_data)) == strlen($binary_data)), 'Error creating blob file to read from');

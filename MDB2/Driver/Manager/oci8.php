@@ -237,7 +237,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $query = ' DROP (';
             $fields = $changes['remove'];
             $query.= implode(', ', array_keys($fields));
-            $query .= ')';
+            $query.= ')';
             if (PEAR::isError($result = $db->query("ALTER TABLE $name $query"))) {
                 return $result;
             }
@@ -253,7 +253,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 if (PEAR::isError($type_declaration)) {
                     return $err;
                 }
-                $query .= ' ADD (' . $type_declaration . ')';
+                $query.= ' ADD (' . $type_declaration . ')';
             }
         }
 
@@ -279,17 +279,17 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 }
                 if ($change_type) {
                     $db->loadModule('Datatype');
-                    $change .= ' '.$db->datatype->getTypeDeclaration($field['definition']);
+                    $change.= ' '.$db->datatype->getTypeDeclaration($field['definition']);
                 }
                 if ($change_default) {
                     $default = (isset($field['definition']['default']) ? $field['definition']['default'] : null);
-                    $change .= ' DEFAULT '.$db->quote($default, $field['definition']['type']);
+                    $change.= ' DEFAULT '.$db->quote($default, $field['definition']['type']);
                 }
                 if (array_key_exists('changed_not_null', $field)) {
-                    $change .= (array_key_exists('notnull', $field) ? ' NOT' : '').' NULL';
+                    $change.= (array_key_exists('notnull', $field) ? ' NOT' : '').' NULL';
                 }
                 if ($change) {
-                    $query .= " MODIFY ($old_field_name$change)";
+                    $query.= " MODIFY ($old_field_name$change)";
                 }
             }
         }
@@ -519,9 +519,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         $query = 'CREATE';
         if (array_key_exists('primary', $definition) && $definition['primary']) {
-            $query .= ' UNIQUE';
+            $query.= ' UNIQUE';
         } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
-            $query .= ' UNIQUE';
+            $query.= ' UNIQUE';
         }
         $query.= " INDEX $name ON $table (";
         $query.= implode(', ', array_keys($definition['fields']));

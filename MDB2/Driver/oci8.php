@@ -417,7 +417,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (preg_match('/^\s*SELECT/i', $query)
             && !preg_match('/\sFROM\s/i', $query)
         ) {
-            $query .= " FROM dual";
+            $query.= " FROM dual";
         }
         return $query;
     }

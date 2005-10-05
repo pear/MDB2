@@ -233,7 +233,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $query .=  $db->getDeclaration($field['type'], $field_name, $field);
+                $query.=  $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
         if(array_key_exists('dropped_fields', $changes)) {
@@ -246,7 +246,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $query .= $db->getDeclaration($field['type'], $field_name, $field);
+                $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
             

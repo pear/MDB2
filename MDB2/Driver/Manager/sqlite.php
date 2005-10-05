@@ -260,7 +260,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $query = 'CREATE '.(array_key_exists('unique', $definition) ? 'UNIQUE' : '')." INDEX $name ON $table (";
         $query.= implode(', ', array_keys($definition['fields']));
-        $query .= ')';
+        $query.= ')';
         return $db->query($query);
     }
 

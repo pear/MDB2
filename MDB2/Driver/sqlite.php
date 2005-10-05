@@ -418,9 +418,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 $query = substr($query, 0, -1);
             }
             if ($isManip) {
-                $query .= " LIMIT $limit";
+                $query.= " LIMIT $limit";
             } else {
-                $query .= " LIMIT $offset,$limit";
+                $query.= " LIMIT $offset,$limit";
             }
         }
         return $query;
@@ -502,16 +502,16 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         for (reset($fields); $colnum < $count; next($fields), $colnum++) {
             $name = key($fields);
             if ($colnum > 0) {
-                $query .= ',';
-                $values .= ',';
+                $query.= ',';
+                $values.= ',';
             }
-            $query .= $name;
+            $query.= $name;
             if (isset($fields[$name]['null']) && $fields[$name]['null']) {
                 $value = 'NULL';
             } else {
                 $value = $this->quote($fields[$name]['value'], $fields[$name]['type']);
             }
-            $values .= $value;
+            $values.= $value;
             if (isset($fields[$name]['key']) && $fields[$name]['key']) {
                 if ($value === 'NULL') {
                     return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,

@@ -267,9 +267,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                     return $err;
                 }
                 if (strlen($query)) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= 'ADD ' . $type_declaration;
+                $query.= 'ADD ' . $type_declaration;
             }
         }
 
@@ -277,9 +277,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $fields = $changes['remove'];
             foreach ($fields as $field_name => $field) {
                 if (strlen($query)) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= 'DROP ' . $field_name;
+                $query.= 'DROP ' . $field_name;
             }
         }
 
@@ -287,9 +287,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $fields = $changes['rename'];
             foreach ($fields as $field_name => $field) {
                 if (strlen($query)) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= 'ALTER ' . $field_name . ' TO ' . $field['name'];
+                $query.= 'ALTER ' . $field_name . ' TO ' . $field['name'];
             }
         }
 
@@ -300,10 +300,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                     return $err;
                 }
                 if (strlen($query)) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
                 $db->loadModule('Datatype');
-                $query .= 'ALTER ' . $field_name.' TYPE ' . $db->datatype->getTypeDeclaration($field['definition']);
+                $query.= 'ALTER ' . $field_name.' TYPE ' . $db->datatype->getTypeDeclaration($field['definition']);
             }
         }
 
@@ -408,9 +408,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $query_sort = $query_fields = '';
         foreach ($definition['fields'] as $field_name => $field) {
             if ($query_fields) {
-                $query_fields .= ',';
+                $query_fields.= ',';
             }
-            $query_fields .= $field_name;
+            $query_fields.= $field_name;
             if ($query_sort && isset($definition['fields'][$field_name]['sorting'])) {
                 switch ($definition['fields'][$field_name]['sorting']) {
                 case 'ascending':

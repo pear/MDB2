@@ -257,9 +257,9 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                     return $err;
                 }
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= 'ADD ' . $type_declaration;
+                $query.= 'ADD ' . $type_declaration;
             }
         }
 
@@ -267,9 +267,9 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             $fields = $changes['remove'];
             foreach ($fields as $field_name => $field) {
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= 'DROP ' . $field_name;
+                $query.= 'DROP ' . $field_name;
             }
         }
 
@@ -285,7 +285,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             $fields = $changes['change'];
             foreach ($fields as $field_name => $field) {
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
                 if (isset($rename[$field_name])) {
                     $old_field_name = $rename[$field_name];
@@ -293,18 +293,18 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                 } else {
                     $old_field_name = $field_name;
                 }
-                $query .= "CHANGE $old_field_name " . $db->getDeclaration($field['type'], $old_field_name, $field);
+                $query.= "CHANGE $old_field_name " . $db->getDeclaration($field['type'], $old_field_name, $field);
             }
         }
 
         if (!empty($rename)) {
             foreach ($rename as $renamed_field_name => $renamed_field) {
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
                 $old_field_name = $rename[$renamed_field_name];
                 $field = $changes['rename'][$old_field_name];
-                $query .= 'CHANGE ' . $db->getDeclaration($field['type'], $old_field_name, $field);
+                $query.= 'CHANGE ' . $db->getDeclaration($field['type'], $old_field_name, $field);
             }
         }
 
@@ -453,7 +453,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
 
         $query = "CREATE ".(array_key_exists('unique', $definition) ? 'UNIQUE INDEX' : 'INDEX')." $name on $table (";
         $query.= implode(', ', array_keys($definition['fields']));
-        $query .= ')';
+        $query.= ')';
         return $db->query($query);
     }
 

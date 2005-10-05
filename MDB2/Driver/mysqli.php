@@ -664,16 +664,16 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         for (reset($fields); $colnum < $count; next($fields), $colnum++) {
             $name = key($fields);
             if ($colnum > 0) {
-                $query  .= ',';
-                $values .= ',';
+                $query .= ',';
+                $values.= ',';
             }
-            $query .= $name;
+            $query.= $name;
             if (isset($fields[$name]['null']) && $fields[$name]['null']) {
                 $value = 'NULL';
             } else {
                 $value = $this->quote($fields[$name]['value'], $fields[$name]['type']);
             }
-            $values .= $value;
+            $values.= $value;
             if (isset($fields[$name]['key']) && $fields[$name]['key']) {
                 if ($value === 'NULL') {
                     return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,

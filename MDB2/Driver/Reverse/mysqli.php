@@ -328,11 +328,11 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             $flags = '';
             foreach ($this->flags as $const => $means) {
                 if ($tmp->flags & $const) {
-                    $flags .= $means . ' ';
+                    $flags.= $means . ' ';
                 }
             }
             if ($tmp->def) {
-                $flags .= 'default_' . rawurlencode($tmp->def);
+                $flags.= 'default_' . rawurlencode($tmp->def);
             }
             $flags = trim($flags);
 

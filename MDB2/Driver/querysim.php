@@ -378,12 +378,12 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $buffer = '';
         if ($this->opened_persistent) {
             while (!feof($this->connection)) {
-                $buffer .= fgets($this->connection, 1024);
+                $buffer.= fgets($this->connection, 1024);
             }
         } else {
             $this->connection = @fopen($this->connected_database_name, 'r');
             while (!feof($this->connection)) {
-                $buffer .= fgets($this->connection, 1024);
+                $buffer.= fgets($this->connection, 1024);
             }
             $this->connection = @fclose($this->connection);
         }

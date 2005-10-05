@@ -195,10 +195,10 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if ($obj = @ibase_fetch_object($result)) {
             @ibase_free_result($result);
             if (isset($obj->CTYPE)  && trim($obj->CTYPE) == 'PRIMARY KEY') {
-                $flags .= 'primary_key ';
+                $flags.= 'primary_key ';
             }
             if (isset($obj->CTYPE)  && trim($obj->CTYPE) == 'UNIQUE') {
-                $flags .= 'unique_key ';
+                $flags.= 'unique_key ';
             }
         }
 
@@ -219,16 +219,16 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if ($obj = @ibase_fetch_object($result)) {
             @ibase_free_result($result);
             if (isset($obj->NFLAG)) {
-                $flags .= 'not_null ';
+                $flags.= 'not_null ';
             }
             if (isset($obj->DSOURCE)) {
-                $flags .= 'default ';
+                $flags.= 'default ';
             }
             if (isset($obj->CSOURCE)) {
-                $flags .= 'computed ';
+                $flags.= 'computed ';
             }
             if (isset($obj->FTYPE)  && $obj->FTYPE == 261) {
-                $flags .= 'blob ';
+                $flags.= 'blob ';
             }
         }
 

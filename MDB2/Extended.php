@@ -169,7 +169,7 @@ class MDB2_Extended extends MDB2_Module_Common
             $set = implode(' = ?, ', $table_fields).' = ?';
             $sql = 'UPDATE '.$table.' SET '.$set;
             if ($where !== false) {
-                $sql .= ' WHERE '.$where;
+                $sql.= ' WHERE '.$where;
             }
             return $sql;
             break;

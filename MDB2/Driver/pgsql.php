@@ -263,43 +263,43 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $params = array('');
         if ($protocol == 'tcp') {
             if ($this->dsn['hostspec']) {
-                $params[0] .= 'host=' . $this->dsn['hostspec'];
+                $params[0].= 'host=' . $this->dsn['hostspec'];
             }
             if ($this->dsn['port']) {
-                $params[0] .= ' port=' . $this->dsn['port'];
+                $params[0].= ' port=' . $this->dsn['port'];
             }
         } elseif ($protocol == 'unix') {
             // Allow for pg socket in non-standard locations.
             if ($this->dsn['socket']) {
-                $params[0] .= 'host=' . $this->dsn['socket'];
+                $params[0].= 'host=' . $this->dsn['socket'];
             }
             if ($this->dsn['port']) {
-                $params[0] .= ' port=' . $this->dsn['port'];
+                $params[0].= ' port=' . $this->dsn['port'];
             }
         }
         if ($database_name) {
-            $params[0] .= ' dbname=\'' . addslashes($database_name) . '\'';
+            $params[0].= ' dbname=\'' . addslashes($database_name) . '\'';
         }
         if ($this->dsn['username']) {
-            $params[0] .= ' user=\'' . addslashes($this->dsn['username']) . '\'';
+            $params[0].= ' user=\'' . addslashes($this->dsn['username']) . '\'';
         }
         if ($this->dsn['password']) {
-            $params[0] .= ' password=\'' . addslashes($this->dsn['password']) . '\'';
+            $params[0].= ' password=\'' . addslashes($this->dsn['password']) . '\'';
         }
         if (!empty($this->dsn['options'])) {
-            $params[0] .= ' options=' . $this->dsn['options'];
+            $params[0].= ' options=' . $this->dsn['options'];
         }
         if (!empty($this->dsn['tty'])) {
-            $params[0] .= ' tty=' . $this->dsn['tty'];
+            $params[0].= ' tty=' . $this->dsn['tty'];
         }
         if (!empty($this->dsn['connect_timeout'])) {
-            $params[0] .= ' connect_timeout=' . $this->dsn['connect_timeout'];
+            $params[0].= ' connect_timeout=' . $this->dsn['connect_timeout'];
         }
         if (!empty($this->dsn['sslmode'])) {
-            $params[0] .= ' sslmode=' . $this->dsn['sslmode'];
+            $params[0].= ' sslmode=' . $this->dsn['sslmode'];
         }
         if (!empty($this->dsn['service'])) {
-            $params[0] .= ' service=' . $this->dsn['service'];
+            $params[0].= ' service=' . $this->dsn['service'];
         }
 
         if (isset($this->dsn['new_link'])
@@ -496,7 +496,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 $where = $match[3];
                 $query = $manip.' '.$from.' WHERE ctid=(SELECT ctid FROM '.$from.' '.$where.' LIMIT '.$limit.')';
             } else {
-                $query .= " LIMIT $limit OFFSET $offset";
+                $query.= " LIMIT $limit OFFSET $offset";
             }
         }
         return $query;

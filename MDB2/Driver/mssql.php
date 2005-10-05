@@ -269,7 +269,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             $this->dsn['password'] ? $this->dsn['password'] : null,
         );
         if ($this->dsn['port']) {
-            $params[0] .= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':')
+            $params[0].= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':')
                         . $this->dsn['port'];
         }
 

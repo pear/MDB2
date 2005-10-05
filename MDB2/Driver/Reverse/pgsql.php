@@ -344,7 +344,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                                     AND tab.relname = '$table_name' AND f.attnum = a.adnum");
                 $row = @pg_fetch_row($result, 0);
                 $num = preg_replace("/'(.*)'::\w+/", "\\1", $row[0]);
-                $flags .= 'default_' . rawurlencode($num) . ' ';
+                $flags.= 'default_' . rawurlencode($num) . ' ';
             }
         } else {
             $flags = '';
@@ -363,10 +363,10 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             $keys = explode(' ', $row[2]);
 
             if (in_array($num_field + 1, $keys)) {
-                $flags .= ($row[0] == 't' && $row[1] == 'f') ? 'unique_key ' : '';
-                $flags .= ($row[1] == 't') ? 'primary_key ' : '';
+                $flags.= ($row[0] == 't' && $row[1] == 'f') ? 'unique_key ' : '';
+                $flags.= ($row[1] == 't') ? 'primary_key ' : '';
                 if (count($keys) > 1)
-                    $flags .= 'multiple_key ';
+                    $flags.= 'multiple_key ';
             }
         }
 

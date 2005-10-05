@@ -364,18 +364,18 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
                     return $err;
                 }
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= 'ADD ' . $type_declaration;
+                $query.= 'ADD ' . $type_declaration;
             }
         }
 
         if (array_key_exists('remove', $changes)) {
             foreach ($changes['remove'] as $field_name => $field) {
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
-                $query .= 'DROP ' . $field_name;
+                $query.= 'DROP ' . $field_name;
             }
         }
 
@@ -389,7 +389,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         if (array_key_exists('change', $changes)) {
             foreach ($changes['change'] as $field_name => $field) {
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
                 if (isset($rename[$field_name])) {
                     $old_field_name = $rename[$field_name];
@@ -397,18 +397,18 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
                 } else {
                     $old_field_name = $field_name;
                 }
-                $query .= "CHANGE $field_name " . $db->getDeclaration($field['type'], $old_field_name, $field);
+                $query.= "CHANGE $field_name " . $db->getDeclaration($field['type'], $old_field_name, $field);
             }
         }
 
         if (!empty($rename)) {
             foreach ($rename as $rename_name => $renamed_field) {
                 if ($query) {
-                    $query .= ', ';
+                    $query.= ', ';
                 }
                 $old_field_name = $renamed_field;
                 $field = $changes['rename'][$old_field_name];
-                $query .= 'CHANGE ' . $db->getDeclaration($field['type'], $old_field_name, $field);
+                $query.= 'CHANGE ' . $db->getDeclaration($field['type'], $old_field_name, $field);
             }
         }
 
@@ -574,8 +574,8 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
 
         $query = "ALTER TABLE $table ADD $type $name (";
-        $query .= implode(', ', array_keys($definition['fields']));
-        $query .= ')';
+        $query.= implode(', ', array_keys($definition['fields']));
+        $query.= ')';
 
         return $db->query($query);
     }
