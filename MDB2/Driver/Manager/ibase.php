@@ -411,9 +411,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 $query_fields .= ',';
             }
             $query_fields .= $field_name;
-            if ($query_sort && $db->support('index_sorting')
-                && isset($definition['fields'][$field_name]['sorting'])
-            ) {
+            if ($query_sort && isset($definition['fields'][$field_name]['sorting'])) {
                 switch ($definition['fields'][$field_name]['sorting']) {
                 case 'ascending':
                     $query_sort = ' ASC';
@@ -425,7 +423,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
         return $db->query('CREATE'.(array_key_exists('unique', $definition) ? ' UNIQUE' : '') . $query_sort.
-             " INDEX $name  ON $table ($query_fields)");
+             " INDEX $name ON $table ($query_fields)");
     }
 
     // }}}
