@@ -2142,28 +2142,20 @@ class MDB2_Driver_Common extends PEAR
             return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,
                 'replace: not specified which fields are keys');
         }
+
         $result = null;
         $in_transaction = $this->in_transaction;
         if (!$in_transaction && PEAR::isError($result = $this->beginTransaction())) {
             return $result;
         }
+
         $condition = ' WHERE '.implode(' AND ', $condition);
-        $query = "SELECT 1 FROM $table$condition";
-        $affected_rows = $result = $this->queryOne($query, 'integer');
+        $query = "DELETE FROM $table$condition";
+        $affected_rows = $result = $this->_doQuery($query, true);
         if (!PEAR::isError($result)) {
-            $this->setLimit(1);
-            if ($affected_rows) {
-                $set = array();
-                foreach($values as $name => $value) {
-                    $set[] = "$name = $value";
-                }
-                $set = implode(', ', $set);
-                $query = "UPDATE $table SET $set$condition";
-            } else {
-                $insert = implode(', ', array_keys($values));
-                $values = implode(', ', $values);
-                $query = "INSERT INTO $table ($insert) VALUES ($values)";
-            }
+            $insert = implode(', ', array_keys($values));
+            $values = implode(', ', $values);
+            $query = "INSERT INTO $table ($insert) VALUES ($values)";
             $result = $this->_doQuery($query, true);
             if (!PEAR::isError($result)) {
                 $affected_rows += $result;
