@@ -1163,9 +1163,9 @@ class MDB2_Driver_Common extends PEAR
     function __toString()
     {
         $info = get_class($this);
-        $info .= ': (phptype = '.$this->phptype.', dbsyntax = '.$this->dbsyntax.')';
+        $info.= ': (phptype = '.$this->phptype.', dbsyntax = '.$this->dbsyntax.')';
         if ($this->connection) {
-            $info .= ' [connected]';
+            $info.= ' [connected]';
         }
         return $info;
     }
@@ -1231,10 +1231,10 @@ class MDB2_Driver_Common extends PEAR
                 $native_errno = $native_msg = null;
                 list($code, $native_errno, $native_msg) = $this->errorInfo($code);
                 if (!is_null($native_errno)) {
-                    $userinfo .= "[Native code: $native_errno]\n";
+                    $userinfo.= "[Native code: $native_errno]\n";
                 }
                 if (!is_null($native_msg)) {
-                    $userinfo .= "[Native message: ". strip_tags($native_msg) ."]\n";
+                    $userinfo.= "[Native message: ". strip_tags($native_msg) ."]\n";
                 }
             } else {
                 $userinfo = "[Error message: $userinfo]\n";
@@ -2117,15 +2117,9 @@ class MDB2_Driver_Common extends PEAR
                 'replace: replace query is not supported');
         }
         $count = count($fields);
-        $condition = $insert = $values = '';
-        $keys = $colnum = 0;
-        for (reset($fields); $colnum < $count; next($fields), $colnum++) {
+        $condition = $values = array();
+        for ($colnum = 0, reset($fields); $colnum < $count; next($fields), $colnum++) {
             $name = key($fields);
-            if ($colnum > 0) {
-                $insert .= ', ';
-                $values .= ', ';
-            }
-            $insert .= $name;
             if (isset($fields[$name]['null']) && $fields[$name]['null']) {
                 $value = 'NULL';
             } else {
@@ -2135,17 +2129,16 @@ class MDB2_Driver_Common extends PEAR
                     $value = $fields[$name]['value'];
                 }
             }
-            $values .= $value;
+            $values[$name] = $value;
             if (isset($fields[$name]['key']) && $fields[$name]['key']) {
                 if ($value === 'NULL') {
                     return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,
                         'replace: key value '.$name.' may not be NULL');
                 }
-                $condition .= ($keys ? ' AND ' : ' WHERE ') . $name . '=' . $value;
-                $keys++;
+                $condition[] = $name . '=' . $value;
             }
         }
-        if ($keys == 0) {
+        if (empty($condition)) {
             return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,
                 'replace: not specified which fields are keys');
         }
@@ -2154,10 +2147,23 @@ class MDB2_Driver_Common extends PEAR
         if (!$in_transaction && PEAR::isError($result = $this->beginTransaction())) {
             return $result;
         }
-        $query = "DELETE FROM $table$condition";
-        $affected_rows = $result = $this->_doQuery($query, true);
+        $condition = ' WHERE '.implode(' AND ', $condition);
+        $query = "SELECT 1 FROM $table$condition";
+        $affected_rows = $result = $this->queryOne($query, 'integer');
         if (!PEAR::isError($result)) {
-            $query = "INSERT INTO $table ($insert) VALUES ($values)";
+            $this->setLimit(1);
+            if ($affected_rows) {
+                $set = array();
+                foreach($values as $name => $value) {
+                    $set[] = "$name = $value";
+                }
+                $set = implode(', ', $set);
+                $query = "UPDATE $table SET $set$condition";
+            } else {
+                $insert = implode(', ', array_keys($values));
+                $values = implode(', ', $values);
+                $query = "INSERT INTO $table ($insert) VALUES ($values)";
+            }
             $result = $this->_doQuery($query, true);
             if (!PEAR::isError($result)) {
                 $affected_rows += $result;
@@ -3142,7 +3148,7 @@ class MDB2_Statement_Common
         $last_position = $i = 0;
         foreach ($this->values as $parameter => $value) {
             $current_position = $this->statement[$parameter];
-            $query .= substr($this->query, $last_position, $current_position - $last_position);
+            $query.= substr($this->query, $last_position, $current_position - $last_position);
             if (!isset($value)) {
                 $value_quoted = 'NULL';
             } else {
@@ -3152,11 +3158,11 @@ class MDB2_Statement_Common
                     return $value_quoted;
                 }
             }
-            $query .= $value_quoted;
+            $query.= $value_quoted;
             $last_position = $current_position + 1;
             ++$i;
         }
-        $query .= substr($this->query, $last_position);
+        $query.= substr($this->query, $last_position);
 
         $this->db->row_offset = $this->row_offset;
         $this->db->row_limit = $this->row_limit;
@@ -3263,8 +3269,8 @@ function MDB2_closeOpenTransactions()
  */
 function MDB2_defaultDebugOutput(&$db, $scope, $message)
 {
-    $db->debug_output .= $scope.'('.$db->db_index.'): ';
-    $db->debug_output .= $message.$db->getOption('log_line_break');
+    $db->debug_output.= $scope.'('.$db->db_index.'): ';
+    $db->debug_output.= $message.$db->getOption('log_line_break');
 }
 
 ?>
