@@ -292,11 +292,6 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      *                                 respective properties. The properties of the fields should be the same
      *                                 as defined by the Metabase parser.
      *
-     *                                If the default property is meant to be added, removed or changed, there
-     *                                 should also be an entry with index ChangedDefault assigned to 1. Similarly,
-     *                                 if the notnull constraint is to be added or removed, there should also be
-     *                                 an entry with index ChangedNotNull assigned to 1.
-     *
      *                            Example
      *                                array(
      *                                    'name' => 'userlist',
@@ -313,7 +308,6 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      *                                    'change' => array(
      *                                        'gender' => array(
      *                                            'default' => 'M',
-     *                                            'change_default' => 1,
      *                                        )
      *                                    ),
      *                                    'rename' => array(

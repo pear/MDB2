@@ -139,6 +139,7 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
         // take this from the corresponding Metabase driver: CreateTable()
     }
 
+
     // }}}
     // {{{ alterTable()
 
@@ -154,7 +155,7 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      *
      *                                New name for the table.
      *
-     *                            AddedFields
+     *                            add
      *
      *                                Associative array with the names of fields to be added as
      *                                 indexes of the array. The value of each entry of the array
@@ -162,17 +163,14 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      *                                 of the fields to be added. The properties of the fields should
      *                                 be the same as defined by the Metabase parser.
      *
-     *                                Additionally, there should be an entry named Declaration that
-     *                                 is expected to contain the portion of the field declaration already
-     *                                 in DBMS specific SQL code as it is used in the CREATE TABLE statement.
      *
-     *                            RemovedFields
+     *                            remove
      *
      *                                Associative array with the names of fields to be removed as indexes
      *                                 of the array. Currently the values assigned to each entry are ignored.
      *                                 An empty array should be used for future compatibility.
      *
-     *                            RenamedFields
+     *                            rename
      *
      *                                Associative array with the names of fields to be renamed as indexes
      *                                 of the array. The value of each entry of the array should be set to
@@ -181,11 +179,11 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      *                                 the portion of the field declaration already in DBMS specific SQL code
      *                                 as it is used in the CREATE TABLE statement.
      *
-     *                            ChangedFields
+     *                            change
      *
      *                                Associative array with the names of the fields to be changed as indexes
      *                                 of the array. Keep in mind that if it is intended to change either the
-     *                                 name of a field and any other properties, the ChangedFields array entries
+     *                                 name of a field and any other properties, the change array entries
      *                                 should have the new names of the fields as array indexes.
      *
      *                                The value of each entry of the array should be set to another associative
@@ -194,39 +192,27 @@ class MDB2_Driver_Manager_xxx extends MDB2_Driver_Manager_Common
      *                                 respective properties. The properties of the fields should be the same
      *                                 as defined by the Metabase parser.
      *
-     *                                If the default property is meant to be added, removed or changed, there
-     *                                 should also be an entry with index ChangedDefault assigned to 1. Similarly,
-     *                                 if the notnull constraint is to be added or removed, there should also be
-     *                                 an entry with index ChangedNotNull assigned to 1.
-     *
-     *                                Additionally, there should be an entry named Declaration that is expected
-     *                                 to contain the portion of the field changed declaration already in DBMS
-     *                                 specific SQL code as it is used in the CREATE TABLE statement.
      *                            Example
      *                                array(
      *                                    'name' => 'userlist',
-     *                                    'AddedFields' => array(
+     *                                    'add' => array(
      *                                        'quota' => array(
      *                                            'type' => 'integer',
      *                                            'unsigned' => 1
-     *                                            'Declaration' => 'quota INT'
      *                                        )
      *                                    ),
-     *                                    'RemovedFields' => array(
+     *                                    'remove' => array(
      *                                        'file_limit' => array(),
      *                                        'time_limit' => array()
      *                                        ),
-     *                                    'ChangedFields' => array(
+     *                                    'change' => array(
      *                                        'gender' => array(
      *                                            'default' => 'M',
-     *                                            'ChangeDefault' => 1,
-     *                                            'Declaration' => "gender CHAR(1) DEFAULT 'M'"
      *                                        )
      *                                    ),
-     *                                    'RenamedFields' => array(
+     *                                    'rename' => array(
      *                                        'sex' => array(
      *                                            'name' => 'gender',
-     *                                            'Declaration' => "gender CHAR(1) DEFAULT 'M'"
      *                                        )
      *                                    )
      *                                )
