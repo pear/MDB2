@@ -254,38 +254,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (array_key_exists('change', $changes)) {
             $fields = $changes['change'];
             foreach ($fields as $field_name => $field) {
-                if (isset($rename[$field_name])) {
-                    $old_field_name = $rename[$field_name];
-                    unset($rename[$field_name]);
-                } else {
-                    $old_field_name = $field_name;
-                }
-                $change = '';
-                $change_type = $change_default = false;
-                if (array_key_exists('type', $field)) {
-                    $change_type = $change_default = true;
-                }
-                if (array_key_exists('length', $field)) {
-                    $change_type = true;
-                }
-                if (array_key_exists('default', $field)) {
-                    $change_default = true;
-                }
-                if ($change_type) {
-                    $db->loadModule('Datatype');
-                    $change.= ' '.$db->datatype->getTypeDeclaration($field['definition']);
-                }
-                if ($change_default) {
-                    $default = (isset($field['definition']['default']) ? $field['definition']['default'] : null);
-                    $change.= ' DEFAULT '.$db->quote($default, $field['definition']['type']);
-                }
-                if (array_key_exists('notnull', $field)) {
-                    $change.= (array_key_exists('notnull', $field['definition']) && $field['definition']['notnull'])
-                        ? ' NOT' : '').' NULL';
-                }
-                if ($change) {
-                    $query.= " MODIFY ($old_field_name$change)";
-                }
+                $query.= "MODIFY ($field_name " . $db->getDeclaration($field['type'], $field_name, $field).')';
             }
         }
 
