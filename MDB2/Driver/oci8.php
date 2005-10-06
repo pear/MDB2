@@ -440,7 +440,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->debug($query, 'query');
         if ($this->getOption('disable_query')) {
             if ($isManip) {
-                return MDB2_OK;
+                return 0;
             }
             return null;
         }
@@ -1040,7 +1040,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         $this->db->debug($this->query, 'execute');
         if ($this->db->getOption('disable_query')) {
             if ($isManip) {
-                $return = MDB2_OK;
+                $return = 0;
                 return $return;
             }
             $null = null;

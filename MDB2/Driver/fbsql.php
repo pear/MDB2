@@ -308,7 +308,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
             if ($isManip) {
-                return MDB2_OK;
+                return 0;
             }
             return null;
         }

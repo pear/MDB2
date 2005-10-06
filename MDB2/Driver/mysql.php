@@ -431,11 +431,9 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
             if ($isManip) {
-                $return = MDB2_OK;
-                return $return;
+                return 0;
             }
-            $null = null;
-            return $null;
+            return null;
         }
 
         if (is_null($connection)) {

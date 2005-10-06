@@ -429,7 +429,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
             if ($isManip) {
-                return MDB2_OK;
+                return 0;
             }
             return null;
         }
@@ -1005,7 +1005,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
         $this->db->debug($this->query, 'execute');
         if ($this->db->getOption('disable_query')) {
             if ($isManip) {
-                $return = MDB2_OK;
+                $return = 0;
                 return $return;
             }
             $null = null;
