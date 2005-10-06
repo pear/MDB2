@@ -141,40 +141,40 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 if ($db->options['field_case'] == CASE_LOWER) {
                     $column['field'] = strtolower($column['field']);
                 } else {
-                    $column['field'] = strtolower($column['field']);
+                    $column['field'] = strtoupper($column['field']);
                 }
             } else {
-                $column = array_change_key_case($column, CASE_LOWER);
+                $column = array_change_key_case($column, $db->options['field_case']);
             }
-
             if ($field_name == $column['field']) {
                 list($types, $length) = $db->datatype->mapNativeDatatype($column);
-                unset($notnull);
+                $notnull = false;
                 if (array_key_exists('null', $column) && $column['null'] != 'YES') {
                     $notnull = true;
                 }
-                unset($default);
+                $default = false;
                 if (array_key_exists('default', $column)) {
                     $default = $column['default'];
+                    if (is_null($default) && $notnull) {
+                        $default = '';
+                    }
                 }
                 $definition = array();
                 foreach ($types as $key => $type) {
-                    $definition[$key] = array('type' => $type);
-                    if (isset($notnull)) {
-                        $definition[$key]['notnull'] = true;
-                    }
-                    if (isset($default)) {
+                    $definition[$key] = array(
+                        'type' => $type,
+                        'notnull' => $notnull,
+                    );
+                    if ($default !== false) {
                         $definition[$key]['default'] = $default;
                     }
-                    if (isset($length)) {
+                    if ($length > 0) {
                         $definition[$key]['length'] = $length;
                     }
                 }
-
                 if (array_key_exists('extra', $column) && $column['extra'] == 'auto_increment') {
                     $definition[$key]['autoincrement'] = true;
                 }
-
                 return $definition;
             }
         }
@@ -210,7 +210,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             if (!($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE)
                 || $db->options['field_case'] != CASE_LOWER
             ) {
-                $row = array_change_key_case($row, $db->options['field_case']);
+                $row = array_change_key_case($row, CASE_LOWER);
             }
             $key_name = $row['key_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {

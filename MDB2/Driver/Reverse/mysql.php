@@ -93,24 +93,27 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             }
             if ($field_name == $column['field']) {
                 list($types, $length) = $db->datatype->mapNativeDatatype($column);
-                unset($notnull);
+                $notnull = false;
                 if (array_key_exists('null', $column) && $column['null'] != 'YES') {
                     $notnull = true;
                 }
-                unset($default);
+                $default = false;
                 if (array_key_exists('default', $column)) {
                     $default = $column['default'];
+                    if (is_null($default) && $notnull) {
+                        $default = '';
+                    }
                 }
                 $definition = array();
                 foreach ($types as $key => $type) {
-                    $definition[$key] = array('type' => $type);
-                    if (isset($notnull)) {
-                        $definition[$key]['notnull'] = true;
-                    }
-                    if (isset($default)) {
+                    $definition[$key] = array(
+                        'type' => $type,
+                        'notnull' => $notnull,
+                    );
+                    if ($default !== false) {
                         $definition[$key]['default'] = $default;
                     }
-                    if (isset($length)) {
+                    if ($length > 0) {
                         $definition[$key]['length'] = $length;
                     }
                 }
@@ -207,7 +210,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
      * @return array  an associative array with the information requested.
      *                 A MDB2_Error object on failure.
      *
-     * @see MDB2_Driver_Common::tableInfo()
+     * @see MDB2_Driver_Common::setOption()
      */
     function tableInfo($result, $mode = null)
     {
