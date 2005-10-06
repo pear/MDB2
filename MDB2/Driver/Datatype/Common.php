@@ -608,18 +608,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $previous_notnull = array_key_exists('notnull', $previous);
         $notnull = array_key_exists('notnull', $current);
         if ($previous_notnull != $notnull) {
-            if ($notnull) {
-                $change['notnull'] = array_key_exists('notnull', $current);
-            }
+            $change['notnull'] = $notnull
         }
 
         $previous_default = array_key_exists('default', $previous);
         $default = array_key_exists('default', $current);
-        if ($previous_default != $default) {
-            if ($default) {
-                $change['default'] = $current['default'];
-            }
-        } elseif ($default && $previous['default']!= $current['default']) {
+        if ($previous_default !== $default) {
             $change['default'] = $current['default'];
         }
 
