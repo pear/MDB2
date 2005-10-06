@@ -147,15 +147,17 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 }
                 $definition = array();
                 foreach ($types as $key => $type) {
-                    $definition[0][$key] = array('type' => $type);
+                    $definition[$key] = array('type' => $type);
                     if (isset($notnull)) {
-                        $definition[0][$key]['notnull'] = true;
+                        $definition[$key]['notnull'] = true;
+                    } else {
+                        $definition[$key]['notnull'] = false;
                     }
                     if (isset($default)) {
-                        $definition[0][$key]['default'] = $default;
+                        $definition[$key]['default'] = $default;
                     }
                     if (isset($length)) {
-                        $definition[0][$key]['length'] = $length;
+                        $definition[$key]['length'] = $length;
                     }
                 }
                 // todo .. handle auto_inrement and primary keys

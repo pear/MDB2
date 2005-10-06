@@ -108,17 +108,20 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         }
         $definition = array();
         foreach ($types as $key => $type) {
-            $definition[0][$key] = array('type' => $type);
+            $definition[$key] = array('type' => $type);
             if (isset($notnull)) {
-                $definition[0][$key]['notnull'] = true;
+                $definition[$key]['notnull'] = true;
+            } else {
+                $definition[$key]['notnull'] = false;
             }
             if (isset($default)) {
-                $definition[0][$key]['default'] = $default;
+                $definition[$key]['default'] = $default;
             }
             if (isset($length)) {
-                $definition[0][$key]['length'] = $length;
+                $definition[$key]['length'] = $length;
             }
         }
+        /*
         if (preg_match("/nextval\('([^']+)'/", $column['adsrc'], $nextvals)) {
             $implicit_sequence = array();
             $implicit_sequence['on'] = array();
@@ -127,7 +130,9 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             $definition[1]['name'] = $nextvals[1];
             $definition[1]['definition'] = $implicit_sequence;
         }
+        */
 
+        /*
         // check that its not just a unique field
         $query = "SELECT oid,indexrelid,indrelid,indkey,indisunique,indisprimary
                 FROM pg_index, pg_class
@@ -151,6 +156,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             $definition[2]['name'] = $field_name;
             $definition[2]['definition'] = $implicit_index;
         }
+        */
         return $definition;
     }
 
