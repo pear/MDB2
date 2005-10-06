@@ -605,16 +605,19 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         }
 
         $change = $this->{"_compare{$type}Definition"}($current, $previous);
-        $previous_notnull = array_key_exists('notnull', $previous);
-        $notnull = array_key_exists('notnull', $current);
+
+        $previous_notnull = array_key_exists('notnull', $previous) ? $previous['notnull'] : false;
+        $notnull = array_key_exists('notnull', $current) ? $current['notnull'] : false;
         if ($previous_notnull != $notnull) {
-            $change['notnull'] = $notnull;
+            $change['notnull'] = true;
         }
 
-        $previous_default = array_key_exists('default', $previous);
-        $default = array_key_exists('default', $current);
+        $previous_default = array_key_exists('default', $previous) ? $previous['default'] :
+            ($previous_notnull ? '' : null);
+        $default = array_key_exists('default', $current) ? $current['default'] :
+            ($notnull ? '' : null);
         if ($previous_default !== $default) {
-            $change['default'] = $current['default'];
+            $change['default'] = true;
         }
 
         return $change;
@@ -634,10 +637,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _compareIntegerDefinition($current, $previous)
     {
         $change = array();
-        $previous_unsigned = array_key_exists('unsigned', $previous);
-        $unsigned = array_key_exists('unsigned', $current);
+        $previous_unsigned = array_key_exists('unsigned', $previous) ? $previous['unsigned'] : false;
+        $unsigned = array_key_exists('unsigned', $current) ? $current['unsigned'] : false;
         if ($previous_unsigned != $unsigned) {
-            $change['unsigned'] = $unsigned;
+            $change['unsigned'] = true;
         }
         return $change;
     }
@@ -656,10 +659,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _compareTextDefinition($current, $previous)
     {
         $change = array();
-        $previous_length = (array_key_exists('length', $previous) ? $previous['length'] : 0);
-        $length = (array_key_exists('length', $current) ? $current['length'] : 0);
+        $previous_length = array_key_exists('length', $previous) ? $previous['length'] : 0;
+        $length = array_key_exists('length', $current) ? $current['length'] : 0;
         if ($previous_length != $length) {
-            $change['length'] = $length;
+            $change['length'] = true;
         }
         return $change;
     }
