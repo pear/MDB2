@@ -280,7 +280,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                     $change.= ' DEFAULT '.$db->quote($default, $field['definition']['type']);
                 }
                 if (array_key_exists('notnull', $field)) {
-                    $change.= (array_key_exists('notnull', $field) ? ' NOT' : '').' NULL';
+                    $change.= (array_key_exists('notnull', $field['definition']) && $field['definition']['notnull'])
+                        ? ' NOT' : '').' NULL';
                 }
                 if ($change) {
                     $query.= " MODIFY ($old_field_name$change)";
