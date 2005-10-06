@@ -172,11 +172,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *                                  respective properties. The properties of the fields should be the same
      *                                  as defined by the Metabase parser.
      *
-     *                                 If the default property is meant to be added, removed or changed, there
-     *                                  should also be an entry with index ChangedDefault assigned to 1. Similarly,
-     *                                  if the notnull constraint is to be added or removed, there should also be
-     *                                  an entry with index ChangedNotNull assigned to 1.
-     *
      *                             Example
      *                                 array(
      *                                     'name' => 'userlist',
@@ -193,7 +188,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      *                                     'change' => array(
      *                                         'gender' => array(
      *                                             'default' => 'M',
-     *                                             'change_default' => 1,
      *                                         )
      *                                     ),
      *                                     'rename' => array(
@@ -274,7 +268,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 if (array_key_exists('length', $field)) {
                     $change_type = true;
                 }
-                if (array_key_exists('changed_default', $field)) {
+                if (array_key_exists('default', $field)) {
                     $change_default = true;
                 }
                 if ($change_type) {
@@ -285,7 +279,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                     $default = (isset($field['definition']['default']) ? $field['definition']['default'] : null);
                     $change.= ' DEFAULT '.$db->quote($default, $field['definition']['type']);
                 }
-                if (array_key_exists('changed_not_null', $field)) {
+                if (array_key_exists('notnull', $field)) {
                     $change.= (array_key_exists('notnull', $field) ? ' NOT' : '').' NULL';
                 }
                 if ($change) {
