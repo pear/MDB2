@@ -836,9 +836,9 @@ class MDB2
      */
     function fileExists($file)
     {
-        $dirs = split(PATH_SEPARATOR, ini_get('include_path'));
+        $dirs = explode(PATH_SEPARATOR, ini_get('include_path'));
         foreach ($dirs as $dir) {
-            if (file_exists($dir . DIRECTORY_SEPARATOR . $file)) {
+            if (is_readable($dir . DIRECTORY_SEPARATOR . $file)) {
                 return true;
             }
         }
@@ -3180,7 +3180,7 @@ class MDB2_Statement_Common
 class MDB2_Module_Common
 {
     /**
-     * contains the key to the global MDB2 instance array of the associated 
+     * contains the key to the global MDB2 instance array of the associated
      * MDB2 instance
      *
      * @var integer
