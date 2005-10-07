@@ -119,9 +119,14 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         return $db->standaloneQuery('DROP USER '.$username.' CASCADE');
     }
 
-    function _makeAutoincrement($name, $table)
+    function _makeAutoincrement($name, $table, $start = 1)
     {
-        $index_name  = $table . '_autoincrement_' . $name;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $index_name  = $table . '_autoincrement_pk';
         $definition = array(
             'primary' => true,
             'fields' => array($name),
@@ -132,14 +137,14 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 '_makeAutoincrement: primary key for autoincrement PK could not be created');
         }
 
-        $result = $db->manager->createSequence($table);
+        $result = $db->manager->createSequence($table, $start);
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
 
         $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $table . '_autoincrement_' . $name;
+        $trigger_name  = $table . '_autoincrement_pk';
         $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
         $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
         $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;"
@@ -149,6 +154,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
     function _dropAutoincrement($name, $table)
     {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $result = $db->manager->dropSequence($table);
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
@@ -156,7 +166,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $table . '_autoincrement_' . $name;
+        $trigger_name  = $table . '_autoincrement_pk';
         $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
 
         return $db->query($trigger_sql);

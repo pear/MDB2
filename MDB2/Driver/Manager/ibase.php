@@ -98,16 +98,21 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 'to drop the db manually by using isql command or a similar program');
     }
 
-    function _makeAutoincrement($name, $table)
+    function _makeAutoincrement($name, $table, $start = 1)
     {
-        $result = $db->manager->createSequence($table);
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $result = $db->manager->createSequence($table, $start);
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
 
         $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $table . '_autoincrement_' . $name;
+        $trigger_name  = $table . '_autoincrement_pk';
         $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
                         ACTIVE BEFORE INSERT POSITION 0
                         AS
@@ -121,6 +126,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
     function _dropAutoincrement($name, $table)
     {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $result = $db->manager->dropSequence($table);
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
@@ -128,7 +138,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $table . '_autoincrement_' . $name;
+        $trigger_name  = $table . '_autoincrement_pk';
         $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
 
         return $db->query($trigger_sql);
