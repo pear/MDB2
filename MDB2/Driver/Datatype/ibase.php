@@ -169,13 +169,13 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      *       notnull
      *           Boolean flag that indicates whether this field is constrained
      *           to not be set to null.
-     * @param string $current_table name of the current table being processed
+     * @param string $table name of the current table being processed
      *           by alterTable(), used for autoincrement emulation
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
      * @access protected
      */
-    function _getIntegerDeclaration($name, $field, $current_table=null)
+    function _getIntegerDeclaration($name, $field, $table = null)
     {
         if (array_key_exists('unsigned', $field) && $field['unsigned']) {
             $db =& $this->getDBInstance();
@@ -190,19 +190,19 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             if (PEAR::isError($db)) {
                 return $db;
             }
-            if (is_null($current_table)) {
+            if (is_null($table)) {
                 return $db->raiseError(MDB2_ERROR, null, null,
                     '_getIntegerDeclaration: missing table name');
             }
             $db->loadModule('Manager');
-            $result = $db->manager->createSequence($current_table);
+            $result = $db->manager->createSequence($table);
             if (PEAR::isError($result)) {
                 return $db->raiseError(MDB2_ERROR, null, null,
                     '_getIntegerDeclaration: sequence for autoincrement PK could not be created');
             }
-            $sequence_name = $db->getSequenceName($current_table);
-            $trigger_name  = $current_table . '_autoincrement_' . $name;
-            $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $current_table . '
+            $sequence_name = $db->getSequenceName($table);
+            $trigger_name  = $table . '_autoincrement_' . $name;
+            $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
                             ACTIVE BEFORE INSERT POSITION 0
                             AS
                             BEGIN
@@ -216,6 +216,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             }
             return $name.' PRIMARY KEY';
         }
+
         $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
