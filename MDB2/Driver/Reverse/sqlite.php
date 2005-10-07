@@ -137,30 +137,37 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             }
             if ($field_name == $column['name']) {
                 list($types, $length) = $db->datatype->mapNativeDatatype($column);
-                unset($notnull);
+                $notnull = false;
                 if (array_key_exists('null', $column) && $column['null'] != 'YES') {
                     $notnull = true;
                 }
-                unset($default);
+                $default = false;
                 if (array_key_exists('default', $column)) {
                     $default = $column['default'];
+                    if (is_null($default) && $notnull) {
+                        $default = '';
+                    }
+                }
+                $autoincrement = false;
+                if (array_key_exists('extra', $column) && $column['extra'] == 'auto_increment') {
+                    $autoincrement = true;
                 }
                 $definition = array();
                 foreach ($types as $key => $type) {
-                    $definition[$key] = array('type' => $type);
-                    if (isset($notnull)) {
-                        $definition[$key]['notnull'] = true;
-                    } else {
-                        $definition[$key]['notnull'] = false;
-                    }
-                    if (isset($default)) {
-                        $definition[$key]['default'] = $default;
-                    }
-                    if (isset($length)) {
+                    $definition[$key] = array(
+                        'type' => $type,
+                        'notnull' => $notnull,
+                    );
+                    if ($length > 0) {
                         $definition[$key]['length'] = $length;
                     }
+                    if ($default !== false) {
+                        $definition[$key]['default'] = $default;
+                    }
+                    if ($autoincrement !== false) {
+                        $definition[$key]['autoincrement'] = $autoincrement;
+                    }
                 }
-                // todo .. handle auto_inrement and primary keys
                 return $definition;
             }
         }

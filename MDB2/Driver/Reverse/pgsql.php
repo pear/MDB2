@@ -97,66 +97,40 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         }
 
         list($types, $length) = $db->datatype->mapNativeDatatype($column);
-        if ($column['attnotnull'] == 't') {
+        $notnull = false;
+        if (array_key_exists('attnotnull', $column) && $column['attnotnull'] == 't') {
             $notnull = true;
         }
+        $default = false;
         // todo .. check how default look like
         if (!preg_match("/nextval\('([^']+)'/", $column['adsrc'])
             && strlen($column['adsrc']) > 2
         ) {
             $default = substr($column['adsrc'], 1, -1);
+            if (is_null($default) && $notnull) {
+                $default = '';
+            }
+        }
+        $autoincrement = false;
+        if (preg_match("/nextval\('([^']+)'/", $column['adsrc'], $nextvals)) {
+            $autoincrement = true;
         }
         $definition = array();
         foreach ($types as $key => $type) {
-            $definition[$key] = array('type' => $type);
-            if (isset($notnull)) {
-                $definition[$key]['notnull'] = true;
-            } else {
-                $definition[$key]['notnull'] = false;
-            }
-            if (isset($default)) {
-                $definition[$key]['default'] = $default;
-            }
-            if (isset($length)) {
+            $definition[$key] = array(
+                'type' => $type,
+                'notnull' => $notnull,
+            );
+            if ($length > 0) {
                 $definition[$key]['length'] = $length;
             }
-        }
-        /*
-        if (preg_match("/nextval\('([^']+)'/", $column['adsrc'], $nextvals)) {
-            $implicit_sequence = array();
-            $implicit_sequence['on'] = array();
-            $implicit_sequence['on']['table'] = $table;
-            $implicit_sequence['on']['field'] = $field_name;
-            $definition[1]['name'] = $nextvals[1];
-            $definition[1]['definition'] = $implicit_sequence;
-        }
-        */
-
-        /*
-        // check that its not just a unique field
-        $query = "SELECT oid,indexrelid,indrelid,indkey,indisunique,indisprimary
-                FROM pg_index, pg_class
-                WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_index.indrelid)";
-        if (PEAR::isError($indexes = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC))) {
-            return $indexes;
-        }
-        $indkeys = explode(' ', $indexes['indkey']);
-        if (in_array($column['attnum'], $indkeys)
-            && $indexes['indisprimary'] == 't'
-            && $indexes['indisunique'] != 't'
-        ) {
-            $query = "SELECT relname FROM pg_class WHERE oid={$indexes['indexrelid']}";
-            $index_name = $db->queryOne($query);
-            if (PEAR::isError($index_name)) {
-                return $index_name;
+            if ($default !== false) {
+                $definition[$key]['default'] = $default;
             }
-            $implicit_index = array();
-            $implicit_index['unique'] = true;
-            $implicit_index['fields'][$field_name] = $index_name;
-            $definition[2]['name'] = $field_name;
-            $definition[2]['definition'] = $implicit_index;
+            if ($autoincrement !== false) {
+                $definition[$key]['autoincrement'] = $autoincrement;
+            }
         }
-        */
         return $definition;
     }
 
