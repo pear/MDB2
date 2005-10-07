@@ -226,11 +226,13 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         if (array_key_exists('change', $changes)) {
+            // missing support to change DEFAULT and NULLability
             foreach ($changes['change'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
                 }
-                $query.= "ALTER $field_name TYPE ".$db->getDeclaration($field['type']);
+                $db->loadModule('Datatype');
+                $query.= "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field);
             }
         }
 
