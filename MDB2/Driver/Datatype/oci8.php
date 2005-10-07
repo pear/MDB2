@@ -145,34 +145,62 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *
      * @param string $name name the field to be declared.
      * @param array $field associative array with the name of the properties
-     *        of the field being declared as array indexes. Id
-     * ently, the types
-     *        of supported field properties are as follows:
+     *       of the field being declared as array indexes. Currently, the types
+     *       of supported field properties are as follows:
      *
-     *        unsigned
-     *            Boolean flag that indicates whether the field should be
-     *            declared as unsigned integer if possible.
+     *       unsigned
+     *           Boolean flag that indicates whether the field should be
+     *           declared as unsigned integer if possible.
      *
-     *        default
-     *            Integer value to be used as default for this field.
+     *       default
+     *           Integer value to be used as default for this field.
      *
-     *        notnull
-     *            Boolean flag that indicates whether this field is constrained
-     *            to not be set to null.
+     *       notnull
+     *           Boolean flag that indicates whether this field is constrained
+     *           to not be set to null.
+     * @param string $table name of the current table being processed
+     *           by alterTable(), used for autoincrement emulation
      * @return string DBMS specific SQL code portion that should be used to
-     *        declare the specified field.
+     *       declare the specified field.
      * @access protected
      */
-    function _getIntegerDeclaration($name, $field)
+    function _getIntegerDeclaration($name, $field, $table = null)
     {
         if (array_key_exists('unsigned', $field) && $field['unsigned']) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
             }
-
             $db->warning[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
+
+        if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            if (is_null($table)) {
+                return $db->raiseError(MDB2_ERROR, null, null,
+                    '_getIntegerDeclaration: missing table name');
+            }
+            $db->loadModule('Manager');
+            $result = $db->manager->createSequence($table);
+            if (PEAR::isError($result)) {
+                return $db->raiseError(MDB2_ERROR, null, null,
+                    '_getIntegerDeclaration: sequence for autoincrement PK could not be created');
+            }
+            $sequence_name = $db->getSequenceName($table);
+            $trigger_name  = $table . '_autoincrement_' . $name;
+            $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
+            $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
+            $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;"
+            $result = $db->query($trigger_sql);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+            return $name.' PRIMARY KEY';
+        }
+
         $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'integer') : '';
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
