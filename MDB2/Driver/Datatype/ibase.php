@@ -89,7 +89,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ _getTypeDeclaration()
+    // {{{ getTypeDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an text type
@@ -112,9 +112,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      *          to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
      *      declare the specified field.
-     * @access protected
+     * @access public
      */
-    function _getTypeDeclaration($field)
+    function getTypeDeclaration($field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -251,7 +251,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _getTextDeclaration($name, $field)
     {
-        $type = $this->_getTypeDeclaration($field);
+        $type = $this->getTypeDeclaration($field);
         $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'text') : '';
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
@@ -285,7 +285,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _getCLOBDeclaration($name, $field)
     {
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->_getTypeDeclaration($field).$notnull;
+        return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }
 
     // }}}
@@ -315,7 +315,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _getBLOBDeclaration($name, $field)
     {
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->_getTypeDeclaration($field).$notnull;
+        return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }
 
     // }}}
@@ -345,7 +345,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'date') : '';
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
@@ -375,7 +375,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'time') : '';
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
@@ -405,7 +405,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'timestamp') : '';
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
@@ -435,7 +435,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'float') : '';
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
@@ -465,7 +465,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $default = array_key_exists('default', $field) ? ' DEFAULT '.
             $this->quote($field['default'], 'decimal') : '';
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        return $name.' '.$this->_getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
 
     // }}}
