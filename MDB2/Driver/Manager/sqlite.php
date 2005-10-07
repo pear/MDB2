@@ -303,17 +303,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $query = "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
-        $indexes_all = $db->queryCol($query);
-        if (PEAR::isError($indexes_all)) {
-            return $indexes_all;
-        }
-        $found = $indexes = array();
-        foreach ($indexes_all as $index => $index_name) {
-            if ($indexes_all[$index] != 'PRIMARY' && !isset($found[$index_name])) {
-                $indexes[] = $index_name;
-                $found[$index_name] = true;
-            }
-        }
+        $indexes = $db->queryCol($query);
         return $indexes;
     }
 
