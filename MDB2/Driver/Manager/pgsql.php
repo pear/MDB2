@@ -176,7 +176,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      **/
-    function alterTable($name, &$changes, $check)
+    function alterTable($name, $changes, $check)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
