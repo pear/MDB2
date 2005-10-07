@@ -478,16 +478,17 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-
-        $query = 'CREATE';
         if (array_key_exists('primary', $definition) && $definition['primary']) {
-            $query.= ' UNIQUE';
-        } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
-            $query.= ' UNIQUE';
+            $query = "ALTER TABLE $table ADD CONSTRAINT $name PRIMARY KEY (";
+        } else {
+            $query = 'CREATE';
+            if (array_key_exists('unique', $definition) && $definition['unique']) {
+                $query.= ' UNIQUE';
+            }
+            $query .= " INDEX $name ON $table (";
         }
-        $query.= " INDEX $name ON $table (";
-        $query.= implode(', ', array_keys($definition['fields']));
-        $query.= ')';
+        $query .= implode(', ', array_keys($definition['fields'])) . ')';
+
         return $db->query($query);
     }
 
