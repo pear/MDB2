@@ -56,7 +56,6 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 {
-
     function _getTableColumns($query)
     {
         $start_pos = strpos($query, '(');
@@ -118,13 +117,12 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $result;
         }
         $query = "SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'";
-        $query = $db->queryOne($query);
-        if (PEAR::isError($query)) {
-            return $query;
+        $sql = $db->queryOne($query);
+        if (PEAR::isError($sql)) {
+            return $sql;
         }
-        if (PEAR::isError($columns = $this->_getTableColumns($query))) {
-            return $columns;
-        }
+        // todo: broken!!!
+        $columns = explode(', ', $sql);
         foreach ($columns as $column) {
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 if ($db->options['field_change'] == CASE_LOWER) {
@@ -210,16 +208,17 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db->raiseError('getTableIndexDefinition: show index does not return the table creation sql');
         }
 
-        $query = strtolower($result->fetchOne());
-        $unique = strstr($query, ' unique ');
+        $sql = strtolower($result->fetchOne());
         $key_name = $index_name;
-        $start_pos = strpos($query, '(');
-        $end_pos = strrpos($query, ')');
-        $column_names = substr($query, $start_pos+1, $end_pos-$start_pos-1);
+        $start_pos = strpos($sql, '(');
+        $end_pos = strrpos($sql, ')');
+        $column_names = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
         $column_names = split(',', $column_names);
 
         $definition = array();
-        if ($unique) {
+        if (strstr($sql, ' primary ')) {
+            $definition['primary'] = true;
+        } elseif (strstr($sql, ' unique ')) {
             $definition['unique'] = true;
         }
         $count = count($column_names);
