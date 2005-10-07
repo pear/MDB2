@@ -478,6 +478,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
+     */
     function listTableIndexes($table)
     {
         $db =& $this->getDBInstance();
@@ -485,18 +486,27 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $indexes_all = $db->queryCol("SHOW INDEX FROM $table", 'text', 'key_name');
+        $key_name = 'Key_name';
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $key_name = strtolower($key_name);
+            } else {
+                $key_name = strtoupper($key_name);
+            }
+        }
+
+        $query = "SHOW INDEX FROM $table";
+        $indexes_all = $db->queryCol($query, 'text', $key_name);
         if (PEAR::isError($indexes_all)) {
             return $indexes_all;
         }
 
-        $found = $indexes = array();
-        foreach ($indexes_all as $index_name) {
-            if ($indexes_all[$index] != 'PRIMARY' && !isset($found[$index_name])) {
-                $indexes[] = $index_name;
-                $found[$index_name] = true;
-            }
+        $indexes = array_unique($indexes_all);
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $indexes = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $indexes);
         }
+
         return $indexes;
     }
 
