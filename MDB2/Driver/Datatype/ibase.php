@@ -169,13 +169,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      *       notnull
      *           Boolean flag that indicates whether this field is constrained
      *           to not be set to null.
-     * @param string $table name of the current table being processed
-     *           by alterTable(), used for autoincrement emulation
      * @return string DBMS specific SQL code portion that should be used to
      *       declare the specified field.
      * @access protected
      */
-    function _getIntegerDeclaration($name, $field, $table = null)
+    function _getIntegerDeclaration($name, $field)
     {
         if (array_key_exists('unsigned', $field) && $field['unsigned']) {
             $db =& $this->getDBInstance();
@@ -186,34 +184,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         }
 
         if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
-            $db =& $this->getDBInstance();
-            if (PEAR::isError($db)) {
-                return $db;
-            }
-            if (is_null($table)) {
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    '_getIntegerDeclaration: missing table name');
-            }
-            $db->loadModule('Manager');
-            $result = $db->manager->createSequence($table);
-            if (PEAR::isError($result)) {
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    '_getIntegerDeclaration: sequence for autoincrement PK could not be created');
-            }
-            $sequence_name = $db->getSequenceName($table);
-            $trigger_name  = $table . '_autoincrement_' . $name;
-            $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
-                            ACTIVE BEFORE INSERT POSITION 0
-                            AS
-                            BEGIN
-                            IF (NEW.' . $name . ' IS NULL) THEN
-                                NEW.' . $name . ' = GEN_ID('.strtoupper($sequence_name).', 1);
-                            END';
-
-            $result = $db->query($trigger_sql);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
             return $name.' PRIMARY KEY';
         }
 

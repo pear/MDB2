@@ -119,6 +119,95 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         return $db->standaloneQuery('DROP USER '.$username.' CASCADE');
     }
 
+    function _makeAutoincrement($name, $table)
+    {
+        $index_name  = $table . '_autoincrement_' . $name;
+        $definition = array(
+            'primary' => true,
+            'fields' => array($name),
+        );
+        $result = $db->manager->createIndex($table, $index_name, $definition);
+        if (PEAR::isError($result)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                '_makeAutoincrement: primary key for autoincrement PK could not be created');
+        }
+
+        $result = $db->manager->createSequence($table);
+        if (PEAR::isError($result)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                '_makeAutoincrement: sequence for autoincrement PK could not be created');
+        }
+
+        $sequence_name = $db->getSequenceName($table);
+        $trigger_name  = $table . '_autoincrement_' . $name;
+        $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
+        $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
+        $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;"
+
+        return $db->query($trigger_sql);
+    }
+
+    function _dropAutoincrement($name, $table)
+    {
+        $result = $db->manager->dropSequence($table);
+        if (PEAR::isError($result)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
+        }
+
+        $sequence_name = $db->getSequenceName($table);
+        $trigger_name  = $table . '_autoincrement_' . $name;
+        $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
+
+        return $db->query($trigger_sql);
+    }
+
+    // }}}
+    // {{{ createTable()
+
+    /**
+     * create a new table
+     *
+     * @param string $name     Name of the database that should be created
+     * @param array $fields Associative array that contains the definition of each field of the new table
+     *                        The indexes of the array entries are the names of the fields of the table an
+     *                        the array entry values are associative arrays like those that are meant to be
+     *                         passed with the field definitions to get[Type]Declaration() functions.
+     *
+     *                        Example
+     *                        array(
+     *
+     *                            'id' => array(
+     *                                'type' => 'integer',
+     *                                'unsigned' => 1
+     *                                'notnull' => 1
+     *                                'default' => 0
+     *                            ),
+     *                            'name' => array(
+     *                                'type' => 'text',
+     *                                'length' => 12
+     *                            ),
+     *                            'password' => array(
+     *                                'type' => 'text',
+     *                                'length' => 12
+     *                            )
+     *                        );
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function createTable($name, $fields)
+    {
+        $result = parent::createTable($name, $fields);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        foreach($fields as $field_name => $field) {
+            if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
+                return $this->_makeAutoincrement($field_name, $name);
+            }
+        }
+    }
+
     // }}}
     // {{{ alterTable()
 

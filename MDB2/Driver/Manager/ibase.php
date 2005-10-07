@@ -98,6 +98,88 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 'to drop the db manually by using isql command or a similar program');
     }
 
+    function _makeAutoincrement($name, $table)
+    {
+        $result = $db->manager->createSequence($table);
+        if (PEAR::isError($result)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                '_makeAutoincrement: sequence for autoincrement PK could not be created');
+        }
+
+        $sequence_name = $db->getSequenceName($table);
+        $trigger_name  = $table . '_autoincrement_' . $name;
+        $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
+                        ACTIVE BEFORE INSERT POSITION 0
+                        AS
+                        BEGIN
+                        IF (NEW.' . $name . ' IS NULL) THEN
+                            NEW.' . $name . ' = GEN_ID('.strtoupper($sequence_name).', 1);
+                        END';
+
+        return $db->query($trigger_sql);
+    }
+
+    function _dropAutoincrement($name, $table)
+    {
+        $result = $db->manager->dropSequence($table);
+        if (PEAR::isError($result)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
+        }
+
+        $sequence_name = $db->getSequenceName($table);
+        $trigger_name  = $table . '_autoincrement_' . $name;
+        $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
+
+        return $db->query($trigger_sql);
+    }
+
+    // }}}
+    // {{{ createTable()
+
+    /**
+     * create a new table
+     *
+     * @param string $name     Name of the database that should be created
+     * @param array $fields Associative array that contains the definition of each field of the new table
+     *                        The indexes of the array entries are the names of the fields of the table an
+     *                        the array entry values are associative arrays like those that are meant to be
+     *                         passed with the field definitions to get[Type]Declaration() functions.
+     *
+     *                        Example
+     *                        array(
+     *
+     *                            'id' => array(
+     *                                'type' => 'integer',
+     *                                'unsigned' => 1
+     *                                'notnull' => 1
+     *                                'default' => 0
+     *                            ),
+     *                            'name' => array(
+     *                                'type' => 'text',
+     *                                'length' => 12
+     *                            ),
+     *                            'password' => array(
+     *                                'type' => 'text',
+     *                                'length' => 12
+     *                            )
+     *                        );
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function createTable($name, $fields)
+    {
+        $result = parent::createTable($name, $fields);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        foreach($fields as $field_name => $field) {
+            if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
+                return $this->_makeAutoincrement($field_name, $name);
+            }
+        }
+    }
+
     // }}}
     // {{{ checkSupportedChanges()
 
@@ -221,7 +303,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      **/
-    function alterTable($name, &$changes, $check)
+    function alterTable($name, $changes, $check)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -235,8 +317,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             case 'rename':
                 break;
             case 'change':
-                $fields = $changes['change'];
-                foreach ($fields as $field) {
+                foreach ($changes['change'] as $field) {
                     if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
                         return $err;
                     }
