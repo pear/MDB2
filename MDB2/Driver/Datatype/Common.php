@@ -642,6 +642,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if ($previous_unsigned != $unsigned) {
             $change['unsigned'] = true;
         }
+        $previous_autoincrement = array_key_exists('autoincrement', $previous) ? $previous['autoincrement'] : false;
+        $autoincrement = array_key_exists('autoincrement', $current) ? $current['autoincrement'] : false;
+        if ($previous_autoincrement != $autoincrement) {
+            $change['autoincrement'] = true;
+        }
         return $change;
     }
 
