@@ -159,21 +159,25 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                         $default = '';
                     }
                 }
+                $autoincrement = false;
+                if (array_key_exists('extra', $column) && $column['extra'] == 'auto_increment') {
+                    $autoincrement = true;
+                }
                 $definition = array();
                 foreach ($types as $key => $type) {
                     $definition[$key] = array(
                         'type' => $type,
                         'notnull' => $notnull,
                     );
-                    if ($default !== false) {
-                        $definition[$key]['default'] = $default;
-                    }
                     if ($length > 0) {
                         $definition[$key]['length'] = $length;
                     }
-                }
-                if (array_key_exists('extra', $column) && $column['extra'] == 'auto_increment') {
-                    $definition[$key]['autoincrement'] = true;
+                    if ($default !== false) {
+                        $definition[$key]['default'] = $default;
+                    }
+                    if ($autoincrement !== false) {
+                        $definition[$key]['autoincrement'] = $autoincrement;
+                    }
                 }
                 return $definition;
             }
