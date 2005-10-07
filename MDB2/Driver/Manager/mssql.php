@@ -175,11 +175,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                            'name' => 'gender',
      *                                        )
      *                                    ),
-     *                                   'dropped_fields' => array(
-     *                                       'name' => array(
-     *                                            'column' => array()
-     *                                       )
-     *                                   ),
      *                                )
      *
      * @param boolean $check     indicates whether the function should just check if the DBMS driver
@@ -201,7 +196,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             case 'add':
                 break;
             case 'remove':
-            case 'dropped_fields':
                 break;
             case 'name':
             case 'rename':
@@ -222,21 +216,19 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $query.= ', ';
             }
             $query.= 'ADD ';
-            $fields = $changes['add'];
-            foreach ($fields as $field_name => $field) {
+            foreach ($changes['add'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
                 }
-                $query.=  $db->getDeclaration($field['type'], $field_name, $field);
+                $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
-        if(array_key_exists('dropped_fields', $changes)) {
+        if(array_key_exists('remove', $changes)) {
             if ($query) {
             $query.= ', ';
             }
             $query.= 'DROP COLUMN';
-            $fields = $changes['dropped_fields'];
-            foreach ($fields as $field_name => $field) {
+            foreach ($changes['remove'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
                 }
