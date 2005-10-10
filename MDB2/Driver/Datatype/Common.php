@@ -250,7 +250,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
             return $db->raiseError('type not defined: '.$type);
         }
-        return $this->{"_get{$type}Declaration"}($name, $field, $tablename);
+        return $this->{"_get{$type}Declaration"}($name, $field);
     }
 
     // }}}
