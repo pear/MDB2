@@ -375,7 +375,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
         if (array_key_exists('change', $changes)) {
             // missing support to change DEFAULT and NULLability
-            foreach ( $changes['change'] as $field_name => $field) {
+            foreach ($changes['change'] as $field_name => $field) {
                 if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
                     return $err;
                 }
@@ -509,6 +509,25 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $query .= implode(', ', array_keys($definition['fields'])) . ')';
 
         return $db->query($query);
+    }
+
+    // }}}
+    // {{{ listTableIndexes()
+
+    /**
+     * list all indexes in a table
+     *
+     * @param string $table name of table that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableIndexes($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        return $db->queryCol("SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'");
     }
 
     // }}}
