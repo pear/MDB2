@@ -161,17 +161,17 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *
      *                            'id' => array(
      *                                'type' => 'integer',
-     *                                'unsigned' => 1
-     *                                'notnull' => 1
-     *                                'default' => 0
+     *                                'unsigned' => 1,
+     *                                'notnull' => 1,
+     *                                'default' => 0,
      *                            ),
      *                            'name' => array(
      *                                'type' => 'text',
-     *                                'length' => 12
+     *                                'length' => 12,
      *                            ),
-     *                            'password' => array(
+     *                            'description' => array(
      *                                'type' => 'text',
-     *                                'length' => 12
+     *                                'length' => 12,
      *                            )
      *                        );
      * @return mixed MDB2_OK on success, a MDB2 error on failure
@@ -410,18 +410,16 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-
-        $query = 'SELECT RDB$FIELD_SOURCE FROM RDB$RELATION_FIELDS WHERE RDB$RELATION_NAME=\'$table\'';
-        $result = $db->query($query);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        $columns = $result->getColumnNames();
-        $result->free();
+        $table = strtoupper($table);
+        $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE RDB\$RELATION_NAME='$table'";
+        $columns = $db->queryCol($query);
         if (PEAR::isError($columns)) {
             return $columns;
         }
-        return array_flip($columns);
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $columns = array_flip(array_change_key_case(array_flip($columns), $db->options['field_case']));
+        }
+        return $columns;
     }
 
     // }}}
