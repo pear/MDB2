@@ -141,12 +141,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     /**
      * drop an existing autoincrement PK / trigger
      *
-     * @param string $name  name of the PK field
      * @param string $table name of the table
      * @return mixed        MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
-    function _dropAutoincrement($name, $table)
+    function _dropAutoincrement($table)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -271,6 +270,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             if (PEAR::isError($result)) {
                 return $result;
             }
+        }
+        $result = $this->_dropAutoincrement($name);
+        if (PEAR::isError($result)) {
+            return $result;
         }
         
         return parent::dropTable($name);
