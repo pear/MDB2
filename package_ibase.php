@@ -31,6 +31,7 @@ column primary key on this field.
 - fixed alterTable() signature
 - fixed listTableFields()
 - added listTableIndexes()
+- added listTables()
 
 open todo items:
 - code to be able to list primary contraints inside listTableIndexes()/dropIndex()
