@@ -261,7 +261,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function dropTable($name)
     {
         //remove triggers associated with the table
-        $triggers = $db->queryCol("SELECT RDB\$TRIGGER_NAME FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME='$table'");
+        $name = strtoupper($name);
+        $triggers = $db->queryCol("SELECT RDB\$TRIGGER_NAME FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME='$name'");
         if (PEAR::isError($triggers)) {
             return $triggers;
         }
@@ -271,8 +272,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 return $result;
             }
         }
-
-        return parent::dropTable(strtoupper($name));
+        
+        return parent::dropTable($name);
     }
 
     // }}}
