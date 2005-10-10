@@ -8,12 +8,13 @@
 Note that the API will be adapted to better fit with the new php5 only PDO
 before the first stable release.
 
-It provides a common API for all support RDBMS. The main difference to most
+It provides a common API for all supported RDBMS. The main difference to most
 other DB abstraction packages is that MDB2 goes much further to ensure
 portability. Among other things MDB2 features:
 * An OO-style query API
 * A DSN (data source name) or array format for specifying database servers
 * Datatype abstraction and on demand datatype conversion
+* Various optional fetch modes to fix portability issues
 * Portable error codes
 * Sequential and non sequential row fetching as well as bulk fetching
 * Ability to make buffered and unbuffered queries
@@ -21,12 +22,13 @@ portability. Among other things MDB2 features:
 * Prepare/execute (bind) emulation
 * Sequence emulation
 * Replace emulation
-* Limited Subselect emulation
+* Limited sub select emulation
 * Row limit support
 * Transactions support
 * Large Object support
-* Index/Unique support
-* Module Framework to load advanced functionality on demand
+* Index/Unique Key/Primary Key support
+* Autoincrement emulation
+* Module framework to load advanced functionality on demand
 * Table information interface
 * RDBMS management methods (creating, dropping, altering)
 * RDBMS independent xml based schema definition management
@@ -211,7 +213,13 @@ open todo items:
      </file>
     </dir> <!-- /MDB2 -->
     <dir name="tests">
+     <file role="test" name="basic.phpt">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
      <file role="test" name="clitest.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="config.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="test" name="Console_TestListener.php">
@@ -230,6 +238,9 @@ open todo items:
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="test" name="MDB2_bugs_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="MDB2_Connect_Test.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="test" name="MDB2_manager_testcase.php">
