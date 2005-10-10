@@ -426,9 +426,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
-        if ($this->db->getOption('disable_query')) {
+        if ($this->getOption('disable_query')) {
             if ($isManip) {
-                return return;
+                return 0;
             }
             return null;
         }
