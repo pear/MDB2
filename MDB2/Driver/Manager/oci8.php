@@ -147,7 +147,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $trigger_name  = $table . '_autoincrement_pk';
         $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
         $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
-        $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;"
+        $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;";
 
         return $db->query($trigger_sql);
     }
