@@ -263,7 +263,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $charset = empty($this->dsn['charset']) ? null : $this->dsn['charset'];
             $connection = @$connect_function($username, $password, $sid, $charset);
             $error = @OCIError();
-            if (array_key_exists('code', $error) && $error['code'] == 12541) {
+            if (isset($error['code']) && $error['code'] == 12541) {
                 // Couldn't find TNS listener.  Try direct connection.
                 $connection = @$connect_function($username, $password, null, $charset);
             }
@@ -929,7 +929,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            $this->db->_rtrimArrayValues($row);
+            $this->db->_fixResultArrayValues($row, MDB2_PORTABILITY_RTRIM);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
             $object_class = $this->db->options['fetch_class'];
