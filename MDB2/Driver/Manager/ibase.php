@@ -395,6 +395,32 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ listTables()
+
+    /**
+     * list all tables in the current database
+     *
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTables()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $query = 'SELECT DISTINCT R.RDB$RELATION_NAME FROM RDB$RELATION_FIELDS R WHERE R.RDB$SYSTEM_FLAG=0';
+        $tables = $db->queryCol($query);
+        if (PEAR::isError($tables)) {
+            return $tables;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $tables = array_flip(array_change_key_case(array_flip($tables), $db->options['field_case']));
+        }
+        return $tables;
+    }
+
+    // }}}
     // {{{ listTableFields()
 
     /**
