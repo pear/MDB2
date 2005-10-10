@@ -32,7 +32,6 @@ column primary key on this field.
 - return 0 for manipulation queries when disable_query is enabled
 - tweaked handling of notnull and default in field reverse engineering
 - tweaked getTableFieldDefinition() in reverse module
-
 EOT;
 
 $package = new PEAR_PackageFileManager();

@@ -29,6 +29,10 @@ column primary key on this field.
 - tweaked field changing in alterTable()
 - getTypeDeclaration() in the datatype module is now a public method
 - fixed alterTable() signature
+
+open todo items:
+- code to be able to list primary contraints inside listTableIndexes()/dropIndex()
+- handle autoincremement fields in alterTable() and dropTable()
 EOT;
 
 $package = new PEAR_PackageFileManager();

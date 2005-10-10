@@ -45,6 +45,9 @@ column primary key on this field.
 - added getTypeDeclaration() in the datatype module
 - tweaked field changing in alterTable()
 - fixed alterTable() signature
+
+open todo items:
+- implement native prepared queries
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -120,6 +123,9 @@ column primary key on this field.
 - added getTypeDeclaration() in the datatype module
 - tweaked field changing in alterTable()
 - fixed alterTable() signature
+
+open todo items:
+- implement native prepared queries
     </notes>
    </release>
  </changelog>

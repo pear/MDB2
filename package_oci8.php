@@ -29,6 +29,11 @@ column primary key on this field.
 - return 0 for manipulation queries when disable_query is enabled
 - tweaked field changing in alterTable()
 - getTypeDeclaration() in the datatype module is now a public method
+
+open todo items:
+- code to be able to list primary contraints inside listTableIndexes()/dropIndex()
+- handle autoincremement fields in alterTable() and dropTable()
+- using LOBs have a tendency to crash apache (even with the uptodate PECL oci8 ext)
 EOT;
 
 $package = new PEAR_PackageFileManager();

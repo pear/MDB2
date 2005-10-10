@@ -33,6 +33,9 @@ column primary key on this field.
 - removed subSelect() implementation (now in already included in common)
 - return 0 for manipulation queries when disable_query is enabled
 - tweaked getTableFieldDefinition() in reverse module
+
+open todo items:
+- fixed LOB support
 EOT;
 
 $package = new PEAR_PackageFileManager();

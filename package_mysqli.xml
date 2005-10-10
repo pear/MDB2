@@ -47,6 +47,9 @@ column primary key on this field.
 - removed subSelect() implementation (now in already included in common)
 - return 0 for manipulation queries when disable_query is enabled
 - tweaked getTableFieldDefinition() in reverse module
+
+open todo items:
+- fixed LOB support
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.0" optional="no"/>
@@ -124,6 +127,9 @@ column primary key on this field.
 - removed subSelect() implementation (now in already included in common)
 - return 0 for manipulation queries when disable_query is enabled
 - tweaked getTableFieldDefinition() in reverse module
+
+open todo items:
+- fixed LOB support
     </notes>
    </release>
  </changelog>

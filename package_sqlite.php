@@ -23,6 +23,10 @@ column primary key on this field.
 - return 0 for manipulation queries when disable_query is enabled
 - tweaked getTableFieldDefinition() in reverse module (still broken however)
 - fixed listTableIndexes()
+
+open todo items:
+- primary key support is missing from createIndex()
+- getTableFieldDefinition() in reverse module is broken
 EOT;
 
 $package = new PEAR_PackageFileManager();

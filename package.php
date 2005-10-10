@@ -50,6 +50,10 @@ column primary key on this field.
 - removed implementation of createIndex() (now every driver needs to implement it themselves)
 - sync fileExists with the LiveUser one, explode instead of split and is_readable instead of file_exists.
 - tweaked compare method family to better deal with optional properties
+
+open todo items:
+- add test cases for the various module methods
+- add getServerVersion()
 EOT;
 
 $description =<<<EOT

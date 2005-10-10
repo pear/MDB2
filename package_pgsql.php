@@ -31,6 +31,9 @@ column primary key on this field.
 - added getTypeDeclaration() in the datatype module
 - tweaked field changing in alterTable()
 - fixed alterTable() signature
+
+open todo items:
+- implement native prepared queries
 EOT;
 
 $package = new PEAR_PackageFileManager();

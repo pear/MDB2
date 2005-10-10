@@ -31,6 +31,9 @@ column primary key on this field.
 - use array_key_exists() instead of isset() where possible
 - changed structure of field add/remove/change in alterTable() to match MDB2_Schema
 - return 0 for manipulation queries when disable_query is enabled
+
+open todo items:
+- added missing createIndex() method
 EOT;
 
 $package = new PEAR_PackageFileManager();
