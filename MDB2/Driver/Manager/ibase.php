@@ -63,7 +63,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      * @param string $name  name of the database that should be created
      * @return mixed        MDB2_OK on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function createDatabase($name)
     {
         $db =& $this->getDBInstance();
@@ -85,7 +85,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      * @param string $name  name of the database that should be dropped
      * @return mixed        MDB2_OK on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function dropDatabase($name)
     {
         $db =& $this->getDBInstance();
@@ -98,6 +98,17 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 'to drop the db manually by using isql command or a similar program');
     }
 
+    // }}}
+    // {{{ _makeAutoincrement()
+
+    /**
+     * add an autoincrement sequence + trigger
+     *
+     * @param string $name  name of the PK field
+     * @param string $table name of the table
+     * @return mixed        MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
     function _makeAutoincrement($name, $table, $start = 1)
     {
         $db =& $this->getDBInstance();
@@ -124,6 +135,17 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         return $db->query($trigger_sql);
     }
 
+    // }}}
+    // {{{ _dropAutoincrement()
+
+    /**
+     * drop an existing autoincrement PK / trigger
+     *
+     * @param string $name  name of the PK field
+     * @param string $table name of the table
+     * @return mixed        MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
     function _dropAutoincrement($name, $table)
     {
         $db =& $this->getDBInstance();
@@ -136,12 +158,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
         }
-
-        $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $table . '_autoincrement_pk';
-        $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
-
-        return $db->query($trigger_sql);
+        return MDB2_OK;
     }
 
     // }}}
@@ -199,7 +216,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      * @param string $name name of the database that should be dropped
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function checkSupportedChanges(&$changes)
     {
         $db =& $this->getDBInstance();
@@ -229,6 +246,33 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ dropTable()
+
+    /**
+     * drop an existing table
+     *
+     * @param string $name name of the table that should be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropTable($name)
+    {
+        //remove triggers associated with the table
+        $triggers = $db->queryCol("SELECT RDB\$TRIGGER_NAME FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME='$table'");
+        if (PEAR::isError($triggers)) {
+            return $triggers;
+        }
+        foreach ($triggers as $trigger) {
+            $result = $db->query('DROP TRIGGER ' . $trigger);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        return parent::dropTable(strtoupper($name));
     }
 
     // }}}
@@ -312,7 +356,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *                              actually perform them otherwise.
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function alterTable($name, $changes, $check)
     {
         $db =& $this->getDBInstance();
@@ -456,7 +500,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function listViews()
     {
         $db =& $this->getDBInstance();
@@ -564,7 +608,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      * @param string $start start value of the sequence; default is 1
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function createSequence($seq_name, $start = 1)
     {
         $db =& $this->getDBInstance();
@@ -595,7 +639,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      * @param string $seq_name name of the sequence to be dropped
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function dropSequence($seq_name)
     {
         $db =& $this->getDBInstance();
@@ -615,7 +659,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function listSequences()
     {
         $db =& $this->getDBInstance();
