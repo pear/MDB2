@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.1">
+<package version="1.0" packagerversion="1.4.2">
  <name>MDB2_Driver_ibase</name>
  <summary>ibase MDB2 driver</summary>
  <description>This is the Firebird/Interbase MDB2 driver.
@@ -49,6 +49,9 @@ column primary key on this field.
 - tweaked field changing in alterTable()
 - getTypeDeclaration() in the datatype module is now a public method
 - fixed alterTable() signature
+- fixed listTableFields()
+- added listTableIndexes()
+- added listTables()
 
 open todo items:
 - code to be able to list primary contraints inside listTableIndexes()/dropIndex()
@@ -126,10 +129,23 @@ column primary key on this field.
 - tweaked field changing in alterTable()
 - getTypeDeclaration() in the datatype module is now a public method
 - fixed alterTable() signature
+- fixed listTableFields()
+- added listTableIndexes()
+- added listTables()
 
 open todo items:
 - code to be able to list primary contraints inside listTableIndexes()/dropIndex()
 - handle autoincremement fields in alterTable() and dropTable()
+    </notes>
+   </release>
+   <release>
+    <version>0.1.1</version>
+    <date>2005-06-08</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>
+- fixed LOB management and package dependencies
+- fully tested
     </notes>
    </release>
    <release>
