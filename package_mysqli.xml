@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.0a12">
+<package version="1.0" packagerversion="1.4.1">
  <name>MDB2_Driver_mysqli</name>
  <summary>mysqli MDB2 driver</summary>
  <description>This is the MySQLi MDB2 driver.
@@ -15,54 +15,115 @@
   </maintainers>
  <release>
   <version>0.1.1</version>
-  <date>2005-06-10</date>
+  <date>2005-10-10</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes>-
+  <notes>Warning: this release features numerous BC breaks!
+
+There have been considerable improvements to the datatype, manager and reverse
+modules. Furthermore preliminary support for auto increment and primary keys
+has been added. Please note that making a field auto increment implies a single
+column primary key on this field.
+
+- added support for auto increment and primary key in schema.
+- alterTable now needs the full definition to work (use getTableFieldDefinition
+ from Reverse module if you do not have a definition at hand) this eliminates the need
+ of the declaration part in the alterTable array.
+- removed support for dummy_primary_key
+- fix PHP4.4 breakage
+- moved getInsertID() into core as lastInsertID()
+- all non LOB values were quoted twice in execute()
+- clobs only need to be mapped to binary when using mysqli_stmt_send_long_data()
+  which is handled independently
+- use !empty() instead of isset() in fetchRow to determine if result cols were bound or result types were set
+- expect keys in type arrays the same way as they are passed for the values in execute() and bindParamArray()
+- add s pattern modifier to preg_replace() call for parameter searches in prepare() (bug #5362)
+- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
+- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use &apos;field_case&apos; option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
+- count() -&gt; !empty() where possible
+- use array_map() instead of array_flip(array_change_key_case(array_flip())) to fix case of array values
+- use array_key_exists() instead of isset() where possible
+- changed structure of field add/remove/change in alterTable() to match MDB2_Schema
+- removed subSelect() implementation (now in already included in common)
+- return 0 for manipulation queries when disable_query is enabled
+- tweaked getTableFieldDefinition() in reverse module
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0beta5" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0beta6" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">mysqli</dep>
   </deps>
   <filelist>
-   <dir name="MDB2" baseinstalldir="/">
-    <dir name="Driver">
-     <dir name="Datatype">
+   <dir name="/" baseinstalldir="/">
+    <dir name="MDB2">
+     <dir name="Driver">
+      <dir name="Datatype">
+       <file role="php" name="mysqli.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Datatype -->
+      <dir name="Manager">
+       <file role="php" name="mysqli.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Manager -->
+      <dir name="Native">
+       <file role="php" name="mysqli.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Native -->
+      <dir name="Reverse">
+       <file role="php" name="mysqli.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Reverse -->
       <file role="php" name="mysqli.php">
        <replace type="package-info" from="@package_version@" to="version"/>
       </file>
-     </dir> <!-- /MDB2/Driver/Datatype -->
-     <dir name="Manager">
-      <file role="php" name="mysqli.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
-      </file>
-     </dir> <!-- /MDB2/Driver/Manager -->
-     <dir name="Native">
-      <file role="php" name="mysqli.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
-      </file>
-     </dir> <!-- /MDB2/Driver/Native -->
-     <dir name="Reverse">
-      <file role="php" name="mysqli.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
-      </file>
-     </dir> <!-- /MDB2/Driver/Reverse -->
-     <file role="php" name="mysqli.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-    </dir> <!-- /MDB2/Driver -->
-   </dir> <!-- /MDB2 -->
+     </dir> <!-- /MDB2/Driver -->
+    </dir> <!-- /MDB2 -->
+    <file role="php" name="package_mysqli.php">
+     <replace type="package-info" from="@package_version@" to="version"/>
+    </file>
+   </dir> <!-- / -->
   </filelist>
  </release>
  <changelog>
    <release>
     <version>0.1.1</version>
-    <date>2005-06-10</date>
+    <date>2005-10-10</date>
     <license>BSD License</license>
     <state>alpha</state>
-    <notes>-
+    <notes>Warning: this release features numerous BC breaks!
+
+There have been considerable improvements to the datatype, manager and reverse
+modules. Furthermore preliminary support for auto increment and primary keys
+has been added. Please note that making a field auto increment implies a single
+column primary key on this field.
+
+- added support for auto increment and primary key in schema.
+- alterTable now needs the full definition to work (use getTableFieldDefinition
+ from Reverse module if you do not have a definition at hand) this eliminates the need
+ of the declaration part in the alterTable array.
+- removed support for dummy_primary_key
+- fix PHP4.4 breakage
+- moved getInsertID() into core as lastInsertID()
+- all non LOB values were quoted twice in execute()
+- clobs only need to be mapped to binary when using mysqli_stmt_send_long_data()
+  which is handled independently
+- use !empty() instead of isset() in fetchRow to determine if result cols were bound or result types were set
+- expect keys in type arrays the same way as they are passed for the values in execute() and bindParamArray()
+- add s pattern modifier to preg_replace() call for parameter searches in prepare() (bug #5362)
+- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
+- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use &apos;field_case&apos; option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
+- count() -&gt; !empty() where possible
+- use array_map() instead of array_flip(array_change_key_case(array_flip())) to fix case of array values
+- use array_key_exists() instead of isset() where possible
+- changed structure of field add/remove/change in alterTable() to match MDB2_Schema
+- removed subSelect() implementation (now in already included in common)
+- return 0 for manipulation queries when disable_query is enabled
+- tweaked getTableFieldDefinition() in reverse module
     </notes>
    </release>
  </changelog>

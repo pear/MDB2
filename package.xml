@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.0a12">
+<package version="1.0" packagerversion="1.4.1">
  <name>MDB2</name>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
@@ -59,21 +59,68 @@ portability. Among other things MDB2 features:
    <email>danielc@php.net</email>
    <role>helper</role>
   </maintainer>
+  <maintainer>
+   <user>davidc</user>
+   <name>David Coallier</name>
+   <email>david@jaws.com.mx</email>
+   <role>helper</role>
+  </maintainer>
   </maintainers>
  <release>
   <version>2.0.0beta6</version>
-  <date>2005-06-10</date>
+  <date>2005-10-10</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
-similar as possible as the ext/pdo API! The next release is likely to also break
-BC for the same reason. Check php.net/pdo for information on the pdo API.
+  <notes>Warning: this release features numerous BC breaks!
+
+There have been considerable improvements to the datatype, manager and reverse
+modules. Furthermore preliminary support for auto increment and primary keys
+has been added. Please note that making a field auto increment implies a single
+column primary key on this field.
 
 - increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+- moved logic from MDB2::connect() to MDB2::factory(), the only difference is
+  that MDB2::connect will immediatly try to connect to the database
+- MDB2::singleton now uses MDB2::factory()
+- added support for auto increment and primary key in schema. (mysql[i])
+- alterTable now needs the full definition to work (use getTableFieldDefinition
+ from Reverse module if you do not have a definition at hand) this eliminates the need
+ of the declaration part in the alterTable array.
+- nicer test chooser. Added some js magic to [un]select all the tests in a group
+- fixed typo in _getTextDeclaration()
+- fix PHP4.4 breakage
+- ensure that types and result_types property in the statement class is an array (bug #4695)
+- added support for fetchmode in the iterator class and for any other result wrapper class (bug #4685)
+- moved getInsertID() into core as lastInsertID()
+- moved getBeforeID() and getAfterID() from core into the extended module
+- added base class for all modules (which provides getDBInstance())
+- added free() method to remove an instance from the global instance array
+- removed schema manager related error codes from MDB2::errorMessage()
+- dont set the include path in test suite (people can do that in test_setup.php)
+- added missing default numRows() method
+- added hack into stream_eof() to handle the BC break in 5.0.x
+- removed uncessary duplicate quoting in quote() in the peardb wrapper (bug #5195)
+- warning fix in BC hack of connect() in the peardb wrapper
+- tweaked error message in setResultTypes()
+- removed PDO compatibility code in bindParam and bindCol, now using 0-index numeric keys again
+- expect keys in type arrays the same way as they are passed for the values in execute() and bindParamArray()
+- add s pattern modifier to preg_replace() call for parameter searches in prepare() (bug #5362)
+- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
+- added new portability fetch mode MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES (to remove database/table qualifiers from assoc indexes)
+- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use &apos;field_case&apos; option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
+- ensure that fetchAll always returns an array() even if the result set was empty
+- use array_key_exists() instead of isset() where possible
+- changed structure of field add/remove/change in alterTable() to match MDB2_Schema
+- added default values for supported property
+- reworked supports() to return the given value and also return errors for non existant support feature
+- reworked subSelect() to use the &apos;emulated&apos; supports() return value
+- removed implementation of createIndex() (now every driver needs to implement it themselves)
+- sync fileExists with the LiveUser one, explode instead of split and is_readable instead of file_exists.
+- tweaked compare method family to better deal with optional properties
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
-   <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
+   <dep type="pkg" rel="ge" version="1.3.6" optional="no">PEAR</dep>
   </deps>
   <filelist>
    <dir name="/" baseinstalldir="/">
@@ -221,14 +268,55 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
  <changelog>
    <release>
     <version>2.0.0beta6</version>
-    <date>2005-06-10</date>
+    <date>2005-10-10</date>
     <license>BSD License</license>
     <state>beta</state>
-    <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
-similar as possible as the ext/pdo API! The next release is likely to also break
-BC for the same reason. Check php.net/pdo for information on the pdo API.
+    <notes>Warning: this release features numerous BC breaks!
+
+There have been considerable improvements to the datatype, manager and reverse
+modules. Furthermore preliminary support for auto increment and primary keys
+has been added. Please note that making a field auto increment implies a single
+column primary key on this field.
 
 - increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+- moved logic from MDB2::connect() to MDB2::factory(), the only difference is
+  that MDB2::connect will immediatly try to connect to the database
+- MDB2::singleton now uses MDB2::factory()
+- added support for auto increment and primary key in schema. (mysql[i])
+- alterTable now needs the full definition to work (use getTableFieldDefinition
+ from Reverse module if you do not have a definition at hand) this eliminates the need
+ of the declaration part in the alterTable array.
+- nicer test chooser. Added some js magic to [un]select all the tests in a group
+- fixed typo in _getTextDeclaration()
+- fix PHP4.4 breakage
+- ensure that types and result_types property in the statement class is an array (bug #4695)
+- added support for fetchmode in the iterator class and for any other result wrapper class (bug #4685)
+- moved getInsertID() into core as lastInsertID()
+- moved getBeforeID() and getAfterID() from core into the extended module
+- added base class for all modules (which provides getDBInstance())
+- added free() method to remove an instance from the global instance array
+- removed schema manager related error codes from MDB2::errorMessage()
+- dont set the include path in test suite (people can do that in test_setup.php)
+- added missing default numRows() method
+- added hack into stream_eof() to handle the BC break in 5.0.x
+- removed uncessary duplicate quoting in quote() in the peardb wrapper (bug #5195)
+- warning fix in BC hack of connect() in the peardb wrapper
+- tweaked error message in setResultTypes()
+- removed PDO compatibility code in bindParam and bindCol, now using 0-index numeric keys again
+- expect keys in type arrays the same way as they are passed for the values in execute() and bindParamArray()
+- add s pattern modifier to preg_replace() call for parameter searches in prepare() (bug #5362)
+- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
+- added new portability fetch mode MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES (to remove database/table qualifiers from assoc indexes)
+- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use &apos;field_case&apos; option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
+- ensure that fetchAll always returns an array() even if the result set was empty
+- use array_key_exists() instead of isset() where possible
+- changed structure of field add/remove/change in alterTable() to match MDB2_Schema
+- added default values for supported property
+- reworked supports() to return the given value and also return errors for non existant support feature
+- reworked subSelect() to use the &apos;emulated&apos; supports() return value
+- removed implementation of createIndex() (now every driver needs to implement it themselves)
+- sync fileExists with the LiveUser one, explode instead of split and is_readable instead of file_exists.
+- tweaked compare method family to better deal with optional properties
     </notes>
    </release>
    <release>
@@ -285,7 +373,7 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - extended MDB2::isError() to be able to handle an array or codes
 - added error handling into autoPrepare() and autoExecute()
 - migrade all MDB2::isError calls that dont check for specific errors codes to PEAR::isError
-- don't pass new_link to mysql_pconnect() (bug #3993)
+- don&apos;t pass new_link to mysql_pconnect() (bug #3993)
 - use MDB2::raiseError() instead of MDB2_Driver_Common::raiseError()
 - do not disable result wrapping when doing internal calls to query() (bug #3997)
 - _wrapResult() now ensures that the result class is an instance of MDB2_Result_Common
@@ -298,7 +386,7 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - added mapNativeDatatype() to ibase driver
 - getTypeDeclaration() =&gt; _getTypeDeclaration() in ibase driver
 - cosmetic fixes and tweaks (replace(). fetchOne() ..)
-- renamed 'seqname_col_name' option to 'seqcol_name'
+- renamed &apos;seqname_col_name&apos; option to &apos;seqcol_name&apos;
 - moved schema documentation, xml_reverse_engineering.php, MDB.dtd
   and MDB.xls to MDB_Schema package
 - Mysqli: implicit sequence is named as table by default
@@ -350,14 +438,14 @@ All drivers:
   called by the user
 - instead of having a generic implemention of disconnect() we will rename
   _close() to disconnect() to overwrite the generic implementation
-- added support for 'new_link' dsn option for all supported drivers (mysql, oci8, pgsql)
+- added support for &apos;new_link&apos; dsn option for all supported drivers (mysql, oci8, pgsql)
 
 - transaction API moved over to PDO: removed autoCommit(), added beginTransaction()
-  and refactored commit() (it doesn't start a new transaction automatically anymore)
+  and refactored commit() (it doesn&apos;t start a new transaction automatically anymore)
 - reworked handling of uncommited transaction for persistant connections when
   a given connection is no longer in use
 
-- added 'disable_query' option to be able to disable the execution of all queries
+- added &apos;disable_query&apos; option to be able to disable the execution of all queries
  (this might be useful in conjuntion with a custom debug handler to be able to
  dump all queries into a file instead of executing them)
 - removed affectedRows() method in favor of returning affectedRows() on query if relevant
@@ -372,7 +460,7 @@ All drivers:
 
 - explicitly specify colum name in sequence emulation queries
 - added getBeforeId() and getAfterId()
-- added new supported feature 'auto_increment'
+- added new supported feature &apos;auto_increment&apos;
 
 - added default implementation for quoteCLOB() and quoteBLOB()
 - reworked quote handling: moved all implementation details into the extension,
@@ -403,7 +491,7 @@ All drivers prepared statements
 - removed requirement for LOB inserts to pass the parameters as an array
 - placeholders are now numbered starting from 0 (BC break in setParam() !)
 - queries inside the prepared_queries property now start counting at 1 (performance tweak)
-- refactored handling of filename LOB values (prefix with 'file://')
+- refactored handling of filename LOB values (prefix with &apos;file://&apos;)
 - removed _executePrepared(), drivers need to overwrite execute() for now on
 - add support for oracle style named parameters and modified test suite accordingly
 
@@ -441,7 +529,7 @@ Interbase driver:
 - completely revised ibase driver, now passing all tests under php5
 
 Frontbase driver:
-- fbsql: use correct error codes. Was using MySQL's codes by mistake.
+- fbsql: use correct error codes. Was using MySQL&apos;s codes by mistake.
 
 MySQLi driver:
 - added mysqli driver (passes all tests, but doesnt use native prepare yet)
@@ -504,7 +592,7 @@ stable release.
 - renamed toString() to __toString() in order to take advantage of new PHP5
   goodness and made it public
 - MDB2_Driver_Datatype_Common::setResultTypes() can now handle missing elements
-  inside type arrays: array(2 =&gt; 'boolean', 4 =&gt; 'timestamp')
+  inside type arrays: array(2 =&gt; &apos;boolean&apos;, 4 =&gt; &apos;timestamp&apos;)
 - fixed potential warning due to manipulation query detection in the query*()
   and the get*() query+fetch methods
 - added tests for fetchAll() and fetchCol()
@@ -514,7 +602,7 @@ stable release.
 - renamed MDB2::isResult() to MDB2::isResultCommon()
 - added base result class MDB2_Result from which all result sets should be
   inherited and added MDB2::isResult() which checks if a given object extends from it
-- added 'result_wrap_class' option and optional parameter to query() to enable
+- added &apos;result_wrap_class&apos; option and optional parameter to query() to enable
   wrapping of result classes into an arbitrary class
 - added $result_class param to all drivers where it was missing from the
   query() and _executePrepared() methods

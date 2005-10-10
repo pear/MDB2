@@ -4,11 +4,29 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '0.1.1';
 $notes = <<<EOT
+Warning: this release features numerous BC breaks!
+
+There have been considerable improvements to the datatype, manager and reverse
+modules. However this driver should be considered unmaintained and likely broken.
+
 - increased php dependency to 4.3.0 due to the usage of the streams API since beta5
 - ensure that instance is connected before using connection property in tableInfo()
-- alterTable (Manager) now needs the full definition to work (use getTableFieldDefinition
+- alterTable now needs the full definition to work (use getTableFieldDefinition
  from Reverse module if you do not have a definition at hand) this eliminates the need
  of the declaration part in the alterTable array.
+- ensure that instance is connected before using connection property in tableInfo()
+- fix PHP4.4 breakage
+- moved getInsertID() into core as lastInsertID()
+- moved max_text_length property into the fbsql datatype module
+- use !empty() instead of isset() in fetchRow to determine if result cols were bound or result types were set
+- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
+- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use 'field_case' option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
+- count() -> !empty() where possible
+- use array_map() instead of array_flip(array_change_key_case(array_flip())) to fix case of array values
+- use array_key_exists() instead of isset() where possible
+- changed structure of field add/remove/change in alterTable() to match MDB2_Schema
+- return 0 for manipulation queries when disable_query is enabled
+- tweaked handling of notnull and default in field reverse engineering
 EOT;
 
 $package = new PEAR_PackageFileManager();
@@ -48,7 +66,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.0beta5', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.0.0beta6', 'ge', 'pkg', false);
 $package->addDependency('fbsql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
