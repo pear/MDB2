@@ -106,6 +106,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *
      * @param string $name  name of the PK field
      * @param string $table name of the table
+     * @param string $start start value for the sequence
      * @return mixed        MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
@@ -139,7 +140,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     // {{{ _dropAutoincrement()
 
     /**
-     * drop an existing autoincrement sequence / trigger
+     * drop an existing autoincrement sequence + trigger
      *
      * @param string $table name of the table
      * @return mixed        MDB2_OK on success, a MDB2 error on failure
