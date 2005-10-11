@@ -119,6 +119,19 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         return $db->standaloneQuery('DROP USER '.$username.' CASCADE');
     }
 
+
+    // }}}
+    // {{{ _makeAutoincrement()
+
+    /**
+     * add an autoincrement sequence + trigger
+     *
+     * @param string $name  name of the PK field
+     * @param string $table name of the table
+     * @param string $start start value for the sequence
+     * @return mixed        MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
     function _makeAutoincrement($name, $table, $start = 1)
     {
         $db =& $this->getDBInstance();
@@ -126,7 +139,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $index_name  = $table . '_autoincrement_pk';
+        $index_name  = $table . '_AUTOINCREMENT_PK';
         $definition = array(
             'primary' => true,
             'fields' => array($name),
@@ -144,7 +157,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $table . '_autoincrement_pk';
+        $trigger_name  = $table . '_AUTOINCREMENT_PK';
         $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
         $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
         $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;";
@@ -152,24 +165,45 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         return $db->query($trigger_sql);
     }
 
-    function _dropAutoincrement($name, $table)
+    // }}}
+    // {{{ _dropAutoincrement()
+
+    /**
+     * drop an existing autoincrement sequence + trigger
+     *
+     * @param string $table name of the table
+     * @return mixed        MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function _dropAutoincrement($table)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $result = $db->manager->dropSequence($table);
-        if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
+        $trigger_name = $table . '_AUTOINCREMENT_PK';
+        $trigger = $db->queryOne("SELECT trigger_name FROM user_triggers WHERE trigger_name = '$trigger_name'");
+        if (PEAR::isError($trigger)) {
+            return $trigger;
         }
 
-        $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $table . '_autoincrement_pk';
-        $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
+        if ($trigger) {
+            $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
+            $result = $db->query($trigger_sql);
+            if (PEAR::isError($result)) {
+                return $db->raiseError(MDB2_ERROR, null, null,
+                    '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
+            }
 
-        return $db->query($trigger_sql);
+            $result = $db->manager->dropSequence($table);
+            if (PEAR::isError($result)) {
+                return $db->raiseError(MDB2_ERROR, null, null,
+                    '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
+            }
+        }
+
+        return MDB2_OK;
     }
 
     // }}}
@@ -216,6 +250,25 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 return $this->_makeAutoincrement($field_name, $name);
             }
         }
+    }
+
+    // }}}
+    // {{{ dropTable()
+
+    /**
+     * drop an existing table
+     *
+     * @param string $name name of the table that should be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropTable($name)
+    {
+        $result = $this->_dropAutoincrement($name);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return parent::dropTable($name);
     }
 
     // }}}
@@ -589,6 +642,27 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $query .= implode(', ', array_keys($definition['fields'])) . ')';
 
         return $db->query($query);
+    }
+
+    // }}}
+    // {{{ listTableIndexes()
+
+    /**
+     * list all indexes in a table
+     *
+     * @param string $table name of table that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableIndexes($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $query = "SELECT contraint_name name FROM user_contraints WHERE contraint_type = 'P' AND table_name='$table'"
+        $query.= "UNION SELECT index_name name FROM user_indexes WHERE table_name='$table'";
+        return $db->queryCol($query);
     }
 
     // }}}
