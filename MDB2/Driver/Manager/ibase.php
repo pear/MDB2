@@ -121,15 +121,15 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
-
-        $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $table . '_autoincrement_pk';
+        $table = strtoupper($table);
+        $sequence_name = strtoupper($db->getSequenceName($table));
+        $trigger_name  = $table . '_AUTOINCREMENT_PK';
         $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
                         ACTIVE BEFORE INSERT POSITION 0
                         AS
                         BEGIN
                         IF (NEW.' . $name . ' IS NULL) THEN
-                            NEW.' . $name . ' = GEN_ID('.strtoupper($sequence_name).', 1);
+                            NEW.' . $name . ' = GEN_ID('.$sequence_name.', 1);
                         END';
 
         return $db->query($trigger_sql);
@@ -139,7 +139,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     // {{{ _dropAutoincrement()
 
     /**
-     * drop an existing autoincrement PK / trigger
+     * drop an existing autoincrement sequence / trigger
      *
      * @param string $table name of the table
      * @return mixed        MDB2_OK on success, a MDB2 error on failure
@@ -151,11 +151,18 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-
         $result = $db->manager->dropSequence($table);
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
+        }
+        //remove autoincrement trigger associated with the table
+        $table = strtoupper($table);
+        $trigger_name  = $table . '_AUTOINCREMENT_PK';
+        $result = $db->query("DELETE FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME='$table' AND RDB\$TRIGGER_NAME='$trigger_name'");
+        if (PEAR::isError($result)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
         }
         return MDB2_OK;
     }
@@ -259,18 +266,6 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      */
     function dropTable($name)
     {
-        //remove triggers associated with the table
-        $name = strtoupper($name);
-        $triggers = $db->queryCol("SELECT RDB\$TRIGGER_NAME FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME='$name'");
-        if (PEAR::isError($triggers)) {
-            return $triggers;
-        }
-        foreach ($triggers as $trigger) {
-            $result = $db->query('DROP TRIGGER ' . $trigger);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
-        }
         $result = $this->_dropAutoincrement($name);
         if (PEAR::isError($result)) {
             return $result;
