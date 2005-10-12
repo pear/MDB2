@@ -298,12 +298,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         $result = $result2->fetchCol();
         $result2->free();
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
         return $result;
     }
 

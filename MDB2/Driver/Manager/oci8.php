@@ -473,16 +473,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SELECT username FROM sys.all_users';
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        return $result;
+        return $db->queryCol($query);
     }
     // }}}
     // {{{ listViews()

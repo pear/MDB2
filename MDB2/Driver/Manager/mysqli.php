@@ -455,14 +455,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $result = $db->queryCol('SELECT DISTINCT USER FROM USER');
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        return $result;
+        return $db->queryCol('SELECT DISTINCT USER FROM USER');
     }
 
     // }}}
