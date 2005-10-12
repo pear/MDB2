@@ -3,8 +3,8 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2004 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith                                         |
+// | Copyright (c) 1998-2005 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Stig. S. Bakken, Lukas Smith, Lorenzo Alberton                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -593,18 +593,21 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $db_type = preg_replace('/\d/','', strtolower($field['typname']) );
-        $length = $field['attlen'];
-        if ($length == '-1') {
-            $length = $field['atttypmod']-4;
-        }
+        $length = $field['field_length'];
         if ((int)$length <= 0) {
             $length = null;
         }
         $type = array();
-        switch ($db_type) {
+        switch ($field['field_type']) {
         case 'smallint':
         case 'integer':
+        case 'int64':
+            //these may be 'numeric' or 'decimal'
+            if (!empty($field['field_sub_type'])) {
+                $field['field_type'] = $field['field_sub_type'];
+                continue;
+            }
+        case 'quad':
             $type[] = 'integer';
             if ($length == '1') {
                 $type[] = 'boolean';
@@ -612,6 +615,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             break;
         case 'char':
         case 'varchar':
+        case 'cstring':
             $type[] = 'text';
             if ($length == '1') {
                 $type[] = 'boolean';
@@ -630,7 +634,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $length = null;
             break;
         case 'float':
+        case 'double':
         case 'double precision':
+        case 'd_float':
             $type[] = 'float';
             break;
         case 'decimal':
