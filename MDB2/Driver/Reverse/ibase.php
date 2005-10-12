@@ -204,6 +204,76 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     }
 
     // }}}
+    // {{{ getTableIndexDefinition()
+
+    /**
+     * get the stucture of an index into an array
+     *
+     * @param string    $table      name of table that should be used in method
+     * @param string    $index_name name of index that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableIndexDefinition($table, $index_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $table = strtoupper($table);
+        $index_name = strtoupper($index_name);
+        $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
+                         RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
+                         RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
+                         RDB\$INDICES.RDB\$DESCRIPTION AS description,
+                         RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE as constraint_type
+                    FROM RDB\$INDEX_SEGMENTS
+               LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
+               LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
+                   WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)='$table'
+                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)='$index_name'
+                ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION;";
+        $result = $db->query($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        
+        $index = $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+        if (empty($index)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableIndexDefinition: it was not specified an existing table index');
+        }
+        $fields = array();
+        do {
+            $fields[] = $row['field_name'];
+        } while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)));
+        $result->free();
+        
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
+        }
+        
+        $definition = array();
+        if ($index['unique_flag']) {
+            $definition['unique'] = true;
+        }
+        if ($index['constraint_type'] == 'PRIMARY KEY') {
+            $definition['primary'] = true;
+        }
+        foreach ($fields as $field) {
+            $definition['fields'][$field] = array();
+            //collation?!?
+            /*
+            if (array_key_exists('collation', $row)) {
+                $definition['fields'][$field]['sorting'] = ($row['collation'] == 'A'
+                    ? 'ascending' : 'descending');
+            }
+            */
+        }
+        return $definition;
+    }
+
+    // }}}
     // {{{ tableInfo()
 
     /**
