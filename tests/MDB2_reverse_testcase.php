@@ -264,5 +264,25 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
             }
         }
     }
+
+    /**
+     * Test getSequenceDefinition($sequence)
+     */
+    function testGetSequenceDefinition() {
+        //setup
+        $this->db->loadModule('Manager');
+        $sequence = 'test_sequence';
+        $result = $this->db->manager->createSequence($sequence);
+        $this->assertFalse(PEAR::isError($result), 'Error creating a sequence');
+
+        //test
+        $start = $this->db->nextId($sequence);
+        $def = $this->db->reverse->getSequenceDefinition($sequence);
+        $this->assertEquals($start+1, $def['start'], 'Error getting sequence definition');
+
+        //cleanup
+        $result = $this->db->manager->dropSequence($sequence);
+        $this->assertFalse(PEAR::isError($result), 'Error dropping a sequence');
+    }
 }
 ?>
