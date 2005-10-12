@@ -2,8 +2,8 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2004 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith                                         |
+// | Copyright (c) 1998-2005 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Stig. S. Bakken, Lukas Smith, Lorenzo Alberton                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -51,7 +51,7 @@ require_once 'MDB2/Driver/Manager/Common.php';
  *
  * @package MDB2
  * @category Database
- * @author  Lorenzo Alberton <l.alberton@quipo.it>
+ * @author Lorenzo Alberton <l.alberton@quipo.it>
  */
 class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 {
@@ -160,7 +160,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         //remove autoincrement trigger associated with the table
         $table = strtoupper($table);
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
-        $result = $db->query("DELETE FROM RDB\$TRIGGERS WHERE RDB\$RELATION_NAME='$table' AND RDB\$TRIGGER_NAME='$trigger_name'");
+        $result = $db->query("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)='$table' AND UPPER(RDB\$TRIGGER_NAME)='$trigger_name'");
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
@@ -483,7 +483,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE RDB\$RELATION_NAME='$table'";
+        $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE UPPER(RDB\$RELATION_NAME)='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -494,6 +494,24 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
         return $result;
+    }
+
+    // }}}
+    // {{{ listUsers()
+
+    /**
+     * list all users
+     *
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listUsers()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        return $db->queryCol('SELECT DISTINCT RDB$USER FROM RDB$USER_PRIVILEGES');
     }
 
     // }}}
@@ -670,7 +688,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->getSequenceName($seq_name);
-        return $db->query('DELETE FROM RDB$GENERATORS WHERE RDB$GENERATOR_NAME=\''.strtoupper($sequence_name).'\'');
+        return $db->query('DELETE FROM RDB$GENERATORS WHERE UPPER(RDB$GENERATOR_NAME)=\''.strtoupper($sequence_name).'\'');
     }
 
     // }}}
@@ -690,16 +708,21 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS';
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $table_names = $db->queryCol($query);
+        if (PEAR::isError($table_names)) {
+            return $table_names;
+        }
+        $sequences = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
+            if ($sqn = $this->_isSequenceName($table_names[$i]))
+                $sequences[] = $sqn;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+            $sequences = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $sequences);
         }
-        return $result;
+        return $sequences;
     }
 }
 ?>
