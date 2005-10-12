@@ -122,7 +122,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 
         $seq_pattern = '/^'.preg_replace('/%s/', '([a-z0-9_]+)', $db->options['seqname_format']).'$/i';
         $seq_name = preg_replace($seq_pattern, '\\1', $sqn);
-        if ($seq_name && $sqn == $db->getSequenceName($seq_name)) {
+        if ($seq_name && !strcasecmp($sqn, $db->getSequenceName($seq_name))) {
             return $seq_name;
         }
         return false;
