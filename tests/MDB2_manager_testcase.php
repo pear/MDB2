@@ -55,12 +55,6 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
     var $database;
     //contains the MDB2 object of the db once we have connected
     var $db;
-    //contains the name of the driver_test schema
-    var $driver_input_file = 'driver_test.schema';
-    //contains the name of the lob_test schema
-    var $lob_input_file = 'lob_test.schema';
-    //contains the name of the extension to use for backup schemas
-    var $backup_extension = '.before';
     //test table name (it is dynamically created/dropped)
     var $table = 'newtable';
     //test table fields
@@ -133,63 +127,6 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $tables = $this->db->manager->listTables();
         return in_array($this->table, $tables);
     }
-
-/*
-    function testCreateDatabase() {
-        if (!$this->methodExists($this->manager->db->manager, 'dropDatabase')) {
-            return;
-        }
-        $this->db->manager->db->expectError('*');
-        $result = $this->db->manager->db->manager->dropDatabase($this->database);
-        $this->db->manager->db->popExpect();
-        if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Database dropping failed: please manually delete the database if needed');
-        }
-        if (!$this->methodExists($this->db->manager, 'updateDatabase')) {
-            return;
-        }
-        $result = $this->db->manager->updateDatabase(
-            $this->driver_input_file,
-            false,
-            array('create' =>'1', 'name' => $this->database)
-        );
-        if (!PEAR::isError($result)) {
-            $result = $this->db->manager->updateDatabase(
-                $this->lob_input_file,
-                false,
-                array('create' =>'0', 'name' => $this->database)
-            );
-        }
-        $this->assertFalse(PEAR::isError($result), 'Error creating database');
-    }
-
-    function testUpdateDatabase() {
-        if (!$this->methodExists($this->db->manager, 'updateDatabase')) {
-            return;
-        }
-        $backup_file = $this->driver_input_file.$this->backup_extension;
-        if (!file_exists($backup_file)) {
-            copy($this->driver_input_file, $backup_file);
-        }
-        $result = $this->db->manager->updateDatabase(
-            $this->driver_input_file,
-            $backup_file,
-            array('create' =>'0', 'name' =>$this->database)
-        );
-        if (!PEAR::isError($result)) {
-            $backup_file = $this->lob_input_file.$this->backup_extension;
-            if (!file_exists($backup_file)) {
-                copy($this->lob_input_file, $backup_file);
-            }
-            $result = $this->db->manager->updateDatabase(
-                $this->lob_input_file,
-                $backup_file,
-                array('create' =>'0', 'name' => $this->database)
-            );
-        }
-        $this->assertFalse(PEAR::isError($result), 'Error updating database');
-    }
-*/
 
     /**
      * Create a sample table, test the new fields, and drop it.
