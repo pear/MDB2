@@ -704,15 +704,15 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
-        $sequences = array();
+        $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if ($sqn = $this->_isSequenceName($table_names[$i]))
-                $sequences[] = $sqn;
+                $result[] = $sqn;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $sequences = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $sequences);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $sequences;
+        return $result;
     }
 }
 ?>
