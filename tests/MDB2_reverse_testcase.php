@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2004 Lukas Smith, Lorenzo Alberton                |
+// | Copyright (c) 1998-2005 Lukas Smith, Lorenzo Alberton                |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -127,6 +127,50 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
             }
         }
     }
-}
 
+    /**
+     * Test getTableFieldDefinition($table, $field)
+     */
+    function testGetTableFieldDefinition()
+    {
+        if (!$this->methodExists($this->db->reverse, 'getTableFieldDefinition')) {
+            return;
+        }
+
+        //test integer not null
+        $field_info = $this->db->reverse->getTableFieldDefinition('files', 'id');
+        if (PEAR::isError($field_info)) {
+            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+        } else {
+            $field_info = array_pop($field_info);
+            $this->assertEquals('integer', $field_info['type'], 'The field type is different from the expected one');
+            $this->assertEquals(4, $field_info['length'], 'The field length is different from the expected one');
+            $this->assertTrue($field_info['notnull'], 'The field can be null unlike it was expected');
+            $this->assertEquals('', $field_info['default'], 'The field default value is different from the expected one');
+        }
+
+        //test blob
+        $field_info = $this->db->reverse->getTableFieldDefinition('files', 'document');
+        if (PEAR::isError($field_info)) {
+            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+        } else {
+            $field_info = array_pop($field_info);
+            $this->assertEquals('blob', $field_info['type'], 'The field type is different from the expected one');
+            $this->assertFalse($field_info['notnull'], 'The field cannot be null unlike it was expected');
+            $this->assertEquals(null, $field_info['default'], 'The field default value is different from the expected one');
+        }
+
+        //test varchar(100) not null
+        $field_info = $this->db->reverse->getTableFieldDefinition('numbers', 'trans_en');
+        if (PEAR::isError($field_info)) {
+            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+        } else {
+            $field_info = array_pop($field_info);
+            $this->assertEquals('text', $field_info['type'], 'The field type is different from the expected one');
+            $this->assertEquals(100, $field_info['length'], 'The field length is different from the expected one');
+            $this->assertTrue($field_info['notnull'], 'The field can be null unlike it was expected');
+            $this->assertEquals('', $field_info['default'], 'The field default value is different from the expected one');
+        }
+    }
+}
 ?>
