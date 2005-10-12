@@ -6,7 +6,7 @@ $version = '0.1.3';
 $notes = <<<EOT
 - added support for portability option in all the list*() methods of the Manager module
 - when dropping a table, the autoincrement trigger is removed
-- implemented getTableFieldDefinition() in the Reverse module
+- implemented getTableFieldDefinition() and getTableIndexDefinition() in the Reverse module
 - implemented listUsers() in the Manager module
 
 
