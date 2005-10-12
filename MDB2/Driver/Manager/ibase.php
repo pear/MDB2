@@ -575,7 +575,6 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $query .= $query_sort. " INDEX $name ON $table (";
         }
         $query .= implode(', ', array_keys($definition['fields'])) . ')';
-
         return $db->query($query);
     }
 
@@ -595,7 +594,15 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        return $db->queryCol("SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'");
+        $table = strtoupper($table);
+        $indices = $db->queryCol("SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'");
+        if (PEAR::isError($indices)) {
+            return $indices;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $indices = array_flip(array_change_key_case(array_flip($indices), $db->options['field_case']));
+        }
+        return $indices;
     }
 
     // }}}
