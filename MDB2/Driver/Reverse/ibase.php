@@ -2,8 +2,8 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2004 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith, Frank M. Kromann                       |
+// | Copyright (c) 1998-2005 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Stig. S. Bakken, Lukas Smith, Frank M. Kromann, Lorenzo Alberton     |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -39,7 +39,7 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Lukas Smith <smith@pooteeweet.org>                           |
+// | Author: Lorenzo Alberton <l.alberton@quipo.it>                       |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -52,10 +52,157 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  *
  * @package MDB2
  * @category Database
- * @author  Lukas Smith <smith@dybnet.de>
+ * @author Lorenzo Alberton  <l.alberton@quipo.it>
  */
 class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
 {
+    /**
+     * Array for converting constant values to text values
+     * @var    array
+     * @access public
+     */
+    var $types = array(
+        7   => 'smallint',
+        8   => 'integer',
+        9   => 'quad',
+        10  => 'float',
+        11  => 'd_float',
+        12  => 'date',      //dialect 3 DATE
+        13  => 'time',
+        14  => 'char',
+        16  => 'int64',
+        27  => 'double',
+        35  => 'timestamp', //DATE in older versions
+        37  => 'varchar',
+        40  => 'cstring',
+        261 => 'blob',
+    );
+
+    /**
+     * Array for converting constant values to text values
+     * @var    array
+     * @access public
+     */
+    var $subtypes = array(
+        //char subtypes
+        14 => array(
+            0 => 'unspecified',
+            1 => 'fixed', //BINARY data
+        ),
+        //blob subtypes
+        261 => array(
+            0 => 'unspecified',
+            1 => 'text',
+            2 => 'BLR', //Binary Language Representation
+            3 => 'access control list',
+            4 => 'reserved for future use',
+            5 => 'encoded description of a table\'s current metadata',
+            6 => 'description of multi-database transaction that finished irregularly',
+        ),
+        //smallint subtypes
+        7 => array(
+            0 => 'RDB$FIELD_TYPE',
+            1 => 'numeric',
+            2 => 'decimal',
+        ),
+        //integer subtypes
+        8 => array(
+            0 => 'RDB$FIELD_TYPE',
+            1 => 'numeric',
+            2 => 'decimal',
+        ),
+        //int64 subtypes
+        16 => array(
+            0 => 'RDB$FIELD_TYPE',
+            1 => 'numeric',
+            2 => 'decimal',
+        ),
+    );
+    
+    // {{{ getTableFieldDefinition()
+
+    /**
+     * get the stucture of a field into an array
+     *
+     * @param string    $table         name of table that should be used in method
+     * @param string    $field_name     name of field that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableFieldDefinition($table, $field_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $result = $db->loadModule('Datatype');
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        $table = strtoupper($table);
+        $field_name = strtoupper($field_name);
+        $query = "SELECT RDB\$RELATION_FIELDS.RDB\$FIELD_NAME AS field,
+                         RDB\$FIELDS.RDB\$FIELD_LENGTH AS field_length,
+                         RDB\$FIELDS.RDB\$FIELD_TYPE AS field_type_code,
+                         RDB\$FIELDS.RDB\$FIELD_SUB_TYPE AS field_sub_type_code,
+                         RDB\$RELATION_FIELDS.RDB\$DESCRIPTION AS description,
+                         RDB\$RELATION_FIELDS.RDB\$NULL_FLAG AS null_flag,
+                         RDB\$RELATION_FIELDS.RDB\$DEFAULT_SOURCE AS default_source
+                    FROM RDB\$FIELDS
+               LEFT JOIN RDB\$RELATION_FIELDS ON RDB\$FIELDS.RDB\$FIELD_NAME = RDB\$RELATION_FIELDS.RDB\$FIELD_SOURCE
+                   WHERE UPPER(RDB\$RELATION_FIELDS.RDB\$RELATION_NAME)='$table'
+                     AND UPPER(RDB\$RELATION_FIELDS.RDB\$FIELD_NAME)='$field_name';";
+        $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($column)) {
+            return $column;
+        }
+        if (empty($column)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableFieldDefinition: it was not specified an existing table column');
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $column['field'] = strtolower($column['field']);
+            } else {
+                $column['field'] = strtoupper($column['field']);
+            }
+        } else {
+            $column = array_change_key_case($column, $db->options['field_case']);
+        }
+        
+        $column['field_type'] = array_key_exists($column['field_type_code'], $this->types)
+            ? $this->types[(int)$column['field_type_code']] : 'undefined';
+        if ($column['field_sub_type_code']
+            && array_key_exists($column['field_type_code'], $this->subtypes)
+            && array_key_exists($column['field_sub_type_code'], $this->subtypes[(int)$column['field_type_code']])
+        ) {
+            $column['field_sub_type'] = $this->subtypes[(int)$column['field_type_code']][$column['field_sub_type_code']];
+        } else {
+            $column['field_sub_type'] = null;
+        }
+        list($types, $length) = $db->datatype->mapNativeDatatype($column);
+        $notnull = !empty($column['null_flag']);
+        $default = $column['default_source'];
+        if (is_null($default) && $notnull) {
+            $default = '';
+        }
+        $definition = array();
+        foreach ($types as $key => $type) {
+            $definition[$key] = array(
+                'type'    => $type,
+                'notnull' => $notnull,
+            );
+            if ($length > 0) {
+                $definition[$key]['length'] = $length;
+            }
+            if ($default !== false) {
+                $definition[$key]['default'] = $default;
+            }
+        }
+        return $definition;
+    }
+
     // }}}
     // {{{ tableInfo()
 
