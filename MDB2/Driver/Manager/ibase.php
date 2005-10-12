@@ -458,9 +458,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
         return $result;
@@ -488,9 +486,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
         return $result;
@@ -534,9 +530,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
         return $result;
@@ -630,9 +624,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
         return $result;
@@ -717,9 +709,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             if ($sqn = $this->_isSequenceName($table_names[$i]))
                 $sequences[] = $sqn;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $sequences = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $sequences);
         }
         return $sequences;
