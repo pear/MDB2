@@ -2,39 +2,13 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.1.2';
+$version = '0.1.3';
 $notes = <<<EOT
-Warning: this release features numerous BC breaks!
-
-There have been considerable improvements to the datatype, manager and reverse
-modules. Furthermore preliminary support for auto increment and primary keys
-has been added. Please note that making a field auto increment implies a single
-column primary key on this field.
-
-- added support for auto increment and primary key in schema.
-- alterTable now needs the full definition to work (use getTableFieldDefinition
- from Reverse module if you do not have a definition at hand) this eliminates the need
- of the declaration part in the alterTable array.
-- fix PHP4.4 breakage
-- fixed several incorrect raiseError() calls in manager module
-- use !empty() instead of isset() in fetchRow to determine if result cols were bound or result types were set
-- expect keys in type arrays the same way as they are passed for the values in execute() and bindParamArray()
-- add s pattern modifier to preg_replace() call for parameter searches in prepare() (bug #5362)
-- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
-- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use 'field_case' option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
-- use array_key_exists() instead of isset() where possible
-- changed structure of field add/remove/change in alterTable() to match MDB2_Schema
-- createIndex(): index_sorting is not a feature in the supported array, but is supported by interbase
-- return 0 for manipulation queries when disable_query is enabled
-- tweaked field changing in alterTable()
-- getTypeDeclaration() in the datatype module is now a public method
-- fixed alterTable() signature
-- fixed listTableFields()
-- added listTableIndexes()
-- added listTables()
+- added support for portability option in listTableIndexes()
+- when dropping a table, the autoincrement trigger is removed
 
 open todo items:
-- code to be able to list primary contraints inside listTableIndexes()/dropIndex()
+- code to be able to list primary contraints inside dropIndex()
 - handle autoincremement fields in alterTable() and dropTable()
 EOT;
 
