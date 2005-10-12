@@ -68,14 +68,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $this->dsn = $GLOBALS['dsn'];
         $this->options = $GLOBALS['options'];
         $this->database = $GLOBALS['database'];
-        $backup_file = $this->driver_input_file.$this->backup_extension;
-        if (file_exists($backup_file)) {
-            unlink($backup_file);
-        }
-        $backup_file = $this->lob_input_file.$this->backup_extension;
-        if (file_exists($backup_file)) {
-            unlink($backup_file);
-        }
+
         $this->db =& MDB2::connect($this->dsn, $this->options);
         $this->db->loadModule('Manager');
         if (PEAR::isError($this->db) || PEAR::isError($this->db->manager) ) {
@@ -353,6 +346,58 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
             return;
         }
         $this->assertFalse($this->tableExists(), 'Error listing tables');
+    }
+    
+    /**
+     *
+     */
+    function testCreateSequence() {
+        $this->db->setDatabase($this->database);
+        if (!$this->methodExists($this->db->manager, 'createSequence')) {
+            return;
+        }
+        $seq_name = 'testsequence';
+        $result = $this->db->manager->createSequence($seq_name);
+        $this->assertFalse(PEAR::isError($result), 'Error creating a sequence');
+    }
+
+    /**
+     *
+     */
+    function testListSequences() {
+        $this->db->setDatabase($this->database);
+        if (!$this->methodExists($this->db->manager, 'listSequences')) {
+            return;
+        }
+        $seq_name = 'testsequence';
+        $this->assertTrue(in_array($seq_name, $this->db->manager->listSequences()), 'Error listing sequences');
+    }
+
+    /**
+     *
+     */
+    function testDropSequence() {
+        $this->db->setDatabase($this->database);
+        if (!$this->methodExists($this->db->manager, 'dropSequence')) {
+            return;
+        }
+        $seq_name = 'testsequence';
+        $result = $this->db->manager->dropSequence($seq_name);
+        $this->assertFalse(PEAR::isError($result), 'Error dropping a sequence');
+    }
+
+
+
+    /**
+     *
+     */
+    function testListSequencesNoSequence() {
+        $this->db->setDatabase($this->database);
+        if (!$this->methodExists($this->db->manager, 'listSequences')) {
+            return;
+        }
+        $seq_name = 'testsequence';
+        $this->assertFalse(in_array($seq_name, $this->db->manager->listSequences()), 'Error listing sequences');
     }
 }
 ?>
