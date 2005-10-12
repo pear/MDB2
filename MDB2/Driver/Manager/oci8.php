@@ -749,15 +749,19 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $query = "SELECT sequence_name FROM sys.user_sequences";
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $table_names = $db->queryCol($query);
+        if (PEAR::isError($table_names)) {
+            return $table_names;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
+        $result = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
+            if ($sqn = $this->_isSequenceName($table_names[$i]))
+                $result[] = $sqn;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
         return $result;
-    }}
+    }
+}
 ?>

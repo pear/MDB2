@@ -595,9 +595,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         $query = "SELECT relname FROM pg_class WHERE relkind = 'S' AND relnamespace IN";
         $query.= "(SELECT oid FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema')";
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $table_names = $db->queryCol($query);
+        if (PEAR::isError($table_names)) {
+            return $table_names;
+        }
+        $result = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
+            if ($sqn = $this->_isSequenceName($table_names[$i]))
+                $result[] = $sqn;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
