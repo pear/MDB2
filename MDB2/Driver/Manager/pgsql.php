@@ -259,14 +259,20 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $result = $db->standaloneQuery('SELECT datname FROM pg_database');
-        if (!MDB2::isResultCommon($result)) {
-            return $result;
+        $result2 = $db->standaloneQuery('SELECT datname FROM pg_database');
+        if (!MDB2::isResultCommon($result2)) {
+            return $result2;
         }
 
-        $col = $result->fetchCol();
-        $result->free();
-        return $col;
+        $result = $result2->fetchCol();
+        $result2->free();
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -285,14 +291,20 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $result = $db->standaloneQuery('SELECT usename FROM pg_user');
-        if (!MDB2::isResultCommon($result)) {
-            return $result;
+        $result2 = $db->standaloneQuery('SELECT usename FROM pg_user');
+        if (!MDB2::isResultCommon($result2)) {
+            return $result2;
         }
 
-        $col = $result->fetchCol();
-        $result->free();
-        return $col;
+        $result = $result2->fetchCol();
+        $result2->free();
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -312,7 +324,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SELECT viewname FROM pg_views';
-        return $db->queryCol($query);
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -343,7 +362,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                 AND tp.typname <> 'trigger'
                 AND pr.pronamespace IN
                     (SELECT oid FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema')";
-        return $db->queryCol($query);
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -382,7 +408,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             . ' (SELECT 1 FROM pg_user'
             . '  WHERE usesysid = c.relowner)'
             . " AND c.relname !~ '^pg_'";
-        return $db->queryCol($query);
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -402,16 +435,16 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $result = $db->query("SELECT * FROM $table");
+        $result2 = $db->query("SELECT * FROM $table");
+        if (PEAR::isError($result2)) {
+            return $result2;
+        }
+        $result = $result2->getColumnNames();
+        $result2->free();
         if (PEAR::isError($result)) {
             return $result;
         }
-        $columns = $result->getColumnNames();
-        $result->free();
-        if (PEAR::isError($columns)) {
-            return $columns;
-        }
-        return array_flip($columns);
+        return array_flip($result);
     }
 
     // }}}
@@ -490,7 +523,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         $subquery = "SELECT indexrelid FROM pg_index, pg_class";
         $subquery.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_index.indrelid)";
-        return $db->queryCol("SELECT relname FROM pg_class WHERE oid IN ($subquery)");
+        $result = $db->queryCol("SELECT relname FROM pg_class WHERE oid IN ($subquery)");
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -555,16 +595,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         $query = "SELECT relname FROM pg_class WHERE relkind = 'S' AND relnamespace IN";
         $query.= "(SELECT oid FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema')";
-        $table_names = $db->queryCol($query);
-        if (PEAR::isError($table_names)) {
-            return $table_names;
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
-        $sequences = array();
-        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i]))
-                $sequences[] = $sqn;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $sequences;
+        return $result;
     }
 }
 ?>

@@ -153,7 +153,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->queryCol('SELECT DISTINCT USER FROM USER');
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'listDatabases: list databases is not supported');
     }
 
     // }}}
@@ -177,12 +178,15 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
-        $tables = array();
+        $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if (!$this->_isSequenceName($table_names[$i]))
-                $tables[] = $table_names[$i];
+                $result[] = $table_names[$i];
         }
-        return $tables;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -204,16 +208,16 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $query = "SELECT * FROM $table";
         $db->setLimit(1);
-        $result = $db->query($query);
+        $result2 = $db->query($query);
+        if (PEAR::isError($result2)) {
+            return $result2;
+        }
+        $result = $result2->getColumnNames();
+        $result2->free();
         if (PEAR::isError($result)) {
             return $result;
         }
-        $columns = $result->getColumnNames();
-        $result->free();
-        if (PEAR::isError($columns)) {
-            return $columns;
-        }
-        return array_flip($columns);
+        return array_flip($result);
     }
 
     // }}}
@@ -303,8 +307,14 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $query = "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
-        $indexes = $db->queryCol($query);
-        return $indexes;
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -393,12 +403,15 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
-        $sequences = array();
+        $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if ($sqn = $this->_isSequenceName($table_names[$i]))
-                $sequences[] = $sqn;
+                $result[] = $sqn;
         }
-        return $sequences;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}

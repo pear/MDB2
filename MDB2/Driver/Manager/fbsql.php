@@ -340,7 +340,14 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->queryCol('SELECT "user_name" FROM information_schema.users');
+        $result = $db->queryCol('SELECT "user_name" FROM information_schema.users');
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -368,11 +375,15 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
-        for ($i = 0, $j = count($table_names), $tables = array(); $i < $j; ++$i) {
+        $result = array();
+        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if (!$this->_isSequenceName($table_names[$i]))
-                $tables[] = $table_names[$i];
+                $result[] = $table_names[$i];
         }
-        return $tables;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -392,11 +403,14 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $fields = $db->queryCol("SHOW COLUMNS FROM $table");
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
+        $result = $db->queryCol("SHOW COLUMNS FROM $table");
+        if (PEAR::isError($result)) {
+            return $result;
         }
-        return $fields;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -500,14 +514,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($indexes_all)) {
             return $indexes_all;
         }
-
-        $indexes = array_unique($indexes_all);
-
+        $result = array_unique($indexes_all);
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $indexes = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $indexes);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-
-        return $indexes;
+        return $result;
     }
 
     // }}}
@@ -596,12 +607,15 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
-        $sequences = array();
+        $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if ($sqn = $this->_isSequenceName($table_names[$i]))
-                $sequences[] = $sqn;
+                $result[] = $sqn;
         }
-        return $sequences;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
     // }}}
 }

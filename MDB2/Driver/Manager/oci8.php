@@ -439,18 +439,21 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         } else {
             $query = 'SELECT username FROM sys.dba_users';
         }
-        $result = $db->standaloneQuery($query);
+        $result2 = $db->standaloneQuery($query);
+        if (PEAR::isError($result2)) {
+            return $result2;
+        }
+        $result = $result2->fetchCol();
         if (PEAR::isError($result)) {
             return $result;
         }
-        $databases = $result->fetchCol();
-        if (PEAR::isError($databases)) {
-            return $databases;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        // is it legit to force this to lowercase?
-        $databases = array_keys(array_change_key_case(array_flip($databases), $db->options['field_case']));
-        $result->free();
-        return $databases;
+        $result2->free();
+        return $result;
     }
 
         // }}}
@@ -470,16 +473,16 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SELECT username FROM sys.all_users';
-        $users = $db->queryCol($query);
-        if (PEAR::isError($users)) {
-            return $users;
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $users = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $users);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $users;
+        return $result;
     }
     // }}}
     // {{{ listViews()
@@ -498,16 +501,16 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SELECT view_name FROM sys.user_views';
-        $views = $db->queryCol($query);
-        if (PEAR::isError($views)) {
-            return $views;
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $views = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $views);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $views;
+        return $result;
     }
 
     // }}}
@@ -527,16 +530,16 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $query = "SELECT name FROM sys.user_source WHERE line = 1 AND type = 'FUNCTION'";
-        $functions = $db->queryCol($query);
-        if (PEAR::isError($functions)) {
-            return $functions;
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $functions = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $functions);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $functions;
+        return $result;
     }
 
     // }}}
@@ -556,7 +559,16 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SELECT table_name FROM sys.user_tables';
-        return $db->queryCol($query);
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -578,16 +590,16 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         $table = strtoupper($table);
         $query = "SELECT column_name FROM user_tab_columns WHERE table_name='$table' ORDER BY column_id";
-        $fields = $db->queryCol($query);
+        $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $fields;
+        return $result;
     }
     // }}}
     // {{{ createIndex()
@@ -662,7 +674,16 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
         $query = "SELECT contraint_name name FROM user_contraints WHERE contraint_type = 'P' AND table_name='$table'"
         $query.= "UNION SELECT index_name name FROM user_indexes WHERE table_name='$table'";
-        return $db->queryCol($query);
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -728,20 +749,15 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $query = "SELECT sequence_name FROM sys.user_sequences";
-        $table_names = $db->queryCol($query);
-        if (PEAR::isError($table_names)) {
-            return $table_names;
-        }
-        $sequences = array();
-        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i]))
-                $sequences[] = $sqn;
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $sequences = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $sequences);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $sequences;
+        return $result;
     }}
 ?>

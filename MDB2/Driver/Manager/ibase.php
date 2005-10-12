@@ -454,14 +454,16 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $query = 'SELECT DISTINCT R.RDB$RELATION_NAME FROM RDB$RELATION_FIELDS R WHERE R.RDB$SYSTEM_FLAG=0';
-        $tables = $db->queryCol($query);
-        if (PEAR::isError($tables)) {
-            return $tables;
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $tables = array_flip(array_change_key_case(array_flip($tables), $db->options['field_case']));
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $tables;
+        return $result;
     }
 
     // }}}
@@ -482,14 +484,16 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         $table = strtoupper($table);
         $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE RDB\$RELATION_NAME='$table'";
-        $columns = $db->queryCol($query);
-        if (PEAR::isError($columns)) {
-            return $columns;
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $columns = array_flip(array_change_key_case(array_flip($columns), $db->options['field_case']));
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $columns;
+        return $result;
     }
 
     // }}}
@@ -508,7 +512,16 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->queryCol('SELECT RDB$VIEW_NAME');
+        $result = $db->queryCol('SELECT RDB$VIEW_NAME');
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -595,14 +608,16 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $indices = $db->queryCol("SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'");
-        if (PEAR::isError($indices)) {
-            return $indices;
+        $result = $db->queryCol("SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'");
+        if (PEAR::isError($result)) {
+            return $result;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $indices = array_flip(array_change_key_case(array_flip($indices), $db->options['field_case']));
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $indices;
+        return $result;
     }
 
     // }}}
@@ -675,16 +690,16 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS';
-        $table_names = $db->queryCol($query);
-        if (PEAR::isError($table_names)) {
-            return $table_names;
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
-        $sequences = array();
-        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i]))
-                $sequences[] = $sqn;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-        return $sequences;
+        return $result;
     }
 }
 ?>

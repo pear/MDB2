@@ -429,8 +429,14 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $databases = $db->queryCol('SHOW DATABASES');
-        return $databases;
+        $result = $db->queryCol('SHOW DATABASES');
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -449,8 +455,14 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $users = $db->queryCol('SELECT DISTINCT USER FROM USER');
-        return $users;
+        $result = $db->queryCol('SELECT DISTINCT USER FROM USER');
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -474,17 +486,15 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $table_names;
         }
 
-        $tables = array();
+        $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if (!$this->_isSequenceName($table_names[$i]))
-                $tables[] = $table_names[$i];
+                $result[] = $table_names[$i];
         }
-
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $tables = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $tables);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-
-        return $tables;
+        return $result;
     }
 
     // }}}
@@ -504,16 +514,14 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $fields = $db->queryCol("SHOW COLUMNS FROM $table");
-        if (PEAR::isError($fields)) {
-            return $fields;
+        $result = $db->queryCol("SHOW COLUMNS FROM $table");
+        if (PEAR::isError($result)) {
+            return $result;
         }
-
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-
-        return $fields;
+        return $result;
     }
 
     // }}}
@@ -627,13 +635,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $indexes_all;
         }
 
-        $indexes = array_unique($indexes_all);
-
+        $result = array_unique($indexes_all);
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $indexes = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $indexes);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
-
-        return $indexes;
+        return $result;
     }
 
     // }}}
@@ -734,14 +740,19 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $table_names;
         }
 
-        $sequences = array();
+        $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
             if ($sqn = $this->_isSequenceName($table_names[$i])) {
-                $sequences[] = $sqn;
+                $result[] = $sqn;
             }
         }
-
-        return $sequences;
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}

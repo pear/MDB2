@@ -266,14 +266,16 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
-
-        $tables = array();
+        $result = array();
         for ($i = 0, $j = count($table_names); $i <$j; ++$i) {
             if (!$this->_isSequenceName($db, $table_names[$i])) {
-                $tables[] = $table_names[$i];
+                $result[] = $table_names[$i];
             }
         }
-        return $tables;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -293,16 +295,16 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $result = $db->query("SELECT * FROM $table");
+        $result2 = $db->query("SELECT * FROM $table");
+        if (PEAR::isError($result2)) {
+            return $result2;
+        }
+        $result = $result2->getColumnNames();
+        $result2->free();
         if (PEAR::isError($result)) {
             return $result;
         }
-        $columns = $result->getColumnNames();
-        $result->free();
-        if (PEAR::isError($columns)) {
-            return $columns;
-        }
-        return array_flip($columns);
+        return array_flip($result);
     }
 
     // }}}
@@ -340,17 +342,20 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         $query = "EXEC sp_pkeys @table_name='$table'";
         $pk_all = $db->queryCol($query, 'text', $pk_name);
-        $found = $indexes = array();
+        $found = $result = array();
         for ($index = 0, $j = count($indexes_all); $index < $j; ++$index) {
             if (!in_array($indexes_all[$index], $pk_all)
                 && $indexes_all[$index] != null
                 && !isset($found[$indexes_all[$index]])
             ) {
-                $indexes[] = $indexes_all[$index];
+                $result[] = $indexes_all[$index];
                 $found[$indexes_all[$index]] = 1;
             }
         }
-        return $indexes;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
@@ -461,13 +466,16 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
-        $sequences = array();
+        $result = array();
         for ($i = 0, $j = count($table_names); $i <$j; ++$i) {
             if ($this->_isSequenceName($db, $table_names[$i])) {
-                $sequences[] = $table_names[$i];
+                $result[] = $table_names[$i];
             }
         }
-        return $sequences;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
     // }}}
 }
