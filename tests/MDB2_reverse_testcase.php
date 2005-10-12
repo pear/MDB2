@@ -74,15 +74,15 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
         $this->db->setDatabase($this->database);
         $this->db->loadModule('Reverse');
         $this->fields = array(
-            'user_name' => 'text',
+            'user_name'     => 'text',
             'user_password' => 'text',
-            'subscribed' => 'boolean',
-            'user_id' => 'integer',
-            'quota' => 'decimal',
-            'weight' => 'float',
-            'access_date' => 'date',
-            'access_time' => 'time',
-            'approved' => 'timestamp',
+            'subscribed'    => 'boolean',
+            'user_id'       => 'integer',
+            'quota'         => 'decimal',
+            'weight'        => 'float',
+            'access_date'   => 'date',
+            'access_time'   => 'time',
+            'approved'      => 'timestamp',
         );
     }
 
@@ -102,6 +102,11 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
         }
         $this->assertTrue(false, 'method '. $name.' not implemented in '.get_class($class));
         return false;
+    }
+
+    function tableExists($table) {
+        $tables = $this->db->manager->listTables();
+        return in_array($table, $tables);
     }
 
     /**
@@ -170,6 +175,93 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
             $this->assertEquals(100, $field_info['length'], 'The field length is different from the expected one');
             $this->assertTrue($field_info['notnull'], 'The field can be null unlike it was expected');
             $this->assertEquals('', $field_info['default'], 'The field default value is different from the expected one');
+        }
+    }
+
+    /**
+     * Test getTableIndexDefinition($table, $index)
+     */
+    function testGetTableIndexDefinition()
+    {
+        if (!$this->methodExists($this->db->reverse, 'getTableIndexDefinition')) {
+            return;
+        }
+
+        //setup
+        $this->db->loadModule('Manager');
+        $fields = array(
+            'id' => array(
+                'type'     => 'integer',
+                'unsigned' => 1,
+                'notnull'  => 1,
+                'default'  => 0,
+            ),
+            'name' => array(
+                'type'   => 'text',
+                'length' => 12,
+            ),
+            'description' => array(
+                'type'   => 'text',
+                'length' => 12,
+            ),
+            'sex' => array(
+                'type' => 'text',
+                'length' => 1,
+                'default' => 'M',
+            ),
+        );
+        $table = 'newtable';
+        if ($this->tableExists($table)) {
+            $result = $this->db->manager->dropTable($table);
+            $this->assertFalse(PEAR::isError($result), 'Error dropping table');
+        }
+        $result = $this->db->manager->createTable($table, $fields);
+        $this->assertFalse(PEAR::isError($result), 'Error creating table');
+        $indices = array(
+            'uniqueindex' => array(
+                'fields' => array(
+                    'name' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+                'unique' => true,
+            ),
+            'pkindex' => array(
+                'fields' => array(
+                    'id' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+                'primary' => true,
+            ),
+            'multipleindex' => array(
+                'fields' => array(
+                    'description' => array(
+                        'sorting' => 'ascending',
+                    ),
+                    'sex' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+            ),
+        );
+        foreach ($indices as $index_name => $index) {
+            $result = $this->db->manager->createIndex($table, $index_name, $index);
+            $this->assertFalse(PEAR::isError($result), 'Error creating index');
+        }
+
+        //test
+        foreach ($indices as $index_name => $index) {
+            $result = $this->db->reverse->getTableIndexDefinition($table, $index_name);
+            $this->assertFalse(PEAR::isError($result), 'Error getting table index definition');
+            $field_names = array_keys($index['fields']);
+            $this->assertEquals($field_names, array_keys($result['fields']), 'Error listing index fields');
+            if (!empty($index['unique'])) {
+                $this->assertTrue($result['unique'], 'Error: missing UNIQUE constraint');
+            }
+            if (!empty($index['primary'])) {
+                $this->assertTrue($result['primary'], 'Error: missing PRIMARY KEY constraint');
+            }
         }
     }
 }
