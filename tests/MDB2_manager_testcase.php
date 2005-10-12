@@ -229,6 +229,102 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
     /**
      *
      */
+    function testCreateIndex() {
+        $this->db->setDatabase($this->database);
+        if (!$this->methodExists($this->db->manager, 'createIndex')) {
+            return;
+        }
+        if (!$this->tableExists()) {
+            $this->assertTrue(false, 'Table does not exists');
+        } else {
+            $index = array(
+                'fields' => array(
+                    'name' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+                'unique' => true,
+            );
+            $name = 'uniqueindex';
+            $result = $this->db->manager->createIndex($this->table, $name, $index);
+            $this->assertFalse(PEAR::isError($result), 'Error creating unique index');
+            $indices = $this->db->manager->listTableIndexes($this->table);
+            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+            $this->assertTrue(in_array($name, $indices), 'Error creating unique index');
+        }
+    }
+
+    /**
+     *
+     */
+    function testCreatePrimaryKey() {
+        $this->db->setDatabase($this->database);
+        if (!$this->methodExists($this->db->manager, 'createIndex')) {
+            return;
+        }
+        if (!$this->tableExists()) {
+            $this->assertTrue(false, 'Table does not exists');
+        } else {
+            $index = array(
+                'fields' => array(
+                    'id' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+                'primary' => true,
+            );
+            $name = 'pkindex';
+            $result = $this->db->manager->createIndex($this->table, $name, $index);
+            $this->assertFalse(PEAR::isError($result), 'Error creating primary key index');
+            $indices = $this->db->manager->listTableIndexes($this->table);
+            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+            $this->assertTrue(in_array($name, $indices), 'Error creating primary key index');
+        }
+    }
+
+    /**
+     *
+     */
+    function testDropIndex() {
+        $this->db->setDatabase($this->database);
+        if (!$this->methodExists($this->db->manager, 'dropIndex')) {
+            return;
+        }
+        if (!$this->tableExists()) {
+            $this->assertTrue(false, 'Table does not exists');
+        } else {
+            $name = 'uniqueindex';
+            $result = $this->db->manager->dropIndex($this->table, $name);
+            $this->assertFalse(PEAR::isError($result), 'Error dropping unique index');
+            $indices = $this->db->manager->listTableIndexes($this->table);
+            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+            $this->assertFalse(in_array($name, $indices), 'Error dropping unique index');
+        }
+    }
+
+    /**
+     *
+     */
+    function testDropPrimaryKey() {
+        $this->db->setDatabase($this->database);
+        if (!$this->methodExists($this->db->manager, 'dropIndex')) {
+            return;
+        }
+        if (!$this->tableExists()) {
+            $this->assertTrue(false, 'Table does not exists');
+        } else {
+            $name = 'pkindex';
+            $result = $this->db->manager->dropIndex($this->table, $name);
+            $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
+            $indices = $this->db->manager->listTableIndexes($this->table);
+            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+            $this->assertFalse(in_array($name, $indices), 'Error dropping primary key index');
+        }
+    }
+
+    /**
+     *
+     */
     function testListTables() {
         $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'listTables')) {
@@ -322,5 +418,4 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $this->assertFalse($this->tableExists(), 'Error listing tables');
     }
 }
-
 ?>
