@@ -70,6 +70,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $this->database = $GLOBALS['database'];
 
         $this->db =& MDB2::connect($this->dsn, $this->options);
+        $this->db->setDatabase($this->database);
         $this->db->loadModule('Manager');
         if (PEAR::isError($this->db) || PEAR::isError($this->db->manager) ) {
             $this->assertTrue(false, 'Could not connect to manager in setUp');
@@ -96,9 +97,15 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
                 'default' => 'M',
             ),
         );
+        if (!$this->tableExists()) {
+            $this->db->manager->createTable($this->table, $this->fields);
+        }
     }
 
     function tearDown() {
+        if ($this->tableExists()) {
+            $this->db->manager->dropTable($this->table);
+        }
         unset($this->dsn);
         if (!PEAR::isError($this->db->manager)) {
             $this->db->disconnect();
@@ -125,7 +132,6 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
      * Create a sample table, test the new fields, and drop it.
      */
     function testCreateTable() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'createTable')) {
             return;
         }
@@ -141,7 +147,6 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
      *
      */
     function testListTableFields() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'listTableFields')) {
             return;
         }
@@ -160,7 +165,6 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
      *
      */
     function testCreateIndex() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'createIndex')) {
             return;
         }
@@ -188,7 +192,6 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
      *
      */
     function testCreatePrimaryKey() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'createIndex')) {
             return;
         }
@@ -203,7 +206,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
                 ),
                 'primary' => true,
             );
-            $name = 'pkindex';
+            $name = 'primary';
             $result = $this->db->manager->createIndex($this->table, $name, $index);
             $this->assertFalse(PEAR::isError($result), 'Error creating primary key index');
             $indices = $this->db->manager->listTableIndexes($this->table);
@@ -216,47 +219,38 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
      *
      */
     function testDropIndex() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'dropIndex')) {
             return;
         }
-        if (!$this->tableExists()) {
-            $this->assertTrue(false, 'Table does not exists');
-        } else {
-            $name = 'uniqueindex';
-            $result = $this->db->manager->dropIndex($this->table, $name);
-            $this->assertFalse(PEAR::isError($result), 'Error dropping unique index');
-            $indices = $this->db->manager->listTableIndexes($this->table);
-            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-            $this->assertFalse(in_array($name, $indices), 'Error dropping unique index');
-        }
+        $this->testCreateIndex();
+        $name = 'uniqueindex';
+        $result = $this->db->manager->dropIndex($this->table, $name);
+        $this->assertFalse(PEAR::isError($result), 'Error dropping unique index');
+        $indices = $this->db->manager->listTableIndexes($this->table);
+        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+        $this->assertFalse(in_array($name, $indices), 'Error dropping unique index');
     }
 
     /**
      *
      */
     function testDropPrimaryKey() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'dropIndex')) {
             return;
         }
-        if (!$this->tableExists()) {
-            $this->assertTrue(false, 'Table does not exists');
-        } else {
-            $name = 'pkindex';
-            $result = $this->db->manager->dropIndex($this->table, $name);
-            $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
-            $indices = $this->db->manager->listTableIndexes($this->table);
-            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-            $this->assertFalse(in_array($name, $indices), 'Error dropping primary key index');
-        }
+        $this->testCreatePrimaryKey();
+        $name = 'primary';
+        $result = $this->db->manager->dropIndex($this->table, $name);
+        $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
+        $indices = $this->db->manager->listTableIndexes($this->table);
+        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+        $this->assertFalse(in_array($name, $indices), 'Error dropping primary key index');
     }
 
     /**
      *
      */
     function testListTables() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'listTables')) {
             return;
         }
@@ -267,7 +261,6 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
      *
      */
     function testAlterTable() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'alterTable')) {
             return;
         }
@@ -281,16 +274,23 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
             'remove' => array(
                 'description' => array(),
             ),
-            /*
             'change' => array(
-                'gender' => array(
-                    'default' => 'F',
-                ),
+                'name' => array(
+                    'length' => '20',
+                    'definition' => array(
+                        'type' => 'text',
+                        'length' => 20,
+                    ),
+                )
             ),
-            */
             'rename' => array(
                 'sex' => array(
                     'name' => 'gender',
+                    'definition' => array(
+                        'type' => 'text',
+                        'length' => 1,
+                        'default' => 'M',
+                    ),
                 ),
             ),
         );
@@ -327,76 +327,37 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
      *
      */
     function testDropTable() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'dropTable')) {
             return;
         }
-        if ($this->tableExists()) {
-            $result = $this->db->manager->dropTable($this->table);
-            $this->assertFalse(PEAR::isError($result), 'Error dropping table');
-        }
+        $result = $this->db->manager->dropTable($this->table);
+        $this->assertFalse(PEAR::isError($result), 'Error dropping table');
     }
 
     /**
      *
      */
     function testListTablesNoTable() {
-        $this->db->setDatabase($this->database);
         if (!$this->methodExists($this->db->manager, 'listTables')) {
             return;
         }
+        $result = $this->db->manager->dropTable($this->table);
         $this->assertFalse($this->tableExists(), 'Error listing tables');
     }
     
     /**
      *
      */
-    function testCreateSequence() {
-        $this->db->setDatabase($this->database);
+    function testSequences() {
         if (!$this->methodExists($this->db->manager, 'createSequence')) {
             return;
         }
         $seq_name = 'testsequence';
         $result = $this->db->manager->createSequence($seq_name);
         $this->assertFalse(PEAR::isError($result), 'Error creating a sequence');
-    }
-
-    /**
-     *
-     */
-    function testListSequences() {
-        $this->db->setDatabase($this->database);
-        if (!$this->methodExists($this->db->manager, 'listSequences')) {
-            return;
-        }
-        $seq_name = 'testsequence';
         $this->assertTrue(in_array($seq_name, $this->db->manager->listSequences()), 'Error listing sequences');
-    }
-
-    /**
-     *
-     */
-    function testDropSequence() {
-        $this->db->setDatabase($this->database);
-        if (!$this->methodExists($this->db->manager, 'dropSequence')) {
-            return;
-        }
-        $seq_name = 'testsequence';
         $result = $this->db->manager->dropSequence($seq_name);
         $this->assertFalse(PEAR::isError($result), 'Error dropping a sequence');
-    }
-
-
-
-    /**
-     *
-     */
-    function testListSequencesNoSequence() {
-        $this->db->setDatabase($this->database);
-        if (!$this->methodExists($this->db->manager, 'listSequences')) {
-            return;
-        }
-        $seq_name = 'testsequence';
         $this->assertFalse(in_array($seq_name, $this->db->manager->listSequences()), 'Error listing sequences');
     }
 }
