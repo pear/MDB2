@@ -311,23 +311,34 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
      *                                    'remove' => array(
      *                                        'file_limit' => array(),
      *                                        'time_limit' => array()
-     *                                        ),
+     *                                    ),
      *                                    'change' => array(
-     *                                        'gender' => array(
-     *                                            'default' => 'M',
+     *                                        'name' => array(
+     *                                            'length' => '20',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 20,
+     *                                            ),
      *                                        )
      *                                    ),
      *                                    'rename' => array(
      *                                        'sex' => array(
      *                                            'name' => 'gender',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 1,
+     *                                                'default' => 'M',
+     *                                            ),
      *                                        )
      *                                    )
      *                                )
+     *
      * @param boolean $check     indicates whether the function should just check if the DBMS driver
      *                             can perform the requested table alterations if the value is true or
      *                             actually perform them otherwise.
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
+     *
+      * @return mixed MDB2_OK on success, a MDB2 error on failure
      */
     function alterTable($name, $changes, $check)
     {

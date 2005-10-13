@@ -196,15 +196,24 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
      *                                    'remove' => array(
      *                                        'file_limit' => array(),
      *                                        'time_limit' => array()
-     *                                        ),
+     *                                    ),
      *                                    'change' => array(
-     *                                        'gender' => array(
-     *                                            'default' => 'M',
+     *                                        'name' => array(
+     *                                            'length' => '20',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 20,
+     *                                            ),
      *                                        )
      *                                    ),
      *                                    'rename' => array(
      *                                        'sex' => array(
      *                                            'name' => 'gender',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 1,
+     *                                                'default' => 'M',
+     *                                            ),
      *                                        )
      *                                    )
      *                                )

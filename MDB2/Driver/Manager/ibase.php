@@ -281,81 +281,92 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     /**
      * alter an existing table
      *
-     * @param string $name name of the table that is intended to be changed.
-     * @param array $changes associative array that contains the details of each type
-     *                              of change that is intended to be performed. The types of
-     *                              changes that are currently supported are defined as follows:
+     * @param string $name         name of the table that is intended to be changed.
+     * @param array $changes     associative array that contains the details of each type
+     *                             of change that is intended to be performed. The types of
+     *                             changes that are currently supported are defined as follows:
      *
-     *                              name
+     *                             name
      *
-     *                                 New name for the table.
+     *                                New name for the table.
      *
-     *                             add
+     *                            add
      *
-     *                                 Associative array with the names of fields to be added as
-     *                                  indexes of the array. The value of each entry of the array
-     *                                  should be set to another associative array with the properties
-     *                                  of the fields to be added. The properties of the fields should
-     *                                  be the same as defined by the Metabase parser.
+     *                                Associative array with the names of fields to be added as
+     *                                 indexes of the array. The value of each entry of the array
+     *                                 should be set to another associative array with the properties
+     *                                 of the fields to be added. The properties of the fields should
+     *                                 be the same as defined by the Metabase parser.
      *
      *
-     *                             remove
+     *                            remove
      *
-     *                                 Associative array with the names of fields to be removed as indexes
-     *                                  of the array. Currently the values assigned to each entry are ignored.
-     *                                  An empty array should be used for future compatibility.
+     *                                Associative array with the names of fields to be removed as indexes
+     *                                 of the array. Currently the values assigned to each entry are ignored.
+     *                                 An empty array should be used for future compatibility.
      *
-     *                             rename
+     *                            rename
      *
-     *                                 Associative array with the names of fields to be renamed as indexes
-     *                                  of the array. The value of each entry of the array should be set to
-     *                                  another associative array with the entry named name with the new
-     *                                  field name and the entry named Declaration that is expected to contain
-     *                                  the portion of the field declaration already in DBMS specific SQL code
-     *                                  as it is used in the CREATE TABLE statement.
+     *                                Associative array with the names of fields to be renamed as indexes
+     *                                 of the array. The value of each entry of the array should be set to
+     *                                 another associative array with the entry named name with the new
+     *                                 field name and the entry named Declaration that is expected to contain
+     *                                 the portion of the field declaration already in DBMS specific SQL code
+     *                                 as it is used in the CREATE TABLE statement.
      *
-     *                             change
+     *                            change
      *
-     *                                 Associative array with the names of the fields to be changed as indexes
-     *                                  of the array. Keep in mind that if it is intended to change either the
-     *                                  name of a field and any other properties, the change array entries
-     *                                  should have the new names of the fields as array indexes.
+     *                                Associative array with the names of the fields to be changed as indexes
+     *                                 of the array. Keep in mind that if it is intended to change either the
+     *                                 name of a field and any other properties, the change array entries
+     *                                 should have the new names of the fields as array indexes.
      *
-     *                                 The value of each entry of the array should be set to another associative
-     *                                  array with the properties of the fields to that are meant to be changed as
-     *                                  array entries. These entries should be assigned to the new values of the
-     *                                  respective properties. The properties of the fields should be the same
-     *                                  as defined by the Metabase parser.
+     *                                The value of each entry of the array should be set to another associative
+     *                                 array with the properties of the fields to that are meant to be changed as
+     *                                 array entries. These entries should be assigned to the new values of the
+     *                                 respective properties. The properties of the fields should be the same
+     *                                 as defined by the Metabase parser.
      *
-     *                             Example
-     *                                 array(
-     *                                     'name' => 'userlist',
-     *                                     'add' => array(
-     *                                         'quota' => array(
-     *                                             'type' => 'integer',
-     *                                             'unsigned' => 1
-     *                                         )
-     *                                     ),
-     *                                     'remove' => array(
-     *                                         'file_limit' => array(),
-     *                                         'time_limit' => array()
-     *                                         ),
-     *                                     'change' => array(
-     *                                         'gender' => array(
-     *                                             'default' => 'M',
-     *                                         )
-     *                                     ),
-     *                                     'rename' => array(
-     *                                         'sex' => array(
-     *                                             'name' => 'gender',
-     *                                         )
-     *                                     )
-     *                                 )
-     * @param boolean $check indicates whether the function should just check if the DBMS driver
-     *                              can perform the requested table alterations if the value is true or
-     *                              actually perform them otherwise.
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     *                            Example
+     *                                array(
+     *                                    'name' => 'userlist',
+     *                                    'add' => array(
+     *                                        'quota' => array(
+     *                                            'type' => 'integer',
+     *                                            'unsigned' => 1
+     *                                        )
+     *                                    ),
+     *                                    'remove' => array(
+     *                                        'file_limit' => array(),
+     *                                        'time_limit' => array()
+     *                                    ),
+     *                                    'change' => array(
+     *                                        'name' => array(
+     *                                            'length' => '20',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 20,
+     *                                            ),
+     *                                        )
+     *                                    ),
+     *                                    'rename' => array(
+     *                                        'sex' => array(
+     *                                            'name' => 'gender',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 1,
+     *                                                'default' => 'M',
+     *                                            ),
+     *                                        )
+     *                                    )
+     *                                )
+     *
+     * @param boolean $check     indicates whether the function should just check if the DBMS driver
+     *                             can perform the requested table alterations if the value is true or
+     *                             actually perform them otherwise.
      * @access public
+     *
+      * @return mixed MDB2_OK on success, a MDB2 error on failure
      */
     function alterTable($name, $changes, $check)
     {

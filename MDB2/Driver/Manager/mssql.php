@@ -164,17 +164,26 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                    'remove' => array(
      *                                        'file_limit' => array(),
      *                                        'time_limit' => array()
-     *                                        ),
+     *                                    ),
      *                                    'change' => array(
-     *                                        'gender' => array(
-     *                                            'default' => 'M',
+     *                                        'name' => array(
+     *                                            'length' => '20',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 20,
+     *                                            ),
      *                                        )
      *                                    ),
      *                                    'rename' => array(
      *                                        'sex' => array(
      *                                            'name' => 'gender',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 1,
+     *                                                'default' => 'M',
+     *                                            ),
      *                                        )
-     *                                    ),
+     *                                    )
      *                                )
      *
      * @param boolean $check     indicates whether the function should just check if the DBMS driver
@@ -182,7 +191,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                             actually perform them otherwise.
      * @access public
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
+      * @return mixed MDB2_OK on success, a MDB2 error on failure
      */
     function alterTable($name, $changes, $check)
     {
