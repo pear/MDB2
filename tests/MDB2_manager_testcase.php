@@ -150,15 +150,11 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         if (!$this->methodExists($this->db->manager, 'listTableFields')) {
             return;
         }
-        if (!$this->tableExists()) {
-            $this->assertTrue(false, 'Table does not exists');
-        } else {
-            $this->assertEquals(
-                array_keys($this->fields),
-                $this->db->manager->listTableFields($this->table),
-                'Error creating table: incorrect fields'
-            );
-        }
+        $this->assertEquals(
+            array_keys($this->fields),
+            $this->db->manager->listTableFields($this->table),
+            'Error creating table: incorrect fields'
+        );
     }
 
     /**
@@ -168,24 +164,42 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         if (!$this->methodExists($this->db->manager, 'createIndex')) {
             return;
         }
-        if (!$this->tableExists()) {
-            $this->assertTrue(false, 'Table does not exists');
-        } else {
-            $index = array(
-                'fields' => array(
-                    'name' => array(
-                        'sorting' => 'ascending',
-                    ),
+        $index = array(
+            'fields' => array(
+                'name' => array(
+                    'sorting' => 'ascending',
                 ),
-                'unique' => true,
-            );
-            $name = 'uniqueindex';
-            $result = $this->db->manager->createIndex($this->table, $name, $index);
-            $this->assertFalse(PEAR::isError($result), 'Error creating unique index');
-            $indices = $this->db->manager->listTableIndexes($this->table);
-            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-            $this->assertTrue(in_array($name, $indices), 'Error creating unique index');
+            ),
+        );
+        $name = 'simpleindex';
+        $result = $this->db->manager->createIndex($this->table, $name, $index);
+        $this->assertFalse(PEAR::isError($result), 'Error creating index');
+        $indices = $this->db->manager->listTableIndexes($this->table);
+        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+        $this->assertTrue(in_array($name, $indices), 'Error creating index');
+    }
+
+    /**
+     *
+     */
+    function testCreateUniqueIndex() {
+        if (!$this->methodExists($this->db->manager, 'createIndex')) {
+            return;
         }
+        $index = array(
+            'fields' => array(
+                'name' => array(
+                    'sorting' => 'ascending',
+                ),
+            ),
+            'unique' => true,
+        );
+        $name = 'uniqueindex';
+        $result = $this->db->manager->createIndex($this->table, $name, $index);
+        $this->assertFalse(PEAR::isError($result), 'Error creating unique index');
+        $indices = $this->db->manager->listTableIndexes($this->table);
+        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+        $this->assertTrue(in_array($name, $indices), 'Error creating unique index');
     }
 
     /**
@@ -195,24 +209,20 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         if (!$this->methodExists($this->db->manager, 'createIndex')) {
             return;
         }
-        if (!$this->tableExists()) {
-            $this->assertTrue(false, 'Table does not exists');
-        } else {
-            $index = array(
-                'fields' => array(
-                    'id' => array(
-                        'sorting' => 'ascending',
-                    ),
+        $index = array(
+            'fields' => array(
+                'name' => array(
+                    'sorting' => 'ascending',
                 ),
-                'primary' => true,
-            );
-            $name = 'primary';
-            $result = $this->db->manager->createIndex($this->table, $name, $index);
-            $this->assertFalse(PEAR::isError($result), 'Error creating primary key index');
-            $indices = $this->db->manager->listTableIndexes($this->table);
-            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-            $this->assertTrue(in_array($name, $indices), 'Error creating primary key index');
-        }
+            ),
+            'primary' => true,
+        );
+        $name = 'primary';
+        $result = $this->db->manager->createIndex($this->table, $name, $index);
+        $this->assertFalse(PEAR::isError($result), 'Error creating primary index');
+        $indices = $this->db->manager->listTableIndexes($this->table);
+        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+        $this->assertTrue(in_array($name, $indices), 'Error creating primary index');
     }
 
     /**
@@ -223,12 +233,12 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
             return;
         }
         $this->testCreateIndex();
-        $name = 'uniqueindex';
+        $name = 'simpleindex';
         $result = $this->db->manager->dropIndex($this->table, $name);
-        $this->assertFalse(PEAR::isError($result), 'Error dropping unique index');
+        $this->assertFalse(PEAR::isError($result), 'Error dropping index');
         $indices = $this->db->manager->listTableIndexes($this->table);
         $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-        $this->assertFalse(in_array($name, $indices), 'Error dropping unique index');
+        $this->assertFalse(in_array($name, $indices), 'Error dropping index');
     }
 
     /**
@@ -294,9 +304,6 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
                 ),
             ),
         );
-        if (!$this->tableExists()) {
-            $this->db->manager->createTable($this->table, $this->fields);
-        }
 
         $result = $this->db->manager->alterTable($this->table, $changes, false);
         $this->assertFalse(PEAR::isError($result), 'Error altering table');
