@@ -568,6 +568,9 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
 
         if (array_key_exists('primary', $definition) && $definition['primary']) {
+            if (strtolower($name) != 'primary') {
+                return $db->raiseError('Primary Key may must be named primary');
+            }
             $type = 'PRIMARY';
             $name = 'KEY';
         } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
