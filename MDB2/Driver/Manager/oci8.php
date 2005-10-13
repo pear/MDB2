@@ -746,8 +746,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
         $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i]))
+            if ($sqn = $this->_isSequenceName($table_names[$i])) {
                 $result[] = $sqn;
+            }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
