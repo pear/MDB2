@@ -304,15 +304,24 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      *                                    'remove' => array(
      *                                        'file_limit' => array(),
      *                                        'time_limit' => array()
-     *                                        ),
+     *                                    ),
      *                                    'change' => array(
-     *                                        'gender' => array(
-     *                                            'default' => 'M',
+     *                                        'name' => array(
+     *                                            'length' => '20',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 20,
+     *                                            ),
      *                                        )
      *                                    ),
      *                                    'rename' => array(
      *                                        'sex' => array(
      *                                            'name' => 'gender',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 1,
+     *                                                'default' => 'M',
+     *                                            ),
      *                                        )
      *                                    )
      *                                )
@@ -391,7 +400,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 } else {
                     $old_field_name = $field_name;
                 }
-                $query.= "CHANGE $field_name " . $db->getDeclaration($field['type'], $old_field_name, $field);
+                $query.= "CHANGE $old_field_name " . $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
             }
         }
 
@@ -400,9 +409,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $old_field_name = $renamed_field;
-                $field = $changes['rename'][$old_field_name];
-                $query.= 'CHANGE ' . $db->getDeclaration($field['type'], $old_field_name, $field);
+                $field = $changes['rename'][$renamed_field];
+                $query.= 'CHANGE ' . $renamed_field . ' ' . $db->getDeclaration($field['definition']['type'], $field['name'], $field['definition']);
             }
         }
 
@@ -593,7 +601,12 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->query("ALTER TABLE $table DROP INDEX $name");
+        if (strtolower($name) == 'primary') {
+            $query = "ALTER TABLE $table DROP PRIMARY KEY";
+        } else {
+            $query = "ALTER TABLE $table DROP INDEX $name";
+        }
+        return $db->query($query);
     }
 
     // }}}
