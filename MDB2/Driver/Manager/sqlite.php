@@ -262,10 +262,35 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'CREATE '.(array_key_exists('unique', $definition) ? 'UNIQUE' : '')." INDEX $name ON $table (";
-        $query.= implode(', ', array_keys($definition['fields']));
-        $query.= ')';
+        if (strtolower($name) == 'primary') {
+            return $db->raiseError('Index may not be named primary');
+        }
+
+        $query = 'CREATE';
+        if (array_key_exists('primary', $definition) && $definition['primary']) {
+            return $db->raiseError('Primary Key creation must be done during table creation');
+        } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
+            $query.= ' UNIQUE';
+        }
+        $query .= " INDEX $name ON $table (";
+        $fields = array();
+        foreach ($definition['fields'] as $field_name => $field) {
+            $field_string = $field_name;
+            if (array_key_exists('sorting', $field)) {
+                switch ($field['sorting']) {
+                case 'ascending':
+                    $field_string.= ' ASC';
+                    break;
+                case 'descending':
+                    $field_string.= ' DESC';
+                    break;
+                }
+            }
+            $fields[] = $field_string;
+        }
+        $query .= implode(', ', $fields) . ')';
         return $db->query($query);
+
     }
 
     // }}}
