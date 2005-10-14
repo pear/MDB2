@@ -1456,6 +1456,25 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ getConnection()
+
+    /**
+     * Returns a native connection
+     *
+     * @return  mixed   a newly created MDB2 connection object, or a MDB2
+     *                  error object on error
+     * @access  public
+     */
+    function &getConnection()
+    {
+        $result = $this->connect();
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return $this->connection;
+    }
+
+    // }}}
     // {{{ _fixResultArrayValues()
 
     /**
