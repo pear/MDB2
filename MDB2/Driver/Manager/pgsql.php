@@ -471,7 +471,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
         $subquery = "SELECT indexrelid FROM pg_index, pg_class";
         $subquery.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_index.indrelid)";
         $result = $db->queryCol("SELECT relname FROM pg_class WHERE oid IN ($subquery)");
@@ -501,7 +500,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
         $query = "SELECT DISTINCT conname FROM pg_constraint, pg_class";
         $query.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_constraint.conrelid)";
         $result = $db->queryCol($query);

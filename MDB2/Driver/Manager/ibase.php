@@ -163,9 +163,6 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         //remove autoincrement trigger associated with the table
         $table = strtoupper($table);
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
-        $trigger_name = $db->quoteIdentifier($trigger_name);
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
         $result = $db->query("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)='$table' AND UPPER(RDB\$TRIGGER_NAME)='$trigger_name'");
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
@@ -636,7 +633,6 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $table = $db->quoteIdentifier($table);
         $query = "SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -665,7 +661,6 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $table = $db->quoteIdentifier($table);
         $query = "SELECT RDB\$CONSTRAINT_NAME AS constraint_name,
                          RDB\$CONSTRAINT_TYPE AS constraint_type,
                          RDB\$INDEX_NAME AS index_name

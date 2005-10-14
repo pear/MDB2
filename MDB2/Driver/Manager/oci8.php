@@ -603,7 +603,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $table = strtoupper($table);
-        $table = $db->quoteIdentifier($table);
         $query = "SELECT column_name FROM user_tab_columns WHERE table_name='$table' ORDER BY column_id";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -634,7 +633,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $table = $db->quoteIdentifier($table);
         $query = "SELECT index_name name FROM user_indexes WHERE table_name='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -665,7 +663,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $table = $db->quoteIdentifier($table);
         $query = "SELECT index_name name FROM user_constraints WHERE table_name='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {

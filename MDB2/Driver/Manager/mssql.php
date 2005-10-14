@@ -348,7 +348,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $pk_name  = strtoupper($pk_name);
             }
         }
-        $table = $db->quoteIdentifier($table);
         $query = "EXEC sp_statistics @table_name='$table'";
         $indexes_all = $db->queryCol($query, 'text', $key_name);
         if (PEAR::isError($indexes_all)) {
