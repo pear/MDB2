@@ -223,6 +223,8 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: unkown error');
         }
+
+        $name = $db->quoteIdentifier($name);
         $query = "CREATE TABLE $name ($query_fields)";
         return $db->query($query);
     }
@@ -244,6 +246,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->query("DROP TABLE $name");
     }
 
@@ -513,6 +516,9 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if (PEAR::isError($db)) {
             return $db;
         }
+
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         $query = 'CREATE';
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
@@ -541,6 +547,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->query("DROP INDEX $name");
     }
 
@@ -596,6 +603,8 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if (PEAR::isError($db)) {
             return $db;
         }
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         $query = "ALTER TABLE $table ADD CONSTRAINT $name";
         if (array_key_exists('primary', $definition) && $definition['primary']) {
             $query.= ' PRIMARY KEY';
@@ -622,6 +631,8 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         return $db->query("ALTER TABLE $table DROP CONSTRAINT $name");
     }
 

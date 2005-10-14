@@ -206,6 +206,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
         $query = "SELECT * FROM $table";
         $db->setLimit(1);
         $result2 = $db->query($query);
@@ -262,6 +263,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         $query = 'CREATE';
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
@@ -304,6 +307,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
         $query = "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -415,6 +419,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $sequence_name = $db->getSequenceName($seq_name);
         $seqcol_name = $db->options['seqcol_name'];
+        $seqcol_name = $db->quoteIdentifier($seqcol_name);
         $query = "CREATE TABLE $sequence_name ($seqcol_name INTEGER PRIMARY KEY DEFAULT 0 NOT NULL)";
         $res = $db->query($query);
         if (PEAR::isError($res)) {

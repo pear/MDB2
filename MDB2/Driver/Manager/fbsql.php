@@ -72,15 +72,9 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (PEAR::isError($result = $db->connect())) {
-            return $result;
-        }
+        $name = $db->quoteIdentifier($name);
         $query = "CREATE DATABASE $name";
-        if (PEAR::isError($result = $db->query($query))) {
-            return $result;
-        }
-
-        return MDB2_OK;
+        return $db->query($query);
     }
 
     // }}}
@@ -100,15 +94,9 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (PEAR::isError($result = $db->connect())) {
-            return $result;
-        }
+        $name = $db->quoteIdentifier($name);
         $query = "DELETE DATABASE $name";
-        if (PEAR::isError($result = $db->query($query))) {
-            return $result;
-        }
-
-        return MDB2_OK;
+        return $db->query($query);
     }
 
     // }}}
@@ -129,6 +117,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->query("DROP TABLE $name CASCADE");
     }
 
@@ -254,14 +243,10 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
 
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
-                $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
-                if (PEAR::isError($type_declaration)) {
-                    return $err;
-                }
                 if ($query) {
                     $query.= ', ';
                 }
-                $query.= 'ADD ' . $type_declaration;
+                $query.= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
 
@@ -270,6 +255,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
+                $field_name = $db->quoteIdentifier($field_name);
                 $query.= 'DROP ' . $field_name;
             }
         }
@@ -292,6 +278,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                 } else {
                     $old_field_name = $field_name;
                 }
+                $old_field_name = $db->quoteIdentifier($old_field_name);
                 $query.= "CHANGE $old_field_name " . $db->getDeclaration($field['type'], $old_field_name, $field);
             }
         }
@@ -311,6 +298,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->query("ALTER TABLE $name $query");
     }
 
@@ -405,6 +393,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
         $result = $db->queryCol("SHOW COLUMNS FROM $table");
         if (PEAR::isError($result)) {
             return $result;
@@ -457,6 +446,8 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         $query = "CREATE ".(array_key_exists('unique', $definition) ? 'UNIQUE INDEX' : 'INDEX')." $name on $table (";
         $query.= implode(', ', array_keys($definition['fields']));
         $query.= ')';
@@ -481,6 +472,8 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         return $db->query("ALTER TABLE $table DROP INDEX $name");
     }
 
@@ -511,6 +504,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             }
         }
 
+        $table = $db->quoteIdentifier($table);
         $query = "SHOW INDEX FROM $table";
         $indexes_all = $db->queryCol($query, 'text', $key_name);
         if (PEAR::isError($indexes_all)) {
@@ -543,6 +537,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
 
         $sequence_name = $db->getSequenceName($seq_name);
         $seqcol_name = $db->options['seqcol_name'];
+        $seqcol_name = $db->quoteIdentifier($seqcol_name);
         $query = "CREATE TABLE $sequence_name ($seqcol_name INTEGER DEFAULT UNIQUE, PRIMARY KEY($seqcol_name))";
         $res = $db->query($query);
         $res = $db->query("SET UNIQUE = 1 FOR $sequence_name");

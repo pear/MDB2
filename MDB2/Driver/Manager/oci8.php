@@ -158,6 +158,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         $sequence_name = $db->getSequenceName($table);
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
+        $trigger_name = $db->quoteIdentifier($trigger_name);
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
         $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
         $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;";
@@ -183,6 +186,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $trigger_name = $table . '_AUTOINCREMENT_PK';
+        $trigger_name = $db->quoteIdentifier($trigger_name);
         $trigger = $db->queryOne("SELECT trigger_name FROM user_triggers WHERE trigger_name = '$trigger_name'");
         if (PEAR::isError($trigger)) {
             return $trigger;
@@ -401,26 +405,27 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $fields = $changes['remove'];
             $query.= implode(', ', array_keys($fields));
             $query.= ')';
+            $name = $db->quoteIdentifier($name);
             if (PEAR::isError($result = $db->query("ALTER TABLE $name $query"))) {
                 return $result;
             }
             $query = '';
         }
 
-        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$changes['name'] : '');
+        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$db->quoteIdentifier($changes['name']) : '');
 
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
-                $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
-                if (PEAR::isError($type_declaration)) {
-                    return $err;
+                if ($query) {
+                    $query.= ', ';
                 }
-                $query.= ' ADD (' . $type_declaration . ')';
+                $query.= ' ADD (' . $db->getDeclaration($field['type'], $field_name, $field, $name) . ')';
             }
         }
 
         if (array_key_exists('change', $changes)) {
             foreach ($changes['change'] as $field_name => $field) {
+                $field_name = $db->quoteIdentifier($field_name);
                 $query.= "MODIFY ($field_name " . $db->getDeclaration($field['type'], $field_name, $field).')';
             }
         }
@@ -429,6 +434,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->query("ALTER TABLE $name $query");
     }
 
@@ -597,6 +603,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $table = strtoupper($table);
+        $table = $db->quoteIdentifier($table);
         $query = "SELECT column_name FROM user_tab_columns WHERE table_name='$table' ORDER BY column_id";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -626,6 +633,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
+        $table = strtoupper($table);
+        $table = $db->quoteIdentifier($table);
         $query = "SELECT index_name name FROM user_indexes WHERE table_name='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -656,6 +665,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
+        $table = $db->quoteIdentifier($table);
         $query = "SELECT index_name name FROM user_constraints WHERE table_name='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {

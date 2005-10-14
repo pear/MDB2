@@ -72,6 +72,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $name = $db->quoteIdentifier($name);
         $query = "CREATE DATABASE $name";
         if($db->options['database_device']) {
             $query.= ' ON '.$db->options['database_device'];
@@ -97,6 +98,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->standaloneQuery("DROP DATABASE $name");
     }
 
@@ -250,6 +252,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->query("ALTER TABLE $name $query");
     }
 
@@ -304,6 +307,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
         $result2 = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result2)) {
             return $result2;
@@ -344,6 +348,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $pk_name  = strtoupper($pk_name);
             }
         }
+        $table = $db->quoteIdentifier($table);
         $query = "EXEC sp_statistics @table_name='$table'";
         $indexes_all = $db->queryCol($query, 'text', $key_name);
         if (PEAR::isError($indexes_all)) {
@@ -388,6 +393,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         $sequence_name = $db->getSequenceName($seq_name);
         $seqcol_name   = $db->options['seqcol_name'];
+        $seqcol_name = $db->quoteIdentifier($seqcol_name);
         $query = "CREATE TABLE $sequence_name ($seqcol_name " .
                  "INT PRIMARY KEY CLUSTERED IDENTITY($start,1) NOT NULL)";
 

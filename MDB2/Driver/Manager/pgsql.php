@@ -71,6 +71,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->standaloneQuery("CREATE DATABASE $name");
     }
 
@@ -91,6 +92,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->standaloneQuery("DROP DATABASE $name");
     }
 
@@ -216,14 +218,10 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
-                $type_declaration = $db->getDeclaration($field['type'], $field_name, $field);
-                if (PEAR::isError($type_declaration)) {
-                    return $err;
-                }
                 if ($query) {
                     $query.= ', ';
                 }
-                $query.= 'ADD ' . $type_declaration;
+                $query.= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
 
@@ -232,6 +230,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
+                $field_name = $db->quoteIdentifier($field_name);
                 $query.= 'DROP ' . $field_name;
             }
         }
@@ -243,6 +242,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                     $query.= ', ';
                 }
                 $db->loadModule('Datatype');
+                $field_name = $db->quoteIdentifier($field_name);
                 $query.= "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field);
             }
         }
@@ -251,6 +251,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->query("ALTER TABLE $name $query");
     }
 
@@ -440,6 +441,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
         $result2 = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result2)) {
             return $result2;
@@ -469,6 +471,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
         $subquery = "SELECT indexrelid FROM pg_index, pg_class";
         $subquery.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_index.indrelid)";
         $result = $db->queryCol("SELECT relname FROM pg_class WHERE oid IN ($subquery)");
@@ -498,6 +501,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quoteIdentifier($table);
         $query = "SELECT DISTINCT conname FROM pg_constraint, pg_class";
         $query.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_constraint.conrelid)";
         $result = $db->queryCol($query);

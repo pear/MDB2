@@ -125,6 +125,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $table = strtoupper($table);
         $sequence_name = strtoupper($db->getSequenceName($table));
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
+        $trigger_name = $db->quoteIdentifier($trigger_name);
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
                         ACTIVE BEFORE INSERT POSITION 0
                         AS
@@ -160,6 +163,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         //remove autoincrement trigger associated with the table
         $table = strtoupper($table);
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
+        $trigger_name = $db->quoteIdentifier($trigger_name);
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         $result = $db->query("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)='$table' AND UPPER(RDB\$TRIGGER_NAME)='$trigger_name'");
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
@@ -399,32 +405,30 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $query = '';
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
-                $type_declaration = $db->getDeclaration($field['type'], $field_name, $field, $name);
-                if (PEAR::isError($type_declaration)) {
-                    return $err;
-                }
-                if (strlen($query)) {
+                if ($query) {
                     $query.= ', ';
                 }
-                $query.= 'ADD ' . $type_declaration;
+                $query.= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field, $name);
             }
         }
 
         if (array_key_exists('remove', $changes)) {
             foreach ($changes['remove'] as $field_name => $field) {
-                if (strlen($query)) {
+                if ($query) {
                     $query.= ', ';
                 }
+                $field_name = $db->quoteIdentifier($field_name);
                 $query.= 'DROP ' . $field_name;
             }
         }
 
         if (array_key_exists('rename', $changes)) {
             foreach ($changes['rename'] as $field_name => $field) {
-                if (strlen($query)) {
+                if ($query) {
                     $query.= ', ';
                 }
-                $query.= 'ALTER ' . $field_name . ' TO ' . $field['name'];
+                $field_name = $db->quoteIdentifier($field_name);
+                $query.= 'ALTER ' . $field_name . ' TO ' . $db->quoteIdentifier($field['name']);
             }
         }
 
@@ -434,10 +438,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
                     return $err;
                 }
-                if (strlen($query)) {
+                if ($query) {
                     $query.= ', ';
                 }
                 $db->loadModule('Datatype');
+                $field_name = $db->quoteIdentifier($field_name);
                 $query.= 'ALTER ' . $field_name.' TYPE ' . $db->datatype->getTypeDeclaration($field);
             }
         }
@@ -446,6 +451,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $name = $db->quoteIdentifier($name);
         return $db->query("ALTER TABLE $name $query");
     }
 
@@ -492,6 +498,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
+        $table = $db->quoteIdentifier($table);
         $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE UPPER(RDB\$RELATION_NAME)='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -605,6 +612,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 }
             }
         }
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
         $query .= $query_sort. " INDEX $name ON $table (";
         $query .= implode(', ', array_keys($definition['fields'])) . ')';
         return $db->query($query);
@@ -627,6 +636,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
+        $table = $db->quoteIdentifier($table);
         $query = "SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -655,6 +665,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
+        $table = $db->quoteIdentifier($table);
         $query = "SELECT RDB\$CONSTRAINT_NAME AS constraint_name,
                          RDB\$CONSTRAINT_TYPE AS constraint_type,
                          RDB\$INDEX_NAME AS index_name
