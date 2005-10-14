@@ -263,12 +263,14 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         if (strtolower($name) == 'primary') {
-            return $db->raiseError('Index may not be named primary');
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'Index may not be named primary');
         }
 
         $query = 'CREATE';
         if (array_key_exists('primary', $definition) && $definition['primary']) {
-            return $db->raiseError('Primary Key creation must be done during table creation');
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'Primary Key creation must be done during table creation');
         } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
         }
@@ -309,6 +311,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
+        }
+
+        if (strtolower($name) == 'primary') {
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'Index may not be named primary');
         }
 
         return $db->query("DROP INDEX $name");
