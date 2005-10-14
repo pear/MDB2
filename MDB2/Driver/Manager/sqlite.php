@@ -264,7 +264,6 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
         $query = 'CREATE';
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
@@ -287,7 +286,27 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
         $query .= implode(', ', $fields) . ')';
         return $db->query($query);
+    }
 
+    // }}}
+    // {{{ dropIndex()
+
+    /**
+     * drop existing index
+     *
+     * @param string    $table         name of table that should be used in method
+     * @param string    $name         name of the index to be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropIndex($table, $name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->query("DROP INDEX $name");
     }
 
     // }}}
@@ -307,7 +326,6 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
         $query = "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -318,7 +336,6 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
         return $result;
     }
-
 
     // }}}
     // {{{ createConstraint()
