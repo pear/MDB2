@@ -99,8 +99,12 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 $table_type.' is not a supported table type');
         }
+        $connection = $db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
         if (isset($this->verified_table_types[$table_type])
-            && $this->verified_table_types[$table_type] == $db->connection
+            && $this->verified_table_types[$table_type] == $connection
         ) {
             return MDB2_OK;
         }
@@ -114,7 +118,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             if (is_array($has)) {
                 $not_supported = true;
                 if ($has[1] == 'YES') {
-                    $this->verified_table_types[$table_type] = $db->connection;
+                    $this->verified_table_types[$table_type] = $connection;
                     return MDB2_OK;
                 }
             }
@@ -526,68 +530,6 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ createIndex()
-
-    /**
-     * get the stucture of a field into an array
-     *
-     * @param string    $table         name of the table on which the index is to be created
-     * @param string    $name         name of the index to be created
-     * @param array     $definition        associative array that defines properties of the index to be created.
-     *                                 Currently, only one property named FIELDS is supported. This property
-     *                                 is also an associative with the names of the index fields as array
-     *                                 indexes. Each entry of this array is set to another type of associative
-     *                                 array that specifies properties of the index that are specific to
-     *                                 each field.
-     *
-     *                                Currently, only the sorting property is supported. It should be used
-     *                                 to define the sorting direction of the index. It may be set to either
-     *                                 ascending or descending.
-     *
-     *                                Not all DBMS support index sorting direction configuration. The DBMS
-     *                                 drivers of those that do not support it ignore this property. Use the
-     *                                 function supports() to determine whether the DBMS driver can manage indexes.
-
-     *                                 Example
-     *                                    array(
-     *                                        'fields' => array(
-     *                                            'user_name' => array(
-     *                                                'sorting' => 'ascending'
-     *                                            ),
-     *                                            'last_login' => array()
-     *                                        )
-     *                                    )
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function createIndex($table, $name, $definition)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        if (array_key_exists('primary', $definition) && $definition['primary']) {
-            if (strtolower($name) != 'primary') {
-                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'Primary Key may must be named primary');
-            }
-            $type = 'PRIMARY';
-            $name = 'KEY';
-        } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
-            $type = 'UNIQUE';
-        } else {
-            $type = 'INDEX';
-        }
-
-        $query = "ALTER TABLE $table ADD $type $name (";
-        $query.= implode(', ', array_keys($definition['fields']));
-        $query.= ')';
-
-        return $db->query($query);
-    }
-
-    // }}}
     // {{{ dropIndex()
 
     /**
@@ -605,12 +547,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (strtolower($name) == 'primary') {
-            $query = "ALTER TABLE $table DROP PRIMARY KEY";
-        } else {
-            $query = "ALTER TABLE $table DROP INDEX $name";
-        }
-        return $db->query($query);
+        return $db->query("DROP INDEX $name ON $table");
     }
 
     // }}}
@@ -624,6 +561,120 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      * @access public
      */
     function listTableIndexes($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $key_name = 'Key_name';
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $key_name = strtolower($key_name);
+            } else {
+                $key_name = strtoupper($key_name);
+            }
+        }
+
+        $query = "SHOW INDEX FROM $table";
+        $indexes_all = $db->queryCol($query, 'text', $key_name);
+        if (PEAR::isError($indexes_all)) {
+            return $indexes_all;
+        }
+
+        $result = array_unique($indexes_all);
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ createConstraint()
+
+    /**
+     * create a constraint on a table
+     *
+     * @param string    $table         name of the table on which the constraint is to be created
+     * @param string    $name         name of the constraint to be created
+     * @param array     $definition        associative array that defines properties of the constraint to be created.
+     *                                 Currently, only one property named FIELDS is supported. This property
+     *                                 is also an associative with the names of the constraint fields as array
+     *                                 constraints. Each entry of this array is set to another type of associative
+     *                                 array that specifies properties of the constraint that are specific to
+     *                                 each field.
+     *
+     *                                 Example
+     *                                    array(
+     *                                        'fields' => array(
+     *                                            'user_name' => array(),
+     *                                            'last_login' => array()
+     *                                        )
+     *                                    )
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function createConstraint($table, $name, $definition)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $type = '';
+        if (array_key_exists('primary', $definition) && $definition['primary']) {
+            if (strtolower($name) != 'primary') {
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'Primary Key may must be named primary');
+            }
+            $type = 'PRIMARY';
+            $name = 'KEY';
+        }
+
+        $query = "ALTER TABLE $table ADD $type $name (";
+        $query.= implode(', ', array_keys($definition['fields']));
+        $query.= ')';
+
+        return $db->query($query);
+    }
+
+    // }}}
+    // {{{ dropConstraint()
+
+    /**
+     * drop existing constraint
+     *
+     * @param string    $table         name of table that should be used in method
+     * @param string    $name         name of the constraint to be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropConstraint($table, $name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (strtolower($name) == 'primary') {
+            $query = "ALTER TABLE $table DROP PRIMARY KEY";
+        } else {
+            $query = "ALTER TABLE $table DROP INDEX $name";
+        }
+        return $db->query($query);
+    }
+
+    // }}}
+    // {{{ listTableConstraints()
+
+    /**
+     * list all sonstraints in a table
+     *
+     * @param string    $table      name of table that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableConstraints($table)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
