@@ -445,14 +445,18 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         case 'char':
         case 'varchar':
         case "varchar2":
-            $type[] = 'text';
             if ($length == '1') {
                 $type[] = 'boolean';
                 if (preg_match('/[is|has]/', $field['name'])) {
                     $type = array_reverse($type);
                 }
-            } elseif (strstr($db_type, 'text'))
+                $type[] = 'text';
+            } elseif ($length) {
+                $type[] = 'text';
+            } elseif (strstr($db_type, 'text')) {
                 $type[] = 'clob';
+                $type[] = 'text';
+            }
             break;
         case 'enum':
             preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
@@ -492,7 +496,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         case 'mediumblob':
         case 'longblob':
         case 'blob':
-            $type[] = 'text';
+            $type[] = 'blob';
             $length = null;
             break;
         case 'year':
