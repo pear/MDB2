@@ -627,7 +627,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $query = "SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'"
+        $query = "SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -655,8 +655,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        /* todo: is this correct? */
-        $query = "SELECT RDB\$INDEX_NAME FROM RDB\$CONSTAINTS WHERE RDB\$RELATION_NAME='$table'";
+        $query = "SELECT RDB\$CONSTRAINT_NAME AS constraint_name,
+                         RDB\$CONSTRAINT_TYPE AS constraint_type,
+                         RDB\$INDEX_NAME AS index_name
+                    FROM RDB\$RELATION_CONSTRAINTS
+                   WHERE RDB\$RELATION_NAME='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
