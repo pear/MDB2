@@ -453,63 +453,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ createIndex()
-
-    /**
-     * get the stucture of a field into an array
-     *
-     * @param string    $table         name of the table on which the index is to be created
-     * @param string    $name         name of the index to be created
-     * @param array     $definition        associative array that defines properties of the index to be created.
-     *                                 Currently, only one property named FIELDS is supported. This property
-     *                                 is also an associative with the names of the index fields as array
-     *                                 indexes. Each entry of this array is set to another type of associative
-     *                                 array that specifies properties of the index that are specific to
-     *                                 each field.
-     *
-     *                                Currently, only the sorting property is supported. It should be used
-     *                                 to define the sorting direction of the index. It may be set to either
-     *                                 ascending or descending.
-     *
-     *                                Not all DBMS support index sorting direction configuration. The DBMS
-     *                                 drivers of those that do not support it ignore this property. Use the
-     *                                 function supports() to determine whether the DBMS driver can manage indexes.
-     *
-     *                                 Example
-     *                                    array(
-     *                                        'fields' => array(
-     *                                            'user_name' => array(
-     *                                                'sorting' => 'ascending'
-     *                                            ),
-     *                                            'last_login' => array()
-     *                                        )
-     *                                    )
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function createIndex($table, $name, $definition)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        if (array_key_exists('primary', $definition) && $definition['primary']) {
-            $query = "ALTER TABLE $table ADD CONSTRAINT $name PRIMARY KEY (";
-        } else {
-            $query = 'CREATE';
-            if (array_key_exists('unique', $definition) && $definition['unique']) {
-                $query.= ' UNIQUE';
-            }
-            $query.= " INDEX $name ON $table (";
-        }
-        $query.= implode(', ', array_keys($definition['fields']));
-        $query.= ')';
-
-        return $db->query($query);
-    }
-
-    // }}}
     // {{{ listTableIndexes()
 
     /**
@@ -529,6 +472,35 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         $subquery = "SELECT indexrelid FROM pg_index, pg_class";
         $subquery.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_index.indrelid)";
         $result = $db->queryCol("SELECT relname FROM pg_class WHERE oid IN ($subquery)");
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ listTableConstraints()
+
+    /**
+     * list all sonstraints in a table
+     *
+     * @param string    $table      name of table that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableConstraints($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT DISTINCT conname FROM pg_constraint, pg_class";
+        $query.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_constraint.conrelid)";
+        $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
         }

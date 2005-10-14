@@ -262,16 +262,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (strtolower($name) == 'primary') {
-            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'Index may not be named primary');
-        }
-
         $query = 'CREATE';
-        if (array_key_exists('primary', $definition) && $definition['primary']) {
-            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'Primary Key creation must be done during table creation');
-        } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
+        if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
         }
         $query .= " INDEX $name ON $table (";
@@ -293,32 +285,6 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $query .= implode(', ', $fields) . ')';
         return $db->query($query);
 
-    }
-
-    // }}}
-    // {{{ dropIndex()
-
-    /**
-     * drop existing index
-     *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $name         name of the index to be dropped
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function dropIndex($table, $name)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        if (strtolower($name) == 'primary') {
-            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'Index may not be named primary');
-        }
-
-        return $db->query("DROP INDEX $name");
     }
 
     // }}}
@@ -347,6 +313,86 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
         return $result;
+    }
+
+
+    // }}}
+    // {{{ createConstraint()
+
+    /**
+     * create a constraint on a table
+     *
+     * @param string    $table         name of the table on which the constraint is to be created
+     * @param string    $name         name of the constraint to be created
+     * @param array     $definition        associative array that defines properties of the constraint to be created.
+     *                                 Currently, only one property named FIELDS is supported. This property
+     *                                 is also an associative with the names of the constraint fields as array
+     *                                 constraints. Each entry of this array is set to another type of associative
+     *                                 array that specifies properties of the constraint that are specific to
+     *                                 each field.
+     *
+     *                                 Example
+     *                                    array(
+     *                                        'fields' => array(
+     *                                            'user_name' => array(),
+     *                                            'last_login' => array()
+     *                                        )
+     *                                    )
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function createConstraint($table, $name, $definition)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'createConstraint: Creating Constraints is not supported');
+    }
+
+    // }}}
+    // {{{ dropConstraint()
+
+    /**
+     * drop existing constraint
+     *
+     * @param string    $table         name of table that should be used in method
+     * @param string    $name         name of the constraint to be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropConstraint($table, $name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'dropConstraints: Drop Constraints is not supported');
+    }
+
+    // }}}
+    // {{{ listTableConstraints()
+
+    /**
+     * list all sonstraints in a table
+     *
+     * @param string    $table      name of table that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableConstraints($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'listTableConstraints: List Constraints is not supported');
     }
 
     // }}}

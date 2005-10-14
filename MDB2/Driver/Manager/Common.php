@@ -513,9 +513,14 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if (PEAR::isError($db)) {
             return $db;
         }
+        $query = 'CREATE';
+        if (array_key_exists('unique', $definition) && $definition['unique']) {
+            $query.= ' UNIQUE';
+        }
+        $query .= " INDEX $name ON $table (";
+        $query .= implode(', ', array_keys($definition['fields'])) . ')';
 
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'createIndex: Creating Indexes is not supported');
+        return $db->query($query);
     }
 
     // }}}
@@ -536,13 +541,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $db->expectError('*');
-        $result = $db->query("DROP INDEX $name");
-        $db->popExpect();
-        if (PEAR::isError($result)) {
-            $result = $db->query("ALTER TABLE $table DROP CONSTRAINT $name");
-        }
-        return $result;
+        return $db->query("DROP INDEX $name");
     }
 
     // }}}
@@ -564,6 +563,87 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listTableIndexes: List Indexes is not supported');
+    }
+
+    // }}}
+    // {{{ createConstraint()
+
+    /**
+     * create a constraint on a table
+     *
+     * @param string    $table         name of the table on which the constraint is to be created
+     * @param string    $name         name of the constraint to be created
+     * @param array     $definition        associative array that defines properties of the constraint to be created.
+     *                                 Currently, only one property named FIELDS is supported. This property
+     *                                 is also an associative with the names of the constraint fields as array
+     *                                 constraints. Each entry of this array is set to another type of associative
+     *                                 array that specifies properties of the constraint that are specific to
+     *                                 each field.
+     *
+     *                                 Example
+     *                                    array(
+     *                                        'fields' => array(
+     *                                            'user_name' => array(),
+     *                                            'last_login' => array()
+     *                                        )
+     *                                    )
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function createConstraint($table, $name, $definition)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $query = "ALTER TABLE $table ADD CONSTRAINT $name";
+        if (array_key_exists('primary', $definition) && $definition['primary']) {
+            $query.= ' PRIMARY KEY';
+        }
+        $query .= ' ('.implode(', ', array_keys($definition['fields'])) . ')';
+        return $db->query($query);
+    }
+
+    // }}}
+    // {{{ dropConstraint()
+
+    /**
+     * drop existing constraint
+     *
+     * @param string    $table         name of table that should be used in method
+     * @param string    $name         name of the constraint to be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropConstraint($table, $name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->query("ALTER TABLE $table DROP CONSTRAINT $name");
+    }
+
+    // }}}
+    // {{{ listTableConstraints()
+
+    /**
+     * list all sonstraints in a table
+     *
+     * @param string    $table      name of table that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableConstraints($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'listTableConstraints: List Constraints is not supported');
     }
 
     // }}}

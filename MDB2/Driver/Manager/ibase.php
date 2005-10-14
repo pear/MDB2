@@ -588,28 +588,24 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        if (array_key_exists('primary', $definition) && $definition['primary']) {
-            $query = "ALTER TABLE $table ADD CONSTRAINT $name PRIMARY KEY (";
-        } else {
-            $query = 'CREATE';
-            if (array_key_exists('unique', $definition) && $definition['unique']) {
-                $query.= ' UNIQUE';
-            }
-            $query_sort = '';
-            foreach ($definition['fields'] as $field) {
-                if (!strcmp($query_sort, '') && isset($field['sorting'])) {
-                    switch ($field['sorting']) {
-                    case 'ascending':
-                        $query_sort = ' ASC';
-                        break;
-                    case 'descending':
-                        $query_sort = ' DESC';
-                        break;
-                    }
+        $query = 'CREATE';
+        if (array_key_exists('unique', $definition) && $definition['unique']) {
+            $query.= ' UNIQUE';
+        }
+        $query_sort = '';
+        foreach ($definition['fields'] as $field) {
+            if (!strcmp($query_sort, '') && isset($field['sorting'])) {
+                switch ($field['sorting']) {
+                case 'ascending':
+                    $query_sort = ' ASC';
+                    break;
+                case 'descending':
+                    $query_sort = ' DESC';
+                    break;
                 }
             }
-            $query .= $query_sort. " INDEX $name ON $table (";
         }
+        $query .= $query_sort. " INDEX $name ON $table (";
         $query .= implode(', ', array_keys($definition['fields'])) . ')';
         return $db->query($query);
     }
@@ -631,7 +627,37 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $result = $db->queryCol("SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'");
+        $query = "SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'"
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ listTableConstraints()
+
+    /**
+     * list all sonstraints in a table
+     *
+     * @param string    $table      name of table that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableConstraints($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $table = strtoupper($table);
+        /* todo: is this correct? */
+        $query = "SELECT RDB\$INDEX_NAME FROM RDB\$CONSTAINTS WHERE RDB\$RELATION_NAME='$table'";
+        $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
         }
