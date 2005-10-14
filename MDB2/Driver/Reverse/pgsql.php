@@ -95,7 +95,6 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($column)) {
             return $column;
         }
-
         list($types, $length) = $db->datatype->mapNativeDatatype($column);
         $notnull = false;
         if (array_key_exists('attnotnull', $column) && $column['attnotnull'] == 't') {
@@ -152,7 +151,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $query = "SELECT * FROM pg_index, pg_class
+        $query = "SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class
             WHERE (pg_class.relname='$index_name') AND (pg_class.oid=pg_index.indexrelid)";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
@@ -167,7 +166,9 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $columns = $db->manager->listTableFields($table);
 
         $definition = array();
-        if ($row['indisunique'] == 't') {
+        if ($row['indisprimary'] == 't') {
+            $definition['primary'] = true;
+        } elseif ($row['indisunique'] == 't') {
             $definition['unique'] = true;
         }
 
