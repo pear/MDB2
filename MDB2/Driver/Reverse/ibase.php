@@ -185,7 +185,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $notnull = !empty($column['null_flag']);
         $default = $column['default_source'];
         if (is_null($default) && $notnull) {
-            $default = '';
+            $default = ($types[0] == 'integer') ? 0 : '';
         }
         $definition = array();
         foreach ($types as $key => $type) {
