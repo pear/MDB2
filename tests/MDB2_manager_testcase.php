@@ -247,7 +247,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         }
         $index = array(
             'fields' => array(
-                'name' => array(
+                'id' => array(
                     'sorting' => 'ascending',
                 ),
             ),
@@ -273,7 +273,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         }
         $index = array(
             'fields' => array(
-                'name' => array(
+                'id' => array(
                     'sorting' => 'ascending',
                 ),
             ),
