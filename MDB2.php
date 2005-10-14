@@ -1461,8 +1461,8 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Returns a native connection
      *
-     * @return  mixed   a newly created MDB2 connection object, or a MDB2
-     *                  error object on error
+     * @return  mixed   a valid MDB2 connection object,
+     *                  or a MDB2 error object on error
      * @access  public
      */
     function &getConnection()
