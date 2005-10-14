@@ -636,10 +636,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             }
             $type = 'PRIMARY';
             $name = 'KEY';
+        } else {
+            $name = $db->quoteIdentifier($name);
         }
 
         $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
         $query = "ALTER TABLE $table ADD $type $name (";
         $query.= implode(', ', array_keys($definition['fields']));
         $query.= ')';
