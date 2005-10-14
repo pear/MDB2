@@ -230,14 +230,6 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
                 ),
                 'unique' => true,
             ),
-            'pkindex' => array(
-                'fields' => array(
-                    'id' => array(
-                        'sorting' => 'ascending',
-                    ),
-                ),
-                'primary' => true,
-            ),
             'multipleindex' => array(
                 'fields' => array(
                     'description' => array(
@@ -265,9 +257,6 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
             $this->assertEquals($field_names, array_keys($result['fields']), 'Error listing index fields');
             if (!empty($index['unique'])) {
                 $this->assertTrue($result['unique'], 'Error: missing UNIQUE constraint');
-            }
-            if (!empty($index['primary'])) {
-                $this->assertTrue($result['primary'], 'Error: missing PRIMARY KEY constraint');
             }
         }
     }

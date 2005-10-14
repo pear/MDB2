@@ -175,10 +175,13 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         );
         $name = 'simpleindex';
         $result = $this->db->manager->createIndex($this->table, $name, $index);
-        $this->assertFalse(PEAR::isError($result), 'Error creating index');
-        $indices = $this->db->manager->listTableIndexes($this->table);
-        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-        $this->assertTrue(in_array($name, $indices), 'Error creating index');
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error creating unique index');
+        } else {
+            $indices = $this->db->manager->listTableIndexes($this->table);
+            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+            $this->assertTrue(in_array($name, $indices), 'Error dropping index');
+        }
     }
 
     /**
@@ -198,17 +201,48 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         );
         $name = 'uniqueindex';
         $result = $this->db->manager->createIndex($this->table, $name, $index);
-        $this->assertFalse(PEAR::isError($result), 'Error creating unique index');
-        $indices = $this->db->manager->listTableIndexes($this->table);
-        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-        $this->assertTrue(in_array($name, $indices), 'Error creating unique index');
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error creating unique index');
+        } else {
+            $indices = $this->db->manager->listTableIndexes($this->table);
+            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+            $this->assertTrue(in_array($name, $indices), 'Error dropping index');
+        }
+    }
+
+    /**
+     *
+     */
+    function testDropIndex() {
+        if (!$this->methodExists($this->db->manager, 'dropIndex')) {
+            return;
+        }
+        $index = array(
+            'fields' => array(
+                'name' => array(
+                    'sorting' => 'ascending',
+                ),
+            ),
+            'unique' => true,
+        );
+        $name = 'uniqueindex';
+        $result = $this->db->manager->createIndex($this->table, $name, $index);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error creating unique index');
+        } else {
+            $result = $this->db->manager->dropIndex($this->table, $name);
+            $this->assertFalse(PEAR::isError($result), 'Error dropping index');
+            $indices = $this->db->manager->listTableIndexes($this->table);
+            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
+            $this->assertFalse(in_array($name, $indices), 'Error dropping index');
+        }
     }
 
     /**
      *
      */
     function testCreatePrimaryKey() {
-        if (!$this->methodExists($this->db->manager, 'createIndex')) {
+        if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
         $index = array(
@@ -220,43 +254,42 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
             'primary' => true,
         );
         $name = 'pkindex';
-        $result = $this->db->manager->createIndex($this->table, $name, $index);
-        $this->assertFalse(PEAR::isError($result), 'Error creating primary index');
-        $indices = $this->db->manager->listTableIndexes($this->table);
-        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-        $this->assertTrue(in_array($name, $indices), 'Error creating primary index');
-    }
-
-    /**
-     *
-     */
-    function testDropIndex() {
-        if (!$this->methodExists($this->db->manager, 'dropIndex')) {
-            return;
+        $result = $this->db->manager->createConstraint($this->table, $name, $index);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error creating primary index');
+        } else {
+            $constraints = $this->db->manager->listTableConstraints($this->table);
+            $this->assertFalse(PEAR::isError($constraints), 'Error listing indices');
+            $this->assertTrue(in_array($name, $constraints), 'Error creating primary index');
         }
-        $this->testCreateIndex();
-        $name = 'simpleindex';
-        $result = $this->db->manager->dropIndex($this->table, $name);
-        $this->assertFalse(PEAR::isError($result), 'Error dropping index');
-        $indices = $this->db->manager->listTableIndexes($this->table);
-        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-        $this->assertFalse(in_array($name, $indices), 'Error dropping index');
     }
 
     /**
      *
      */
     function testDropPrimaryKey() {
-        if (!$this->methodExists($this->db->manager, 'dropIndex')) {
+        if (!$this->methodExists($this->db->manager, 'dropConstraint')) {
             return;
         }
-        $this->testCreatePrimaryKey();
+        $index = array(
+            'fields' => array(
+                'name' => array(
+                    'sorting' => 'ascending',
+                ),
+            ),
+            'primary' => true,
+        );
         $name = 'pkindex';
-        $result = $this->db->manager->dropIndex($this->table, $name);
-        $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
-        $indices = $this->db->manager->listTableIndexes($this->table);
-        $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-        $this->assertFalse(in_array($name, $indices), 'Error dropping primary key index');
+        $result = $this->db->manager->createConstraint($this->table, $name, $index);
+        if (PEAR::isError($result)) {
+        $this->assertFalse(true, 'Error creating primary index');
+        } else {
+            $result = $this->db->manager->dropConstraint($this->table, $name);
+            $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
+            $constraints = $this->db->manager->listTableConstraints($this->table);
+            $this->assertFalse(PEAR::isError($constraints), 'Error listing indices');
+            $this->assertFalse(in_array($name, $constraints), 'Error dropping primary key index');
+        }
     }
 
     /**
