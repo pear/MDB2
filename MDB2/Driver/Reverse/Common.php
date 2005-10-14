@@ -114,6 +114,28 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     }
 
     // }}}
+    // {{{ getTableConstraintsDefinition()
+
+    /**
+     * get the stucture of an constraints into an array
+     *
+     * @param string    $table      name of table that should be used in method
+     * @param string    $index      name of index that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableConstraintsDefinition($table, $index)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'getTableIndexDefinition: getting index definition is not supported');
+    }
+
+    // }}}
     // {{{ getSequenceDefinition()
 
     /**
