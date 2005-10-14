@@ -90,357 +90,74 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             return $this->_baseConvertResult($value,$type);
         }
     }
-
     // }}}
-    // {{{ _getIntegerDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare an integer type
-     * field to be used in statements like CREATE TABLE.
-     *
-     * @param string $name name the field to be declared.
-     * @param array $field associative array with the name of the properties
-     *       of the field being declared as array indexes. Currently, the types
-     *       of supported field properties are as follows:
-     *
-     *       unsigned
-     *           Boolean flag that indicates whether the field should be
-     *           declared as unsigned integer if possible.
-     *
-     *       default
-     *           Integer value to be used as default for this field.
-     *
-     *       notnull
-     *           Boolean flag that indicates whether this field is constrained
-     *           to not be set to null.
-     * @return string DBMS specific SQL code portion that should be used to
-     *       declare the specified field.
-     * @access protected
-     */
-    function _getIntegerDeclaration($name, $field)
-    {
-        if (array_key_exists('unsigned', $field) && $field['unsigned']) {
-            $db =& $this->getDBInstance();
-            if (PEAR::isError($db)) {
-                return $db;
-            }
-
-            $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
-        }
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'integer') : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' INT'.$default.$notnull;
-    }
-
-    // }}}
-    // {{{ _getTextDeclaration()
+    // {{{ getTypeDeclaration()
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare an text type
      * field to be used in statements like CREATE TABLE.
      *
-     * @param string $name name the field to be declared.
-     * @param array $field associative array with the name of the properties
-     *       of the field being declared as array indexes. Currently, the types
-     *       of supported field properties are as follows:
+     * @param array $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
      *
-     *       length
-     *           Integer value that determines the maximum length of the text
-     *           field. If this argument is missing the field should be
-     *           declared to have the longest length allowed by the DBMS.
+     *      length
+     *          Integer value that determines the maximum length of the text
+     *          field. If this argument is missing the field should be
+     *          declared to have the longest length allowed by the DBMS.
      *
-     *       default
-     *           Text value to be used as default for this field.
+     *      default
+     *          Text value to be used as default for this field.
      *
-     *       notnull
-     *           Boolean flag that indicates whether this field is constrained
-     *           to not be set to null.
-     * @return string DBMS specific SQL code portion that should be used to
-     *       declare the specified field.
-     * @access protected
-     */
-    function _getTextDeclaration($name, $field)
-    {
-        $type = array_key_exists('length', $field) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'text') : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' '.$type.$default.$notnull;
-    }
-
-    // }}}
-    // {{{ _getCLOBDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare an character
-     * large object type field to be used in statements like CREATE TABLE.
-     *
-     * @param string  $name   name the field to be declared.
-     * @param string  $field  associative array with the name of the
-     *                        properties of the field being declared as array
-     *                        indexes. Currently, the types of supported field
-     *                        properties are as follows:
-     *
-     *                       length
-     *                        Integer value that determines the maximum length
-     *                        of the large object field. If this argument is
-     *                        missing the field should be declared to have the
-     *                        longest length allowed by the DBMS.
-     *
-     *                       notnull
-     *                        Boolean flag that indicates whether this field
-     *                        is constrained to not be set to null.
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
      * @return string  DBMS specific SQL code portion that should be used to
-     *                 declare the specified field.
-     * @access protected
+     *      declare the specified field.
+     * @access public
      */
-    function _getCLOBDeclaration($name, $field)
-    {
-        if (array_key_exists('length', $field)) {
-            $length = $field['length'];
-            if ($length <= 8000) {
-                $type = "VARCHAR($length)";
-            } else {
-                $type = 'TEXT';
-            }
-        } else {
-            $type = 'TEXT';
-        }
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' '.$type.$notnull;
-    }
-
-    // }}}
-    // {{{ _getBLOBDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare an binary large
-     * object type field to be used in statements like CREATE TABLE.
-     *
-     * @param string  $name   name the field to be declared.
-     * @param string  $field  associative array with the name of the properties
-     *                        of the field being declared as array indexes.
-     *                        Currently, the types of supported field
-     *                        properties are as follows:
-     *
-     *                       length
-     *                        Integer value that determines the maximum length
-     *                        of the large object field. If this argument is
-     *                        missing the field should be declared to have the
-     *                        longest length allowed by the DBMS.
-     *
-     *                       notnull
-     *                        Boolean flag that indicates whether this field is
-     *                        constrained to not be set to null.
-     * @return string  DBMS specific SQL code portion that should be used to
-     *                 declare the specified field.
-     * @access protected
-     */
-    function _getBLOBDeclaration($name, $field)
-    {
-        if (array_key_exists('length', $field)) {
-            $length = $field['length'];
-            if ($length <= 8000) {
-                $type = "VARBINARY($length)";
-            } else {
-                $type = 'IMAGE';
-            }
-        } else {
-            $type = 'IMAGE';
-        }
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' '.$type.$notnull;
-    }
-
-    // }}}
-    // {{{ _getBooleanDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare a boolean type
-     * field to be used in statements like CREATE TABLE.
-     *
-     * @param string $name name the field to be declared.
-     * @param array $field associative array with the name of the properties
-     *       of the field being declared as array indexes. Currently, the types
-     *       of supported field properties are as follows:
-     *
-     *       default
-     *           Boolean value to be used as default for this field.
-     *
-     *       notnull
-     *           Boolean flag that indicates whether this field is constrained
-     *           to not be set to null.
-     * @return string DBMS specific SQL code portion that should be used to
-     *       declare the specified field.
-     * @access protected
-     */
-    function _getBooleanDeclaration($name, $field)
-    {
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'boolean') : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' BIT'.$default.$notnull;
-    }
-
-    // }}}
-    // {{{ _getDateDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare a date type
-     * field to be used in statements like CREATE TABLE.
-     *
-     * @param string $name name the field to be declared.
-     * @param array $field associative array with the name of the properties
-     *       of the field being declared as array indexes. Currently, the types
-     *       of supported field properties are as follows:
-     *
-     *       default
-     *           Date value to be used as default for this field.
-     *
-     *       notnull
-     *           Boolean flag that indicates whether this field is constrained
-     *           to not be set to null.
-     * @return string DBMS specific SQL code portion that should be used to
-     *       declare the specified field.
-     * @access protected
-     */
-    function _getDateDeclaration($name, $field)
-    {
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'date') : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' CHAR ('.strlen('YYYY-MM-DD').')'.$default.$notnull;
-    }
-
-    // }}}
-    // {{{ _getTimestampDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare a timestamp
-     * field to be used in statements like CREATE TABLE.
-     *
-     * @param string $name name the field to be declared.
-     * @param array $field associative array with the name of the properties
-     *       of the field being declared as array indexes. Currently, the types
-     *       of supported field properties are as follows:
-     *
-     *       default
-     *           Timestamp value to be used as default for this field.
-     *
-     *       notnull
-     *           Boolean flag that indicates whether this field is constrained
-     *           to not be set to null.
-     * @return string DBMS specific SQL code portion that should be used to
-     *       declare the specified field.
-     * @access protected
-     */
-    function _getTimestampDeclaration($name, $field)
-    {
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'timestamp') : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' CHAR ('.strlen('YYYY-MM-DD HH:MM:SS').')'.$default.$notnull;
-    }
-
-    // }}}
-    // {{{ _getTimeDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare a time
-     * field to be used in statements like CREATE TABLE.
-     *
-     * @param string $name name the field to be declared.
-     * @param array $field associative array with the name of the properties
-     *       of the field being declared as array indexes. Currently, the types
-     *       of supported field properties are as follows:
-     *
-     *       default
-     *           Time value to be used as default for this field.
-     *
-     *       notnull
-     *           Boolean flag that indicates whether this field is constrained
-     *           to not be set to null.
-     * @return string DBMS specific SQL code portion that should be used to
-     *       declare the specified field.
-     * @access protected
-     */
-    function _getTimeDeclaration($name, $field)
-    {
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'time') : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' CHAR ('.strlen('HH:MM:SS').')'.$default.$notnull;
-    }
-
-    // }}}
-    // {{{ _getFloatDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare an float type
-     * field to be used in statements like CREATE TABLE.
-     *
-     * @param string  $name   name the field to be declared.
-     * @param string  $field  associative array with the name of the properties
-     *                        of the field being declared as array indexes.
-     *                        Currently, the types of supported field
-     *                        properties are as follows:
-     *
-     *                       default
-     *                        Integer value to be used as default for this
-     *                        field.
-     *
-     *                       notnull
-     *                        Boolean flag that indicates whether this field is
-     *                        constrained to not be set to null.
-     * @return string  DBMS specific SQL code portion that should be used to
-     *                 declare the specified field.
-     * @access protected
-     */
-    function _getFloatDeclaration($name, $field)
-    {
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'float') : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' FLOAT'.$default.$notnull;
-    }
-
-    // }}}
-    // {{{ _getDecimalDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare an decimal type
-     * field to be used in statements like CREATE TABLE.
-     *
-     * @param string  $name   name the field to be declared.
-     * @param string  $field  associative array with the name of the properties
-     *                        of the field being declared as array indexes.
-     *                        Currently, the types of supported field
-     *                        properties are as follows:
-     *
-     *                       default
-     *                        Integer value to be used as default for this
-     *                        field.
-     *
-     *                       notnull
-     *                        Boolean flag that indicates whether this field is
-     *                        constrained to not be set to null.
-     * @return string  DBMS specific SQL code portion that should be used to
-     *                 declare the specified field.
-     * @access protected
-     */
-    function _getDecimalDeclaration($name, $field)
+    function getTypeDeclaration($field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $type = 'DECIMAL(18,'.$db->options['decimal_places'].')';
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'decimal') : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : ' NULL';
-        return $name.' '.$type.$default.$notnull;
+        switch ($field['type']) {
+        case 'text':
+            return array_key_exists('length', $field) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
+        case 'clob':
+            if (array_key_exists('length', $field)) {
+                $length = $field['length'];
+                if ($length <= 8000) {
+                    return "VARCHAR($length)";
+                }
+             }
+             return 'TEXT';
+        case 'blob':
+            if (array_key_exists('length', $field)) {
+                $length = $field['length'];
+                if ($length <= 8000) {
+                    return "VARBINARY($length)";
+                }
+            }
+            return 'IMAGE';
+        case 'integer':
+            return 'INT';
+        case 'boolean':
+            return 'BIT';
+        case 'date':
+            return 'CHAR ('.strlen('YYYY-MM-DD').')';
+        case 'time':
+            return 'CHAR ('.strlen('HH:MM:SS').')';
+        case 'timestamp':
+            return 'CHAR ('.strlen('YYYY-MM-DD HH:MM:SS').')';
+        case 'float':
+            return 'FLOAT';
+        case 'decimal':
+            return 'DECIMAL(18,'.$db->options['decimal_places'].')';
+        }
+        return '';
     }
 
     // }}}
