@@ -490,11 +490,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
-        $connect = $db->connect();
-        if (PEAR::isError($connect)) {
-            return $connect;
+        $connection = $db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
-        if (!$db->in_transaction && !@pg_query($db->connection, 'BEGIN')) {
+        if (!$db->in_transaction && !@pg_query($connection, 'BEGIN')) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'error starting transaction');
         }
@@ -516,8 +516,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         }
         $result = false;
         if (is_resource($value)) {
-            if (($lo = @pg_lo_create($db->connection))) {
-                if (($handle = @pg_lo_open($db->connection, $lo, 'w'))) {
+            if (($lo = @pg_lo_create($connection))) {
+                if (($handle = @pg_lo_open($connection, $lo, 'w'))) {
                     while (!@feof($value)) {
                         $data = @fread($value, $db->options['lob_buffer_length']);
                         if ($data === '') {
@@ -534,22 +534,22 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                     @pg_lo_close($handle);
                 } else {
                     $result = $db->raiseError();
-                    @pg_lo_unlink($db->connection, $lo);
+                    @pg_lo_unlink($connection, $lo);
                 }
             }
             if ($close) {
                 @fclose($value);
             }
         } else {
-            if (!@pg_lo_import($db->connection, $value)) {
+            if (!@pg_lo_import($connection, $value)) {
                 $result = $db->raiseError();
             }
         }
         if (!$db->in_transaction) {
             if (PEAR::isError($result)) {
-                @pg_query($db->connection, 'ROLLBACK');
+                @pg_query($connection, 'ROLLBACK');
             } else {
-                @pg_query($db->connection, 'COMMIT');
+                @pg_query($connection, 'COMMIT');
             }
         }
         return $result;
@@ -663,9 +663,14 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
+        $connection = $db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
         $lob_data = stream_get_meta_data($lob);
         $lob_index = $lob_data['wrapper_data']->lob_index;
-        if (!pg_lo_export($db->connection, $this->lobs[$lob_index]['ressource'], $file)) {
+        if (!pg_lo_export($connection, $this->lobs[$lob_index]['ressource'], $file)) {
             return $db->raiseError();
         }
         return MDB2_OK;
@@ -688,16 +693,22 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             if (PEAR::isError($db)) {
                 return $db;
             }
+
+            $connection = $db->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+
             if (!$db->in_transaction) {
-                if (!@pg_query($db->connection, 'BEGIN')) {
+                if (!@pg_query($connection, 'BEGIN')) {
                     return $db->raiseError();
                 }
                 $lob['in_transaction'] = true;
             }
-            $lob['handle'] = @pg_lo_open($db->connection, $lob['ressource'], 'r');
+            $lob['handle'] = @pg_lo_open($connection, $lob['ressource'], 'r');
             if (!$lob['handle']) {
                 if (array_key_exists('in_transaction', $lob)) {
-                    @pg_query($db->connection, 'END');
+                    @pg_query($connection, 'END');
                     unset($lob['in_transaction']);
                 }
                 return $db->raiseError();
@@ -757,7 +768,13 @@ for some reason this piece of code causes an apache crash
                     return $db;
                 }
 
-                @pg_query($db->connection, 'END');
+
+            $connection = $db->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+
+                @pg_query($connection, 'END');
 */
             }
         }

@@ -305,9 +305,14 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
+        $connection = $db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
         $field_name = @pg_field_name($resource, $num_field);
 
-        $result = @pg_query($db->connection, "SELECT f.attnotnull, f.atthasdef
+        $result = @pg_query($connection, "SELECT f.attnotnull, f.atthasdef
                                 FROM pg_attribute f, pg_class tab, pg_type typ
                                 WHERE tab.relname = typ.typname
                                 AND typ.typrelid = f.attrelid
@@ -318,7 +323,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             $flags  = ($row[0] == 't') ? 'not_null ' : '';
 
             if ($row[1] == 't') {
-                $result = @pg_query($db->connection, "SELECT a.adsrc
+                $result = @pg_query($connection, "SELECT a.adsrc
                                     FROM pg_attribute f, pg_class tab, pg_type typ, pg_attrdef a
                                     WHERE tab.relname = typ.typname AND typ.typrelid = f.attrelid
                                     AND f.attrelid = a.adrelid AND f.attname = '$field_name'
@@ -330,7 +335,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         } else {
             $flags = '';
         }
-        $result = @pg_query($db->connection, "SELECT i.indisunique, i.indisprimary, i.indkey
+        $result = @pg_query($connection, "SELECT i.indisunique, i.indisprimary, i.indkey
                                 FROM pg_attribute f, pg_class tab, pg_type typ, pg_index i
                                 WHERE tab.relname = typ.typname
                                 AND typ.typrelid = f.attrelid

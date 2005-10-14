@@ -70,7 +70,12 @@ class MDB2_Driver_Native_pgsql extends MDB2_Module_Common
             return $db;
         }
 
-        if (!@pg_lo_unlink($db->connection, $OID)) {
+        $connection = $db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        if (!@pg_lo_unlink($connection, $OID)) {
             return $db->raiseError();
         }
         return MDB2_OK;
