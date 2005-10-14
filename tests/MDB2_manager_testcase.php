@@ -72,6 +72,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $this->db =& MDB2::connect($this->dsn, $this->options);
         $this->db->setDatabase($this->database);
         $this->db->loadModule('Manager');
+        $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
         if (PEAR::isError($this->db) || PEAR::isError($this->db->manager) ) {
             $this->assertTrue(false, 'Could not connect to manager in setUp');
             exit;
@@ -106,6 +107,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         if ($this->tableExists()) {
             $this->db->manager->dropTable($this->table);
         }
+        $this->db->popExpect();
         unset($this->dsn);
         if (!PEAR::isError($this->db->manager)) {
             $this->db->disconnect();
