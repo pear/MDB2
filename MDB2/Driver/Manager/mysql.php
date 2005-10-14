@@ -569,7 +569,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         if (array_key_exists('primary', $definition) && $definition['primary']) {
             if (strtolower($name) != 'primary') {
-                return $db->raiseError('Primary Key may must be named primary');
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'Primary Key may must be named primary');
             }
             $type = 'PRIMARY';
             $name = 'KEY';
