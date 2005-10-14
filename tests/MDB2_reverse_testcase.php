@@ -230,7 +230,7 @@ class MDB2_Reverse_TestCase extends PHPUnit_TestCase
                 ),
                 'unique' => true,
             ),
-            'primary' => array(
+            'pkindex' => array(
                 'fields' => array(
                     'id' => array(
                         'sorting' => 'ascending',

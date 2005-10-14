@@ -219,7 +219,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
             ),
             'primary' => true,
         );
-        $name = 'primary';
+        $name = 'pkindex';
         $result = $this->db->manager->createIndex($this->table, $name, $index);
         $this->assertFalse(PEAR::isError($result), 'Error creating primary index');
         $indices = $this->db->manager->listTableIndexes($this->table);
@@ -251,7 +251,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
             return;
         }
         $this->testCreatePrimaryKey();
-        $name = 'primary';
+        $name = 'pkindex';
         $result = $this->db->manager->dropIndex($this->table, $name);
         $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
         $indices = $this->db->manager->listTableIndexes($this->table);
