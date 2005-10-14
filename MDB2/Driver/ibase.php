@@ -208,6 +208,25 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ getConnection()
+
+    /**
+     * Returns a native connection
+     *
+     * @return  mixed   a valid MDB2 connection object,
+     *                  or a MDB2 error object on error
+     * @access  public
+     */
+    function &getConnection()
+    {
+        $result = $this->connect();
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return $this->in_transaction ? $this->transaction_id : $this->connection;
+    }
+
+    // }}}
     // {{{ beginTransaction()
 
     /**
@@ -454,6 +473,51 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             //return $result;
             return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
         }
+        return $result;
+    }
+
+    // }}}
+    // {{{ query()
+
+    /**
+     * Send a query to the database and return any results
+     *
+     * @param string $query the SQL query
+     * @param mixed $types  array that contains the types of the columns in
+     *                      the result set
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function &query($query, $types = null, $result_class = true, $result_wrap_class = false)
+    {
+        $isManip = MDB2::isManip($query);
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
+        $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
+
+        $connected = $this->connect();
+        if (PEAR::isError($connected)) {
+            return $connected;
+        }
+
+        $connection = $this->in_transaction
+            ? $this->transaction_id : $this->connection;
+
+        $result = $this->_doQuery($query, $isManip, $connection, $this->database_name);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        // check for integers instead of manip since drivers may do some
+        // custom checks not covered by MDB2::isManip()
+        if (is_int($result)) {
+            return $result;
+        }
+
+        $result =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
         return $result;
     }
 
