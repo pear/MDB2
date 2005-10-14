@@ -799,11 +799,15 @@ for some reason this piece of code causes an apache crash
         case 'char':
         case 'varchar':
         case 'bpchar':
-            $type[] = 'text';
             if ($length == '1') {
                 $type[] = 'boolean';
-            } elseif (strstr($db_type, 'text'))
+                if (preg_match('/[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            } elseif (strstr($db_type, 'text')) {
                 $type[] = 'clob';
+            }
+            $type[] = 'text';
             break;
         case 'date':
             $type[] = 'date';

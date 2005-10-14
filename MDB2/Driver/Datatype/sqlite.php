@@ -450,13 +450,10 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 if (preg_match('/[is|has]/', $field['name'])) {
                     $type = array_reverse($type);
                 }
-                $type[] = 'text';
-            } elseif ($length) {
-                $type[] = 'text';
             } elseif (strstr($db_type, 'text')) {
                 $type[] = 'clob';
-                $type[] = 'text';
             }
+            $type[] = 'text';
             break;
         case 'enum':
             preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
