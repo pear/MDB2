@@ -56,11 +56,11 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 {
-    function _getTableColumns($query)
+    function _getTableColumns($sql)
     {
-        $start_pos = strpos($query, '(');
-        $end_pos = strrpos($query, ')');
-        $column_def = substr($query, $start_pos+1, $end_pos-$start_pos-1);
+        $start_pos = strpos($sql, '(');
+        $end_pos = strrpos($sql, ')');
+        $column_def = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
         $column_sql = split(',', $column_def);
         $columns = array();
         $count = count($column_sql);
@@ -84,6 +84,9 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 $default = $matches[9];
                 if (strlen($default) && $default[0]=="'") {
                     $default = str_replace("''", "'", substr($default, 1, strlen($default)-2));
+                }
+                if ($default === 'NULL') {
+                    $default = null;
                 }
                 $columns[$j]['default'] = $default;
             }
@@ -121,11 +124,10 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($sql)) {
             return $sql;
         }
-        // todo: broken!!!
-        $columns = explode(', ', $sql);
+        $columns = $this->_getTableColumns($sql);
         foreach ($columns as $column) {
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                if ($db->options['field_change'] == CASE_LOWER) {
+                if ($db->options['field_case'] == CASE_LOWER) {
                     $column['name'] = strtolower($column['name']);
                 } else {
                     $column['name'] = strtoupper($column['name']);
@@ -136,8 +138,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             if ($field_name == $column['name']) {
                 list($types, $length) = $db->datatype->mapNativeDatatype($column);
                 $notnull = false;
-                if (array_key_exists('null', $column) && $column['null'] != 'YES') {
-                    $notnull = true;
+                if (array_key_exists('notnull', $column)) {
+                    $notnull = $column['notnull'];
                 }
                 $default = false;
                 if (array_key_exists('default', $column)) {
