@@ -176,11 +176,11 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $name = 'simpleindex';
         $result = $this->db->manager->createIndex($this->table, $name, $index);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error creating unique index');
+            $this->assertFalse(true, 'Error creating index');
         } else {
             $indices = $this->db->manager->listTableIndexes($this->table);
             $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-            $this->assertTrue(in_array($name, $indices), 'Error dropping index');
+            $this->assertTrue(in_array($name, $indices), 'Error creating index');
         }
     }
 
@@ -206,7 +206,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         } else {
             $indices = $this->db->manager->listTableIndexes($this->table);
             $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-            $this->assertTrue(in_array($name, $indices), 'Error dropping index');
+            $this->assertTrue(in_array($name, $indices), 'Error creating unique index');
         }
     }
 
