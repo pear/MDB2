@@ -536,7 +536,13 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
-        return $db->query("DROP INDEX $name");
+        $db->expectError('*');
+        $result = $db->query("DROP INDEX $name");
+        $db->popExpect();
+        if (PEAR::isError($result)) {
+            $result = $db->query("ALTER TABLE $table DROP CONSTRAINT $name");
+        }
+        return $result;
     }
 
     // }}}
