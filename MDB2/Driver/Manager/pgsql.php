@@ -202,8 +202,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             case 'remove':
             case 'change':
             case 'name':
-                break;
             case 'rename':
+                break;
             default:
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'alterTable: change type "'.$change_name.'\" not yet supported');
@@ -236,14 +236,27 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         if (array_key_exists('change', $changes)) {
-            // missing support to change DEFAULT and NULLability
             foreach ($changes['change'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                }
-                $db->loadModule('Datatype');
                 $field_name = $db->quoteIdentifier($field_name);
-                $query.= "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field);
+                if (array_key_exists('type', $field)) {
+                    if ($query) {
+                        $query.= ', ';
+                    }
+                    $db->loadModule('Datatype');
+                    $query.= "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field['definition']);
+                }
+                if (array_key_exists('default', $field)) {
+                    if ($query) {
+                        $query.= ', ';
+                    }
+                    $query.= "ALTER $field_name SET DEFAULT ".$db->quote($field['definition']['default'], $field['definition']['type']);
+                }
+                if (array_key_exists('notnull', $field)) {
+                    if ($query) {
+                        $query.= ', ';
+                    }
+                    $query.= "ALTER $field_name ".($field['definition']['notnull'] ? "SET" : "DROP").' NOT NULL';
+                }
             }
         }
 
@@ -252,7 +265,21 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->query("ALTER TABLE $name $query");
+        $result = $db->query("ALTER TABLE $name $query");
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        if (array_key_exists('rename', $changes)) {
+            foreach ($changes['rename'] as $field_name => $field) {
+                $field_name = $db->quoteIdentifier($field_name);
+                $result = $db->query("ALTER TABLE $name RENAME COLUMN $field_name TO ".$field['name']);
+                if (PEAR::isError($result)) {
+                    break;
+                }
+            }
+        }
+        return $result;
     }
 
     // }}}
