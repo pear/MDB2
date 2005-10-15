@@ -267,6 +267,11 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         );
         $name = 'pkindex';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
+        if (PEAR::isError($result)) {
+            echo 'Error creating primary index, trying with name "primary" instead .. ';
+            $name = 'primary';
+            $result = $this->db->manager->createConstraint($this->table, $name, $index);
+        }
         $this->assertFalse(PEAR::isError($result), 'Error creating primary index');
     }
 
@@ -288,7 +293,12 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $name = 'pkindex';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
         if (PEAR::isError($result)) {
-        $this->assertFalse(true, 'Error creating primary index');
+            echo 'Error creating primary index, trying with name "primary" instead .. ';
+            $name = 'primary';
+            $result = $this->db->manager->createConstraint($this->table, $name, $index);
+        }
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error creating primary index');
         } else {
             $result = $this->db->manager->dropConstraint($this->table, $name);
             $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
@@ -299,7 +309,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
      *
      */
     function testListConstraints() {
-        if (!$this->methodExists($this->db->manager, 'listTableConstraint')) {
+        if (!$this->methodExists($this->db->manager, 'listTableConstraints')) {
             return;
         }
         $index = array(
@@ -313,7 +323,12 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $name = 'pkindex';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
         if (PEAR::isError($result)) {
-        $this->assertFalse(true, 'Error creating primary index');
+            echo 'Error creating primary index, trying with name "primary" instead .. ';
+            $name = 'primary';
+            $result = $this->db->manager->createConstraint($this->table, $name, $index);
+        }
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error creating primary index');
         } else {
             $constraints = $this->db->manager->listTableConstraints($this->table);
             $this->assertFalse(PEAR::isError($constraints), 'Error listing constraints');
