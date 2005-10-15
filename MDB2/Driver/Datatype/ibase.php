@@ -215,9 +215,11 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
-        if (PEAR::isError($connect = $db->connect())) {
-            return $connect;
+        $connection = $db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
+
         $close = true;
         if (is_resource($value)) {
             $close = false;
@@ -232,15 +234,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             @rewind($fp);
             $value = $fp;
         }
-        if ($db->in_transaction) {
-            $blob_id = @ibase_blob_import($db->transaction_id, $value);
-        } else {
-            $connection = $db->getConnection();
-            if (PEAR::isError($connection)) {
-                return $connection;
-            }
-            $blob_id = @ibase_blob_import($connection, $value);
-        }
+        $blob_id = @ibase_blob_import($db->transaction_id, $value);
         if ($close) {
             @fclose($value);
         }

@@ -1837,12 +1837,12 @@ class MDB2_Driver_Common extends PEAR
         $this->row_offset = $this->row_limit = 0;
         $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
 
-        $connected = $this->connect();
-        if (PEAR::isError($connected)) {
-            return $connected;
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
 
-        $result = $this->_doQuery($query, $isManip, $this->connection, false);
+        $result = $this->_doQuery($query, $isManip, $connection, false);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -1912,12 +1912,12 @@ class MDB2_Driver_Common extends PEAR
         $this->row_offset = $this->row_limit = 0;
         $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
 
-        $connected = $this->connect();
-        if (PEAR::isError($connected)) {
-            return $connected;
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
 
-        $result = $this->_doQuery($query, $isManip, $this->connection, $this->database_name);
+        $result = $this->_doQuery($query, $isManip, $connection, $this->database_name);
         if (PEAR::isError($result)) {
             return $result;
         }

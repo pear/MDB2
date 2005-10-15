@@ -219,11 +219,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function &getConnection()
     {
+        if ($this->in_transaction) {
+            return $this->transaction_id;
+        }
         $result = $this->connect();
         if (PEAR::isError($result)) {
             return $result;
         }
-        return $this->in_transaction ? $this->transaction_id : $this->connection;
+        return $this->connection;
     }
 
     // }}}
@@ -453,14 +456,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            if ($this->in_transaction) {
-                $connection = $this->transaction_id;
-            } else {
-                $err = $this->connect();
-                if (PEAR::isError($err)) {
-                    return $err;
-                }
-                $connection = $this->connection;
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
             }
         }
         $result = ibase_query($connection, $query);
@@ -473,51 +471,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             //return $result;
             return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
         }
-        return $result;
-    }
-
-    // }}}
-    // {{{ query()
-
-    /**
-     * Send a query to the database and return any results
-     *
-     * @param string $query the SQL query
-     * @param mixed $types  array that contains the types of the columns in
-     *                      the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function &query($query, $types = null, $result_class = true, $result_wrap_class = false)
-    {
-        $isManip = MDB2::isManip($query);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
-
-        $connected = $this->connect();
-        if (PEAR::isError($connected)) {
-            return $connected;
-        }
-
-        $connection = $this->in_transaction
-            ? $this->transaction_id : $this->connection;
-
-        $result = $this->_doQuery($query, $isManip, $connection, $this->database_name);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-
-        // check for integers instead of manip since drivers may do some
-        // custom checks not covered by MDB2::isManip()
-        if (is_int($result)) {
-            return $result;
-        }
-
-        $result =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
         return $result;
     }
 
@@ -626,7 +579,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 $position = $p_position;
             }
         }
-        $connection = ($this->in_transaction ? $this->transaction_id : $this->connection);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
         $statement = ibase_prepare($connection, $query);
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
@@ -1126,12 +1082,10 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             return $null;
         }
 
-        $connected = $this->db->connect();
-        if (PEAR::isError($connected)) {
-            return $connected;
-        }
-        $connection = $this->db->in_transaction
-            ? $this->db->transaction_id : $this->db->connection;
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
 
         $parameters = array(0 => $this->statement);
         $i = 0;

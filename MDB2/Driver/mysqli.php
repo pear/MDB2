@@ -166,7 +166,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function escape($text)
     {
-        return @mysqli_escape_string($this->connection, $text);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        return @mysqli_escape_string($connection, $text);
     }
 
     // }}}
@@ -435,11 +439,10 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $err = $this->connect();
-            if (PEAR::isError($err)) {
-                return $err;
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
             }
-            $connection = $this->connection;
         }
         if (is_null($database_name)) {
             $database_name = $this->database_name;
@@ -583,7 +586,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 $position = $p_position;
             }
         }
-        $statement = @mysqli_prepare($this->connection, $query);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $statement = @mysqli_prepare($connection, $query);
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $obj =& new $class_name($this, $statement, $query, $types, $result_types);
         return $obj;
@@ -730,7 +737,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
             return $result;
         }
-        $value = @mysqli_insert_id($this->connection);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $value = @mysqli_insert_id($connection);
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE ".$this->options['seqcol_name']." < $value";
             $result = $this->_doQuery($query, true);
@@ -754,7 +765,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function lastInsertID($table = null, $field = null)
     {
-        $value = @mysqli_insert_id($this->connection);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $value = @mysqli_insert_id($connection);
         if (!$value) {
             return $this->raiseError();
         }
@@ -1012,9 +1027,9 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             return $null;
         }
 
-        $connected = $this->db->connect();
-        if (PEAR::isError($connected)) {
-            return $connected;
+        $connection = $db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
 
         if (!empty($this->values)) {

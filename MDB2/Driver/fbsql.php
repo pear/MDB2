@@ -314,11 +314,10 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $err = $this->connect();
-            if (PEAR::isError($err)) {
-                return $err;
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
             }
-            $connection = $this->connection;
         }
         if (is_null($database_name)) {
             $database_name = $this->database_name;
@@ -431,7 +430,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function lastInsertID($table = null, $field = null)
     {
-        $value = @fbsql_insert_id($this->connection);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $value = @fbsql_insert_id($connection);
         if (!$value) {
             return $this->raiseError();
         }

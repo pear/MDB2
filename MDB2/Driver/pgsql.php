@@ -451,11 +451,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $err = $this->connect();
-            if (PEAR::isError($err)) {
-                return $err;
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
             }
-            $connection = $this->connection;
         }
 
         $result = @pg_query($connection, $query);

@@ -289,7 +289,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
        if ((bool) ini_get('mssql.datetimeconvert')) {
            ini_set('mssql.datetimeconvert', '0');
        }
-       @mssql_query('SET DATEFORMAT ymd', $this->connection);
+       @mssql_query('SET DATEFORMAT ymd', $connection);
 
         return MDB2_OK;
     }
@@ -339,11 +339,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $err = $this->connect();
-            if (PEAR::isError($err)) {
-                return $err;
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
             }
-            $connection = $this->connection;
         }
         if (is_null($database_name)) {
             $database_name = $this->database_name;

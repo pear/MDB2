@@ -189,7 +189,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'commit: transaction changes are being auto committed');
         }
         if ($this->uncommitedqueries) {
-            if (!@OCICommit($this->connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+            if (!@OCICommit($connection)) {
                 return $this->raiseError();
             }
             $this->uncommitedqueries = 0;
@@ -216,7 +220,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
         if ($this->uncommitedqueries) {
-            if (!@OCIRollback($this->connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+            if (!@OCIRollback($connection)) {
                 return $this->raiseError();
             }
             $this->uncommitedqueries = 0;
@@ -446,11 +454,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $err = $this->connect();
-            if (PEAR::isError($err)) {
-                return $err;
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
             }
-            $connection = $this->connection;
         }
 
         $result = @OCIParse($connection, $query);
@@ -595,7 +602,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (is_array($types)) {
             $query.= $columns.$variables;
         }
-        $statement = @OCIParse($this->connection, $query);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $statement = @OCIParse($connection, $query);
         if (!$statement) {
             $err =& $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
@@ -1047,9 +1058,9 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             return $null;
         }
 
-        $connected = $this->db->connect();
-        if (PEAR::isError($connected)) {
-            return $connected;
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
 
         $result = MDB2_OK;
@@ -1072,7 +1083,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     }
                 }
                 $lobs[$i]['value'] = $value;
-                $lobs[$i]['descriptor'] = @OCINewDescriptor($this->db->connection, OCI_D_LOB);
+                $lobs[$i]['descriptor'] = @OCINewDescriptor($connection, OCI_D_LOB);
                 if (!is_object($lobs[$i]['descriptor'])) {
                     $result = $this->db->raiseError();
                     break;
@@ -1119,7 +1130,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
 
                 if (!PEAR::isError($result)) {
                     if (!$this->db->in_transaction) {
-                        if (!@OCICommit($this->db->connection)) {
+                        if (!@OCICommit($connection)) {
                             $result = $this->db->raiseError();
                         }
                     } else {

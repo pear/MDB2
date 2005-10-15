@@ -367,11 +367,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
 
         if (is_null($connection)) {
-            $err = $this->connect();
-            if (PEAR::isError($err)) {
-                return $err;
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
             }
-            $connection = $this->connection;
         }
 
         $function = $this->options['result_buffering']
@@ -568,7 +567,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             }
             return $result;
         }
-        $value = @sqlite_last_insert_rowid($this->connection);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $value = @sqlite_last_insert_rowid($connection);
         if (is_numeric($value)
             && PEAR::isError($this->_doQuery("DELETE FROM $sequence_name WHERE ".$this->options['seqcol_name']." < $value", true))
         ) {
@@ -590,7 +593,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function lastInsertID($table = null, $field = null)
     {
-        $value = @sqlite_last_insert_rowid($this->connection);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $value = @sqlite_last_insert_rowid($connection);
         if (!$value) {
             return $this->raiseError();
         }

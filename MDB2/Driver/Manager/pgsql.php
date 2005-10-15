@@ -472,7 +472,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $subquery = "SELECT indexrelid FROM pg_index, pg_class";
-        $subquery.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_index.indrelid)";
+        $subquery.= " WHERE pg_class.relname='$table' AND pg_class.oid=pg_index.indrelid AND indisprimary != 't'";
         $result = $db->queryCol("SELECT relname FROM pg_class WHERE oid IN ($subquery)");
         if (PEAR::isError($result)) {
             return $result;

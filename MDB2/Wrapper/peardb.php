@@ -330,7 +330,7 @@ class MDB2_PEARProxy extends PEAR
         $this->db_object->setOption('seqcol_name', 'id');
         $this->db_object->setOption('result_wrap_class', 'DB_result');
         $this->phptype = $this->db_object->phptype;
-        $this->connection = $this->db_object->connection;
+        $this->connection = $this->db_object->getConnection();
         $this->dsn = $this->db_object->getDSN();
     }
 
