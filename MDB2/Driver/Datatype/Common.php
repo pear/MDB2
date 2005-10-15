@@ -688,6 +688,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
         $change = $this->{"_compare{$type}Definition"}($current, $previous);
 
+        if ($previous['type'] != $type) {
+            $change['type'] = true;
+        }
+
         $previous_notnull = array_key_exists('notnull', $previous) ? $previous['notnull'] : false;
         $notnull = array_key_exists('notnull', $current) ? $current['notnull'] : false;
         if ($previous_notnull != $notnull) {
