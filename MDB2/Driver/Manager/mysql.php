@@ -668,10 +668,10 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table);
         if (strtolower($name) == 'primary') {
-            $query = "ALTER TABLE $table DROP PRIMARY KEY";
+            $query = "DROP INDEX PRIMARY KEY ON $table";
         } else {
             $name = $db->quoteIdentifier($name);
-            $query = "ALTER TABLE $table DROP INDEX $name";
+            $query = "DROP INDEX FOREIGN KEY $name ON $table";
         }
         return $db->query($query);
     }
