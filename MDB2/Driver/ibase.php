@@ -219,14 +219,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function &getConnection()
     {
-        if ($this->in_transaction) {
-            return $this->transaction_id;
-        }
         $result = $this->connect();
         if (PEAR::isError($result)) {
             return $result;
         }
-        return $this->connection;
+        return $this->in_transaction ? $this->transaction_id : $this->connection;
     }
 
     // }}}
