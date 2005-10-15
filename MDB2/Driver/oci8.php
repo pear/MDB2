@@ -361,6 +361,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 }
             }
             $this->connection = 0;
+            $this->in_transaction = false;
             $this->uncommitedqueries = 0;
         }
         return MDB2_OK;

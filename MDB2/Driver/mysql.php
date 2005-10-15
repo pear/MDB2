@@ -409,6 +409,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 @mysql_close($this->connection);
             }
             $this->connection = 0;
+            $this->in_transaction = false;
         }
         return MDB2_OK;
     }

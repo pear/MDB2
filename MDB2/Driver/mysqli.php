@@ -411,6 +411,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 @mysqli_close($this->connection);
             }
             $this->connection = 0;
+            $this->in_transaction = false;
         }
         return MDB2_OK;
     }

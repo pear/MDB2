@@ -286,6 +286,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 @fbsql_close($this->connection);
             }
             $this->connection = 0;
+            $this->in_transaction = false;
         }
         return MDB2_OK;
     }

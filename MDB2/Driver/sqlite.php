@@ -339,6 +339,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 @sqlite_close($this->connection);
             }
             $this->connection = 0;
+            $this->in_transaction = false;
         }
         return MDB2_OK;
     }
