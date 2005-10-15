@@ -589,7 +589,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $indexes_all;
         }
 
-        $result = array_unique($indexes_all);
+        $result = array_diff(array_unique($indexes_all), array('PRIMARY'));
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
@@ -668,10 +668,10 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table);
         if (strtolower($name) == 'primary') {
-            $query = "DROP INDEX PRIMARY KEY ON $table";
+            $query = "ALTER TABLE $table DROP PRIMARY KEY";
         } else {
             $name = $db->quoteIdentifier($name);
-            $query = "DROP INDEX FOREIGN KEY $name ON $table";
+            $query = "ALTER TABLE $table DROP FOREIGN KEY $name";
         }
         return $db->query($query);
     }
@@ -709,7 +709,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $indexes_all;
         }
 
-        $result = array_unique($indexes_all);
+        $result = array_intersect(array_unique($indexes_all), array('PRIMARY'));
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
