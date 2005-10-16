@@ -365,7 +365,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $query = (array_key_exists('name', $changes) ? 'RENAME AS '.$changes['name'] : '');
+        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$changes['name'] : '');
 
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
