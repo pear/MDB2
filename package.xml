@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.1">
+<package version="1.0" packagerversion="1.4.2">
  <name>MDB2</name>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
@@ -69,59 +69,23 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.0.0beta6</version>
-  <date>2005-10-10</date>
+  <version>2.0.0beta7</version>
+  <date>2005-10-16</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>Warning: this release features numerous BC breaks!
-
-There have been considerable improvements to the datatype, manager and reverse
-modules. Furthermore preliminary support for auto increment and primary keys
-has been added. Please note that making a field auto increment implies a single
-column primary key on this field.
-
-- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
-- moved logic from MDB2::connect() to MDB2::factory(), the only difference is
-  that MDB2::connect will immediatly try to connect to the database
-- MDB2::singleton now uses MDB2::factory()
-- added support for auto increment and primary key in schema. (mysql[i])
-- alterTable now needs the full definition to work (use getTableFieldDefinition
- from Reverse module if you do not have a definition at hand) this eliminates the need
- of the declaration part in the alterTable array.
-- nicer test chooser. Added some js magic to [un]select all the tests in a group
-- fixed typo in _getTextDeclaration()
-- fix PHP4.4 breakage
-- ensure that types and result_types property in the statement class is an array (bug #4695)
-- added support for fetchmode in the iterator class and for any other result wrapper class (bug #4685)
-- moved getInsertID() into core as lastInsertID()
-- moved getBeforeID() and getAfterID() from core into the extended module
-- added base class for all modules (which provides getDBInstance())
-- added free() method to remove an instance from the global instance array
-- removed schema manager related error codes from MDB2::errorMessage()
-- dont set the include path in test suite (people can do that in test_setup.php)
-- added missing default numRows() method
-- added hack into stream_eof() to handle the BC break in 5.0.x
-- removed uncessary duplicate quoting in quote() in the peardb wrapper (bug #5195)
-- warning fix in BC hack of connect() in the peardb wrapper
-- tweaked error message in setResultTypes()
-- removed PDO compatibility code in bindParam and bindCol, now using 0-index numeric keys again
-- expect keys in type arrays the same way as they are passed for the values in execute() and bindParamArray()
-- add s pattern modifier to preg_replace() call for parameter searches in prepare() (bug #5362)
-- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
-- added new portability fetch mode MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES (to remove database/table qualifiers from assoc indexes)
-- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use &apos;field_case&apos; option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
-- ensure that fetchAll always returns an array() even if the result set was empty
-- use array_key_exists() instead of isset() where possible
-- changed structure of field add/remove/change in alterTable() to match MDB2_Schema
-- added default values for supported property
-- reworked supports() to return the given value and also return errors for non existant support feature
-- reworked subSelect() to use the &apos;emulated&apos; supports() return value
-- removed implementation of createIndex() (now every driver needs to implement it themselves)
-- sync fileExists with the LiveUser one, explode instead of split and is_readable instead of file_exists.
-- tweaked compare method family to better deal with optional properties
+  <notes>- added numerous testcases in the managre and reverse module
+- unified case fixing in the list*() methods
+- case-insensitive comparison in _isSequenceName()
+- added getConnection() to fetch a native connection ressource
+- split index and contraint handling
+- quote identifiers
+- refactored get*Declaration() methods to use getTypeDeclaration()
+- setting in_transaction to false on disconnect
+- store if type has changed in compareDefinition()
+- added new Funtion modules to handle difference in SQL functions
 
 open todo items:
-- add test cases for the various module methods
+- add test cases for the function module and autoincrement handling
 - add getServerVersion()
   </notes>
   <deps>
@@ -183,6 +147,11 @@ open todo items:
         <replace type="package-info" from="@package_version@" to="version"/>
        </file>
       </dir> <!-- /MDB2/Driver/Datatype -->
+      <dir name="Function">
+       <file role="php" name="Common.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Function -->
       <dir name="Manager">
        <file role="php" name="Common.php">
         <replace type="package-info" from="@package_version@" to="version"/>
@@ -282,8 +251,29 @@ open todo items:
  </release>
  <changelog>
    <release>
+    <version>2.0.0beta7</version>
+    <date>2005-10-16</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- added numerous testcases in the managre and reverse module
+- unified case fixing in the list*() methods
+- case-insensitive comparison in _isSequenceName()
+- added getConnection() to fetch a native connection ressource
+- split index and contraint handling
+- quote identifiers
+- refactored get*Declaration() methods to use getTypeDeclaration()
+- setting in_transaction to false on disconnect
+- store if type has changed in compareDefinition()
+- added new Funtion modules to handle difference in SQL functions
+
+open todo items:
+- add test cases for the function module and autoincrement handling
+- add getServerVersion()
+    </notes>
+   </release>
+   <release>
     <version>2.0.0beta6</version>
-    <date>2005-10-10</date>
+    <date>2005-10-16</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>Warning: this release features numerous BC breaks!

@@ -2,16 +2,26 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.1.3';
+$version = '0.2.0';
 $notes = <<<EOT
-- added support for portability option in all the list*() methods of the Manager module
-- when dropping a table, the autoincrement trigger is removed
+- fixed _dropAutoincrement()
+- use _dropAutoincrement() in dropTable()
+- fixed mapNativeDatatype()
 - implemented getTableFieldDefinition() and getTableIndexDefinition() in the Reverse module
 - implemented listUsers() in the Manager module
-
+- unified case fixing in the list*() methods
+- use custom implementation of getConnection() to access connection propery
+- split index and contraint handling
+- return "0" as default value for integer NOT NULL fields with no default value
+  (I'm not sure this is a good thing)
+- quote identifiers
+- refactored get*Declaration() methods to use getTypeDeclaration()
+- setting in_transaction to false on disconnect
+- fixed type changing in alterTable()
+- added new Funtion modules to handle difference in SQL functions
 
 open todo items:
-- code to be able to list primary contraints inside dropIndex()
+- code to hide primary contraints inside listTableIndexes()
 - handle autoincremement fields in alterTable() and dropTable()
 EOT;
 

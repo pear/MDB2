@@ -2,38 +2,24 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.1.2';
+$version = '0.2.0';
 $notes = <<<EOT
-Warning: this release features numerous BC breaks!
-
-There have been considerable improvements to the datatype, manager and reverse
-modules. Furthermore preliminary support for auto increment and primary keys
-has been added. Please note that making a field auto increment implies a single
-column primary key on this field.
-
-- alterTable now needs the full definition to work (use getTableFieldDefinition
- from Reverse module if you do not have a definition at hand) this eliminates the need
- of the declaration part in the alterTable array.
-- fix PHP4.4 breakage
-- fixed typo in unsigned integer declaration handling
-- no need to close() the descriptor according to the docs (we do free() it though)
-- use !empty() instead of isset() in fetchRow to determine if result cols were bound or result types were set
-- expect keys in type arrays the same way as they are passed for the values in execute() and bindParamArray()
-- add s pattern modifier to preg_replace() call for parameter searches in prepare() (bug #5362)
-- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
-- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use 'field_case' option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
-- use array_map() instead of array_flip(array_change_key_case(array_flip())) to fix case of array values
-- use array_key_exists() instead of isset() where possible
-- changed structure of field add/remove/change in alterTable() to match MDB2_Schema
-- added createIndex()
-- return 0 for manipulation queries when disable_query is enabled
-- tweaked field changing in alterTable()
-- getTypeDeclaration() in the datatype module is now a public method
+- added listTableIndexes()
+- fixed _dropAutoincrement()
+- use _dropAutoincrement() in dropTable()
+- support portability option in listTableIndexes()
+- do not fix case in listUsers()
+- unified case fixing in the list*() methods
+- use getConnection() to access connection propery
+- split index and contraint handling
+- quote identifiers
+- refactored get*Declaration() methods to use getTypeDeclaration()
+- setting in_transaction to false on disconnect
+- added new Funtion modules to handle difference in SQL functions
 
 open todo items:
-- code to be able to list primary contraints inside listTableIndexes()/dropIndex()
+- code to hide primary contraints inside listTableIndexes()
 - handle autoincremement fields in alterTable() and dropTable()
-- using LOBs have a tendency to crash apache (even with the uptodate PECL oci8 ext)
 EOT;
 
 $package = new PEAR_PackageFileManager();

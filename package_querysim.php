@@ -2,15 +2,11 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.1.1';
+$version = '0.2.0';
 $notes = <<<EOT
-- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
-- fix PHP4.4 breakage
-- use !empty() instead of isset() in fetchRow to determine if result cols were bound or result types were set
-- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
-- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use 'field_case' option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
-- use array_key_exists() instead of isset() where possible
-- return 0 for manipulation queries when disable_query is enabled
+- use getConnection() to access connection propery
+- setting in_transaction to false on disconnect
+
 EOT;
 
 $package = new PEAR_PackageFileManager();

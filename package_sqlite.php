@@ -2,31 +2,20 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.1.1';
+$version = '0.2.0';
 $notes = <<<EOT
-Warning: this release features numerous BC breaks!
+- do not fix case in listUsers()
+- unified case fixing in the list*() methods
+- support sorting order in createIndex()
+- tweaked lob and text handling in mapNativeDatatype()
+- fixed getTableFieldDefinition()
+- use getConnection() to access connection propery
+- split index and contraint handling
+- quote identifiers
+- refactored get*Declaration() methods to use getTypeDeclaration()
+- setting in_transaction to false on disconnect
+- added new Funtion modules to handle difference in SQL functions
 
-There have been considerable improvements to the datatype, manager and reverse
-modules. Furthermore preliminary support for auto increment and primary keys
-has been added. Please note that making a field auto increment implies a single
-column primary key on this field.
-
-- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
-- fix PHP4.4 breakage
-- moved getInsertID() into core as lastInsertID()
-- use !empty() instead of isset() in fetchRow to determine if result cols were bound or result types were set
-- moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
-- added new portability fetch mode MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES (to remove database/table qualifiers from assoc indexes)
-- renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use 'field_case' option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
-- use array_key_exists() instead of isset() where possible
-- changed structure of field add/remove/change in alterTable() to match MDB2_Schema
-- return 0 for manipulation queries when disable_query is enabled
-- tweaked getTableFieldDefinition() in reverse module (still broken however)
-- fixed listTableIndexes()
-
-open todo items:
-- primary key support is missing from createIndex()
-- getTableFieldDefinition() in reverse module is broken
 EOT;
 
 $package = new PEAR_PackageFileManager();
