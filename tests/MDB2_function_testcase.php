@@ -113,7 +113,6 @@ class MDB2_Function_TestCase extends PHPUnit_TestCase
                 . $this->db->quote($record['trans_fr']) . ')';
         $result = $this->db->query($query);
         $this->assertFalse(PEAR::isError($result), 'Error inserting sample record');
-        $this->db->queryCol('SELECT trans_en FROM numbers');
 
         $substring_clause = $this->db->function->substring('trans_en', 1, 6);
         $query = 'SELECT '.$substring_clause .' FROM numbers';
