@@ -406,7 +406,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
         }
-        $query .= " INDEX $name ON $table (";
+        $query .= " INDEX $name ON $table";
         $fields = array();
         foreach ($definition['fields'] as $field_name => $field) {
             $field_string = $db->quoteIdentifier($field_name);
@@ -422,7 +422,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             }
             $fields[] = $field_string;
         }
-        $query .= implode(', ', $fields) . ')';
+        $query .= ' ('.implode(', ', $fields) . ')';
         return $db->query($query);
     }
 

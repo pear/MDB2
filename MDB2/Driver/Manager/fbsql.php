@@ -448,7 +448,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table);
         $name = $db->quoteIdentifier($name);
-        $query = "CREATE ".(array_key_exists('unique', $definition) ? 'UNIQUE INDEX' : 'INDEX')." $name on $table (";
+        $query = "CREATE ".(array_key_exists('unique', $definition) ? 'UNIQUE INDEX' : 'INDEX')." $name on $table";
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
             $fields[] = $db->quoteIdentifier($field);

@@ -614,12 +614,12 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         $table = $db->quoteIdentifier(strtoupper($table));
         $name = $db->quoteIdentifier(strtoupper($name));
-        $query .= $query_sort. " INDEX $name ON $table (";
+        $query .= $query_sort. " INDEX $name ON $table";
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
             $fields[] = $db->quoteIdentifier($field);
         }
-        $query .= implode(', ', $fields) . ')';
+        $query .= ' ('.implode(', ', $fields) . ')';
         return $db->query($query);
     }
 

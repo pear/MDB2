@@ -523,7 +523,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
         }
-        $query .= " INDEX $name ON $table (";
+        $query .= " INDEX $name ON $table";
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
             $fields[] = $db->quoteIdentifier($field);
