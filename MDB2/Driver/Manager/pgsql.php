@@ -214,7 +214,12 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$changes['name'] : '');
+        $result = $db->query("ALTER TABLE $name $query RENAME TO ".$changes['name']);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        $query = '';
 
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
