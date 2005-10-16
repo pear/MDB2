@@ -353,14 +353,15 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function disconnect($force = true)
     {
         if (is_resource($this->connection)) {
+            if($this->in_transaction) {
+                $this->rollback();
+            }
             if (!$this->opened_persistent || $force) {
                 if (function_exists('oci_close')) {
                     @oci_close($this->connection);
                 } else {
                     @OCILogOff($this->connection);
                 }
-            } elseif($this->in_transaction) {
-                $this->rollback();
             }
             $this->connection = 0;
             $this->in_transaction = false;
