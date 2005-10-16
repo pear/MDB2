@@ -8,13 +8,13 @@ $notes = <<<EOT
 - unified case fixing in the list*() methods
 - fixed change and rename in alterTable()
 - primary key must be called primary
-- use getConnection() to access connection propery
-- split index and contraint handling
+- use getConnection() to access connection property
+- split index and constraint handling
 - quote identifiers
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
-- hide contraints from indexes and vice versa in the list methods
-- added new Funtion modules to handle difference in SQL functions
+- hide constraints from indexes and vice versa in the list methods
+- added new Function modules to handle difference in SQL functions
 
 EOT;
 

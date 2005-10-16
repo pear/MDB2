@@ -5,12 +5,12 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.0';
 $notes = <<<EOT
 - unified case fixing in the list*() methods
-- use getConnection() to access connection propery
-- split index and contraint handling
+- use getConnection() to access connection property
+- split index and constraint handling
 - quote identifiers
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
 
 open todo items:
 - added missing createIndex() and reverse module methods method

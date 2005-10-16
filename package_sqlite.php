@@ -9,12 +9,12 @@ $notes = <<<EOT
 - support sorting order in createIndex()
 - tweaked lob and text handling in mapNativeDatatype()
 - fixed getTableFieldDefinition()
-- use getConnection() to access connection propery
-- split index and contraint handling
+- use getConnection() to access connection property
+- split index and constraint handling
 - quote identifiers
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
 
 EOT;
 

@@ -4,16 +4,16 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '2.0.0beta7';
 $notes = <<<EOT
-- added numerous testcases in the managre and reverse module
+- added numerous testcases in the manager and reverse module
 - unified case fixing in the list*() methods
 - case-insensitive comparison in _isSequenceName()
-- added getConnection() to fetch a native connection ressource
-- split index and contraint handling
+- added getConnection() to fetch a native connection resource
+- split index and constraint handling
 - quote identifiers
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - store if type has changed in compareDefinition()
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
 
 open todo items:
 - add test cases for the function module and autoincrement handling

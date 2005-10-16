@@ -7,14 +7,14 @@ $notes = <<<EOT
 - do not fix case in listUsers()
 - unified case fixing in the list*() methods
 - tweaked text handling in mapNativeDatatype()
-- use getConnection() to access connection propery
-- split index and contraint handling
+- use getConnection() to access connection property
+- split index and constraint handling
 - quote identifiers
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - added support for table and column renaming as well as default and nullability
   changing in alterTable()
 - setting in_transaction to false on disconnect
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
 
 open todo items:
 - implement native prepared queries

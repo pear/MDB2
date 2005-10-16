@@ -10,18 +10,17 @@ $notes = <<<EOT
 - implemented getTableFieldDefinition() and getTableIndexDefinition() in the Reverse module
 - implemented listUsers() in the Manager module
 - unified case fixing in the list*() methods
-- use custom implementation of getConnection() to access connection propery
-- split index and contraint handling
+- use custom implementation of getConnection() to access connection property
+- split index and constraint handling
 - return "0" as default value for integer NOT NULL fields with no default value
-  (I'm not sure this is a good thing)
 - quote identifiers
 - refactored get*Declaration() methods to use getTypeDeclaration()
-- setting in_transaction to false on disconnect
+- set in_transaction to false on disconnect
 - fixed type changing in alterTable()
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
 
 open todo items:
-- code to hide primary contraints inside listTableIndexes()
+- code to hide primary constraints inside listTableIndexes()
 - handle autoincremement fields in alterTable() and dropTable()
 EOT;
 

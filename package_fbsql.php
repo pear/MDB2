@@ -6,14 +6,14 @@ $version = '0.2.0';
 $notes = <<<EOT
 - do not fix case in listUsers()
 - unified case fixing in the list*() methods
-- split index and contraint handling
+- split index and constraint handling
 - quote identifiers
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
 
 open todo items:
-- this driver needs a serious update as its currently unmaintained
+- this driver needs a serious update as it's currently unmaintained
 EOT;
 
 $package = new PEAR_PackageFileManager();

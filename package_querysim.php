@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '0.2.0';
 $notes = <<<EOT
-- use getConnection() to access connection propery
+- use getConnection() to access connection property
 - setting in_transaction to false on disconnect
 
 EOT;
