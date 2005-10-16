@@ -223,7 +223,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        return $this->in_transaction ? $this->transaction_id : $this->connection;
+        if ($this->in_transaction) {
+            return $this->transaction_id;
+        }
+        return $this->connection;
     }
 
     // }}}
@@ -1080,10 +1083,10 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             return $null;
         }
 
-            $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
-                return $connection;
-            }
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
 
         $parameters = array(0 => $this->statement);
         $i = 0;
