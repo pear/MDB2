@@ -1124,15 +1124,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function __destruct()
     {
-        if ($this->connection) {
-            if ($this->opened_persistent) {
-                if ($this->in_transaction) {
-                    $this->rollback();
-                }
-            } else {
-                $this->disconnect();
-            }
-        }
+        $this->disconnect(false);
     }
 
     // }}}

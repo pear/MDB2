@@ -316,10 +316,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     function disconnect()
     {
         if (is_resource($this->connection)) {
-            if (($this->opened_persistent) && (is_resource($this->connection))) {
-                if (!@fclose($this->connection)) {
-                    return $this->raiseError();
-                }
+            if (($this->opened_persistent))) {
+                @fclose($this->connection)
             }
             $this->connection = 0;
         }

@@ -309,6 +309,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         if (is_resource($this->connection)) {
             if (!$this->opened_persistent || $force) {
                 @mssql_close($this->connection);
+            } elseif($this->in_transaction) {
+                $this->rollback();
             }
             $this->connection = 0;
             $this->in_transaction = false;

@@ -337,6 +337,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         if (is_resource($this->connection)) {
             if (!$this->opened_persistent || $force) {
                 @sqlite_close($this->connection);
+            } elseif($this->in_transaction) {
+                $this->rollback();
             }
             $this->connection = 0;
             $this->in_transaction = false;

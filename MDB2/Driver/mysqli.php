@@ -409,6 +409,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (is_object($this->connection)) {
             if ($force) {
                 @mysqli_close($this->connection);
+            } elseif($this->in_transaction) {
+                $this->rollback();
             }
             $this->connection = 0;
             $this->in_transaction = false;

@@ -359,6 +359,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 } else {
                     @OCILogOff($this->connection);
                 }
+            } elseif($this->in_transaction) {
+                $this->rollback();
             }
             $this->connection = 0;
             $this->in_transaction = false;

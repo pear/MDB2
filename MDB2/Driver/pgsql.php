@@ -380,6 +380,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if (is_resource($this->connection)) {
             if (!$this->opened_persistent || $force) {
                 @pg_close($this->connection);
+            } elseif($this->in_transaction) {
+                $this->rollback();
             }
             $this->connection = 0;
             $this->in_transaction = false;
