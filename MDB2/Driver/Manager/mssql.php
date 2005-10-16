@@ -246,7 +246,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
-            
+
 
         if (!$query) {
             return MDB2_OK;
@@ -400,7 +400,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if(PEAR::isError($res)) {
             return $res;
         }
-        
+
         if ($start == 1) {
             return MDB2_OK;
         }

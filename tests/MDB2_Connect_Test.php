@@ -3,11 +3,11 @@
 /**
  * This is just a dummy class to perform the tests.
  */
-class MDB2_Connect_Test 
+class MDB2_Connect_Test
 {
     var $_dsn;
     var $dbc;
-    
+
     // {{{ constructor php5 valid
     /**
      * Straightforward? The constructor
@@ -16,7 +16,7 @@ class MDB2_Connect_Test
     {
         require_once 'MDB2.php';
         require_once 'config.php';
-        
+
         $this->_dsn = array(
                 'phptype'  => DSN_PHPTYPE,
                 'username' => DSN_USERNAME,
@@ -24,7 +24,7 @@ class MDB2_Connect_Test
                 'hostspec' => DSN_HOSTNAME,
                 'database' => DSN_DATABASE,
         );
-        
+
     }
     // }}}
     // {{{ PHP4 constructor..
@@ -46,7 +46,7 @@ class MDB2_Connect_Test
             return $this->dbc;
         }
     }
-    // }}}    
+    // }}}
 }
 // }}}
-?>    
+?>

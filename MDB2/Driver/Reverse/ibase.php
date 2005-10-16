@@ -118,7 +118,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             2 => 'decimal',
         ),
     );
-    
+
     // {{{ getTableFieldDefinition()
 
     /**
@@ -170,7 +170,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         } else {
             $column = array_change_key_case($column, $db->options['field_case']);
         }
-        
+
         $column['field_type'] = array_key_exists($column['field_type_code'], $this->types)
             ? $this->types[(int)$column['field_type_code']] : 'undefined';
         if ($column['field_sub_type_code']
@@ -237,7 +237,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        
+
         $index = $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         if (empty($index)) {
             return $db->raiseError(MDB2_ERROR, null, null,
@@ -248,11 +248,11 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $fields[] = $row['field_name'];
         } while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)));
         $result->free();
-        
+
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
         }
-        
+
         $definition = array();
         if ($index['unique_flag']) {
             $definition['unique'] = true;
@@ -308,7 +308,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        
+
         $index = $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         if (empty($index)) {
             return $db->raiseError(MDB2_ERROR, null, null,
@@ -319,11 +319,11 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $fields[] = $row['field_name'];
         } while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)));
         $result->free();
-        
+
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
         }
-        
+
         $definition = array();
         if ($index['constraint_type'] == 'PRIMARY KEY') {
             $definition['primary'] = true;

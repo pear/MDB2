@@ -274,7 +274,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        
+
         return parent::dropTable($name);
     }
 

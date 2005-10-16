@@ -430,7 +430,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         $result = $this->db->manager->dropTable($this->table);
         $this->assertFalse($this->tableExists(), 'Error listing tables');
     }
-    
+
     /**
      *
      */
