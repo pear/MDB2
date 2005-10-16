@@ -214,7 +214,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $result = $db->query("ALTER TABLE $name $query RENAME TO ".$changes['name']);
+        $result = $db->query("ALTER TABLE $name RENAME TO ".$changes['name']);
         if (PEAR::isError($result)) {
             return $result;
         }
