@@ -234,7 +234,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             @rewind($fp);
             $value = $fp;
         }
-        $blob_id = @ibase_blob_import($db->transaction_id, $value);
+        $blob_id = @ibase_blob_import($connection, $value);
+
         if ($close) {
             @fclose($value);
         }
