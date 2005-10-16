@@ -97,7 +97,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
                 }
                 $query_fields[] = $query;
             }
-            return implode(',', $query_fields);
+            return implode(', ', $query_fields);
         }
         return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
             'getFieldDeclarationList: the definition of the table "'.$table_name.'" does not contain any fields');
@@ -524,8 +524,11 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             $query.= ' UNIQUE';
         }
         $query .= " INDEX $name ON $table (";
-        $query .= implode(', ', array_keys($definition['fields'])) . ')';
-
+        $fields = array();
+        foreach (array_keys($definition['fields']) as $field) {
+            $fields[] = $db->quoteIdentifier($field);
+        }
+        $query .= ' ('. implode(', ', $fields) . ')';
         return $db->query($query);
     }
 
@@ -610,7 +613,11 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if (array_key_exists('primary', $definition) && $definition['primary']) {
             $query.= ' PRIMARY KEY';
         }
-        $query .= ' ('.implode(', ', array_keys($definition['fields'])) . ')';
+        $fields = array();
+        foreach (array_keys($definition['fields']) as $field) {
+            $fields[] = $db->quoteIdentifier($field);
+        }
+        $query .= ' ('. implode(', ', $fields) . ')';
         return $db->query($query);
     }
 

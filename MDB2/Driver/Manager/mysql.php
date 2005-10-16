@@ -642,9 +642,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table);
         $query = "ALTER TABLE $table ADD $type $name (";
-        $query.= implode(', ', array_keys($definition['fields']));
-        $query.= ')';
-
+        $fields = array();
+        foreach (array_keys($definition['fields']) as $field) {
+            $fields[] = $db->quoteIdentifier($field);
+        }
+        $query .= ' ('. implode(', ', $fields) . ')';
         return $db->query($query);
     }
 

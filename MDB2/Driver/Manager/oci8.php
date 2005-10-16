@@ -402,14 +402,15 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         if (array_key_exists('remove', $changes)) {
             $query = ' DROP (';
-            $fields = $changes['remove'];
-            $query.= implode(', ', array_keys($fields));
-            $query.= ')';
+            $fields = array();
+            foreach ($changes['remove'] as $field) {
+                $fields[] = $db->quoteIdentifier($field);
+            }
+            $query .= ' ('. implode(', ', $fields) . ')';
             $name = $db->quoteIdentifier($name);
             if (PEAR::isError($result = $db->query("ALTER TABLE $name $query"))) {
                 return $result;
             }
-            $query = '';
         }
 
         $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$db->quoteIdentifier($changes['name']) : '');
