@@ -56,6 +56,17 @@ require_once 'MDB2/Driver/Function/Common.php';
  */
 class MDB2_Driver_Function_sqlite extends MDB2_Driver_Function_Common
 {
+    // {{{ constructor
+
+    /**
+     * Constructor
+     */
+    function __construct($db_index)
+    {
+        parent::__construct($db_index);
+        // create all sorts of UDFs
+    }
+
     // {{{ now()
 
     /**
