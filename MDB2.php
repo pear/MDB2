@@ -2372,7 +2372,7 @@ class MDB2_Driver_Common extends PEAR
     // {{{ getSequenceName()
 
     /**
-     * adds sequence name formating to a sequence name
+     * adds sequence name formatting to a sequence name
      *
      * @param string $sqn name of the sequence
      * @return string formatted sequence name
@@ -2380,8 +2380,8 @@ class MDB2_Driver_Common extends PEAR
      */
     function getSequenceName($sqn)
     {
-        return $this->quoteIdentifier(sprintf($this->options['seqname_format'],
-            preg_replace('/[^a-z0-9_]/i', '_', $sqn)));
+        return sprintf($this->options['seqname_format'],
+            preg_replace('/[^a-z0-9_]/i', '_', $sqn));
     }
 
     // }}}
