@@ -226,8 +226,10 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             }
             if ($index_name == $key_name) {
                 if ($row['key_name'] == 'PRIMARY') {
-                    $definition['primary'] = true;
-                } elseif (!$row['non_unique']) {
+                    return $db->raiseError(MDB2_ERROR, null, null,
+                        'getTableIndexDefinition: it was not specified an existing table index');
+                }
+                if (!$row['non_unique']) {
                     $definition['unique'] = true;
                 }
                 $column_name = $row['column_name'];
@@ -249,6 +251,74 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         if (!array_key_exists('fields', $definition)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
+        }
+        return $definition;
+    }
+
+    // }}}
+    // {{{ getTableConstraintDefinition()
+
+    /**
+     * get the stucture of a constraint into an array
+     *
+     * @param string    $table      name of table that should be used in method
+     * @param string    $index_name name of index that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableConstraintDefinition($table, $index_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $result = $db->query("SHOW INDEX FROM $table");
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        $definition = array();
+        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+            if (!($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE)
+                || $db->options['field_case'] != CASE_LOWER
+            ) {
+                $row = array_change_key_case($row, CASE_LOWER);
+            }
+            $key_name = $row['key_name'];
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $key_name = strtolower($key_name);
+                } else {
+                    $key_name = strtoupper($key_name);
+                }
+            }
+            if ($index_name == $key_name) {
+                if ($row['key_name'] == 'PRIMARY') {
+                    $definition['primary'] = true;
+                }
+                if (!$row['non_unique']) {
+                    return $db->raiseError(MDB2_ERROR, null, null,
+                        'getTableConstraintDefinition: it was not specified an existing table index');
+                }
+                $column_name = $row['column_name'];
+                if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                    if ($db->options['field_case'] == CASE_LOWER) {
+                        $column_name = strtolower($column_name);
+                    } else {
+                        $column_name = strtoupper($column_name);
+                    }
+                }
+                $definition['fields'][$column_name] = array();
+                if (array_key_exists('collation', $row)) {
+                    $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
+                        ? 'ascending' : 'descending');
+                }
+            }
+        }
+        $result->free();
+        if (!array_key_exists('fields', $definition)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table index');
         }
         return $definition;
     }

@@ -132,7 +132,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTableIndexDefinition: getting index definition is not supported');
+            'getTableConstraintDefinition: getting index definition is not supported');
     }
 
     // }}}

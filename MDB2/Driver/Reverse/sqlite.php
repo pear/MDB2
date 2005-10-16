@@ -194,10 +194,6 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        if ($index_name == 'PRIMARY') {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableIndexDefinition: PRIMARY is an hidden index');
-        }
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND name='$index_name' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
         $result = $db->query($query);
         if (PEAR::isError($result)) {
@@ -207,7 +203,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         $column = 'sql';
         if (!isset($columns[$column])) {
             $result->free();
-            return $db->raiseError('getTableIndexDefinition: show index does not return the table creation sql');
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableIndexDefinition: it was not specified an existing table index');
         }
 
         $sql = strtolower($result->fetchOne());
@@ -219,8 +216,10 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         $definition = array();
         if (strstr($sql, ' primary ')) {
-            $definition['primary'] = true;
-        } elseif (strstr($sql, ' unique ')) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableIndexDefinition: it was not specified an existing table index');
+        }
+        if (strstr($sql, ' unique ')) {
             $definition['unique'] = true;
         }
         $count = count($column_names);
@@ -238,6 +237,71 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (!array_key_exists('fields', $definition)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
+        }
+        return $definition;
+    }
+
+    // }}}
+    // {{{ getTableConstraintDefinition()
+
+    /**
+     * get the stucture of a constraint into an array
+     *
+     * @param string    $table      name of table that should be used in method
+     * @param string    $index_name name of index that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableConstraintDefinition($table, $index_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND name='$index_name' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
+        $result = $db->query($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        $columns = $result->getColumnNames();
+        $column = 'sql';
+        if (!isset($columns[$column])) {
+            $result->free();
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table index');
+        }
+
+        $sql = strtolower($result->fetchOne());
+        $key_name = $index_name;
+        $start_pos = strpos($sql, '(');
+        $end_pos = strrpos($sql, ')');
+        $column_names = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
+        $column_names = split(',', $column_names);
+
+        $definition = array();
+        if (strstr($sql, ' primary ')) {
+            $definition['primary'] = true;
+        }
+        if (strstr($sql, ' unique ')) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table index');
+        }
+        $count = count($column_names);
+        for ($i=0; $i<$count; ++$i) {
+            $column_name = strtok($column_names[$i]," ");
+            $collation = strtok(" ");
+            $definition['fields'][$column_name] = array();
+            if (!empty($collation)) {
+                $definition['fields'][$column_name]['sorting'] =
+                    ($collation=='ASC' ? 'ascending' : 'descending');
+            }
+        }
+
+        $result->free();
+        if (!array_key_exists('fields', $definition)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table index');
         }
         return $definition;
     }
