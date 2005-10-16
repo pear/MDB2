@@ -390,9 +390,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
-        $seqcol_name   = $db->options['seqcol_name'];
-        $seqcol_name = $db->quoteIdentifier($seqcol_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
         $query = "CREATE TABLE $sequence_name ($seqcol_name " .
                  "INT PRIMARY KEY CLUSTERED IDENTITY($start,1) NOT NULL)";
 
@@ -455,7 +454,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         return $db->query("DROP TABLE $sequence_name");
     }
 

@@ -736,9 +736,8 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
-        $seqcol_name = $db->options['seqcol_name'];
-        $seqcol_name = $db->quoteIdentifier($seqcol_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
         $result = $this->_verifyTableType($db->options['default_table_type']);
         if (PEAR::isError($result)) {
             return $result;
@@ -792,7 +791,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         return $db->query("DROP TABLE $sequence_name");
     }
 

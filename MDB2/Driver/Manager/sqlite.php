@@ -572,9 +572,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
-        $seqcol_name = $db->options['seqcol_name'];
-        $seqcol_name = $db->quoteIdentifier($seqcol_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
         $query = "CREATE TABLE $sequence_name ($seqcol_name INTEGER PRIMARY KEY DEFAULT 0 NOT NULL)";
         $res = $db->query($query);
         if (PEAR::isError($res)) {
@@ -616,7 +615,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         return $db->query("DROP TABLE $sequence_name");
     }
 

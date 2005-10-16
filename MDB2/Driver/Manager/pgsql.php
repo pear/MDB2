@@ -562,7 +562,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         return $db->query("CREATE SEQUENCE $sequence_name INCREMENT 1".
             ($start < 1 ? " MINVALUE $start" : '')." START $start");
     }
@@ -584,7 +584,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         return $db->query("DROP SEQUENCE $sequence_name");
     }
 

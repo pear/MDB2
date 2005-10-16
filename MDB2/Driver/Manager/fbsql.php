@@ -538,9 +538,8 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
-        $seqcol_name = $db->options['seqcol_name'];
-        $seqcol_name = $db->quoteIdentifier($seqcol_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
         $query = "CREATE TABLE $sequence_name ($seqcol_name INTEGER DEFAULT UNIQUE, PRIMARY KEY($seqcol_name))";
         $res = $db->query($query);
         $res = $db->query("SET UNIQUE = 1 FOR $sequence_name");
@@ -583,7 +582,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         return $db->query("DROP TABLE $sequence_name CASCADE");
     }
 

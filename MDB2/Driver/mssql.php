@@ -430,12 +430,13 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $sequence_name = $this->getSequenceName($seq_name);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name));
+        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name']);
         if (!$this->_checkSequence($sequence_name)) {
-            $query = "INSERT INTO $sequence_name (".$this->options['seqcol_name'].") VALUES (0)";
+            $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
         } else {
             $query = "SET IDENTITY_INSERT $sequence_name ON ".
-                     "INSERT INTO $sequence_name (".$this->options['seqcol_name'].") VALUES (0)";
+                     "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
         }
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);
@@ -462,7 +463,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $value = $this->queryRow("SELECT @@IDENTITY", 'integer');
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE ".
-                     $this->options['seqcol_name']." < $value";
+                     $seqcol_name." < $value";
             $result = $this->_doQuery($query, true);
 
             if (PEAR::isError($result)) {

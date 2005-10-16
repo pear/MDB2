@@ -156,7 +156,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
 
-        $sequence_name = $db->getSequenceName($table);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
         $trigger_name = $db->quoteIdentifier($trigger_name);
         $table = $db->quoteIdentifier($table);
@@ -696,7 +696,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         return $db->query("CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1".
             ($start < 1 ? " MINVALUE $start" : ''));
     }
@@ -719,7 +719,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         return $db->query("DROP SEQUENCE $sequence_name");
     }
 
