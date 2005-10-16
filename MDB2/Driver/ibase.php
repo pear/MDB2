@@ -424,10 +424,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function disconnect($force = true)
     {
         if (is_resource($this->connection)) {
-            if (!$this->opened_persistent || $force) {
-                @ibase_close($this->connection);
-            } elseif($this->in_transaction) {
+            if ($this->in_transaction) {
                 $this->rollback();
+            }
+            if ($force || !$this->opened_persistent) {
+                @ibase_close($this->connection);
             }
             $this->connection = 0;
             $this->in_transaction = false;
