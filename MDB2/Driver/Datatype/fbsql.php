@@ -247,7 +247,12 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteFloat($value)
     {
-        return (float)$value;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->escape($value);
     }
 
     // }}}
