@@ -206,6 +206,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      */
     function createTable($name, $fields)
     {
+        $name = strtoupper($name);
         $result = parent::createTable($name, $fields);
         if (PEAR::isError($result)) {
             return $result;
@@ -243,8 +244,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 return $db->raiseError(MDB2_ERROR, null, null,
                     'checkSupportedChanges: it is not supported changes to field default value');
             case 'length':
+                /*
                 return $db->raiseError(MDB2_ERROR, null, null,
                     'checkSupportedChanges: it is not supported changes to field default length');
+                */
             case 'unsigned':
             case 'type':
             case 'declaration':
@@ -270,6 +273,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      */
     function dropTable($name)
     {
+        $name = strtoupper($name);
         $result = $this->_dropAutoincrement($name);
         if (PEAR::isError($result)) {
             return $result;
@@ -448,7 +452,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier(strtoupper($name));
         return $db->query("ALTER TABLE $name $query");
     }
 
@@ -495,7 +499,6 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $table = $db->quoteIdentifier($table);
         $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE UPPER(RDB\$RELATION_NAME)='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
@@ -609,11 +612,31 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 }
             }
         }
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
+        $table = $db->quoteIdentifier(strtoupper($table));
+        $name = $db->quoteIdentifier(strtoupper($name));
         $query .= $query_sort. " INDEX $name ON $table (";
-        $query .= implode(', ', array_keys($definition['fields'])) . ')';
+        $fields = array();
+        foreach (array_keys($definition['fields']) as $field) {
+            $fields[] = $db->quoteIdentifier($field);
+        }
+        $query .= implode(', ', $fields) . ')';
         return $db->query($query);
+    }
+
+    // }}}
+    // {{{ dropIndex()
+
+    /**
+     * drop existing index
+     *
+     * @param string    $table         name of table that should be used in method
+     * @param string    $name         name of the index to be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropIndex($table, $name)
+    {
+        return parent::dropIndex(strtoupper($table), strtoupper($name));
     }
 
     // }}}
@@ -642,6 +665,67 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
         return $result;
+    }
+
+    // }}}
+    // {{{ createConstraint()
+
+    /**
+     * create a constraint on a table
+     *
+     * @param string    $table      name of the table on which the constraint is to be created
+     * @param string    $name       name of the constraint to be created
+     * @param array     $definition associative array that defines properties of the constraint to be created.
+     *                              Currently, only one property named FIELDS is supported. This property
+     *                              is also an associative with the names of the constraint fields as array
+     *                              constraints. Each entry of this array is set to another type of associative
+     *                              array that specifies properties of the constraint that are specific to
+     *                              each field.
+     *
+     *                              Example
+     *                                  array(
+     *                                      'fields' => array(
+     *                                          'user_name' => array(),
+     *                                          'last_login' => array(),
+     *                                      )
+     *                                  )
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function createConstraint($table, $name, $definition)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $table = $db->quoteIdentifier(strtoupper($table));
+        $name = $db->quoteIdentifier($name);
+        $query = "ALTER TABLE $table ADD CONSTRAINT $name";
+        if (array_key_exists('primary', $definition) && $definition['primary']) {
+            $query.= ' PRIMARY KEY';
+        }
+        $fields = array();
+        foreach (array_keys($definition['fields']) as $field) {
+            $fields[] = $db->quoteIdentifier($field);
+        }
+        $query .= ' ('. implode(', ', $fields) . ')';
+        return $db->query($query);
+    }
+
+    // }}}
+    // {{{ dropConstraint()
+
+    /**
+     * drop existing constraint
+     *
+     * @param string    $table         name of table that should be used in method
+     * @param string    $name         name of the constraint to be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropConstraint($table, $name)
+    {
+        return parent::dropConstraint(strtoupper($table), $name);
     }
 
     // }}}
@@ -694,11 +778,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
-        if (PEAR::isError($result = $db->query('CREATE GENERATOR '.strtoupper($sequence_name)))) {
+        $sequence_name = strtoupper($db->getSequenceName($seq_name));
+        if (PEAR::isError($result = $db->query('CREATE GENERATOR '.$sequence_name))) {
             return $result;
         }
-        if (PEAR::isError($result = $db->query('SET GENERATOR '.strtoupper($sequence_name).' TO '.($start-1)))) {
+        if (PEAR::isError($result = $db->query('SET GENERATOR '.$sequence_name.' TO '.($start-1)))) {
             if (PEAR::isError($err = $db->dropSequence($seq_name))) {
                 return $db->raiseError(MDB2_ERROR, null, null,
                     'createSequence: Could not setup sequence start value and then it was not possible to drop it: '.
@@ -725,8 +809,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
-        return $db->query('DELETE FROM RDB$GENERATORS WHERE UPPER(RDB$GENERATOR_NAME)=\''.strtoupper($sequence_name).'\'');
+        $sequence_name = strtoupper($db->getSequenceName($seq_name));
+        $query = "DELETE FROM RDB\$GENERATORS WHERE UPPER(RDB\$GENERATOR_NAME)='$sequence_name'";
+        return $db->query($query);
     }
 
     // }}}
@@ -745,14 +830,14 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS';
+        $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS WHERE RDB$SYSTEM_FLAG IS NULL';
         $table_names = $db->queryCol($query);
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
         $result = array();
-        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i])) {
+        foreach ($table_names as $table_name) {
+            if ($sqn = $this->_isSequenceName($table_name)) {
                 $result[] = $sqn;
             }
         }
