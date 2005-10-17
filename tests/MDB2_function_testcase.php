@@ -51,7 +51,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
     }
 
     /**
-     * Test now()
+     * Test functionTable()
      */
     function testFunctionTable()
     {
@@ -63,9 +63,9 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT 1 '.$functionTable_clause;
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting substring');
+            $this->assertFalse(true, 'Error fetching from function table');
         } else {
-            $this->assertEquals('1', $result, 'Error: not a proper timestamp');
+            $this->assertEquals('1', $result, 'Error fetching value from function table');
         }
     }
 
@@ -83,9 +83,27 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$now_clause . $functionTable_clause;
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting substring');
+            $this->assertFalse(true, 'Error getting timestamp');
         } else {
             $this->assertRegExp('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $result, 'Error: not a proper timestamp');
+        }
+        
+        $now_clause = $this->db->function->now('date');
+        $query = 'SELECT '.$now_clause . $functionTable_clause;
+        $result = $this->db->queryOne($query);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting date');
+        } else {
+            $this->assertRegExp('/\d{4}-\d{2}-\d{2}/', $result, 'Error: not a proper date');
+        }
+        
+        $now_clause = $this->db->function->now('time');
+        $query = 'SELECT '.$now_clause . $functionTable_clause;
+        $result = $this->db->queryOne($query);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting time');
+        } else {
+            $this->assertRegExp('/\d{2}:\d{2}:\d{2}/', $result, 'Error: not a proper time');
         }
     }
 
@@ -152,7 +170,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting substring');
         } else {
-            $this->assertEquals('timestamp', $result, 'Error: could not concatenate "timestamp"');
+            $this->assertEquals('timestamp', $result, 'Error: could not concatenate "time+stamp"');
         }
     }
 }
