@@ -55,6 +55,20 @@ require_once 'MDB2/Driver/Function/Common.php';
  */
 class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
 {
+    // }}}
+    // {{{ functionTable()
+
+    /**
+     * return string for internal table used when calling only a function
+     *
+     * @return string to call a function to get a substring
+     * @access public
+     **/
+    function functionTable()
+    {
+        return ' FROM dual';
+    }
+
     // {{{ substring()
 
     /**
