@@ -55,23 +55,5 @@ require_once 'MDB2/Driver/Function/Common.php';
  */
 class MDB2_Driver_Function_ibase extends MDB2_Driver_Function_Common
 {
-    // {{{ now()
-
-    /**
-     * Return string to call a variable with the current timestamp inside an SQL statement
-     * There are three special variables for current date and time:
-     * - CURRENT_TIMESTAMP (date and time, TIMESTAMP type)
-     * - CURRENT_DATE (date, DATE type)
-     * - CURRENT_TIME (time, TIME type)
-     *
-     * @return string to call a variable with the current timestamp
-     * @access public
-     */
-    function now()
-    {
-        return 'CURRENT_TIMESTAMP';
-    }
-
-    // }}}
 }
 ?>
