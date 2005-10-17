@@ -43,52 +43,50 @@
 //
 // $Id$
 
-class MDB2_Function_TestCase extends PHPUnit_TestCase
+class MDB2_Function_TestCase extends MDB2_TestCase
 {
-    //contains the dsn of the database we are testing
-    var $dsn;
-    //contains the options that should be used during testing
-    var $options;
-    //contains the name of the database we are testing
-    var $database;
-    //contains the MDB2 object of the db once we have connected
-    var $db;
-
-    function MDB2_Function_TestCase($name) {
-        $this->PHPUnit_TestCase($name);
-    }
-
     function setUp() {
-        $this->dsn = $GLOBALS['dsn'];
-        $this->options = $GLOBALS['options'];
-        $this->database = $GLOBALS['database'];
-        $this->db =& MDB2::factory($this->dsn, $this->options);
-        if (PEAR::isError($this->db)) {
-            $this->assertTrue(false, 'Could not connect to database in setUp - ' .$this->db->getMessage() . ' - ' .$this->db->getUserInfo());
-            exit;
-        }
-        $this->db->setDatabase($this->database);
-        $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
+        parent::setUp();
         $this->db->loadModule('Function');
     }
 
-    function tearDown() {
-        $this->db->popExpect();
-        unset($this->dsn);
-        if (!PEAR::isError($this->db)) {
-            $this->db->disconnect();
+    /**
+     * Test now()
+     */
+    function testFunctionTable()
+    {
+        if (!$this->methodExists($this->db->function, 'functionTable')) {
+            return;
         }
-        unset($this->db);
+
+        $functionTable_clause = $this->db->function->functionTable();
+        $query = 'SELECT 1 '.$functionTable_clause;
+        $result = $this->db->queryOne($query);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting substring');
+        } else {
+            $this->assertEquals('1', $result, 'Error: not a proper timestamp');
+        }
     }
 
-    function methodExists(&$class, $name) {
-        if (is_object($class)
-            && array_key_exists(strtolower($name), array_change_key_case(array_flip(get_class_methods($class)), CASE_LOWER))
-        ) {
-            return true;
+    /**
+     * Test now()
+     */
+    function testNow()
+    {
+        if (!$this->methodExists($this->db->function, 'now')) {
+            return;
         }
-        $this->assertTrue(false, 'method '. $name.' not implemented in '.get_class($class));
-        return false;
+
+        $functionTable_clause = $this->db->function->functionTable();
+        $now_clause = $this->db->function->now('timestamp');
+        $query = 'SELECT '.$now_clause . $functionTable_clause;
+        $result = $this->db->queryOne($query);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting substring');
+        } else {
+            $this->assertRegExp('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $result, 'Error: not a proper timestamp');
+        }
     }
 
     /**
@@ -99,47 +97,42 @@ class MDB2_Function_TestCase extends PHPUnit_TestCase
         if (!$this->methodExists($this->db->function, 'substring')) {
             return;
         }
-        $record = array(
-            'number' => 1,
-            'trans_en' => 'number_one',
-            'trans_fr' => 'blahblah',
-        );
-        
-        $result = $this->db->query('DELETE FROM numbers');
-        $this->assertFalse(PEAR::isError($result), 'Error truncating table');
-        $query = 'INSERT INTO numbers (number, trans_en, trans_fr) VALUES ('
-                . $record['number'] . ','
-                . $this->db->quote($record['trans_en']) . ','
-                . $this->db->quote($record['trans_fr']) . ')';
-        $result = $this->db->query($query);
-        $this->assertFalse(PEAR::isError($result), 'Error inserting sample record');
+        $data = $this->getSampleData(1234);
 
-        $substring_clause = $this->db->function->substring('trans_en', 1, 6);
-        $query = 'SELECT '.$substring_clause .' FROM numbers';
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields));
+        $result = $stmt->execute(array_values($data));
+        $stmt->free();
+
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+        }
+
+        $substring_clause = $this->db->function->substring('user_name', 1, 4);
+        $query = 'SELECT '.$substring_clause .' FROM users';
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting substring');
         } else {
-            $this->assertEquals('number', $result, 'Error: substrings not equals');
+            $this->assertEquals('user', $result, 'Error: substrings not equals');
         }
         
-        $substring_clause = $this->db->function->substring('trans_en', 5, 3);
-        $query = 'SELECT '.$substring_clause .' FROM numbers';
+        $substring_clause = $this->db->function->substring('user_name', 5, 1);
+        $query = 'SELECT '.$substring_clause .' FROM users';
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting substring');
         } else {
-            $this->assertEquals('er_', $result, 'Error: substrings not equals');
+            $this->assertEquals('_', $result, 'Error: substrings not equals');
         }
         
         //test NULL 2nd parameter
-        $substring_clause = $this->db->function->substring('trans_en', 8);
-        $query = 'SELECT '.$substring_clause .' FROM numbers';
+        $substring_clause = $this->db->function->substring('user_name', 6);
+        $query = 'SELECT '.$substring_clause .' FROM users';
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting substring');
         } else {
-            $this->assertEquals('one', $result, 'Error: substrings not equals');
+            $this->assertEquals('1234', $result, 'Error: substrings not equals');
         }
     }
 }
