@@ -55,7 +55,6 @@ require_once 'MDB2/Driver/Function/Common.php';
  */
 class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
 {
-     // }}}
     // {{{ executeStoredProc()
 
     /**
@@ -91,12 +90,13 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
      *
      * @return string for internal table used when calling only a function
      * @access public
-     **/
+     */
     function functionTable()
     {
         return ' FROM dual';
     }
 
+    // }}}
     // {{{ substring()
 
     /**
@@ -104,7 +104,7 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
      *
      * @return string to call a function to get a substring
      * @access public
-     **/
+     */
     function substring($value, $position = 1, $length = null)
     {
         if (!is_null($length)) {
@@ -112,5 +112,7 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
         }
         return "SUBST($value, $position)";
     }
+
+    // }}}
 }
 ?>

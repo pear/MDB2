@@ -60,7 +60,6 @@
  */
 class MDB2_Driver_Function_Common extends MDB2_Module_Common
 {
-     // }}}
     // {{{ executeStoredProc()
 
     /**
@@ -96,12 +95,13 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
      *
      * @return string for internal table used when calling only a function
      * @access public
-     **/
+     */
     function functionTable()
     {
         return '';
     }
 
+    // }}}
     // {{{ now()
 
     /**
@@ -135,7 +135,7 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
      *
      * @return string to call a function to get a substring
      * @access public
-     **/
+     */
     function substring($value, $position = 1, $length = null)
     {
         if (!is_null($length)) {
@@ -152,11 +152,12 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
      *
      * @return string to caoncatenate two strings
      * @access public
-     **/
+     */
     function concat($value1, $value2)
     {
         return "$value1 || $value2";
     }
-}
 
+    // }}}
+}
 ?>
