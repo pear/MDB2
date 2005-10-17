@@ -55,5 +55,19 @@ require_once 'MDB2/Driver/Function/Common.php';
  */
 class MDB2_Driver_Function_ibase extends MDB2_Driver_Function_Common
 {
+    // {{{ functionTable()
+
+    /**
+     * return string for internal table used when calling only a function
+     *
+     * @return string for internal table used when calling only a function
+     * @access public
+     */
+    function functionTable()
+    {
+        return ' FROM RDB$DATABASE';
+    }
+
+    // }}}
 }
 ?>
