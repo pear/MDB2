@@ -1086,7 +1086,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             return $null;
         }
 
-        $connection = $this->getConnection();
+        $connection = $this->db->getConnection();
         if (PEAR::isError($connection)) {
             return $connection;
         }
