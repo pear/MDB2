@@ -61,7 +61,7 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
     /**
      * return string for internal table used when calling only a function
      *
-     * @return string to call a function to get a substring
+     * @return string for internal table used when calling only a function
      * @access public
      **/
     function functionTable()

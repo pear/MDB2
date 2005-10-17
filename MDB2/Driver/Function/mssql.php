@@ -56,6 +56,19 @@ require_once 'MDB2/Driver/Function/Common.php';
  */
 class MDB2_Driver_Function_mssql extends MDB2_Driver_Function_Common
 {
+    // }}}
+    // {{{ concat()
+
+    /**
+     * return string to caoncatenate two strings
+     *
+     * @return string to caoncatenate two strings
+     * @access public
+     **/
+    function concat($value1, $value2)
+    {
+        return "$value1 + $value2";
+    }
 }
 // }}}
 ?>

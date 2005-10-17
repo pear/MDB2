@@ -135,5 +135,25 @@ class MDB2_Function_TestCase extends MDB2_TestCase
             $this->assertEquals('1234', $result, 'Error: substrings not equals');
         }
     }
+
+    /**
+     * Test concat()
+     */
+    function testConcat()
+    {
+        if (!$this->methodExists($this->db->function, 'concat')) {
+            return;
+        }
+
+        $functionTable_clause = $this->db->function->functionTable();
+        $concat_clause = $this->db->function->concat($this->db->quote('time', 'text'), $this->db->quote('stamp', 'text'));
+        $query = 'SELECT '.$concat_clause . $functionTable_clause;
+        $result = $this->db->queryOne($query);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting substring');
+        } else {
+            $this->assertEquals('timestamp', $result, 'Error: could not concatenate "timestamp"');
+        }
+    }
 }
 ?>
