@@ -1003,6 +1003,7 @@ class MDB2_Driver_Common extends PEAR
                 'mg' => 'Manager',
                 'rv' => 'Reverse',
                 'na' => 'Native',
+                'fc' => 'Function',
             ),
         );
 
