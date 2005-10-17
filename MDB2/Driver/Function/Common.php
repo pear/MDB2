@@ -60,19 +60,46 @@
  */
 class MDB2_Driver_Function_Common extends MDB2_Module_Common
 {
+    // }}}
+    // {{{ functionTable()
+
+    /**
+     * return string for internal table used when calling only a function
+     *
+     * @return string to call a function to get a substring
+     * @access public
+     **/
+    function functionTable()
+    {
+        return '';
+    }
+
     // {{{ now()
 
     /**
-     * return string to call a function to get the current timestamp inside an SQL statement
+     * Return string to call a variable with the current timestamp inside an SQL statement
+     * There are three special variables for current date and time:
+     * - CURRENT_TIMESTAMP (date and time, TIMESTAMP type)
+     * - CURRENT_DATE (date, DATE type)
+     * - CURRENT_TIME (time, TIME type)
      *
-     * @return string to call a function to get the current timestamp
+     * @return string to call a variable with the current timestamp
      * @access public
-     **/
-    function now()
+     */
+    function now($type = 'timestamp')
     {
-        return "NOW()";
+        switch ($type) {
+        case 'time':
+            return 'CURRENT_TIME';
+        case 'date':
+            return 'CURRENT_DATE';
+        case 'timestamp':
+        default:
+            return 'CURRENT_TIMESTAMP';
+        }
     }
 
+    // }}}
     // {{{ substring()
 
     /**
