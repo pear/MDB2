@@ -70,14 +70,23 @@ class MDB2_Driver_Function_sqlite extends MDB2_Driver_Function_Common
     // {{{ now()
 
     /**
-     * return string to call a function to get the current timestamp inside an SQL statement
+     * Return string to call a variable with the current timestamp inside an SQL statement
+     * There are three special variables for current date and time.
      *
-     * @return string to call a function to get the current timestamp
+     * @return string to call a variable with the current timestamp
      * @access public
-     **/
-    function now()
+     */
+    function now($type = 'timestamp')
     {
-        return "datetime()";
+        switch ($type) {
+        case 'time':
+            return 'time()';
+        case 'date':
+            return 'date()';
+        case 'timestamp':
+        default:
+            return 'datetime()';
+        }
     }
 }
 ?>
