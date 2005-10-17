@@ -60,6 +60,34 @@
  */
 class MDB2_Driver_Function_Common extends MDB2_Module_Common
 {
+     // }}}
+    // {{{ executeStoredProc()
+
+    /**
+     * Execute a stored procedure and return any results
+     *
+     * @param string $name string that identifies the function to execute
+     * @param mixed  $params  array that contains the paramaters to pass the stored proc
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function &executeStoredProc($name, $params = null, $types = null, $result_class = false, $result_wrap_class = false)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $db->debug($query, 'query');
+        $error =& $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'query: method not implemented');
+        return $error;
+    }
+
     // }}}
     // {{{ functionTable()
 
