@@ -193,11 +193,14 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         //test
         foreach ($indices as $index_name => $index) {
             $result = $this->db->reverse->getTableIndexDefinition($table, $index_name);
-            $this->assertFalse(PEAR::isError($result), 'Error getting table index definition');
-            $field_names = array_keys($index['fields']);
-            $this->assertEquals($field_names, array_keys($result['fields']), 'Error listing index fields');
-            if (!empty($index['unique'])) {
-                $this->assertTrue($result['unique'], 'Error: missing UNIQUE constraint');
+            if (PEAR::isError($result)) {
+                $this->assertFalse(true, 'Error getting table index definition');
+            } else {
+                $field_names = array_keys($index['fields']);
+                $this->assertEquals($field_names, array_keys($result['fields']), 'Error listing index fields');
+                if (!empty($index['unique'])) {
+                    $this->assertTrue($result['unique'], 'Error: missing UNIQUE constraint');
+                }
             }
         }
     }
