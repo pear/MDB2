@@ -150,7 +150,21 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 '_makeAutoincrement: primary key for autoincrement PK could not be created');
         }
 
-        $result = $db->manager->createSequence($table, $start);
+        $table = $db->quoteIdentifier($table);
+        $name = $db->quoteIdentifier($name);
+        if (is_null($start)) {
+            $db->beginTransaction();
+            $query = "SELECT MAX($name) FROM $table";
+            $start = $this->db->queryOne($query, 'integer');
+            if (PEAR::isError($start)) {
+                return $start;
+            }
+            ++$start;
+            $result = $db->manager->createSequence($table, $start);
+            $db->commit();
+        } else {
+            $result = $db->manager->createSequence($table, $start);
+        }
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
@@ -159,8 +173,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
         $trigger_name = $db->quoteIdentifier($trigger_name);
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
         $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
         $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
         $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;";

@@ -110,18 +110,31 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      * @return mixed        MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
-    function _makeAutoincrement($name, $table, $start = 1)
+    function _makeAutoincrement($name, $table, $start = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $result = $db->manager->createSequence($table, $start);
+        if (is_null($start)) {
+            $db->beginTransaction();
+            $query = 'SELECT MAX(' . $db->quoteIdentifier($name) . ') FROM ' . $db->quoteIdentifier($table);
+            $start = $this->db->queryOne($query, 'integer');
+            if (PEAR::isError($start)) {
+                return $start;
+            }
+            ++$start;
+            $result = $db->manager->createSequence($table, $start);
+            $db->commit();
+        } else {
+            $result = $db->manager->createSequence($table, $start);
+        }
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
+
         $table = strtoupper($table);
         $sequence_name = strtoupper($db->getSequenceName($table));
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
@@ -213,7 +226,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         foreach($fields as $field_name => $field) {
             if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
-                return $this->_makeAutoincrement($field_name, $name);
+                return $this->_makeAutoincrement($field_name, $name, 1);
             }
         }
     }
