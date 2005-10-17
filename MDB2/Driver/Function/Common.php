@@ -81,7 +81,6 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $db->debug($query, 'query');
         $error =& $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'query: method not implemented');
         return $error;

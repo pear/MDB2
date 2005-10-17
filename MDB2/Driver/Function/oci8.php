@@ -76,7 +76,6 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
             return $db;
         }
 
-        $db->debug($query, 'query');
         $query = 'EXEC '.$name;
         $query .= $params ? '('.implode(', ', $params).')' : '()';
         return $db->query($query, $types, $result_class, $result_wrap_class);

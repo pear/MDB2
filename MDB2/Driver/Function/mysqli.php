@@ -78,7 +78,6 @@ class MDB2_Driver_Function_mysqli extends MDB2_Driver_Function_Common
             return $db;
         }
 
-        $db->debug($query, 'query');
         $query = 'CALL '.$name;
         $query .= $params ? '('.implode(', ', $params).')' : '()';
         return $db->query($query, $types, $result_class, $result_wrap_class);
