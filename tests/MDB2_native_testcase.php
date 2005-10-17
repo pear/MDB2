@@ -43,67 +43,10 @@
 //
 // $Id$
 
-class MDB2_Native_TestCase extends PHPUnit_TestCase
+require_once 'MDB2_TestCase.php';
+
+class MDB2_Native_TestCase extends MDB2_TestCase
 {
-    //contains the dsn of the database we are testing
-    var $dsn;
-    //contains the options that should be used during testing
-    var $options;
-    //contains the name of the database we are testing
-    var $database;
-    //contains the MDB2 object of the db once we have connected
-    var $db;
-    // contains field names from the test table
-    var $fields;
-    // contains the types of the fields from the test table
-    var $types;
-
-    function MDB2_Native_Test($name) {
-        $this->PHPUnit_TestCase($name);
-    }
-
-    function setUp() {
-        $this->dsn = $GLOBALS['dsn'];
-        $this->options = $GLOBALS['options'];
-        $this->database = $GLOBALS['database'];
-        $this->db =& MDB2::factory($this->dsn, $this->options);
-        if (PEAR::isError($this->db)) {
-            $this->assertTrue(false, 'Could not connect to database in setUp - ' .$this->db->getMessage() . ' - ' .$this->db->getUserInfo());
-            exit;
-        }
-        $this->db->setDatabase($this->database);
-        $this->db->loadModule('Native');
-        $this->fields = array(
-            'user_name' => 'text',
-            'user_password' => 'text',
-            'subscribed' => 'boolean',
-            'user_id' => 'integer',
-            'quota' => 'decimal',
-            'weight' => 'float',
-            'access_date' => 'date',
-            'access_time' => 'time',
-            'approved' => 'timestamp',
-        );
-    }
-
-    function tearDown() {
-        unset($this->dsn);
-        if (!PEAR::isError($this->db)) {
-            $this->db->disconnect();
-       }
-        unset($this->db);
-    }
-
-    function methodExists(&$class, $name) {
-        if (is_object($class)
-            && array_key_exists(strtolower($name), array_change_key_case(array_flip(get_class_methods($class)), CASE_LOWER))
-        ) {
-            return true;
-        }
-        $this->assertTrue(false, 'method '. $name.' not implemented in '.get_class($class));
-        return false;
-    }
-
     /**
      * Test deleteOID()
      */

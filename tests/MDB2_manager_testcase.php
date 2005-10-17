@@ -44,39 +44,15 @@
 //
 // $Id$
 
-require_once 'MDB2/Schema.php';
+require_once 'MDB2_TestCase.php';
 
-class MDB2_Manager_TestCase extends PHPUnit_TestCase {
-    //contains the dsn of the database we are testing
-    var $dsn;
-    //contains the options that should be used during testing
-    var $options;
-    //contains the name of the database we are testing
-    var $database;
-    //contains the MDB2 object of the db once we have connected
-    var $db;
+class MDB2_Manager_TestCase extends MDB2_TestCase {
     //test table name (it is dynamically created/dropped)
     var $table = 'newtable';
-    //test table fields
-    var $fields;
-
-    function MDB2_Manager_Test($name) {
-        $this->PHPUnit_TestCase($name);
-    }
 
     function setUp() {
-        $this->dsn = $GLOBALS['dsn'];
-        $this->options = $GLOBALS['options'];
-        $this->database = $GLOBALS['database'];
-
-        $this->db =& MDB2::connect($this->dsn, $this->options);
-        $this->db->setDatabase($this->database);
+        parent::setUp();
         $this->db->loadModule('Manager');
-        $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
-        if (PEAR::isError($this->db) || PEAR::isError($this->db->manager) ) {
-            $this->assertTrue(false, 'Could not connect to manager in setUp');
-            exit;
-        }
         $this->fields = array(
             'id' => array(
                 'type'     => 'integer',
@@ -98,13 +74,13 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
                 'default' => 'M',
             ),
         );
-        if (!$this->tableExists()) {
+        if (!$this->tableExists($this->table)) {
             $this->db->manager->createTable($this->table, $this->fields);
         }
     }
 
     function tearDown() {
-        if ($this->tableExists()) {
+        if ($this->tableExists($this->table)) {
             $this->db->manager->dropTable($this->table);
         }
         $this->db->popExpect();
@@ -115,21 +91,6 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         unset($this->db);
     }
 
-    function methodExists(&$class, $name) {
-        if (is_object($class)
-            && array_key_exists(strtolower($name), array_change_key_case(array_flip(get_class_methods($class)), CASE_LOWER))
-        ) {
-            return true;
-        }
-        $this->assertTrue(false, 'method '. $name.' not implemented in '.get_class($class));
-        return false;
-    }
-
-    function tableExists() {
-        $tables = $this->db->manager->listTables();
-        return in_array($this->table, $tables);
-    }
-
     /**
      * Create a sample table, test the new fields, and drop it.
      */
@@ -137,7 +98,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         if (!$this->methodExists($this->db->manager, 'createTable')) {
             return;
         }
-        if ($this->tableExists()) {
+        if ($this->tableExists($this->table)) {
             $this->db->manager->dropTable($this->table);
         }
 
@@ -343,7 +304,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
         if (!$this->methodExists($this->db->manager, 'listTables')) {
             return;
         }
-        $this->assertTrue($this->tableExists(), 'Error listing tables');
+        $this->assertTrue($this->tableExists($this->table), 'Error listing tables');
     }
 
     /**
@@ -428,7 +389,7 @@ class MDB2_Manager_TestCase extends PHPUnit_TestCase {
             return;
         }
         $result = $this->db->manager->dropTable($this->table);
-        $this->assertFalse($this->tableExists(), 'Error listing tables');
+        $this->assertFalse($this->tableExists($this->table), 'Error listing tables');
     }
 
     /**
