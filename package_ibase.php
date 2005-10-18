@@ -13,15 +13,16 @@ $notes = <<<EOT
 - use custom implementation of getConnection() to access connection property
 - split index and constraint handling
 - return "0" as default value for integer NOT NULL fields with no default value
-- quote identifiers
+- quoteIdentifier() is just returning an uppercase string, since quoted
+  identifiers in ibase do more harm than good
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - set in_transaction to false on disconnect
 - fixed type changing in alterTable()
 - added new Function modules to handle difference in SQL functions
+- autoincrement emulation works correctly
 
 open todo items:
-- code to hide primary constraints inside listTableIndexes()
-- handle autoincremement fields in alterTable() and dropTable()
+- handle autoincremement fields in alterTable()
 EOT;
 
 $package = new PEAR_PackageFileManager();
