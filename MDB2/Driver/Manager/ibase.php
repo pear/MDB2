@@ -517,7 +517,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = $db->quoteIdentifier($table);
+        $table = strtoupper($table);
         $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE UPPER(RDB\$RELATION_NAME)='$table'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
