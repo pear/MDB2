@@ -151,7 +151,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
 
     function tableExists($table) {
         $tables = $this->db->manager->listTables();
-        return in_array($table, $tables);
+        return array_key_exists(strtolower($table), array_change_key_case(array_flip($tables), CASE_LOWER));
     }
 }
 
