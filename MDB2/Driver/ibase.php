@@ -208,6 +208,22 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ quoteIdentifier()
+
+    /**
+     * Delimited identifiers are a nightmare with InterBase, so they're disabled
+     *
+     * @param string $str  identifier name to be quoted
+     * @return string  quoted identifier string
+     *
+     * @access public
+     */
+    function quoteIdentifier($str)
+    {
+        return strtoupper($str);
+    }
+
+    // }}}
     // {{{ getConnection()
 
     /**
@@ -595,6 +611,21 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ getSequenceName()
+
+    /**
+     * adds sequence name formatting to a sequence name
+     *
+     * @param string $sqn name of the sequence
+     * @return string formatted sequence name
+     * @access public
+     */
+    function getSequenceName($sqn)
+    {
+        return strtoupper(parent::getSequenceName($sqn));
+    }
+
+    // }}}
     // {{{ nextID()
 
     /**
@@ -610,7 +641,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function nextID($seq_name, $ondemand = true)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        $query = 'SELECT GEN_ID('.strtoupper($sequence_name).', 1) as the_value FROM RDB$DATABASE';
+        $query = 'SELECT GEN_ID('.$sequence_name.', 1) as the_value FROM RDB$DATABASE';
         $this->expectError('*');
         $result = $this->queryOne($query, 'integer');
         $this->popExpect();
@@ -648,7 +679,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function currID($seq_name)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        $query = 'SELECT GEN_ID('.strtoupper($sequence_name).', 0) as the_value FROM RDB$DATABASE';
+        $query = 'SELECT GEN_ID('.$sequence_name.', 0) as the_value FROM RDB$DATABASE';
         $value = @$this->queryOne($query);
         if (PEAR::isError($value)) {
             return $this->raiseError(MDB2_ERROR, null, null,
