@@ -171,7 +171,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
         }
         //remove autoincrement trigger associated with the table
-        $table = $db->quoteIdentifier($table);
+        $table = strtoupper($table);
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
         $result = $db->query("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)='$table' AND UPPER(RDB\$TRIGGER_NAME)='$trigger_name'");
         if (PEAR::isError($result)) {
