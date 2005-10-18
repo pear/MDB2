@@ -186,7 +186,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
 
         if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
             $name = $db->quoteIdentifier($name);
-            return $name.' PRIMARY KEY';
+            return $name.' INTEGER NOT NULL PRIMARY KEY';
         }
 
         $default = array_key_exists('default', $field) ? ' DEFAULT '.
