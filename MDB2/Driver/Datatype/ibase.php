@@ -148,55 +148,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ _getIntegerDeclaration()
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to declare an integer type
-     * field to be used in statements like CREATE TABLE.
-     *
-     * @param string $name name the field to be declared.
-     * @param array $field associative array with the name of the properties
-     *       of the field being declared as array indexes. Currently, the types
-     *       of supported field properties are as follows:
-     *
-     *       unsigned
-     *           Boolean flag that indicates whether the field should be
-     *           declared as unsigned integer if possible.
-     *
-     *       default
-     *           Integer value to be used as default for this field.
-     *
-     *       notnull
-     *           Boolean flag that indicates whether this field is constrained
-     *           to not be set to null.
-     * @return string DBMS specific SQL code portion that should be used to
-     *       declare the specified field.
-     * @access protected
-     */
-    function _getIntegerDeclaration($name, $field)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        if (array_key_exists('unsigned', $field) && $field['unsigned']) {
-            $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
-        }
-
-        if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
-            $name = $db->quoteIdentifier($name);
-            return $name.' INTEGER NOT NULL PRIMARY KEY';
-        }
-
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'integer') : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        $name = $db->quoteIdentifier($name);
-        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
-    }
-
-    // }}}
     // {{{ _quoteLOB()
 
     /**
