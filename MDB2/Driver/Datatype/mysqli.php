@@ -124,7 +124,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         case 'integer':
             return 'INT';
         case 'boolean':
-            return 'BOOLEAN';
+            return 'CHAR (1)';
         case 'date':
             return 'DATE';
         case 'time':
