@@ -227,19 +227,23 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no valid table name specified');
         }
+
         if (empty($fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no fields specified for table "'.$name.'"');
         }
+
         $verify = $this->_verifyTableType($db->options['default_table_type']);
         if (PEAR::isError($verify)) {
             return $verify;
         }
+
         $query_fields = $this->getFieldDeclarationList($fields);
         if (PEAR::isError($query_fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: '.$this->getUserinfo());
         }
+
         $name = $db->quoteIdentifier($name);
         $query = "CREATE TABLE $name ($query_fields)".(strlen($db->options['default_table_type'])
             ? ' TYPE='.$db->options['default_table_type'] : '');
