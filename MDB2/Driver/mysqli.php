@@ -1033,7 +1033,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             return $null;
         }
 
-        $connection = $db->getConnection();
+        $connection = $this->db->getConnection();
         if (PEAR::isError($connection)) {
             return $connection;
         }
