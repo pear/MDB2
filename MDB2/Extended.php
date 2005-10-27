@@ -552,6 +552,7 @@ class MDB2_Extended extends MDB2_Module_Common
      * does not support auto increment
      *
      * @param string $table name of the table into which a new row was inserted
+     * @param string $field name of the field into which a new row was inserted
      * @param boolean $ondemand when true the seqence is
      *                          automatic created, if it
      *                          not exists
@@ -559,7 +560,7 @@ class MDB2_Extended extends MDB2_Module_Common
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getBeforeID($table, $field, $ondemand = true)
+    function getBeforeID($table, $field = null, $ondemand = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -585,10 +586,11 @@ class MDB2_Extended extends MDB2_Module_Common
      *
      * @param mixed $id value as returned by getBeforeId()
      * @param string $table name of the table into which a new row was inserted
+     * @param string $field name of the field into which a new row was inserted
      * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function getAfterID($id, $table, $field)
+    function getAfterID($id, $table, $field = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
