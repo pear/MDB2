@@ -141,7 +141,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
 
     function methodExists(&$class, $name) {
         if (is_object($class)
-            && array_key_exists(strtolower($name), array_change_key_case(array_flip(get_class_methods($class)), CASE_LOWER))
+            && in_array(strtolower($name), array_map('strtolower', get_class_methods($class)))
         ) {
             return true;
         }
@@ -151,7 +151,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
 
     function tableExists($table) {
         $tables = $this->db->manager->listTables();
-        return array_key_exists(strtolower($table), array_change_key_case(array_flip($tables), CASE_LOWER));
+        return in_array(strtolower($table), array_map('strtolower', $tables));
     }
 }
 
