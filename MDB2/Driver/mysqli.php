@@ -315,7 +315,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         @ini_set('track_errors', true);
         $php_errormsg = '';
 
-        if ($this->options['ssl'] === true) {
+        if ($this->options['ssl']) {
             $init = @mysqli_init();
             @mysqli_ssl_set(
                 $init,
@@ -1043,6 +1043,25 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             $i = 0;
             foreach ($this->values as $parameter => $value) {
                 $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
+                if (is_resource($value) || $type == 'clob' || $type == 'blob') {
+                    $parameters[] = null;
+                    $parameters[1].= 'b';
+                } else {
+                    $parameters[] = $this->db->quote($value, $type, false);
+                    $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
+                }
+                ++$i;
+            }
+
+            $result = @call_user_func_array('mysqli_stmt_bind_param', $parameters);
+            if ($result === false) {
+                $err =& $this->db->raiseError();
+                return $err;
+            }
+
+            $i = 0;
+            foreach ($this->values as $parameter => $value) {
+                $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
                 $close = false;
                 if ($type == 'clob' || $type == 'blob') {
                     if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
@@ -1061,26 +1080,14 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                     if ($close) {
                         @fclose($value);
                     }
-                    $parameters[] = null;
-                    $parameters[1].= 'b';
                 } elseif ($type == 'clob' || $type == 'blob') {
                     do {
                         $data = substr($value, 0, $this->db->options['lob_buffer_length']);
                         $value = substr($value, $this->db->options['lob_buffer_length']);
                         @mysqli_stmt_send_long_data($this->statement, $i, $data);
                     } while ($value);
-                    $parameters[] = null;
-                    $parameters[1].= 'b';
-                } else {
-                    $parameters[] = $this->db->quote($value, $type, false);
-                    $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
                 }
                 ++$i;
-            }
-            $result = @call_user_func_array('mysqli_stmt_bind_param', $parameters);
-            if ($result === false) {
-                $err =& $this->db->raiseError();
-                return $err;
             }
         }
 
