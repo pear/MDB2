@@ -405,59 +405,6 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ createIndex()
-
-    /**
-     * get the stucture of a field into an array
-     *
-     * @param string    $table         name of the table on which the index is to be created
-     * @param string    $name         name of the index to be created
-     * @param array     $definition        associative array that defines properties of the index to be created.
-     *                                 Currently, only one property named FIELDS is supported. This property
-     *                                 is also an associative with the names of the index fields as array
-     *                                 indexes. Each entry of this array is set to another type of associative
-     *                                 array that specifies properties of the index that are specific to
-     *                                 each field.
-     *
-     *                                Currently, only the sorting property is supported. It should be used
-     *                                 to define the sorting direction of the index. It may be set to either
-     *                                 ascending or descending.
-     *
-     *                                Not all DBMS support index sorting direction configuration. The DBMS
-     *                                 drivers of those that do not support it ignore this property. Use the
-     *                                 function support() to determine whether the DBMS driver can manage indexes.
-
-     *                                 Example
-     *                                    array(
-     *                                        'fields' => array(
-     *                                            'user_name' => array(
-     *                                                'sorting' => 'ascending'
-     *                                            ),
-     *                                            'last_login' => array()
-     *                                        )
-     *                                    )
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function createIndex($table, $name, $definition)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
-        $query = "CREATE ".(array_key_exists('unique', $definition) ? 'UNIQUE INDEX' : 'INDEX')." $name on $table";
-        $fields = array();
-        foreach (array_keys($definition['fields']) as $field) {
-            $fields[] = $db->quoteIdentifier($field);
-        }
-        $query .= ' ('. implode(', ', $fields) . ')';
-        return $db->query($query);
-    }
-
-    // }}}
     // {{{ dropIndex()
 
     /**
