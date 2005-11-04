@@ -280,7 +280,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         $result = array();
         for ($i = 0, $j = count($table_names); $i <$j; ++$i) {
-            if (!$this->_isSequenceName($db, $table_names[$i])) {
+            if (!$this->_isSequenceName($table_names[$i])) {
                 $result[] = $table_names[$i];
             }
         }
@@ -384,7 +384,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function createSequence($seq_name, $start = 1)
     {
-
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
@@ -481,7 +480,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         $result = array();
         for ($i = 0, $j = count($table_names); $i <$j; ++$i) {
-            if ($this->_isSequenceName($db, $table_names[$i])) {
+            if ($this->_isSequenceName($table_names[$i])) {
                 $result[] = $table_names[$i];
             }
         }
