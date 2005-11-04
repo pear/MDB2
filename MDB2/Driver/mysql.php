@@ -166,7 +166,11 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function escape($text)
     {
-        return @mysql_real_escape_string($text);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        return @mysql_real_escape_string($text, $connection);
     }
 
     // }}}
