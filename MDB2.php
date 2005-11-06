@@ -3103,9 +3103,9 @@ class MDB2_Statement_Common
         $this->row_offset = $offset;
     }
 
-    function MDB2_Statement_Common(&$db, &$statement, $query, $types, $result_types, $limit = null, $offset = null)
+    function MDB2_Statement_Common(&$db, &$statement, $query, $types, $result_types, $is_manip = false, $limit = null, $offset = null)
     {
-        $this->__construct($db, $statement, $query, $types, $result_types, $limit, $offset);
+        $this->__construct($db, $statement, $query, $types, $result_types, $is_manip, $limit, $offset);
     }
 
     // }}}
