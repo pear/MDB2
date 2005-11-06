@@ -399,10 +399,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * @param string $query the SQL query
      * @param mixed   $types  array that contains the types of the columns in
      *                        the result set
+     * @param boolean $is_manip  if the query is a manipulation query
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &standaloneQuery($query, $types = null)
+    function &standaloneQuery($query, $types = null, $manip = false)
     {
         $connection = $this->_doConnect('template1', false);
         if (PEAR::isError($connection)) {
@@ -411,22 +412,21 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $err;
         }
 
-        $isManip = MDB2::isManip($query);
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
+        $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
-        $result = $this->_doQuery($query, $isManip, $connection, false);
+        $result = $this->_doQuery($query, $is_manip, $connection, false);
         @pg_close($connection);
         if (PEAR::isError($result)) {
             return $result;
         }
 
-        if ($isManip) {
-            return $result;
+        if ($is_manip) {
+            $affected_rows =  $this->_affectedRows($connection, $result);
+            return $affected_rows;
         }
-
         $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
         return $result;
     }
@@ -437,18 +437,18 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $isManip  if the query is a manipulation query
+     * @param boolean $is_manip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
-            if ($isManip) {
+            if ($is_manip) {
                 return 0;
             }
             return null;
@@ -466,12 +466,29 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $this->raiseError();
         }
 
-        if ($isManip) {
-            return @pg_affected_rows($result);
-        }  elseif (!preg_match('/^\s*\(*\s*(SELECT|EXPLAIN|FETCH|SHOW)\s/si', $query)) {
-            return 0;
-        }
         return $result;
+    }
+
+    // }}}
+    // {{{ _affectedRows()
+
+    /**
+     * returns the number of rows affected
+     *
+     * @param resource $result
+     * @param resource $connection
+     * @return mixed MDB2 Error Object or the number of rows affected
+     * @access private
+     */
+    function _affectedRows($connection, $result = null)
+    {
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+        return @pg_affected_rows($result);
     }
 
     // }}}
@@ -484,7 +501,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access protected
      */
-    function _modifyQuery($query, $isManip, $limit, $offset)
+    function _modifyQuery($query, $is_manip, $limit, $offset)
     {
         if ($limit > 0
             && !preg_match('/LIMIT\s*\d(\s*(,|OFFSET)\s*\d+)?/i', $query)
@@ -493,7 +510,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             if (substr($query, -1) == ';') {
                 $query = substr($query, 0, -1);
             }
-            if ($isManip) {
+            if ($is_manip) {
                 $manip = preg_replace('/^(DELETE FROM|UPDATE).*$/', '\\1', $query);
                 $from = $match[2];
                 $where = $match[3];

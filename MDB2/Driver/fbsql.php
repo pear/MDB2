@@ -300,18 +300,18 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $isManip  if the query is a manipulation query
+     * @param boolean $is_manip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
-            if ($isManip) {
+            if ($is_manip) {
                 return 0;
             }
             return null;
@@ -341,10 +341,29 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $this->raiseError();
         }
 
-        if ($isManip) {
-            return @fbsql_affected_rows($connection);
-        }
         return $result;
+    }
+
+    // }}}
+    // {{{ _affectedRows()
+
+    /**
+     * returns the number of rows affected
+     *
+     * @param resource $result
+     * @param resource $connection
+     * @return mixed MDB2 Error Object or the number of rows affected
+     * @access private
+     */
+    function _affectedRows($connection, $result = null)
+    {
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+        return @fbsql_affected_rows($connection);
     }
 
     // }}}
@@ -357,10 +376,10 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access protected
      */
-    function _modifyQuery($query, $isManip, $limit, $offset)
+    function _modifyQuery($query, $is_manip, $limit, $offset)
     {
         if ($limit > 0) {
-            if ($isManip) {
+            if ($is_manip) {
                 return preg_replace('/^([\s(])*SELECT(?!\s*TOP\s*\()/i',
                     "\\1SELECT TOP($limit)", $query);
             } else {

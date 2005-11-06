@@ -109,7 +109,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                         . 'FROM user_tab_columns '
                         . "WHERE table_name='$result' ORDER BY column_id";
 
-            $stmt = $db->_doQuery($query);
+            $stmt = $db->_doQuery($query, false);
             if (PEAR::isError($stmt)) {
                 return $stmt;
             }

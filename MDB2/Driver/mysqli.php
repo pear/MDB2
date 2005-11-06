@@ -425,18 +425,18 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $isManip  if the query is a manipulation query
+     * @param boolean $is_manip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
-            if ($isManip) {
+            if ($is_manip) {
                 return 0;
             }
             return null;
@@ -464,14 +464,34 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $function = $this->options['result_buffering']
             ? 'mysqli_query' : 'mysqli_unbuffered_query';
         $result = @$function($connection, $query);
+
         if (!$result) {
             return $this->raiseError();
         }
 
-        if ($isManip) {
-            return @mysqli_affected_rows($connection);
-        }
         return $result;
+    }
+
+    // }}}
+    // {{{ _affectedRows()
+
+    /**
+     * returns the number of rows affected
+     *
+     * @param resource $result
+     * @param resource $connection
+     * @return mixed MDB2 Error Object or the number of rows affected
+     * @access private
+     */
+    function _affectedRows($connection, $result = null)
+    {
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+        return mysqli_affected_rows($connection);
     }
 
     // }}}
@@ -484,7 +504,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access protected
      */
-    function _modifyQuery($query, $isManip, $limit, $offset)
+    function _modifyQuery($query, $is_manip, $limit, $offset)
     {
         if ($limit > 0
             && !preg_match('/LIMIT\s*\d(\s*(,|OFFSET)\s*\d+)?/i', $query)
@@ -493,7 +513,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             if (substr($query, -1) == ';') {
                 $query = substr($query, 0, -1);
             }
-            if ($isManip) {
+            if ($is_manip) {
                 return $query . " LIMIT $limit";
             } else {
                 return $query . " LIMIT $offset, $limit";
@@ -518,15 +538,15 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      * @param mixed   $types  array that contains the types of the placeholders
      * @param mixed   $result_types  array that contains the types of the columns in
      *                        the result set
+     * @param boolean $is_manip  if the query is a manipulation query
      * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
      * @see bindParam, execute
      */
-    function &prepare($query, $types = null, $result_types = null)
+    function &prepare($query, $types = null, $result_types = null, $is_manip = false)
     {
-        $isManip = MDB2::isManip($query);
-        $query = $this->_modifyQuery($query, $isManip, $this->row_limit, $this->row_offset);
+        $query = $this->_modifyQuery($query, $is_manip, $this->row_limit, $this->row_offset);
         $this->debug($query, 'prepare');
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
@@ -596,7 +616,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         }
         $statement = @mysqli_prepare($connection, $query);
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $query, $types, $result_types);
+        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
@@ -697,10 +717,20 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,
                 'replace: not specified which fields are keys');
         }
+
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
         $query = "REPLACE INTO $table ($query) VALUES ($values)";
         $this->last_query = $query;
         $this->debug($query, 'query');
-        return $this->_doQuery($query, true);
+        $result = $this->_doQuery($query, true, $connection);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return $this->_affectedRows($connection, $result);
     }
 
     // }}}
@@ -1021,11 +1051,10 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
      */
     function &_execute($result_class = true, $result_wrap_class = false)
     {
-        $isManip = MDB2::isManip($this->query);
         $this->db->last_query = $this->query;
         $this->db->debug($this->query, 'execute');
         if ($this->db->getOption('disable_query')) {
-            if ($isManip) {
+            if ($this->is_manip) {
                 $return = 0;
                 return $return;
             }
@@ -1062,8 +1091,8 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             $i = 0;
             foreach ($this->values as $parameter => $value) {
                 $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
-                $close = false;
                 if ($type == 'clob' || $type == 'blob') {
+                    $close = false;
                     if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
                         $close = true;
                         if ($match[1] == 'file://') {
@@ -1071,21 +1100,21 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                         }
                         $value = @fopen($value, 'r');
                     }
-                }
-                if (is_resource($value)) {
-                    while (!@feof($value)) {
-                        $data = @fread($value, $this->db->options['lob_buffer_length']);
-                        @mysqli_stmt_send_long_data($this->statement, $i, $data);
+                    if (is_resource($value)) {
+                        while (!@feof($value)) {
+                            $data = @fread($value, $this->db->options['lob_buffer_length']);
+                            @mysqli_stmt_send_long_data($this->statement, $i, $data);
+                        }
+                        if ($close) {
+                            @fclose($value);
+                        }
+                    } else {
+                        do {
+                            $data = substr($value, 0, $this->db->options['lob_buffer_length']);
+                            $value = substr($value, $this->db->options['lob_buffer_length']);
+                            @mysqli_stmt_send_long_data($this->statement, $i, $data);
+                        } while ($value);
                     }
-                    if ($close) {
-                        @fclose($value);
-                    }
-                } elseif ($type == 'clob' || $type == 'blob') {
-                    do {
-                        $data = substr($value, 0, $this->db->options['lob_buffer_length']);
-                        $value = substr($value, $this->db->options['lob_buffer_length']);
-                        @mysqli_stmt_send_long_data($this->statement, $i, $data);
-                    } while ($value);
                 }
                 ++$i;
             }
@@ -1096,9 +1125,9 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             return $err;
         }
 
-        if (!mysqli_stmt_result_metadata($this->statement)) {
-            $result = @mysqli_stmt_affected_rows($this->statement);
-            return $result;
+        if ($this->is_manip) {
+            $affected_rows = mysqli_stmt_affected_rows($this->statement);
+            return $affected_rows;
         }
 
         if ($this->db->options['result_buffering']) {

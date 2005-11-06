@@ -78,15 +78,15 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             ? ' DEFAULT TABLESPACE '.$db->options['default_tablespace'] : '';
 
         $query = 'CREATE USER '.$username.' IDENTIFIED BY '.$password.$tablespace;
-        $result = $db->standaloneQuery($query);
+        $result = $db->standaloneQuery($query, null, true);
         if (PEAR::isError($result)) {
             return $result;
         }
         $query = 'GRANT CREATE SESSION, CREATE TABLE, UNLIMITED TABLESPACE, CREATE SEQUENCE TO '.$username;
-        $result = $db->standaloneQuery($query);
+        $result = $db->standaloneQuery($query, null, true);
         if (PEAR::isError($result)) {
             $query = 'DROP USER '.$username.' CASCADE';
-            $result2 = $db->standaloneQuery($query);
+            $result2 = $db->standaloneQuery($query, null, true);
             if (PEAR::isError($result2)) {
                 return $db->raiseError(MDB2_ERROR, null, null,
                     'createDatabase: could not setup the database user ('.$result->getUserinfo().
@@ -116,7 +116,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $username = $db->options['database_name_prefix'].$name;
-        return $db->standaloneQuery('DROP USER '.$username.' CASCADE');
+        return $db->standaloneQuery('DROP USER '.$username.' CASCADE', null, true);
     }
 
 
@@ -177,7 +177,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
         $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;";
 
-        return $db->query($trigger_sql);
+        return $db->exec($trigger_sql);
     }
 
     // }}}
@@ -206,7 +206,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         if ($trigger) {
             $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
-            $result = $db->query($trigger_sql);
+            $result = $db->exec($trigger_sql);
             if (PEAR::isError($result)) {
                 return $db->raiseError(MDB2_ERROR, null, null,
                     '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
@@ -420,7 +420,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             }
             $query .= ' ('. implode(', ', $fields) . ')';
             $name = $db->quoteIdentifier($name);
-            if (PEAR::isError($result = $db->query("ALTER TABLE $name $query"))) {
+            if (PEAR::isError($result = $db->exec("ALTER TABLE $name $query"))) {
                 return $result;
             }
         }
@@ -448,7 +448,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->query("ALTER TABLE $name $query");
+        return $db->exec("ALTER TABLE $name $query");
     }
 
     // }}}
@@ -475,7 +475,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         } else {
             $query = 'SELECT username FROM sys.dba_users';
         }
-        $result2 = $db->standaloneQuery($query);
+        $result2 = $db->standaloneQuery($query, array('text'), false);
         if (PEAR::isError($result2)) {
             return $result2;
         }
@@ -709,7 +709,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        return $db->query("CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1".
+        return $db->exec("CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1".
             ($start < 1 ? " MINVALUE $start" : ''));
     }
 
@@ -732,7 +732,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        return $db->query("DROP SEQUENCE $sequence_name");
+        return $db->exec("DROP SEQUENCE $sequence_name");
     }
 
     // }}}

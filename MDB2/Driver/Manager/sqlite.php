@@ -251,7 +251,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->query("ALTER TABLE $name $query");
+        return $db->exec("ALTER TABLE $name $query");
     }
 
 
@@ -423,7 +423,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             $fields[] = $field_string;
         }
         $query .= ' ('.implode(', ', $fields) . ')';
-        return $db->query($query);
+        return $db->exec($query);
     }
 
     // }}}
@@ -444,7 +444,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->query("DROP INDEX $name");
+        return $db->exec("DROP INDEX $name");
     }
 
     // }}}
@@ -575,19 +575,19 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
         $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
         $query = "CREATE TABLE $sequence_name ($seqcol_name INTEGER PRIMARY KEY DEFAULT 0 NOT NULL)";
-        $res = $db->query($query);
+        $res = $db->exec($query);
         if (PEAR::isError($res)) {
             return $res;
         }
         if ($start == 1) {
             return MDB2_OK;
         }
-        $res = $db->query("INSERT INTO $sequence_name ($seqcol_name) VALUES (".($start-1).')');
+        $res = $db->exec("INSERT INTO $sequence_name ($seqcol_name) VALUES (".($start-1).')');
         if (!PEAR::isError($res)) {
             return MDB2_OK;
         }
         // Handle error
-        $result = $db->query("DROP TABLE $sequence_name");
+        $result = $db->exec("DROP TABLE $sequence_name");
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 'createSequence: could not drop inconsistent sequence table ('.
@@ -616,7 +616,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        return $db->query("DROP TABLE $sequence_name");
+        return $db->exec("DROP TABLE $sequence_name");
     }
 
     // }}}

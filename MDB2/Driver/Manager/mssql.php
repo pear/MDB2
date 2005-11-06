@@ -78,7 +78,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $query.= ' ON '.$db->options['database_device'];
             $query.= $db->options['database_size'] ? '='.$db->options['database_size'] : '';
         }
-        return $db->standaloneQuery($query);
+        return $db->standaloneQuery($query, null, true);
     }
 
     // }}}
@@ -99,7 +99,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->standaloneQuery("DROP DATABASE $name");
+        return $db->standaloneQuery("DROP DATABASE $name", null, true);
     }
 
     // }}}
@@ -253,7 +253,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->query("ALTER TABLE $name $query");
+        return $db->exec("ALTER TABLE $name $query");
     }
 
     // }}}
@@ -394,7 +394,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $query = "CREATE TABLE $sequence_name ($seqcol_name " .
                  "INT PRIMARY KEY CLUSTERED IDENTITY($start,1) NOT NULL)";
 
-        $res = $db->query($query);
+        $res = $db->exec($query);
         if(PEAR::isError($res)) {
             return $res;
         }
@@ -405,13 +405,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         $query = "SET IDENTITY_INSERT $sequence_name ON ".
                  "INSERT INTO $sequence_name ($seqcol_name) VALUES ($start)";
-        $res = $db->query($query);
+        $res = $db->exec($query);
 
         if(!PEAR::isError($res)) {
             return MDB2_OK;
         }
 
-        $result = $db->query("DROP TABLE $sequence_name");
+        $result = $db->exec("DROP TABLE $sequence_name");
         if(PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                    'createSequence: could not drop inconsistent sequence table ('.
@@ -454,7 +454,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        return $db->query("DROP TABLE $sequence_name");
+        return $db->exec("DROP TABLE $sequence_name");
     }
 
     // }}}

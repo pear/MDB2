@@ -330,18 +330,14 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $isManip  if the query is a manipulation query
+     * @param boolean $is_manip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
-        if ($isManip) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
-        }
-
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
@@ -496,6 +492,21 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             $parsed = preg_replace('/\\\\/', '', $parsed);
         }
         return $parsed;
+    }
+    // }}}
+
+    // {{{ exec()
+
+    /**
+     * Execute a manipulation query to the database and return any the affected rows
+     *
+     * @param string $query the SQL query
+     * @return mixed affected rows on success, a MDB2 error on failure
+     * @access public
+     */
+    function exec($query)
+    {
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
     }
     // }}}
 }

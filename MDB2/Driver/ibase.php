@@ -458,18 +458,18 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $isManip  if the query is a manipulation query
+     * @param boolean $is_manip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->getOption('disable_query')) {
-            if ($isManip) {
+            if ($is_manip) {
                 return 0;
             }
             return null;
@@ -487,11 +487,29 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $this->raiseError();
         }
 
-        if ($isManip) {
-            //return $result;
-            return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
-        }
         return $result;
+    }
+
+    // }}}
+    // {{{ _affectedRows()
+
+    /**
+     * returns the number of rows affected
+     *
+     * @param resource $result
+     * @param resource $connection
+     * @return mixed MDB2 Error Object or the number of rows affected
+     * @access private
+     */
+    function _affectedRows($connection, $result = null)
+    {
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+        return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
     }
 
     // }}}
@@ -504,7 +522,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access protected
      */
-    function _modifyQuery($query, $isManip, $limit, $offset)
+    function _modifyQuery($query, $is_manip, $limit, $offset)
     {
         if ($limit > 0 && $this->dsn['dbsyntax'] == 'firebird') {
             $query = preg_replace('/^([\s(])*SELECT(?!\s*FIRST\s*\d+)/i',
@@ -529,12 +547,13 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @param mixed   $types  array that contains the types of the placeholders
      * @param mixed   $result_types  array that contains the types of the columns in
      *                        the result set
+     * @param boolean $is_manip  if the query is a manipulation query
      * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
      * @see bindParam, execute
      */
-    function &prepare($query, $types = null, $result_types = null)
+    function &prepare($query, $types = null, $result_types = null, $is_manip = false)
     {
         $this->debug($query, 'prepare');
         $placeholder_type_guess = $placeholder_type = null;
@@ -606,7 +625,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $statement = ibase_prepare($connection, $query);
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $this->row_limit, $this->row_offset);
+        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
@@ -1105,11 +1124,10 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
      */
     function &_execute($result_class = true, $result_wrap_class = false)
     {
-        $isManip = MDB2::isManip($this->query);
         $this->db->last_query = $this->query;
         $this->db->debug($this->query, 'execute');
         if ($this->db->getOption('disable_query')) {
-            if ($isManip) {
+            if ($this->is_manip) {
                 $return = 0;
                 return $return;
             }
@@ -1136,8 +1154,8 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             return $err;
         }
 
-        if ($isManip) {
-            $affected_rows = (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
+        if ($this->is_manip) {
+            $affected_rows = $this->db->_affectedRows($connection);
             return $affected_rows;
         }
 

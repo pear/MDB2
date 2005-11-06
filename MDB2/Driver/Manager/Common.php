@@ -226,7 +226,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 
         $name = $db->quoteIdentifier($name);
         $query = "CREATE TABLE $name ($query_fields)";
-        return $db->query($query);
+        return $db->exec($query);
     }
 
     // }}}
@@ -247,7 +247,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->query("DROP TABLE $name");
+        return $db->exec("DROP TABLE $name");
     }
 
     // }}}
@@ -529,7 +529,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             $fields[] = $db->quoteIdentifier($field);
         }
         $query .= ' ('. implode(', ', $fields) . ')';
-        return $db->query($query);
+        return $db->exec($query);
     }
 
     // }}}
@@ -551,7 +551,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->query("DROP INDEX $name");
+        return $db->exec("DROP INDEX $name");
     }
 
     // }}}
@@ -617,7 +617,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             $fields[] = $db->quoteIdentifier($field);
         }
         $query .= ' ('. implode(', ', $fields) . ')';
-        return $db->query($query);
+        return $db->exec($query);
     }
 
     // }}}
@@ -640,7 +640,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 
         $table = $db->quoteIdentifier($table);
         $name = $db->quoteIdentifier($name);
-        return $db->query("ALTER TABLE $table DROP CONSTRAINT $name");
+        return $db->exec("ALTER TABLE $table DROP CONSTRAINT $name");
     }
 
     // }}}

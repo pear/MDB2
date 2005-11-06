@@ -427,18 +427,18 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $isManip  if the query is a manipulation query
+     * @param boolean $is_manip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
-            if ($isManip) {
+            if ($is_manip) {
                 return 0;
             }
             return null;
@@ -470,10 +470,29 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return $this->raiseError();
         }
 
-        if ($isManip) {
-            return @mysql_affected_rows($connection);
-        }
         return $result;
+    }
+
+    // }}}
+    // {{{ _affectedRows()
+
+    /**
+     * returns the number of rows affected
+     *
+     * @param resource $result
+     * @param resource $connection
+     * @return mixed MDB2 Error Object or the number of rows affected
+     * @access private
+     */
+    function _affectedRows($connection, $result = null)
+    {
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+        return @mysql_affected_rows($connection);
     }
 
     // }}}
@@ -486,7 +505,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access protected
      */
-    function _modifyQuery($query, $isManip, $limit, $offset)
+    function _modifyQuery($query, $is_manip, $limit, $offset)
     {
         if ($this->options['portability'] & MDB2_PORTABILITY_DELETE_COUNT) {
             // "DELETE FROM table" gives 0 affected rows in MySQL.
@@ -503,7 +522,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             if (substr($query, -1) == ';') {
                 $query = substr($query, 0, -1);
             }
-            if ($isManip) {
+            if ($is_manip) {
                 return $query . " LIMIT $limit";
             } else {
                 return $query . " LIMIT $offset, $limit";
@@ -609,10 +628,20 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,
                 'replace: not specified which fields are keys');
         }
+
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
         $query = "REPLACE INTO $table ($query) VALUES ($values)";
         $this->last_query = $query;
         $this->debug($query, 'query');
-        return $this->_doQuery($query, true);
+        $result = $this->_doQuery($query, true, $connection);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return $this->_affectedRows($connection, $result);
     }
 
     // }}}

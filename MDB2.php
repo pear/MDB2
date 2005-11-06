@@ -1819,31 +1819,31 @@ class MDB2_Driver_Common extends PEAR
      * @param string $query the SQL query
      * @param mixed   $types  array that contains the types of the columns in
      *                        the result set
+     * @param boolean $is_manip  if the query is a manipulation query
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &standaloneQuery($query, $types = null)
+    function &standaloneQuery($query, $types = null, $manip = false)
     {
-        $isManip = MDB2::isManip($query);
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
+        $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
         $connection = $this->getConnection();
         if (PEAR::isError($connection)) {
             return $connection;
         }
 
-        $result = $this->_doQuery($query, $isManip, $connection, false);
+        $result = $this->_doQuery($query, $is_manip, $connection, false);
         if (PEAR::isError($result)) {
             return $result;
         }
 
-        if ($isManip) {
-            return $result;
+        if ($is_manip) {
+            $affected_rows =  $this->_affectedRows($connection, $result);
+            return $affected_rows;
         }
-
         $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
         return $result;
     }
@@ -1869,18 +1869,65 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $isManip  if the query is a manipulation query
+     * @param boolean $is_manip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'query: method not implemented');
+            '_doQuery: method not implemented');
+    }
+
+    // }}}
+    // {{{ _affectedRows()
+
+    /**
+     * returns the number of rows affected
+     *
+     * @param resource $result
+     * @param resource $connection
+     * @return mixed MDB2 Error Object or the number of rows affected
+     * @access private
+     */
+    function _affectedRows($connection, $result = null)
+    {
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            '_affectedRows: method not implemented');
+    }
+
+    // }}}
+    // {{{ exec()
+
+    /**
+     * Execute a manipulation query to the database and return any the affected rows
+     *
+     * @param string $query the SQL query
+     * @return mixed affected rows on success, a MDB2 error on failure
+     * @access public
+     */
+    function exec($query)
+    {
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
+        $query = $this->_modifyQuery($query, true, $limit, $offset);
+
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $result = $this->_doQuery($query, true, $connection, $this->database_name);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        return $this->_affectedRows($connection, $result);
     }
 
     // }}}
@@ -1894,30 +1941,23 @@ class MDB2_Driver_Common extends PEAR
      *                        the result set
      * @param mixed $result_class string which specifies which result class to use
      * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @return object a result handle on success, a MDB2 error on failure
      * @access public
      */
     function &query($query, $types = null, $result_class = true, $result_wrap_class = false)
     {
-        $isManip = MDB2::isManip($query);
         $offset = $this->row_offset;
         $limit = $this->row_limit;
         $this->row_offset = $this->row_limit = 0;
-        $query = $this->_modifyQuery($query, $isManip, $limit, $offset);
+        $query = $this->_modifyQuery($query, false, $limit, $offset);
 
         $connection = $this->getConnection();
         if (PEAR::isError($connection)) {
             return $connection;
         }
 
-        $result = $this->_doQuery($query, $isManip, $connection, $this->database_name);
+        $result = $this->_doQuery($query, false, $connection, $this->database_name);
         if (PEAR::isError($result)) {
-            return $result;
-        }
-
-        // check for integers instead of manip since drivers may do some
-        // custom checks not covered by MDB2::isManip()
-        if (is_int($result)) {
             return $result;
         }
 
@@ -2161,16 +2201,22 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
 
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
         $condition = ' WHERE '.implode(' AND ', $condition);
         $query = "DELETE FROM $table$condition";
-        $affected_rows = $result = $this->_doQuery($query, true);
+        $result = $this->_doQuery($query, true, $connection);
         if (!PEAR::isError($result)) {
+            $affected_rows = $this->_affectedRows($connection, $result);
             $insert = implode(', ', array_keys($values));
             $values = implode(', ', $values);
             $query = "INSERT INTO $table ($insert) VALUES ($values)";
-            $result = $this->_doQuery($query, true);
+            $result = $this->_doQuery($query, true, $connection);
             if (!PEAR::isError($result)) {
-                $affected_rows += $result;
+                $affected_rows += $this->_affectedRows($connection, $result);;
             }
         }
 
@@ -2205,12 +2251,13 @@ class MDB2_Driver_Common extends PEAR
      * @param mixed   $types  array that contains the types of the placeholders
      * @param mixed   $result_types  array that contains the types of the columns in
      *                        the result set
+     * @param boolean $is_manip  if the query is a manipulation query
      * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
      * @see bindParam, execute
      */
-    function &prepare($query, $types = null, $result_types = null)
+    function &prepare($query, $types = null, $result_types = null, $is_manip = false)
     {
         $this->debug($query, 'prepare');
         $positions = array();
@@ -2279,7 +2326,7 @@ class MDB2_Driver_Common extends PEAR
             }
         }
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $positions, $query, $types, $result_types);
+        $obj =& new $class_name($this, $positions, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
@@ -3037,13 +3084,14 @@ class MDB2_Statement_Common
     var $values;
     var $row_limit;
     var $row_offset;
+    var $is_manip;
 
     // {{{ constructor
 
     /**
      * Constructor
      */
-    function __construct(&$db, &$statement, $query, $types, $result_types, $limit = null, $offset = null)
+    function __construct(&$db, &$statement, $query, $types, $result_types, $is_manip = false, $limit = null, $offset = null)
     {
         $this->db =& $db;
         $this->statement =& $statement;
@@ -3051,6 +3099,7 @@ class MDB2_Statement_Common
         $this->types = (array)$types;
         $this->result_types = (array)$result_types;
         $this->row_limit = $limit;
+        $this->is_manip = $is_manip;
         $this->row_offset = $offset;
     }
 
@@ -3170,7 +3219,11 @@ class MDB2_Statement_Common
 
         $this->db->row_offset = $this->row_offset;
         $this->db->row_limit = $this->row_limit;
-        $result =& $this->db->query($query, $this->result_types, $result_class, $result_wrap_class);
+        if ($this->is_manip) {
+            $result = $this->db->exec($query);
+        } else {
+            $result =& $this->db->query($query, $this->result_types, $result_class, $result_wrap_class);
+        }
         return $result;
     }
 

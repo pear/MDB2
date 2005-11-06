@@ -72,7 +72,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->standaloneQuery("CREATE DATABASE $name");
+        return $db->standaloneQuery("CREATE DATABASE $name", null, true);
     }
 
     // }}}
@@ -93,7 +93,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->standaloneQuery("DROP DATABASE $name");
+        return $db->standaloneQuery("DROP DATABASE $name", null, true);
     }
 
     // }}}
@@ -214,9 +214,11 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $result = $db->query("ALTER TABLE $name RENAME TO ".$changes['name']);
-        if (PEAR::isError($result)) {
-            return $result;
+        if (array_key_exists('name', $changes)) {
+            $result = $db->exec("ALTER TABLE $name RENAME TO ".$changes['name']);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
 
         $query = '';
@@ -270,7 +272,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        $result = $db->query("ALTER TABLE $name $query");
+        $result = $db->exec("ALTER TABLE $name $query");
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -278,7 +280,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         if (array_key_exists('rename', $changes)) {
             foreach ($changes['rename'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name);
-                $result = $db->query("ALTER TABLE $name RENAME COLUMN $field_name TO ".$field['name']);
+                $result = $db->exec("ALTER TABLE $name RENAME COLUMN $field_name TO ".$field['name']);
                 if (PEAR::isError($result)) {
                     break;
                 }
@@ -303,7 +305,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $result2 = $db->standaloneQuery('SELECT datname FROM pg_database');
+        $query = 'SELECT datname FROM pg_database';
+        $result2 = $db->standaloneQuery($query, array('text'), false);
         if (!MDB2::isResultCommon($result2)) {
             return $result2;
         }
@@ -335,7 +338,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $result2 = $db->standaloneQuery('SELECT usename FROM pg_user');
+        $query = 'SELECT usename FROM pg_user';
+        $result2 = $db->standaloneQuery($query, array('text'), false);
         if (!MDB2::isResultCommon($result2)) {
             return $result2;
         }
@@ -563,7 +567,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        return $db->query("CREATE SEQUENCE $sequence_name INCREMENT 1".
+        return $db->exec("CREATE SEQUENCE $sequence_name INCREMENT 1".
             ($start < 1 ? " MINVALUE $start" : '')." START $start");
     }
 
@@ -585,7 +589,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        return $db->query("DROP SEQUENCE $sequence_name");
+        return $db->exec("DROP SEQUENCE $sequence_name");
     }
 
     // }}}

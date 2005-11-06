@@ -353,18 +353,18 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     /**
      * Execute a query
      * @param string $query  query
-     * @param boolean $isManip  if the query is a manipulation query
+     * @param boolean $is_manip  if the query is a manipulation query
      * @param resource $connection
      * @param string $database_name
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $isManip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query');
         if ($this->options['disable_query']) {
-            if ($isManip) {
+            if ($is__manip) {
                 return 0;
             }
             return null;
@@ -389,10 +389,29 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError();
         }
 
-        if ($isManip) {
-            return @sqlite_changes($connection);
-        }
         return $result;
+    }
+
+    // }}}
+    // {{{ _affectedRows()
+
+    /**
+     * returns the number of rows affected
+     *
+     * @param resource $result
+     * @param resource $connection
+     * @return mixed MDB2 Error Object or the number of rows affected
+     * @access private
+     */
+    function _affectedRows($connection, $result = null)
+    {
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+        return @sqlite_changes($connection);
     }
 
     // }}}
@@ -405,7 +424,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access protected
      */
-    function _modifyQuery($query, $isManip, $limit, $offset)
+    function _modifyQuery($query, $is_manip, $limit, $offset)
     {
         if ($this->options['portability'] & MDB2_PORTABILITY_DELETE_COUNT) {
             if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
@@ -420,7 +439,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if (substr($query, -1) == ';') {
                 $query = substr($query, 0, -1);
             }
-            if ($isManip) {
+            if ($is_manip) {
                 $query.= " LIMIT $limit";
             } else {
                 $query.= " LIMIT $offset,$limit";
@@ -549,8 +568,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $sequence_name = $this->quoteIdentifier($db->getSequenceName($seq_name));
-        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name));
+        $seqcol_name = $this->options['seqcol_name'];
         $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (NULL)";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);

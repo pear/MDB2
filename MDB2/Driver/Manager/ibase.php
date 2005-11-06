@@ -146,7 +146,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                         IF (NEW.' . $name . ' IS NULL OR NEW.' . $name . ' = 0) THEN
                             NEW.' . $name . ' = GEN_ID('.$sequence_name.', 1);
                         END';
-        return $db->query($trigger_sql);
+        return $db->exec($trigger_sql);
     }
 
     // }}}
@@ -173,7 +173,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         //remove autoincrement trigger associated with the table
         $table = strtoupper($table);
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
-        $result = $db->query("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)='$table' AND UPPER(RDB\$TRIGGER_NAME)='$trigger_name'");
+        $result = $db->exec("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)='$table' AND UPPER(RDB\$TRIGGER_NAME)='$trigger_name'");
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
@@ -472,7 +472,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name);
-        return $db->query("ALTER TABLE $name $query");
+        return $db->exec("ALTER TABLE $name $query");
     }
 
     // }}}
@@ -639,7 +639,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $fields[] = $db->quoteIdentifier($field);
         }
         $query .= ' ('.implode(', ', $fields) . ')';
-        return $db->query($query);
+        return $db->exec($query);
     }
 
     // }}}
@@ -716,7 +716,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $fields[] = $db->quoteIdentifier($field);
         }
         $query .= ' ('. implode(', ', $fields) . ')';
-        return $db->query($query);
+        return $db->exec($query);
     }
 
     // }}}
@@ -770,10 +770,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->getSequenceName($seq_name);
-        if (PEAR::isError($result = $db->query('CREATE GENERATOR '.$sequence_name))) {
+        if (PEAR::isError($result = $db->exec('CREATE GENERATOR '.$sequence_name))) {
             return $result;
         }
-        if (PEAR::isError($result = $db->query('SET GENERATOR '.$sequence_name.' TO '.($start-1)))) {
+        if (PEAR::isError($result = $db->exec('SET GENERATOR '.$sequence_name.' TO '.($start-1)))) {
             if (PEAR::isError($err = $db->dropSequence($seq_name))) {
                 return $db->raiseError(MDB2_ERROR, null, null,
                     'createSequence: Could not setup sequence start value and then it was not possible to drop it: '.
@@ -802,7 +802,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
         $sequence_name = $db->getSequenceName($seq_name);
         $query = "DELETE FROM RDB\$GENERATORS WHERE UPPER(RDB\$GENERATOR_NAME)='$sequence_name'";
-        return $db->query($query);
+        return $db->exec($query);
     }
 
     // }}}
