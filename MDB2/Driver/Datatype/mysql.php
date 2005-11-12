@@ -175,13 +175,17 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
+        $default = $autoinc = '';;
         if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
             $autoinc = ' AUTO_INCREMENT PRIMARY KEY';
-            $default = '';
         } else {
-            $autoinc = '';
-            $default = array_key_exists('default', $field) ? ' DEFAULT '.
-                $this->quote($field['default'], 'integer') : '';
+            if (array_key_exists('default', $field)) {
+                if ($field['default'] === '') {
+                    $field['default'] = (array_key_exists('notnull', $field) && $field['notnull'])
+                        ? 0 : null;
+                }
+                $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
+            }
         }
 
         $unsigned = (array_key_exists('unsigned', $field) && $field['unsigned']) ? ' UNSIGNED' : '';

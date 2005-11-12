@@ -186,8 +186,15 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             $name = $db->quoteIdentifier($name);
             return $name.' '.$this->getTypeDeclaration($field);
         }
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], 'integer') : '';
+        $default = '';
+        if (array_key_exists('default', $field)) {
+            if ($field['default'] === '') {
+                $field['default'] = (array_key_exists('notnull', $field) && $field['notnull'])
+                    ? 0 : null;
+            }
+            $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
+        }
+
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         $name = $db->quoteIdentifier($name);
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;

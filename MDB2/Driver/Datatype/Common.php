@@ -62,16 +62,16 @@ require_once 'MDB2/LOB.php';
 class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 {
     var $valid_types = array(
-        'text'      => true,
+        'text'      => '',
         'boolean'   => true,
-        'integer'   => true,
-        'decimal'   => true,
-        'float'     => true,
-        'date'      => true,
-        'time'      => true,
-        'timestamp' => true,
-        'clob'      => true,
-        'blob'      => true,
+        'integer'   => 0,
+        'decimal'   => 0.0,
+        'float'     => 0.0,
+        'date'      => '0000-00-00 00:00:00',
+        'time'      => '00:00:00',
+        'timestamp' => '0000-00-00',
+        'clob'      => '',
+        'blob'      => '',
     );
 
     /**
@@ -345,8 +345,15 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $default = array_key_exists('default', $field) ? ' DEFAULT '.
-            $this->quote($field['default'], $field['type']) : '';
+        $default = '';
+        if (array_key_exists('default', $field)) {
+            if ($field['default'] === '') {
+                $field['default'] = (array_key_exists('notnull', $field) && $field['notnull'])
+                    ? $this->valid_types[$field['type']] : null;
+            }
+            $default = ' DEFAULT '.$this->quote($field['default'], $field['type']);
+        }
+
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         $name = $db->quoteIdentifier($name);
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
