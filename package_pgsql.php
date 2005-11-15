@@ -33,6 +33,7 @@ $result = $package->setOptions(
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*pgsql*'),
+        'ignore'            => array('package_pgsql.php'),
         'notes'             => $notes,
         'changelogoldtonew' => false,
         'simpleoutput'      => true,

@@ -35,6 +35,7 @@ $result = $package->setOptions(
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*oci8*'),
+        'ignore'            => array('package_oci8.php'),
         'notes'             => $notes,
         'changelogoldtonew' => false,
         'simpleoutput'      => true,

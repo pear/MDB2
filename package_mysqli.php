@@ -33,6 +33,7 @@ $result = $package->setOptions(
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*mysqli*'),
+        'ignore'            => array('package_mysqli.php'),
         'notes'             => $notes,
         'changelogoldtonew' => false,
         'simpleoutput'      => true,

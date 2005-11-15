@@ -38,6 +38,7 @@ $result = $package->setOptions(
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*ibase*'),
+        'ignore'            => array('package_ibase.php'),
         'notes'             => $notes,
         'changelogoldtonew' => false,
         'simpleoutput'      => true,

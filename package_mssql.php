@@ -29,6 +29,7 @@ $result = $package->setOptions(
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*mssql*'),
+        'ignore'            => array('package_mssql.php'),
         'notes'             => $notes,
         'changelogoldtonew' => false,
         'simpleoutput'      => true,
