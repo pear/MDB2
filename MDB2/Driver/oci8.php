@@ -418,7 +418,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &standaloneQuery($query, $types = null, $manip = false)
+    function &standaloneQuery($query, $types = null, $is_manip = false)
     {
         $connection = $this->_doConnect(
             $this->options['DBA_username'],
