@@ -114,7 +114,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     }
 
     // }}}
-    // {{{ getTableConstraintsDefinition()
+    // {{{ getTableConstraintDefinition()
 
     /**
      * get the stucture of an constraints into an array
@@ -124,7 +124,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintsDefinition($table, $index)
+    function getTableConstraintDefinition($table, $index)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
