@@ -254,6 +254,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db_type = $field['type'];
         $length = array_key_exists('length', $field) ? $field['length'] : null;
         $type = array();
+        $unsigned = null;
         switch ($db_type) {
         case 'tinyint':
         case 'smallint':
@@ -343,7 +344,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 'getTableFieldDefinition: unknown database attribute type');
         }
 
-        return array($type, $length);
+        return array($type, $length, $unsigned);
     }
 }
 

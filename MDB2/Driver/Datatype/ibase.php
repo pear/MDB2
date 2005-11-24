@@ -305,6 +305,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $length = null;
         }
         $type = array();
+        $unsigned = null;
         switch ($field['field_type']) {
         case 'smallint':
         case 'integer':
@@ -364,7 +365,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                 'getTableFieldDefinition: unknown database attribute type');
         }
 
-        return array($type, $length);
+        return array($type, $length, $unsigned);
     }
 
     // }}}

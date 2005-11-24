@@ -535,6 +535,7 @@ for some reason this piece of code causes an apache crash
             $length = null;
         }
         $type = array();
+        $unsigned = null;
         switch ($db_type) {
         case 'int':
             $type[] = 'integer';
@@ -610,7 +611,7 @@ for some reason this piece of code causes an apache crash
                 'getTableFieldDefinition: unknown database attribute type');
         }
 
-        return array($type, $length);
+        return array($type, $length, $unsigned);
     }
 
     // }}}

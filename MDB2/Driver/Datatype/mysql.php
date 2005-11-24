@@ -276,6 +276,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
         $length = strtok('(), ');
         $decimal = strtok('(), ');
         $type = array();
+        $unsigned = null;
         switch ($db_type) {
         case 'tinyint':
         case 'smallint':
@@ -290,6 +291,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
                     $type = array_reverse($type);
                 }
             }
+            $unsigned = preg_match('/ unsigned/i', $db_type);
             break;
         case 'char':
         case 'varchar':
@@ -330,10 +332,12 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
         case 'double':
         case 'real':
             $type[] = 'float';
+            $unsigned = preg_match('/ unsigned/i', $db_type);
             break;
         case 'decimal':
         case 'numeric':
             $type[] = 'decimal';
+            $unsigned = preg_match('/ unsigned/i', $db_type);
             break;
         case 'tinytext':
         case 'mediumtext':
@@ -368,7 +372,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
                 'getTableFieldDefinition: unknown database attribute type');
         }
 
-        return array($type, $length);
+        return array($type, $length, $unsigned);
     }
 }
 
