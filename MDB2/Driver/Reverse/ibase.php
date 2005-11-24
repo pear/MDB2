@@ -181,7 +181,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         } else {
             $column['field_sub_type'] = null;
         }
-        list($types, $length) = $db->datatype->mapNativeDatatype($column);
+        list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
         $notnull = !empty($column['null_flag']);
         $default = $column['default_source'];
         if (is_null($default) && $notnull) {
@@ -195,6 +195,9 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             );
             if ($length > 0) {
                 $definition[$key]['length'] = $length;
+            }
+            if ($unsigned) {
+                $definition[$key]['unsigned'] = true;
             }
             if ($default !== false) {
                 $definition[$key]['default'] = $default;
@@ -242,7 +245,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
 
         $index = $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         if (empty($index)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
         $fields = array();
@@ -309,8 +312,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
 
         $index = $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         if (empty($index)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table index');
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
         $fields = array();
         do {
@@ -327,8 +330,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $definition['primary'] = true;
         }
         if ($index['unique_flag']) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table index');
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
         foreach ($fields as $field) {
             $definition['fields'][$field] = array();

@@ -136,7 +136,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 $column = array_change_key_case($column, $db->options['field_case']);
             }
             if ($field_name == $column['name']) {
-                list($types, $length) = $db->datatype->mapNativeDatatype($column);
+                list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
                 $notnull = false;
                 if (array_key_exists('notnull', $column)) {
                     $notnull = $column['notnull'];
@@ -160,6 +160,9 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     );
                     if ($length > 0) {
                         $definition[$key]['length'] = $length;
+                    }
+                    if ($unsigned) {
+                        $definition[$key]['unsigned'] = true;
                     }
                     if ($default !== false) {
                         $definition[$key]['default'] = $default;
@@ -203,7 +206,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         $column = 'sql';
         if (!isset($columns[$column])) {
             $result->free();
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
 
@@ -216,7 +219,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         $definition = array();
         if (strstr($sql, ' primary ')) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
         if (strstr($sql, ' unique ')) {
@@ -235,7 +238,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         $result->free();
         if (!array_key_exists('fields', $definition)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
         return $definition;
@@ -268,8 +271,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         $column = 'sql';
         if (!isset($columns[$column])) {
             $result->free();
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table index');
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
 
         $sql = strtolower($result->fetchOne());
@@ -284,8 +287,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             $definition['primary'] = true;
         }
         if (strstr($sql, ' unique ')) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table index');
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
         $count = count($column_names);
         for ($i=0; $i<$count; ++$i) {
@@ -300,8 +303,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         $result->free();
         if (!array_key_exists('fields', $definition)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table index');
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
         return $definition;
     }
