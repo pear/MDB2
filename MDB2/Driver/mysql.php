@@ -707,7 +707,15 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function lastInsertID($table = null, $field = null)
     {
-        return $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $value = @mysql_insert_id($connection);
+        if (!$value) {
+            return $this->raiseError();
+        }
+        return $value;
     }
 
     // }}}
