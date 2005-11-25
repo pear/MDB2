@@ -423,16 +423,18 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function _checkSequence($seq_name)
     {
-        $query       = "SELECT * FROM $seq_name";
+        $query = "SELECT * FROM $seq_name";
         $tableExists = $this->_doQuery($query, true);
         if (PEAR::isError($tableExists)) {
             if ($tableExists->getCode() == MDB2_ERROR_NOSUCHTABLE) {
-                return 0;
+                return false;
             }
-        } else {
-            return 1;
+            //return $tableExists;
+            return false;
         }
+        return true;
     }
+
     // }}}
     // {{{ nextID()
 
@@ -451,13 +453,13 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     {
         $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name));
         $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name']);
-        if (!$this->_checkSequence($sequence_name)) {
-            $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
-        } else {
+        $this->expectError(MDB2_ERROR_NOSUCHTABLE);
+        if ($this->_checkSequence($sequence_name)) {
             $query = "SET IDENTITY_INSERT $sequence_name ON ".
                      "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
+        } else {
+            $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
         }
-        $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);
         $this->popExpect();
         if (PEAR::isError($result)) {
@@ -477,16 +479,12 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             }
             return $result;
         }
-
-        // TODO: Make sure that this works.
-        $value = $this->queryRow("SELECT @@IDENTITY", 'integer');
+        $value = $this->lastInsertID($sequence_name);
         if (is_numeric($value)) {
-            $query = "DELETE FROM $sequence_name WHERE ".
-                     $seqcol_name." < $value";
+            $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
             $result = $this->_doQuery($query, true);
-
             if (PEAR::isError($result)) {
-                $this->warnings[] = 'nextID: could not delete previous sequence table values';
+                $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
             }
         }
         return $value;
