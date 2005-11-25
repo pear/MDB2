@@ -683,7 +683,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             }
             return $result;
         }
-        $value = $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
+        $value = $this->lastInsertID();
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
             $result = $this->_doQuery($query, true);

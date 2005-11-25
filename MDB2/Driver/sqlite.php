@@ -591,15 +591,13 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             }
             return $result;
         }
-        $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-        $value = @sqlite_last_insert_rowid($connection);
-        if (is_numeric($value)
-            && PEAR::isError($this->_doQuery("DELETE FROM $sequence_name WHERE $seqcol_name < $value", true))
-        ) {
-            $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
+        $value = $this->lastInsertID();
+        if (is_numeric($value)) {
+            $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
+            $result = $this->_doQuery($query, true);
+            if (PEAR::isError($result)) {
+                $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
+            }
         }
         return $value;
     }

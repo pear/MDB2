@@ -772,11 +772,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
             return $result;
         }
-        $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-        $value = @mysqli_insert_id($connection);
+        $value = $this->lastInsertID();
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
             $result = $this->_doQuery($query, true);
