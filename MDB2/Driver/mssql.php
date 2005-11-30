@@ -287,7 +287,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
        if ((bool) ini_get('mssql.datetimeconvert')) {
-           ini_set('mssql.datetimeconvert', '0');
+           @ini_set('mssql.datetimeconvert', '0');
        }
        @mssql_query('SET DATEFORMAT ymd', $connection);
 

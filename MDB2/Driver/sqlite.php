@@ -380,9 +380,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $function = $this->options['result_buffering']
             ? 'sqlite_query' : 'sqlite_unbuffered_query';
         $php_errormsg = '';
-        ini_set('track_errors', true);
+        @ini_set('track_errors', true);
         $result = @$function($query.';', $connection);
-        ini_restore('track_errors');
+        @ini_restore('track_errors');
         $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
 
         if (!$result) {
