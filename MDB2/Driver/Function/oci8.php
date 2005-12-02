@@ -107,9 +107,9 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
     function substring($value, $position = 1, $length = null)
     {
         if (!is_null($length)) {
-            return "SUBST($value, $position, $length)";
+            return "SUBSTR($value, $position, $length)";
         }
-        return "SUBST($value, $position)";
+        return "SUBSTR($value, $position)";
     }
 
     // }}}
