@@ -14,6 +14,10 @@ To setup the tests
 
 * requires PHPUnit to be installed
 
+* requires MDB2_Schema to be installed and the test be run for the given driver
+  in order to setup the schema (alternatively this can be done by hand by
+  looking at the schema defined in the driver_test.schema and lob_test.schema files)
+
 * requires MDB2 to be installed in a php include path or the tests need to be
   moved into the MDB2 root path.
 
