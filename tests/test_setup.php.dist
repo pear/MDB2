@@ -1,7 +1,6 @@
 <?php
 
 $testcases = array(
-    'MDB2_manager_testcase',
     'MDB2_api_testcase',
     'MDB2_usage_testcase',
     'MDB2_bugs_testcase',
