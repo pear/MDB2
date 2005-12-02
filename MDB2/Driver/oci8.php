@@ -435,7 +435,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
         $result = $this->_doQuery($query, $is_manip, $connection, false);
-
         @OCILogOff($connection);
         if (PEAR::isError($result)) {
             return $result;
@@ -1208,7 +1207,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         if ($this->is_manip) {
-            $affected_rows = $this->db->_affectedRows($this->statement);
+            $affected_rows = $this->db->_affectedRows($connection, $this->statement);
             return $affected_rows;
         }
 
