@@ -85,7 +85,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting timestamp');
         } else {
-            $this->assertRegExp('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $result, 'Error: not a proper timestamp');
+            $this->assertRegExp('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $result, 'Error: not a proper timestamp');
         }
         
         $now_clause = $this->db->function->now('date');
@@ -94,7 +94,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting date');
         } else {
-            $this->assertRegExp('/\d{4}-\d{2}-\d{2}/', $result, 'Error: not a proper date');
+            $this->assertRegExp('/^\d{4}-\d{2}-\d{2}$/', $result, 'Error: not a proper date');
         }
         
         $now_clause = $this->db->function->now('time');
@@ -103,7 +103,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting time');
         } else {
-            $this->assertRegExp('/\d{2}:\d{2}:\d{2}/', $result, 'Error: not a proper time');
+            $this->assertRegExp('/^\d{2}:\d{2}:\d{2}$/', $result, 'Error: not a proper time');
         }
     }
 
