@@ -1065,12 +1065,14 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
 
         if (!empty($this->values)) {
             $parameters = array(0 => $this->statement, 1 => '');
+            $lobs = array();
             $i = 0;
             foreach ($this->values as $parameter => $value) {
                 $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
                 if (is_resource($value) || $type == 'clob' || $type == 'blob') {
                     $parameters[] = null;
                     $parameters[1].= 'b';
+                    $lobs[$i] = $parameter;
                 } else {
                     $parameters[] = $this->db->quote($value, $type, false);
                     $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
@@ -1084,35 +1086,30 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                 return $err;
             }
 
-            $i = 0;
-            foreach ($this->values as $parameter => $value) {
-                $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
-                if ($type == 'clob' || $type == 'blob') {
-                    $close = false;
+            foreach ($lobs as $i => $parameter) {
+                $value = $this->values[$parameter];
+                $close = false;
+                if (!is_resource($value)) {
+                    $close = true;
                     if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
-                        $close = true;
                         if ($match[1] == 'file://') {
                             $value = $match[2];
                         }
                         $value = @fopen($value, 'r');
-                    }
-                    if (is_resource($value)) {
-                        while (!@feof($value)) {
-                            $data = @fread($value, $this->db->options['lob_buffer_length']);
-                            @mysqli_stmt_send_long_data($this->statement, $i, $data);
-                        }
-                        if ($close) {
-                            @fclose($value);
-                        }
                     } else {
-                        do {
-                            $data = substr($value, 0, $this->db->options['lob_buffer_length']);
-                            $value = substr($value, $this->db->options['lob_buffer_length']);
-                            @mysqli_stmt_send_long_data($this->statement, $i, $data);
-                        } while ($value);
+                        $fp = @tmpfile();
+                        @fwrite($fp, $value);
+                        @rewind($fp);
+                        $value = $fp;
                     }
                 }
-                ++$i;
+                while (!@feof($value)) {
+                    $data = @fread($value, $this->db->options['lob_buffer_length']);
+                    @mysqli_stmt_send_long_data($this->statement, $i, $data);
+                }
+                if ($close) {
+                    @fclose($value);
+                }
             }
         }
 
