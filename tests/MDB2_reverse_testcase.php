@@ -163,13 +163,13 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $result = $this->db->manager->createTable($table, $fields);
         $this->assertFalse(PEAR::isError($result), 'Error creating table');
         $indices = array(
-            'uniqueindex' => array(
+            'someindex' => array(
                 'fields' => array(
                     'name' => array(
                         'sorting' => 'ascending',
                     ),
                 ),
-                'unique' => true,
+                'unique' => false,
             ),
             'multipleindex' => array(
                 'fields' => array(
@@ -199,7 +199,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 $field_names = array_keys($index['fields']);
                 $this->assertEquals($field_names, array_keys($result['fields']), 'Error listing index fields');
                 if (!empty($index['unique'])) {
-                    $this->assertTrue($result['unique'], 'Error: missing UNIQUE constraint');
+                    $this->assertFalse($result['unique'], 'Error: no UNIQUE constraint expected');
                 }
             }
         }
