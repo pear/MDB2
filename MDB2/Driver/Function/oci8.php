@@ -96,6 +96,32 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
     }
 
     // }}}
+    // {{{ now()
+
+    /**
+     * Return string to call a variable with the current timestamp inside an SQL statement
+     * There are three special variables for current date and time:
+     * - CURRENT_TIMESTAMP (date and time, TIMESTAMP type)
+     * - CURRENT_DATE (date, DATE type)
+     * - CURRENT_TIME (time, TIME type)
+     *
+     * @return string to call a variable with the current timestamp
+     * @access public
+     */
+    function now($type = 'timestamp')
+    {
+        switch ($type) {
+        case 'time':
+            return 'TO_CHAR(CURRENT_TIMESTAMP, \'HH24:MI:SS\')';
+        case 'date':
+            return 'TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD\')';
+        case 'timestamp':
+        default:
+            return 'TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD HH24:MI:SS\')';
+        }
+    }
+
+    // }}}
     // {{{ substring()
 
     /**
