@@ -47,10 +47,10 @@ portability. Among other things MDB2 features:
 * Index/Unique Key/Primary Key support
 * Autoincrement emulation
 * Module framework to load advanced functionality on demand
-* Table information interface
+* Ability to read the information schema
 * RDBMS management methods (creating, dropping, altering)
-* RDBMS independent xml based schema definition management
 * Reverse engineering schemas from an existing DB
+* SQL function call abstraction
 * Full integration into the PEAR Framework
 * PHPDoc API documentation
 EOT;
