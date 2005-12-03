@@ -141,11 +141,11 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 'notnull'  => 1,
                 'default'  => 0,
             ),
-            'name' => array(
+            'somename' => array(
                 'type'   => 'text',
                 'length' => 12,
             ),
-            'description' => array(
+            'somedescription' => array(
                 'type'   => 'text',
                 'length' => 12,
             ),
@@ -165,7 +165,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $indices = array(
             'someindex' => array(
                 'fields' => array(
-                    'name' => array(
+                    'somename' => array(
                         'sorting' => 'ascending',
                     ),
                 ),
@@ -173,7 +173,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             ),
             'multipleindex' => array(
                 'fields' => array(
-                    'description' => array(
+                    'somedescription' => array(
                         'sorting' => 'ascending',
                     ),
                     'sex' => array(

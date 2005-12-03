@@ -60,11 +60,11 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                 'notnull'  => true,
                 'default'  => 0,
             ),
-            'name' => array(
+            'somename' => array(
                 'type'     => 'text',
                 'length'   => 12,
             ),
-            'description'  => array(
+            'somedescription'  => array(
                 'type'     => 'text',
                 'length'   => 12,
             ),
@@ -121,17 +121,17 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $fields['id']['autoincrement'] = true;
         $result = $this->db->manager->createTable($this->table, $this->fields);
         $this->assertFalse(PEAR::isError($result), 'Error creating table');
-        $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table);
-        $query.= ' ('.$this->db->quoteIdentifier('name').', '.$this->db->quoteIdentifier('description').')';
-        $query.= ' VALUES (:name, :description)';
+        $query = 'INSERT INTO '.$this->table;
+        $query.= ' (somename, somedescription)';
+        $query.= ' VALUES (:somename, :somedescription)';
         $stmt =& $this->db->prepare($query, array('text', 'text'), null, true);
         if (PEAR::isError($result)) {
             $this->assertTrue(true, 'Prepareing insert');
             return;
         }
         $values = array(
-            'name' => 'foo',
-            'description' => 'bar',
+            'somename' => 'foo',
+            'somedescription' => 'bar',
         );
         $rows = 5;
         for ($i =0; $i < $rows; ++$i) {
@@ -182,7 +182,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         }
         $index = array(
             'fields' => array(
-                'name' => array(
+                'somename' => array(
                     'sorting' => 'ascending',
                 ),
             ),
@@ -201,7 +201,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         }
         $index = array(
             'fields' => array(
-                'name' => array(
+                'somename' => array(
                     'sorting' => 'ascending',
                 ),
             ),
@@ -221,7 +221,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         }
         $index = array(
             'fields' => array(
-                'name' => array(
+                'somename' => array(
                     'sorting' => 'ascending',
                 ),
             ),
@@ -248,7 +248,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         }
         $index = array(
             'fields' => array(
-                'name' => array(
+                'somename' => array(
                     'sorting' => 'ascending',
                 ),
             ),
@@ -375,10 +375,10 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                 ),
             ),
             'remove' => array(
-                'description' => array(),
+                'somedescription' => array(),
             ),
             'change' => array(
-                'name' => array(
+                'somename' => array(
                     'length' => '20',
                     'definition' => array(
                         'type' => 'text',
