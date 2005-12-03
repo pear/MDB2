@@ -5,8 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.0';
 $notes = <<<EOT
 - use getConnection() to access connection property
-- setting in_transaction to false on disconnect
-
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
 EOT;
 
 $package = new PEAR_PackageFileManager();

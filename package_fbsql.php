@@ -7,13 +7,19 @@ $notes = <<<EOT
 - do not fix case in listUsers()
 - unified case fixing in the list*() methods
 - split index and constraint handling
-- quote identifiers
+- quote identifiers where possible inside the manager methods
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
+- force rollback() with open transactions on disconnect
+- fixed table renaming
+- escape floats to make sure they do not contain evil characters (bug #5608)
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
+- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- use lastInsertID() method in nextID()
 
 open todo items:
-- this driver needs a serious update as it's currently unmaintained
+- this driver needs a serious update as it's currently unmaintained/untested
 EOT;
 
 $package = new PEAR_PackageFileManager();

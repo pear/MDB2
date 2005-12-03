@@ -12,14 +12,19 @@ $notes = <<<EOT
 - unified case fixing in the list*() methods
 - use getConnection() to access connection property
 - split index and constraint handling
-- quote identifiers
+- quote identifiers where possible inside the manager methods
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
+- force rollback() with open transactions on disconnect
+- escape floats to make sure they do not contain evil characters (bug #5608)
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
+- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
 
 open todo items:
 - code to hide primary contraints inside listTableIndexes()
 - handle autoincremement fields in alterTable() and dropTable()
+- added missing reverse module methods
 EOT;
 
 $package = new PEAR_PackageFileManager();

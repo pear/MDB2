@@ -20,6 +20,15 @@ $notes = <<<EOT
 - fixed type changing in alterTable()
 - added new Function modules to handle difference in SQL functions
 - autoincrement emulation works correctly
+- pass the correct connection resource to ibase_blob_import()
+- force rollback() with open transactions on disconnect
+- escape floats to make sure they do not contain evil characters (bug #5608)
+- in listSequences(), skip system generators
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
+- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- added ability to determine unsigned in mapNativeDatatype()
+  (only really implemented in the mysql(i) drivers) (bug #6054)
+- use MDB2_ERROR_NOT_FOUND in getTableConstraintDefinition() and getTableIndexDefinition() (bug #6055)
 
 open todo items:
 - handle autoincremement fields in alterTable()

@@ -11,11 +11,19 @@ $notes = <<<EOT
 - fixed getTableFieldDefinition()
 - use getConnection() to access connection property
 - split index and constraint handling
-- quote identifiers
+- quote identifiers where possible inside the manager methods
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
-
+- force rollback() with open transactions on disconnect
+- added alterTable() (only does table name change and column adding)
+- escape floats to make sure they do not contain evil characters (bug #5608)
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
+- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
+- added ability to determine unsigned in mapNativeDatatype()
+  (only really implemented in the mysql(i) drivers) (bug #6054)
+- use lastInsertID() method in nextID()
 EOT;
 
 $package = new PEAR_PackageFileManager();

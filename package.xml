@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.2">
+<package version="1.0" packagerversion="1.4.5">
  <name>MDB2</name>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
@@ -29,10 +29,10 @@ portability. Among other things MDB2 features:
 * Index/Unique Key/Primary Key support
 * Autoincrement emulation
 * Module framework to load advanced functionality on demand
-* Table information interface
+* Ability to read the information schema
 * RDBMS management methods (creating, dropping, altering)
-* RDBMS independent xml based schema definition management
 * Reverse engineering schemas from an existing DB
+* SQL function call abstraction
 * Full integration into the PEAR Framework
 * PHPDoc API documentation
  </description>
@@ -70,22 +70,28 @@ portability. Among other things MDB2 features:
   </maintainers>
  <release>
   <version>2.0.0beta7</version>
-  <date>2005-10-16</date>
+  <date>2005-12-03</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- added numerous testcases in the managre and reverse module
+  <notes>- added numerous testcases in the manager and reverse module
 - unified case fixing in the list*() methods
 - case-insensitive comparison in _isSequenceName()
-- added getConnection() to fetch a native connection ressource
-- split index and contraint handling
-- quote identifiers
+- added getConnection() to fetch a native connection resource
+- split index and constraint handling
+- quote identifiers where possible inside the manager methods
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - store if type has changed in compareDefinition()
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
+- added verious new test cases
+- refactored test cases to use an MDB2_testcase base class
+- allow empty field parameter in get*ID() methods (bug #5791)
+- tweaked error messages for file loads
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
+- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 
 open todo items:
-- add test cases for the function module and autoincrement handling
 - add getServerVersion()
   </notes>
   <deps>
@@ -194,13 +200,7 @@ open todo items:
      <file role="test" name="Console_TestListener.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
-     <file role="test" name="driver_test.schema">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
      <file role="test" name="HTML_TestListener.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="lob_test.schema">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="test" name="MDB2_api_testcase.php">
@@ -212,6 +212,9 @@ open todo items:
      <file role="test" name="MDB2_Connect_Test.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
+     <file role="test" name="MDB2_function_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
      <file role="test" name="MDB2_manager_testcase.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
@@ -219,6 +222,9 @@ open todo items:
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="test" name="MDB2_reverse_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="test" name="MDB2_testcase.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="test" name="MDB2_usage_testcase.php">
@@ -252,22 +258,28 @@ open todo items:
  <changelog>
    <release>
     <version>2.0.0beta7</version>
-    <date>2005-10-16</date>
+    <date>2005-12-03</date>
     <license>BSD License</license>
     <state>beta</state>
-    <notes>- added numerous testcases in the managre and reverse module
+    <notes>- added numerous testcases in the manager and reverse module
 - unified case fixing in the list*() methods
 - case-insensitive comparison in _isSequenceName()
-- added getConnection() to fetch a native connection ressource
-- split index and contraint handling
-- quote identifiers
+- added getConnection() to fetch a native connection resource
+- split index and constraint handling
+- quote identifiers where possible inside the manager methods
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - store if type has changed in compareDefinition()
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
+- added verious new test cases
+- refactored test cases to use an MDB2_testcase base class
+- allow empty field parameter in get*ID() methods (bug #5791)
+- tweaked error messages for file loads
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
+- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 
 open todo items:
-- add test cases for the function module and autoincrement handling
 - add getServerVersion()
     </notes>
    </release>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.2">
+<package version="1.0" packagerversion="1.4.5">
  <name>MDB2_Driver_querysim</name>
  <summary>querysim MDB2 driver</summary>
  <description>This is the Querysim MDB2 driver.
@@ -15,11 +15,11 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-10-16</date>
+  <date>2005-12-03</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes>- use getConnection() to access connection propery
-- setting in_transaction to false on disconnect
+  <notes>- use getConnection() to access connection property
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -40,20 +40,17 @@
       </file>
      </dir> <!-- /MDB2/Driver -->
     </dir> <!-- /MDB2 -->
-    <file role="php" name="package_querysim.php">
-     <replace type="package-info" from="@package_version@" to="version"/>
-    </file>
    </dir> <!-- / -->
   </filelist>
  </release>
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-10-16</date>
+    <date>2005-12-03</date>
     <license>BSD License</license>
     <state>alpha</state>
-    <notes>- use getConnection() to access connection propery
-- setting in_transaction to false on disconnect
+    <notes>- use getConnection() to access connection property
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
     </notes>
    </release>
    <release>

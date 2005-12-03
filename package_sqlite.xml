@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.2">
+<package version="1.0" packagerversion="1.4.5">
  <name>MDB2_Driver_sqlite</name>
  <summary>sqlite MDB2 driver</summary>
  <description>This is the SQLite MDB2 driver.
@@ -15,7 +15,7 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-10-16</date>
+  <date>2005-12-03</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>- do not fix case in listUsers()
@@ -23,12 +23,21 @@
 - support sorting order in createIndex()
 - tweaked lob and text handling in mapNativeDatatype()
 - fixed getTableFieldDefinition()
-- use getConnection() to access connection propery
-- split index and contraint handling
-- quote identifiers
+- use getConnection() to access connection property
+- split index and constraint handling
+- quote identifiers where possible inside the manager methods
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
+- force rollback() with open transactions on disconnect
+- added alterTable() (only does table name change and column adding)
+- escape floats to make sure they do not contain evil characters (bug #5608)
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
+- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
+- added ability to determine unsigned in mapNativeDatatype()
+  (only really implemented in the mysql(i) drivers) (bug #6054)
+- use lastInsertID() method in nextID()
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -37,49 +46,44 @@
    <dep type="ext" rel="has" optional="no">sqlite</dep>
   </deps>
   <filelist>
-   <dir name="/" baseinstalldir="/">
-    <dir name="MDB2">
-     <dir name="Driver">
-      <dir name="Datatype">
-       <file role="php" name="sqlite.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Datatype -->
-      <dir name="Function">
-       <file role="php" name="sqlite.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Function -->
-      <dir name="Manager">
-       <file role="php" name="sqlite.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Manager -->
-      <dir name="Native">
-       <file role="php" name="sqlite.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Native -->
-      <dir name="Reverse">
-       <file role="php" name="sqlite.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Reverse -->
+   <dir name="MDB2" baseinstalldir="/">
+    <dir name="Driver">
+     <dir name="Datatype">
       <file role="php" name="sqlite.php">
        <replace type="package-info" from="@package_version@" to="version"/>
       </file>
-     </dir> <!-- /MDB2/Driver -->
-    </dir> <!-- /MDB2 -->
-    <file role="php" name="package_sqlite.php">
-     <replace type="package-info" from="@package_version@" to="version"/>
-    </file>
-   </dir> <!-- / -->
+     </dir> <!-- /MDB2/Driver/Datatype -->
+     <dir name="Function">
+      <file role="php" name="sqlite.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Function -->
+     <dir name="Manager">
+      <file role="php" name="sqlite.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Manager -->
+     <dir name="Native">
+      <file role="php" name="sqlite.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Native -->
+     <dir name="Reverse">
+      <file role="php" name="sqlite.php">
+       <replace type="package-info" from="@package_version@" to="version"/>
+      </file>
+     </dir> <!-- /MDB2/Driver/Reverse -->
+     <file role="php" name="sqlite.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
   </filelist>
  </release>
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-10-16</date>
+    <date>2005-12-03</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- do not fix case in listUsers()
@@ -87,12 +91,21 @@
 - support sorting order in createIndex()
 - tweaked lob and text handling in mapNativeDatatype()
 - fixed getTableFieldDefinition()
-- use getConnection() to access connection propery
-- split index and contraint handling
-- quote identifiers
+- use getConnection() to access connection property
+- split index and constraint handling
+- quote identifiers where possible inside the manager methods
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
-- added new Funtion modules to handle difference in SQL functions
+- added new Function modules to handle difference in SQL functions
+- force rollback() with open transactions on disconnect
+- added alterTable() (only does table name change and column adding)
+- escape floats to make sure they do not contain evil characters (bug #5608)
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
+- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
+- added ability to determine unsigned in mapNativeDatatype()
+  (only really implemented in the mysql(i) drivers) (bug #6054)
+- use lastInsertID() method in nextID()
     </notes>
    </release>
    <release>

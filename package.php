@@ -9,14 +9,20 @@ $notes = <<<EOT
 - case-insensitive comparison in _isSequenceName()
 - added getConnection() to fetch a native connection resource
 - split index and constraint handling
-- quote identifiers
+- quote identifiers where possible inside the manager methods
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - store if type has changed in compareDefinition()
 - added new Function modules to handle difference in SQL functions
+- added verious new test cases
+- refactored test cases to use an MDB2_testcase base class
+- allow empty field parameter in get*ID() methods (bug #5791)
+- tweaked error messages for file loads
+- split off manipulation queries into exec() method from the query() method *BC BREAK*
+- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 
 open todo items:
-- add test cases for the function module and autoincrement handling
 - add getServerVersion()
 EOT;
 
