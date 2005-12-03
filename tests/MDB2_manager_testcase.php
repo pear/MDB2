@@ -56,22 +56,22 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $this->fields = array(
             'id' => array(
                 'type'     => 'integer',
-                'unsigned' => 1,
-                'notnull'  => 1,
+                'unsigned' => true,
+                'notnull'  => true,
                 'default'  => 0,
             ),
             'name' => array(
-                'type'   => 'text',
-                'length' => 12,
+                'type'     => 'text',
+                'length'   => 12,
             ),
-            'description' => array(
-                'type'   => 'text',
-                'length' => 12,
+            'description'  => array(
+                'type'     => 'text',
+                'length'   => 12,
             ),
             'sex' => array(
-                'type' => 'text',
-                'length' => 1,
-                'default' => 'M',
+                'type'     => 'text',
+                'length'   => 1,
+                'default'  => 'M',
             ),
         );
         if (!$this->tableExists($this->table)) {
@@ -104,6 +104,59 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
 
         $result = $this->db->manager->createTable($this->table, $this->fields);
         $this->assertFalse(PEAR::isError($result), 'Error creating table');
+    }
+
+    /**
+     * Create a sample table, test the new fields, and drop it.
+     */
+    function testCreateAutoIncrementTable() {
+        if (!$this->methodExists($this->db->manager, 'createTable')) {
+            return;
+        }
+        if ($this->tableExists($this->table)) {
+            $this->db->manager->dropTable($this->table);
+        }
+
+        $fields = $this->fields;
+        $fields['id']['autoincrement'] = true;
+        $result = $this->db->manager->createTable($this->table, $this->fields);
+        $this->assertFalse(PEAR::isError($result), 'Error creating table');
+        $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table);
+        $query.= ' ('.$this->db->quoteIdentifier('name').', '.$this->db->quoteIdentifier('description').')';
+        $query.= ' VALUES (:name, :description)';
+        $stmt =& $this->db->prepare($query, array('text', 'text'), null, true);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(true, 'Prepareing insert');
+            return;
+        }
+        $values = array(
+            'name' => 'foo',
+            'description' => 'bar',
+        );
+        $rows = 5;
+        for ($i =0; $i < $rows; ++$i) {
+            $result = $stmt->execute($values);
+            if (PEAR::isError($result)) {
+                $this->assertFalse(true, 'Error executing autoincrementing insert number: '.$i);
+                return;
+            }
+        }
+        $query = 'SELECT * FROM '.$this->db->quoteIdentifier($this->table);
+        $data = $this->db->queryAll($query, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($data)) {
+            $this->assertTrue(true, 'Error executing select');
+            return;
+        }
+        for ($i =0; $i < $rows; ++$i) {
+            if (!isset($data[$i]['id'])) {
+                $this->assertTrue(true, 'Error in data returned by select');
+                return;
+            }
+            if ($data[$i]['id'] === ($i+1)) {
+                $this->assertTrue(true, 'Error executing autoincrementing insert');
+                return;
+            }
+        }
     }
 
     /**
