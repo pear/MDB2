@@ -29,6 +29,9 @@ $notes = <<<EOT
 - use MDB2_ERROR_NOT_FOUND in getTableConstraintDefinition() and getTableIndexDefinition() (bug #6055)
 - Sync lastInsertID with the mysqli implementation
 - use lastInsertID() method in nextID()
+
+open todo items:
+- add getServerVersion() and use it to determine sub select support
 EOT;
 
 $package = new PEAR_PackageFileManager();
