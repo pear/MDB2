@@ -183,7 +183,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
         if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
-            $name = $db->quoteIdentifier($name);
+            $name = $db->quoteIdentifier($name, true);
             return $name.' '.$this->getTypeDeclaration($field);
         }
         $default = '';
@@ -196,7 +196,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         }
 
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
 

@@ -387,7 +387,7 @@ class MDB2_PEARProxy extends PEAR
 
     function quoteIdentifier($string)
     {
-        return $this->db_object->quoteIdentifier($string);
+        return $this->db_object->quoteIdentifier($string, false);
     }
 
     // map?

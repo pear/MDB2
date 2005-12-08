@@ -185,14 +185,17 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      * table or column names.
      *
      * @param string $str  identifier name to be quoted
+     * @param bool   $check_option  check the 'quote_identifier' option
      *
      * @return string  quoted identifier string
      *
      * @access public
-     * @internal
      */
-    function quoteIdentifier($str)
+    function quoteIdentifier($str, $check_option)
     {
+        if ($check_option && !$this->options['quote_identifier']) {
+            return $str;
+        }
         return '`' . $str . '`';
     }
 
@@ -749,8 +752,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name));
-        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name']);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
+        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (NULL)";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->_doQuery($query, true);
@@ -819,8 +822,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function currID($seq_name)
     {
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name));
-        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name']);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
+        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $query = "SELECT MAX($seqcol_name) FROM $sequence_name";
         return $this->queryOne($query, 'integer');
     }

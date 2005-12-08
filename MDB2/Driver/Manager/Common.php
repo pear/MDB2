@@ -224,7 +224,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
                 'createTable: unkown error');
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         $query = "CREATE TABLE $name ($query_fields)";
         return $db->exec($query);
     }
@@ -246,7 +246,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("DROP TABLE $name");
     }
 
@@ -517,8 +517,8 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($name, true);
         $query = 'CREATE';
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
@@ -526,7 +526,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         $query .= " INDEX $name ON $table";
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
-            $fields[] = $db->quoteIdentifier($field);
+            $fields[] = $db->quoteIdentifier($field, true);
         }
         $query .= ' ('. implode(', ', $fields) . ')';
         return $db->exec($query);
@@ -550,7 +550,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("DROP INDEX $name");
     }
 
@@ -606,15 +606,15 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($name, true);
         $query = "ALTER TABLE $table ADD CONSTRAINT $name";
         if (array_key_exists('primary', $definition) && $definition['primary']) {
             $query.= ' PRIMARY KEY';
         }
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
-            $fields[] = $db->quoteIdentifier($field);
+            $fields[] = $db->quoteIdentifier($field, true);
         }
         $query .= ' ('. implode(', ', $fields) . ')';
         return $db->exec($query);
@@ -638,8 +638,8 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $table DROP CONSTRAINT $name");
     }
 

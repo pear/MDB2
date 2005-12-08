@@ -214,11 +214,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * Delimited identifiers are a nightmare with InterBase, so they're disabled
      *
      * @param string $str  identifier name to be quoted
+     * @param bool   $check_option  check the 'quote_identifier' option
+     *
      * @return string  quoted identifier string
      *
      * @access public
      */
-    function quoteIdentifier($str)
+    function quoteIdentifier($str, $check_option)
+
     {
         return strtoupper($str);
     }

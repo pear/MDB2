@@ -71,7 +71,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->standaloneQuery("CREATE DATABASE $name", null, true);
     }
 
@@ -92,7 +92,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->standaloneQuery("DROP DATABASE $name", null, true);
     }
 
@@ -237,14 +237,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $field_name = $db->quoteIdentifier($field_name);
+                $field_name = $db->quoteIdentifier($field_name, true);
                 $query.= 'DROP ' . $field_name;
             }
         }
 
         if (array_key_exists('change', $changes)) {
             foreach ($changes['change'] as $field_name => $field) {
-                $field_name = $db->quoteIdentifier($field_name);
+                $field_name = $db->quoteIdentifier($field_name, true);
                 if (array_key_exists('type', $field)) {
                     if ($query) {
                         $query.= ', ';
@@ -271,7 +271,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         $result = $db->exec("ALTER TABLE $name $query");
         if (PEAR::isError($result)) {
             return $result;
@@ -279,7 +279,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         if (array_key_exists('rename', $changes)) {
             foreach ($changes['rename'] as $field_name => $field) {
-                $field_name = $db->quoteIdentifier($field_name);
+                $field_name = $db->quoteIdentifier($field_name, true);
                 $result = $db->exec("ALTER TABLE $name RENAME COLUMN $field_name TO ".$field['name']);
                 if (PEAR::isError($result)) {
                     break;
@@ -477,7 +477,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $result2 = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result2)) {
             return $result2;
@@ -566,7 +566,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("CREATE SEQUENCE $sequence_name INCREMENT 1".
             ($start < 1 ? " MINVALUE $start" : '')." START $start");
     }
@@ -588,7 +588,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("DROP SEQUENCE $sequence_name");
     }
 

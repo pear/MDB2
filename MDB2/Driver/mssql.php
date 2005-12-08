@@ -151,14 +151,17 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      * Quoting style depends on which database driver is being used.
      *
      * @param string $str  identifier name to be quoted
+     * @param bool   $check_option  check the 'quote_identifier' option
      *
      * @return string  quoted identifier string
      *
-     * @since 1.6.0
      * @access public
      */
-    function quoteIdentifier($str)
+    function quoteIdentifier($str, $check_option)
     {
+        if ($check_option && !$this->options['quote_identifier']) {
+            return $str;
+        }
         return '[' . str_replace(']', ']]', $str) . ']';
     }
 
@@ -451,8 +454,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name));
-        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name']);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
+        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         if ($this->_checkSequence($sequence_name)) {
             $query = "SET IDENTITY_INSERT $sequence_name ON ".

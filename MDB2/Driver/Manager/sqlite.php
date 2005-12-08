@@ -250,7 +250,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $name $query");
     }
 
@@ -344,7 +344,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $query = "SELECT * FROM $table";
         $db->setLimit(1);
         $result2 = $db->query($query);
@@ -401,7 +401,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $query = 'CREATE';
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
@@ -572,8 +572,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
+        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name'], true);
         $query = "CREATE TABLE $sequence_name ($seqcol_name INTEGER PRIMARY KEY DEFAULT 0 NOT NULL)";
         $res = $db->exec($query);
         if (PEAR::isError($res)) {
@@ -615,7 +615,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("DROP TABLE $sequence_name");
     }
 

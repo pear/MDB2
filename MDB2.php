@@ -971,6 +971,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['log_line_break'] -> string line-break format
      * $options['seqname_format'] -> string pattern for sequence name
      * $options['seqcol_name'] -> string sequence column name
+     * $options['quote_identifier'] -> if identifier quoting should be done when check_option is used
      * $options['use_transactions'] -> boolean
      * $options['decimal_places'] -> integer
      * $options['portability'] -> portability constant
@@ -994,6 +995,7 @@ class MDB2_Driver_Common extends PEAR
             'log_line_break' => "\n",
             'seqname_format' => '%s_seq',
             'seqcol_name' => 'sequence',
+            'quote_identifier' => false,
             'use_transactions' => false,
             'decimal_places' => 2,
             'portability' => MDB2_PORTABILITY_ALL,
@@ -1438,13 +1440,17 @@ class MDB2_Driver_Common extends PEAR
      * via PHP 4.  They work fine under PHP 5.
      *
      * @param string $str  identifier name to be quoted
+     * @param bool   $check_option  check the 'quote_identifier' option
      *
      * @return string  quoted identifier string
      *
      * @access public
      */
-    function quoteIdentifier($str)
+    function quoteIdentifier($str, $check_option = false)
     {
+        if ($check_option && !$this->options['quote_identifier']) {
+            return $str;
+        }
         return '"' . str_replace('"', '""', $str) . '"';
     }
 

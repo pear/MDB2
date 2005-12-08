@@ -72,7 +72,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         $query = "CREATE DATABASE $name";
         if($db->options['database_device']) {
             $query.= ' ON '.$db->options['database_device'];
@@ -98,7 +98,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->standaloneQuery("DROP DATABASE $name", null, true);
     }
 
@@ -252,7 +252,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $name $query");
     }
 
@@ -307,7 +307,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $result2 = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result2)) {
             return $result2;
@@ -389,8 +389,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
+        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name'], true);
         $query = "CREATE TABLE $sequence_name ($seqcol_name " .
                  "INT PRIMARY KEY CLUSTERED IDENTITY($start,1) NOT NULL)";
 
@@ -453,7 +453,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("DROP TABLE $sequence_name");
     }
 

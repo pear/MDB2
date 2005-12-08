@@ -355,7 +355,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         }
 
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
 
@@ -462,7 +462,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         }
 
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }
 
@@ -498,7 +498,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         }
 
         $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }
 

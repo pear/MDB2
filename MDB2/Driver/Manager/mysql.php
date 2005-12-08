@@ -148,7 +148,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         $query = "CREATE DATABASE $name";
         $result = $db->exec($query);
         if (PEAR::isError($result)) {
@@ -174,7 +174,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         $query = "DROP DATABASE $name";
         $result = $db->exec($query);
         if (PEAR::isError($result)) {
@@ -240,7 +240,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: '.$this->getUserinfo());
         }
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         $query = "CREATE TABLE $name ($query_fields)".(strlen($db->options['default_table_type'])
             ? ' TYPE='.$db->options['default_table_type'] : '');
 
@@ -381,7 +381,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $field_name = $db->quoteIdentifier($field_name);
+                $field_name = $db->quoteIdentifier($field_name, true);
                 $query.= 'DROP ' . $field_name;
             }
         }
@@ -404,7 +404,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 } else {
                     $old_field_name = $field_name;
                 }
-                $old_field_name = $db->quoteIdentifier($old_field_name);
+                $old_field_name = $db->quoteIdentifier($old_field_name, true);
                 $query.= "CHANGE $old_field_name " . $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
             }
         }
@@ -415,7 +415,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                     $query.= ', ';
                 }
                 $field = $changes['rename'][$renamed_field];
-                $renamed_field = $db->quoteIdentifier($renamed_field);
+                $renamed_field = $db->quoteIdentifier($renamed_field, true);
                 $query.= 'CHANGE ' . $renamed_field . ' ' . $db->getDeclaration($field['definition']['type'], $field['name'], $field['definition']);
             }
         }
@@ -424,7 +424,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $name $query");
     }
 
@@ -522,7 +522,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $result = $db->queryCol("SHOW COLUMNS FROM $table");
         if (PEAR::isError($result)) {
             return $result;
@@ -577,8 +577,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($name, true);
         $query = 'CREATE';
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
@@ -587,9 +587,9 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         $fields = array();
         foreach ($definition['fields'] as $field => $fieldinfo) {
             if (array_key_exists('length', $fieldinfo)) {
-                $fields[] = $db->quoteIdentifier($field) . '(' . $fieldinfo['length'] . ')';
+                $fields[] = $db->quoteIdentifier($field, true) . '(' . $fieldinfo['length'] . ')';
             } else {
-                $fields[] = $db->quoteIdentifier($field);
+                $fields[] = $db->quoteIdentifier($field, true);
             }
         }
         $query .= ' ('. implode(', ', $fields) . ')';
@@ -614,8 +614,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("DROP INDEX $name ON $table");
     }
 
@@ -645,7 +645,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             }
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table";
         $indexes_all = $db->queryCol($query, 'text', $key_name);
         if (PEAR::isError($indexes_all)) {
@@ -700,14 +700,14 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             $type = 'PRIMARY';
             $name = 'KEY';
         } else {
-            $name = $db->quoteIdentifier($name);
+            $name = $db->quoteIdentifier($name, true);
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $query = "ALTER TABLE $table ADD $type $name";
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
-            $fields[] = $db->quoteIdentifier($field);
+            $fields[] = $db->quoteIdentifier($field, true);
         }
         $query .= ' ('. implode(', ', $fields) . ')';
         return $db->exec($query);
@@ -731,11 +731,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         if (strtolower($name) == 'primary') {
             $query = "ALTER TABLE $table DROP PRIMARY KEY";
         } else {
-            $name = $db->quoteIdentifier($name);
+            $name = $db->quoteIdentifier($name, true);
             $query = "ALTER TABLE $table DROP FOREIGN KEY $name";
         }
         return $db->exec($query);
@@ -767,7 +767,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             }
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table";
         $indexes_all = $db->queryCol($query, 'text', $key_name);
         if (PEAR::isError($indexes_all)) {
@@ -799,8 +799,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
+        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name'], true);
         $result = $this->_verifyTableType($db->options['default_table_type']);
         if (PEAR::isError($result)) {
             return $result;
@@ -854,7 +854,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("DROP TABLE $sequence_name");
     }
 

@@ -119,7 +119,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
         if (is_null($start)) {
             $db->beginTransaction();
-            $query = 'SELECT MAX(' . $db->quoteIdentifier($name) . ') FROM ' . $db->quoteIdentifier($table);
+            $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $db->quoteIdentifier($table, true);
             $start = $this->db->queryOne($query, 'integer');
             if (PEAR::isError($start)) {
                 return $start;
@@ -136,9 +136,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $db->quoteIdentifier($table . '_AUTOINCREMENT_PK');
-        $table = $db->quoteIdentifier($table);
-        $name  = $db->quoteIdentifier($name);
+        $trigger_name  = $db->quoteIdentifier($table . '_AUTOINCREMENT_PK', true);
+        $table = $db->quoteIdentifier($table, true);
+        $name  = $db->quoteIdentifier($name, true);
         $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
                         ACTIVE BEFORE INSERT POSITION 0
                         AS
@@ -437,7 +437,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $field_name = $db->quoteIdentifier($field_name);
+                $field_name = $db->quoteIdentifier($field_name, true);
                 $query.= 'DROP ' . $field_name;
             }
         }
@@ -447,8 +447,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $field_name = $db->quoteIdentifier($field_name);
-                $query.= 'ALTER ' . $field_name . ' TO ' . $db->quoteIdentifier($field['name']);
+                $field_name = $db->quoteIdentifier($field_name, true);
+                $query.= 'ALTER ' . $field_name . ' TO ' . $db->quoteIdentifier($field['name'], true);
             }
         }
 
@@ -462,7 +462,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                     $query.= ', ';
                 }
                 $db->loadModule('Datatype');
-                $field_name = $db->quoteIdentifier($field_name);
+                $field_name = $db->quoteIdentifier($field_name, true);
                 $query.= 'ALTER ' . $field_name.' TYPE ' . $db->datatype->getTypeDeclaration($field['definition']);
             }
         }
@@ -471,7 +471,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $name $query");
     }
 
@@ -631,12 +631,12 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 }
             }
         }
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($name, true);
         $query .= $query_sort. " INDEX $name ON $table";
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
-            $fields[] = $db->quoteIdentifier($field);
+            $fields[] = $db->quoteIdentifier($field, true);
         }
         $query .= ' ('.implode(', ', $fields) . ')';
         return $db->exec($query);
@@ -701,19 +701,19 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $query = "ALTER TABLE $table ADD";
         if (array_key_exists('primary', $definition) && $definition['primary']) {
             if (!empty($name)) {
-                $query.= ' CONSTRAINT '.$db->quoteIdentifier($name);
+                $query.= ' CONSTRAINT '.$db->quoteIdentifier($name, true);
             }
             $query.= ' PRIMARY KEY';
         } else {
-            $query.= ' CONSTRAINT '. $db->quoteIdentifier($name);
+            $query.= ' CONSTRAINT '. $db->quoteIdentifier($name, true);
         }
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
-            $fields[] = $db->quoteIdentifier($field);
+            $fields[] = $db->quoteIdentifier($field, true);
         }
         $query .= ' ('. implode(', ', $fields) . ')';
         return $db->exec($query);

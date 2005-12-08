@@ -568,7 +568,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function nextID($seq_name, $ondemand = true)
     {
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name));
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
         $seqcol_name = $this->options['seqcol_name'];
         $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (NULL)";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
@@ -638,8 +638,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function currID($seq_name)
     {
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name));
-        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name']);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
+        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $query = "SELECT MAX($seqcol_name) FROM $sequence_name";
         return $this->queryOne($query, 'integer');
     }

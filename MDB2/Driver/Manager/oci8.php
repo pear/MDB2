@@ -150,8 +150,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 '_makeAutoincrement: primary key for autoincrement PK could not be created');
         }
 
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($name, true);
         if (is_null($start)) {
             $db->beginTransaction();
             $query = "SELECT MAX($name) FROM $table";
@@ -170,9 +170,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         $trigger_name  = $table . '_AUTOINCREMENT_PK';
-        $trigger_name = $db->quoteIdentifier($trigger_name);
+        $trigger_name = $db->quoteIdentifier($trigger_name, true);
         $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
         $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
         $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;";
@@ -198,7 +198,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $trigger_name = $table . '_AUTOINCREMENT_PK';
-        $trigger_name = $db->quoteIdentifier($trigger_name);
+        $trigger_name = $db->quoteIdentifier($trigger_name, true);
         $trigger = $db->queryOne("SELECT trigger_name FROM user_triggers WHERE trigger_name = '$trigger_name'");
         if (PEAR::isError($trigger)) {
             return $trigger;
@@ -416,16 +416,16 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $query = ' DROP (';
             $fields = array();
             foreach ($changes['remove'] as $field) {
-                $fields[] = $db->quoteIdentifier($field);
+                $fields[] = $db->quoteIdentifier($field, true);
             }
             $query .= ' ('. implode(', ', $fields) . ')';
-            $name = $db->quoteIdentifier($name);
+            $name = $db->quoteIdentifier($name, true);
             if (PEAR::isError($result = $db->exec("ALTER TABLE $name $query"))) {
                 return $result;
             }
         }
 
-        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$db->quoteIdentifier($changes['name']) : '');
+        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$db->quoteIdentifier($changes['name'], true) : '');
 
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
@@ -438,7 +438,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         if (array_key_exists('change', $changes)) {
             foreach ($changes['change'] as $field_name => $field) {
-                $field_name = $db->quoteIdentifier($field_name);
+                $field_name = $db->quoteIdentifier($field_name, true);
                 $query.= "MODIFY ($field_name " . $db->getDeclaration($field['type'], $field_name, $field).')';
             }
         }
@@ -447,7 +447,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $name $query");
     }
 
@@ -708,7 +708,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1".
             ($start < 1 ? " MINVALUE $start" : ''));
     }
@@ -731,7 +731,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("DROP SEQUENCE $sequence_name");
     }
 

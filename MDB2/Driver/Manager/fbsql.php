@@ -72,7 +72,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         $query = "CREATE DATABASE $name";
         return $db->exec($query);
     }
@@ -94,7 +94,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         $query = "DELETE DATABASE $name";
         return $db->exec($query);
     }
@@ -117,7 +117,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("DROP TABLE $name CASCADE");
     }
 
@@ -255,7 +255,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $field_name = $db->quoteIdentifier($field_name);
+                $field_name = $db->quoteIdentifier($field_name, true);
                 $query.= 'DROP ' . $field_name;
             }
         }
@@ -278,7 +278,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                 } else {
                     $old_field_name = $field_name;
                 }
-                $old_field_name = $db->quoteIdentifier($old_field_name);
+                $old_field_name = $db->quoteIdentifier($old_field_name, true);
                 $query.= "CHANGE $old_field_name " . $db->getDeclaration($field['type'], $old_field_name, $field);
             }
         }
@@ -298,7 +298,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $name = $db->quoteIdentifier($name);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $name $query");
     }
 
@@ -393,7 +393,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $result = $db->queryCol("SHOW COLUMNS FROM $table");
         if (PEAR::isError($result)) {
             return $result;
@@ -422,8 +422,8 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table);
-        $name = $db->quoteIdentifier($name);
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $table DROP INDEX $name");
     }
 
@@ -453,7 +453,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             }
         }
 
-        $table = $db->quoteIdentifier($table);
+        $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table";
         $indexes_all = $db->queryCol($query, 'text', $key_name);
         if (PEAR::isError($indexes_all)) {
@@ -484,8 +484,8 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
-        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name']);
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
+        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name'], true);
         $query = "CREATE TABLE $sequence_name ($seqcol_name INTEGER DEFAULT UNIQUE, PRIMARY KEY($seqcol_name))";
         $res = $db->exec($query);
         $res = $db->exec("SET UNIQUE = 1 FOR $sequence_name");
@@ -528,7 +528,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name));
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("DROP TABLE $sequence_name CASCADE");
     }
 
