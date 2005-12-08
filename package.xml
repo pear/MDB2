@@ -70,7 +70,7 @@ portability. Among other things MDB2 features:
   </maintainers>
  <release>
   <version>2.0.0beta7</version>
-  <date>2005-12-03</date>
+  <date>2005-12-08</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>- added numerous testcases in the manager and reverse module
@@ -137,9 +137,6 @@ open todo items:
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="doc" name="README">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="doc" name="STATUS">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="doc" name="TODO">
@@ -258,7 +255,7 @@ open todo items:
  <changelog>
    <release>
     <version>2.0.0beta7</version>
-    <date>2005-12-03</date>
+    <date>2005-12-08</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- added numerous testcases in the manager and reverse module
