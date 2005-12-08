@@ -141,7 +141,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                 return;
             }
         }
-        $query = 'SELECT * FROM '.$this->db->quoteIdentifier($this->table);
+        $query = 'SELECT * FROM '.$this->table;
         $data = $this->db->queryAll($query, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($data)) {
             $this->assertTrue(true, 'Error executing select');
