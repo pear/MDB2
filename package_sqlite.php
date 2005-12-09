@@ -20,7 +20,7 @@ $notes = <<<EOT
 - added alterTable() (only does table name change and column adding)
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added ability to determine unsigned in mapNativeDatatype()
   (only really implemented in the mysql(i) drivers) (bug #6054)

@@ -56,7 +56,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     function testStorage() {
         $data = $this->getSampleData(1234);
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
@@ -84,7 +84,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -120,7 +120,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -177,7 +177,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -221,7 +221,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -251,7 +251,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     function testPreparedQueries() {
         $question_value = $this->db->quote('Does this work?', 'text');
 
-        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 1)", array('text'), null, true);
+        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 1)", array('text'), false);
 
         $value = 'Sure!';
         $stmt->bindParam(0, $value);
@@ -268,7 +268,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $question_value = $this->db->quote("Wouldn't it be great if this worked too?", 'text');
 
-        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (:text, $question_value, 2)", array('text'), null, true);
+        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (:text, $question_value, 2)", array('text'), false);
 
         $value = 'For Sure!';
         $stmt->bindParam('text', $value);
@@ -295,7 +295,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     function testMetadata() {
         $data = $this->getSampleData(1234);
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
@@ -438,7 +438,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -685,7 +685,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 7;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -700,7 +700,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $stmt->free();
 
-        $stmt = $this->db->prepare('UPDATE users SET user_password=? WHERE user_id < ?', array('text', 'integer'), null, true);
+        $stmt = $this->db->prepare('UPDATE users SET user_password=? WHERE user_id < ?', array('text', 'integer'), false);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $password = "another_password_$row";
@@ -720,7 +720,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $stmt->free();
 
-        $stmt = $this->db->prepare('DELETE FROM users WHERE user_id >= ?', array('integer'), null, true);
+        $stmt = $this->db->prepare('DELETE FROM users WHERE user_id >= ?', array('integer'), false);
 
         $row = intval($total_rows / 2);
         $stmt->bindParam(0, $row);
@@ -751,7 +751,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = $this->getSampleData(0);
 
         $this->db->beginTransaction();
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
         $result = $stmt->execute(array_values($data));
         $this->db->rollback();
         $stmt->free();
@@ -775,7 +775,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = $this->getSampleData(1);
 
         $this->db->beginTransaction();
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
         $result = $stmt->execute(array_values($data));
         $this->db->commit();
         $stmt->free();
@@ -825,7 +825,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
 
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
-        $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), null, true);
+        $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), false);
 
         $character_lob = '';
         $binary_lob = '';
@@ -898,7 +898,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
 
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
-        $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), null, true);
+        $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), false);
 
         $character_data_file = 'character_data';
         if (($file = fopen($character_data_file, 'w'))) {
@@ -992,7 +992,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
 
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
-        $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), null, true);
+        $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), false);
 
         $null = null;
         $stmt->bindParam('document', $null);
@@ -1030,7 +1030,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = $this->getSampleData(1234);
         $data['user_password'] = '';
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), null, true);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 

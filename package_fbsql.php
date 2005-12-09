@@ -16,7 +16,7 @@ $notes = <<<EOT
 - fixed table renaming
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use lastInsertID() method in nextID()
 
 open todo items:

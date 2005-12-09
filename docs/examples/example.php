@@ -141,7 +141,7 @@
                      array(3, 'three', 'trois'),
                      array(4, 'four', 'quatre')
     );
-    $stmt = $db->prepare('INSERT INTO numbers VALUES(?,?,?)', array('integer', 'text', 'text'));
+    $stmt = $db->prepare('INSERT INTO numbers VALUES(?,?,?)', array('integer', 'text', 'text'), false);
     foreach ($alldata as $row) {
         echo('running execute<br>');
         $stmt->bindParamArray($row);

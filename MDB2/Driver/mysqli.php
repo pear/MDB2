@@ -579,14 +579,14 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      * @param string $query the query to prepare
      * @param mixed   $types  array that contains the types of the placeholders
      * @param mixed   $result_types  array that contains the types of the columns in
-     *                        the result set
-     * @param boolean $is_manip  if the query is a manipulation query
+     *                        the result set, if set to false it the query is
+                              handled as a manipulation query
      * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
      * @see bindParam, execute
      */
-    function &prepare($query, $types = null, $result_types = null, $is_manip = false)
+    function &prepare($query, $types = null, $result_types = null)
     {
         $query = $this->_modifyQuery($query, $is_manip, $this->row_limit, $this->row_offset);
         $this->debug($query, 'prepare');
@@ -658,7 +658,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         }
         $statement = @mysqli_prepare($connection, $query);
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
+        $obj =& new $class_name($this, $statement, $query, $types, $result_types, ($result_types===false), $this->row_limit, $this->row_offset);
         return $obj;
     }
 
