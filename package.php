@@ -9,7 +9,8 @@ $notes = <<<EOT
 - case-insensitive comparison in _isSequenceName()
 - added getConnection() to fetch a native connection resource
 - split index and constraint handling
-- quote identifiers where possible inside the manager methods
+- quote identifiers where possible inside the manager methods depending on
+  the new 'quote_identifier' option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - store if type has changed in compareDefinition()

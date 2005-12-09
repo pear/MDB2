@@ -24,7 +24,8 @@
 - primary key must be called primary
 - use getConnection() to access connection property
 - split index and constraint handling
-- quote identifiers where possible inside the manager methods
+- quote identifiers where possible inside the manager methods depending on
+  the new 'quote_identifier' option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - hide constraints from indexes and vice versa in the list methods
@@ -47,7 +48,7 @@
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0beta6" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0beta7" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">mysql</dep>
   </deps>
   <filelist>
@@ -97,7 +98,8 @@
 - primary key must be called primary
 - use getConnection() to access connection property
 - split index and constraint handling
-- quote identifiers where possible inside the manager methods
+- quote identifiers where possible inside the manager methods depending on
+  the new 'quote_identifier' option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - hide constraints from indexes and vice versa in the list methods

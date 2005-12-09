@@ -7,7 +7,8 @@ $notes = <<<EOT
 - do not fix case in listUsers()
 - unified case fixing in the list*() methods
 - split index and constraint handling
-- quote identifiers where possible inside the manager methods
+- quote identifiers where possible inside the manager methods depending on
+  the new 'quote_identifier' option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
@@ -60,7 +61,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.0beta6', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.0.0beta7', 'ge', 'pkg', false);
 $package->addDependency('fbsql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

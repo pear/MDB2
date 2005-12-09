@@ -9,7 +9,8 @@ $notes = <<<EOT
 - tweaked text handling in mapNativeDatatype()
 - use getConnection() to access connection property
 - split index and constraint handling
-- quote identifiers where possible inside the manager methods
+- quote identifiers where possible inside the manager methods depending on
+  the new 'quote_identifier' option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - added support for table and column renaming as well as default and nullability
   changing in alterTable()
@@ -65,7 +66,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.0beta6', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.0.0beta7', 'ge', 'pkg', false);
 $package->addDependency('pgsql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

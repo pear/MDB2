@@ -23,7 +23,8 @@
 - tweaked text handling in mapNativeDatatype()
 - use getConnection() to access connection property
 - split index and constraint handling
-- quote identifiers where possible inside the manager methods
+- quote identifiers where possible inside the manager methods depending on
+  the new 'quote_identifier' option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - added support for table and column renaming as well as default and nullability
   changing in alterTable()
@@ -44,7 +45,7 @@ open todo items:
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0beta6" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0beta7" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">pgsql</dep>
   </deps>
   <filelist>
@@ -93,7 +94,8 @@ open todo items:
 - tweaked text handling in mapNativeDatatype()
 - use getConnection() to access connection property
 - split index and constraint handling
-- quote identifiers where possible inside the manager methods
+- quote identifiers where possible inside the manager methods depending on
+  the new 'quote_identifier' option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - added support for table and column renaming as well as default and nullability
   changing in alterTable()
