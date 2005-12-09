@@ -550,7 +550,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        $server_info = mysql_get_server_info($connection);
+        $server_info = mysqli_get_server_info($connection);
         if (!$native) {
             $tmp = explode('.', $server_info);
             $tmp2 = explode('-', @$tmp[2]);
