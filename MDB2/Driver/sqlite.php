@@ -460,6 +460,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function getServerVersion($native = false)
     {
+        if (!function_exists('sqlite_libversion')) {
+            return parent::getServerVersion($native);
+        }
         $server_info = sqlite_libversion();
         if (!$native) {
             $tmp = explode('.', $server_info);
