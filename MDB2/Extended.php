@@ -77,13 +77,11 @@ class MDB2_Extended extends MDB2_Module_Common
      * @param string $where in case of update queries, this string will be put after the sql WHERE statement
      * @return resource handle for the query
      * @param mixed   $types  array that contains the types of the placeholders
-     * @param mixed   $result_types  array that contains the types of the columns in
-     *                        the result set
      * @see buildManipSQL
      * @access public
      */
     function autoPrepare($table, $table_fields, $mode = MDB2_AUTOQUERY_INSERT,
-        $where = false, $types = null, $result_types = null)
+        $where = false, $types = null)
     {
         $query = $this->buildManipSQL($table, $table_fields, $mode, $where);
         if (PEAR::isError($query)) {
@@ -94,7 +92,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $db;
         }
 
-        return $db->prepare($query, $types, $result_types);
+        return $db->prepare($query, $types, false);
     }
 
     // {{{
@@ -108,8 +106,6 @@ class MDB2_Extended extends MDB2_Module_Common
      * @param int $mode type of query to make (MDB2_AUTOQUERY_INSERT or MDB2_AUTOQUERY_UPDATE)
      * @param string $where in case of update queries, this string will be put after the sql WHERE statement
      * @param mixed   $types  array that contains the types of the placeholders
-     * @param mixed   $result_types  array that contains the types of the columns in
-     *                        the result set
      * @param mixed $result_class string which specifies which result class to use
      * @return mixed  a new MDB2_Result or a MDB2 Error Object when fail
      * @see buildManipSQL
@@ -117,9 +113,9 @@ class MDB2_Extended extends MDB2_Module_Common
      * @access public
     */
     function &autoExecute($table, $fields_values, $mode = MDB2_AUTOQUERY_INSERT,
-        $where = false, $types = null, $result_types = null, $result_class = true)
+        $where = false, $types = null, $result_class = true)
     {
-        $stmt = $this->autoPrepare($table, array_keys($fields_values), $mode, $where, $types, $result_types);
+        $stmt = $this->autoPrepare($table, array_keys($fields_values), $mode, $where, $types);
         if (PEAR::isError($stmt)) {
             return $stmt;
         }
