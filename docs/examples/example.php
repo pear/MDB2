@@ -204,7 +204,7 @@
             MDB2_MANAGER_DUMP_STRUCTURE
         )).'<br>');
         if ($manager->db->getOption('debug') === true) {
-            echo($manager->db->debugOutput().'<br>');
+            echo($manager->db->getDebugOutput().'<br>');
         }
         // this is the database definition as an array
         echo(Var_Dump($manager->database_definition).'<br>');
