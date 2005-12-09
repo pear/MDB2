@@ -1374,7 +1374,7 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ debugOutput()
+    // {{{ getDebugOutput()
 
     /**
      * output debug info
@@ -1382,7 +1382,7 @@ class MDB2_Driver_Common extends PEAR
      * @return string content of the debug_output class variable
      * @access public
      */
-    function debugOutput()
+    function getDebugOutput()
     {
         return $this->debug_output;
     }
@@ -2028,6 +2028,22 @@ class MDB2_Driver_Common extends PEAR
             $result =& new $result_wrap_class($result, $this->fetchmode);
         }
         return $result;
+    }
+
+    // }}}
+    // {{{ getServerVersion()
+
+    /**
+     * return version information about the server
+     *
+     * @param string     $native  determines if the raw version string should be returned
+     * @return mixed array with versoin information or row string
+     * @access public
+     */
+    function getServerVersion($native = false)
+    {
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'nextID: method not implemented');
     }
 
     // }}}

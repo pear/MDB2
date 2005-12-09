@@ -21,6 +21,7 @@ $notes = <<<EOT
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
 - added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- added getServerVersion()
 
 open todo items:
 - code to hide primary contraints inside listTableIndexes()

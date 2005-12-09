@@ -22,9 +22,8 @@ $notes = <<<EOT
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
 - added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
-
-open todo items:
-- add getServerVersion()
+- added getServerVersion()
+- renamed defaultOutput() to getDefaultOutput() *BC BREAK*
 EOT;
 
 $description =<<<EOT

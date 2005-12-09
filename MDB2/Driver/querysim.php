@@ -509,6 +509,32 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
     }
     // }}}
+
+    // {{{ getServerVersion()
+
+    /**
+     * return version information about the server
+     *
+     * @param string     $native  determines if the raw version string should be returned
+     * @return mixed array with versoin information or row string
+     * @access public
+     */
+    function getServerVersion($native = false)
+    {
+        $server_info = '@package_version@';
+        if (!$native) {
+            $tmp = explode('.', $server_info);
+            preg_match('/(\d+)(.*)/', @$tmp[2], $tmp2);
+            $server_info = array(
+                'major' => @$tmp[0],
+                'minor' => @$tmp[1],
+                'patch' => @$tmp2[1],
+                'extra' => @$tmp2[2],
+            )
+        }
+        return $server_info;
+    }
+    // }}}
 }
 
 class MDB2_Result_querysim extends MDB2_Result_Common

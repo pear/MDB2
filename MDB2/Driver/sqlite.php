@@ -448,6 +448,30 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         return $query;
     }
 
+    // }}}
+    // {{{ getServerVersion()
+
+    /**
+     * return version information about the server
+     *
+     * @param string     $native  determines if the raw version string should be returned
+     * @return mixed array with versoin information or row string
+     * @access public
+     */
+    function getServerVersion($native = false)
+    {
+        $server_info = sqlite_libversion();
+        if (!$native) {
+            $tmp = explode('.', $server_info);
+            $server_info = array(
+                'major' => @$tmp[0],
+                'minor' => @$tmp[1],
+                'patch' => @$tmp[2],
+                'extra' => null,
+            );
+        }
+        return $server_info;
+    }
 
     // }}}
     // {{{ replace()

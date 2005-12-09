@@ -394,6 +394,15 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $this->supported['transactions'] = true;
         }
 
+        $server_info = $this->getServerVersion();
+        if (is_array($server_info)
+            && ($server_info['major'] > 4)
+                || ($server_info['major'] > 4 && $server_info['minor'] > 1)
+            )
+        {
+            $this->supported['sub_selects'] = true;
+        }
+
         return MDB2_OK;
     }
 
@@ -523,6 +532,36 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
         }
         return $query;
+    }
+
+    // }}}
+    // {{{ getServerVersion()
+
+    /**
+     * return version information about the server
+     *
+     * @param string     $native  determines if the raw version string should be returned
+     * @return mixed array with versoin information or row string
+     * @access public
+     */
+    function getServerVersion($native = false)
+    {
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $server_info = mysql_get_server_info($connection);
+        if (!$native) {
+            $tmp = explode('.', $server_info);
+            $tmp2 = explode('-', @$tmp[2]);
+            $server_info = array(
+                'major' => @$tmp[0],
+                'minor' => @$tmp[1],
+                'patch' => @$tmp2[0],
+                'extra' => @$tmp2[1],
+            );
+        }
+        return $server_info;
     }
 
     // }}}

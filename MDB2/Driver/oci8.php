@@ -539,6 +539,36 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ getServerVersion()
+
+    /**
+     * return version information about the server
+     *
+     * @param string     $native  determines if the raw version string should be returned
+     * @return mixed array with versoin information or row string
+     * @access public
+     */
+    function getServerVersion($native = false)
+    {
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $server_info = ociserverversion();
+        if (!$native) {
+            $tmp = explode('.', $server_info);
+            $tmp2 = array_slice($tmp, 3);
+            $server_info = array(
+                'major' => @$tmp[0],
+                'minor' => @$tmp[1],
+                'patch' => @$tmp[2],
+                'extra' => implode('.', $tmp2),
+            );
+        }
+        return $server_info;
+    }
+
+    // }}}
     // {{{ prepare()
 
     /**

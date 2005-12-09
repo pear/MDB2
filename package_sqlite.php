@@ -25,6 +25,7 @@ $notes = <<<EOT
 - added ability to determine unsigned in mapNativeDatatype()
   (only really implemented in the mysql(i) drivers) (bug #6054)
 - use lastInsertID() method in nextID()
+- added getServerVersion()
 EOT;
 
 $package = new PEAR_PackageFileManager();

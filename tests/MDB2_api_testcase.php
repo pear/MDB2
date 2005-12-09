@@ -144,6 +144,21 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
 
         $this->assertTrue($db->db_index != $this->db->db_index);
     }
+
+    function testGetServerVersion() {
+        $server_info = $this->db->getServerVersion(true);
+        if (PEAR::isError($server_info)) {
+            $this->assertTrue(false, 'Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
+        } else {
+            $this->assertTrue(is_string($server_info), 'Error: Server info is not returned as a string: '. serialize($server_info));
+        }
+        $server_info = $this->db->getServerVersion();
+        if (PEAR::isError($server_info)) {
+            $this->assertTrue(false, 'Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
+        } else {
+            $this->assertTrue(is_array($server_info), 'Error: Server info is not returned as an array: '. serialize($server_info));
+        }
+    }
 }
 
 ?>

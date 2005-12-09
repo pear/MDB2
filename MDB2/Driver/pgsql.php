@@ -523,6 +523,42 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ getServerVersion()
+
+    /**
+     * return version information about the server
+     *
+     * @param string     $native  determines if the raw version string should be returned
+     * @return mixed array with versoin information or row string
+     * @access public
+     */
+    function getServerVersion($native = false)
+    {
+        $query = 'SHOW SERVER_VERSION';
+        $server_info = $this->queryOne($query, 'text');
+        if (!$native && !PEAR::isError($server_info)) {
+            $tmp = explode('.', $server_info);
+            if (!array_key_exists(2, $tmp)) {
+                preg_match('/(\d+)(.*)/', @$tmp[1], $tmp2);
+                $server_info = array(
+                    'major' => @$tmp[0],
+                    'minor' => @$tmp2[1],
+                    'patch' => null,
+                    'extra' => @$tmp2[2],
+                );
+            } else {
+                $server_info = array(
+                    'major' => @$tmp[0],
+                    'minor' => @$tmp[1],
+                    'patch' => @$tmp[2],
+                    'extra' => null,
+                );
+            }
+        }
+        return $server_info;
+    }
+
+    // }}}
     // {{{ nextID()
 
     /**
