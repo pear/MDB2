@@ -47,20 +47,6 @@ require_once 'MDB2_TestCase.php';
 
 class MDB2_Native_TestCase extends MDB2_TestCase
 {
-    /**
-     * Test deleteOID()
-     */
-    function testDeleteOID()
-    {
-        if (!$this->methodExists($this->db->native, 'deleteOID')) {
-            return;
-        }
-        if (PEAR::isError($connect = $this->db->connect())) {
-            $this->assertTrue(false, 'Cannot connect to the db'.$connect->getMessage());
-        }
-
-        $this->assertTrue(false, 'TEST NOT IMPLEMENTED YET');
-    }
 }
 
 ?>
