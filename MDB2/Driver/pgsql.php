@@ -545,6 +545,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     'minor' => @$tmp2[1],
                     'patch' => null,
                     'extra' => @$tmp2[2],
+                    'native' => $server_info,
                 );
             } else {
                 $server_info = array(
@@ -552,6 +553,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     'minor' => @$tmp[1],
                     'patch' => @$tmp[2],
                     'extra' => null,
+                    'native' => $server_info,
                 );
             }
         }

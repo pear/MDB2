@@ -559,6 +559,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 'minor' => @$tmp[1],
                 'patch' => @$tmp2[0],
                 'extra' => @$tmp2[1],
+                'native' => $server_info,
             );
         }
         return $server_info;

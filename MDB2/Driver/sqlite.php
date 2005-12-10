@@ -471,6 +471,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 'minor' => @$tmp[1],
                 'patch' => @$tmp[2],
                 'extra' => null,
+                'native' => $server_info,
             );
         }
         return $server_info;

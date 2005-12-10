@@ -530,6 +530,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
                 'minor' => @$tmp[1],
                 'patch' => @$tmp2[1],
                 'extra' => @$tmp2[2],
+                'native' => $server_info,
             )
         }
         return $server_info;
