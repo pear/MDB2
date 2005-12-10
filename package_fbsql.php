@@ -18,6 +18,8 @@ $notes = <<<EOT
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
 - if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use lastInsertID() method in nextID()
+- added 'mdbtype' to tableInfo()
+- changed 'len' to 'length' in tableInfo() output *BC BREAK*
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

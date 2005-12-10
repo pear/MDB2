@@ -18,6 +18,8 @@ $notes = <<<EOT
 - if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use lastInsertID() method in nextID()
 - cleanup _checkSequence() method to not raise errors when no table was found
+- added 'mdbtype' to tableInfo() output
+- changed 'len' to 'length' in tableInfo() output *BC BREAK*
 
 open todo items:
 - added missing createIndex() and reverse module methods

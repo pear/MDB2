@@ -31,6 +31,9 @@ $notes = <<<EOT
 - Sync lastInsertID with the mysqli implementation
 - use lastInsertID() method in nextID()
 - added getServerVersion() and use it to determine sub select support
+- unified array structure in mapNativeDatatype() *BC BREAK*
+- added 'mdbtype' to tableInfo() output that is generated from mapNativeDatatype()
+- changed 'len' to 'length' in tableInfo() output *BC BREAK*
 EOT;
 
 $package = new PEAR_PackageFileManager();

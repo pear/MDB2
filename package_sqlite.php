@@ -26,6 +26,9 @@ $notes = <<<EOT
   (only really implemented in the mysql(i) drivers) (bug #6054)
 - use lastInsertID() method in nextID()
 - added getServerVersion()
+- unified array structure in mapNativeDatatype() *BC BREAK*
+- added 'mdbtype' to tableInfo() output that is generated from mapNativeDatatype()
+- changed 'len' to 'length' in tableInfo() output *BC BREAK*
 EOT;
 
 $package = new PEAR_PackageFileManager();
