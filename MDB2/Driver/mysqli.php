@@ -589,7 +589,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function &prepare($query, $types = null, $result_types = null)
     {
-        $query = $this->_modifyQuery($query, $is_manip, $this->row_limit, $this->row_offset);
+        $query = $this->_modifyQuery($query, ($result_types===false), $this->row_limit, $this->row_offset);
         $this->debug($query, 'prepare');
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
