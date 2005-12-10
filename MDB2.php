@@ -2043,7 +2043,7 @@ class MDB2_Driver_Common extends PEAR
     function getServerVersion($native = false)
     {
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'nextID: method not implemented');
+            'getServerVersion: method not implemented');
     }
 
     // }}}
