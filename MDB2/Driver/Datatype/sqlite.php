@@ -251,7 +251,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $db_type = $field['type'];
+        $db_type = strtolower($field['type']);
         $length = array_key_exists('length', $field) ? $field['length'] : null;
         $type = array();
         $unsigned = null;
@@ -341,7 +341,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
             }
 
             return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableFieldDefinition: unknown database attribute type');
+                'getTableFieldDefinition: unknown database attribute type: '.$db_type);
         }
 
         return array($type, $length, $unsigned);

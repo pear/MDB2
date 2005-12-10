@@ -526,10 +526,10 @@ for some reason this piece of code causes an apache crash
      */
     function mapNativeDatatype($field)
     {
-        $db_type = preg_replace('/\d/','', strtolower($field['typname']) );
-        $length = $field['attlen'];
-        if ($length == '-1') {
-            $length = $field['atttypmod']-4;
+        $db_type = preg_replace('/\d/','', strtolower($field['type']) );
+        $length = $field['length'];
+        if ($length == '-1' && array_key_exists('atttypmod', $field)) {
+            $length = $field['atttypmod'] - 4;
         }
         if ((int)$length <= 0) {
             $length = null;
@@ -608,7 +608,7 @@ for some reason this piece of code causes an apache crash
             }
 
             return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableFieldDefinition: unknown database attribute type');
+                'getTableFieldDefinition: unknown database attribute type: '.$db_type);
         }
 
         return array($type, $length, $unsigned);

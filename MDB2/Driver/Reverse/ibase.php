@@ -142,8 +142,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
         $table = strtoupper($table);
         $field_name = strtoupper($field_name);
-        $query = "SELECT RDB\$RELATION_FIELDS.RDB\$FIELD_NAME AS field,
-                         RDB\$FIELDS.RDB\$FIELD_LENGTH AS field_length,
+        $query = "SELECT RDB\$RELATION_FIELDS.RDB\$FIELD_NAME AS name,
+                         RDB\$FIELDS.RDB\$FIELD_LENGTH AS length,
                          RDB\$FIELDS.RDB\$FIELD_TYPE AS field_type_code,
                          RDB\$FIELDS.RDB\$FIELD_SUB_TYPE AS field_sub_type_code,
                          RDB\$RELATION_FIELDS.RDB\$DESCRIPTION AS description,
@@ -163,15 +163,15 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             if ($db->options['field_case'] == CASE_LOWER) {
-                $column['field'] = strtolower($column['field']);
+                $column['name'] = strtolower($column['name']);
             } else {
-                $column['field'] = strtoupper($column['field']);
+                $column['name'] = strtoupper($column['name']);
             }
         } else {
             $column = array_change_key_case($column, $db->options['field_case']);
         }
 
-        $column['field_type'] = array_key_exists($column['field_type_code'], $this->types)
+        $column['type'] = array_key_exists($column['field_type_code'], $this->types)
             ? $this->types[(int)$column['field_type_code']] : 'undefined';
         if ($column['field_sub_type_code']
             && array_key_exists($column['field_type_code'], $this->subtypes)
@@ -422,16 +422,18 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $res['num_fields'] = $count;
         }
 
+        $db->loadModule('Datatype');
         for ($i = 0; $i < $count; $i++) {
             $info = @ibase_field_info($id, $i);
             $res[$i] = array(
                 'table' => $got_string ? $case_func($result) : '',
                 'name'  => $case_func($info['name']),
                 'type'  => $info['type'],
-                'len'   => $info['length'],
+                'length'   => $info['length'],
                 'flags' => ($got_string)
                             ? $this->_ibaseFieldFlags($info['name'], $result) : '',
             );
+            $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
             }

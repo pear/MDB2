@@ -82,16 +82,18 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             return $columns;
         }
         foreach ($columns as $column) {
+            $column['name'] = $column['field'];
+            unset($column['field']);
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 if ($db->options['field_case'] == CASE_LOWER) {
-                    $column['field'] = strtolower($column['field']);
+                    $column['name'] = strtolower($column['name']);
                 } else {
-                    $column['field'] = strtoupper($column['field']);
+                    $column['name'] = strtoupper($column['name']);
                 }
             } else {
                 $column = array_change_key_case($column, $db->options['field_case']);
             }
-            if ($field_name == $column['field']) {
+            if ($field_name == $column['name']) {
                 list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
                 $notnull = false;
                 if (array_key_exists('null', $column) && $column['null'] != 'YES') {
@@ -342,14 +344,21 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             $res['num_fields'] = $count;
         }
 
+        $db->loadModule('Datatype');
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
                 'table' => $case_func(@mysql_field_table($id, $i)),
                 'name'  => $case_func(@mysql_field_name($id, $i)),
                 'type'  => @mysql_field_type($id, $i),
-                'len'   => @mysql_field_len($id, $i),
+                'length'   => @mysql_field_len($id, $i),
                 'flags' => @mysql_field_flags($id, $i),
             );
+            if ($res[$i]['type'] == 'string') {
+                $res[$i]['type'] = 'text';
+            } elseif ($res[$i]['type'] == 'unknown') {
+                $res[$i]['type'] = 'decimal';
+            }
+            $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
             }

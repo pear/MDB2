@@ -300,19 +300,20 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $length = $field['field_length'];
+        $length = $field['length'];
         if ((int)$length <= 0) {
             $length = null;
         }
         $type = array();
         $unsigned = null;
-        switch ($field['field_type']) {
+        $db_type = strtolower($field['type']);
+        switch ($db_type) {
         case 'smallint':
         case 'integer':
         case 'int64':
             //these may be 'numeric' or 'decimal'
-            if (!empty($field['field_sub_type'])) {
-                $field['field_type'] = $field['field_sub_type'];
+            if (array_key_exists('field_sub_type', $field) && !empty($field['field_sub_type'])) {
+                $db_type = strtolower($field['field_sub_type']);
                 continue;
             }
         case 'quad':
@@ -352,7 +353,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $type[] = 'decimal';
             break;
         case 'blob':
-            $type[] = ($field['field_sub_type'] == 'text') ? 'clob' : 'blob';
+            $type[] = (strtolower($field['field_sub_type']) == 'text') ? 'clob' : 'blob';
             $length = null;
             break;
         default:
@@ -362,7 +363,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             }
 
             return $db->raiseError(MDB2_ERROR, null, null,
-                'getTableFieldDefinition: unknown database attribute type');
+                'getTableFieldDefinition: unknown database attribute type: '.$db_type);
         }
 
         return array($type, $length, $unsigned);

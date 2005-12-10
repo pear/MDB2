@@ -117,12 +117,14 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $i = 0;
             while (@OCIFetch($stmt)) {
                 $res[$i] = array(
-                    'table' => $case_func($result),
-                    'name'  => $case_func(@OCIResult($stmt, 1)),
-                    'type'  => @OCIResult($stmt, 2),
-                    'len'   => @OCIResult($stmt, 3),
-                    'flags' => (@OCIResult($stmt, 4) == 'N') ? 'not_null' : '',
+                    'table'  => $case_func($result),
+                    'name'   => $case_func(@OCIResult($stmt, 1)),
+                    'type'   => @OCIResult($stmt, 2),
+                    'length' => @OCIResult($stmt, 3),
+                    'flags'  => (@OCIResult($stmt, 4) == 'N') ? 'not_null' : '',
                 );
+                // todo: implement $db->datatype->mapNativeDatatype();
+                $res[$i]['mdb2type'] = $res[$i]['type'];
                 if ($mode & MDB2_TABLEINFO_ORDER) {
                     $res['order'][$res[$i]['name']] = $i;
                 }
@@ -155,12 +157,14 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 }
                 for ($i = 0; $i < $count; $i++) {
                     $res[$i] = array(
-                        'table' => '',
-                        'name'  => $case_func(@OCIColumnName($result, $i+1)),
-                        'type'  => @OCIColumnType($result, $i+1),
-                        'len'   => @OCIColumnSize($result, $i+1),
-                        'flags' => '',
+                        'table'  => '',
+                        'name'   => $case_func(@OCIColumnName($result, $i+1)),
+                        'type'   => @OCIColumnType($result, $i+1),
+                        'length' => @OCIColumnSize($result, $i+1),
+                        'flags'  => '',
                     );
+                    // todo: implement $db->datatype->mapNativeDatatype();
+                    $res[$i]['mdb2type'] = $res[$i]['type'];
                     if ($mode & MDB2_TABLEINFO_ORDER) {
                         $res['order'][$res[$i]['name']] = $i;
                     }

@@ -135,9 +135,11 @@ class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
                 'table' => $case_func(@fbsql_field_table($id, $i)),
                 'name'  => $case_func(@fbsql_field_name($id, $i)),
                 'type'  => @fbsql_field_type($id, $i),
-                'len'   => @fbsql_field_len($id, $i),
+                'length'   => @fbsql_field_len($id, $i),
                 'flags' => @fbsql_field_flags($id, $i),
             );
+            // todo: implement $db->datatype->mapNativeDatatype();
+            $res[$i]['mdb2type'] = $res[$i]['type'];
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
             }

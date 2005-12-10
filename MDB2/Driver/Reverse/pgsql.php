@@ -78,7 +78,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         }
 
         $column = $db->queryRow("SELECT
-                    attnum,attname,typname,attlen,attnotnull,
+                    attnum,attname,typname AS type,attlen AS length,attnotnull,
                     atttypmod,usename,usesysid,pg_class.oid,relpages,
                     reltuples,relhaspkey,relhasrules,relacl,adsrc
                     FROM pg_class,pg_user,pg_type,
@@ -308,16 +308,18 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             $res['num_fields'] = $count;
         }
 
+        $db->loadModule('Datatype');
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
                 'table' => $got_string ? $case_func($result) : '',
                 'name'  => $case_func(@pg_field_name($id, $i)),
                 'type'  => @pg_field_type($id, $i),
-                'len'   => @pg_field_size($id, $i),
+                'length'   => @pg_field_size($id, $i),
                 'flags' => $got_string
                            ? $this->_pgFieldFlags($id, $i, $result)
                            : '',
             );
+            $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
             }

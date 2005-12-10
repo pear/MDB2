@@ -361,6 +361,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             $res['num_fields'] = $count;
         }
 
+        $db->loadModule('Datatype');
         for ($i = 0; $i < $count; $i++) {
             if (strpos($id[$i]['type'], '(') !== false) {
                 $bits = explode('(', $id[$i]['type']);
@@ -387,10 +388,10 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 'table' => $case_func($result),
                 'name'  => $case_func($id[$i]['name']),
                 'type'  => $type,
-                'len'   => $len,
+                'length'   => $len,
                 'flags' => $flags,
             );
-
+            $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
             if ($mode & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES) {
                 $res[$i]['name'] = preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $res[$i]['name']);
             }
