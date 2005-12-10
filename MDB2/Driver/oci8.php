@@ -554,15 +554,15 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        $server_info = ociserverversion();
+        $server_info = ociserverversion($connection);
         if (!$native) {
-            $tmp = explode('.', $server_info);
-            $tmp2 = array_slice($tmp, 3);
+            preg_match('/ (\d+)\.(\d+)\.(\d+)\.([\d\.]+) /', $server_info, $tmp);
             $server_info = array(
-                'major' => @$tmp[0],
-                'minor' => @$tmp[1],
-                'patch' => @$tmp[2],
-                'extra' => implode('.', $tmp2),
+                'major' => @$tmp[1],
+                'minor' => @$tmp[2],
+                'patch' => @$tmp[3],
+                'extra' => @$tmp[4],
+                'native' => $server_info,
             );
         }
         return $server_info;
