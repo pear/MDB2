@@ -24,6 +24,7 @@ $notes = <<<EOT
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added getServerVersion()
 - renamed defaultOutput() to getDefaultOutput() *BC BREAK*
+- use tableInfo() to automatically determine the result types if type is set to true
 EOT;
 
 $description =<<<EOT
