@@ -354,11 +354,12 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                 'flags' => @mysql_field_flags($id, $i),
             );
             if ($res[$i]['type'] == 'string') {
-                $res[$i]['type'] = 'text';
+                $res[$i]['type'] = 'char';
             } elseif ($res[$i]['type'] == 'unknown') {
                 $res[$i]['type'] = 'decimal';
             }
-            $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
+            $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
+            $res[$i]['mdb2type'] = $mdb2type_info[0][0];
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
             }

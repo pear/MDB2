@@ -420,7 +420,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 'length'   => $tmp->max_length,
                 'flags' => $flags,
             );
-            $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
+            $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
+            $res[$i]['mdb2type'] = $mdb2type_info[0][0];
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
             }
