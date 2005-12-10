@@ -15,7 +15,7 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-03</date>
+  <date>2005-12-10</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>- do not fix case in listUsers()
@@ -26,7 +26,7 @@
 - use getConnection() to access connection property
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
+  the new &apos;quote_identifier&apos; option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
@@ -34,11 +34,12 @@
 - added alterTable() (only does table name change and column adding)
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added ability to determine unsigned in mapNativeDatatype()
   (only really implemented in the mysql(i) drivers) (bug #6054)
 - use lastInsertID() method in nextID()
+- added getServerVersion()
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -84,7 +85,7 @@
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-03</date>
+    <date>2005-12-10</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- do not fix case in listUsers()
@@ -95,7 +96,7 @@
 - use getConnection() to access connection property
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
+  the new &apos;quote_identifier&apos; option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
@@ -103,11 +104,12 @@
 - added alterTable() (only does table name change and column adding)
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added ability to determine unsigned in mapNativeDatatype()
   (only really implemented in the mysql(i) drivers) (bug #6054)
 - use lastInsertID() method in nextID()
+- added getServerVersion()
     </notes>
    </release>
    <release>

@@ -21,14 +21,14 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-03</date>
+  <date>2005-12-10</date>
   <license>BSD License</license>
   <state>alpha</state>
   <notes>- do not fix case in listUsers()
 - unified case fixing in the list*() methods
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
+  the new &apos;quote_identifier&apos; option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
@@ -36,7 +36,7 @@
 - fixed table renaming
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use lastInsertID() method in nextID()
 
 open todo items:
@@ -86,14 +86,14 @@ open todo items:
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-03</date>
+    <date>2005-12-10</date>
     <license>BSD License</license>
     <state>alpha</state>
     <notes>- do not fix case in listUsers()
 - unified case fixing in the list*() methods
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
+  the new &apos;quote_identifier&apos; option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
@@ -101,7 +101,7 @@ open todo items:
 - fixed table renaming
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use lastInsertID() method in nextID()
 
 open todo items:

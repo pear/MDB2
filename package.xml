@@ -70,7 +70,7 @@ portability. Among other things MDB2 features:
   </maintainers>
  <release>
   <version>2.0.0beta7</version>
-  <date>2005-12-08</date>
+  <date>2005-12-10</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>- added numerous testcases in the manager and reverse module
@@ -79,7 +79,7 @@ portability. Among other things MDB2 features:
 - added getConnection() to fetch a native connection resource
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
+  the new &apos;quote_identifier&apos; option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - store if type has changed in compareDefinition()
@@ -89,11 +89,10 @@ portability. Among other things MDB2 features:
 - allow empty field parameter in get*ID() methods (bug #5791)
 - tweaked error messages for file loads
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
-
-open todo items:
-- add getServerVersion()
+- added getServerVersion()
+- renamed defaultOutput() to getDefaultOutput() *BC BREAK*
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -256,7 +255,7 @@ open todo items:
  <changelog>
    <release>
     <version>2.0.0beta7</version>
-    <date>2005-12-08</date>
+    <date>2005-12-10</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- added numerous testcases in the manager and reverse module
@@ -265,7 +264,7 @@ open todo items:
 - added getConnection() to fetch a native connection resource
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
+  the new &apos;quote_identifier&apos; option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - store if type has changed in compareDefinition()
@@ -275,11 +274,10 @@ open todo items:
 - allow empty field parameter in get*ID() methods (bug #5791)
 - tweaked error messages for file loads
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
-
-open todo items:
-- add getServerVersion()
+- added getServerVersion()
+- renamed defaultOutput() to getDefaultOutput() *BC BREAK*
     </notes>
    </release>
    <release>
