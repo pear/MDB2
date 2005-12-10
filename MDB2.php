@@ -1990,6 +1990,15 @@ class MDB2_Driver_Common extends PEAR
     function &_wrapResult($result, $types = array(), $result_class = true,
         $result_wrap_class = false, $limit = null, $offset = null)
     {
+        if ($types === true) {
+            $this->loadModule('Reverse');
+            $tableInfo = $this->reverse->tableInfo($result);
+            $types = array();
+            foreach ($tableInfo as $field) {
+                $types[] = $field['mdb2type'];
+            }
+        }
+
         if ($result_class === true) {
             $result_class = $this->options['result_buffering']
                 ? $this->options['buffered_result_class'] : $this->options['result_class'];
