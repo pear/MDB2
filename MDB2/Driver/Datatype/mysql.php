@@ -273,8 +273,13 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
         if ($db_type == 'national') {
             $db_type = strtok('(), ');
         }
-        $length = strtok('(), ');
-        $decimal = strtok('(), ');
+        if (array_key_exists('length', $field)) {
+            $length = $field['length'];
+            $decimal = '';
+        } else {
+            $length = strtok('(), ');
+            $decimal = strtok('(), ');
+        }
         $type = array();
         $unsigned = null;
         switch ($db_type) {
