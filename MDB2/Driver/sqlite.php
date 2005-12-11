@@ -552,7 +552,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         for (reset($fields); $colnum < $count; next($fields), $colnum++) {
             $name = key($fields);
             if ($colnum > 0) {
-                $query.= ',';
+                $query .= ',';
                 $values.= ',';
             }
             $query.= $name;
@@ -574,10 +574,20 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,
                 'replace: not specified which fields are keys');
         }
+
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
         $query = "REPLACE INTO $table ($query) VALUES ($values)";
         $this->last_query = $query;
         $this->debug($query, 'query');
-        return $this->_doQuery($query, true);
+        $result = $this->_doQuery($query, true, $connection);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return $this->_affectedRows($connection, $result);
     }
 
     // }}}
