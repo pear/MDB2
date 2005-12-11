@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0beta7';
+$version = '2.0.0RC1';
 $notes = <<<EOT
 - added numerous testcases in the manager and reverse module
 - unified case fixing in the list*() methods
