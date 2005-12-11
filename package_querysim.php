@@ -7,6 +7,9 @@ $notes = <<<EOT
 - use getConnection() to access connection property
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
 - added getServerVersion()
+
+open todo items:
+- this driver is currently unmaintained/untested
 EOT;
 
 $package = new PEAR_PackageFileManager();

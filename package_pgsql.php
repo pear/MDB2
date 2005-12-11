@@ -33,6 +33,7 @@ open todo items:
 - implement native prepared queries
 - migrate away from OID's to bytea, since this is encourage since version 8
   and is also what PDO expects
+- testgettablefielddefinition and testnow test cases fail
 EOT;
 
 $package = new PEAR_PackageFileManager();

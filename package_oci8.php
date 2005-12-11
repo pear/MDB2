@@ -29,6 +29,8 @@ open todo items:
 - code to hide primary contraints inside listTableIndexes()
 - handle autoincremement fields in alterTable() and dropTable()
 - added missing reverse module methods
+- there are still a number of missing methods in the reverse and datatype module
+- there are still severe stability issues due to ext/oci8, especially on windows
 EOT;
 
 $package = new PEAR_PackageFileManager();
