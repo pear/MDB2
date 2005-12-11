@@ -549,8 +549,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @param string $query the query to prepare
      * @param mixed   $types  array that contains the types of the placeholders
      * @param mixed   $result_types  array that contains the types of the columns in
-     *                        the result set, if set to false it the query is
-                              handled as a manipulation query
+     *                        the result set, if set to MDB2_PREPARE_MANIP the
+                              query is handled as a manipulation query
      * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
@@ -558,6 +558,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function &prepare($query, $types = null, $result_types = null)
     {
+        $is_manip = ($result_types === MDB2_PREPARE_MANIP);
         $this->debug($query, 'prepare');
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
@@ -628,7 +629,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $statement = ibase_prepare($connection, $query);
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $query, $types, $result_types, ($result_types===false), $this->row_limit, $this->row_offset);
+        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
     }
 

@@ -583,15 +583,16 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @param string $query the query to prepare
      * @param mixed   $types  array that contains the types of the placeholders
      * @param mixed   $result_types  array that contains the types of the columns in
-     *                        the result set, if set to false it the query is
-                              handled as a manipulation query
+     *                        the result set, if set to MDB2_PREPARE_MANIP the
+                              query is handled as a manipulation query
      * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
      * @see bindParam, execute
      */
     function &prepare($query, $types = null, $result_types = null)
-   {
+    {
+        $is_manip = ($result_types === MDB2_PREPARE_MANIP);
         $this->debug($query, 'prepare');
         $query = $this->_modifyQuery($query);
         $contains_lobs = false;
@@ -702,7 +703,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $query, $types, $result_types, ($result_types===false), $this->row_limit, $this->row_offset);
+        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
