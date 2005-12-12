@@ -90,6 +90,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
 
+        $this->options['DBA_username'] = false;
+        $this->options['DBA_password'] = false;
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '.gdb';
         $this->options['default_text_field_length'] = 4096;
@@ -532,6 +534,36 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 "SELECT FIRST $limit SKIP $offset", $query);
         }
         return $query;
+    }
+
+    // }}}
+    // {{{ getServerVersion()
+
+    /**
+     * return version information about the server
+     *
+     * @param string     $native  determines if the raw version string should be returned
+     * @return mixed array with versoin information or row string
+     * @access public
+     */
+    function getServerVersion($native = false)
+    {
+        $ibserv = ibase_service_attach($this->dsn['hostspec'], $this->options['DBA_username'], $this->options['DBA_password']);
+        $server_info = ibase_server_info($ibserv, IBASE_SVC_SERVER_VERSION);
+        ibase_service_detach($ibserv);
+        if (!$native) {
+            //WI-V1.5.3.4854 Firebird 1.5
+            preg_match('/-V([\d\.]*)/', $server_info, $matches);
+            $tmp = explode('.', $matches[1]);
+            $server_info = array(
+                'major' => @$tmp[0],
+                'minor' => @$tmp[1],
+                'patch' => @$tmp[2],
+                'extra' => @$tmp[3],
+                'native' => $server_info,
+            );
+        }
+        return $server_info;
     }
 
     // }}}
