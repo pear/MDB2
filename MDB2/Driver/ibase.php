@@ -238,7 +238,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      *                  or a MDB2 error object on error
      * @access  public
      */
-    function &getConnection()
+    function getConnection()
     {
         $result = $this->connect();
         if (PEAR::isError($result)) {
