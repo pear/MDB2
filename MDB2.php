@@ -321,14 +321,13 @@ class MDB2
 
         if (!class_exists($class_name)) {
             $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
-            if (!MDB2::fileExists($file_name)) {
-                $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                    "unable to find package '$class_name' file '$file_name'");
-                return $err;
-            }
             if (!include_once($file_name)) {
-                $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                    "unable to load driver class '$class_name' from file '$file_name'");
+                if (!MDB2::fileExists($file_name)) {
+                    $msg = "unable to find package '$class_name' file '$file_name'";
+                } else {
+                    $msg = "unable to load driver class '$class_name' from file '$file_name'";
+                }
+                $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null, $msg);
                 return $err;
             }
         }
@@ -1560,24 +1559,30 @@ class MDB2_Driver_Common extends PEAR
      * @param string $module name of the module that should be loaded
      *      (only used for error messages)
      * @param string $property name of the property into which the class will be loaded
+     * @param boolean $phptype_specific if the class to load for the module
+                                        is specific to the phptype
      * @return object on success a reference to the given module is returned
      *                and on failure a PEAR error
      * @access public
      */
-    function &loadModule($module, $property = null)
+    function &loadModule($module, $property = null, $phptype_specific = null)
     {
         if (!$property) {
             $property = strtolower($module);
         }
 
         if (!isset($this->{$property})) {
-            $version = false;
-            $class_name = 'MDB2_'.$module;
-            $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
-            if (!class_exists($class_name) && !MDB2::fileExists($file_name)) {
+            if ($phptype_specific !== false) {
                 $class_name = 'MDB2_Driver_'.$module.'_'.$this->phptype;
                 $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
                 $version = true;
+            }
+            if ($phptype_specific === false
+                || (!class_exists($class_name) && !MDB2::fileExists($file_name))
+            ) {
+                $version = false;
+                $class_name = 'MDB2_'.$module;
+                $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
                 if (!class_exists($class_name) && !MDB2::fileExists($file_name)) {
                     $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                         "unable to find module '$module' file '$file_name'");
@@ -1598,14 +1603,13 @@ class MDB2_Driver_Common extends PEAR
                     if ($class_name != $class_name_new) {
                         $class_name = $class_name_new;
                         $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
-                        if (!MDB2::fileExists($file_name)) {
-                            $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
-                                "unable to find module '$module' file '$file_name'");
-                            return $err;
-                        }
                         if (!include_once($file_name)) {
-                            $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
-                                "unable to load '$module' driver class from file '$file_name'");
+                            if (!MDB2::fileExists($file_name)) {
+                                $msg = "unable to find module '$module' file '$file_name'";
+                            } else {
+                                $msg = "unable to load '$module' driver class from file '$file_name'";
+                            }
+                            $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null, $msg);
                             return $err;
                         }
                     }
