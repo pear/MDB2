@@ -318,8 +318,9 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
         $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if (!$this->_isSequenceName($table_names[$i]))
+            if (!$this->_isSequenceName($table_names[$i])) {
                 $result[] = $table_names[$i];
+            }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
@@ -402,6 +403,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quoteIdentifier($table, true);
+        $name  = $db->getIndexName($name);
         $query = 'CREATE';
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
@@ -444,6 +446,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $name = $db->getIndexName($name);
         return $db->exec("DROP INDEX $name");
     }
 

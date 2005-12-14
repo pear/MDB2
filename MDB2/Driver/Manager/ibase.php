@@ -632,7 +632,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
         $table = $db->quoteIdentifier($table, true);
-        $name = $db->quoteIdentifier($name, true);
+        $name  = $db->quoteIdentifier($db->getIndexName($name), true);
         $query .= $query_sort. " INDEX $name ON $table";
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {

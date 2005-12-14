@@ -107,7 +107,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     // {{{ _isSequenceName()
 
     /**
-     * list all tables in the current database
+     * Checks if the sequence name is valid and formats it
      *
      * @param string $sqn string that containts name of a potential sequence
      * @return mixed name of the sequence if $sqn is a name of a sequence, else false
@@ -124,6 +124,31 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         $seq_name = preg_replace($seq_pattern, '\\1', $sqn);
         if ($seq_name && !strcasecmp($sqn, $db->getSequenceName($seq_name))) {
             return $seq_name;
+        }
+        return false;
+    }
+
+    // }}}
+    // {{{ _isIndexName()
+
+    /**
+     * Checks if the index name is valid and formats it
+     *
+     * @param string $idx string that containts name of a potential index
+     * @return mixed name of the index if $idx is a name of a index, else false
+     * @access protected
+     */
+    function _isIndexName($idx)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $idx_pattern = '/^'.preg_replace('/%s/', '([a-z0-9_]+)', $db->options['idxname_format']).'$/i';
+        $idx_name = preg_replace($idx_pattern, '\\1', $idx);
+        if ($seq_name && !strcasecmp($idx, $db->getIndexName($idx_name))) {
+            return $idx_name;
         }
         return false;
     }
@@ -518,7 +543,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         $table = $db->quoteIdentifier($table, true);
-        $name = $db->quoteIdentifier($name, true);
+        $name = $db->quoteIdentifier($db->getIndexName($name), true);
         $query = 'CREATE';
         if (array_key_exists('unique', $definition) && $definition['unique']) {
             $query.= ' UNIQUE';
@@ -550,7 +575,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name, true);
+        $name = $db->quoteIdentifier($db->getIndexName($name), true);
         return $db->exec("DROP INDEX $name");
     }
 

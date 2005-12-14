@@ -434,6 +434,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      */
     function createIndex($table, $name, $definition)
     {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $table = $db->quoteIdentifier($table, true);
+        $name  = $db->quoteIdentifier($db->getIndexName($name), true);
     }
 
     // }}}

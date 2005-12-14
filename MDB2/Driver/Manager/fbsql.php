@@ -367,8 +367,9 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
         $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if (!$this->_isSequenceName($table_names[$i]))
+            if (!$this->_isSequenceName($table_names[$i])) {
                 $result[] = $table_names[$i];
+            }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
@@ -423,7 +424,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quoteIdentifier($table, true);
-        $name = $db->quoteIdentifier($name, true);
+        $name = $db->quoteIdentifier($db->getIndexName($name), true);
         return $db->exec("ALTER TABLE $table DROP INDEX $name");
     }
 
@@ -554,8 +555,9 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
         $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i]))
+            if ($sqn = $this->_isSequenceName($table_names[$i])) {
                 $result[] = $sqn;
+            }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);

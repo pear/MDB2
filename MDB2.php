@@ -975,6 +975,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['debug_handler'] -> string function/meothd that captures debug messages
      * $options['lob_buffer_length'] -> integer LOB buffer length
      * $options['log_line_break'] -> string line-break format
+     * $options['idxname_format'] -> string pattern for index name
      * $options['seqname_format'] -> string pattern for sequence name
      * $options['seqcol_name'] -> string sequence column name
      * $options['quote_identifier'] -> if identifier quoting should be done when check_option is used
@@ -999,6 +1000,7 @@ class MDB2_Driver_Common extends PEAR
             'debug_handler' => 'MDB2_defaultDebugOutput',
             'lob_buffer_length' => 8192,
             'log_line_break' => "\n",
+            'idxname_format' => '%s_idx',
             'seqname_format' => '%s_seq',
             'seqcol_name' => 'sequence',
             'quote_identifier' => false,
@@ -2473,6 +2475,22 @@ class MDB2_Driver_Common extends PEAR
     {
         return sprintf($this->options['seqname_format'],
             preg_replace('/[^a-z0-9_]/i', '_', $sqn));
+    }
+
+    // }}}
+    // {{{ getIndexName()
+
+    /**
+     * adds index name formatting to a index name
+     *
+     * @param string $idx name of the index
+     * @return string formatted index name
+     * @access public
+     */
+    function getIndexName($idx)
+    {
+        return sprintf($this->options['idxname_format'],
+            preg_replace('/[^a-z0-9_]/i', '_', $idx));
     }
 
     // }}}
