@@ -509,14 +509,23 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         $subquery = "SELECT indexrelid FROM pg_index, pg_class";
         $subquery.= " WHERE pg_class.relname='$table' AND pg_class.oid=pg_index.indrelid AND indisprimary != 't'";
-        $result = $db->queryCol("SELECT relname FROM pg_class WHERE oid IN ($subquery)");
-        if (PEAR::isError($result)) {
-            return $result;
+        $query = "SELECT relname FROM pg_class WHERE oid IN ($subquery)";
+        $indexes = $db->queryCol($query, 'text');
+        if (PEAR::isError($indexes)) {
+            return $indexes;
         }
+
+        $result = array();
+        foreach ($indexes as $index) {
+            if ($index = $this->_isIndexName($index)) {
+                $result[$index] = true;
+            }
+        }
+
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+            $result = array_change_key_case($result, $db->options['field_case']);
         }
-        return $result;
+        return array_keys($result);
     }
 
     // }}}

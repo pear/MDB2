@@ -197,6 +197,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
+        $index_name = $db->getIndexName($index_name);
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND name='$index_name' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
         $result = $db->query($query);
         if (PEAR::isError($result)) {
@@ -262,6 +263,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
+        $index_name = $db->getIndexName($index_name);
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND name='$index_name' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
         $result = $db->query($query);
         if (PEAR::isError($result)) {

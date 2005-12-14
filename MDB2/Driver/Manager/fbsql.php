@@ -456,15 +456,22 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table";
-        $indexes_all = $db->queryCol($query, 'text', $key_name);
-        if (PEAR::isError($indexes_all)) {
-            return $indexes_all;
+        $indexes = $db->queryCol($query, 'text', $key_name);
+        if (PEAR::isError($indexes)) {
+            return $indexes;
         }
-        $result = array_unique($indexes_all);
+
+        $result = array();
+        foreach ($indexes as $index) {
+            if ($index != 'PRIMARY' && $index = $this->_isIndexName($index)) {
+                $result[$index] = true;
+            }
+        }
+
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+            $result = array_change_key_case($result, $db->options['field_case']);
         }
-        return $result;
+        return array_keys($result);
     }
 
     // }}}

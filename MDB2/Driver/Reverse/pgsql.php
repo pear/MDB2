@@ -153,8 +153,9 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
+        $index_name = $db->getIndexName($index_name);
         $query = "SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class
-            WHERE (pg_class.relname='$index_name') AND (pg_class.oid=pg_index.indexrelid)";
+            WHERE (pg_class.relname='".$index_name."') AND (pg_class.oid=pg_index.indexrelid)";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
@@ -201,6 +202,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
+        $index_name = $db->getIndexName($index_name);
         $query = "SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class
             WHERE (pg_class.relname='$index_name') AND (pg_class.oid=pg_index.indexrelid)";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);

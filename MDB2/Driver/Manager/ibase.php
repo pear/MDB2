@@ -661,13 +661,22 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $table = strtoupper($table);
         $query = "SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'";
         $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $indexes = $db->queryCol($query, 'text');
+        if (PEAR::isError($indexes)) {
+            return $indexes;
         }
+
+        $result = array();
+        foreach ($indexes as $index) {
+            if ($index = $this->_isIndexName($index)) {
+                $result[$index] = true;
+            }
+        }
+
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+            $result = array_change_key_case($result, $db->options['field_case']);
         }
-        return $result;
+        return array_keys($result);
     }
 
     // }}}

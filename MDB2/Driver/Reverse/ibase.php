@@ -224,7 +224,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $db;
         }
         $table = strtoupper($table);
-        $index_name = strtoupper($index_name);
+        $index_name = strtoupper($db->getIndexName($index_name));
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
@@ -293,7 +293,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $db;
         }
         $table = strtoupper($table);
-        $index_name = strtoupper($index_name);
+        $index_name = strtoupper($db->getIndexName($index_name));
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,

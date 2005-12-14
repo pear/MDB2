@@ -349,26 +349,25 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             }
         }
         $query = "EXEC sp_statistics @table_name='$table'";
-        $indexes_all = $db->queryCol($query, 'text', $key_name);
-        if (PEAR::isError($indexes_all)) {
-            return $indexes_all;
+        $indexes = $db->queryCol($query, 'text', $key_name);
+        if (PEAR::isError($indexes)) {
+            return $indexes;
         }
         $query = "EXEC sp_pkeys @table_name='$table'";
         $pk_all = $db->queryCol($query, 'text', $pk_name);
-        $found = $result = array();
-        for ($index = 0, $j = count($indexes_all); $index < $j; ++$index) {
-            if (!in_array($indexes_all[$index], $pk_all)
-                && $indexes_all[$index] != null
-                && !isset($found[$indexes_all[$index]])
+        $result = array();
+        foreach ($indexes as $index) {
+            if (!in_array($index, $pk_all) && $index != null
+                 && $index = $this->_isIndexName($index)
             ) {
-                $result[] = $indexes_all[$index];
-                $found[$indexes_all[$index]] = 1;
+                $result[$index] = true;
             }
         }
+
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+            $result = array_change_key_case($result, $db->options['field_case']);
         }
-        return $result;
+        return array_keys($result);
     }
 
     // }}}
