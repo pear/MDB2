@@ -43,7 +43,7 @@
 //
 // $Id$
 
-require_once 'MDB2_TestCase.php';
+require_once 'MDB2_testcase.php';
 
 class MDB2_Reverse_TestCase extends MDB2_TestCase
 {

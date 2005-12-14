@@ -44,7 +44,7 @@
 //
 // $Id$
 
-require_once 'MDB2_TestCase.php';
+require_once 'MDB2_testcase.php';
 
 class MDB2_Manager_TestCase extends MDB2_TestCase {
     //test table name (it is dynamically created/dropped)
