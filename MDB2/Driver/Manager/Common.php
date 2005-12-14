@@ -147,7 +147,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 
         $idx_pattern = '/^'.preg_replace('/%s/', '([a-z0-9_]+)', $db->options['idxname_format']).'$/i';
         $idx_name = preg_replace($idx_pattern, '\\1', $idx);
-        if ($seq_name && !strcasecmp($idx, $db->getIndexName($idx_name))) {
+        if ($idx_name && !strcasecmp($idx, $db->getIndexName($idx_name))) {
             return $idx_name;
         }
         return false;
