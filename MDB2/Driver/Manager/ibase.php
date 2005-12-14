@@ -711,14 +711,15 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = $db->quoteIdentifier($table, true);
+        $name  = $db->quoteIdentifier($db->getIndexName($name), true);
         $query = "ALTER TABLE $table ADD";
         if (array_key_exists('primary', $definition) && $definition['primary']) {
             if (!empty($name)) {
-                $query.= ' CONSTRAINT '.$db->quoteIdentifier($name, true);
+                $query.= ' CONSTRAINT '.$name;
             }
             $query.= ' PRIMARY KEY';
         } else {
-            $query.= ' CONSTRAINT '. $db->quoteIdentifier($name, true);
+            $query.= ' CONSTRAINT '. $name;
         }
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {

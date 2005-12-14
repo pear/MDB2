@@ -707,7 +707,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             $type = 'PRIMARY';
             $name = 'KEY';
         } else {
-            $name = $db->quoteIdentifier($name, true);
+            $name = $db->quoteIdentifier($db->getIndexName($name), true);
         }
 
         $table = $db->quoteIdentifier($table, true);
@@ -742,7 +742,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         if (strtolower($name) == 'primary') {
             $query = "ALTER TABLE $table DROP PRIMARY KEY";
         } else {
-            $name = $db->quoteIdentifier($name, true);
+            $name = $db->quoteIdentifier($db->getIndexName($name), true);
             $query = "ALTER TABLE $table DROP FOREIGN KEY $name";
         }
         return $db->exec($query);
