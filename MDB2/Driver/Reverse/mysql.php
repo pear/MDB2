@@ -176,7 +176,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                 }
             }
             if ($index_name == $key_name) {
-                if ($row['key_name'] == 'PRIMARY' || !$row['non_unique']) {
+                if (!$row['non_unique']) {
                     return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                         'getTableIndexDefinition: it was not specified an existing table index');
                 }
@@ -241,12 +241,14 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                 }
             }
             if ($index_name == $key_name) {
-                if ($row['key_name'] == 'PRIMARY') {
-                    $definition['primary'] = true;
-                }
-                if (!$row['non_unique']) {
+                if ($row['non_unique']) {
                     return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                         'getTableConstraintDefinition: it was not specified an existing table constraint');
+                }
+                if ($row['key_name'] == 'PRIMARY') {
+                    $definition['primary'] = true;
+                } else {
+                    $definition['unique'] = true;
                 }
                 $column_name = $row['column_name'];
                 if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {

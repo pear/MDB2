@@ -580,11 +580,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->quoteIdentifier($db->getIndexName($name), true);
-        $query = 'CREATE';
-        if (array_key_exists('unique', $definition) && $definition['unique']) {
-            $query.= ' UNIQUE';
-        }
-        $query .= " INDEX $name ON $table";
+        $query = "CREATE INDEX $name ON $table";
         $fields = array();
         foreach ($definition['fields'] as $field => $fieldinfo) {
             if (array_key_exists('length', $fieldinfo)) {
@@ -638,24 +634,28 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
 
         $key_name = 'Key_name';
+        $non_unique = 'Non_unique';
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             if ($db->options['field_case'] == CASE_LOWER) {
                 $key_name = strtolower($key_name);
+                $non_unique = strtolower($non_unique);
             } else {
                 $key_name = strtoupper($key_name);
+                $non_unique = strtoupper($non_unique);
             }
         }
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table";
-        $indexes = $db->queryCol($query, 'text', $key_name);
+        $indexes = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($indexes)) {
             return $indexes;
         }
 
         $result = array();
-        foreach ($indexes as $index) {
-            if ($index != 'PRIMARY' && $index = $this->_isIndexName($index)) {
+        foreach ($indexes as $index_data) {
+            if ($index_data[$non_unique]) {
+                $index = $this->_isIndexName($index_data[$key_name]);
                 $result[$index] = true;
             }
         }
@@ -708,6 +708,9 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             $name = 'KEY';
         } else {
             $name = $db->quoteIdentifier($db->getIndexName($name), true);
+            if (array_key_exists('unique', $definition) && $definition['unique']) {
+                $type = ' UNIQUE';
+            }
         }
 
         $table = $db->quoteIdentifier($table, true);
@@ -743,7 +746,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             $query = "ALTER TABLE $table DROP PRIMARY KEY";
         } else {
             $name = $db->quoteIdentifier($db->getIndexName($name), true);
-            $query = "ALTER TABLE $table DROP FOREIGN KEY $name";
+            $query = "ALTER TABLE $table DROP INDEX $name";
         }
         return $db->exec($query);
     }
@@ -766,24 +769,28 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
 
         $key_name = 'Key_name';
+        $non_unique = 'Non_unique';
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             if ($db->options['field_case'] == CASE_LOWER) {
                 $key_name = strtolower($key_name);
+                $non_unique = strtolower($non_unique);
             } else {
                 $key_name = strtoupper($key_name);
+                $non_unique = strtoupper($non_unique);
             }
         }
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table";
-        $indexes = $db->queryCol($query, 'text', $key_name);
+        $indexes = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($indexes)) {
             return $indexes;
         }
 
         $result = array();
-        foreach ($indexes as $index) {
-            if ($index == 'PRIMARY') {
+        foreach ($indexes as $index_data) {
+            if (!$index_data[$non_unique]) {
+                $index = $this->_isIndexName($index_data[$key_name]);
                 $result[$index] = true;
             }
         }

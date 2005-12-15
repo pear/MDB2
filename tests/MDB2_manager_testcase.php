@@ -195,26 +195,6 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
     /**
      *
      */
-    function testCreateUniqueIndex() {
-        if (!$this->methodExists($this->db->manager, 'createIndex')) {
-            return;
-        }
-        $index = array(
-            'fields' => array(
-                'somename' => array(
-                    'sorting' => 'ascending',
-                ),
-            ),
-            'unique' => true,
-        );
-        $name = 'uniqueindex';
-        $result = $this->db->manager->createIndex($this->table, $name, $index);
-        $this->assertFalse(PEAR::isError($result), 'Error creating unique index');
-    }
-
-    /**
-     *
-     */
     function testDropIndex() {
         if (!$this->methodExists($this->db->manager, 'dropIndex')) {
             return;
@@ -292,6 +272,26 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
     /**
      *
      */
+    function testCreateUniqueConstraint() {
+        if (!$this->methodExists($this->db->manager, 'createIndex')) {
+            return;
+        }
+        $index = array(
+            'fields' => array(
+                'somename' => array(
+                    'sorting' => 'ascending',
+                ),
+            ),
+            'unique' => true,
+        );
+        $name = 'uniqueindex';
+        $result = $this->db->manager->createConstraint($this->table, $name, $index);
+        $this->assertFalse(PEAR::isError($result), 'Error creating unique index');
+    }
+
+    /**
+     *
+     */
     function testDropPrimaryKey() {
         if (!$this->methodExists($this->db->manager, 'dropConstraint')) {
             return;
@@ -332,21 +332,16 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                     'sorting' => 'ascending',
                 ),
             ),
-            'primary' => true,
+            'unique' => true,
         );
-        $name = 'pkindex';
+        $name = 'uniqueindex';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
         if (PEAR::isError($result)) {
-            echo 'Error creating primary index, trying with name "primary" instead .. ';
-            $name = 'primary';
-            $result = $this->db->manager->createConstraint($this->table, $name, $index);
-        }
-        if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error creating primary index');
+            $this->assertFalse(true, 'Error creating unique index');
         } else {
             $constraints = $this->db->manager->listTableConstraints($this->table);
             $this->assertFalse(PEAR::isError($constraints), 'Error listing constraints');
-            $this->assertTrue(in_array($name, $constraints), 'Error listing primary key index');
+            $this->assertTrue(in_array($name, $constraints), 'Error listing unique key index');
         }
     }
 

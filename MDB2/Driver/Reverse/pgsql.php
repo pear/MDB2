@@ -155,12 +155,13 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 
         $index_name = $db->getIndexName($index_name);
         $query = "SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class
-            WHERE (pg_class.relname='".$index_name."') AND (pg_class.oid=pg_index.indexrelid)";
+            WHERE pg_class.relname='$index_name' AND pg_class.oid=pg_index.indexrelid
+               AND indisunique != 't' AND indisprimary != 't'";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
         }
-        if ($row['relname'] != $index_name) {
+        if (!$row) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
@@ -169,13 +170,6 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $columns = $db->manager->listTableFields($table);
 
         $definition = array();
-        if ($row['indisprimary'] == 't') {
-            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableIndexDefinition: it was not specified an existing table index');
-        }
-        if ($row['indisunique'] == 't') {
-            $definition['unique'] = true;
-        }
 
         $index_column_numbers = explode(' ', $row['indkey']);
 
@@ -204,12 +198,13 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 
         $index_name = $db->getIndexName($index_name);
         $query = "SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class
-            WHERE (pg_class.relname='$index_name') AND (pg_class.oid=pg_index.indexrelid)";
+            WHERE pg_class.relname='$index_name' AND pg_class.oid=pg_index.indexrelid
+              AND (indisunique = 't' OR indisprimary = 't')";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
         }
-        if ($row['relname'] != $index_name) {
+        if (!$row) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
@@ -220,10 +215,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $definition = array();
         if ($row['indisprimary'] == 't') {
             $definition['primary'] = true;
-        }
-        if ($row['indisunique'] == 't') {
-            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table constraint');
+        } elseif ($row['indisunique'] == 't') {
+            $definition['unique'] = true;
         }
 
         $index_column_numbers = explode(' ', $row['indkey']);

@@ -31,6 +31,7 @@ open todo items:
 - added missing reverse module methods
 - there are still a number of missing methods in the reverse and datatype module
 - there are still severe stability issues due to ext/oci8, especially on windows
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
 EOT;
 
 $package = new PEAR_PackageFileManager();

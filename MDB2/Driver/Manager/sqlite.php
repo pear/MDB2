@@ -404,11 +404,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->getIndexName($name);
-        $query = 'CREATE';
-        if (array_key_exists('unique', $definition) && $definition['unique']) {
-            $query.= ' UNIQUE';
-        }
-        $query .= " INDEX $name ON $table";
+        $query = "CREATE INDEX $name ON $table";
         $fields = array();
         foreach ($definition['fields'] as $field_name => $field) {
             $field_string = $field_name;
@@ -467,15 +463,17 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
+        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
         $indexes = $db->queryCol($query, 'text');
         if (PEAR::isError($indexes)) {
             return $indexes;
         }
 
         $result = array();
-        foreach ($indexes as $index) {
-            if ($index != 'PRIMARY' && $index = $this->_isIndexName($index)) {
+        foreach ($indexes as $sql) {
+            $sql = strtolower($sql);
+            if (preg_match("/^create index ([^ ]*) on /", $sql, $tmp)) {
+                $index = $this->_isIndexName($tmp[1]);
                 $result[$index] = true;
             }
         }
@@ -518,8 +516,31 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'createConstraint: Creating Constraints is not supported');
+        if (array_key_exists('primary', $definition) && $definition['primary']) {
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'createConstraint: Creating Primary Constraints is not supported');
+        }
+
+        $table = $db->quoteIdentifier($table, true);
+        $name  = $db->getIndexName($name);
+        $query = "CREATE UNIQUE INDEX $name ON $table";
+        $fields = array();
+        foreach ($definition['fields'] as $field_name => $field) {
+            $field_string = $field_name;
+            if (array_key_exists('sorting', $field)) {
+                switch ($field['sorting']) {
+                case 'ascending':
+                    $field_string.= ' ASC';
+                    break;
+                case 'descending':
+                    $field_string.= ' DESC';
+                    break;
+                }
+            }
+            $fields[] = $field_string;
+        }
+        $query .= ' ('.implode(', ', $fields) . ')';
+        return $db->exec($query);
     }
 
     // }}}
@@ -540,8 +561,13 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'dropConstraints: Drop Constraints is not supported');
+        if ($name == 'PRIMARY') {
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'dropConstraints: Dropping Primary Constraints is not supported');
+        }
+
+        $name = $db->getIndexName($name);
+        return $db->exec("DROP INDEX $name");
     }
 
     // }}}
@@ -561,8 +587,25 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTableConstraints: List Constraints is not supported');
+        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
+        $indexes = $db->queryCol($query, 'text');
+        if (PEAR::isError($indexes)) {
+            return $indexes;
+        }
+
+        $result = array();
+        foreach ($indexes as $sql) {
+            $sql = strtolower($sql);
+            if (preg_match("/^create unique index ([^ ]*) on /", $sql, $tmp)) {
+                $index = $this->_isIndexName($tmp[1]);
+                $result[$index] = true;
+            }
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_change_key_case($result, $db->options['field_case']);
+        }
+        return array_keys($result);
     }
 
     // }}}

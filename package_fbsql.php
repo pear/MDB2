@@ -23,6 +23,7 @@ $notes = <<<EOT
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
 EOT;
 
 $package = new PEAR_PackageFileManager();

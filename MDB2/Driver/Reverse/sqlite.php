@@ -199,33 +199,27 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         $index_name = $db->getIndexName($index_name);
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND name='$index_name' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
-        $result = $db->query($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $sql = $db->queryOne($query, 'text');
+        if (PEAR::isError($sql)) {
+            return $sql;
         }
-        $columns = $result->getColumnNames();
-        $column = 'sql';
-        if (!isset($columns[$column])) {
-            $result->free();
+        if (!$sql) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
 
-        $sql = strtolower($result->fetchOne());
-        $key_name = $index_name;
+        $sql = strtolower($sql);
         $start_pos = strpos($sql, '(');
         $end_pos = strrpos($sql, ')');
         $column_names = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
         $column_names = split(',', $column_names);
 
-        $definition = array();
-        if (strstr($sql, ' primary ')) {
+        if (preg_match("/^create unique/", $sql)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
-        if (strstr($sql, ' unique ')) {
-            $definition['unique'] = true;
-        }
+
+        $definition = array();
         $count = count($column_names);
         for ($i=0; $i<$count; ++$i) {
             $column_name = strtok($column_names[$i]," ");
@@ -237,7 +231,6 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             }
         }
 
-        $result->free();
         if (!array_key_exists('fields', $definition)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
@@ -265,33 +258,28 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         $index_name = $db->getIndexName($index_name);
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND name='$index_name' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
-        $result = $db->query($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $sql = $db->queryOne($query, 'text');
+        if (PEAR::isError($sql)) {
+            return $sql;
         }
-        $columns = $result->getColumnNames();
-        $column = 'sql';
-        if (!isset($columns[$column])) {
-            $result->free();
+        if (!$sql) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table constraint');
+                'getTableIndexDefinition: it was not specified an existing table index');
         }
 
-        $sql = strtolower($result->fetchOne());
-        $key_name = $index_name;
+        $sql = strtolower($sql);
         $start_pos = strpos($sql, '(');
         $end_pos = strrpos($sql, ')');
         $column_names = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
         $column_names = split(',', $column_names);
 
-        $definition = array();
-        if (strstr($sql, ' primary ')) {
-            $definition['primary'] = true;
-        }
-        if (strstr($sql, ' unique ')) {
+        if (!preg_match("/^create unique/", $sql)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
+
+        $definition = array();
+        $definition['unique'] = true;
         $count = count($column_names);
         for ($i=0; $i<$count; ++$i) {
             $column_name = strtok($column_names[$i]," ");

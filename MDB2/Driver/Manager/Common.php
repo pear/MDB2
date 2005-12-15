@@ -544,11 +544,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 
         $table = $db->quoteIdentifier($table, true);
         $name = $db->quoteIdentifier($db->getIndexName($name), true);
-        $query = 'CREATE';
-        if (array_key_exists('unique', $definition) && $definition['unique']) {
-            $query.= ' UNIQUE';
-        }
-        $query .= " INDEX $name ON $table";
+        $query = "CREATE INDEX $name ON $table";
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
             $fields[] = $db->quoteIdentifier($field, true);
@@ -636,6 +632,8 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         $query = "ALTER TABLE $table ADD CONSTRAINT $name";
         if (array_key_exists('primary', $definition) && $definition['primary']) {
             $query.= ' PRIMARY KEY';
+        } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
+            $query.= ' UNIQUE';
         }
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
