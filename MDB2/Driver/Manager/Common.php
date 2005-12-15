@@ -664,7 +664,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         $table = $db->quoteIdentifier($table, true);
-        $name = $db->quoteIdentifier($name, true);
+        $name = $db->quoteIdentifier($db->getIndexName($name), true);
         return $db->exec("ALTER TABLE $table DROP CONSTRAINT $name");
     }
 
