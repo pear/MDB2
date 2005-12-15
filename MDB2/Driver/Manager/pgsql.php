@@ -547,14 +547,24 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         $query = "SELECT DISTINCT conname FROM pg_constraint, pg_class";
         $query.= " WHERE (pg_class.relname='$table') AND (pg_class.oid=pg_constraint.conrelid)";
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $constraints = $db->queryCol($query);
+        if (PEAR::isError($constraints)) {
+            return $constraints;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+
+        $result = array();
+        foreach ($constraints as $constraint) {
+            if ($constraint = $this->_isIndexName($constraint)) {
+                $result[$constraint] = true;
+            }
         }
-        return $result;
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $result = array_change_key_case($result, $db->options['field_case']);
+        }
+        return array_keys($result);
     }
 
     // }}}

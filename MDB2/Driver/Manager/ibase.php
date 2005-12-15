@@ -751,14 +751,22 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                          RDB\$INDEX_NAME AS index_name
                     FROM RDB\$RELATION_CONSTRAINTS
                    WHERE RDB\$RELATION_NAME='$table'";
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $constraints = $db->queryCol($query);
+        if (PEAR::isError($constraints)) {
+            return $constraints;
         }
+
+        $result = array();
+        foreach ($constraints as $constraint) {
+            if ($constraint = $this->_isIndexName($constraint)) {
+                $result[$constraint] = true;
+            }
+        }
+
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+            $result = array_change_key_case($result, $db->options['field_case']);
         }
-        return $result;
+        return array_keys($result);
     }
 
     // }}}

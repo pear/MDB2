@@ -685,16 +685,24 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
         $table = strtoupper($table);
         $query = "SELECT index_name name FROM user_constraints WHERE table_name='$table'";
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $constraints = $db->queryCol($query);
+        if (PEAR::isError($constraints)) {
+            return $constraints;
         }
+
+        $result = array();
+        foreach ($constraints as $constraint) {
+            if ($constraint = $this->_isIndexName($constraint)) {
+                $result[$constraint] = true;
+            }
+        }
+
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             && $db->options['field_case'] == CASE_LOWER
         ) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+            $result = array_change_key_case($result, $db->options['field_case']);
         }
-        return $result;
+        return array_keys($result);
     }
 
     // }}}
