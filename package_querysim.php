@@ -10,6 +10,7 @@ $notes = <<<EOT
 
 open todo items:
 - this driver is currently unmaintained/untested
+- add ability to reference multiple results set files for different queries
 EOT;
 
 $package = new PEAR_PackageFileManager();
