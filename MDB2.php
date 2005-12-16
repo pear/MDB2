@@ -3329,7 +3329,6 @@ class MDB2_Module_Common
         $this->__construct($db_index);
     }
 
-
     // }}}
     // {{{ getDBInstance()
 
