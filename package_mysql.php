@@ -23,7 +23,8 @@ $notes = <<<EOT
   emulating it with substring is not feasible though)
 - ensure that there is a connection in the escape() method
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added ability to determine unsigned in mapNativeDatatype()
   (only really implemented in the mysql(i) drivers) (bug #6054)

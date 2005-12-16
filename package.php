@@ -20,7 +20,8 @@ $notes = <<<EOT
 - allow empty field parameter in get*ID() methods (bug #5791)
 - tweaked error messages for file loads
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added getServerVersion()
 - renamed defaultOutput() to getDefaultOutput() *BC BREAK*

@@ -20,13 +20,14 @@ $notes = <<<EOT
 - force rollback() with open transactions on disconnect
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - added getServerVersion()
 - added 'mdbtype' to tableInfo() output
 - changed 'len' to 'length' in tableInfo() output *BC BREAK*
 
 open todo items:
-- handle autoincremement fields in alterTable() and dropTable()
+- handle autoincremement fields in alterTable()
 - there are still a number of missing methods in the reverse and datatype module
 - there are still severe stability issues due to ext/oci8, especially on windows
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
