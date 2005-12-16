@@ -423,26 +423,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ createIndex()
-    /**
-     * Adds an index to a table.
-     *
-     * @param string $table      The name of the table
-     * @param string $name       The name of the field
-     * @param array  $definition The definition of the new field.
-     */
-    function createIndex($table, $name, $definition)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $table = $db->quoteIdentifier($table, true);
-        $name  = $db->quoteIdentifier($db->getIndexName($name), true);
-    }
-
-    // }}}
     // {{{ dropSequence()
 
     /**
