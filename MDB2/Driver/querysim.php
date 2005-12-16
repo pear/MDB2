@@ -215,10 +215,9 @@
  */
 class MDB2_Driver_querysim extends MDB2_Driver_Common
 {
-    // {{{ properties
     var $escape_quotes = "\\";
-    // }}}
 
+    // }}}
     // {{{ constructor
 
     /**
@@ -252,7 +251,6 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     }
 
     // }}}
-
     // {{{ connect()
 
     /**
@@ -302,8 +300,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
 
         return MDB2_OK;
     }
-    // }}}
 
+    // }}}
     // {{{ disconnect()
 
     /**
@@ -316,15 +314,15 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     function disconnect()
     {
         if (is_resource($this->connection)) {
-            if (($this->opened_persistent))) {
-                @fclose($this->connection)
+            if ($this->opened_persistent) {
+                @fclose($this->connection);
             }
             $this->connection = 0;
         }
         return MDB2_OK;
     }
-    // }}}
 
+    // }}}
     // {{{ _doQuery()
 
     /**
@@ -338,8 +336,14 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      */
     function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
+        if ($this->database_name) {
+            $query = $this->_readFile();
+        }
         $this->last_query = $query;
         $this->debug($query, 'query');
+        if ($is_manip) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
+        }
         if ($this->options['disable_query']) {
             return null;
         }
@@ -349,13 +353,30 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             return $result;
         }
 
-        if ($limit > 0) {
-            $result[1] = array_slice($result[1], $offset-1, $limit);
+        if ($this->next_limit > 0) {
+            $result[1] = array_slice($result[1], $this->next_offset, $this->next_limit);
         }
         return $result;
     }
-    // }}}
 
+    // }}}
+    // {{{ _modifyQuery()
+
+    /**
+     * Changes a query string for various DBMS specific reasons
+     *
+     * @param string $query  query to modify
+     * @return the new (modified) query
+     * @access protected
+     */
+    function _modifyQuery($query, $is_manip, $limit, $offset)
+    {
+        $this->next_limit = $limit;
+        $this->next_offset = $offset;
+        return $query;
+    }
+
+    // }}}
     // {{{ _readFile()
 
     /**
@@ -378,6 +399,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             while (!feof($connection)) {
                 $buffer.= fgets($connection, 1024);
             }
+            rewind($connection);
         } else {
             $connection = @fopen($this->connected_database_name, 'r');
             while (!feof($connection)) {
@@ -387,8 +409,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         }
         return $buffer;
     }
-    // }}}
 
+    // }}}
     // {{{ _buildResult()
 
     /**
@@ -464,9 +486,9 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             }//end while
         }//end if
         return array($columnNames, $data);
-    }//end function _buildResult()
-    // }}}
+    }
 
+    // }}}
     // {{{ _parseOnDelim()
 
     /**
@@ -493,8 +515,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         }
         return $parsed;
     }
-    // }}}
 
+    // }}}
     // {{{ exec()
 
     /**
@@ -508,8 +530,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     {
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
     }
-    // }}}
 
+    // }}}
     // {{{ getServerVersion()
 
     /**
@@ -531,11 +553,10 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
                 'patch' => @$tmp2[1],
                 'extra' => @$tmp2[2],
                 'native' => $server_info,
-            )
+            );
         }
         return $server_info;
     }
-    // }}}
 }
 
 class MDB2_Result_querysim extends MDB2_Result_Common
@@ -658,6 +679,7 @@ class MDB2_Result_querysim extends MDB2_Result_Common
 
 class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
 {
+    // }}}
     // {{{ seek()
 
     /**
@@ -714,7 +736,6 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
         return $rows;
     }
 }
-
 
 class MDB2_Statement_querysim extends MDB2_Statement_Common
 {
