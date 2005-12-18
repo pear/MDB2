@@ -21,31 +21,35 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-03</date>
+  <date>2005-12-18</date>
   <license>BSD License</license>
   <state>alpha</state>
   <notes>- unified case fixing in the list*() methods
 - use getConnection() to access connection property
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
+  the new &apos;quote_identifier&apos; option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
 - force rollback() with open transactions on disconnect
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use lastInsertID() method in nextID()
 - cleanup _checkSequence() method to not raise errors when no table was found
+- added &apos;mdbtype&apos; to tableInfo() output
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
 
 open todo items:
-- added missing createIndex() and reverse module methods
+- added missing index/contraint methods to the manager and reverse module methods
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0beta7" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">mssql</dep>
   </deps>
   <filelist>
@@ -86,26 +90,30 @@ open todo items:
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-03</date>
+    <date>2005-12-18</date>
     <license>BSD License</license>
     <state>alpha</state>
     <notes>- unified case fixing in the list*() methods
 - use getConnection() to access connection property
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
+  the new &apos;quote_identifier&apos; option (defaults to off)
 - refactored get*Declaration() methods to use getTypeDeclaration()
 - setting in_transaction to false on disconnect
 - added new Function modules to handle difference in SQL functions
 - force rollback() with open transactions on disconnect
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added is_manip parameter to prepare() method which needs to be used for DML statements *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use lastInsertID() method in nextID()
 - cleanup _checkSequence() method to not raise errors when no table was found
+- added &apos;mdbtype&apos; to tableInfo() output
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
 
 open todo items:
-- added missing createIndex() and reverse module methods
+- added missing index/contraint methods to the manager and reverse module methods
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
     </notes>
    </release>
    <release>

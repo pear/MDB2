@@ -21,7 +21,7 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-10</date>
+  <date>2005-12-18</date>
   <license>BSD License</license>
   <state>alpha</state>
   <notes>- do not fix case in listUsers()
@@ -36,16 +36,20 @@
 - fixed table renaming
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use lastInsertID() method in nextID()
+- added &apos;mdbtype&apos; to tableInfo()
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
 
 open todo items:
 - this driver needs a serious update as it&apos;s currently unmaintained/untested
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0beta7" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">fbsql</dep>
   </deps>
   <filelist>
@@ -86,7 +90,7 @@ open todo items:
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-10</date>
+    <date>2005-12-18</date>
     <license>BSD License</license>
     <state>alpha</state>
     <notes>- do not fix case in listUsers()
@@ -101,11 +105,15 @@ open todo items:
 - fixed table renaming
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use lastInsertID() method in nextID()
+- added &apos;mdbtype&apos; to tableInfo()
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
 
 open todo items:
 - this driver needs a serious update as it&apos;s currently unmaintained/untested
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
     </notes>
    </release>
    <release>

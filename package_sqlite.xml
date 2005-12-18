@@ -15,7 +15,7 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-10</date>
+  <date>2005-12-18</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>- do not fix case in listUsers()
@@ -34,17 +34,29 @@
 - added alterTable() (only does table name change and column adding)
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added ability to determine unsigned in mapNativeDatatype()
   (only really implemented in the mysql(i) drivers) (bug #6054)
 - use lastInsertID() method in nextID()
 - added getServerVersion()
+- unified array structure in mapNativeDatatype() *BC BREAK*
+- added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
+
+open todo items:
+- a number of the manager test cases fail because sqlite does not support adding
+  primary keys to existing tables
+- the alter table test fails because this is unsupported in sqlite2
+- the test replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+- the testnow and testsubstring tests fail
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0beta7" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">sqlite</dep>
   </deps>
   <filelist>
@@ -85,7 +97,7 @@
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-10</date>
+    <date>2005-12-18</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- do not fix case in listUsers()
@@ -104,12 +116,24 @@
 - added alterTable() (only does table name change and column adding)
 - escape floats to make sure they do not contain evil characters (bug #5608)
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added ability to determine unsigned in mapNativeDatatype()
   (only really implemented in the mysql(i) drivers) (bug #6054)
 - use lastInsertID() method in nextID()
 - added getServerVersion()
+- unified array structure in mapNativeDatatype() *BC BREAK*
+- added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
+
+open todo items:
+- a number of the manager test cases fail because sqlite does not support adding
+  primary keys to existing tables
+- the alter table test fails because this is unsupported in sqlite2
+- the test replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+- the testnow and testsubstring tests fail
     </notes>
    </release>
    <release>

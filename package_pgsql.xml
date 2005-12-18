@@ -15,7 +15,7 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-10</date>
+  <date>2005-12-18</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>- do not fix case in listUsers()
@@ -39,16 +39,20 @@
   (only really implemented in the mysql(i) drivers) (bug #6054)
 - use MDB2_ERROR_NOT_FOUND in getTableConstraintDefinition() and getTableIndexDefinition() (bug #6055)
 - added getServerVersion()
+- unified array structure in mapNativeDatatype() *BC BREAK*
+- added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
 
 open todo items:
 - implement native prepared queries
 - migrate away from OID&apos;s to bytea, since this is encourage since version 8
   and is also what PDO expects
+- testgettablefielddefinition and testnow test cases fail
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0beta7" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">pgsql</dep>
   </deps>
   <filelist>
@@ -89,7 +93,7 @@ open todo items:
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-10</date>
+    <date>2005-12-18</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- do not fix case in listUsers()
@@ -113,11 +117,15 @@ open todo items:
   (only really implemented in the mysql(i) drivers) (bug #6054)
 - use MDB2_ERROR_NOT_FOUND in getTableConstraintDefinition() and getTableIndexDefinition() (bug #6055)
 - added getServerVersion()
+- unified array structure in mapNativeDatatype() *BC BREAK*
+- added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
 
 open todo items:
 - implement native prepared queries
 - migrate away from OID&apos;s to bytea, since this is encourage since version 8
   and is also what PDO expects
+- testgettablefielddefinition and testnow test cases fail
     </notes>
    </release>
    <release>

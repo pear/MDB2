@@ -26,6 +26,10 @@ $notes = <<<EOT
 - added getServerVersion()
 - renamed defaultOutput() to getDefaultOutput() *BC BREAK*
 - use tableInfo() to automatically determine the result types if type is set to true
+- reworked file loading to work around issues in safe_mode with MDB2::fileExists() (bug #6226)
+- no need to return by reference in getConnection() (it even seems to work for
+  mysqli that has objects and not resource connections)
+- added "idxname_format" as option similar to "seqname_format"
 EOT;
 
 $description =<<<EOT

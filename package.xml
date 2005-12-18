@@ -69,8 +69,8 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.0.0beta7</version>
-  <date>2005-12-10</date>
+  <version>2.0.0RC1</version>
+  <date>2005-12-18</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>- added numerous testcases in the manager and reverse module
@@ -89,10 +89,16 @@ portability. Among other things MDB2 features:
 - allow empty field parameter in get*ID() methods (bug #5791)
 - tweaked error messages for file loads
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added getServerVersion()
 - renamed defaultOutput() to getDefaultOutput() *BC BREAK*
+- use tableInfo() to automatically determine the result types if type is set to true
+- reworked file loading to work around issues in safe_mode with MDB2::fileExists() (bug #6226)
+- no need to return by reference in getConnection() (it even seems to work for
+  mysqli that has objects and not resource connections)
+- added &quot;idxname_format&quot; as option similar to &quot;seqname_format&quot;
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -254,8 +260,8 @@ portability. Among other things MDB2 features:
  </release>
  <changelog>
    <release>
-    <version>2.0.0beta7</version>
-    <date>2005-12-10</date>
+    <version>2.0.0RC1</version>
+    <date>2005-12-18</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- added numerous testcases in the manager and reverse module
@@ -274,10 +280,16 @@ portability. Among other things MDB2 features:
 - allow empty field parameter in get*ID() methods (bug #5791)
 - tweaked error messages for file loads
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
+- only if result_types is set to false in prepare() method the query will be
+  handled as a DML statement *BC BREAK*
 - use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
 - added getServerVersion()
 - renamed defaultOutput() to getDefaultOutput() *BC BREAK*
+- use tableInfo() to automatically determine the result types if type is set to true
+- reworked file loading to work around issues in safe_mode with MDB2::fileExists() (bug #6226)
+- no need to return by reference in getConnection() (it even seems to work for
+  mysqli that has objects and not resource connections)
+- added &quot;idxname_format&quot; as option similar to &quot;seqname_format&quot;
     </notes>
    </release>
    <release>
