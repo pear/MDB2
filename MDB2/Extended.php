@@ -120,8 +120,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $stmt;
         }
         $params = array_values($fields_values);
-        $stmt->bindParamArray($params);
-        $result =& $stmt->execute($result_class);
+        $result =& $stmt->execute($params, $result_class);
         $stmt->free();
         return $result;
     }
