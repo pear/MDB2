@@ -15,7 +15,7 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-18</date>
+  <date>2005-12-21</date>
   <license>BSD License</license>
   <state>alpha</state>
   <notes>- added listTableIndexes()
@@ -90,7 +90,7 @@ open todo items:
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-18</date>
+    <date>2005-12-21</date>
     <license>BSD License</license>
     <state>alpha</state>
     <notes>- added listTableIndexes()

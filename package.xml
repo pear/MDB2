@@ -70,7 +70,7 @@ portability. Among other things MDB2 features:
   </maintainers>
  <release>
   <version>2.0.0RC1</version>
-  <date>2005-12-18</date>
+  <date>2005-12-21</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>- added numerous testcases in the manager and reverse module
@@ -99,6 +99,7 @@ portability. Among other things MDB2 features:
 - no need to return by reference in getConnection() (it even seems to work for
   mysqli that has objects and not resource connections)
 - added &quot;idxname_format&quot; as option similar to &quot;seqname_format&quot;
+- fixed bug in API calls inside autoExecute() (bug #6286)
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -261,7 +262,7 @@ portability. Among other things MDB2 features:
  <changelog>
    <release>
     <version>2.0.0RC1</version>
-    <date>2005-12-18</date>
+    <date>2005-12-21</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- added numerous testcases in the manager and reverse module
@@ -290,6 +291,7 @@ portability. Among other things MDB2 features:
 - no need to return by reference in getConnection() (it even seems to work for
   mysqli that has objects and not resource connections)
 - added &quot;idxname_format&quot; as option similar to &quot;seqname_format&quot;
+- fixed bug in API calls inside autoExecute() (bug #6286)
     </notes>
    </release>
    <release>

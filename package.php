@@ -30,6 +30,7 @@ $notes = <<<EOT
 - no need to return by reference in getConnection() (it even seems to work for
   mysqli that has objects and not resource connections)
 - added "idxname_format" as option similar to "seqname_format"
+- fixed bug in API calls inside autoExecute() (bug #6286)
 EOT;
 
 $description =<<<EOT

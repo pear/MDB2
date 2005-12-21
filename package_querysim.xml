@@ -15,9 +15,9 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-18</date>
+  <date>2005-12-21</date>
   <license>BSD License</license>
-  <state>alpha</state>
+  <state>beta</state>
   <notes>- use getConnection() to access connection property
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
 - added getServerVersion()
@@ -61,9 +61,9 @@ open todo items:
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-18</date>
+    <date>2005-12-21</date>
     <license>BSD License</license>
-    <state>alpha</state>
+    <state>beta</state>
     <notes>- use getConnection() to access connection property
 - split off manipulation queries into exec() method from the query() method *BC BREAK*
 - added getServerVersion()
