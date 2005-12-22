@@ -143,7 +143,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $table = strtoupper($table);
         $field_name = strtoupper($field_name);
         $query = "SELECT RDB\$RELATION_FIELDS.RDB\$FIELD_NAME AS name,
-                         RDB\$FIELDS.RDB\$FIELD_LENGTH AS length,
+                         RDB\$FIELDS.RDB\$FIELD_LENGTH AS field_length,
                          RDB\$FIELDS.RDB\$FIELD_TYPE AS field_type_code,
                          RDB\$FIELDS.RDB\$FIELD_SUB_TYPE AS field_sub_type_code,
                          RDB\$RELATION_FIELDS.RDB\$DESCRIPTION AS description,
@@ -426,14 +426,17 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         for ($i = 0; $i < $count; $i++) {
             $info = @ibase_field_info($id, $i);
             $res[$i] = array(
-                'table' => $got_string ? $case_func($result) : '',
-                'name'  => $case_func($info['name']),
-                'type'  => $info['type'],
-                'length'   => $info['length'],
-                'flags' => ($got_string)
+                'table'  => $got_string ? $case_func($result) : '',
+                'name'   => $case_func($info['name']),
+                'type'   => $info['type'],
+                'field_length' => $info['length'],
+                'flags'  => ($got_string)
                             ? $this->_ibaseFieldFlags($info['name'], $result) : '',
             );
             $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
+            if (PEAR::isError($mdb2type_info)) {
+               return $mdb2type_info;
+            }
             $res[$i]['mdb2type'] = $mdb2type_info[0][0];
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;

@@ -300,7 +300,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $length = $field['length'];
+        $length = $field['field_length'];
         if ((int)$length <= 0) {
             $length = null;
         }
@@ -316,6 +316,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                 $db_type = strtolower($field['field_sub_type']);
                 continue;
             }
+        case 'bigint':
         case 'quad':
             $type[] = 'integer';
             if ($length == '1') {
