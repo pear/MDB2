@@ -2,32 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.0';
+$version = '0.2.1';
 $notes = <<<EOT
-- do not fix case in listUsers()
-- unified case fixing in the list*() methods
-- tweaked text handling in mapNativeDatatype()
-- use getConnection() to access connection property
-- split index and constraint handling
-- quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- added support for table and column renaming as well as default and nullability
-  changing in alterTable()
-- setting in_transaction to false on disconnect
-- added new Function modules to handle difference in SQL functions
-- force rollback() with open transactions on disconnect
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
-- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
-- added ability to determine unsigned in mapNativeDatatype()
-  (only really implemented in the mysql(i) drivers) (bug #6054)
-- use MDB2_ERROR_NOT_FOUND in getTableConstraintDefinition() and getTableIndexDefinition() (bug #6055)
-- added getServerVersion()
-- unified array structure in mapNativeDatatype() *BC BREAK*
-- added 'mdbtype' to tableInfo() output that is generated from mapNativeDatatype()
-- changed 'len' to 'length' in tableInfo() output *BC BREAK*
+- fixed MDB2_Driver_Function_pgsql::now() by explicitly removing timezone info
 
 open todo items:
 - implement native prepared queries
