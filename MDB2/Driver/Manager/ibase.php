@@ -615,9 +615,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $query = 'CREATE';
-        if (array_key_exists('unique', $definition) && $definition['unique']) {
-            $query.= ' UNIQUE';
-        }
+
         $query_sort = '';
         foreach ($definition['fields'] as $field) {
             if (!strcmp($query_sort, '') && isset($field['sorting'])) {
@@ -660,7 +658,6 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         $table = strtoupper($table);
         $query = "SELECT RDB\$INDEX_NAME FROM RDB\$INDICES WHERE RDB\$RELATION_NAME='$table'";
-        $result = $db->queryCol($query);
         $indexes = $db->queryCol($query, 'text');
         if (PEAR::isError($indexes)) {
             return $indexes;
@@ -720,6 +717,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $query.= ' PRIMARY KEY';
         } else {
             $query.= ' CONSTRAINT '. $name;
+            if (array_key_exists('unique', $definition) && $definition['unique']) {
+               $query.= ' UNIQUE';
+            }
         }
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
