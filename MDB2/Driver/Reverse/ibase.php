@@ -143,7 +143,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $table = strtoupper($table);
         $field_name = strtoupper($field_name);
         $query = "SELECT RDB\$RELATION_FIELDS.RDB\$FIELD_NAME AS name,
-                         RDB\$FIELDS.RDB\$FIELD_LENGTH AS field_length,
+                         RDB\$FIELDS.RDB\$FIELD_LENGTH AS \"length\",
                          RDB\$FIELDS.RDB\$FIELD_TYPE AS field_type_code,
                          RDB\$FIELDS.RDB\$FIELD_SUB_TYPE AS field_sub_type_code,
                          RDB\$RELATION_FIELDS.RDB\$DESCRIPTION AS description,
@@ -429,7 +429,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                 'table'  => $got_string ? $case_func($result) : '',
                 'name'   => $case_func($info['name']),
                 'type'   => $info['type'],
-                'field_length' => $info['length'],
+                'length' => $info['length'],
                 'flags'  => ($got_string)
                             ? $this->_ibaseFieldFlags($info['name'], $result) : '',
             );

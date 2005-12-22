@@ -300,7 +300,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $length = $field['field_length'];
+        $length = $field['length'];
         if ((int)$length <= 0) {
             $length = null;
         }
