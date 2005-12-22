@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '0.2.1';
 $notes = <<<EOT
-- fixed MDB2_Driver_Function_pgsql::now() by explicitly removing timezone info
+- fixed datatype conversion for "time" values
 
 open todo items:
 - implement native prepared queries
