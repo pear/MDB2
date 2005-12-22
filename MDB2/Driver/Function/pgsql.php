@@ -80,7 +80,32 @@ class MDB2_Driver_Function_pgsql extends MDB2_Driver_Function_Common
         $query .= $params ? '('.implode(', ', $params).')' : '()';
         return $db->query($query, $types, $result_class, $result_wrap_class);
     }
+    // }}}
 
+    // {{{ now()
+
+    /**
+     * Return string to call a variable with the current timestamp inside an SQL statement
+     * There are three special variables for current date and time:
+     * - CURRENT_TIMESTAMP (date and time, TIMESTAMP type)
+     * - CURRENT_DATE (date, DATE type)
+     * - CURRENT_TIME (time, TIME type)
+     *
+     * @return string to call a variable with the current timestamp
+     * @access public
+     */
+    function now($type = 'timestamp')
+    {
+        switch ($type) {
+        case 'time':
+            return 'SUBSTRING(CURRENT_TIME::text from 0 for 9)';
+        case 'date':
+            return 'CURRENT_DATE';
+        case 'timestamp':
+        default:
+            return 'SUBSTRING(CURRENT_TIMESTAMP::text from 0 for 20)';
+        }
+    }
     // }}}
 }
 ?>
