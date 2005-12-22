@@ -21,7 +21,7 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-18</date>
+  <date>2005-12-22</date>
   <license>BSD License</license>
   <state>beta</state>
   <notes>- fixed _dropAutoincrement()
@@ -57,7 +57,6 @@
 
 open todo items:
 - handle autoincremement fields in alterTable()
-- ensure that all primary/unique/foreign key handling is only in the contraint methods
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.4" optional="no"/>
@@ -103,7 +102,7 @@ open todo items:
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-18</date>
+    <date>2005-12-22</date>
     <license>BSD License</license>
     <state>beta</state>
     <notes>- fixed _dropAutoincrement()
@@ -139,7 +138,6 @@ open todo items:
 
 open todo items:
 - handle autoincremement fields in alterTable()
-- ensure that all primary/unique/foreign key handling is only in the contraint methods
     </notes>
    </release>
    <release>
