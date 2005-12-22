@@ -81,7 +81,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $functionTable_clause = $this->db->function->functionTable();
         $now_clause = $this->db->function->now('timestamp');
         $query = 'SELECT '.$now_clause . $functionTable_clause;
-        $result = $this->db->queryOne($query);
+        $result = $this->db->queryOne($query, 'timestamp');
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting timestamp');
         } else {
@@ -90,7 +90,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         
         $now_clause = $this->db->function->now('date');
         $query = 'SELECT '.$now_clause . $functionTable_clause;
-        $result = $this->db->queryOne($query);
+        $result = $this->db->queryOne($query, 'date');
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting date');
         } else {
@@ -99,7 +99,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         
         $now_clause = $this->db->function->now('time');
         $query = 'SELECT '.$now_clause . $functionTable_clause;
-        $result = $this->db->queryOne($query);
+        $result = $this->db->queryOne($query, 'time');
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting time');
         } else {

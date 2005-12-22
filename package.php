@@ -2,35 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0RC1';
+$version = '2.0.0RC2';
 $notes = <<<EOT
-- added numerous testcases in the manager and reverse module
-- unified case fixing in the list*() methods
-- case-insensitive comparison in _isSequenceName()
-- added getConnection() to fetch a native connection resource
-- split index and constraint handling
-- quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- setting in_transaction to false on disconnect
-- store if type has changed in compareDefinition()
-- added new Function modules to handle difference in SQL functions
-- added verious new test cases
-- refactored test cases to use an MDB2_testcase base class
-- allow empty field parameter in get*ID() methods (bug #5791)
-- tweaked error messages for file loads
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- only if result_types is set to false in prepare() method the query will be
-  handled as a DML statement *BC BREAK*
-- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
-- added getServerVersion()
-- renamed defaultOutput() to getDefaultOutput() *BC BREAK*
-- use tableInfo() to automatically determine the result types if type is set to true
-- reworked file loading to work around issues in safe_mode with MDB2::fileExists() (bug #6226)
-- no need to return by reference in getConnection() (it even seems to work for
-  mysqli that has objects and not resource connections)
-- added "idxname_format" as option similar to "seqname_format"
-- fixed bug in API calls inside autoExecute() (bug #6286)
+- fixed testNow() to use the datatype abstraction
 EOT;
 
 $description =<<<EOT
