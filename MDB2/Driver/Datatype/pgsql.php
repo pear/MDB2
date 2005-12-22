@@ -78,7 +78,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         case 'date':
             return $value;
         case 'time':
-            return $value;
+            return substr($value, 0, strlen('HH:MM:SS'));
         case 'timestamp':
             return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
         default:
