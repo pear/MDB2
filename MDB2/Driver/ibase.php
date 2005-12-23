@@ -265,10 +265,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        if (!$this->destructor_registered && $this->opened_persistent) {
-            $this->destructor_registered = true;
-            register_shutdown_function('MDB2_closeOpenTransactions');
-        }
         $result = ibase_trans();
         if (!$result) {
             return $this->raiseError(MDB2_ERROR, null, null,
