@@ -1249,20 +1249,6 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ errorNative()
-
-    /**
-     * returns an errormessage, provides by the database
-     *
-     * @return mixed MDB2 Error Object or message
-     * @access public
-     */
-    function errorNative()
-    {
-        return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
-    }
-
-    // }}}
     // {{{ resetWarnings()
 
     /**
@@ -1500,18 +1486,21 @@ class MDB2_Driver_Common extends PEAR
                     $array[$key] = rtrim($value);
                 }
             }
+            break;
         case MDB2_PORTABILITY_EMPTY_TO_NULL:
             foreach ($array as $key => $value) {
                 if ($value === '') {
                     $array[$key] = null;
                 }
             }
+            break;
         case MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES:
             $tmp_array = array();
             foreach ($array as $key => $value) {
                 $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
             }
             $array = $tmp_array;
+            break;
         case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_EMPTY_TO_NULL):
             foreach ($array as $key => $value) {
                 if ($value === '') {
@@ -1520,6 +1509,7 @@ class MDB2_Driver_Common extends PEAR
                     $array[$key] = rtrim($value);
                 }
             }
+            break;
         case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
             $tmp_array = array();
             foreach ($array as $key => $value) {
@@ -1529,6 +1519,7 @@ class MDB2_Driver_Common extends PEAR
                 $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
             }
             $array = $tmp_array;
+            break;
         case (MDB2_PORTABILITY_EMPTY_TO_NULL + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
             $tmp_array = array();
             foreach ($array as $key => $value) {
@@ -1538,6 +1529,7 @@ class MDB2_Driver_Common extends PEAR
                 $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
             }
             $array = $tmp_array;
+            break;
         case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_EMPTY_TO_NULL + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
             $tmp_array = array();
             foreach ($array as $key => $value) {
@@ -1549,6 +1541,7 @@ class MDB2_Driver_Common extends PEAR
                 $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
             }
             $array = $tmp_array;
+            break;
         }
     }
 
@@ -3035,7 +3028,6 @@ class MDB2_Result_Common extends MDB2_Result
     {
         return $this->result;
     }
-
 
     // }}}
     // {{{ bindColumn()

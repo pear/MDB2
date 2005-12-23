@@ -647,10 +647,10 @@ class MDB2_PEARProxy extends PEAR
         return $this->db_object->affectedRows();
     }
 
-    // remove?
     function errorNative()
     {
-        return $this->db_object->errorNative();
+        $infos = $this->db_object->errorInfo();
+        return $infos[2];
     }
 
     function nextId($seq_name, $ondemand = true)
