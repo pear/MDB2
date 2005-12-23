@@ -115,7 +115,7 @@ class MDB2_xxx extends MDB2_Driver_Common
      */
     function errorInfo($error = null)
     {
-        // take this method from the corresponding PEAR DB driver: xxxRaiseError(), errorCode() and errorNative()
+        // take this method from the corresponding PEAR DB driver: xxxRaiseError(), errorCode()
         // the error code maps from corresponding PEAR DB driver constructor
     }
 
