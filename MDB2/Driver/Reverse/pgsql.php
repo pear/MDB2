@@ -80,7 +80,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $column = $db->queryRow("SELECT
                     attnum,attname,typname AS type,attlen AS length,attnotnull,
                     atttypmod,usename,usesysid,pg_class.oid,relpages,
-                    reltuples,relhaspkey,relhasrules,relacl,adsrc
+                    reltuples,relhaspkey,relhasrules,relacl,atthasdef,pg_get_expr(adbin,pg_class.oid, 't') as default
                     FROM pg_class,pg_user,pg_type,
                          pg_attribute left outer join pg_attrdef on
                          pg_attribute.attrelid=pg_attrdef.adrelid
@@ -100,18 +100,17 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         if (array_key_exists('attnotnull', $column) && $column['attnotnull'] == 't') {
             $notnull = true;
         }
-        $default = false;
-        // todo .. check how default look like
-        if (!preg_match("/nextval\('([^']+)'/", $column['adsrc'])
-            && strlen($column['adsrc']) > 2
+        $default = null;
+        if ($column['atthasdef'] === 't'
+            && !preg_match("/nextval\('([^']+)'/", $column['default'])
         ) {
-            $default = substr($column['adsrc'], 1, -1);
+            $default = $column['default'];#substr($column['adsrc'], 1, -1);
             if (is_null($default) && $notnull) {
                 $default = '';
             }
         }
         $autoincrement = false;
-        if (preg_match("/nextval\('([^']+)'/", $column['adsrc'], $nextvals)) {
+        if (preg_match("/nextval\('([^']+)'/", $column['default'], $nextvals)) {
             $autoincrement = true;
         }
         $definition = array();
@@ -126,9 +125,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
              if ($unsigned) {
                 $definition[$key]['unsigned'] = true;
             }
-            if ($default !== false) {
-                $definition[$key]['default'] = $default;
-            }
+            $definition[$key]['default'] = $default;
             if ($autoincrement !== false) {
                 $definition[$key]['autoincrement'] = $autoincrement;
             }
