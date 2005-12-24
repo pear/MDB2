@@ -78,32 +78,22 @@ class MDB2_Function_TestCase extends MDB2_TestCase
             return;
         }
 
-        $functionTable_clause = $this->db->function->functionTable();
-        $now_clause = $this->db->function->now('timestamp');
-        $query = 'SELECT '.$now_clause . $functionTable_clause;
-        $result = $this->db->queryOne($query, 'timestamp');
-        if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting timestamp');
-        } else {
-            $this->assertRegExp('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $result, 'Error: not a proper timestamp');
-        }
-        
-        $now_clause = $this->db->function->now('date');
-        $query = 'SELECT '.$now_clause . $functionTable_clause;
-        $result = $this->db->queryOne($query, 'date');
-        if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting date');
-        } else {
-            $this->assertRegExp('/^\d{4}-\d{2}-\d{2}$/', $result, 'Error: not a proper date');
-        }
-        
-        $now_clause = $this->db->function->now('time');
-        $query = 'SELECT '.$now_clause . $functionTable_clause;
-        $result = $this->db->queryOne($query, 'time');
-        if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting time');
-        } else {
-            $this->assertRegExp('/^\d{2}:\d{2}:\d{2}$/', $result, 'Error: not a proper time');
+        $tests = array(
+            'timestamp' => '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
+            'date' => '/^\d{4}-\d{2}-\d{2}$/',
+            'time' => '/^\d{2}:\d{2}:\d{2}$/',
+        );
+
+        foreach ($tests as $type => $regexp) {
+            $functionTable_clause = $this->db->function->functionTable();
+            $now_clause = $this->db->function->now($type);
+            $query = 'SELECT '.$now_clause . $functionTable_clause;
+            $result = $this->db->queryOne($query, $type);
+            if (PEAR::isError($result)) {
+                $this->assertFalse(true, 'Error getting '.$type);
+            } else {
+                $this->assertRegExp($regexp, $result, 'Error: not a proper '.$type);
+            }
         }
     }
 
