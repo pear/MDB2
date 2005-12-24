@@ -99,15 +99,13 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         }
 
         //test blob
-        $field_info = $this->db->reverse->getTableFieldDefinition('files', 'document');
+        $field_info = $this->db->reverse->getTableFieldDefinition('files', 'picture');
         if (PEAR::isError($field_info)) {
             $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
-            $this->assertEquals('clob', $field_info['type'], 'The field type is different from the expected one');
+            $this->assertEquals('blob', $field_info['type'], 'The field type is different from the expected one');
             $this->assertFalse($field_info['notnull'], 'The field cannot be null unlike it was expected');
-// default is not really supported for clobs
-#            $this->assertEquals(null, $field_info['default'], 'The field default value is different from the expected one');
         }
 
         //test varchar(100) not null
