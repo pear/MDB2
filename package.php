@@ -5,6 +5,8 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '2.0.0RC2';
 $notes = <<<EOT
 - fixed testNow() to use the datatype abstraction
+- fixed testGetTableFieldDefinition() to use a blob column instead of a clob
+  since we default to blob when we cannot differntiate between blob and clob
 EOT;
 
 $description =<<<EOT
