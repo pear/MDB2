@@ -225,10 +225,17 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         // - drop table
         // - create table
         // - import data
+        $version = $db->getServerVersion();
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
             case 'add':
+                if ($version['major'] >= 3 && $version['minor'] >= 1) {
+                    break;
+                }
             case 'name':
+                if ($version['major'] >= 3 && $version['minor'] >= 1) {
+                    break;
+                }
             case 'remove':
             case 'change':
             case 'rename':

@@ -5,7 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.1';
 $notes = <<<EOT
 - fixed now() and substring()
-- disabled "add" and "rename" in alterTable() since those are unsupported in sqlite 2.x
+- disabled "add" and "rename" in alterTable() sqlite 2.x as they are not supported
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
