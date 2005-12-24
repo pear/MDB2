@@ -199,9 +199,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             if ($unsigned) {
                 $definition[$key]['unsigned'] = true;
             }
-            if ($default !== false) {
-                $definition[$key]['default'] = $default;
-            }
+            $definition[$key]['default'] = $default;
         }
         return $definition;
     }
