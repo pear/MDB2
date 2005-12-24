@@ -214,6 +214,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $name = $db->quoteIdentifier($name, true);
         if (array_key_exists('name', $changes)) {
             $result = $db->exec("ALTER TABLE $name RENAME TO ".$changes['name']);
             if (PEAR::isError($result)) {
@@ -221,24 +222,24 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             }
         }
 
-        $query = '';
-
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
+                $query = 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
+                $result = $db->exec("ALTER TABLE $name $query");
+                if (PEAR::isError($result)) {
+                    return $result;
                 }
-                $query.= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
 
         if (array_key_exists('remove', $changes)) {
             foreach ($changes['remove'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                }
                 $field_name = $db->quoteIdentifier($field_name, true);
-                $query.= 'DROP ' . $field_name;
+                $query = 'DROP ' . $field_name;
+                $result = $db->exec("ALTER TABLE $name $query");
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
             }
         }
 
@@ -246,46 +247,41 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             foreach ($changes['change'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name, true);
                 if (array_key_exists('type', $field)) {
-                    if ($query) {
-                        $query.= ', ';
-                    }
                     $db->loadModule('Datatype');
                     $query.= "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field['definition']);
+                    $result = $db->exec("ALTER TABLE $name $query");
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
                 }
                 if (array_key_exists('default', $field)) {
-                    if ($query) {
-                        $query.= ', ';
+                    $query = "ALTER $field_name SET DEFAULT ".$db->quote($field['definition']['default'], $field['definition']['type']);
+                    $result = $db->exec("ALTER TABLE $name $query");
+                    if (PEAR::isError($result)) {
+                        return $result;
                     }
-                    $query.= "ALTER $field_name SET DEFAULT ".$db->quote($field['definition']['default'], $field['definition']['type']);
                 }
                 if (array_key_exists('notnull', $field)) {
-                    if ($query) {
-                        $query.= ', ';
-                    }
                     $query.= "ALTER $field_name ".($field['definition']['notnull'] ? "SET" : "DROP").' NOT NULL';
+                    $result = $db->exec("ALTER TABLE $name $query");
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
                 }
             }
         }
 
-        if ($query) {
-            $name = $db->quoteIdentifier($name, true);
-            $result = $db->exec("ALTER TABLE $name $query");
-            if (PEAR::isError($result)) {
-                return $result;
-            }
-        }
-
-        $result = MDB2_OK;
         if (array_key_exists('rename', $changes)) {
             foreach ($changes['rename'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name, true);
                 $result = $db->exec("ALTER TABLE $name RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name'], true));
                 if (PEAR::isError($result)) {
-                    break;
+                    return $result;
                 }
             }
         }
-        return $result;
+
+        return MDB2_OK;
     }
 
     // }}}

@@ -8,6 +8,7 @@ $notes = <<<EOT
 - fixed getTableFieldDefinition() default handling (though still a bit shaky)
 - reverse module: ensure that parameters in queries are properly quoted
 - fixed bug in alterTable() where "rename" would be skipped if no other alteration is done
+- do not use multiple commands in ALTER TABLE (only supported since 8.0)
 
 open todo items:
 - implement native prepared queries
