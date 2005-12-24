@@ -2,38 +2,11 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.0';
+$version = '0.2.1';
 $notes = <<<EOT
-- fixed _dropAutoincrement()
-- use _dropAutoincrement() in dropTable()
-- fixed mapNativeDatatype()
-- implemented getTableFieldDefinition() and getTableIndexDefinition() in the Reverse module
-- implemented listUsers() in the Manager module
-- unified case fixing in the list*() methods
-- use custom implementation of getConnection() to access connection property
-- split index and constraint handling
-- return "0" as default value for integer NOT NULL fields with no default value
-- quoteIdentifier() is just returning an uppercase string, since quoted
-  identifiers in ibase do more harm than good
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- set in_transaction to false on disconnect
-- fixed type changing in alterTable()
-- added new Function modules to handle difference in SQL functions
-- autoincrement emulation works correctly
-- pass the correct connection resource to ibase_blob_import()
-- force rollback() with open transactions on disconnect
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- in listSequences(), skip system generators
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- only if result_types is set to false in prepare() method the query will be
-  handled as a DML statement *BC BREAK*
-- added ability to determine unsigned in mapNativeDatatype()
-  (only really implemented in the mysql(i) drivers) (bug #6054)
-- use MDB2_ERROR_NOT_FOUND in getTableConstraintDefinition() and getTableIndexDefinition() (bug #6055)
-- added getServerVersion()
-- unified array structure in mapNativeDatatype() *BC BREAK*
-- added 'mdbtype' to tableInfo() output that is generated from mapNativeDatatype()
-- changed 'len' to 'length' in tableInfo() output *BC BREAK*
+- removed unnecessary if statement in getTableFieldDefinition()
+- no need to register a shutdown function since te ibase driver is php5 only
+  and therefore always uses the destructor
 
 open todo items:
 - handle autoincremement fields in alterTable()

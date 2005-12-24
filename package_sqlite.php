@@ -2,34 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.0';
+$version = '0.2.1';
 $notes = <<<EOT
-- do not fix case in listUsers()
-- unified case fixing in the list*() methods
-- support sorting order in createIndex()
-- tweaked lob and text handling in mapNativeDatatype()
-- fixed getTableFieldDefinition()
-- use getConnection() to access connection property
-- split index and constraint handling
-- quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- setting in_transaction to false on disconnect
-- added new Function modules to handle difference in SQL functions
-- force rollback() with open transactions on disconnect
-- added alterTable() (only does table name change and column adding)
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- only if result_types is set to false in prepare() method the query will be
-  handled as a DML statement *BC BREAK*
-- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
-- added ability to determine unsigned in mapNativeDatatype()
-  (only really implemented in the mysql(i) drivers) (bug #6054)
-- use lastInsertID() method in nextID()
-- added getServerVersion()
-- unified array structure in mapNativeDatatype() *BC BREAK*
-- added 'mdbtype' to tableInfo() output that is generated from mapNativeDatatype()
-- changed 'len' to 'length' in tableInfo() output *BC BREAK*
+- fixed now() and substring()
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

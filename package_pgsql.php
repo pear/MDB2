@@ -5,6 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.1';
 $notes = <<<EOT
 - fixed datatype conversion for "time" values
+- fixed getTableFieldDefinition() default handling (though still a bit shaky)
 
 open todo items:
 - implement native prepared queries
