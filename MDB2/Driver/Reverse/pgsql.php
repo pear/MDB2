@@ -78,20 +78,19 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         }
 
         $column = $db->queryRow("SELECT
-                    attnum,attname,typname AS type,attlen AS length,attnotnull,
-                    atttypmod,usename,usesysid,pg_class.oid,relpages,
-                    reltuples,relhaspkey,relhasrules,relacl,atthasdef,pg_get_expr(adbin,pg_class.oid, 't') as default
-                    FROM pg_class,pg_user,pg_type,
-                         pg_attribute left outer join pg_attrdef on
-                         pg_attribute.attrelid=pg_attrdef.adrelid
-                    WHERE (pg_class.relname='$table')
-                        and (pg_class.oid=pg_attribute.attrelid)
-                        and (pg_class.relowner=pg_user.usesysid)
-                        and (pg_attribute.atttypid=pg_type.oid)
-                        and attnum > 0
-                        and attname = '$field_name'
-                        ORDER BY attnum
-                        ", null, MDB2_FETCHMODE_ASSOC);
+                    a.attname AS name, t.typname AS type, a.attlen AS length, a.attnotnull,
+                    a.atttypmod, a.atthasdef,
+                    (SELECT substring(pg_get_expr(d.adbin, d.adrelid) for 128)
+                        FROM pg_attrdef d
+                        WHERE d.adrelid = a.attrelid AND d.adnum = a.attnum AND a.atthasdef) as default
+                    FROM pg_attribute a, pg_class c, pg_type t
+                    WHERE c.relname = ".$db->quote($table, 'text')."
+                        AND a.atttypid = t.oid
+                        AND c.oid = a.attrelid
+                        AND NOT a.attisdropped
+                        AND a.attnum > 0
+                        AND a.attname = ".$db->quote($field_name, 'text')."
+                    ORDER BY a.attnum", null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($column)) {
             return $column;
         }
@@ -151,14 +150,13 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         }
 
         $index_name = $db->getIndexName($index_name);
-        $query = "SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class
-            WHERE pg_class.relname='$index_name' AND pg_class.oid=pg_index.indexrelid
+        $query = "SELECT relname, indkey FROM pg_index, pg_class
+            WHERE pg_class.relname = ".$db->quote($index_name, 'text')." AND pg_class.oid = pg_index.indexrelid
                AND indisunique != 't' AND indisprimary != 't'";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
-        }
-        if (!$row) {
+        } elseif (!$row) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
@@ -195,13 +193,12 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 
         $index_name = $db->getIndexName($index_name);
         $query = "SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class
-            WHERE pg_class.relname='$index_name' AND pg_class.oid=pg_index.indexrelid
+            WHERE pg_class.relname = ".$db->quote($index_name, 'text')." AND pg_class.oid = pg_index.indexrelid
               AND (indisunique = 't' OR indisprimary = 't')";
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
-        }
-        if (!$row) {
+        } elseif (!$row) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
@@ -257,7 +254,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = $db->_doQuery("SELECT * FROM $result LIMIT 0", false);
+            $query = "SELECT * FROM ".$db->quoteIdentifier($result)." LIMIT 0";
+            $id = $db->_doQuery($query, false);
             if (PEAR::isError($id)) {
                 return $id;
             }
@@ -363,8 +361,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                                 FROM pg_attribute f, pg_class tab, pg_type typ
                                 WHERE tab.relname = typ.typname
                                 AND typ.typrelid = f.attrelid
-                                AND f.attname = '$field_name'
-                                AND tab.relname = '$table_name'");
+                                AND f.attname = ".$db->quote($field_name, 'text')."
+                                AND tab.relname = ".$db->quote($table_name, 'text'));
         if (@pg_num_rows($result) > 0) {
             $row = @pg_fetch_row($result, 0);
             $flags  = ($row[0] == 't') ? 'not_null ' : '';
@@ -373,8 +371,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                 $result = @pg_query($connection, "SELECT a.adsrc
                                     FROM pg_attribute f, pg_class tab, pg_type typ, pg_attrdef a
                                     WHERE tab.relname = typ.typname AND typ.typrelid = f.attrelid
-                                    AND f.attrelid = a.adrelid AND f.attname = '$field_name'
-                                    AND tab.relname = '$table_name' AND f.attnum = a.adnum");
+                                    AND f.attrelid = a.adrelid AND f.attname = ".$db->quote($field_name)."
+                                    AND tab.relname = ".$db->quote($table_name)." AND f.attnum = a.adnum");
                 $row = @pg_fetch_row($result, 0);
                 $num = preg_replace("/'(.*)'::\w+/", "\\1", $row[0]);
                 $flags.= 'default_' . rawurlencode($num) . ' ';
@@ -387,8 +385,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                                 WHERE tab.relname = typ.typname
                                 AND typ.typrelid = f.attrelid
                                 AND f.attrelid = i.indrelid
-                                AND f.attname = '$field_name'
-                                AND tab.relname = '$table_name'");
+                                AND f.attname = ".$db->quote($field_name, 'text')."
+                                AND tab.relname = ".$db->quote($table_name, 'text'));
         $count = @pg_num_rows($result);
 
         for ($i = 0; $i < $count ; $i++) {
