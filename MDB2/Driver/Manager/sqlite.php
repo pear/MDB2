@@ -217,11 +217,18 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        // actually sqlite 2.x supports no ALTER TABLE at all ..
+        // so the only solution is:
+        // - reverse engineer table schema
+        // - alter table schema in memory
+        // - read all data into memory (or file?)
+        // - drop table
+        // - create table
+        // - import data
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
             case 'add':
             case 'name':
-                break;
             case 'remove':
             case 'change':
             case 'rename':
