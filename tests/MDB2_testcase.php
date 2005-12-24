@@ -93,10 +93,10 @@ class MDB2_TestCase extends PHPUnit_TestCase {
     }
 
     function clearTables() {
-        if (PEAR::isError($this->db->exec('DELETE FROM users'))) {
+        if ($this->tableExists('users') && PEAR::isError($this->db->exec('DELETE FROM users'))) {
             $this->assertTrue(false, 'Error deleting from table users');
         }
-        if (PEAR::isError($this->db->exec('DELETE FROM files'))) {
+        if ($this->tableExists('files') && PEAR::isError($this->db->exec('DELETE FROM files'))) {
             $this->assertTrue(false, 'Error deleting from table users');
         }
     }
@@ -150,6 +150,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
     }
 
     function tableExists($table) {
+        $this->db->loadModule('Manager');
         $tables = $this->db->manager->listTables();
         return in_array(strtolower($table), array_map('strtolower', $tables));
     }
