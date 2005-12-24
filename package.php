@@ -7,6 +7,7 @@ $notes = <<<EOT
 - fixed testNow() to use the datatype abstraction
 - fixed testGetTableFieldDefinition() to use a blob column instead of a clob
   since we default to blob when we cannot differntiate between blob and clob
+- improved testAlterTable()
 EOT;
 
 $description =<<<EOT
