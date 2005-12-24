@@ -7,6 +7,7 @@ $notes = <<<EOT
 - fixed datatype conversion for "time" values
 - fixed getTableFieldDefinition() default handling (though still a bit shaky)
 - reverse module: ensure that parameters in queries are properly quoted
+- fixed bug in alterTable() where "rename" would be skipped if no other alteration is done
 
 open todo items:
 - implement native prepared queries

@@ -267,20 +267,19 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (!$query) {
-            return MDB2_OK;
+        if ($query) {
+            $name = $db->quoteIdentifier($name, true);
+            $result = $db->exec("ALTER TABLE $name $query");
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
 
-        $name = $db->quoteIdentifier($name, true);
-        $result = $db->exec("ALTER TABLE $name $query");
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-
+        $result = MDB2_OK;
         if (array_key_exists('rename', $changes)) {
             foreach ($changes['rename'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name, true);
-                $result = $db->exec("ALTER TABLE $name RENAME COLUMN $field_name TO ".$field['name']);
+                $result = $db->exec("ALTER TABLE $name RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name'], true));
                 if (PEAR::isError($result)) {
                     break;
                 }
