@@ -34,10 +34,9 @@ $notes = <<<EOT
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
   primary keys to existing tables
-- the alter table test fails because this is unsupported in sqlite2
+- the alter table test fails because column removeal is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
-- the testnow and testsubstring tests fail
 EOT;
 
 $package = new PEAR_PackageFileManager();

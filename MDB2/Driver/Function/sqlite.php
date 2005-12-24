@@ -80,13 +80,30 @@ class MDB2_Driver_Function_sqlite extends MDB2_Driver_Function_Common
     {
         switch ($type) {
         case 'time':
-            return 'time()';
+            return 'time(\'now\')';
         case 'date':
-            return 'date()';
+            return 'date(\'now\')';
         case 'timestamp':
         default:
-            return 'datetime()';
+            return 'datetime(\'now\')';
         }
+    }
+
+    // }}}
+    // {{{ substring()
+
+    /**
+     * return string to call a function to get a substring inside an SQL statement
+     *
+     * @return string to call a function to get a substring
+     * @access public
+     */
+    function substring($value, $position = 1, $length = null)
+    {
+        if (!is_null($length)) {
+            return "substr($value,$position,$length)";
+        }
+        return "substr($value,$position,length($value))";
     }
 }
 ?>
