@@ -1191,7 +1191,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             return $affected_rows;
         }
 
-        $result =& $this->db->_wrapResult($result, $this->types,
+        $result =& $this->db->_wrapResult($result, $this->result_types,
             $result_class, $result_wrap_class, $this->row_limit, $this->row_offset);
         return $result;
     }
