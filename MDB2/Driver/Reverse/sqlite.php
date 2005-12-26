@@ -58,6 +58,11 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 {
     function _getTableColumns($sql)
     {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $start_pos = strpos($sql, '(');
         $end_pos = strrpos($sql, ')');
         $column_def = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
@@ -67,10 +72,10 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if ($count == 0) {
             return $db->raiseError('unexpected empty table column definition list');
         }
-        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|INT|INTEGER|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( PRIMARY)?( \(([1-9][0-9]*)(,([1-9][0-9]*))?\))?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
+        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|INT|INTEGER|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( PRIMARY)?( \(([1-9][0-9]*)(,([1-9][0-9]*))?\))?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
         for ($i=0, $j=0; $i<$count; ++$i) {
-            if (!preg_match($regexp, $column_sql[$i], $matches)) {
-                return $db->raiseError('unexpected table column SQL definition');
+            if (!preg_match($regexp, trim($column_sql[$i]), $matches)) {
+                return $db->raiseError('unexpected table column SQL definition: "'.$column_sql[$i].'"');
             }
             $columns[$j]['name'] = $matches[1];
             $columns[$j]['type'] = strtolower($matches[2]);
