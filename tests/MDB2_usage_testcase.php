@@ -74,13 +74,13 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     }
 
     /**
-     * Test bulk fetch
+     * Test fetchOne()
      *
      * This test bulk fetching of result data by using a prepared query to
      * insert an number of rows of data and then retrieving the data columns
      * one by one
      */
-    function testBulkFetch() {
+    function testFetchOne() {
         $data = array();
         $total_rows = 5;
 
@@ -249,12 +249,19 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      * Tests prepared queries, making sure they correctly deal with ?, !, and '
      */
     function testPreparedQueries() {
-        $question_value = $this->db->quote('Does this work?', 'text');
+        $data = array(
+            'user_name' => 'Sure!',
+            'user_password' => 'Does this work?',
+            'user_id' => 1,
+        );
 
-        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, $question_value, 1)", array('text'), false);
+        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, ?, ?)", array('text', 'text', 'integer'), false);
 
-        $value = 'Sure!';
-        $stmt->bindParam(0, $value);
+        $stmt->bindParam(0, $data['user_name']);
+
+        $stmt->bindParam(1, $data['user_password']);
+
+        $stmt->bindParam(2, $data['user_id']);
 
         $result = $stmt->execute();
 
@@ -283,6 +290,16 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared query with a text value with a quote character before a question mark. Error: ');
 
+        $stmt = $this->db->prepare('SELECT user_name, user_password, user_id FROM users WHERE user_id=:user_id', array('integer'), array('text', 'text', 'integer'));
+        $result =& $stmt->execute(array('user_id' => $data['user_id']));
+        $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+        if (!is_array($row)) {
+            $this->assertTrue(false, 'Prepared SELECT failed');
+        } else {
+            $diff = (array)array_diff($row, $data);
+            $this->assertTrue(empty($diff), 'Prepared SELECT failed');
+        }
+        $stmt->free();
     }
 
     /**
