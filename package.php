@@ -8,6 +8,9 @@ $notes = <<<EOT
 - fixed testGetTableFieldDefinition() to use a blob column instead of a clob
   since we default to blob when we cannot differntiate between blob and clob
 - improved testAlterTable()
+- removed errorNative() was never implemented, use errorInfo() instead
+- fixed major bug in _fixResultArrayValues() that would lead to performance or
+  incorrect application of portability features
 EOT;
 
 $description =<<<EOT
