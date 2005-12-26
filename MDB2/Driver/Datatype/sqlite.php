@@ -256,6 +256,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $type = array();
         $unsigned = null;
         switch ($db_type) {
+        case 'boolean':
+            $type[] = 'boolean';
+            break;
         case 'tinyint':
         case 'smallint':
         case 'mediumint':
