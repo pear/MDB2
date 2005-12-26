@@ -615,5 +615,33 @@ for some reason this piece of code causes an apache crash
     }
 
     // }}}
+    // {{{ mapPrepareDatatype()
+
+    /**
+     * Maps an mdb2 datatype to mysqli prepare type
+     *
+     * @param string $type
+     * @return string
+     * @access public
+     */
+    function mapPrepareDatatype($type)
+    {
+        switch ($type) {
+            case 'integer':
+                return 'int';
+            case 'boolean':
+                return 'bool';
+            case 'decimal':
+            case 'float':
+                return 'numeric';
+            case 'clob':
+            case 'blob':
+                return 'oid';
+            default:
+                break;
+        }
+        return $type;
+    }
+    // }}}
 }
 ?>

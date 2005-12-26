@@ -561,6 +561,127 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ prepare()
+
+    /**
+     * Prepares a query for multiple execution with execute().
+     * With some database backends, this is emulated.
+     * prepare() requires a generic query as string like
+     * 'INSERT INTO numbers VALUES(?,?)' or
+     * 'INSERT INTO numbers VALUES(:foo,:bar)'.
+     * The ? and :[a-zA-Z] and  are placeholders which can be set using
+     * bindParam() and the query can be send off using the execute() method.
+     *
+     * @param string $query the query to prepare
+     * @param mixed   $types  array that contains the types of the placeholders
+     * @param mixed   $result_types  array that contains the types of the columns in
+     *                        the result set, if set to MDB2_PREPARE_MANIP the
+                              query is handled as a manipulation query
+     * @return mixed resource handle for the prepared query on success, a MDB2
+     *        error on failure
+     * @access public
+     * @see bindParam, execute
+     */
+    function &prepare($query, $types = null, $result_types = null)
+    {
+        $is_manip = ($result_types === MDB2_PREPARE_MANIP);
+        $this->debug($query, 'prepare');
+        if (!empty($types)) {
+            $this->loadModule('Datatype');
+        }
+        $query = $this->_modifyQuery($query, $is_manip, $this->row_limit, $this->row_offset);
+        $placeholder_type_guess = $placeholder_type = null;
+        $question = '?';
+        $colon = ':';
+        $position = $parameter = 0;
+        while ($position < strlen($query)) {
+            $q_position = strpos($query, $question, $position);
+            $c_position = strpos($query, $colon, $position);
+            if ($q_position && $c_position) {
+                $p_position = min($q_position, $c_position);
+            } elseif ($q_position) {
+                $p_position = $q_position;
+            } elseif ($c_position) {
+                $p_position = $c_position;
+            } else {
+                break;
+            }
+            if (is_null($placeholder_type)) {
+                $placeholder_type_guess = $query[$p_position];
+            }
+            if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
+                if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
+                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        'prepare: query with an unterminated text string specified');
+                    return $err;
+                }
+                switch ($this->escape_quotes) {
+                case '':
+                case "'":
+                    $position = $end_quote + 1;
+                    break;
+                default:
+                    if ($end_quote == $quote + 1) {
+                        $position = $end_quote + 1;
+                    } else {
+                        if ($query[$end_quote-1] == $this->escape_quotes) {
+                            $position = $end_quote;
+                        } else {
+                            $position = $end_quote + 1;
+                        }
+                    }
+                    break;
+                }
+            } elseif ($query[$position] == $placeholder_type_guess) {
+                if (is_null($placeholder_type)) {
+                    $placeholder_type = $query[$p_position];
+                    $question = $colon = $placeholder_type;
+                }
+                if ($placeholder_type_guess == '?') {
+                    $length = 1;
+                    $name = $parameter;
+                } else {
+                    $name = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
+                    if ($name === '') {
+                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                            'prepare: named parameter with an empty name');
+                        return $err;
+                    }
+                    $length = strlen($name) + 1;
+                }
+                $query = substr_replace($query, '$'.++$parameter, $position, $length);
+                $position = $p_position + strlen($parameter);
+                if (isset($types[$name])) {
+                    $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$name]);
+                } else {
+                    $pgtypes[] = 'text';
+                }
+            } else {
+                $position = $p_position;
+            }
+        }
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $types_string = '';
+        if ($pgtypes) {
+            $types_string = ' ('.implode(', ', $pgtypes).') ';
+        }
+        $statement_name = 'MDB2_Statement_'.$this->phptype.md5(time());
+        $query = 'PREPARE '.$statement_name.$types_string.' AS '.$query;
+        $statement = $this->_doQuery($query, $is_manip, $connection);
+        if (PEAR::isError($statement)) {
+            return $statement;
+        }
+
+        $class_name = 'MDB2_Statement_'.$this->phptype;
+        $obj =& new $class_name($this, $statement_name, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
+        return $obj;
+    }
+
+    // }}}
     // {{{ nextID()
 
     /**
@@ -824,6 +945,99 @@ class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
 
 class MDB2_Statement_pgsql extends MDB2_Statement_Common
 {
+    // {{{ _execute()
 
+    /**
+     * Execute a prepared query statement helper method.
+     *
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function &_execute($result_class = true, $result_wrap_class = false)
+    {
+        $this->db->last_query = $this->query;
+        $this->db->debug($this->query, 'execute');
+        if ($this->db->getOption('disable_query')) {
+            if ($this->is_manip) {
+                $return = 0;
+                return $return;
+            }
+            $null = null;
+            return $null;
+        }
+
+        $connection = $this->db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $query = 'EXECUTE '.$this->statement;
+        if (!empty($this->values)) {
+            $parameters = array();
+            foreach ($this->values as $parameter => $value) {
+                $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
+                if (is_resource($value) || $type == 'clob' || $type == 'blob') {
+                    if (!is_resource($value) && preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+                        if ($match[1] == 'file://') {
+                            $value = $match[2];
+                        }
+                        $value = @fopen($value, 'r');
+                        $close = true;
+                    }
+                    if (is_resource($value)) {
+                        $data = '';
+                        while (!@feof($value)) {
+                            $data.= @fread($value, $this->db->options['lob_buffer_length']);
+                        }
+                        if ($close) {
+                            @fclose($value);
+                        }
+                        $value = $data;
+                    }
+                }
+                $parameters[] = $this->db->quote($value, $type);
+            }
+            $query.= ' ('.implode(', ', $parameters).')';
+        }
+
+        $result = $this->db->_doQuery($query, $this->is_manip, $connection);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        if ($this->is_manip) {
+            $affected_rows = $this->db->_affectedRows($connection, $result);
+            return $affected_rows;
+        }
+
+        $result =& $this->db->_wrapResult($result, $this->result_types, $result_class, $result_wrap_class);
+        return $result;
+    }
+
+    // }}}
+
+    // }}}
+
+    // }}}
+    // {{{ free()
+
+    /**
+     * Release resources allocated for the specified prepared query.
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function free()
+    {
+        $connection = $this->db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $query = 'DEALLOCATE PREPARE '.$this->statement;
+        return $this->db->_doQuery($query, true, $connection);
+    }
 }
 ?>
