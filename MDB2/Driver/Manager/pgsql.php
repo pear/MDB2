@@ -205,7 +205,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             case 'rename':
                 break;
             default:
-                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
                     'alterTable: change type "'.$change_name.'\" not yet supported');
             }
         }

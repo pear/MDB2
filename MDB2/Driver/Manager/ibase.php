@@ -415,7 +415,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 }
                 break;
             default:
-                return $db->raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
                     'alterTable: change type ' . $change_name . ' not yet supported');
             }
         }
