@@ -279,7 +279,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                     $old_field_name = $field_name;
                 }
                 $old_field_name = $db->quoteIdentifier($old_field_name, true);
-                $query.= "CHANGE $old_field_name " . $db->getDeclaration($field['type'], $old_field_name, $field);
+                $query.= "CHANGE $old_field_name " . $db->getDeclaration($field['definition']['type'], $old_field_name, $field['definition']);
             }
         }
 
@@ -290,7 +290,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                 }
                 $old_field_name = $rename[$renamed_field_name];
                 $field = $changes['rename'][$old_field_name];
-                $query.= 'CHANGE ' . $db->getDeclaration($field['type'], $old_field_name, $field);
+                $query.= 'CHANGE ' . $db->getDeclaration($field['definition']['type'], $old_field_name, $field['definition']);
             }
         }
 
