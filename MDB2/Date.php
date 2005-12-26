@@ -109,12 +109,12 @@ class MDB2_Date
     /**
      * convert a date into a MDB2 timestamp
      *
-     * @param integer hour of the date
-     * @param integer minute of the date
-     * @param integer second of the date
-     * @param integer month of the date
-     * @param integer day of the date
-     * @param integer year of the date
+     * @param int hour of the date
+     * @param int minute of the date
+     * @param int second of the date
+     * @param int month of the date
+     * @param int day of the date
+     * @param int year of the date
      * @return string a valid MDB2 timestamp
      * @access public
      */
@@ -130,7 +130,7 @@ class MDB2_Date
     /**
      * convert a unix timestamp into a MDB2 timestamp
      *
-     * @param integer a valid unix timestamp
+     * @param int a valid unix timestamp
      * @return string a valid MDB2 timestamp
      * @access public
      */
@@ -145,7 +145,7 @@ class MDB2_Date
     /**
      * convert a MDB2 timestamp into a unix timestamp
      *
-     * @param integer a valid MDB2 timestamp
+     * @param int a valid MDB2 timestamp
      * @return string unix timestamp with the time stored in the MDB2 format
      * @access public
      */
@@ -163,7 +163,7 @@ class MDB2_Date
      * convert a MDB2 timestamp into an array containing all
      * values necessary to pass to php's date() function
      *
-     * @param integer a valid MDB2 timestamp
+     * @param int a valid MDB2 timestamp
      * @return array with the time split
      * @access public
      */
