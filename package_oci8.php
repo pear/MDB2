@@ -2,29 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.0';
+$version = '0.2.1';
 $notes = <<<EOT
-- added listTableIndexes()
-- fixed _dropAutoincrement()
-- use _dropAutoincrement() in dropTable()
-- support portability option in listTableIndexes()
-- do not fix case in listUsers()
-- unified case fixing in the list*() methods
-- use getConnection() to access connection property
-- split index and constraint handling
-- quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- setting in_transaction to false on disconnect
-- added new Function modules to handle difference in SQL functions
-- force rollback() with open transactions on disconnect
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- only if result_types is set to false in prepare() method the query will be
-  handled as a DML statement *BC BREAK*
-- added getServerVersion()
-- added 'mdbtype' to tableInfo() output
-- changed 'len' to 'length' in tableInfo() output *BC BREAK*
+- fixed typo in _execute() that would lead to using the wrong types inside the result object
 
 open todo items:
 - handle autoincremement fields in alterTable()

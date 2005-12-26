@@ -7,6 +7,7 @@ $notes = <<<EOT
 - removed unnecessary if statement in getTableFieldDefinition()
 - no need to register a shutdown function since te ibase driver is php5 only
   and therefore always uses the destructor
+- fixed typo in _execute() that would lead to using the wrong types inside the result object
 
 open todo items:
 - handle autoincremement fields in alterTable()
