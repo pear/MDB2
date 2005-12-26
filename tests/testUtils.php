@@ -88,7 +88,7 @@ function errorHandler($errno, $errstr, $errfile, $errline)
         return;
     }
     $message = "\n";
-    switch($errno) {
+    switch ($errno) {
     case E_USER_ERROR:
         $message.= "FATAL [$errno] $errstr\n";
         $message.= "  Fatal error in line $errline of file $errfile";

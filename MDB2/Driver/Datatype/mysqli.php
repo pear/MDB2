@@ -392,7 +392,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      */
     function mapPrepareDatatype($type)
     {
-        switch($type) {
+        switch ($type) {
             case 'integer':
                 return 'i';
             case 'float':
