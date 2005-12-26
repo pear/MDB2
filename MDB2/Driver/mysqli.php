@@ -1171,7 +1171,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             mysqli_stmt_store_result($this->statement);
         }
 
-        $result &= $this->db->_wrapResult($result, $this->types,
+        $result =& $this->db->_wrapResult($this->statement, $this->result_types,
             $result_class, $result_wrap_class);
         return $result;
     }
