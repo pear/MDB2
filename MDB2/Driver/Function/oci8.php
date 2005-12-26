@@ -111,10 +111,8 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
     function now($type = 'timestamp')
     {
         switch ($type) {
-        case 'time':
-            return 'TO_CHAR(CURRENT_TIMESTAMP, \'HH24:MI:SS\')';
         case 'date':
-            return 'TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD\')';
+        case 'time':
         case 'timestamp':
         default:
             return 'TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD HH24:MI:SS\')';
