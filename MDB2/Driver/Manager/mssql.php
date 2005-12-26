@@ -243,10 +243,10 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
+                // todo: this looks wrong ..
                 $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
-
 
         if (!$query) {
             return MDB2_OK;
