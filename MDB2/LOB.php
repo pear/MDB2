@@ -52,12 +52,31 @@
 
 require_once 'MDB2.php';
 
+/**
+ * MDB2_LOB: user land stream wrapper implementation for LOB support
+ *
+ * @package MDB2
+ * @category Database
+ * @author Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_LOB
 {
     var $db_index;
     var $lob_index;
     var $lob;
 
+    // {{{ stream_open()
+
+    /**
+     * open stream
+     *
+     * @param string specifies the URL that was passed to fopen()
+     * @param string the mode used to open the file
+     * @param int holds additional flags set by the streams API
+     * @param string not used
+     * @return boolean
+     * @access public
+     */
     function stream_open($path, $mode, $options, &$opened_path)
     {
         if (!preg_match('/^rb?\+?$/', $mode)) {
@@ -80,6 +99,7 @@ class MDB2_LOB
         $db->datatype->_retrieveLOB($this->lob);
         return true;
     }
+    // }}}
 
     function stream_read($count)
     {
