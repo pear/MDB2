@@ -1047,12 +1047,12 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     // {{{ seek()
 
     /**
-    * seek to a specific row in a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @return mixed MDB2_OK on success, a MDB2 error on failure
-    * @access public
-    */
+     * seek to a specific row in a result set
+     *
+     * @param int    $rownum    number of the row where the data can be found
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
     function seek($rownum = 0)
     {
         if (is_null($this->result)) {

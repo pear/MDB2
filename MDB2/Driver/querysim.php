@@ -221,8 +221,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     // {{{ constructor
 
     /**
-    * Constructor
-    */
+     * Constructor
+     */
     function __construct()
     {
         parent::__construct();
@@ -683,12 +683,12 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
     // {{{ seek()
 
     /**
-    * seek to a specific row in a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @return mixed MDB2_OK on success, a MDB2 error on failure
-    * @access public
-    */
+     * seek to a specific row in a result set
+     *
+     * @param int    $rownum    number of the row where the data can be found
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
     function seek($rownum = 0)
     {
         if (is_null($this->result)) {
@@ -703,11 +703,11 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
     // {{{ valid()
 
     /**
-    * check if the end of the result set has been reached
-    *
-    * @return mixed true or false on sucess, a MDB2 error on failure
-    * @access public
-    */
+     * check if the end of the result set has been reached
+     *
+     * @return mixed true or false on sucess, a MDB2 error on failure
+     * @access public
+     */
     function valid()
     {
         $numrows = $this->numRows();
@@ -721,11 +721,11 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
     // {{{ numRows()
 
     /**
-    * returns the number of rows in a result object
-    *
-    * @return mixed MDB2 Error Object or the number of rows
-    * @access public
-    */
+     * returns the number of rows in a result object
+     *
+     * @return mixed MDB2 Error Object or the number of rows
+     * @access public
+     */
     function numRows()
     {
         if (is_null($this->result)) {

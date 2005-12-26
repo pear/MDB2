@@ -111,7 +111,7 @@ class MDB2_Extended extends MDB2_Module_Common
      * @see buildManipSQL
      * @see autoPrepare
      * @access public
-    */
+     */
     function &autoExecute($table, $fields_values, $mode = MDB2_AUTOQUERY_INSERT,
         $where = false, $types = null, $result_class = true)
     {

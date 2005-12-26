@@ -714,12 +714,12 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
     // {{{ seek()
 
     /**
-    * seek to a specific row in a result set
-    *
-    * @param int    $rownum    number of the row where the data can be found
-    * @return mixed MDB2_OK on success, a MDB2 error on failure
-    * @access public
-    */
+     * seek to a specific row in a result set
+     *
+     * @param int    $rownum    number of the row where the data can be found
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
     function seek($rownum = 0)
     {
         if ($this->rownum != ($rownum - 1) && !@mssql_data_seek($this->result, $rownum)) {

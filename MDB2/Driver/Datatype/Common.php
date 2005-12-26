@@ -76,9 +76,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
     /**
      * contains all LOB objects created with this MDB2 instance
-    * @var array
-    * @access protected
-    */
+     * @var array
+     * @access protected
+     */
     var $lobs = array();
 
     // }}}
