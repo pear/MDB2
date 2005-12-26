@@ -74,8 +74,8 @@ class MDB2_Date
     {
         return date('Y-m-d H:i:s');
     }
-
     // }}}
+
     // {{{ mdbToday()
 
     /**
@@ -88,8 +88,8 @@ class MDB2_Date
     {
         return date('Y-m-d');
     }
-
     // }}}
+
     // {{{ mdbTime()
 
     /**
@@ -102,19 +102,19 @@ class MDB2_Date
     {
         return date('H:i:s');
     }
-
     // }}}
+
     // {{{ date2Mdbstamp()
 
     /**
      * convert a date into a MDB2 timestamp
      *
-     * @param integer $hour hour of the date
-     * @param integer $minute minute of the date
-     * @param integer $second second of the date
-     * @param integer $month month of the date
-     * @param integer $day day of the date
-     * @param integer $year year of the date
+     * @param integer hour of the date
+     * @param integer minute of the date
+     * @param integer second of the date
+     * @param integer month of the date
+     * @param integer day of the date
+     * @param integer year of the date
      * @return string a valid MDB2 timestamp
      * @access public
      */
@@ -123,14 +123,14 @@ class MDB2_Date
     {
         return MDB2_Date::unix2Mdbstamp(mktime($hour, $minute, $second, $month, $day, $year, -1));
     }
-
     // }}}
+
     // {{{ unix2Mdbstamp()
 
     /**
      * convert a unix timestamp into a MDB2 timestamp
      *
-     * @param integer $unix_timestamp a valid unix timestamp
+     * @param integer a valid unix timestamp
      * @return string a valid MDB2 timestamp
      * @access public
      */
@@ -138,14 +138,14 @@ class MDB2_Date
     {
         return date('Y-m-d H:i:s', $unix_timestamp);
     }
-
     // }}}
+
     // {{{ mdbstamp2Unix()
 
     /**
      * convert a MDB2 timestamp into a unix timestamp
      *
-     * @param integer $mdb_timestamp a valid MDB2 timestamp
+     * @param integer a valid MDB2 timestamp
      * @return string unix timestamp with the time stored in the MDB2 format
      * @access public
      */
@@ -154,16 +154,16 @@ class MDB2_Date
         $arr = MDB2_Date::mdbstamp2Date($mdb_timestamp);
 
         return mktime($arr['hour'], $arr['minute'], $arr['second'], $arr['month'], $arr['day'], $arr['year'], -1);
-        }
-
+    }
     // }}}
+
     // {{{ mdbstamp2Date()
 
     /**
      * convert a MDB2 timestamp into an array containing all
      * values necessary to pass to php's date() function
      *
-     * @param integer $mdb_timestamp a valid MDB2 timestamp
+     * @param integer a valid MDB2 timestamp
      * @return array with the time split
      * @access public
      */
@@ -173,7 +173,6 @@ class MDB2_Date
             sscanf($mdb_timestamp, "%04u-%02u-%02u %02u:%02u:%02u");
         return $arr;
     }
-
     // }}}
 }
 
