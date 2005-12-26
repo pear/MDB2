@@ -53,7 +53,7 @@
 
 /**
  * Several methods to convert the MDB2 native timestamp format (ISO based)
- * to and from data structures that are convienient to worth with in side of php.
+ * to and from data structures that are convenient to worth with in side of php.
  * For more complex date arithmetic please take a look at the Date package in PEAR
  *
  * @package MDB2
