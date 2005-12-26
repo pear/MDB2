@@ -400,10 +400,10 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             case 'remove':
             case 'change':
             case 'name':
-                break;
             case 'rename':
+                break;
             default:
-                return $db->raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
                     'alterTable: change type "'.$change_name.'" not yet supported');
             }
         }
@@ -413,10 +413,10 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         if (array_key_exists('remove', $changes)) {
-            $query = ' DROP (';
+            $query = ' DROP';
             $fields = array();
-            foreach ($changes['remove'] as $field) {
-                $fields[] = $db->quoteIdentifier($field, true);
+            foreach ($changes['remove'] as $field_name => $field) {
+                $fields[] = $db->quoteIdentifier($field_name, true);
             }
             $query .= ' ('. implode(', ', $fields) . ')';
             $name = $db->quoteIdentifier($name, true);
@@ -438,8 +438,20 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         if (array_key_exists('change', $changes)) {
             foreach ($changes['change'] as $field_name => $field) {
+                if ($query) {
+                    $query.= ', ';
+                }
+                $query.= "MODIFY $field_name " . $db->getDeclaration($field['definition']['type'], '', $field['definition']);
+            }
+        }
+
+        if (array_key_exists('rename', $changes)) {
+            foreach ($changes['rename'] as $field_name => $field) {
+                if ($query) {
+                    $query.= ', ';
+                }
                 $field_name = $db->quoteIdentifier($field_name, true);
-                $query.= "MODIFY ($field_name " . $db->getDeclaration($field['type'], $field_name, $field).')';
+                $query.= "RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name'], true);
             }
         }
 
