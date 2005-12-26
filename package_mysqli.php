@@ -4,9 +4,10 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '0.2.1';
 $notes = <<<EOT
+- use emulated prepared queries for non manip prepared queries
 
 open todo item:
-- fix fetching for prepared SELECT statements
+- use native prepared queries for prepared SELECT statements
 EOT;
 
 $package = new PEAR_PackageFileManager();

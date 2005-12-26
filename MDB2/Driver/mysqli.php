@@ -589,7 +589,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function &prepare($query, $types = null, $result_types = null)
     {
-        $is_manip = ($result_types === MDB2_PREPARE_MANIP);
+        if ($result_types !== MDB2_PREPARE_MANIP) {
+            $obj =& parent::prepare($query, $types, $result_types);
+            return $obj;
+        }
+        $is_manip = true;
         $query = $this->_modifyQuery($query, $is_manip, $this->row_limit, $this->row_offset);
         $this->debug($query, 'prepare');
         $placeholder_type_guess = $placeholder_type = null;
@@ -1091,6 +1095,10 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
      */
     function &_execute($result_class = true, $result_wrap_class = false)
     {
+        if (!$this->is_manip) {
+            $result =& parent::_execute($result_class, $result_wrap_class);
+            return $result;
+        }
         $this->db->last_query = $this->query;
         $this->db->debug($this->query, 'execute');
         if ($this->db->getOption('disable_query')) {
@@ -1191,6 +1199,9 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
      */
     function free()
     {
+        if (!$this->is_manip) {
+            return parent::free();
+        }
         if (!@mysqli_stmt_close($this->statement)) {
             return $this->db->raiseError();
         }
