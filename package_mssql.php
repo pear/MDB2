@@ -25,6 +25,7 @@ $notes = <<<EOT
 open todo items:
 - added missing index/contraint methods to the manager and reverse module methods
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
+- fix alterTable()
 EOT;
 
 $package = new PEAR_PackageFileManager();

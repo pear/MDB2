@@ -10,6 +10,7 @@ $notes = <<<EOT
 - fixed bug in alterTable() where "rename" would be skipped if no other alteration is done
 - do not use multiple commands in ALTER TABLE (only supported since 8.0)
 - implemented native prepared queries
+- use proper error code in alterTable()
 
 open todo items:
 - migrate away from OID's to bytea, since this is encourage since version 8

@@ -21,6 +21,7 @@ $notes = <<<EOT
 - use lastInsertID() method in nextID()
 - added 'mdbtype' to tableInfo()
 - changed 'len' to 'length' in tableInfo() output *BC BREAK*
+- fixed 'change' in alterTable()
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

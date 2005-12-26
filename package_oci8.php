@@ -5,6 +5,8 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.1';
 $notes = <<<EOT
 - fixed typo in _execute() that would lead to using the wrong types inside the result object
+- various fixes for alterTable()
+- fixed testNow()
 
 open todo items:
 - handle autoincremement fields in alterTable()
