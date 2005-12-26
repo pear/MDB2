@@ -6,7 +6,7 @@ $version = '0.2.1';
 $notes = <<<EOT
 
 open todo item:
-- fixed fetching for prepared SELECT statements
+- fix fetching for prepared SELECT statements
 EOT;
 
 $package = new PEAR_PackageFileManager();
