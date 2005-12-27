@@ -8,6 +8,7 @@ $notes = <<<EOT
 - disabled "add" and "rename" in alterTable() sqlite 2.x as they are not supported
 - fixed bug in regexp inside _getTableColumns()
 - added mapping for boolean into mapNativeDatatype()
+- proper quote new table name in alterTable()
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

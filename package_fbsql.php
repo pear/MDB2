@@ -22,6 +22,7 @@ $notes = <<<EOT
 - added 'mdbtype' to tableInfo()
 - changed 'len' to 'length' in tableInfo() output *BC BREAK*
 - fixed 'change' in alterTable()
+- proper quote new table name in alterTable()
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

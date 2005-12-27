@@ -5,6 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.1';
 $notes = <<<EOT
 - use emulated prepared queries for non manip prepared queries
+- proper quote new table name in alterTable()
 
 open todo item:
 - use native prepared queries for prepared SELECT statements

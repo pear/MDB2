@@ -12,6 +12,7 @@ $notes = <<<EOT
 - implemented native prepared queries
 - use proper error code in alterTable()
 - renamed table as the last step in alterTable()
+- proper quote new table name in alterTable()
 
 open todo items:
 - migrate away from OID's to bytea, since this is encourage since version 8
