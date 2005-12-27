@@ -11,6 +11,7 @@ $notes = <<<EOT
 - do not use multiple commands in ALTER TABLE (only supported since 8.0)
 - implemented native prepared queries
 - use proper error code in alterTable()
+- renamed table as the last step in alterTable()
 
 open todo items:
 - migrate away from OID's to bytea, since this is encourage since version 8
