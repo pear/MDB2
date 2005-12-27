@@ -214,14 +214,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $name = $db->quoteIdentifier($name, true);
-        if (array_key_exists('name', $changes)) {
-            $result = $db->exec("ALTER TABLE $name RENAME TO ".$changes['name']);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
-        }
-
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
                 $query = 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
@@ -278,6 +270,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                 if (PEAR::isError($result)) {
                     return $result;
                 }
+            }
+        }
+
+        $name = $db->quoteIdentifier($name, true);
+        if (array_key_exists('name', $changes)) {
+            $result = $db->exec("ALTER TABLE $name RENAME TO ".$changes['name']);
+            if (PEAR::isError($result)) {
+                return $result;
             }
         }
 
