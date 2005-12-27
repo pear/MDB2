@@ -412,55 +412,60 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        if (array_key_exists('remove', $changes)) {
-            $query = ' DROP';
+        $name = $db->quoteIdentifier($name, true);
+
+        if (array_key_exists('add', $changes)) {
             $fields = array();
-            foreach ($changes['remove'] as $field_name => $field) {
-                $fields[] = $db->quoteIdentifier($field_name, true);
+            foreach ($changes['add'] as $field_name => $field) {
+                $fields[] = $db->getDeclaration($field['type'], $field_name, $field, $name);
             }
-            $query .= ' ('. implode(', ', $fields) . ')';
-            $name = $db->quoteIdentifier($name, true);
-            if (PEAR::isError($result = $db->exec("ALTER TABLE $name $query"))) {
+            $result = $db->exec("ALTER TABLE $name ADD (". implode(', ', $fields).')');
+            if (PEAR::isError($result)) {
                 return $result;
             }
         }
 
-        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$db->quoteIdentifier($changes['name'], true) : '');
-
-        if (array_key_exists('add', $changes)) {
-            foreach ($changes['add'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                }
-                $query.= ' ADD (' . $db->getDeclaration($field['type'], $field_name, $field, $name) . ')';
-            }
-        }
-
         if (array_key_exists('change', $changes)) {
+            $fields = array();
             foreach ($changes['change'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                }
-                $query.= "MODIFY $field_name " . $db->getDeclaration($field['definition']['type'], '', $field['definition']);
+                $fields[] = $field_name. ' ' . $db->getDeclaration($field['definition']['type'], '', $field['definition']);
+            }
+            $result = $db->exec("ALTER TABLE $name MODIFY (". implode(', ', $fields).')');
+            if (PEAR::isError($result)) {
+                return $result;
             }
         }
 
         if (array_key_exists('rename', $changes)) {
             foreach ($changes['rename'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                }
                 $field_name = $db->quoteIdentifier($field_name, true);
-                $query.= "RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name'], true);
+                $result = $db->exec("ALTER TABLE $name RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name'], true));
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
             }
         }
 
-        if (!$query) {
-            return MDB2_OK;
+        if (array_key_exists('remove', $changes)) {
+            $fields = array();
+            foreach ($changes['remove'] as $field_name => $field) {
+                $fields[] = $db->quoteIdentifier($field_name, true);
+            }
+            $result = $db->exec("ALTER TABLE $name DROP COLUMN ". implode(', ', $fields));
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
 
-        $name = $db->quoteIdentifier($name, true);
-        return $db->exec("ALTER TABLE $name $query");
+        if (array_key_exists('name', $changes)) {
+            $change_name = $db->quoteIdentifier($changes['name'], true);
+            $result = $db->exec("ALTER TABLE $name RENAME TO ".$change_name);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        return MDB2_OK;
     }
 
     // }}}
