@@ -366,6 +366,76 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         if ($this->tableExists($newer)) {
             $this->db->manager->dropTable($newer);
         }
+        $changes = array(
+            'add' => array(
+                'quota' => array(
+                    'type' => 'integer',
+                    'unsigned' => 1,
+                ),
+                'note' => array(
+                    'type' => 'text',
+                    'length' => '20',
+                ),
+            ),
+            'rename' => array(
+                'sex' => array(
+                    'name' => 'gender',
+                    'definition' => array(
+                        'type' => 'text',
+                        'length' => 1,
+                        'default' => 'M',
+                    ),
+                ),
+            ),
+            'change' => array(
+                'id' => array(
+                    'unsigned' => false,
+                    'definition' => array(
+                        'type'     => 'integer',
+                        'notnull'  => false,
+                        'default'  => 0,
+                    ),
+                ),
+                'somename' => array(
+                    'length' => '20',
+                    'definition' => array(
+                        'type' => 'text',
+                        'length' => 20,
+                    ),
+                )
+            ),
+            'remove' => array(
+                'somedescription' => array(),
+            ),
+            'name' => $newer,
+        );
+
+        $this->db->expectError(MDB2_ERROR_CANNOT_ALTER);
+        $result = $this->db->manager->alterTable($this->table, $changes, true);
+        $this->db->popExpect();
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Cannot alter table');
+        } else {
+            $result = $this->db->manager->alterTable($this->table, $changes, false);
+            if (PEAR::isError($result)) {
+                $this->assertTrue(true, 'Error altering table');
+            } else {
+                $this->db->manager->dropTable($newer);
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    function testAlterTable2() {
+        if (!$this->methodExists($this->db->manager, 'alterTable')) {
+            return;
+        }
+        $newer = 'newertable2';
+        if ($this->tableExists($newer)) {
+            $this->db->manager->dropTable($newer);
+        }
         $changes_all = array(
             'add' => array(
                 'quota' => array(
@@ -433,8 +503,8 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                         }
                         break;
                     case 'name':
-                        if ($this->tableExists($change)) {
-                            $this->db->manager->dropTable($change);
+                        if ($this->tableExists($newer)) {
+                            $this->db->manager->dropTable($newer);
                         } else {
                             $this->assertTrue(true, 'Error: table "'.$this->table.'" not renamed');
                         }
