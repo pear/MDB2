@@ -73,6 +73,7 @@ class MDB2_Iterator implements Iterator
      * seek forward to a specific row in a result set
      *
      * @param int number of the row where the data can be found
+     *
      * @return void
      * @access public
      */

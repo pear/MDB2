@@ -74,7 +74,8 @@ class MDB2_LOB
      * @param string the mode used to open the file
      * @param int holds additional flags set by the streams API
      * @param string not used
-     * @return boolean
+     *
+     * @return bool
      * @access public
      */
     function stream_open($path, $mode, $options, &$opened_path)
@@ -101,6 +102,16 @@ class MDB2_LOB
     }
     // }}}
 
+    // {{{ stream_read()
+
+    /**
+     * read stream
+     *
+     * @param int number of bytes to read
+     *
+     * @return string
+     * @access public
+     */
     function stream_read($count)
     {
         if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
@@ -114,18 +125,47 @@ class MDB2_LOB
             $this->lob['position'] += $length;
             return $data;
         }
-   }
+    }
+    // }}}
 
+    // {{{ stream_write()
+
+    /**
+     * write stream, note implemented
+     *
+     * @param string data
+     *
+     * @return int
+     * @access public
+     */
     function stream_write($data)
     {
         return 0;
     }
+    // }}}
 
+    // {{{ stream_tell()
+
+    /**
+     * return the current position
+     *
+     * @return int current position
+     * @access public
+     */
     function stream_tell()
     {
         return $this->lob['position'];
     }
+    // }}}
 
+    // {{{ stream_eof()
+
+    /**
+     * check if stream reaches EOF
+     *
+     * @return bool
+     * @access public
+     */
     function stream_eof()
     {
         if (!isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
@@ -140,12 +180,32 @@ class MDB2_LOB
         }
         return $result;
     }
+    // }}}
 
+    // {{{ stream_seek()
+
+    /**
+     * seek stream, not implemented
+     *
+     * @param int offset
+     * @param int whence
+     *
+     * @return bool
+     * @access public
+     */
     function stream_seek($offset, $whence)
     {
         return false;
     }
+    // }}}
 
+    // {{{ stream_close()
+
+    /**
+     * close stream
+     *
+     * @access public
+     */
     function stream_close()
     {
         if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
@@ -156,8 +216,10 @@ class MDB2_LOB
             }
         }
     }
+    // }}}
 }
 
+// register streams wrapper
 if (!stream_wrapper_register("MDB2LOB", "MDB2_LOB")) {
     MDB2::raiseError();
     return false;
