@@ -231,23 +231,6 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     }
     // }}}
 
-    // {{{ hasPrev()
-
-    /**
-     * check if there is a previous row
-     *
-     * @return bool|MDB2_Error true|false on success, false|MDB2_Error if result is invalid
-     * @access public
-     */
-    public function hasPrev()
-    {
-        if ($this->result) {
-            return $this->result->rowCount() > 0;
-        }
-        return false;
-    }
-    // }}}
-
     // {{{ rewind()
 
     /**
@@ -259,23 +242,6 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     public function rewind()
     {
         $this->seek(0);
-    }
-    // }}}
-
-    // {{{ prev()
-
-    /**
-     * move internal row point to the previous row
-     *
-     * @return void
-     * @access public
-     */
-    public function prev()
-    {
-        if ($this->hasPrev()) {
-            $this->seek($this->result->rowCount() - 1);
-            $this->row = null;
-        }
     }
     // }}}
 }
