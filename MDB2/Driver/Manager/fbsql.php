@@ -239,7 +239,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $query = (array_key_exists('name', $changes) ? 'RENAME TO '.$changes['name'] : '');
+        $query = '';
+        if (array_key_exists('name', $changes)) {
+            $change_name = $db->quoteIdentifier($changes['name'], true);
+            $query .= 'RENAME TO ' . $change_name;
+        }
 
         if (array_key_exists('add', $changes)) {
             foreach ($changes['add'] as $field_name => $field) {
