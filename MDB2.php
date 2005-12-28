@@ -1999,6 +1999,9 @@ class MDB2_Driver_Common extends PEAR
         if ($types === true) {
             $this->loadModule('Reverse');
             $tableInfo = $this->reverse->tableInfo($result);
+            if (PEAR::isError($tableInfo)) {
+                return $tableInfo;
+            }
             $types = array();
             foreach ($tableInfo as $field) {
                 $types[] = $field['mdb2type'];
