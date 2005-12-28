@@ -74,7 +74,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         $name = $db->quoteIdentifier($name, true);
         $query = "CREATE DATABASE $name";
-        if($db->options['database_device']) {
+        if ($db->options['database_device']) {
             $query.= ' ON '.$db->options['database_device'];
             $query.= $db->options['database_size'] ? '='.$db->options['database_size'] : '';
         }
@@ -234,7 +234,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
-        if(array_key_exists('remove', $changes)) {
+        if (array_key_exists('remove', $changes)) {
             if ($query) {
             $query.= ', ';
             }
@@ -394,7 +394,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                  "INT PRIMARY KEY CLUSTERED IDENTITY($start,1) NOT NULL)";
 
         $res = $db->exec($query);
-        if(PEAR::isError($res)) {
+        if (PEAR::isError($res)) {
             return $res;
         }
 
@@ -406,12 +406,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                  "INSERT INTO $sequence_name ($seqcol_name) VALUES ($start)";
         $res = $db->exec($query);
 
-        if(!PEAR::isError($res)) {
+        if (!PEAR::isError($res)) {
             return MDB2_OK;
         }
 
         $result = $db->exec("DROP TABLE $sequence_name");
-        if(PEAR::isError($result)) {
+        if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                    'createSequence: could not drop inconsistent sequence table ('.
                    $result->getMessage().' ('.$result->getUserInfo(). '))');

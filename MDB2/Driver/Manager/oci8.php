@@ -268,7 +268,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        foreach($fields as $field_name => $field) {
+        foreach ($fields as $field_name => $field) {
             if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
                 return $this->_makeAutoincrement($field_name, $name);
             }

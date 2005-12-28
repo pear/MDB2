@@ -42,7 +42,7 @@ class MDB2_Connect_Test
         );
 
         $this->dbc =& MDB2::singleton($this->_dsn, $options);
-        if(PEAR::isError($this->dbc)) {
+        if (PEAR::isError($this->dbc)) {
             return $this->dbc;
         }
     }

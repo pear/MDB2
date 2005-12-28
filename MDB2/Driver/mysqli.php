@@ -69,7 +69,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         parent::__construct();
 
         $this->phptype = 'mysqli';
-        $this->dbsyntax = 'mysqli';
+        $this->dbsyntax = 'mysql';
 
         $this->supported['sequences'] = 'emulated';
         $this->supported['indexes'] = true;
@@ -419,7 +419,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     function disconnect($force = true)
     {
         if (is_object($this->connection)) {
-            if($this->in_transaction) {
+            if ($this->in_transaction) {
                 $this->rollback();
             }
             if ($force) {

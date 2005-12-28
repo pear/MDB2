@@ -220,7 +220,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        foreach($fields as $field_name => $field) {
+        foreach ($fields as $field_name => $field) {
             if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
                 //create PK constraint
                 $pk_definition = array(

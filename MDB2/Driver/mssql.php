@@ -310,7 +310,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function disconnect($force = true)
     {
         if (is_resource($this->connection)) {
-            if($this->in_transaction) {
+            if ($this->in_transaction) {
                 $this->rollback();
             }
             if (!$this->opened_persistent || $force) {
