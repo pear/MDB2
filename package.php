@@ -2,17 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0RC2';
+$version = '2.0.0RC3';
 $notes = <<<EOT
-- fixed testNow() to use the datatype abstraction
-- fixed testGetTableFieldDefinition() to use a blob column instead of a clob
-  since we default to blob when we cannot differntiate between blob and clob
-- split up alterTable() testing into two separate test methods
-- removed errorNative() was never implemented, use errorInfo() instead
-- fixed major bug in _fixResultArrayValues() that would lead to performance or
-  incorrect application of portability features
-- phpdoc fixes in LOB.php, Iterator.php, Date.php and Extended.php
-- removed not required prev() and hasPrev() from the SeekableIterator implementation
+- added error handlong when result set introspection is not supported in _wrapResult()
 EOT;
 
 $description =<<<EOT

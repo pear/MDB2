@@ -2,10 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.1';
+$version = '0.2.2';
 $notes = <<<EOT
-- use emulated prepared queries for non manip prepared queries
-- proper quote new table name in alterTable()
+- moved state to beta
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
@@ -20,7 +19,7 @@ $result = $package->setOptions(
         'summary'           => 'mysqli MDB2 driver',
         'description'       => 'This is the MySQLi MDB2 driver.',
         'version'           => $version,
-        'state'             => 'alpha',
+        'state'             => 'beta',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*mysqli*'),

@@ -2,13 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.1';
+$version = '0.2.2';
 $notes = <<<EOT
-- fixed now() and substring()
-- disabled "add" and "rename" in alterTable() sqlite 2.x as they are not supported
-- fixed bug in regexp inside _getTableColumns()
-- added mapping for boolean into mapNativeDatatype()
-- proper quote new table name in alterTable()
+- fixed handling of autoincrement in the datatype module
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
