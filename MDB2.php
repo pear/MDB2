@@ -1294,6 +1294,7 @@ class MDB2_Driver_Common extends PEAR
      *                               done.  There is also the posibility to use
      *                               and extend the 'MDB2_row' class.
      *
+     * @return mixed MDB2_OK or MDB2 Error Object
      * @see MDB2_FETCHMODE_ORDERED, MDB2_FETCHMODE_ASSOC, MDB2_FETCHMODE_OBJECT
      * @access public
      */
@@ -1309,6 +1310,8 @@ class MDB2_Driver_Common extends PEAR
         default:
             return $this->raiseError('invalid fetchmode mode');
         }
+
+        return MDB2_OK;
     }
 
     // }}}
