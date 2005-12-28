@@ -15,8 +15,9 @@ $notes = <<<EOT
 - proper quote new table name in alterTable()
 
 open todo items:
-- migrate away from OID's to bytea, since this is encourage since version 8
-  and is also what PDO expects
+- considering migrating away from OID's to bytea, since this is encourage
+  since version 8 and is also what PDO expects, however there is no streaming
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
 EOT;
 
 $package = new PEAR_PackageFileManager();
