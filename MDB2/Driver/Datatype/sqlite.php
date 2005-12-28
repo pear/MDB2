@@ -178,7 +178,8 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
 
         $default = $autoinc = '';;
         if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
-            $autoinc = ' PRIMARY KEY AUTO_INCREMENT';
+            $autoinc = ' PRIMARY KEY AUTOINCREMENT';
+            $field['unsigned'] = false;
         } else {
             if (array_key_exists('default', $field)) {
                 if ($field['default'] === '') {
