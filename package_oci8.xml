@@ -14,31 +14,14 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.0</version>
-  <date>2005-12-21</date>
+  <version>0.2.1</version>
+  <date>2005-12-28</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes>- added listTableIndexes()
-- fixed _dropAutoincrement()
-- use _dropAutoincrement() in dropTable()
-- support portability option in listTableIndexes()
-- do not fix case in listUsers()
-- unified case fixing in the list*() methods
-- use getConnection() to access connection property
-- split index and constraint handling
-- quote identifiers where possible inside the manager methods depending on
-  the new &apos;quote_identifier&apos; option (defaults to off)
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- setting in_transaction to false on disconnect
-- added new Function modules to handle difference in SQL functions
-- force rollback() with open transactions on disconnect
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- only if result_types is set to false in prepare() method the query will be
-  handled as a DML statement *BC BREAK*
-- added getServerVersion()
-- added &apos;mdbtype&apos; to tableInfo() output
-- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
+  <notes>- fixed typo in _execute() that would lead to using the wrong types inside the result object
+- fixed typo in _execute() that lead to using the wrong ressource inside the result object
+- various fixes for alterTable()
+- fixed testNow()
 
 open todo items:
 - handle autoincremement fields in alterTable()
@@ -88,6 +71,23 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.1</version>
+    <date>2005-12-28</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>- fixed typo in _execute() that would lead to using the wrong types inside the result object
+- fixed typo in _execute() that lead to using the wrong ressource inside the result object
+- various fixes for alterTable()
+- fixed testNow()
+
+open todo items:
+- handle autoincremement fields in alterTable()
+- there are still a number of missing methods in the reverse and datatype module
+- there are still severe stability issues due to ext/oci8, especially on windows
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+    </notes>
+   </release>
    <release>
     <version>0.2.0</version>
     <date>2005-12-21</date>

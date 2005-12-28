@@ -14,36 +14,15 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.0</version>
-  <date>2005-12-21</date>
+  <version>0.2.1</version>
+  <date>2005-12-28</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- do not fix case in listUsers()
-- unified case fixing in the list*() methods
-- support sorting order in createIndex()
-- tweaked lob and text handling in mapNativeDatatype()
-- fixed getTableFieldDefinition()
-- use getConnection() to access connection property
-- split index and constraint handling
-- quote identifiers where possible inside the manager methods depending on
-  the new &apos;quote_identifier&apos; option (defaults to off)
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- setting in_transaction to false on disconnect
-- added new Function modules to handle difference in SQL functions
-- force rollback() with open transactions on disconnect
-- added alterTable() (only does table name change and column adding)
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- only if result_types is set to false in prepare() method the query will be
-  handled as a DML statement *BC BREAK*
-- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
-- added ability to determine unsigned in mapNativeDatatype()
-  (only really implemented in the mysql(i) drivers) (bug #6054)
-- use lastInsertID() method in nextID()
-- added getServerVersion()
-- unified array structure in mapNativeDatatype() *BC BREAK*
-- added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
-- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
+  <notes>- fixed now() and substring()
+- disabled &quot;add&quot; and &quot;rename&quot; in alterTable() sqlite 2.x as they are not supported
+- fixed bug in regexp inside _getTableColumns()
+- added mapping for boolean into mapNativeDatatype()
+- proper quote new table name in alterTable()
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
@@ -51,7 +30,6 @@ open todo items:
 - the alter table test fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
-- the testnow and testsubstring tests fail
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -95,6 +73,25 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.1</version>
+    <date>2005-12-28</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- fixed now() and substring()
+- disabled &quot;add&quot; and &quot;rename&quot; in alterTable() sqlite 2.x as they are not supported
+- fixed bug in regexp inside _getTableColumns()
+- added mapping for boolean into mapNativeDatatype()
+- proper quote new table name in alterTable()
+
+open todo items:
+- a number of the manager test cases fail because sqlite does not support adding
+  primary keys to existing tables
+- the alter table test fails because this is unsupported in sqlite2
+- the test replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+    </notes>
+   </release>
    <release>
     <version>0.2.0</version>
     <date>2005-12-21</date>

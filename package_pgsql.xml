@@ -14,40 +14,24 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.0</version>
-  <date>2005-12-21</date>
+  <version>0.2.1</version>
+  <date>2005-12-28</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- do not fix case in listUsers()
-- unified case fixing in the list*() methods
-- tweaked text handling in mapNativeDatatype()
-- use getConnection() to access connection property
-- split index and constraint handling
-- quote identifiers where possible inside the manager methods depending on
-  the new &apos;quote_identifier&apos; option (defaults to off)
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- added support for table and column renaming as well as default and nullability
-  changing in alterTable()
-- setting in_transaction to false on disconnect
-- added new Function modules to handle difference in SQL functions
-- force rollback() with open transactions on disconnect
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- if result_types is set to false in prepare() method the query will be handled as a DML statement *BC BREAK*
-- use a proper default value if a field is set to not null in _getDeclaration*() (bug #5930)
-- added ability to determine unsigned in mapNativeDatatype()
-  (only really implemented in the mysql(i) drivers) (bug #6054)
-- use MDB2_ERROR_NOT_FOUND in getTableConstraintDefinition() and getTableIndexDefinition() (bug #6055)
-- added getServerVersion()
-- unified array structure in mapNativeDatatype() *BC BREAK*
-- added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
-- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
+  <notes>- fixed datatype conversion for &quot;time&quot; values
+- fixed getTableFieldDefinition() default handling (though still a bit shaky)
+- reverse module: ensure that parameters in queries are properly quoted
+- fixed bug in alterTable() where &quot;rename&quot; would be skipped if no other alteration is done
+- do not use multiple commands in ALTER TABLE (only supported since 8.0)
+- implemented native prepared queries
+- use proper error code in alterTable()
+- renamed table as the last step in alterTable()
+- proper quote new table name in alterTable()
 
 open todo items:
-- implement native prepared queries
-- migrate away from OID&apos;s to bytea, since this is encourage since version 8
-  and is also what PDO expects
-- testgettablefielddefinition and testnow test cases fail
+- considering migrating away from OID&apos;s to bytea, since this is encourage
+  since version 8 and is also what PDO expects, however there is no streaming
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -91,6 +75,27 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.1</version>
+    <date>2005-12-28</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- fixed datatype conversion for &quot;time&quot; values
+- fixed getTableFieldDefinition() default handling (though still a bit shaky)
+- reverse module: ensure that parameters in queries are properly quoted
+- fixed bug in alterTable() where &quot;rename&quot; would be skipped if no other alteration is done
+- do not use multiple commands in ALTER TABLE (only supported since 8.0)
+- implemented native prepared queries
+- use proper error code in alterTable()
+- renamed table as the last step in alterTable()
+- proper quote new table name in alterTable()
+
+open todo items:
+- considering migrating away from OID&apos;s to bytea, since this is encourage
+  since version 8 and is also what PDO expects, however there is no streaming
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
+    </notes>
+   </release>
    <release>
     <version>0.2.0</version>
     <date>2005-12-21</date>

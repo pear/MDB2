@@ -11,6 +11,8 @@ $notes = <<<EOT
 - removed errorNative() was never implemented, use errorInfo() instead
 - fixed major bug in _fixResultArrayValues() that would lead to performance or
   incorrect application of portability features
+- phpdoc fixes in LOB.php, Iterator.php, Date.php and Extended.php
+- removed not required prev() and hasPrev() from the SeekableIterator implementation
 EOT;
 
 $description =<<<EOT
