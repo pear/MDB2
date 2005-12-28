@@ -1173,11 +1173,9 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         }
 
         $parameters = array(0 => $this->statement);
-        $i = 0;
         foreach ($this->values as $parameter => $value) {
             $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
             $parameters[] = $this->db->quote($value, $type, false);
-            ++$i;
         }
 
         $result = call_user_func_array('ibase_execute', $parameters);
