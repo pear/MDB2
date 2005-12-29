@@ -9,9 +9,9 @@ $notes = <<<EOT
 - removed peardb wrapper (its broken, unmaintained and probably unused)
 - added new example using php5 only features
 - MDB2_OK is now a boolean true, instead of integer 1
-
-open todo items:
-- figure out a clean handling for keys in the type arrays
+- types can now always be keyed by name or by order
+- renamed setResultTypes() in the datatype module to checkResultTypes()
+  and modified the signature accordingly
 EOT;
 
 $description =<<<EOT
