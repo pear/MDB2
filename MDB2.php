@@ -103,7 +103,7 @@ define('MDB2_ERROR_INSUFFICIENT_DATA',  -35);
  * These are just helper constants to more verbosely express parameters to prepare()
  */
 
-define('MDB2_PREPARE_MANIP',  false);
+define('MDB2_PREPARE_MANIP', false);
 define('MDB2_PREPARE_RESULT', null);
 
 /**
@@ -117,18 +117,19 @@ define('MDB2_FETCHMODE_DEFAULT', 0);
  * Column data indexed by numbers, ordered from 0 and up
  */
 
-define('MDB2_FETCHMODE_ORDERED',  1);
+define('MDB2_FETCHMODE_ORDERED', 1);
 
 /**
  * Column data indexed by column names
  */
 
-define('MDB2_FETCHMODE_ASSOC',    2);
+define('MDB2_FETCHMODE_ASSOC', 2);
 
 /**
  * Column data as object properties
  */
-define('MDB2_FETCHMODE_OBJECT',   3);
+
+define('MDB2_FETCHMODE_OBJECT', 3);
 
 /**
  * For multi-dimensional results: normally the first level of arrays
@@ -137,16 +138,16 @@ define('MDB2_FETCHMODE_OBJECT',   3);
  * is the column name, and the second level the row number.
  */
 
-define('MDB2_FETCHMODE_FLIPPED',  4);
+define('MDB2_FETCHMODE_FLIPPED', 4);
 
 // }}}
 // {{{ portability modes
-
 
 /**
  * Portability: turn off all portability features.
  * @see MDB2_Driver_Common::setOption()
  */
+
 define('MDB2_PORTABILITY_NONE', 0);
 
 /**
@@ -154,24 +155,28 @@ define('MDB2_PORTABILITY_NONE', 0);
  * "field_case" option when using the query*(), fetch*() and tableInfo() methods.
  * @see MDB2_Driver_Common::setOption()
  */
+
 define('MDB2_PORTABILITY_FIX_CASE', 1);
 
 /**
  * Portability: right trim the data output by query*() and fetch*().
  * @see MDB2_Driver_Common::setOption()
  */
+
 define('MDB2_PORTABILITY_RTRIM', 2);
 
 /**
  * Portability: force reporting the number of rows deleted.
  * @see MDB2_Driver_Common::setOption()
  */
+
 define('MDB2_PORTABILITY_DELETE_COUNT', 4);
 
 /**
  * Portability: not needed in MDB2 (just left here for compatibility to DB)
  * @see MDB2_Driver_Common::setOption()
  */
+
 define('MDB2_PORTABILITY_NUMROWS', 8);
 
 /**
@@ -187,6 +192,7 @@ define('MDB2_PORTABILITY_NUMROWS', 8);
  *
  * @see MDB2_Driver_Common::setOption()
  */
+
 define('MDB2_PORTABILITY_ERRORS', 16);
 
 /**
@@ -194,18 +200,21 @@ define('MDB2_PORTABILITY_ERRORS', 16);
  * query*() and fetch*().
  * @see MDB2_Driver_Common::setOption()
  */
+
 define('MDB2_PORTABILITY_EMPTY_TO_NULL', 32);
 
 /**
  * Portability: removes database/table qualifiers from associative indexes
  * @see MDB2_Driver_Common::setOption()
  */
+
 define('MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES', 64);
 
 /**
  * Portability: turn on all portability features.
  * @see MDB2_Driver_Common::setOption()
  */
+
 define('MDB2_PORTABILITY_ALL', 127);
 
 /**
@@ -242,17 +251,14 @@ $GLOBALS['_MDB2_dsninfo_default'] = array(
  * |            the actual DB implementations as well as a bunch of
  * |            query utility functions.
  * |
- * +-MDB2_mysql  The MDB2 implementation for MySQL. Inherits MDB2_Driver_Common.
+ * +-MDB2_Driver_mysql  The MDB2 implementation for MySQL. Inherits MDB2_Driver_Common.
  *              When calling MDB2::factory or MDB2::connect for MySQL
  *              connections, the object returned is an instance of this
  *              class.
- * +-MDB2_pgsql  The MDB2 implementation for PostGreSQL. Inherits MDB2_Driver_Common.
+ * +-MDB2_Driver_pgsql  The MDB2 implementation for PostGreSQL. Inherits MDB2_Driver_Common.
  *              When calling MDB2::factory or MDB2::connect for PostGreSQL
  *              connections, the object returned is an instance of this
  *              class.
- *
- * MDB2_Date     This class provides several method to convert from and to
- *              MDB2 timestamps.
  *
  * @package  MDB2
  * @category Database
@@ -266,7 +272,7 @@ class MDB2
     /**
      * set option array in an exiting database object
      *
-     * @param   object  $db       MDB2 object
+     * @param   MDB2_Driver_Common  $db       MDB2 object
      * @param   array   $options  An associative array of option names and their values.
      * @access  public
      */
@@ -280,7 +286,6 @@ class MDB2
                 }
             }
         }
-
         return MDB2_OK;
     }
 
@@ -593,31 +598,6 @@ class MDB2
     function isStatement($value)
     {
         return is_a($value, 'MDB2_Statement');
-    }
-
-    // }}}
-    // {{{ isManip()
-
-    /**
-     * Tell whether a query is a data manipulation query (insert,
-     * update or delete) or a data definition query (create, drop,
-     * alter, grant, revoke).
-     *
-     * @param   string   $query the query
-     * @return  boolean  whether $query is a data manipulation query
-     * @access public
-     */
-    function isManip($query)
-    {
-        $manips = 'INSERT|UPDATE|DELETE|REPLACE|'
-               . 'CREATE|DROP|'
-               . 'LOAD DATA|SELECT .* INTO|COPY|'
-               . 'ALTER|GRANT|REVOKE|SET|'
-               . 'LOCK|UNLOCK';
-        if (preg_match('/^\s*"?('.$manips.')\s+/i', $query)) {
-            return true;
-        }
-        return false;
     }
 
     // }}}
