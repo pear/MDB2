@@ -489,14 +489,14 @@ class MDB2_PEARProxy extends PEAR
             $stmt->bindParamArray($params);
             return $stmt->execute();
         }
-        if (MDB2::isManip($query)) {
+        if (DB::isManip($query)) {
             return $this->db_object->exec($query);
         }
         return $this->db_object->query($query);
     }
 
     function simpleQuery($query) {
-        if (MDB2::isManip($query)) {
+        if (DB::isManip($query)) {
             return $this->db_object->exec($query);
         }
         $result = $this->db_object->query($query);
