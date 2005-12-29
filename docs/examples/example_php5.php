@@ -11,6 +11,8 @@ require 'MDB2.php';
 $dsn = array(
     'phptype'  => 'pgsql',
     'username' => 'postgres',
+#    'phptype'  => 'mysql',
+#    'username' => 'root',
     'password' => 'test',
     'hostspec' => 'localhost',
     'database' => 'driver_test',
@@ -18,6 +20,9 @@ $dsn = array(
 
 // create MDB2 instance
 $mdb2 =& MDB2::factory($dsn);
+
+// set the default fetchmode
+$mdb2->setFetchMode(MDB2_FETCHMODE_ASSOC);
 
 $fields = array(
     'id' => array(
@@ -44,20 +49,20 @@ $mdb2->mgCreateTable($table, $fields);
 $query = "INSERT INTO $table (somename, somedate) VALUES (:name, :date)";
 // parameters:
 // 1) the query (notice we are using named parameters, but we could also use ? instead
-// 2) types of the placeholders
+// 2) types of the placeholders (either keyed numerically in order or by name)
 // 3) true denotes a DML statement
-$stmt = $mdb2->prepare($query, array('name' => 'text', 'date' => 'date'), true);
+$stmt = $mdb2->prepare($query, array('text', 'date'), true);
 
 // load Date helper class
 MDB2::loadFile('Date');
 
 $stmt->execute(array('name' => 'hello', 'date' => MDB2_Date::mdbToday()));
 // get the last inserted id
-echo 'last insert id :';
+echo 'last insert id: ';
 var_dump($mdb2->lastInsertId($table, 'id'));
 $stmt->execute(array('name' => 'world', 'date' => '2005-11-11'));
 // get the last inserted id
-echo 'last insert id :';
+echo 'last insert id: ';
 var_dump($mdb2->lastInsertId($table, 'id'));
 
 // load Iterator implementations
@@ -69,7 +74,7 @@ $query = 'SELECT * FROM '.$table;
 // 2) true means MDB2 tries to determine the result set type automatically
 // 3) true is the default and means that internally a MDB2_Result instance should be created
 // 4) 'MDB2_BufferedIterator' means the MDB2_Result should be wrapped inside an SeekableIterator
-$result = $mdb2->query($query, false, true, 'MDB2_BufferedIterator');
+$result = $mdb2->query($query, true, true, 'MDB2_BufferedIterator');
 
 // iterate over the result set
 foreach ($result as $row) {
