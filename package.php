@@ -5,6 +5,8 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '2.0.0RC3';
 $notes = <<<EOT
 - added error handlong when result set introspection is not supported in _wrapResult()
+- fixed example
+- removed peardb wrapper (its broken, unmaintained and probably unused)
 EOT;
 
 $description =<<<EOT
@@ -53,7 +55,7 @@ $result = $package->setOptions(
         'state'             => 'beta',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
-        'ignore'            => array('package*.php', 'package*.xml', 'sqlite*', 'mssql*', 'oci8*', 'pgsql*', 'mysqli*', 'mysql*', 'fbsql*', 'querysim*', 'ibase*'),
+        'ignore'            => array('package*.php', 'package*.xml', 'sqlite*', 'mssql*', 'oci8*', 'pgsql*', 'mysqli*', 'mysql*', 'fbsql*', 'querysim*', 'ibase*', 'peardb*'),
         'notes'             => $notes,
         'changelogoldtonew' => false,
         'simpleoutput'      => true,
