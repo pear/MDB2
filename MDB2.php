@@ -62,7 +62,7 @@ require_once 'PEAR.php';
  * version of it in MDB2::errorMessage().
  */
 
-define('MDB2_OK',                         1);
+define('MDB2_OK',                      true);
 define('MDB2_ERROR',                     -1);
 define('MDB2_ERROR_SYNTAX',              -2);
 define('MDB2_ERROR_CONSTRAINT',          -3);
@@ -1226,22 +1226,20 @@ class MDB2_Driver_Common extends PEAR
                 $mode    = $this->_default_error_mode;
                 $options = $this->_default_error_options;
             }
-        } else {
-            if (is_null($userinfo) && isset($this->connection)) {
-                if (!empty($this->last_query)) {
-                    $userinfo = "[Last query: {$this->last_query}]\n";
-                }
-                $native_errno = $native_msg = null;
-                list($code, $native_errno, $native_msg) = $this->errorInfo($code);
-                if (!is_null($native_errno)) {
-                    $userinfo.= "[Native code: $native_errno]\n";
-                }
-                if (!is_null($native_msg)) {
-                    $userinfo.= "[Native message: ". strip_tags($native_msg) ."]\n";
-                }
-            } else {
-                $userinfo = "[Error message: $userinfo]\n";
+        } elseif (is_null($userinfo) && isset($this->connection)) {
+            if (!empty($this->last_query)) {
+                $userinfo = "[Last query: {$this->last_query}]\n";
             }
+            $native_errno = $native_msg = null;
+            list($code, $native_errno, $native_msg) = $this->errorInfo($code);
+            if (!is_null($native_errno)) {
+                $userinfo.= "[Native code: $native_errno]\n";
+            }
+            if (!is_null($native_msg)) {
+                $userinfo.= "[Native message: ". strip_tags($native_msg) ."]\n";
+            }
+        } else {
+            $userinfo = "[Error message: $userinfo]\n";
         }
 
         $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
