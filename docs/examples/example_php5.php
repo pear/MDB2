@@ -53,9 +53,11 @@ MDB2::loadFile('Date');
 
 $stmt->execute(array('name' => 'hello', 'date' => MDB2_Date::mdbToday()));
 // get the last inserted id
+echo 'last insert id :';
 var_dump($mdb2->lastInsertId($table, 'id'));
 $stmt->execute(array('name' => 'world', 'date' => '2005-11-11'));
 // get the last inserted id
+echo 'last insert id :';
 var_dump($mdb2->lastInsertId($table, 'id'));
 
 // load Iterator implementations
@@ -71,6 +73,7 @@ $result = $mdb2->query($query, false, true, 'MDB2_BufferedIterator');
 
 // iterate over the result set
 foreach ($result as $row) {
+    echo 'output row:<br>';
     var_dump($row);
 }
 
