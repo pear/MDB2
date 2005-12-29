@@ -12,6 +12,7 @@ $notes = <<<EOT
 - types can now always be keyed by name or by order
 - renamed setResultTypes() in the datatype module to checkResultTypes()
   and modified the signature accordingly
+- removed no longer used MDB2::isManip()
 EOT;
 
 $description =<<<EOT
