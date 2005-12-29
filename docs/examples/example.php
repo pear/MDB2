@@ -2,110 +2,103 @@
 
     // $Id$
     //
-    // MDB2 test script.
+    // MDB2 and MDB2_Schema example script.
     //
 
-    // BC hack to define PATH_SEPARATOR for version of PHP prior 4.3
-    if (!defined('PATH_SEPARATOR')) {
-        if (defined('DIRECTORY_SEPARATOR') && DIRECTORY_SEPARATOR == "\\") {
-            define('PATH_SEPARATOR', ';');
-        } else {
-            define('PATH_SEPARATOR', ':');
-        }
-    }
     ini_set('include_path', '../..'.PATH_SEPARATOR.ini_get('include_path'));
 
-    // MDB2.php doesnt have to be included since manager.php does that
-    // manager.php is only necessary for handling xml schema files
+    // require the MDB2 code
     require_once 'MDB2.php';
 
-    PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'handle_pear_error');
+    // define and set a PEAR error handler
+    // will be called whenever an unexpected PEAR_Error occurs
     function handle_pear_error ($error_obj)
     {
         print '<pre><b>PEAR-Error</b><br />';
         echo $error_obj->getMessage().': '.$error_obj->getUserinfo();
         print '</pre>';
     }
+    PEAR::setErrorHandling(PEAR_ERROR_CALLBACK, 'handle_pear_error');
 
     // just for kicks you can mess up this part to see some pear error handling
     $user = 'root';
     $pass = '';
     $host = 'localhost';
-    $db_name = 'metapear_test_db';
+    $mdb2_name = 'metapear_test_db';
     if (array_key_exists('db_type', $_GET)) {
-        $db_type = $_GET['db_type'];
+        $mdb2_type = $_GET['db_type'];
     } else {
-        $db_type = 'mysql';
+        $mdb2_type = 'mysql';
     }
-    echo($db_type.'<br>');
+    echo($mdb2_type.'<br>');
 
     // Data Source Name: This is the universal connection string
     $dsn['username'] = $user;
     $dsn['password'] = $pass;
     $dsn['hostspec'] = $host;
-    $dsn['phptype'] = $db_type;
-    // MDB2::factory will return a Pear DB object on success
+    $dsn['phptype'] = $mdb2_type;
+    // MDB2::factory will return a PEAR::MDB2 instance on success
     // or a Pear MDB2 error object on error
-    // You can also set to true the second param
-    // if you want a persistent connection:
-    // $db = MDB2::factory($dsn, true);
-    // you can alternatively build a dsn here
-   //$dsn = "$db_type://$user:$pass@$host/$db_name";
+    // You can alternatively build a dsn here
+    // $dsn = "$mdb2_type://$user:$pass@$host/$mdb2_name";
     Var_Dump($dsn);
-    $db =& MDB2::factory($dsn);
+    $mdb2 =& MDB2::factory($dsn);
     // With PEAR::isError you can differentiate between an error or
     // a valid connection.
-    if (PEAR::isError($db)) {
-        die (__LINE__.$db->getMessage());
+    if (PEAR::isError($mdb2)) {
+        die (__LINE__.$mdb2->getMessage());
     }
 
+    // this loads the MDB2_Schema manager
+    // this is a separate package you must install
     require_once 'MDB2/Schema.php';
-    // you can either pass a dsn string, a dsn array or an exisiting db connection
-    $manager =& MDB2_Schema::factory($db);
+    // you can either pass a dsn string, a dsn array or an exisiting mdb2 connection
+    $manager =& MDB2_Schema::factory($mdb2);
     $input_file = 'metapear_test_db.schema';
     // lets create the database using 'metapear_test_db.schema'
     // if you have allready run this script you should have 'metapear_test_db.schema.before'
-    // in that case MDB2 will just compare the two schemas and make any necessary modifications to the existing DB
-#    echo(Var_Dump($manager->updateDatabase($input_file, $input_file.'.before')).'<br>');
-#    echo('updating database from xml schema file<br>');
+    // in that case MDB2 will just compare the two schemas and make any
+    // necessary modifications to the existing database
+    Var_Dump($manager->updateDatabase($input_file, $input_file.'.before'));
+    echo('updating database from xml schema file<br>');
 
-    echo('switching to database: '.$db_name.'<br>');
-    $db->setDatabase($db_name);
+    echo('switching to database: '.$mdb2_name.'<br>');
+    $mdb2->setDatabase($mdb2_name);
     // happy query
     $query ='SELECT * FROM test';
     echo('query for the following examples:'.$query.'<br>');
     // run the query and get a result handler
-    $result = $db->query($query);
+    $result = $mdb2->query($query);
     // lets just get row:0 and free the result
     $array = $result->fetchRow();
     $result->free();
     echo('<br>row:<br>');
     echo(Var_Dump($array).'<br>');
-    $result = $db->query($query);
+    $result = $mdb2->query($query);
     // lets just get row:0 and free the result
     $array = $result->fetchRow(MDB2_FETCHMODE_OBJECT);
     $result->free();
     echo('<br>row (object:<br>');
     echo(Var_Dump($array).'<br>');
     // run the query and get a result handler
-    $result = $db->query($query);
+    $result = $mdb2->query($query);
     // lets just get row:0 and free the result
     $array = $result->fetchRow();
     $result->free();
     echo('<br>row from object:<br>');
     echo(Var_Dump($array).'<br>');
     // run the query and get a result handler
-    $result = $db->query($query);
+    $result = $mdb2->query($query);
     // lets just get column:0 and free the result
     $array = $result->fetchCol(2);
     $result->free();
     echo('<br>get column #2 (counting from 0):<br>');
     echo(Var_Dump($array).'<br>');
     // run the query and get a result handler
-    $result = $db->query($query);
-    Var_Dump($db->loadModule('reverse'));
+    $result = $mdb2->query($query);
+    Var_Dump($mdb2->loadModule('Reverse'));
     echo('tableInfo:<br>');
-    echo(Var_Dump($db->reverse->tableInfo($result)).'<br>');
+    echo(Var_Dump($mdb2->reverse->tableInfo($result)).'<br>');
     $types = array('integer', 'text', 'timestamp');
     $result->setResultTypes($types);
     $array = $result->fetchAll(MDB2_FETCHMODE_FLIPPED);
@@ -114,25 +107,25 @@
     echo(Var_Dump($array).'<br>');
     // save some time with this function
     // lets just get all and free the result
-    $array = $db->queryAll($query);
+    $array = $mdb2->queryAll($query);
     echo('<br>all with just one call:<br>');
     echo(Var_Dump($array).'<br>');
     // run the query with the offset 1 and count 1 and get a result handler
-    Var_Dump($db->loadModule('extended'));
-    $result = $db->extended->limitQuery($query, null, 1, 1);
+    Var_Dump($mdb2->loadModule('Extended'));
+    $result = $mdb2->extended->limitQuery($query, null, 1, 1);
     // lets just get everything but with an associative array and free the result
     $array = $result->fetchAll(MDB2_FETCHMODE_ASSOC);
     echo('<br>associative array with offset 1 and count 1:<br>');
     echo(Var_Dump($array).'<br>');
     // lets create a sequence
-    echo(Var_Dump($db->loadModule('manager')));
+    echo(Var_Dump($mdb2->loadModule('Manager')));
     echo('<br>create a new seq with start 3 name real_funky_id<br>');
-    $err = $db->manager->createSequence('real_funky_id', 3);
+    $err = $mdb2->manager->createSequence('real_funky_id', 3);
     if (PEAR::isError($err)) {
             echo('<br>could not create sequence again<br>');
     }
     echo('<br>get the next id:<br>');
-    $value = $db->nextId('real_funky_id');
+    $value = $mdb2->nextId('real_funky_id');
     echo($value.'<br>');
     // lets try an prepare execute combo
     $alldata = array(
@@ -141,7 +134,7 @@
                      array(3, 'three', 'trois'),
                      array(4, 'four', 'quatre')
     );
-    $stmt = $db->prepare('INSERT INTO numbers VALUES(?,?,?)', array('integer', 'text', 'text'), false);
+    $stmt = $mdb2->prepare('INSERT INTO numbers VALUES(?,?,?)', array('integer', 'text', 'text'), false);
     foreach ($alldata as $row) {
         echo('running execute<br>');
         $stmt->bindParamArray($row);
@@ -149,36 +142,36 @@
     }
     $array = array(4);
     echo('<br>see getOne in action:<br>');
-    echo(Var_Dump($db->extended->getOne('SELECT trans_en FROM numbers WHERE number = ?',null,$array,array('integer'))).'<br>');
-    $db->setFetchmode(MDB2_FETCHMODE_ASSOC);
+    echo(Var_Dump($mdb2->extended->getOne('SELECT trans_en FROM numbers WHERE number = ?',null,$array,array('integer'))).'<br>');
+    $mdb2->setFetchmode(MDB2_FETCHMODE_ASSOC);
     echo('<br>default fetchmode ist now MDB2_FETCHMODE_ASSOC<br>');
     echo('<br>see getRow in action:<br>');
-    echo(Var_Dump($db->extended->getRow('SELECT * FROM numbers WHERE number = ?',array('integer','text','text'),$array, array('integer'))));
+    echo(Var_Dump($mdb2->extended->getRow('SELECT * FROM numbers WHERE number = ?',array('integer','text','text'),$array, array('integer'))));
     echo('default fetchmode ist now MDB2_FETCHMODE_ORDERED<br>');
-    $db->setFetchmode(MDB2_FETCHMODE_ORDERED);
+    $mdb2->setFetchmode(MDB2_FETCHMODE_ORDERED);
     echo('<br>see getCol in action:<br>');
-    echo(Var_Dump($db->extended->getCol('SELECT * FROM numbers WHERE number != ?',null,$array,array('integer'), 1)).'<br>');
+    echo(Var_Dump($mdb2->extended->getCol('SELECT * FROM numbers WHERE number != ?',null,$array,array('integer'), 1)).'<br>');
     echo('<br>see getAll in action:<br>');
-    echo(Var_Dump($db->extended->getAll('SELECT * FROM test WHERE test_id != ?',array('integer','text','text'), $array, array('integer'))).'<br>');
+    echo(Var_Dump($mdb2->extended->getAll('SELECT * FROM test WHERE test_id != ?',array('integer','text','text'), $array, array('integer'))).'<br>');
     echo('<br>see getAssoc in action:<br>');
-    echo(Var_Dump($db->extended->getAssoc('SELECT * FROM test WHERE test_id != ?',array('integer','text','text'), $array, array('integer'), MDB2_FETCHMODE_ASSOC)).'<br>');
+    echo(Var_Dump($mdb2->extended->getAssoc('SELECT * FROM test WHERE test_id != ?',array('integer','text','text'), $array, array('integer'), MDB2_FETCHMODE_ASSOC)).'<br>');
     echo('tableInfo on a string:<br>');
-    echo(Var_Dump($db->reverse->tableInfo('numbers')).'<br>');
+    echo(Var_Dump($mdb2->reverse->tableInfo('numbers')).'<br>');
     echo('<br>just a simple update query:<br>');
     echo('<br>affected rows:<br>');
-    echo(Var_Dump($db->exec('UPDATE numbers set trans_en ='.$db->quote(0, 'integer'))).'<br>');
+    echo(Var_Dump($mdb2->exec('UPDATE numbers set trans_en ='.$mdb2->quote(0, 'integer'))).'<br>');
     // subselect test
-    $sub_select = $db->subSelect('SELECT test_name from test WHERE test_name = '.$db->quote('gummihuhn', 'text'), 'text');
+    $sub_select = $mdb2->subSelect('SELECT test_name from test WHERE test_name = '.$mdb2->quote('gummihuhn', 'text'), 'text');
     echo(Var_Dump($sub_select).'<br>');
     $query_with_subselect = 'SELECT * FROM test WHERE test_name IN ('.$sub_select.')';
     // run the query and get a result handler
     echo($query_with_subselect.'<br>');
-    $result = $db->query($query_with_subselect);
+    $result = $mdb2->query($query_with_subselect);
     $array = $result->fetchAll();
     $result->free();
     echo('<br>all with subselect:<br>');
     echo('<br>drop index (will fail if the index was never created):<br>');
-    echo(Var_Dump($db->manager->dropIndex('test', 'test_id_index')).'<br>');
+    echo(Var_Dump($mdb2->manager->dropIndex('test', 'test_id_index')).'<br>');
     $index_def = array(
         'fields' => array(
             'test_id' => array(
@@ -187,9 +180,9 @@
         )
     );
     echo('<br>create index:<br>');
-    echo(Var_Dump($db->manager->createIndex('test', 'test_id_index', $index_def)).'<br>');
+    echo(Var_Dump($mdb2->manager->createIndex('test', 'test_id_index', $index_def)).'<br>');
 
-    if ($db_type == 'mysql') {
+    if ($mdb2_type == 'mysql') {
         $manager->db->setOption('debug', true);
         $manager->db->setOption('log_line_break', '<br>');
         // ok now lets create a new xml schema file from the existing DB
@@ -199,9 +192,9 @@
         echo(Var_Dump($manager->dumpDatabase(
             array(
                 'output_mode' => 'file',
-                'output' => $db_name.'2.schema'
+                'output' => $mdb2_name.'2.schema'
             ),
-            MDB2_MANAGER_DUMP_STRUCTURE
+            MDB2_SCHEMA_DUMP_STRUCTURE
         )).'<br>');
         if ($manager->db->getOption('debug') === true) {
             echo($manager->db->getDebugOutput().'<br>');
@@ -211,7 +204,7 @@
     }
 
     echo('<br>just a simple delete query:<br>');
-    echo(Var_Dump($db->exec('DELETE FROM numbers')).'<br>');
+    echo(Var_Dump($mdb2->exec('DELETE FROM numbers')).'<br>');
     // You can disconnect from the database with:
-    $db->disconnect()
+    $mdb2->disconnect()
 ?>
