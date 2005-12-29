@@ -2349,6 +2349,17 @@ class MDB2_Driver_Common extends PEAR
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
+                    if (is_array($types) && !empty($types)) {
+                        if ($placeholder_type == ':') {
+                            if (is_int(key($types))) {
+                                $types_tmp = $types;
+                                $types = array();
+                                $count = -1;
+                            }
+                        } else {
+                            $types = array_values($types);
+                        }
+                    }
                 }
                 if ($placeholder_type == ':') {
                     $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
@@ -2359,6 +2370,10 @@ class MDB2_Driver_Common extends PEAR
                     }
                     $positions[$parameter] = $p_position;
                     $query = substr_replace($query, '?', $position, strlen($parameter)+1);
+                    // use parameter name in type array
+                    if (isset($count) && isset($types_tmp[++$count])) {
+                        $types[$parameter] = $types_tmp[$count];
+                    }
                 } else {
                     $positions[] = $p_position;
                 }
@@ -2729,7 +2744,12 @@ class MDB2_Result_Common extends MDB2_Result
         if (PEAR::isError($load)) {
             return $load;
         }
-        return $this->db->datatype->setResultTypes($this, $types);
+        $types = $this->db->datatype->checkResultTypes($types);
+        if (PEAR::isError($types)) {
+            return $types;
+        }
+        $this->types = $types;
+        return MDB2_OK;
     }
 
     // }}}
@@ -3255,7 +3275,7 @@ class MDB2_Statement_Common
     function &_execute($result_class = true, $result_wrap_class = false)
     {
         $query = '';
-        $last_position = $i = 0;
+        $last_position = 0;
         foreach ($this->values as $parameter => $value) {
             $current_position = $this->statement[$parameter];
             $query.= substr($this->query, $last_position, $current_position - $last_position);
@@ -3270,7 +3290,6 @@ class MDB2_Statement_Common
             }
             $query.= $value_quoted;
             $last_position = $current_position + 1;
-            ++$i;
         }
         $query.= substr($this->query, $last_position);
 

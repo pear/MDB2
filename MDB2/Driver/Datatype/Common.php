@@ -82,7 +82,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     var $lobs = array();
 
     // }}}
-    // {{{ setResultTypes()
+    // {{{ checkResultTypes()
 
     /**
      * Define the list of types to be associated with the columns of a given
@@ -94,7 +94,6 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * function is not called, the type of all result set columns is assumed
      * to be text, thus leading to not perform any conversions.
      *
-     * @param resource $result result identifier
      * @param string $types array variable that lists the
      *       data types to be expected in the result set columns. If this array
      *       contains less types than the number of columns that are returned
@@ -104,9 +103,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function setResultTypes(&$result, $types)
+    function checkResultTypes($types)
     {
-        $types = is_array($types) ? array_values($types) : array($types);
+        $types = is_array($types) ? $types : array($types);
         foreach ($types as $key => $type) {
             if (!isset($this->valid_types[$type])) {
                 $db =& $this->getDBInstance();
@@ -118,8 +117,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                     'setResultTypes: ' . $type . ' for '. $key .' is not a supported column type');
             }
         }
-        $result->types = $types;
-        return MDB2_OK;
+        return $types;
     }
 
     // }}}
@@ -210,13 +208,24 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function convertResultRow($types, $row)
     {
         if (is_array($types)) {
+            reset($types);
             $current_column = -1;
             foreach ($row as $key => $column) {
                 ++$current_column;
-                if (!isset($column) || !isset($types[$current_column])) {
+                if (!isset($column)) {
                     continue;
                 }
-                $value = $this->convertResult($row[$key], $types[$current_column]);
+                if (isset($types[$current_column])) {
+                    $type = $types[$current_column];
+                } elseif (isset($types[$key])) {
+                    $type = $types[$key];
+                } elseif (current($types)) {
+                    $type = current($types);
+                    next($types);
+                } else {
+                    continue;
+                }
+                $value = $this->convertResult($row[$key], $type);
                 if (PEAR::isError($value)) {
                     return $value;
                 }
