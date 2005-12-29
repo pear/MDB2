@@ -605,6 +605,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $variables.= ($variables ? ', ' : ' INTO ').':'.$parameter;
                 }
             }
+        } else {
+            $types = array();
         }
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
@@ -658,6 +660,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $question = $colon = $placeholder_type;
                 }
                 if ($contains_lobs) {
+                    $type = next($types);
                     if ($placeholder_type == ':') {
                         $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
                         if ($parameter === '') {
@@ -666,14 +669,15 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                             return $err;
                         }
                         $length = strlen($parameter)+1;
+                        if (!$type && isset($types[$parameter])) {
+                            $type = $types[$parameter];
+                        }
                     } else {
                         ++$parameter;
                         $length = strlen($parameter);
                     }
-                    if (isset($types[$parameter])
-                        && ($types[$parameter] == 'clob' || $types[$parameter] == 'blob')
-                    ) {
-                        $value = $this->quote(true, $types[$parameter]);
+                    if ($type == 'clob' || $type == 'blob') {
+                        $value = $this->quote(true, $type);
                         $query = substr_replace($query, $value, $p_position, $length);
                         $position = $p_position + strlen($value) - 1;
                     } elseif ($placeholder_type == '?') {

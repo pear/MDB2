@@ -636,6 +636,12 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
+                    if (is_array($types) && !empty($types)) {
+                        if ($placeholder_type == ':') {
+                        } else {
+                            $types = array_values($types);
+                        }
+                    }
                 }
                 if ($placeholder_type_guess == '?') {
                     $length = 1;
@@ -649,13 +655,15 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     }
                     $length = strlen($name) + 1;
                 }
-                $query = substr_replace($query, '$'.++$parameter, $position, $length);
-                $position = $p_position + strlen($parameter);
-                if (isset($types[$name])) {
+                if (array_key_exists($name, $types)) {
                     $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$name]);
+                } elseif (array_key_exists($parameter, $types)) {
+                    $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$parameter]);
                 } else {
                     $pgtypes[] = 'text';
                 }
+                $query = substr_replace($query, '$'.++$parameter, $position, $length);
+                $position = $p_position + strlen($parameter);
             } else {
                 $position = $p_position;
             }
