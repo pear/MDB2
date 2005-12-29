@@ -19,7 +19,7 @@ $dsn = array(
 );
 
 // create MDB2 instance
-$mdb2 =& MDB2::factory($dsn);
+$mdb2 = MDB2::factory($dsn);
 
 // set the default fetchmode
 $mdb2->setFetchMode(MDB2_FETCHMODE_ASSOC);
