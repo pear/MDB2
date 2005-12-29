@@ -7,6 +7,7 @@ $notes = <<<EOT
 - added error handlong when result set introspection is not supported in _wrapResult()
 - fixed example
 - removed peardb wrapper (its broken, unmaintained and probably unused)
+- added new example using php5 only features
 EOT;
 
 $description =<<<EOT
