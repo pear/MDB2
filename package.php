@@ -8,6 +8,10 @@ $notes = <<<EOT
 - fixed example
 - removed peardb wrapper (its broken, unmaintained and probably unused)
 - added new example using php5 only features
+- MDB2_OK is now a boolean true, instead of integer 1
+
+open todo items:
+- figure out a clean handling for keys in the type arrays
 EOT;
 
 $description =<<<EOT
