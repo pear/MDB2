@@ -175,7 +175,15 @@ class DB
 
     function isManip($query)
     {
-        return MDB2::isManip($query);
+        $manips = 'INSERT|UPDATE|DELETE|REPLACE|'
+               . 'CREATE|DROP|'
+               . 'LOAD DATA|SELECT .* INTO|COPY|'
+               . 'ALTER|GRANT|REVOKE|SET|'
+               . 'LOCK|UNLOCK';
+        if (preg_match('/^\s*"?('.$manips.')\s+/i', $query)) {
+            return true;
+        }
+        return false;
     }
 
     function errorMessage($value)
