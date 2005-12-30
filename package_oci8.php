@@ -2,12 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.1';
+$version = '0.2.2';
 $notes = <<<EOT
-- fixed typo in _execute() that would lead to using the wrong types inside the result object
-- fixed typo in _execute() that lead to using the wrong ressource inside the result object
-- various fixes for alterTable()
-- fixed testNow()
+- types can now always be keyed by name or by order
 
 open todo items:
 - handle autoincremement fields in alterTable()

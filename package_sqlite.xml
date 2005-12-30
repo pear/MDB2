@@ -14,15 +14,11 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.1</version>
-  <date>2005-12-28</date>
+  <version>0.2.2</version>
+  <date>2005-12-30</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- fixed now() and substring()
-- disabled &quot;add&quot; and &quot;rename&quot; in alterTable() sqlite 2.x as they are not supported
-- fixed bug in regexp inside _getTableColumns()
-- added mapping for boolean into mapNativeDatatype()
-- proper quote new table name in alterTable()
+  <notes>- fixed handling of autoincrement in the datatype module
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
@@ -73,6 +69,21 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.2</version>
+    <date>2005-12-30</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- fixed handling of autoincrement in the datatype module
+
+open todo items:
+- a number of the manager test cases fail because sqlite does not support adding
+  primary keys to existing tables
+- the alter table test fails because this is unsupported in sqlite2
+- the test replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+    </notes>
+   </release>
    <release>
     <version>0.2.1</version>
     <date>2005-12-28</date>

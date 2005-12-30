@@ -14,19 +14,11 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.1</version>
-  <date>2005-12-28</date>
+  <version>0.2.2</version>
+  <date>2005-12-30</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- fixed datatype conversion for &quot;time&quot; values
-- fixed getTableFieldDefinition() default handling (though still a bit shaky)
-- reverse module: ensure that parameters in queries are properly quoted
-- fixed bug in alterTable() where &quot;rename&quot; would be skipped if no other alteration is done
-- do not use multiple commands in ALTER TABLE (only supported since 8.0)
-- implemented native prepared queries
-- use proper error code in alterTable()
-- renamed table as the last step in alterTable()
-- proper quote new table name in alterTable()
+  <notes>- types can now always be keyed by name or by order
 
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
@@ -75,6 +67,19 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.2</version>
+    <date>2005-12-30</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- types can now always be keyed by name or by order
+
+open todo items:
+- considering migrating away from OID&apos;s to bytea, since this is encourage
+  since version 8 and is also what PDO expects, however there is no streaming
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
+    </notes>
+   </release>
    <release>
     <version>0.2.1</version>
     <date>2005-12-28</date>

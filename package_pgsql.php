@@ -2,17 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.1';
+$version = '0.2.2';
 $notes = <<<EOT
-- fixed datatype conversion for "time" values
-- fixed getTableFieldDefinition() default handling (though still a bit shaky)
-- reverse module: ensure that parameters in queries are properly quoted
-- fixed bug in alterTable() where "rename" would be skipped if no other alteration is done
-- do not use multiple commands in ALTER TABLE (only supported since 8.0)
-- implemented native prepared queries
-- use proper error code in alterTable()
-- renamed table as the last step in alterTable()
-- proper quote new table name in alterTable()
+- types can now always be keyed by name or by order
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

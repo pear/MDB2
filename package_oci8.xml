@@ -14,14 +14,11 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.1</version>
-  <date>2005-12-28</date>
+  <version>0.2.2</version>
+  <date>2005-12-30</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes>- fixed typo in _execute() that would lead to using the wrong types inside the result object
-- fixed typo in _execute() that lead to using the wrong ressource inside the result object
-- various fixes for alterTable()
-- fixed testNow()
+  <notes>- types can now always be keyed by name or by order
 
 open todo items:
 - handle autoincremement fields in alterTable()
@@ -71,6 +68,20 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.2</version>
+    <date>2005-12-30</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>- types can now always be keyed by name or by order
+
+open todo items:
+- handle autoincremement fields in alterTable()
+- there are still a number of missing methods in the reverse and datatype module
+- there are still severe stability issues due to ext/oci8, especially on windows
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+    </notes>
+   </release>
    <release>
     <version>0.2.1</version>
     <date>2005-12-28</date>

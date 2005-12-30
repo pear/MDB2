@@ -69,19 +69,19 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.0.0RC2</version>
-  <date>2005-12-28</date>
+  <version>2.0.0RC3</version>
+  <date>2005-12-30</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- fixed testNow() to use the datatype abstraction
-- fixed testGetTableFieldDefinition() to use a blob column instead of a clob
-  since we default to blob when we cannot differntiate between blob and clob
-- split up alterTable() testing into two separate test methods
-- removed errorNative() was never implemented, use errorInfo() instead
-- fixed major bug in _fixResultArrayValues() that would lead to performance or
-  incorrect application of portability features
-- phpdoc fixes in LOB.php, Iterator.php, Date.php and Extended.php
-- removed not required prev() and hasPrev() from the SeekableIterator implementation
+  <notes>- added error handling when result set introspection is not supported in _wrapResult()
+- fixed example
+- removed peardb wrapper (its broken, unmaintained and probably unused)
+- added new example using php5 only features
+- MDB2_OK is now a boolean true, instead of integer 1
+- types can now always be keyed by name or by order
+- renamed setResultTypes() in the datatype module to checkResultTypes()
+  and modified the signature accordingly
+- removed no longer used MDB2::isManip()
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -94,10 +94,10 @@ portability. Among other things MDB2 features:
       <file role="doc" name="example.php">
        <replace type="package-info" from="@package_version@" to="version"/>
       </file>
-      <file role="doc" name="metapear_test_db.schema">
+      <file role="doc" name="example_php5.php">
        <replace type="package-info" from="@package_version@" to="version"/>
       </file>
-      <file role="doc" name="peardb_wrapper_example.php">
+      <file role="doc" name="metapear_test_db.schema">
        <replace type="package-info" from="@package_version@" to="version"/>
       </file>
      </dir> <!-- /docs/examples -->
@@ -155,11 +155,6 @@ portability. Among other things MDB2 features:
        </file>
       </dir> <!-- /MDB2/Driver/Reverse -->
      </dir> <!-- /MDB2/Driver -->
-     <dir name="Wrapper">
-      <file role="php" name="peardb.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
-      </file>
-     </dir> <!-- /MDB2/Wrapper -->
      <file role="php" name="Date.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
@@ -242,6 +237,22 @@ portability. Among other things MDB2 features:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.0.0RC3</version>
+    <date>2005-12-30</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- added error handling when result set introspection is not supported in _wrapResult()
+- fixed example
+- removed peardb wrapper (its broken, unmaintained and probably unused)
+- added new example using php5 only features
+- MDB2_OK is now a boolean true, instead of integer 1
+- types can now always be keyed by name or by order
+- renamed setResultTypes() in the datatype module to checkResultTypes()
+  and modified the signature accordingly
+- removed no longer used MDB2::isManip()
+    </notes>
+   </release>
    <release>
     <version>2.0.0RC2</version>
     <date>2005-12-28</date>

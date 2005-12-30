@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '2.0.0RC3';
 $notes = <<<EOT
-- added error handlong when result set introspection is not supported in _wrapResult()
+- added error handling when result set introspection is not supported in _wrapResult()
 - fixed example
 - removed peardb wrapper (its broken, unmaintained and probably unused)
 - added new example using php5 only features
