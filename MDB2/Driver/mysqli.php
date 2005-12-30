@@ -290,7 +290,6 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         }
         $this->in_transaction = false;
         return MDB2_OK;
-
     }
 
     // }}}
@@ -394,15 +393,15 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $this->supported['transactions'] = true;
         }
 
+        $this->supported['sub_selects'] = false;
         $server_info = $this->getServerVersion();
         if (is_array($server_info)
-            && ($server_info['major'] > 4)
-                || ($server_info['major'] > 4 && $server_info['minor'] > 1)
+            && ($server_info['major'] > 4
+                || ($server_info['major'] == 4 && $server_info['minor'] >= 1)
             )
-        {
+        ) {
             $this->supported['sub_selects'] = true;
         }
-
         return MDB2_OK;
     }
 
@@ -476,7 +475,6 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $function = $this->options['result_buffering']
             ? 'mysqli_query' : 'mysqli_unbuffered_query';
         $result = @$function($connection, $query);
-
         if (!$result) {
             return $this->raiseError();
         }

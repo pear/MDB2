@@ -396,12 +396,13 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             $this->supported['transactions'] = true;
         }
 
+        $this->supported['sub_selects'] = false;
         $server_info = $this->getServerVersion();
         if (is_array($server_info)
-            && ($server_info['major'] > 4)
-                || ($server_info['major'] > 4 && $server_info['minor'] > 1)
+            && ($server_info['major'] > 4
+                || ($server_info['major'] == 4 && $server_info['minor'] >= 1)
             )
-        {
+        ) {
             $this->supported['sub_selects'] = true;
         }
 
