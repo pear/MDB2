@@ -71,7 +71,6 @@ $result = $package->setOptions(
             'docs' => 'doc',
              'examples' => 'doc',
              'tests' => 'test',
-             'tests/templates' => 'test',
         ),
     )
 );
