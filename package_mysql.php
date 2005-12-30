@@ -2,10 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.1';
+$version = '0.2.2';
 $notes = <<<EOT
-- proper quote new table name in alterTable()
-
+- fixed typo in sub select detection
 EOT;
 
 $package = new PEAR_PackageFileManager();

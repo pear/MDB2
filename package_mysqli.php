@@ -5,6 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.2';
 $notes = <<<EOT
 - moved state to beta
+- fixed typo in sub select detection
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
