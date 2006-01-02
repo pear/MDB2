@@ -2,17 +2,10 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0RC3';
+$version = '2.0.0RC4';
 $notes = <<<EOT
-- added error handling when result set introspection is not supported in _wrapResult()
-- fixed example
-- removed peardb wrapper (its broken, unmaintained and probably unused)
-- added new example using php5 only features
-- MDB2_OK is now a boolean true, instead of integer 1
-- types can now always be keyed by name or by order
-- renamed setResultTypes() in the datatype module to checkResultTypes()
-  and modified the signature accordingly
-- removed no longer used MDB2::isManip()
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- some clean ups in loadModule()
 EOT;
 
 $description =<<<EOT

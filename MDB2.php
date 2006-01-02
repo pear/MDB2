@@ -1548,10 +1548,11 @@ class MDB2_Driver_Common extends PEAR
         }
 
         if (!isset($this->{$property})) {
+            $version = $phptype_specific;
             if ($phptype_specific !== false) {
+                $version = true;
                 $class_name = 'MDB2_Driver_'.$module.'_'.$this->phptype;
                 $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
-                $version = true;
             }
             if ($phptype_specific === false
                 || (!class_exists($class_name) && !MDB2::fileExists($file_name))
@@ -1559,16 +1560,15 @@ class MDB2_Driver_Common extends PEAR
                 $version = false;
                 $class_name = 'MDB2_'.$module;
                 $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
-                if (!class_exists($class_name) && !MDB2::fileExists($file_name)) {
-                    $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
-                        "unable to find module '$module' file '$file_name'");
-                    return $err;
-                }
             }
 
-            if (!class_exists($class_name) && !include_once($file_name)) {
-                $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
-                    "unable to load '$module' driver class from file '$file_name'");
+            if (!class_exists($class_name) && !@include_once($file_name)) {
+                if (!MDB2::fileExists($file_name)) {
+                    $msg = "unable to find module '$module' file '$file_name'";
+                } else {
+                    $msg = "unable to load '$module' driver class from file '$file_name'";
+                }
+                $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null, $msg);
                 return $err;
             }
 
@@ -1579,7 +1579,7 @@ class MDB2_Driver_Common extends PEAR
                     if ($class_name != $class_name_new) {
                         $class_name = $class_name_new;
                         $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
-                        if (!include_once($file_name)) {
+                        if (!@include_once($file_name)) {
                             if (!MDB2::fileExists($file_name)) {
                                 $msg = "unable to find module '$module' file '$file_name'";
                             } else {
@@ -1978,7 +1978,7 @@ class MDB2_Driver_Common extends PEAR
         $result_wrap_class = false, $limit = null, $offset = null)
     {
         if ($types === true) {
-            $this->loadModule('Reverse');
+            $this->loadModule('Reverse', null, true);
             $tableInfo = $this->reverse->tableInfo($result);
             if (PEAR::isError($tableInfo)) {
                 return $tableInfo;
@@ -2113,7 +2113,7 @@ class MDB2_Driver_Common extends PEAR
             return 'NULL';
         }
         if ($type) {
-            $this->loadModule('Datatype');
+            $this->loadModule('Datatype', null, true);
             return $this->datatype->implodeArray($col, $type);
         }
         return implode(', ', $col);
@@ -2382,7 +2382,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function quote($value, $type = null, $quote = true)
     {
-        $result = $this->loadModule('Datatype');
+        $result = $this->loadModule('Datatype', null, true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -2405,7 +2405,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function getDeclaration($type, $name, $field)
     {
-        $result = $this->loadModule('Datatype');
+        $result = $this->loadModule('Datatype', null, true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -2425,7 +2425,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function compareDefinition($current, $previous)
     {
-        $result = $this->loadModule('Datatype');
+        $result = $this->loadModule('Datatype', null, true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -2720,7 +2720,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function setResultTypes($types)
     {
-        $load = $this->db->loadModule('Datatype');
+        $load = $this->db->loadModule('Datatype', null, true);
         if (PEAR::isError($load)) {
             return $load;
         }
