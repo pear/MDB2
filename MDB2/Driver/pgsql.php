@@ -587,7 +587,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
         $this->debug($query, 'prepare');
         if (!empty($types)) {
-            $this->loadModule('Datatype');
+            $this->loadModule('Datatype', null, true);
         }
         $query = $this->_modifyQuery($query, $is_manip, $this->row_limit, $this->row_offset);
         $placeholder_type_guess = $placeholder_type = null;
@@ -711,7 +711,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->popExpect();
         if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
-                $this->loadModule('Manager');
+                $this->loadModule('Manager', null, true);
                 $result = $this->manager->createSequence($seq_name, 1);
                 if (PEAR::isError($result)) {
                     return $this->raiseError(MDB2_ERROR, null, null,

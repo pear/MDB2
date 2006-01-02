@@ -461,7 +461,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $db->loadModule('Datatype');
+                $db->loadModule('Datatype', null, true);
                 $field_name = $db->quoteIdentifier($field_name, true);
                 $query.= 'ALTER ' . $field_name.' TYPE ' . $db->datatype->getTypeDeclaration($field['definition']);
             }

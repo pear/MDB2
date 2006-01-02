@@ -2,9 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.2';
+$version = '0.2.3';
 $notes = <<<EOT
-- fixed handling of autoincrement in the datatype module
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

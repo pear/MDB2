@@ -304,7 +304,7 @@ class DB_result extends MDB2_Result_Common
 
     function tableInfo($mode = null)
     {
-        $this->result->db->loadModule('Reverse');
+        $this->result->db->loadModule('Reverse', null, true);
         return $this->result->db->reverse->tableInfo($this->result, $mode);
     }
 
@@ -447,21 +447,21 @@ class MDB2_PEARProxy extends PEAR
 
     function autoPrepare($table, $table_fields, $mode = MDB2_AUTOQUERY_INSERT, $where = false)
     {
-        $this->db_object->loadModule('Extended');
+        $this->db_object->loadModule('Extended', null, false);
         // types
         return $this->db_object->extended->autoPrepare($table, $table_fields, $mode, $where);
     }
 
     function &autoExecute($table, $fields_values, $mode, $where)
     {
-        $this->db_object->loadModule('Extended');
+        $this->db_object->loadModule('Extended', null, false);
         // types
         return $this->db_object->extended->autoExecute($table, $fields_values, $mode, $where);
     }
 
     function buildManipSQL($table, $table_fields, $mode, $where = false)
     {
-        $this->db_object->loadModule('Extended');
+        $this->db_object->loadModule('Extended', null, false);
         return $this->db_object->extended->buildManipSQL($table, $table_fields, $mode, $where);
     }
 
@@ -473,7 +473,7 @@ class MDB2_PEARProxy extends PEAR
 
     function executeMultiple($stmt, $data)
     {
-        $this->db_object->loadModule('Extended');
+        $this->db_object->loadModule('Extended', null, false);
         return $this->db_object->extended->executeMultiple($stmt, null, $data);
     }
 
@@ -668,13 +668,13 @@ class MDB2_PEARProxy extends PEAR
 
     function createSequence($seq_name)
     {
-        $this->db_object->loadModule('Manager');
+        $this->db_object->loadModule('Manager', null, true);
         return $this->db_object->manager->createSequence($seq_name, 1);
     }
 
     function dropSequence($seq_name)
     {
-        $this->db_object->loadModule('Manager');
+        $this->db_object->loadModule('Manager', null, true);
         return $this->db_object->manager->dropSequence($seq_name);
     }
 
@@ -731,7 +731,7 @@ class MDB2_PEARProxy extends PEAR
     {
         $result = $this->_wrapResource($result);
         if (is_string($result) || MDB2::isResultCommon($result)) {
-            $this->db_object->loadModule('Reverse');
+            $this->db_object->loadModule('Reverse', null, true);
             return $this->db_object->reverse->tableInfo($result, $mode);
         }
         return $result->tableInfo($mode);
@@ -744,7 +744,7 @@ class MDB2_PEARProxy extends PEAR
 
     function getListOf($type)
     {
-        $this->db_object->loadModule('Manager');
+        $this->db_object->loadModule('Manager', null, true);
         switch ($type) {
         case 'tables':
             return $this->db_object->manager->listTables();

@@ -733,7 +733,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->popExpect();
         if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
-                $this->loadModule('Manager');
+                $this->loadModule('Manager', null, true);
                 $result = $this->manager->createSequence($seq_name, 1);
                 if (PEAR::isError($result)) {
                     return $result;

@@ -49,7 +49,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
 {
     function setUp() {
         parent::setUp();
-        $this->db->loadModule('Reverse');
+        $this->db->loadModule('Reverse', null, true);
     }
 
     /**
@@ -131,7 +131,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         }
 
         //setup
-        $this->db->loadModule('Manager');
+        $this->db->loadModule('Manager', null, true);
         $fields = array(
             'id' => array(
                 'type'     => 'integer',
@@ -208,7 +208,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
      */
     function testGetSequenceDefinition() {
         //setup
-        $this->db->loadModule('Manager');
+        $this->db->loadModule('Manager', null, true);
         $sequence = 'test_sequence';
         $sequences = $this->db->manager->listSequences();
         if (!in_array($sequence, $sequences)) {

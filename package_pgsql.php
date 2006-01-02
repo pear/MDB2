@@ -2,9 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.2';
+$version = '0.2.3';
 $notes = <<<EOT
-- types can now always be keyed by name or by order
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

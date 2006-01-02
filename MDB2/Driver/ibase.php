@@ -698,7 +698,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->popExpect();
         if (PEAR::isError($result)) {
             if ($ondemand) {
-                $this->loadModule('Manager');
+                $this->loadModule('Manager', null, true);
                 // Since we are creating the sequence on demand
                 // we know the first id = 1 so initialize the
                 // sequence at 2

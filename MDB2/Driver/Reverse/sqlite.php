@@ -120,7 +120,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $result = $db->loadModule('Datatype');
+        $result = $db->loadModule('Datatype', null, true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -356,7 +356,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             $res['num_fields'] = $count;
         }
 
-        $db->loadModule('Datatype');
+        $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
             if (strpos($id[$i]['type'], '(') !== false) {
                 $bits = explode('(', $id[$i]['type']);

@@ -712,7 +712,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->popExpect();
         if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
-                $this->loadModule('Manager');
+                $this->loadModule('Manager', null, true);
                 // Since we are creating the sequence on demand
                 // we know the first id = 1 so initialize the
                 // sequence at 2

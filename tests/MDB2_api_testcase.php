@@ -79,7 +79,7 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
         if (!$this->methodExists($this->db, 'loadModule')) {
             return;
         }
-        $this->assertTrue(!PEAR::isError($this->db->loadModule('Manager')));
+        $this->assertTrue(!PEAR::isError($this->db->loadModule('Manager', null, true)));
     }
 
     // test of the driver

@@ -23,6 +23,7 @@ $notes = <<<EOT
 - changed 'len' to 'length' in tableInfo() output *BC BREAK*
 - fixed 'change' in alterTable()
 - proper quote new table name in alterTable()
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

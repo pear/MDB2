@@ -52,7 +52,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
 
     function setUp() {
         parent::setUp();
-        $this->db->loadModule('Manager');
+        $this->db->loadModule('Manager', null, true);
         $this->fields = array(
             'id' => array(
                 'type'     => 'integer',

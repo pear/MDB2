@@ -150,7 +150,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
     }
 
     function tableExists($table) {
-        $this->db->loadModule('Manager');
+        $this->db->loadModule('Manager', null, true);
         $tables = $this->db->manager->listTables();
         return in_array(strtolower($table), array_map('strtolower', $tables));
     }

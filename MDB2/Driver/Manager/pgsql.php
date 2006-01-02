@@ -239,7 +239,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             foreach ($changes['change'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name, true);
                 if (array_key_exists('type', $field)) {
-                    $db->loadModule('Datatype');
+                    $db->loadModule('Datatype', null, true);
                     $query.= "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field['definition']);
                     $result = $db->exec("ALTER TABLE $name $query");
                     if (PEAR::isError($result)) {

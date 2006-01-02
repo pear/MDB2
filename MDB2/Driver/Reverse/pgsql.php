@@ -72,7 +72,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $result = $db->loadModule('Datatype');
+        $result = $db->loadModule('Datatype', null, true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -161,7 +161,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
 
-        $db->loadModule('Manager');
+        $db->loadModule('Manager', null, true);
         $columns = $db->manager->listTableFields($table);
 
         $definition = array();
@@ -203,7 +203,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
 
-        $db->loadModule('Manager');
+        $db->loadModule('Manager', null, true);
         $columns = $db->manager->listTableFields($table);
 
         $definition = array();
@@ -298,7 +298,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             $res['num_fields'] = $count;
         }
 
-        $db->loadModule('Datatype');
+        $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
                 'table' => $got_string ? $case_func($result) : '',

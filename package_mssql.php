@@ -21,6 +21,7 @@ $notes = <<<EOT
 - cleanup _checkSequence() method to not raise errors when no table was found
 - added 'mdbtype' to tableInfo() output
 - changed 'len' to 'length' in tableInfo() output *BC BREAK*
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 
 open todo items:
 - added missing index/contraint methods to the manager and reverse module methods

@@ -42,7 +42,7 @@ $table = 'sometable';
 
 // create a table
 // since we are on php5 we can use the magic __call() method to:
-// - load the manager module: $mdb2->loadModule('Manager');
+// - load the manager module: $mdb2->loadModule('Manager', null, true);
 // - redirect the method call to the manager module: $mdb2->manager->createTable('sometable', $fields);
 $mdb2->mgCreateTable($table, $fields);
 

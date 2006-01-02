@@ -96,7 +96,7 @@
     echo(Var_Dump($array).'<br>');
     // run the query and get a result handler
     $result = $mdb2->query($query);
-    Var_Dump($mdb2->loadModule('Reverse'));
+    Var_Dump($mdb2->loadModule('Reverse', null, true));
     echo('tableInfo:<br>');
     echo(Var_Dump($mdb2->reverse->tableInfo($result)).'<br>');
     $types = array('integer', 'text', 'timestamp');
@@ -111,14 +111,14 @@
     echo('<br>all with just one call:<br>');
     echo(Var_Dump($array).'<br>');
     // run the query with the offset 1 and count 1 and get a result handler
-    Var_Dump($mdb2->loadModule('Extended'));
+    Var_Dump($mdb2->loadModule('Extended', null, false));
     $result = $mdb2->extended->limitQuery($query, null, 1, 1);
     // lets just get everything but with an associative array and free the result
     $array = $result->fetchAll(MDB2_FETCHMODE_ASSOC);
     echo('<br>associative array with offset 1 and count 1:<br>');
     echo(Var_Dump($array).'<br>');
     // lets create a sequence
-    echo(Var_Dump($mdb2->loadModule('Manager')));
+    echo(Var_Dump($mdb2->loadModule('Manager', null, true)));
     echo('<br>create a new seq with start 3 name real_funky_id<br>');
     $err = $mdb2->manager->createSequence('real_funky_id', 3);
     if (PEAR::isError($err)) {

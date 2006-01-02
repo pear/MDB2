@@ -2,9 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.2';
+$version = '0.2.3';
 $notes = <<<EOT
-- fixed typo in sub select detection
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 EOT;
 
 $package = new PEAR_PackageFileManager();

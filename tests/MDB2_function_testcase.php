@@ -47,7 +47,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
 {
     function setUp() {
         parent::setUp();
-        $this->db->loadModule('Function');
+        $this->db->loadModule('Function', null, true);
     }
 
     /**
