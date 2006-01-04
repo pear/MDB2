@@ -2672,7 +2672,7 @@ class MDB2_Result_Common extends MDB2_Result
     var $result;
     var $rownum = -1;
     var $types;
-    var $values;
+    var $values = array();
     var $offset;
     var $offset_count = 0;
     var $limit;
@@ -3138,7 +3138,7 @@ class MDB2_Statement_Common
     var $query;
     var $result_types;
     var $types;
-    var $values;
+    var $values = array();
     var $row_limit;
     var $row_offset;
     var $is_manip;
