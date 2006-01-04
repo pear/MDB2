@@ -326,7 +326,12 @@ class MDB2
 
         if (!class_exists($class_name)) {
             $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
-            if (!include_once($file_name)) {
+            if (is_array($options) && array_key_exists('debug', $options) && $options['debug']) {
+                $include = include_once($file_name);
+            } else {
+                $include = @include_once($file_name);
+            }
+            if (!$include) {
                 if (!MDB2::fileExists($file_name)) {
                     $msg = "unable to find package '$class_name' file '$file_name'";
                 } else {
@@ -1562,14 +1567,21 @@ class MDB2_Driver_Common extends PEAR
                 $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
             }
 
-            if (!class_exists($class_name) && !@include_once($file_name)) {
-                if (!MDB2::fileExists($file_name)) {
-                    $msg = "unable to find module '$module' file '$file_name'";
+            if (!class_exists($class_name)) {
+                if ($this->options['debug']) {
+                    $include = include_once($file_name);
                 } else {
-                    $msg = "unable to load '$module' driver class from file '$file_name'";
+                    $include = @include_once($file_name);
                 }
-                $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null, $msg);
-                return $err;
+                if (!$include) {
+                    if (!MDB2::fileExists($file_name)) {
+                        $msg = "unable to find module '$module' file '$file_name'";
+                    } else {
+                        $msg = "unable to load '$module' driver class from file '$file_name'";
+                    }
+                    $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null, $msg);
+                    return $err;
+                }
             }
 
             // load modul in a specific version
@@ -1579,7 +1591,12 @@ class MDB2_Driver_Common extends PEAR
                     if ($class_name != $class_name_new) {
                         $class_name = $class_name_new;
                         $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
-                        if (!@include_once($file_name)) {
+                        if ($this->options['debug']) {
+                            $include = include_once($file_name);
+                        } else {
+                            $include = @include_once($file_name);
+                        }
+                        if (!$include) {
                             if (!MDB2::fileExists($file_name)) {
                                 $msg = "unable to find module '$module' file '$file_name'";
                             } else {
