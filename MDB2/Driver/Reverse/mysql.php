@@ -221,6 +221,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
+        if (strtolower($index_name) != 'primary') {
+            $index_name = $db->getIndexName($index_name);
+        }
         $result = $db->query("SHOW INDEX FROM $table");
         if (PEAR::isError($result)) {
             return $result;
