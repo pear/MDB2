@@ -794,7 +794,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         $result = array();
         foreach ($indexes as $index_data) {
             if (!$index_data[$non_unique]) {
-                $index = $this->_isIndexName($index_data[$key_name]);
+                if ($index_data[$key_name] !== 'PRIMARY') {
+                    $index = $this->_isIndexName($index_data[$key_name]);
+                } else {
+                    $index = 'PRIMARY';
+                }
                 $result[$index] = true;
             }
         }
