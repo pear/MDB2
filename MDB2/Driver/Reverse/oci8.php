@@ -150,30 +150,26 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 
             $res = array();
 
-            if ($result === $db->last_stmt) {
-                $count = @OCINumCols($result);
-                if ($mode) {
-                    $res['num_fields'] = $count;
+            $count = @OCINumCols($result);
+            if ($mode) {
+                $res['num_fields'] = $count;
+            }
+            for ($i = 0; $i < $count; $i++) {
+                $res[$i] = array(
+                    'table'  => '',
+                    'name'   => $case_func(@OCIColumnName($result, $i+1)),
+                    'type'   => @OCIColumnType($result, $i+1),
+                    'length' => @OCIColumnSize($result, $i+1),
+                    'flags'  => '',
+                );
+                // todo: implement $db->datatype->mapNativeDatatype();
+                $res[$i]['mdb2type'] = $res[$i]['type'];
+                if ($mode & MDB2_TABLEINFO_ORDER) {
+                    $res['order'][$res[$i]['name']] = $i;
                 }
-                for ($i = 0; $i < $count; $i++) {
-                    $res[$i] = array(
-                        'table'  => '',
-                        'name'   => $case_func(@OCIColumnName($result, $i+1)),
-                        'type'   => @OCIColumnType($result, $i+1),
-                        'length' => @OCIColumnSize($result, $i+1),
-                        'flags'  => '',
-                    );
-                    // todo: implement $db->datatype->mapNativeDatatype();
-                    $res[$i]['mdb2type'] = $res[$i]['type'];
-                    if ($mode & MDB2_TABLEINFO_ORDER) {
-                        $res['order'][$res[$i]['name']] = $i;
-                    }
-                    if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                        $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
-                    }
+                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
+                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
                 }
-            } else {
-                return $db->raiseError(MDB2_ERROR_NOT_CAPABLE);
             }
         }
         return $res;
