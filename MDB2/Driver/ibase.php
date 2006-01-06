@@ -654,7 +654,12 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        $statement = ibase_prepare($connection, $query);
+        $statement = @ibase_prepare($connection, $query);
+        if (!$statement) {
+            $err =& $this->raiseError(MDB2_ERROR, null, null,
+                'Could not create statement');
+            return $err;
+        }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $obj =& new $class_name($this, $statement, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
