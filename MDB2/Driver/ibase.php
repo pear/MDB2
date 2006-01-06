@@ -222,7 +222,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      *
      * @access public
      */
-    function quoteIdentifier($str, $check_option)
+    function quoteIdentifier($str, $check_option = false)
 
     {
         return strtoupper($str);

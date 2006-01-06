@@ -157,7 +157,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      *
      * @access public
      */
-    function quoteIdentifier($str, $check_option)
+    function quoteIdentifier($str, $check_option = false)
     {
         if ($check_option && !$this->options['quote_identifier']) {
             return $str;
