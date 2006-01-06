@@ -109,7 +109,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         if ($this->connection) {
             $native_code = @sqlite_last_error($this->connection);
         }
-        $native_msg  = @sqlite_error_string($native_code);
+        $native_msg = $this->_lasterror
+            ? html_entity_decode($this->_lasterror) : @sqlite_error_string($native_code);
 
         if (is_null($error)) {
             static $error_regexps;
@@ -130,7 +131,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                  );
             }
             foreach ($error_regexps as $regexp => $code) {
-                if (preg_match($regexp, $this->_lasterror)) {
+                if (preg_match($regexp, $native_msg)) {
                     $error = $code;
                     break;
                 }
@@ -309,7 +310,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             @ini_set('track_errors', true);
             $connection = @$connect_function($database_file);
             @ini_restore('track_errors');
-            $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
+            $this->_lasterror = $php_errormsg;
             if (!$connection) {
                 return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
             }
@@ -383,7 +384,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         @ini_set('track_errors', true);
         $result = @$function($query.';', $connection);
         @ini_restore('track_errors');
-        $this->_lasterror = isset($php_errormsg) ? $php_errormsg : '';
+        $this->_lasterror = $php_errormsg;
 
         if (!$result) {
             return $this->raiseError();
