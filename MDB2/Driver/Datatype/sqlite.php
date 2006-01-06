@@ -176,10 +176,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
-        $default = $autoinc = '';;
+        $default = $autoinc = $notnull = '';
         if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
-            $autoinc = ' PRIMARY KEY AUTOINCREMENT';
-            $field['unsigned'] = false;
+            $autoinc = ' PRIMARY KEY';
         } else {
             if (array_key_exists('default', $field)) {
                 if ($field['default'] === '') {
@@ -188,10 +187,10 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 }
                 $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
             }
+            $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         }
 
         $unsigned = (array_key_exists('unsigned', $field) && $field['unsigned']) ? ' UNSIGNED' : '';
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$unsigned.$default.$notnull.$autoinc;
     }
@@ -254,8 +253,8 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     {
         $db_type = strtolower($field['type']);
         $length = array_key_exists('length', $field) ? $field['length'] : null;
+        $unsigned = array_key_exists('unsigned', $field) ? $field['unsigned'] : null;
         $type = array();
-        $unsigned = null;
         switch ($db_type) {
         case 'boolean':
             $type[] = 'boolean';
