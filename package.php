@@ -5,7 +5,10 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '2.0.0RC4';
 $notes = <<<EOT
 - explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- some clean ups in loadModule()
+- some cleanups in loadModule()
+- eliminate possible warnings in execute() and _assignBindColumns()
+- do not silence includes when debug option is enabled
+- fixed serious bug in autoincrement test
 EOT;
 
 $description =<<<EOT

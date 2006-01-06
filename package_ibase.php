@@ -10,6 +10,7 @@ $notes = <<<EOT
 - fixed typo in _execute() that would lead to using the wrong types inside the result object
 - use proper error code in alterTable()
 - explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- added error handling in prepare()
 
 open todo items:
 - handle autoincremement fields in alterTable()

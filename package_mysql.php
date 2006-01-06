@@ -5,6 +5,8 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.3';
 $notes = <<<EOT
 - explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- properly handle PRIMARY keys in listConstraints()
+- apply _isIndexName() on non primary keys in getTableConstraintDefinition()
 EOT;
 
 $package = new PEAR_PackageFileManager();
