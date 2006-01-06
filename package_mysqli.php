@@ -10,6 +10,7 @@ $notes = <<<EOT
 - initial untested implementation of multi_query option (bug #6418)
 - added error handling in prepare()
 - use multi_query option in executeStoredProc() (bug #6418)
+- fixed signature of quoteIdentifier() to make second param optional
 
 open todo item:
 - use native prepared queries for prepared SELECT statements

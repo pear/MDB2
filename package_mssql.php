@@ -22,6 +22,7 @@ $notes = <<<EOT
 - added 'mdbtype' to tableInfo() output
 - changed 'len' to 'length' in tableInfo() output *BC BREAK*
 - explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- fixed signature of quoteIdentifier() to make second param optional
 
 open todo items:
 - added missing index/contraint methods to the manager and reverse module methods

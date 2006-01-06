@@ -7,6 +7,7 @@ $notes = <<<EOT
 - explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 - properly handle PRIMARY keys in listConstraints()
 - apply _isIndexName() on non primary keys in getTableConstraintDefinition()
+- fixed signature of quoteIdentifier() to make second param optional
 EOT;
 
 $package = new PEAR_PackageFileManager();
