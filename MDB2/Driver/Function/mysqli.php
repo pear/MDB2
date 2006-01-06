@@ -78,9 +78,17 @@ class MDB2_Driver_Function_mysqli extends MDB2_Driver_Function_Common
             return $db;
         }
 
+        $multi_query = $db->getOption('multi_query');
+        if (!$multi_query) {
+            $db->setOption('multi_query', true);
+        }
         $query = 'CALL '.$name;
         $query .= $params ? '('.implode(', ', $params).')' : '()';
-        return $db->query($query, $types, $result_class, $result_wrap_class);
+        $result =& $db->query($query, $types, $result_class, $result_wrap_class);
+        if (!$multi_query) {
+            $db->setOption('multi_query', false);
+        }
+        return $result;
     }
 
     // }}}
