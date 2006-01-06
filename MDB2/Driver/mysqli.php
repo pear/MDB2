@@ -86,6 +86,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->supported['primary_key'] = true;
 
         $this->options['default_table_type'] = null;
+        $this->options['multi_query'] = false;
     }
 
     // }}}
@@ -472,11 +473,21 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
         }
 
-        $function = $this->options['result_buffering']
-            ? 'mysqli_query' : 'mysqli_unbuffered_query';
+        $function = $this->options['multi_query'] ? 'mysqli_multi_query' :
+            ($this->options['result_buffering'] ? 'mysqli_query' : 'mysqli_unbuffered_query');
         $result = @$function($connection, $query);
         if (!$result) {
             return $this->raiseError();
+        }
+
+        if ($this->options['multi_query']) {
+            if ($this->options['result_buffering']) {
+                if (!@mysqli_store_result($this->result)) {
+                    $this->raiseError();
+                }
+            } elseif (!@mysqli_use_result($this->result)) {
+                $this->raiseError();
+            }
         }
 
         return $result;
@@ -661,6 +672,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             return $connection;
         }
         $statement = @mysqli_prepare($connection, $query);
+        if (!$statement) {
+            $err =& $this->raiseError();
+            return $err;
+        }
+
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $obj =& new $class_name($this, $statement, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
@@ -996,6 +1012,31 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
     }
 
     // }}}
+    // {{{ nextResult()
+
+    /**
+     * Move the internal result pointer to the next available result
+     *
+     * @param a valid result resource
+     * @return true on success or an error object on failure
+     * @access public
+     */
+    function nextResult()
+    {
+        if (!@mysqli_more_results($this->result)) {
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'nextResult: no more result sets to read');
+        }
+        if (!@mysqli_next_result($this->result)) {
+            $this->db->raiseError();
+        }
+        if (!@mysqli_use_result($this->result)) {
+            $this->db->raiseError();
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
     // {{{ free()
 
     /**
@@ -1076,6 +1117,31 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
             return $this->raiseError();
         }
         return $rows;
+    }
+
+    // }}}
+    // {{{ nextResult()
+
+    /**
+     * Move the internal result pointer to the next available result
+     *
+     * @param a valid result resource
+     * @return true on success or an error object on failure
+     * @access public
+     */
+    function nextResult()
+    {
+        if (!@mysqli_more_results($this->result)) {
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'nextResult: no more result sets to read');
+        }
+        if (!@mysqli_next_result($this->result)) {
+            $this->db->raiseError();
+        }
+        if (!@mysqli_store_result($this->result)) {
+            $this->db->raiseError();
+        }
+        return MDB2_OK;
     }
 }
 
