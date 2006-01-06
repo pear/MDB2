@@ -119,7 +119,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
 
         $fields = $this->fields;
         $fields['id']['autoincrement'] = true;
-        $result = $this->db->manager->createTable($this->table, $this->fields);
+        $result = $this->db->manager->createTable($this->table, $fields);
         $this->assertFalse(PEAR::isError($result), 'Error creating table');
         $query = 'INSERT INTO '.$this->table;
         $query.= ' (somename, somedescription)';
@@ -141,6 +141,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                 return;
             }
         }
+        $stmt->free();
         $query = 'SELECT * FROM '.$this->table;
         $data = $this->db->queryAll($query, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($data)) {
