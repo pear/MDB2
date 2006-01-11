@@ -4,9 +4,7 @@ error_reporting(E_ERROR);
 // }}}
 // {{{ DSN Constants
 /**
- * Constants used in Courrier_DB
- *
- * @see Courrier_DB::connect
+ * Constants used in PackageName_MDB2
  */
 define ('DSN_PHPTYPE',  'mysql');
 define ('DSN_USERNAME', 'username');
