@@ -988,7 +988,7 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numRows: resultset has already been freed');
             }
-            return $this->raiseError();
+            return $this->db->raiseError();
         }
         return $rows;
     }

@@ -1028,10 +1028,10 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
                 'nextResult: no more result sets to read');
         }
         if (!@mysqli_next_result($this->result)) {
-            $this->db->raiseError();
+            return $this->db->raiseError();
         }
         if (!@mysqli_use_result($this->result)) {
-            $this->db->raiseError();
+            return $this->db->raiseError();
         }
         return MDB2_OK;
     }
@@ -1114,7 +1114,7 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numRows: resultset has already been freed');
             }
-            return $this->raiseError();
+            
         }
         return $rows;
     }
@@ -1136,10 +1136,10 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
                 'nextResult: no more result sets to read');
         }
         if (!@mysqli_next_result($this->result)) {
-            $this->db->raiseError();
+            return $this->db->raiseError();
         }
         if (!@mysqli_store_result($this->result)) {
-            $this->db->raiseError();
+            return $this->db->raiseError();
         }
         return MDB2_OK;
     }
