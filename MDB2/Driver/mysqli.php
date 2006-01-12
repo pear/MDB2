@@ -482,10 +482,10 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
 
         if ($this->options['multi_query']) {
             if ($this->options['result_buffering']) {
-                if (!@mysqli_store_result($this->result)) {
+                if (!($result = @mysqli_store_result($connection))) {
                     $this->raiseError();
                 }
-            } elseif (!@mysqli_use_result($this->result)) {
+            } elseif (!($result = @mysqli_use_result($connection))) {
                 $this->raiseError();
             }
         }
@@ -512,7 +512,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 return $connection;
             }
         }
-        return mysqli_affected_rows($connection);
+        return @mysqli_affected_rows($connection);
     }
 
     // }}}
@@ -559,7 +559,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        $server_info = mysqli_get_server_info($connection);
+        $server_info = @mysqli_get_server_info($connection);
         if (!$native) {
             $tmp = explode('.', $server_info);
             $tmp2 = explode('-', @$tmp[2]);
@@ -1023,14 +1023,19 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
      */
     function nextResult()
     {
-        if (!@mysqli_more_results($this->result)) {
+        $connection = $this->db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        if (!@mysqli_more_results($connection)) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'nextResult: no more result sets to read');
         }
-        if (!@mysqli_next_result($this->result)) {
-            return $this->db->raiseError();
+        if (!@mysqli_next_result($connection)) {
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
-        if (!@mysqli_use_result($this->result)) {
+        if (!($this->result = @mysqli_use_result($connection))) {
             return $this->db->raiseError();
         }
         return MDB2_OK;
@@ -1131,14 +1136,19 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
      */
     function nextResult()
     {
-        if (!@mysqli_more_results($this->result)) {
+        $connection = $this->db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        if (!@mysqli_more_results($connection)) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'nextResult: no more result sets to read');
         }
-        if (!@mysqli_next_result($this->result)) {
-            return $this->db->raiseError();
+        if (!@mysqli_next_result($connection)) {
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
         }
-        if (!@mysqli_store_result($this->result)) {
+        if (!($this->result = @mysqli_store_result($connection))) {
             return $this->db->raiseError();
         }
         return MDB2_OK;
@@ -1235,12 +1245,12 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
         }
 
         if ($this->is_manip) {
-            $affected_rows = mysqli_stmt_affected_rows($this->statement);
+            $affected_rows = @mysqli_stmt_affected_rows($this->statement);
             return $affected_rows;
         }
 
         if ($this->db->options['result_buffering']) {
-            mysqli_stmt_store_result($this->statement);
+            @mysqli_stmt_store_result($this->statement);
         }
 
         $result =& $this->db->_wrapResult($this->statement, $this->result_types,
