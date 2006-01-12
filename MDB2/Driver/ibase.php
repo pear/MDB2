@@ -341,7 +341,13 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($database_name == '') {
             return $database_name;
         }
-        return $this->options['database_path'].$database_name.$this->options['database_extension'];
+        $ret = $this->options['database_path'] . $database_name;
+        if (   strpos($database_name, '.fdb') === false
+            && strpos($database_name, '.gdb') === false
+        ) {
+            $ret .= $this->options['database_extension'];
+        }
+        return $ret;
     }
 
     // }}}
