@@ -12,6 +12,11 @@ $notes = <<<EOT
 - explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 - added error handling in prepare()
 - fixed signature of quoteIdentifier() to make second param optional
+- req #6464: add the extension only if neither '.gdb' nor '.fdb' is given in the
+  database name, for compatibility with PEAR::DB DNS (Mark Wiesemann)
+- fixed bug #6465: possible mismatch in MDB2_Reverse_ibase due to parentheses
+  in the returned datatype (Mark Wiesemann)
+- fixed bug #6468: possible NOTICE in Driver/Datatype/ibase.php (Mark Wiesemann)
 
 open todo items:
 - handle autoincremement fields in alterTable()
