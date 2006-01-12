@@ -423,6 +423,9 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
             $info = @ibase_field_info($id, $i);
+            if (($pos = strpos($info['type'], '(')) !== false) {
+                $info['type'] = substr($info['type'], 0, $pos);
+            }
             $res[$i] = array(
                 'table'  => $got_string ? $case_func($result) : '',
                 'name'   => $case_func($info['name']),
