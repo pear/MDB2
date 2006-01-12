@@ -17,6 +17,7 @@ $notes = <<<EOT
 - fixed bug #6465: possible mismatch in MDB2_Reverse_ibase due to parentheses
   in the returned datatype (Mark Wiesemann)
 - fixed bug #6468: possible NOTICE in Driver/Datatype/ibase.php (Mark Wiesemann)
+- fixed bug #6475: listTableIndexes() should only list indices, not constraints
 
 open todo items:
 - handle autoincremement fields in alterTable()
