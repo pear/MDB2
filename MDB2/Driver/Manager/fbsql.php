@@ -371,7 +371,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
         $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if (!$this->_isSequenceName($table_names[$i])) {
+            if (!$this->_fixSequenceName($table_names[$i], true)) {
                 $result[] = $table_names[$i];
             }
         }
@@ -467,7 +467,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($indexes as $index) {
-            if ($index != 'PRIMARY' && $index = $this->_isIndexName($index)) {
+            if ($index != 'PRIMARY' && $index = $this->_fixIndexName(($index)) {
                 $result[$index] = true;
             }
         }
@@ -566,7 +566,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
         $result = array();
         for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i])) {
+            if ($sqn = $this->_fixSequenceName($table_names[$i], true)) {
                 $result[] = $sqn;
             }
         }

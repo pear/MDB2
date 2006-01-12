@@ -669,7 +669,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($indexes as $index) {
-            if ($index = $this->_isIndexName($index)) {
+            if ($index = $this->_fixIndexName($index)) {
                 $result[$index] = true;
             }
         }
@@ -762,9 +762,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($constraints as $constraint) {
-            if ($constraint = $this->_isIndexName($constraint)) {
-                $result[$constraint] = true;
-            }
+            $result[$this->_fixIndexName($constraint)] = true;
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -850,9 +848,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         $result = array();
         foreach ($table_names as $table_name) {
-            if ($sqn = $this->_isSequenceName($table_name)) {
-                $result[] = $sqn;
-            }
+            $result[] = $this->_fixSequenceName($table_name);
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);

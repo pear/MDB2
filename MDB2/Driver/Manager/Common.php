@@ -104,16 +104,17 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     }
 
     // }}}
-    // {{{ _isSequenceName()
+    // {{{ _fixSequenceName()
 
     /**
-     * Checks if the sequence name is valid and formats it
+     * Removes any formatting in an sequence name using the 'seqname_format' option
      *
      * @param string $sqn string that containts name of a potential sequence
-     * @return mixed name of the sequence if $sqn is a name of a sequence, else false
+     * @param bool $check if only formatted sequences should be returned
+     * @return string name of the sequence with possible formatting removed
      * @access protected
      */
-    function _isSequenceName($sqn)
+    function _fixSequenceName($sqn, $check = false)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -125,20 +126,23 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if ($seq_name && !strcasecmp($sqn, $db->getSequenceName($seq_name))) {
             return $seq_name;
         }
-        return false;
+        if ($check) {
+            return false;
+        }
+        return $sqn;
     }
 
     // }}}
-    // {{{ _isIndexName()
+    // {{{ _fixIndexName()
 
     /**
-     * Checks if the index name is valid and formats it
+     * Removes any formatting in an index name using the 'idxname_format' option
      *
-     * @param string $idx string that containts name of a potential index
-     * @return mixed name of the index if $idx is a name of a index, else false
+     * @param string $idx string that containts name of anl index
+     * @return string name of the index with possible formatting removed
      * @access protected
      */
-    function _isIndexName($idx)
+    function _fixIndexName($idx)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -150,7 +154,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if ($idx_name && !strcasecmp($idx, $db->getIndexName($idx_name))) {
             return $idx_name;
         }
-        return false;
+        return $idx;
     }
 
     // }}}

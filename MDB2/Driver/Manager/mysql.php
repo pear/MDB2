@@ -499,9 +499,9 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $result = array();
-        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if (!$this->_isSequenceName($table_names[$i])) {
-                $result[] = $table_names[$i];
+        foreach ($table_names as $table_name) {
+            if (!$this->_fixSequenceName($table_name, true)) {
+                $result[] = $table_name;
             }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -659,8 +659,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         $result = array();
         foreach ($indexes as $index_data) {
             if ($index_data[$non_unique]) {
-                $index = $this->_isIndexName($index_data[$key_name]);
-                $result[$index] = true;
+                $result[$this->_fixIndexName($index_data[$key_name])] = true;
             }
         }
 
@@ -795,7 +794,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         foreach ($indexes as $index_data) {
             if (!$index_data[$non_unique]) {
                 if ($index_data[$key_name] !== 'PRIMARY') {
-                    $index = $this->_isIndexName($index_data[$key_name]);
+                    $index = $this->_fixIndexName($index_data[$key_name]);
                 } else {
                     $index = 'PRIMARY';
                 }
@@ -908,8 +907,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $result = array();
-        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i])) {
+        foreach ($table_names as $table_name) {
+            if ($sqn = $this->_fixSequenceName($table_name, true)) {
                 $result[] = $sqn;
             }
         }

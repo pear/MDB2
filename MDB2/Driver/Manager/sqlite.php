@@ -335,9 +335,9 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $table_names;
         }
         $result = array();
-        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if (!$this->_isSequenceName($table_names[$i])) {
-                $result[] = $table_names[$i];
+        foreach ($table_names as $table_name) {
+            if (!$this->_fixSequenceName($table_name, true)) {
+                $result[] = $table_name;
             }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -491,8 +491,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         foreach ($indexes as $sql) {
             $sql = strtolower($sql);
             if (preg_match("/^create index ([^ ]*) on /", $sql, $tmp)) {
-                $index = $this->_isIndexName($tmp[1]);
-                $result[$index] = true;
+                $result[$this->_fixIndexName($tmp[1])] = true;
             }
         }
 
@@ -615,8 +614,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         foreach ($indexes as $sql) {
             $sql = strtolower($sql);
             if (preg_match("/^create unique index ([^ ]*) on /", $sql, $tmp)) {
-                $index = $this->_isIndexName($tmp[1]);
-                $result[$index] = true;
+                $result[$this->_fixIndexName($tmp[1])] = true;
             }
         }
 
@@ -713,9 +711,10 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $table_names;
         }
         $result = array();
-        for ($i = 0, $j = count($table_names); $i < $j; ++$i) {
-            if ($sqn = $this->_isSequenceName($table_names[$i]))
+        foreach ($table_names as $table_name) {
+            if ($sqn = $this->_fixSequenceName($table_name, true)) {
                 $result[] = $sqn;
+            }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
