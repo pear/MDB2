@@ -1808,7 +1808,9 @@ class MDB2_Driver_Common extends PEAR
         switch ($type) {
         // expand to include all possible options
         case 'string':
-            $dsn = $dsn['phptype'].'://'.$dsn['username'].':'.
+           $dsn = $dsn['phptype'].
+               ($dsn['dbsyntax'] ? ('('.$dsn['dbsyntax'].')') : '').
+               '://'.$dsn['username'].':'.
                 $dsn['password'].'@'.$dsn['hostspec'].
                 ($dsn['port'] ? (':'.$dsn['port']) : '').
                 '/'.$dsn['database'];
