@@ -1018,7 +1018,7 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
      * Move the internal result pointer to the next available result
      *
      * @param a valid result resource
-     * @return true on success or an error object on failure
+     * @return true on success, false if there is no more result set or an error object on failure
      * @access public
      */
     function nextResult()
@@ -1029,14 +1029,13 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
         }
 
         if (!@mysqli_more_results($connection)) {
-            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'nextResult: no more result sets to read');
+            return false;
         }
         if (!@mysqli_next_result($connection)) {
-            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            return false;
         }
         if (!($this->result = @mysqli_use_result($connection))) {
-            return $this->db->raiseError();
+            return false;
         }
         return MDB2_OK;
     }
@@ -1131,7 +1130,7 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
      * Move the internal result pointer to the next available result
      *
      * @param a valid result resource
-     * @return true on success or an error object on failure
+     * @return true on success, false if there is no more result set or an error object on failure
      * @access public
      */
     function nextResult()
@@ -1142,14 +1141,13 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
         }
 
         if (!@mysqli_more_results($connection)) {
-            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'nextResult: no more result sets to read');
+            return false;
         }
         if (!@mysqli_next_result($connection)) {
-            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            return false;
         }
         if (!($this->result = @mysqli_store_result($connection))) {
-            return $this->db->raiseError();
+            return false;
         }
         return MDB2_OK;
     }

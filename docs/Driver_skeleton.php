@@ -418,7 +418,7 @@ class MDB2_Result_xxx extends MDB2_Result_Common
      * Move the internal mysql result pointer to the next available result
      * Currently not supported
      *
-     * @return true if a result is available otherwise return false
+     * @return true on success, false if there is no more result set or an error object on failure
      * @access public
      */
     function nextResult()

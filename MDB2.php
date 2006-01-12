@@ -2964,7 +2964,7 @@ class MDB2_Result_Common extends MDB2_Result
      * Move the internal result pointer to the next available result
      *
      * @param a valid result resource
-     * @return true on success or an error object on failure
+     * @return true on success, false if there is no more result set or an error object on failure
      * @access public
      */
     function nextResult()
