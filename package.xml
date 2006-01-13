@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.5">
+<package version="1.0" packagerversion="1.4.6">
  <name>MDB2</name>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
@@ -69,19 +69,23 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.0.0RC3</version>
-  <date>2005-12-30</date>
+  <version>2.0.0RC4</version>
+  <date>2006-01-13</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- added error handling when result set introspection is not supported in _wrapResult()
-- fixed example
-- removed peardb wrapper (its broken, unmaintained and probably unused)
-- added new example using php5 only features
-- MDB2_OK is now a boolean true, instead of integer 1
-- types can now always be keyed by name or by order
-- renamed setResultTypes() in the datatype module to checkResultTypes()
-  and modified the signature accordingly
-- removed no longer used MDB2::isManip()
+  <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- some cleanups in loadModule()
+- eliminate possible warnings in execute() and _assignBindColumns()
+- do not silence includes when debug option is enabled
+- fixed serious bug in autoincrement test
+- added dbsyntax to getDSN() string output (feature request #6463)
+- fixed signature of executeStoredProc()
+- nextResult() returns false if there are no more result sets to read
+- renamed _isIndexName() to _fixIndexName()
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -237,6 +241,26 @@ portability. Among other things MDB2 features:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.0.0RC4</version>
+    <date>2006-01-13</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- some cleanups in loadModule()
+- eliminate possible warnings in execute() and _assignBindColumns()
+- do not silence includes when debug option is enabled
+- fixed serious bug in autoincrement test
+- added dbsyntax to getDSN() string output (feature request #6463)
+- fixed signature of executeStoredProc()
+- nextResult() returns false if there are no more result sets to read
+- renamed _isIndexName() to _fixIndexName()
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
+    </notes>
+   </release>
    <release>
     <version>2.0.0RC3</version>
     <date>2005-12-30</date>

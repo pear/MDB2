@@ -12,6 +12,7 @@ $notes = <<<EOT
 - renamed _isSequenceName() to _fixSequenceName()
 - _fixSequenceName() now just attempts to remove possible formatting, and only
   returns a boolean if no formatting was applied when the new "check" parameter is set to true
+- typo fixes in _makeAutoIncrement()
 
 open todo items:
 - handle autoincremement fields in alterTable()

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.5">
+<package version="1.0" packagerversion="1.4.6">
  <name>MDB2_Driver_mysqli</name>
  <summary>mysqli MDB2 driver</summary>
  <description>This is the MySQLi MDB2 driver.
@@ -14,15 +14,28 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.2</version>
-  <date>2005-12-30</date>
+  <version>0.2.3</version>
+  <date>2006-01-13</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- moved state to beta
-- fixed typo in sub select detection
+  <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- properly handle PRIMARY keys in listTableConstraints()
+- apply _isIndexName() on non primary keys in getTableConstraintDefinition()
+- initial implementation of multi_query option (bug #6418)
+- added error handling in prepare()
+- use multi_query option in executeStoredProc() (bug #6418)
+- fixed signature of quoteIdentifier() to make second param optional
+- fixed signature of executeStoredProc()
+- typo fixes in error handling of nextResult() and numRows() calls
+- added @ in front of a few more mysqli calls
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
+- test multi_query option
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.0" optional="no"/>
@@ -66,6 +79,31 @@ open todo item:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.3</version>
+    <date>2006-01-13</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- properly handle PRIMARY keys in listTableConstraints()
+- apply _isIndexName() on non primary keys in getTableConstraintDefinition()
+- initial implementation of multi_query option (bug #6418)
+- added error handling in prepare()
+- use multi_query option in executeStoredProc() (bug #6418)
+- fixed signature of quoteIdentifier() to make second param optional
+- fixed signature of executeStoredProc()
+- typo fixes in error handling of nextResult() and numRows() calls
+- added @ in front of a few more mysqli calls
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
+
+open todo item:
+- use native prepared queries for prepared SELECT statements
+- test multi_query option
+    </notes>
+   </release>
    <release>
     <version>0.2.2</version>
     <date>2005-12-30</date>
