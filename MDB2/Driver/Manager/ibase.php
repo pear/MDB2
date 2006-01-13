@@ -750,11 +750,13 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = strtoupper($table);
-        $query = "SELECT RDB\$CONSTRAINT_NAME AS constraint_name,
-                         RDB\$CONSTRAINT_TYPE AS constraint_type,
-                         RDB\$INDEX_NAME AS index_name
-                    FROM RDB\$RELATION_CONSTRAINTS
-                   WHERE RDB\$RELATION_NAME='$table'";
+        $query = "SELECT RDB\$INDEX_NAME
+                    FROM RDB\$INDICES
+                   WHERE RDB\$RELATION_NAME='$table'
+                     AND (
+                           RDB\$UNIQUE_FLAG IS NOT NULL
+                        OR RDB\$FOREIGN_KEY IS NOT NULL
+                     )";
         $constraints = $db->queryCol($query);
         if (PEAR::isError($constraints)) {
             return $constraints;
