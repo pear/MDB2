@@ -142,7 +142,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $index_name  = $table . '_AUTOINCREMENT_PK';
         $definition = array(
             'primary' => true,
-            'fields' => array($name),
+            'fields' => array($name => true),
         );
         $result = $db->manager->createConstraint($table, $index_name, $definition);
         if (PEAR::isError($result)) {
@@ -150,11 +150,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 '_makeAutoincrement: primary key for autoincrement PK could not be created');
         }
 
-        $table = $db->quoteIdentifier($table, true);
-        $name = $db->quoteIdentifier($name, true);
         if (is_null($start)) {
             $db->beginTransaction();
-            $query = "SELECT MAX($name) FROM $table";
+            $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $db->quoteIdentifier($table, true);
             $start = $this->db->queryOne($query, 'integer');
             if (PEAR::isError($start)) {
                 return $start;
@@ -169,14 +167,13 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
-
-        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
-        $trigger_name  = $table . '_AUTOINCREMENT_PK';
-        $trigger_name = $db->quoteIdentifier($trigger_name, true);
+        $sequence_name = $db->getSequenceName($table);
+        $trigger_name  = $db->quoteIdentifier($table . '_AUTOINCREMENT_PK', true);
+        $table = $db->quoteIdentifier($table, true);
+        $name  = $db->quoteIdentifier($name, true);
         $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
         $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
         $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;";
-
         return $db->exec($trigger_sql);
     }
 
@@ -738,8 +735,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
-        return $db->exec("CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1".
-            ($start < 1 ? " MINVALUE $start" : ''));
+        $query = "CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1";
+        $query.= ($start < 1 ? " MINVALUE $start" : '');
+        return $db->exec($query);
     }
 
     // }}}
