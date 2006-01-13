@@ -74,7 +74,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $database_file = $db->_getDatabaseFile($name);
         if (file_exists($database_file)) {
-            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
+            return $db->raiseError(MDB2_ERROR_ALREADY_EXISTS, null, null,
                 'createDatabase: database already exists');
         }
         $php_errormsg = '';
