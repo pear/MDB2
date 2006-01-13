@@ -35,7 +35,6 @@
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
-- test multi_query option
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.0" optional="no"/>
@@ -101,7 +100,6 @@ open todo item:
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
-- test multi_query option
     </notes>
    </release>
    <release>

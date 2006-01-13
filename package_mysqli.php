@@ -21,7 +21,6 @@ $notes = <<<EOT
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
-- test multi_query option
 EOT;
 
 $package = new PEAR_PackageFileManager();
