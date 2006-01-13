@@ -752,7 +752,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $table = strtoupper($table);
         $query = "SELECT RDB\$INDEX_NAME
                     FROM RDB\$INDICES
-                   WHERE RDB\$RELATION_NAME='$table'
+                   WHERE UPPER(RDB\$RELATION_NAME)='$table'
                      AND (
                            RDB\$UNIQUE_FLAG IS NOT NULL
                         OR RDB\$FOREIGN_KEY IS NOT NULL
