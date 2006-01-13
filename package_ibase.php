@@ -17,8 +17,9 @@ $notes = <<<EOT
 - fixed bug #6465: possible mismatch in MDB2_Reverse_ibase due to parentheses
   in the returned datatype (Mark Wiesemann)
 - fixed bug #6468: possible NOTICE in Driver/Datatype/ibase.php (Mark Wiesemann)
-- fixed bug #6475: listTableIndexes() should only list indices, not constraints,
-  and listTableConstraints() should return the user-defined names when available
+- fixed bug #6475: listTableIndexes() should only list indices (not constraints),
+  listTableConstraints() should return the user-defined names when available and
+  fixed a wrong check in getTableConstraintDefinition().
 - _fixIndexName() now just attempts to remove possible formatting
 - renamed _isSequenceName() to _fixSequenceName()
 - _fixSequenceName() now just attempts to remove possible formatting, and only
