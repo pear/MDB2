@@ -18,6 +18,10 @@ $notes = <<<EOT
   in the returned datatype (Mark Wiesemann)
 - fixed bug #6468: possible NOTICE in Driver/Datatype/ibase.php (Mark Wiesemann)
 - fixed bug #6475: listTableIndexes() should only list indices, not constraints
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new "check" parameter is set to true
 
 open todo items:
 - handle autoincremement fields in alterTable()

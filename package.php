@@ -9,6 +9,14 @@ $notes = <<<EOT
 - eliminate possible warnings in execute() and _assignBindColumns()
 - do not silence includes when debug option is enabled
 - fixed serious bug in autoincrement test
+- added dbsyntax to getDSN() string output (feature request #6463)
+- fixed signature of executeStoredProc()
+- nextResult() returns false if there are no more result sets to read
+- renamed _isIndexName() to _fixIndexName()
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new "check" parameter is set to true
 EOT;
 
 $description =<<<EOT

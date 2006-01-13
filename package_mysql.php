@@ -8,6 +8,12 @@ $notes = <<<EOT
 - properly handle PRIMARY keys in listTableConstraints()
 - apply _isIndexName() on non primary keys in getTableConstraintDefinition()
 - fixed signature of quoteIdentifier() to make second param optional
+- fixed signature of executeStoredProc()
+- typo fixes in error handling of nextResult() and numRows() calls
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new "check" parameter is set to true
 EOT;
 
 $package = new PEAR_PackageFileManager();

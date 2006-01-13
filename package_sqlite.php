@@ -7,6 +7,11 @@ $notes = <<<EOT
 - explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 - fixed handling of autoincrement and unsigned in Reverse and Datatype module
 - tweaked handling of the native error message
+- typo fixes in error handling of nextResult() and numRows() calls
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new "check" parameter is set to true
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

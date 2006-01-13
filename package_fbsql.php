@@ -24,6 +24,12 @@ $notes = <<<EOT
 - fixed 'change' in alterTable()
 - proper quote new table name in alterTable()
 - explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- typo fixes in error handling of nextResult() and numRows() calls
+- nextResult() returns false if there are no more result sets to read
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new "check" parameter is set to true
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

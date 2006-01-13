@@ -7,6 +7,11 @@ $notes = <<<EOT
 - explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 - since we do not store the last statement in mdb2 we cannot check it
   (maybe this needs to be ported more completely from DB)
+- fixed signature of executeStoredProc()
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new "check" parameter is set to true
 
 open todo items:
 - handle autoincremement fields in alterTable()
