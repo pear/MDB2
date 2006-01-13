@@ -327,7 +327,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if ($index['constraint_type'] == 'PRIMARY KEY') {
             $definition['primary'] = true;
         }
-        if ($index['unique_flag']) {
+        if (!$index['unique_flag'] && !$index['foreign_key']) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
