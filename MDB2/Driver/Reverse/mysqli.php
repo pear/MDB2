@@ -60,7 +60,6 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      * Array for converting MYSQLI_*_FLAG constants to text values
      * @var    array
      * @access public
-     * @since  Property available since Release 1.6.5
      */
     var $flags = array(
         MYSQLI_NOT_NULL_FLAG        => 'not_null',
@@ -82,7 +81,6 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      * Array for converting MYSQLI_TYPE_* constants to text values
      * @var    array
      * @access public
-     * @since  Property available since Release 1.6.5
      */
     var $types = array(
         MYSQLI_TYPE_DECIMAL     => 'decimal',
@@ -297,7 +295,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 }
             }
             if ($index_name == $key_name) {
-                if (!$row['non_unique']) {
+                if ($row['non_unique']) {
                     return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                         'getTableConstraintDefinition: it was not specified an existing table constraint');
                 }
