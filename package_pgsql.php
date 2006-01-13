@@ -11,6 +11,7 @@ $notes = <<<EOT
 - renamed _isSequenceName() to _fixSequenceName()
 - _fixSequenceName() now just attempts to remove possible formatting, and only
   returns a boolean if no formatting was applied when the new "check" parameter is set to true
+- fixed bug that caused unique indexes from not being seen (bug #6476)
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage
