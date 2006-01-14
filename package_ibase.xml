@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.5">
+<package version="1.0" packagerversion="1.4.6">
  <name>MDB2_Driver_ibase</name>
  <summary>ibase MDB2 driver</summary>
  <description>This is the Firebird/Interbase MDB2 driver.
@@ -20,40 +20,29 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.0</version>
-  <date>2005-12-22</date>
+  <version>0.2.1</version>
+  <date>2006-01-14</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- fixed _dropAutoincrement()
-- use _dropAutoincrement() in dropTable()
-- fixed mapNativeDatatype()
-- implemented getTableFieldDefinition() and getTableIndexDefinition() in the Reverse module
-- implemented listUsers() in the Manager module
-- unified case fixing in the list*() methods
-- use custom implementation of getConnection() to access connection property
-- split index and constraint handling
-- return &quot;0&quot; as default value for integer NOT NULL fields with no default value
-- quoteIdentifier() is just returning an uppercase string, since quoted
-  identifiers in ibase do more harm than good
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- set in_transaction to false on disconnect
-- fixed type changing in alterTable()
-- added new Function modules to handle difference in SQL functions
-- autoincrement emulation works correctly
-- pass the correct connection resource to ibase_blob_import()
-- force rollback() with open transactions on disconnect
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- in listSequences(), skip system generators
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- only if result_types is set to false in prepare() method the query will be
-  handled as a DML statement *BC BREAK*
-- added ability to determine unsigned in mapNativeDatatype()
-  (only really implemented in the mysql(i) drivers) (bug #6054)
-- use MDB2_ERROR_NOT_FOUND in getTableConstraintDefinition() and getTableIndexDefinition() (bug #6055)
-- added getServerVersion()
-- unified array structure in mapNativeDatatype() *BC BREAK*
-- added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
-- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
+  <notes>- removed unnecessary if statement in getTableFieldDefinition()
+- no need to register a shutdown function since te ibase driver is php5 only
+  and therefore always uses the destructor
+- fixed typo in _execute() that would lead to using the wrong types inside the result object
+- use proper error code in alterTable()
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- added error handling in prepare()
+- fixed signature of quoteIdentifier() to make second param optional
+- req #6464: add the extension only if neither &apos;.gdb&apos; nor &apos;.fdb&apos; is given in the
+  database name, for compatibility with PEAR::DB DNS (Mark Wiesemann)
+- fixed bug #6465: possible mismatch in MDB2_Reverse_ibase due to parentheses
+  in the returned datatype (Mark Wiesemann)
+- fixed bug #6468: possible NOTICE in Driver/Datatype/ibase.php (Mark Wiesemann)
+- fixed bug #6475: listTableIndexes() should only list indices, not constraints,
+  and listTableConstraints() should return the user-defined names when available
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
 
 open todo items:
 - handle autoincremement fields in alterTable()
@@ -61,7 +50,7 @@ open todo items:
   <deps>
    <dep type="php" rel="ge" version="5.0.4" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0RC1" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC4" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">interbase</dep>
   </deps>
   <filelist>
@@ -100,6 +89,35 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.1</version>
+    <date>2006-01-14</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- removed unnecessary if statement in getTableFieldDefinition()
+- no need to register a shutdown function since te ibase driver is php5 only
+  and therefore always uses the destructor
+- fixed typo in _execute() that would lead to using the wrong types inside the result object
+- use proper error code in alterTable()
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- added error handling in prepare()
+- fixed signature of quoteIdentifier() to make second param optional
+- req #6464: add the extension only if neither &apos;.gdb&apos; nor &apos;.fdb&apos; is given in the
+  database name, for compatibility with PEAR::DB DNS (Mark Wiesemann)
+- fixed bug #6465: possible mismatch in MDB2_Reverse_ibase due to parentheses
+  in the returned datatype (Mark Wiesemann)
+- fixed bug #6468: possible NOTICE in Driver/Datatype/ibase.php (Mark Wiesemann)
+- fixed bug #6475: listTableIndexes() should only list indices, not constraints,
+  and listTableConstraints() should return the user-defined names when available
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
+
+open todo items:
+- handle autoincremement fields in alterTable()
+    </notes>
+   </release>
    <release>
     <version>0.2.0</version>
     <date>2005-12-22</date>
