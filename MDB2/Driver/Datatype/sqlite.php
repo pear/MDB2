@@ -274,6 +274,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
             }
             $type[] = 'decimal';
             break;
+        case 'clob':
         case 'tinytext':
         case 'mediumtext':
         case 'longtext':
