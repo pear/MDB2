@@ -2,22 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.3';
+$version = '0.2.4';
 $notes = <<<EOT
-- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- properly handle PRIMARY keys in listTableConstraints()
-- apply _isIndexName() on non primary keys in getTableConstraintDefinition()
-- initial implementation of multi_query option (bug #6418)
-- added error handling in prepare()
-- use multi_query option in executeStoredProc() (bug #6418)
-- fixed signature of quoteIdentifier() to make second param optional
-- fixed signature of executeStoredProc()
-- typo fixes in error handling of nextResult() and numRows() calls
-- added @ in front of a few more mysqli calls
-- _fixIndexName() now just attempts to remove possible formatting
-- renamed _isSequenceName() to _fixSequenceName()
-- _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new "check" parameter is set to true
+- typo fix in getTableConstraintDefinition() (bug #6487)
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
