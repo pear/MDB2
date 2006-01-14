@@ -302,7 +302,6 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             }
         }
 
-        $result->free();
         if (!array_key_exists('fields', $definition)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
