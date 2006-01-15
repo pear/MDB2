@@ -121,14 +121,31 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            return array_key_exists('length', $field) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
+            return array_key_exists('length', $field)
+                ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
         case 'clob':
             return 'OID';
         case 'blob':
             return 'OID';
         case 'integer':
             if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
+                if (array_key_exists('length', $field)) {
+                    $length = $field['length'];
+                    if ($length > 4) {
+                        return 'BIGSERIAL PRIMARY KEY';
+                    }
+                }
                 return 'SERIAL PRIMARY KEY';
+            }
+            if (array_key_exists('length', $field)) {
+                $length = $field['length'];
+                if ($length <= 2) {
+                    return 'SMALLINT';
+                } elseif ($length == 3 || $length == 4) {
+                    return 'INT';
+                } elseif ($length > 4) {
+                    return 'BIGINT';
+                }
             }
             return 'INT';
         case 'boolean':
@@ -142,7 +159,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         case 'float':
             return 'FLOAT8';
         case 'decimal':
-            return 'NUMERIC(18, '.$db->options['decimal_places'].')';
+            $length = array_key_exists('length', $field)
+                ? ($field['length'] - $db->options['decimal_places']) : 18;
+            return 'NUMERIC('.$length.','.$db->options['decimal_places'].')';
         }
     }
 
@@ -537,7 +556,11 @@ for some reason this piece of code causes an apache crash
         $type = array();
         $unsigned = null;
         switch ($db_type) {
+        case 'smallint':
         case 'int':
+        case 'integer':
+        case 'bigint':
+        case 'serial':
             $type[] = 'integer';
             if ($length == '1') {
                 $type[] = 'boolean';

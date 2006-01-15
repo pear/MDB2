@@ -92,18 +92,17 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            return array_key_exists('length', $field) ? 'CHAR ('.$field['length'].')' : 'TEXT';
+            return array_key_exists('length', $field)
+                ? 'CHAR ('.$field['length'].')' : 'TEXT';
         case 'clob':
             if (array_key_exists('length', $field)) {
                 $length = $field['length'];
                 if ($length <= 255) {
                     return 'TINYTEXT';
-                } else {
-                    if ($length <= 65535) {
-                        return 'TEXT';
-                    } elseif ($length <= 16777215) {
-                        return 'MEDIUMTEXT';
-                    }
+                } elseif ($length <= 65535) {
+                    return 'TEXT';
+                } elseif ($length <= 16777215) {
+                    return 'MEDIUMTEXT';
                 }
             }
             return 'LONGTEXT';
@@ -112,16 +111,24 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 $length = $field['length'];
                 if ($length <= 255) {
                     return 'TINYBLOB';
-                } else {
-                    if ($length <= 65535) {
-                        return 'BLOB';
-                    } elseif ($length <= 16777215) {
-                        $type = 'MEDIUMBLOB';
-                    }
+                } elseif ($length <= 65535) {
+                    return 'BLOB';
+                } elseif ($length <= 16777215) {
+                    return 'MEDIUMBLOB';
                 }
             }
             return 'LONGBLOB';
         case 'integer':
+            if (array_key_exists('length', $field)) {
+                $length = $field['length'];
+                if ($length <= 2) {
+                    return 'SMALLINT';
+                } elseif ($length == 3 || $length == 4) {
+                    return 'INT';
+                } elseif ($length > 4) {
+                    return 'BIGINT';
+                }
+            }
             return 'INT';
         case 'boolean':
             return 'BOOLEAN';
@@ -135,7 +142,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
             return 'DOUBLE'.($db->options['fixed_float'] ? '('.
                 ($db->options['fixed_float']+2).','.$db->options['fixed_float'].')' : '');
         case 'decimal':
-            return 'BIGINT';
+            $length = array_key_exists('length', $field)
+                ? ($field['length'] - $db->options['decimal_places']) : 18;
+            return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
         }
         return '';
     }
