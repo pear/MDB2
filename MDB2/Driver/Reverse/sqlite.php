@@ -72,24 +72,24 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if ($count == 0) {
             return $db->raiseError('unexpected empty table column definition list');
         }
-        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|INT|INTEGER|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( UNSIGNED)?( PRIMARY KEY)?( \(([1-9][0-9]*)(,([1-9][0-9]*))?\))?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
+        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|SMALLINT|INT|INTEGER|DECIMAL|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( \(([1-9][0-9]*)(,([1-9][0-9]*))?\))?( UNSIGNED)?( PRIMARY KEY)?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
         for ($i=0, $j=0; $i<$count; ++$i) {
             if (!preg_match($regexp, trim($column_sql[$i]), $matches)) {
                 return $db->raiseError('unexpected table column SQL definition: "'.$column_sql[$i].'"');
             }
             $columns[$j]['name'] = $matches[1];
             $columns[$j]['type'] = strtolower($matches[2]);
-            if (isset($matches[3]) && strlen($matches[3])) {
-                $columns[$j]['unsigned'] = true;
-            }
             if (isset($matches[4]) && strlen($matches[4])) {
-                $columns[$j]['autoincrement'] = true;
+                $columns[$j]['length'] = $matches[4];
             }
             if (isset($matches[6]) && strlen($matches[6])) {
-                $columns[$j]['length'] = $matches[6];
+                $columns[$j]['decimal'] = $matches[6];
+            }
+            if (isset($matches[7]) && strlen($matches[7])) {
+                $columns[$j]['unsigned'] = true;
             }
             if (isset($matches[8]) && strlen($matches[8])) {
-                $columns[$j]['decimal'] = $matches[8];
+                $columns[$j]['autoincrement'] = true;
             }
             if (isset($matches[10]) && strlen($matches[10])) {
                 $default = $matches[10];
