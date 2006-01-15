@@ -115,7 +115,8 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            $length = (array_key_exists('length', $field) ? $field['length'] : (($length = $db->options['default_text_field_length']) ? $length : 4000));
+            $length = array_key_exists('length', $field)
+                ? $field['length'] : $db->options['default_text_field_length'];
             return 'VARCHAR ('.$length.')';
         case 'clob':
             return 'CLOB';

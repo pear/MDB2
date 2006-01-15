@@ -125,7 +125,8 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            return array_key_exists('length', $field) ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
+            return array_key_exists('length', $field)
+                ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
         case 'clob':
             if (array_key_exists('length', $field)) {
                 $length = $field['length'];
@@ -155,7 +156,9 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         case 'float':
             return 'FLOAT';
         case 'decimal':
-            return 'DECIMAL(18,'.$db->options['decimal_places'].')';
+            $length = array_key_exists('length', $field)
+                ? ($field['length'] - $db->options['decimal_places']) : 18;
+            return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
         }
         return '';
     }

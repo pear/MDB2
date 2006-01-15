@@ -123,7 +123,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            $length = (array_key_exists('length', $field) ? $field['length'] : (!PEAR::isError($length = $db->options['default_text_field_length']) ? $length : 4000));
+            $length = array_key_exists('length', $field)
+                ? $field['length'] : $db->options['default_text_field_length'];
             return 'VARCHAR ('.$length.')';
         case 'clob':
             return 'BLOB SUB_TYPE 1';
@@ -142,7 +143,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         case 'float':
             return 'DOUBLE PRECISION';
         case 'decimal':
-            return 'DECIMAL(18,'.$db->options['decimal_places'].')';
+            $length = array_key_exists('length', $field)
+                ? ($field['length'] - $db->options['decimal_places']) : 18;
+            return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
         }
         return '';
     }
