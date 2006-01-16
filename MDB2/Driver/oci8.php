@@ -391,9 +391,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $connection;
         }
 
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, false, $limit, $offset);
 
         $result = $this->_doQuery($query, false, $connection, false);
@@ -429,9 +429,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $connection;
         }
 
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
         $result = $this->_doQuery($query, $is_manip, $connection, false);
@@ -599,9 +599,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
         $this->debug($query, 'prepare');
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
         $placeholder_type_guess = $placeholder_type = null;

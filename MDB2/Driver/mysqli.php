@@ -603,9 +603,9 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             return $obj;
         }
         $is_manip = true;
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
         $this->debug($query, 'prepare');
         $placeholder_type_guess = $placeholder_type = null;

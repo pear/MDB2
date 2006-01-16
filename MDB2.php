@@ -1035,14 +1035,14 @@ class MDB2_Driver_Common extends PEAR
      * @var integer
      * @access protected
      */
-    var $row_offset = 0;
+    var $offset = 0;
 
     /**
      * result limit used in the next query
      * @var integer
      * @access protected
      */
-    var $row_limit = 0;
+    var $limit = 0;
 
     /**
      * Database backend used in PHP (mysql, odbc etc.)
@@ -1837,9 +1837,9 @@ class MDB2_Driver_Common extends PEAR
      */
     function &standaloneQuery($query, $types = null, $is_manip = false)
     {
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
         $connection = $this->getConnection();
@@ -1924,9 +1924,9 @@ class MDB2_Driver_Common extends PEAR
      */
     function exec($query)
     {
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, true, $limit, $offset);
 
         $connection = $this->getConnection();
@@ -1958,9 +1958,9 @@ class MDB2_Driver_Common extends PEAR
      */
     function &query($query, $types = null, $result_class = true, $result_wrap_class = false)
     {
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, false, $limit, $offset);
 
         $connection = $this->getConnection();
@@ -2086,14 +2086,14 @@ class MDB2_Driver_Common extends PEAR
             return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                 'setLimit: it was not specified a valid selected range row limit');
         }
-        $this->row_limit = $limit;
+        $this->limit = $limit;
         if (!is_null($offset)) {
             $offset = (int)$offset;
             if ($offset < 0) {
                 return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                     'setLimit: it was not specified a valid first selected range row');
             }
-            $this->row_offset = $offset;
+            $this->offset = $offset;
         }
         return MDB2_OK;
     }
@@ -2301,9 +2301,9 @@ class MDB2_Driver_Common extends PEAR
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
         $this->debug($query, 'prepare');
         $positions = array();
         $placeholder_type_guess = $placeholder_type = null;
@@ -3164,8 +3164,8 @@ class MDB2_Statement_Common
     var $result_types;
     var $types;
     var $values = array();
-    var $row_limit;
-    var $row_offset;
+    var $limit;
+    var $offset;
     var $is_manip;
 
     // {{{ constructor
@@ -3181,9 +3181,9 @@ class MDB2_Statement_Common
         $this->query = $query;
         $this->types = (array)$types;
         $this->result_types = (array)$result_types;
-        $this->row_limit = $limit;
+        $this->limit = $limit;
         $this->is_manip = $is_manip;
-        $this->row_offset = $offset;
+        $this->offset = $offset;
     }
 
     function MDB2_Statement_Common(&$db, &$statement, $query, $types, $result_types, $is_manip = false, $limit = null, $offset = null)
@@ -3305,8 +3305,8 @@ class MDB2_Statement_Common
         }
         $query.= substr($this->query, $last_position);
 
-        $this->db->row_offset = $this->row_offset;
-        $this->db->row_limit = $this->row_limit;
+        $this->db->offset = $this->offset;
+        $this->db->limit = $this->limit;
         if ($this->is_manip) {
             $result = $this->db->exec($query);
         } else {
