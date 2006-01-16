@@ -73,6 +73,9 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                 'length'   => 1,
                 'default'  => 'M',
             ),
+            'decimalfield' => array(
+                'type' => 'decimal',
+            ),
         );
         if (!$this->tableExists($this->table)) {
             $this->db->manager->createTable($this->table, $this->fields);
@@ -125,8 +128,8 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $query.= ' (somename, somedescription)';
         $query.= ' VALUES (:somename, :somedescription)';
         $stmt =& $this->db->prepare($query, array('text', 'text'), false);
-        if (PEAR::isError($result)) {
-            $this->assertTrue(true, 'Prepareing insert');
+        if (PEAR::isError($stmt)) {
+            $this->assertTrue(true, 'Preparing insert');
             return;
         }
         $values = array(
@@ -514,6 +517,38 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                 }
             }
         }
+    }
+
+    /**
+     * Test the DECIMAL datatype for incorrect conversions
+     */
+    function testDecimalDataType() {
+        $result = $this->db->exec('DELETE FROM '.$this->table);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error deleting from table'.$result->getMessage());
+        }
+
+        $fields = array(
+            'id'           => 'integer',
+            'decimalfield' => 'decimal',
+        );
+        $data = array(
+            'id'           => 1,
+            'decimalfield' => 10.35,
+        );
+        $stmt = $this->db->prepare('INSERT INTO '.$this->table.' (' . implode(', ', array_keys($fields)) . ') VALUES (?, ?)', array_values($fields), false);
+        if (PEAR::isError($stmt)) {
+            $this->assertTrue(false, 'Error creating prepared query: '.$stmt->getMessage().'; '.$stmt->getUserInfo());
+        }
+        $result = $stmt->execute(array_values($data));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+        }
+        $stmt->free();
+
+        $query = 'SELECT '. implode (', ', array_keys($fields)). ' FROM '.$this->table;
+        $result = $this->db->queryRow($query, $fields, MDB2_FETCHMODE_ASSOC);
+        $this->assertEquals($result['decimalfield'], $data['decimalfield'], 'Error in DECIMAL value: incorrect conversion');
     }
 
     /**
