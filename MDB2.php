@@ -2301,6 +2301,9 @@ class MDB2_Driver_Common extends PEAR
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
         $this->debug($query, 'prepare');
         $positions = array();
         $placeholder_type_guess = $placeholder_type = null;
@@ -2385,7 +2388,7 @@ class MDB2_Driver_Common extends PEAR
         }
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $statement = null;
-        $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
+        $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
         return $obj;
     }
 
