@@ -585,32 +585,21 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @param mixed   $result_types  array that contains the types of the columns in
      *                        the result set, if set to MDB2_PREPARE_MANIP the
                               query is handled as a manipulation query
+     * @param mixed   $lobs   key (field) value (parameter) pair for all lob placeholders
      * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
      * @see bindParam, execute
      */
-    function &prepare($query, $types = null, $result_types = null)
+    function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
         $this->debug($query, 'prepare');
         $query = $this->_modifyQuery($query);
-        $contains_lobs = false;
-        if (is_array($types)) {
-            $columns = $variables = '';
-            foreach ($types as $parameter => $type) {
-                if ($type == 'clob' || $type == 'blob') {
-                    $contains_lobs = true;
-                    $columns.= ($columns ? ', ' : ' RETURNING ').$parameter;
-                    $variables.= ($variables ? ', ' : ' INTO ').':'.$parameter;
-                }
-            }
-        } else {
-            $types = array();
-        }
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
+        $positions = array();
         $position = 0;
         $parameter = -1;
         while ($position < strlen($query)) {
@@ -652,54 +641,71 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     break;
                 }
             } elseif ($query[$position] == $placeholder_type_guess) {
-                if ($placeholder_type_guess == ':' && !$contains_lobs) {
-                    break;
-                }
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
+                    if (is_array($types) && !empty($types)) {
+                        if ($placeholder_type == ':') {
+                            if (is_int(key($types))) {
+                                $types_tmp = $types;
+                                $types = array();
+                                $count = -1;
+                            }
+                        } else {
+                            $types = array_values($types);
+                        }
+                    }
                 }
-                if ($contains_lobs) {
-                    $type = next($types);
-                    if ($placeholder_type == ':') {
-                        $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
-                        if ($parameter === '') {
-                            $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                                'prepare: named parameter with an empty name');
-                            return $err;
-                        }
-                        $length = strlen($parameter)+1;
-                        if (!$type && isset($types[$parameter])) {
-                            $type = $types[$parameter];
-                        }
-                    } else {
-                        ++$parameter;
-                        $length = strlen($parameter);
+                if ($placeholder_type == ':') {
+                    $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
+                    if ($parameter === '') {
+                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                            'prepare: named parameter with an empty name');
+                        return $err;
                     }
-                    if ($type == 'clob' || $type == 'blob') {
-                        $value = $this->quote(true, $type);
-                        $query = substr_replace($query, $value, $p_position, $length);
-                        $position = $p_position + strlen($value) - 1;
-                    } elseif ($placeholder_type == '?') {
-                        $query = substr_replace($query, ':'.$parameter, $p_position, 1);
-                        $position = $p_position + strlen($parameter);
+                    $positions[$parameter] = $p_position;
+                    // use parameter name in type array
+                    if (isset($count) && isset($types_tmp[++$count])) {
+                        $types[$parameter] = $types_tmp[$count];
                     }
+                    $length = strlen($parameter) + 1;
                 } else {
-                    $query = substr_replace($query, ':'.++$parameter, $p_position, 1);
-                    $position = $p_position + strlen($parameter);
+                    ++$parameter;
+                    $length = strlen($parameter);
+                }
+                if (isset($types[$parameter])
+                    && ($types[$parameter] == 'clob' || $types[$parameter] == 'blob')
+                ) {
+                    if (!isset($lobs[$parameter])) {
+                        $lobs[$parameter] = $parameter;
+                    }
+                    $value = $this->quote(true, $types[$parameter]);
+                    $query = substr_replace($query, $value, $p_position, $length);
+                    $position = $p_position + strlen($value) - 1;
+                } elseif ($placeholder_type == '?') {
+                    $positions[] = $p_position;
+                    $query = substr_replace($query, ':'.$parameter, $p_position, 1);
+                    $position = $p_position + $length;
+                } else {
+                    $position = $p_position + 1;
                 }
             } else {
                 $position = $p_position;
             }
         }
-        if (is_array($types)) {
+        if (is_array($lobs)) {
+            $columns = $variables = '';
+            foreach ($lobs as $parameter => $field) {
+                $columns.= ($columns ? ', ' : ' RETURNING ').$field;
+                $variables.= ($variables ? ', ' : ' INTO ').':'.$parameter;
+            }
             $query.= $columns.$variables;
         }
         $connection = $this->getConnection();
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        $statement = @OCIParse($connection, $query);
+        $statement = OCIParse($connection, $query);
         if (!$statement) {
             $err =& $this->raiseError(MDB2_ERROR, null, null,
                 'Could not create statement');
@@ -707,7 +713,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
+        $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
@@ -1158,7 +1164,11 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         $result = MDB2_OK;
         $lobs = $quoted_values = array();
         $i = 0;
-        foreach ($this->values as $parameter => $value) {
+        foreach ($this->positions as $parameter => $current_position) {
+            if (!array_key_exists($parameter, $this->values)) {
+                return $this->db->raiseError();
+            }
+            $value = $this->values[$parameter];
             $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
             if ($type == 'clob' || $type == 'blob') {
                 $lobs[$i]['file'] = false;
