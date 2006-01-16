@@ -250,18 +250,23 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testPreparedQueries() {
         $data = array(
-            'user_name' => 'Sure!',
-            'user_password' => 'Does this work?',
-            'user_id' => 1,
+            array(
+                'user_name' => 'Sure!',
+                'user_password' => 'Does this work?',
+                'user_id' => 1,
+            ),
+            array(
+                'user_name' => 'For Sure!',
+                'user_password' => "Wouldn't it be great if this worked too?",
+                'user_id' => 2,
+            ),
         );
 
         $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, ?, ?)", array('text', 'text', 'integer'), false);
 
-        $stmt->bindParam(0, $data['user_name']);
-
-        $stmt->bindParam(1, $data['user_password']);
-
-        $stmt->bindParam(2, $data['user_id']);
+        $stmt->bindParam(0, $data[0]['user_name']);
+        $stmt->bindParam(2, $data[0]['user_id']);
+        $stmt->bindParam(1, $data[0]['user_password']);
 
         $result = $stmt->execute();
 
@@ -273,12 +278,10 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared query with a text value with a question mark. Error: ');
 
-        $question_value = $this->db->quote("Wouldn't it be great if this worked too?", 'text');
+        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (:text, :question, ".$data[1]['user_id'].")", array('text', 'text'), false);
 
-        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (:text, $question_value, 2)", array('text'), false);
-
-        $value = 'For Sure!';
-        $stmt->bindParam('text', $value);
+        $stmt->bindParam('question', $data[1]['user_password']);
+        $stmt->bindParam('text', $data[1]['user_name']);
 
         $result = $stmt->execute();
 
@@ -291,13 +294,15 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared query with a text value with a quote character before a question mark. Error: ');
 
         $stmt = $this->db->prepare('SELECT user_name, user_password, user_id FROM users WHERE user_id=:user_id', array('integer'), array('text', 'text', 'integer'));
-        $result =& $stmt->execute(array('user_id' => $data['user_id']));
-        $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
-        if (!is_array($row)) {
-            $this->assertTrue(false, 'Prepared SELECT failed');
-        } else {
-            $diff = (array)array_diff($row, $data);
-            $this->assertTrue(empty($diff), 'Prepared SELECT failed');
+        foreach ($data as $row_data) {
+            $result =& $stmt->execute(array('user_id' => $row_data['user_id']));
+            $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+            if (!is_array($row)) {
+                $this->assertTrue(false, 'Prepared SELECT failed');
+            } else {
+                $diff = (array)array_diff($row, $row_data);
+                $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
+            }
         }
         $stmt->free();
     }
@@ -841,8 +846,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             return;
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
-        $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), false);
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, ?, ?)';
+        $stmt = $this->db->prepare($query, array('clob', 'blob'), false, array('document', 'picture'));
 
         $character_lob = '';
         $binary_lob = '';
@@ -856,8 +861,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             }
         }
 
-        $stmt->bindParam('document', $character_lob);
-        $stmt->bindParam('picture', $binary_lob);
+        $stmt->bindParam(0, $character_lob);
+        $stmt->bindParam(1, $binary_lob);
 
         $result = $stmt->execute();
 
