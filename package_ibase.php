@@ -5,6 +5,12 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.2';
 $notes = <<<EOT
 - native DECIMAL datatype is now used instead of converting it to a string
+- added support for length in decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- added support for out of order parameter binding in prepared queries
+- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
+- cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
 
 open todo items:
 - handle autoincremement fields in alterTable()

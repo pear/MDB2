@@ -2,16 +2,14 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.3';
+$version = '0.2.4';
 $notes = <<<EOT
-- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- fixed signature of executeStoredProc()
-- typo fixes in error handling of nextResult() and numRows() calls
-- _fixIndexName() now just attempts to remove possible formatting
-- renamed _isSequenceName() to _fixSequenceName()
-- _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new "check" parameter is set to true
-- fixed bug that caused unique indexes from not being seen (bug #6476)
+- added support for length in integer and decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- added support for out of order parameter binding in prepared queries
+- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
+- cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

@@ -5,6 +5,12 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.4';
 $notes = <<<EOT
 - typo fix in getTableConstraintDefinition() (bug #6487)
+- added support for length in integer and decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- added support for out of order parameter binding in prepared queries
+- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
+- cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
 
 open todo item:
 - use native prepared queries for prepared SELECT statements

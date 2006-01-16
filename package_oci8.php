@@ -2,19 +2,20 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.3';
+$version = '0.2.4';
 $notes = <<<EOT
-- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- since we do not store the last statement in mdb2 we cannot check it
-  (maybe this needs to be ported more completely from DB)
-- fixed signature of executeStoredProc()
-- _fixIndexName() now just attempts to remove possible formatting
-- renamed _isSequenceName() to _fixSequenceName()
-- _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new "check" parameter is set to true
-- typo fixes in _makeAutoIncrement()
+- added support for length in decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- added support for out of order parameter binding in prepared queries
+- tried to fix issues with lobs where the placeholder is not named like the field
+- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
+- rewrite queries for limit/offset (taken from ezc) instead of emulating
+- cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
 
 open todo items:
+- fix issues with lobs where the placeholder is not named like the field
+- fix crash in _makeAutoincrement()
 - handle autoincremement fields in alterTable()
 - there are still a number of missing methods in the reverse and datatype module
 - there are still severe stability issues due to ext/oci8, especially on windows

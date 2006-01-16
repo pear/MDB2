@@ -2,18 +2,11 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.3';
+$version = '0.2.4';
 $notes = <<<EOT
-- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- properly handle PRIMARY keys in listTableConstraints()
-- apply _isIndexName() on non primary keys in getTableConstraintDefinition()
-- fixed signature of quoteIdentifier() to make second param optional
-- fixed signature of executeStoredProc()
-- typo fixes in error handling of nextResult() and numRows() calls
-- _fixIndexName() now just attempts to remove possible formatting
-- renamed _isSequenceName() to _fixSequenceName()
-- _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new "check" parameter is set to true
+- added support for length in integer and decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
 EOT;
 
 $package = new PEAR_PackageFileManager();

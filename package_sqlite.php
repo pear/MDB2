@@ -5,6 +5,11 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.4';
 $notes = <<<EOT
 - datatype 'clob' missing in mapNativeDatatype() (bug #6490)
+- removed bogus result->free() (bug #6491)
+- added support for length in integer and decimal columns
+- improved regexp for column reverse engineering
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

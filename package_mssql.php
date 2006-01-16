@@ -30,6 +30,9 @@ $notes = <<<EOT
 - renamed _isSequenceName() to _fixSequenceName()
 - _fixSequenceName() now just attempts to remove possible formatting, and only
   returns a boolean if no formatting was applied when the new "check" parameter is set to true
+- added support for length in decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
 
 open todo items:
 - added missing index/contraint methods to the manager and reverse module methods
