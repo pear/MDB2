@@ -79,7 +79,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->supported['current_id'] = true;
         $this->supported['affected_rows'] = true;
         $this->supported['transactions'] = true;
-        $this->supported['limit_queries'] = 'emulated';
+        $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = 'emulated';
         $this->supported['sub_selects'] = true;
@@ -458,13 +458,18 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @return the new (modified) query
      * @access protected
      */
-    function _modifyQuery($query)
+    function _modifyQuery($query, $is_manip, $limit, $offset)
     {
-        // "SELECT 2+2" must be "SELECT 2+2 FROM dual" in Oracle
-        if (preg_match('/^\s*SELECT/i', $query)
-            && !preg_match('/\sFROM\s/i', $query)
-        ) {
-            $query.= " FROM dual";
+        if (preg_match('/^\s*SELECT/i', $query)) {
+            if (!preg_match('/\sFROM\s/i', $query)) {
+                $query.= " FROM dual";
+            }
+            if ($limit > 0) {
+                // taken from http://svn.ez.no/svn/ezcomponents/packages/Database
+                $min = $offset + 1;
+                $max = $offset + $limit;
+                $query = "SELECT * FROM (SELECT a.*, ROWNUM rn FROM ($query) a WHERE ROWNUM <= $max) WHERE rn >= $min";
+            }
         }
         return $query;
     }
@@ -594,8 +599,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
+        $offset = $this->row_offset;
+        $limit = $this->row_limit;
+        $this->row_offset = $this->row_limit = 0;
         $this->debug($query, 'prepare');
-        $query = $this->_modifyQuery($query);
+        $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
@@ -713,7 +721,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
+        $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
         return $obj;
     }
 
@@ -769,34 +777,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
 class MDB2_Result_oci8 extends MDB2_Result_Common
 {
-    // {{{ _skipLimitOffset()
-
-    /**
-     * Skip the first row of a result set.
-     *
-     * @param resource $result
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access protected
-     */
-    function _skipLimitOffset()
-    {
-        if ($this->limit) {
-            if ($this->rownum > $this->limit) {
-                return false;
-            }
-        }
-        if ($this->offset) {
-            while ($this->offset_count < $this->offset) {
-                ++$this->offset_count;
-                if (!@OCIFetchInto($this->result, $row, OCI_RETURN_NULLS)) {
-                    $this->offset_count = $this->offset;
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     // }}}
     // {{{ fetchRow()
 
@@ -810,10 +790,6 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        if (!$this->_skipLimitOffset()) {
-            $null = null;
-            return $null;
-        }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
             if (PEAR::isError($seek)) {
@@ -968,13 +944,8 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             }
         }
 
-        if (!$this->_skipLimitOffset()) {
-            return false;
-        }
-
         $row = true;
         while ((is_null($rownum) || $this->buffer_rownum < $rownum)
-            && (!$this->limit || $this->buffer_rownum < $this->limit)
             && ($row = @OCIFetchInto($this->result, $buffer, OCI_RETURN_NULLS))
         ) {
             ++$this->buffer_rownum;
@@ -985,9 +956,6 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             ++$this->buffer_rownum;
             $this->buffer[$this->buffer_rownum] = false;
             return false;
-        } elseif ($this->limit && $this->buffer_rownum >= $this->limit) {
-            ++$this->buffer_rownum;
-            $this->buffer[$this->buffer_rownum] = false;
         }
         return true;
     }
@@ -1257,7 +1225,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         $result =& $this->db->_wrapResult($this->statement, $this->result_types,
-            $result_class, $result_wrap_class, $this->row_limit, $this->row_offset);
+            $result_class, $result_wrap_class);
         return $result;
     }
 
