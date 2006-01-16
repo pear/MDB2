@@ -79,8 +79,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         }
 
         switch ($type) {
-        case 'decimal':
-            return sprintf('%.'.$db->options['decimal_places'].'f', doubleval($value)/pow(10.0, $db->options['decimal_places']));
         case 'timestamp':
             return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
         default:
@@ -195,29 +193,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             @fclose($value);
         }
         return $blob_id;
-    }
-
-    // }}}
-    // {{{ _quoteDecimal()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string $value text string value that is intended to be converted.
-     * @param bool $quote determines if the value should be quoted and escaped
-     * @return string text string that represents the given argument value in
-     *      a DBMS specific format.
-     * @access protected
-     */
-    function _quoteDecimal($value, $quote)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return (strval(round($value*pow(10.0, $db->options['decimal_places']))));
     }
 
     // }}}
