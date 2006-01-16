@@ -2292,12 +2292,13 @@ class MDB2_Driver_Common extends PEAR
      * @param mixed   $result_types  array that contains the types of the columns in
      *                        the result set, if set to MDB2_PREPARE_MANIP the
                               query is handled as a manipulation query
+     * @param mixed   $lobs   key (field) value (parameter) pair for all lob placeholders
      * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
      * @see bindParam, execute
      */
-    function &prepare($query, $types = null, $result_types = null)
+    function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
         $this->debug($query, 'prepare');
@@ -2305,6 +2306,7 @@ class MDB2_Driver_Common extends PEAR
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
+        $positions = array();
         $position = 0;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
@@ -2382,7 +2384,8 @@ class MDB2_Driver_Common extends PEAR
             }
         }
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $positions, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
+        $statement = null;
+        $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
@@ -3167,10 +3170,11 @@ class MDB2_Statement_Common
     /**
      * Constructor
      */
-    function __construct(&$db, &$statement, $query, $types, $result_types, $is_manip = false, $limit = null, $offset = null)
+    function __construct(&$db, &$statement, $positions, $query, $types, $result_types, $is_manip = false, $limit = null, $offset = null)
     {
         $this->db =& $db;
         $this->statement =& $statement;
+        $this->positions = $positions;
         $this->query = $query;
         $this->types = (array)$types;
         $this->result_types = (array)$result_types;
@@ -3202,6 +3206,9 @@ class MDB2_Statement_Common
     {
         if (!is_numeric($parameter)) {
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
+        }
+        if (!array_key_exists($parameter, $this->positions)) {
+            return $this->db->raiseError();
         }
         $this->values[$parameter] =& $value;
         if (!is_null($type)) {
@@ -3275,8 +3282,11 @@ class MDB2_Statement_Common
     {
         $query = '';
         $last_position = 0;
-        foreach ($this->values as $parameter => $value) {
-            $current_position = $this->statement[$parameter];
+        foreach ($this->positions as $parameter => $current_position) {
+            if (!array_key_exists($parameter, $this->values)) {
+                return $this->db->raiseError();
+            }
+            $value = $this->values[$parameter];
             $query.= substr($this->query, $last_position, $current_position - $last_position);
             if (!isset($value)) {
                 $value_quoted = 'NULL';

@@ -597,6 +597,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
+        $positions = array();
         $position = 0;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
@@ -637,20 +638,22 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     break;
                 }
             } elseif ($query[$position] == $placeholder_type_guess) {
-                if ($placeholder_type_guess == '?') {
-                    break;
-                }
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
                 }
-                $name = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
-                if ($name === '') {
-                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                        'prepare: named parameter with an empty name');
-                    return $err;
+                if ($placeholder_type == ':') {
+                    $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
+                    if ($parameter === '') {
+                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                            'prepare: named parameter with an empty name');
+                        return $err;
+                    }
+                    $positions[$parameter] = $p_position;
+                    $query = substr_replace($query, '?', $position, strlen($parameter)+1);
+                } else {
+                    $positions[] = $p_position;
                 }
-                $query = substr_replace($query, '?', $position, strlen($name)+1);
                 $position = $p_position + 1;
             } else {
                 $position = $p_position;
@@ -668,7 +671,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
+        $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
@@ -1184,7 +1187,11 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         }
 
         $parameters = array(0 => $this->statement);
-        foreach ($this->values as $parameter => $value) {
+        foreach ($this->positions as $parameter => $current_position) {
+            if (!array_key_exists($parameter, $this->values)) {
+                return $this->db->raiseError();
+            }
+            $value = $this->values[$parameter];
             $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
             $parameters[] = $this->db->quote($value, $type, false);
         }

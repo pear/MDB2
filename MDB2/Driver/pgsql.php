@@ -593,6 +593,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
+        $positions = array();
         $position = $parameter = 0;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
@@ -662,6 +663,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 } else {
                     $pgtypes[] = 'text';
                 }
+                $positions[$name] = $p_position;
                 $query = substr_replace($query, '$'.++$parameter, $position, $length);
                 $position = $p_position + strlen($parameter);
             } else {
@@ -685,7 +687,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
-        $obj =& new $class_name($this, $statement_name, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
+        $obj =& new $class_name($this, $statement_name, $positions, $query, $types, $result_types, $is_manip, $this->row_limit, $this->row_offset);
         return $obj;
     }
 
@@ -982,9 +984,13 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
         }
 
         $query = 'EXECUTE '.$this->statement;
-        if (!empty($this->values)) {
+        if (!empty($this->positions)) {
             $parameters = array();
-            foreach ($this->values as $parameter => $value) {
+            foreach ($this->positions as $parameter => $current_position) {
+                if (!array_key_exists($parameter, $this->values)) {
+                    return $this->db->raiseError();
+                }
+                $value = $this->values[$parameter];
                 $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
                 if (is_resource($value) || $type == 'clob' || $type == 'blob') {
                     if (!is_resource($value) && preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
