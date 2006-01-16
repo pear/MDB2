@@ -144,7 +144,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             return 'DOUBLE PRECISION';
         case 'decimal':
             $length = array_key_exists('length', $field)
-                ? ($field['length'] - $db->options['decimal_places']) : 18;
+                ? $field['length'] : 18;
             return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
         }
         return '';
@@ -157,12 +157,13 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param  $value
+     * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access protected
      */
-    function _quoteLOB($value)
+    function _quoteLOB($value, $quote)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -204,11 +205,12 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * compose query statements.
      *
      * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access protected
      */
-    function _quoteDecimal($value)
+    function _quoteDecimal($value, $quote)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {

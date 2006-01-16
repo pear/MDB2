@@ -143,7 +143,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 ($db->options['fixed_float']+2).','.$db->options['fixed_float'].')' : '');
         case 'decimal':
             $length = array_key_exists('length', $field)
-                ? ($field['length'] - $db->options['decimal_places']) : 18;
+                ? $field['length'] : 18;
             return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
         }
         return '';
@@ -202,50 +202,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $unsigned = (array_key_exists('unsigned', $field) && $field['unsigned']) ? ' UNSIGNED' : '';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$unsigned.$default.$notnull.$autoinc;
-    }
-
-    // }}}
-    // {{{ _quoteFloat()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string  $value text string value that is intended to be converted.
-     * @return string  text string that represents the given argument value in
-     *                 a DBMS specific format.
-     * @access protected
-     */
-    function _quoteFloat($value)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->escape($value);
-    }
-
-    // }}}
-    // {{{ _quoteDecimal()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string  $value text string value that is intended to be converted.
-     * @return string  text string that represents the given argument value in
-     *                 a DBMS specific format.
-     * @access protected
-     */
-    function _quoteDecimal($value)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->escape($value);
     }
 
     // }}}

@@ -144,12 +144,13 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param  $value
+     * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteCLOB($value)
+    function _quoteCLOB($value, $quote)
     {
         return 'EMPTY_CLOB()';
     }
@@ -161,12 +162,13 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param  $value
+     * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteBLOB($value)
+    function _quoteBLOB($value, $quote)
     {
         return 'EMPTY_BLOB()';
     }
@@ -179,13 +181,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      * compose query statements.
      *
      * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteDate($value)
+    function _quoteDate($value, $quote)
     {
-       return $this->_quoteText("$value 00:00:00");
+       return $this->_quoteText("$value 00:00:00", $quote);
     }
 
     // }}}
@@ -196,13 +199,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      * compose query statements.
      *
      * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteTimestamp($value)
+    function _quoteTimestamp($value, $quote)
     {
-       return $this->_quoteText($value);
+       return $this->_quoteText($value, $quote);
     }
 
     // }}}
@@ -213,57 +217,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *        compose query statements.
      *
      * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteTime($value)
+    function _quoteTime($value, $quote)
     {
-       return $this->_quoteText("0001-01-01 $value");
-    }
-
-    // }}}
-    // {{{ _quoteFloat()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string $value text string value that is intended to be converted.
-     * @return string text string that represents the given argument value in
-     *        a DBMS specific format.
-     * @access protected
-     */
-    function _quoteFloat($value)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->escape($value);;
-    }
-
-    // }}}
-    // {{{ _quoteDecimal()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string $value text string value that is intended to be converted.
-     * @return string text string that represents the given argument value in
-     *        a DBMS specific format.
-     * @access protected
-     */
-    function _quoteDecimal($value)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->escape($value);
+       return $this->_quoteText("0001-01-01 $value", $quote);
     }
 
     // }}}

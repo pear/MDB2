@@ -144,7 +144,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
             return 'FLOAT';
         case 'decimal':
             $length = array_key_exists('length', $field)
-                ? ($field['length'] - $db->options['decimal_places']) : 18;
+                ? $field['length'] : 18;
             return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
         }
         return '';
@@ -157,14 +157,18 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param           $value
+     * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string  text string that represents the given argument value in
      *                 a DBMS specific format.
      * @access protected
      */
-    function _quoteBLOB($value)
+    function _quoteBLOB($value, $quote)
     {
         $value = $this->_readFile($value);
+        if (!$quote) {
+            return $value;
+        }
         return "'".addslashes($value)."'";
     }
 
@@ -176,11 +180,12 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * compose query statements.
      *
      * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteBoolean($value)
+    function _quoteBoolean($value, $quote)
     {
         return ($value ? 'True' : 'False');
     }
@@ -193,13 +198,14 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * compose query statements.
      *
      * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteDate($value)
+    function _quoteDate($value, $quote)
     {
-        return 'DATE'.$this->_quoteText($value);
+        return 'DATE'.$this->_quoteText($value, $quote);
     }
 
     // }}}
@@ -210,13 +216,14 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      * compose query statements.
      *
      * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteTimestamp($value)
+    function _quoteTimestamp($value, $quote)
     {
-        return 'TIMESTAMP'.$this->_quoteText($value);
+        return 'TIMESTAMP'.$this->_quoteText($value, $quote);
     }
 
     // }}}
@@ -227,57 +234,14 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      *        compose query statements.
      *
      * @param string $value text string value that is intended to be converted.
+     * @param bool $quote determines if the value should be quoted and escaped
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteTime($value)
+    function _quoteTime($value, $quote)
     {
-        return 'TIME'.$this->_quoteText($value);
-    }
-
-    // }}}
-    // {{{ _quoteFloat()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string  $value text string value that is intended to be converted.
-     * @return string  text string that represents the given argument value in
-     *                 a DBMS specific format.
-     * @access protected
-     */
-    function _quoteFloat($value)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->escape($value);
-    }
-
-    // }}}
-    // {{{ _quoteDecimal()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string  $value text string value that is intended to be converted.
-     * @return string  text string that represents the given argument value in
-     *                 a DBMS specific format.
-     * @access protected
-     */
-    function _quoteDecimal($value)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->escape($value);
+        return 'TIME'.$this->_quoteText($value, $quote);
     }
 }
 
