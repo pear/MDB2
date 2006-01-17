@@ -238,7 +238,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         $query_fields = $this->getFieldDeclarationList($fields);
         if (PEAR::isError($query_fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: '.$this->getUserinfo());
+                'createTable: '.$query_fields->getUserinfo());
         }
         $name = $db->quoteIdentifier($name, true);
         $query = "CREATE TABLE $name ($query_fields)".(strlen($db->options['default_table_type'])
