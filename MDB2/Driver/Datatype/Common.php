@@ -139,7 +139,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         case 'integer':
             return intval($value);
         case 'boolean':
-            return $value == 'Y';
+            return !empty($value);
         case 'decimal':
             return $value;
         case 'float':
@@ -305,7 +305,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         case 'integer':
             return 'INT';
         case 'boolean':
-            return 'CHAR (1)';
+            return 'INT';
         case 'date':
             return 'CHAR ('.strlen('YYYY-MM-DD').')';
         case 'time':
@@ -1127,10 +1127,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteBoolean($value, $quote)
     {
-        if (!$quote) {
-            return ($value ? 'Y' : 'N');
-        }
-        return ($value ? "'Y'" : "'N'");
+        return ($value ? 1 : 0);
     }
 
     // }}}

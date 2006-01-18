@@ -125,7 +125,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'integer':
             return 'INT';
         case 'boolean':
-            return 'CHAR (1)';
+            return 'INTEGER(1)';
         case 'date':
         case 'time':
         case 'timestamp':

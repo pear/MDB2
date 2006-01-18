@@ -135,7 +135,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
             }
             return 'INT';
         case 'boolean':
-            return 'CHAR (1)';
+            return 'TINYINT';
         case 'date':
             return 'DATE';
         case 'time':
@@ -274,12 +274,6 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         case 'char':
         case 'varchar':
             $type[] = 'text';
-            if ($length == '1') {
-                $type[] = 'boolean';
-                if (preg_match('/[is|has]/', $field['name'])) {
-                    $type = array_reverse($type);
-                }
-            }
             break;
         case 'enum':
             preg_match_all('/\'.+\'/U', $field['type'], $matches);

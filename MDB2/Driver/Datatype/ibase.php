@@ -131,7 +131,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         case 'integer':
             return 'INT';
         case 'boolean':
-            return 'CHAR (1)';
+            return 'SMALLINT';
         case 'date':
             return 'DATE';
         case 'time':
@@ -307,9 +307,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         case 'varchar':
         case 'cstring':
             $type[] = 'text';
-            if ($length == '1') {
-                $type[] = 'boolean';
-            }
             break;
         case 'date':
             $type[] = 'date';
