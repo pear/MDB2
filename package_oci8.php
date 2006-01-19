@@ -12,6 +12,7 @@ $notes = <<<EOT
 - reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
 - rewrite queries for limit/offset (taken from ezc) instead of emulating
 - cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
+- now using INTEGER(1) by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
 
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field

@@ -11,6 +11,8 @@ $notes = <<<EOT
 - added support for out of order parameter binding in prepared queries
 - reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
 - cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
+- now using INT/TINYINT/SMALLINT by default instead of CHAR(1) for the boolean datatype
+  (BC BREAK!)
 EOT;
 
 $description =<<<EOT

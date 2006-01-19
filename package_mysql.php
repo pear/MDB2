@@ -7,6 +7,7 @@ $notes = <<<EOT
 - added support for length in integer and decimal columns
 - removed ugly hack for quote parameter in quote() since it was insufficient
   (escaping also needs to be prevented)
+- now using TINYINT by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
 EOT;
 
 $package = new PEAR_PackageFileManager();
