@@ -593,9 +593,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function &prepare($query, $types = null, $result_types = null)
     {
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
-        $offset = $this->row_offset;
-        $limit = $this->row_limit;
-        $this->row_offset = $this->row_limit = 0;
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
         $this->debug($query, 'prepare');
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
@@ -1211,7 +1211,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         }
 
         $result =& $this->db->_wrapResult($result, $this->result_types,
-            $result_class, $result_wrap_class, $this->row_limit, $this->row_offset);
+            $result_class, $result_wrap_class, $this->limit, $this->offset);
         return $result;
     }
 
