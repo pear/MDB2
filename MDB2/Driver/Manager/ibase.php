@@ -99,6 +99,24 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ _silentCommit()
+    
+    /**
+     * conditional COMMIT query to make changes permanent, when auto
+     * @access private
+     */
+    function _silentCommit()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        if (!$db->in_transaction) {
+            @$db->exec('COMMIT');
+        }
+    }
+    
+    // }}}
     // {{{ _makeAutoincrement()
 
     /**
@@ -146,7 +164,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                         IF (NEW.' . $name . ' IS NULL OR NEW.' . $name . ' = 0) THEN
                             NEW.' . $name . ' = GEN_ID('.$sequence_name.', 1);
                         END';
-        return $db->exec($trigger_sql);
+        $result = $db->exec($trigger_sql);
+        $this->_silentCommit();
+        return $result;
     }
 
     // }}}
@@ -220,6 +240,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
+        $this->_silentCommit();
         foreach ($fields as $field_name => $field) {
             if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
                 //create PK constraint
@@ -298,7 +319,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        return parent::dropTable($name);
+        $result = parent::dropTable($name);
+        $this->_silentCommit();
+        return $result;
     }
 
     // }}}
@@ -472,7 +495,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name, true);
-        return $db->exec("ALTER TABLE $name $query");
+        $result = $db->exec("ALTER TABLE $name $query");
+        $this->_silentCommit();
+        return $result;
     }
 
     // }}}
@@ -637,7 +662,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $fields[] = $db->quoteIdentifier($field, true);
         }
         $query .= ' ('.implode(', ', $fields) . ')';
-        return $db->exec($query);
+        $result = $db->exec($query);
+        $this->_silentCommit();
+        return $result;
     }
 
     // }}}
@@ -712,7 +739,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = $db->quoteIdentifier($table, true);
-        $name  = $db->quoteIdentifier($db->getIndexName($name), true);
+        if (!empty($name)) {
+            $name  = $db->quoteIdentifier($db->getIndexName($name), true);
+        }
         $query = "ALTER TABLE $table ADD";
         if (array_key_exists('primary', $definition) && $definition['primary']) {
             if (!empty($name)) {
@@ -730,7 +759,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $fields[] = $db->quoteIdentifier($field, true);
         }
         $query .= ' ('. implode(', ', $fields) . ')';
-        return $db->exec($query);
+        $result = $db->exec($query);
+        $this->_silentCommit();
+        return $result;
     }
 
     // }}}
