@@ -1,9 +1,10 @@
 <?php
+// vim: set et ts=4 sw=4 fdm=marker:
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2005 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith, Lorenzo Alberton                       |
+// | Copyright (c) 1998-2004 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -44,818 +45,1193 @@
 //
 // $Id$
 
-require_once 'MDB2/Driver/Manager/Common.php';
-
 /**
- * MDB2 FireBird/InterBase driver for the management modules
+ * MDB2 FireBird/InterBase driver
  *
  * @package MDB2
  * @category Database
- * @author Lorenzo Alberton <l.alberton@quipo.it>
+ * @author  Lorenzo Alberton <l.alberton@quipo.it>
  */
-class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
+class MDB2_Driver_ibase extends MDB2_Driver_Common
 {
-    // {{{ createDatabase()
+    // {{{ properties
+    var $escape_quotes = "'";
+
+    var $transaction_id = 0;
+
+    var $query_parameters = array();
+    var $query_parameter_values = array();
+
+    // }}}
+    // {{{ constructor
 
     /**
-     * create a new database
-     *
-     * @param string $name  name of the database that should be created
-     * @return mixed        MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * Constructor
      */
-    function createDatabase($name)
+    function __construct()
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
+        parent::__construct();
 
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null, 'Create database',
-                'createDatabase: PHP Interbase API does not support direct queries. You have to '.
-                'create the db manually by using isql command or a similar program');
+        $this->phptype  = 'ibase';
+        $this->dbsyntax = 'ibase';
+
+        $this->supported['sequences'] = true;
+        $this->supported['indexes'] = true;
+        $this->supported['affected_rows'] = function_exists('ibase_affected_rows');
+        $this->supported['summary_functions'] = true;
+        $this->supported['order_by_text'] = true;
+        $this->supported['transactions'] = true;
+        $this->supported['current_id'] = true;
+        // maybe this needs different handling for ibase and firebird?
+        $this->supported['limit_queries'] = 'emulated';
+        $this->supported['LOBs'] = true;
+        $this->supported['replace'] = false;
+        $this->supported['sub_selects'] = true;
+        $this->supported['auto_increment'] = true;
+        $this->supported['primary_key'] = true;
+
+        $this->options['DBA_username'] = false;
+        $this->options['DBA_password'] = false;
+        $this->options['database_path'] = '';
+        $this->options['database_extension'] = '.gdb';
+        $this->options['default_text_field_length'] = 4096;
     }
 
     // }}}
-    // {{{ dropDatabase()
+    // {{{ errorInfo()
 
     /**
-     * drop an existing database
+     * This method is used to collect information about an error
      *
-     * @param string $name  name of the database that should be dropped
-     * @return mixed        MDB2_OK on success, a MDB2 error on failure
+     * @param integer $error
+     * @return array
      * @access public
      */
-    function dropDatabase($name)
+    function errorInfo($error = null)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
+        $native_msg = @ibase_errmsg();
 
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null, 'Drop database',
-                'dropDatabase: PHP Interbase API does not support direct queries. You have '.
-                'to drop the db manually by using isql command or a similar program');
-    }
-
-    // }}}
-    // {{{ _makeAutoincrement()
-
-    /**
-     * add an autoincrement sequence + trigger
-     *
-     * @param string $name  name of the PK field
-     * @param string $table name of the table
-     * @param string $start start value for the sequence
-     * @return mixed        MDB2_OK on success, a MDB2 error on failure
-     * @access private
-     */
-    function _makeAutoincrement($name, $table, $start = null)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        if (is_null($start)) {
-            $db->beginTransaction();
-            $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $db->quoteIdentifier($table, true);
-            $start = $this->db->queryOne($query, 'integer');
-            if (PEAR::isError($start)) {
-                return $start;
-            }
-            ++$start;
-            $result = $db->manager->createSequence($table, $start);
-            $db->commit();
+        if (function_exists('ibase_errcode')) {
+            $native_code = @ibase_errcode();
         } else {
-            $result = $db->manager->createSequence($table, $start);
+            // memo for the interbase php module hackers: we need something similar
+            // to mysql_errno() to retrieve error codes instead of this ugly hack
+            if (preg_match('/^([^0-9\-]+)([0-9\-]+)\s+(.*)$/', $native_msg, $m)) {
+                $native_code = (int)$m[2];
+            } else {
+                $native_code = null;
+            }
         }
-        if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                '_makeAutoincrement: sequence for autoincrement PK could not be created');
-        }
-
-        $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $db->quoteIdentifier($table . '_AUTOINCREMENT_PK', true);
-        $table = $db->quoteIdentifier($table, true);
-        $name  = $db->quoteIdentifier($name, true);
-        $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
-                        ACTIVE BEFORE INSERT POSITION 0
-                        AS
-                        BEGIN
-                        IF (NEW.' . $name . ' IS NULL OR NEW.' . $name . ' = 0) THEN
-                            NEW.' . $name . ' = GEN_ID('.$sequence_name.', 1);
-                        END';
-        return $db->exec($trigger_sql);
-    }
-
-    // }}}
-    // {{{ _dropAutoincrement()
-
-    /**
-     * drop an existing autoincrement sequence + trigger
-     *
-     * @param string $table name of the table
-     * @return mixed        MDB2_OK on success, a MDB2 error on failure
-     * @access private
-     */
-    function _dropAutoincrement($table)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-        $result = $db->manager->dropSequence($table);
-        if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
-        }
-        //remove autoincrement trigger associated with the table
-        $table = strtoupper($table);
-        $trigger_name  = $table . '_AUTOINCREMENT_PK';
-        $result = $db->exec("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)='$table' AND UPPER(RDB\$TRIGGER_NAME)='$trigger_name'");
-        if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
-        }
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ createTable()
-
-    /**
-     * create a new table
-     *
-     * @param string $name     Name of the database that should be created
-     * @param array $fields Associative array that contains the definition of each field of the new table
-     *                        The indexes of the array entries are the names of the fields of the table an
-     *                        the array entry values are associative arrays like those that are meant to be
-     *                         passed with the field definitions to get[Type]Declaration() functions.
-     *
-     *                        Example
-     *                        array(
-     *
-     *                            'id' => array(
-     *                                'type' => 'integer',
-     *                                'unsigned' => 1,
-     *                                'notnull' => 1,
-     *                                'default' => 0,
-     *                            ),
-     *                            'name' => array(
-     *                                'type' => 'text',
-     *                                'length' => 12,
-     *                            ),
-     *                            'description' => array(
-     *                                'type' => 'text',
-     *                                'length' => 12,
-     *                            )
-     *                        );
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function createTable($name, $fields)
-    {
-        $result = parent::createTable($name, $fields);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        foreach ($fields as $field_name => $field) {
-            if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
-                //create PK constraint
-                $pk_definition = array(
-                    'fields' => array($field_name => array()),
-                    'primary' => true,
-                );
-                //$pk_name = $name.'_PK';
-                $pk_name = null;
-                $result = $this->createConstraint($name, $pk_name, $pk_definition);
-                if (PEAR::isError($result)) {
-                    return $result;
+        if (is_null($error)) {
+            $error = MDB2_ERROR;
+            if ($native_code) {
+                // try to interpret Interbase error code (that's why we need ibase_errno()
+                // in the interbase module to return the real error code)
+                switch ($native_code) {
+                case -204:
+                    if (isset($m[3]) && is_int(strpos($m[3], 'Table unknown'))) {
+                        $errno = MDB2_ERROR_NOSUCHTABLE;
+                    }
+                break;
+                default:
+                    static $ecode_map;
+                    if (empty($ecode_map)) {
+                        $ecode_map = array(
+                            -104 => MDB2_ERROR_SYNTAX,
+                            -150 => MDB2_ERROR_ACCESS_VIOLATION,
+                            -151 => MDB2_ERROR_ACCESS_VIOLATION,
+                            -155 => MDB2_ERROR_NOSUCHTABLE,
+                            -157 => MDB2_ERROR_NOSUCHFIELD,
+                            -158 => MDB2_ERROR_VALUE_COUNT_ON_ROW,
+                            -170 => MDB2_ERROR_MISMATCH,
+                            -171 => MDB2_ERROR_MISMATCH,
+                            -172 => MDB2_ERROR_INVALID,
+                            // -204 =>  // Covers too many errors, need to use regex on msg
+                            -205 => MDB2_ERROR_NOSUCHFIELD,
+                            -206 => MDB2_ERROR_NOSUCHFIELD,
+                            -208 => MDB2_ERROR_INVALID,
+                            -219 => MDB2_ERROR_NOSUCHTABLE,
+                            -297 => MDB2_ERROR_CONSTRAINT,
+                            -303 => MDB2_ERROR_INVALID,
+                            -413 => MDB2_ERROR_INVALID_NUMBER,
+                            -530 => MDB2_ERROR_CONSTRAINT,
+                            -551 => MDB2_ERROR_ACCESS_VIOLATION,
+                            -552 => MDB2_ERROR_ACCESS_VIOLATION,
+                            // -607 =>  // Covers too many errors, need to use regex on msg
+                            -625 => MDB2_ERROR_CONSTRAINT_NOT_NULL,
+                            -803 => MDB2_ERROR_CONSTRAINT,
+                            -804 => MDB2_ERROR_VALUE_COUNT_ON_ROW,
+                            -904 => MDB2_ERROR_CONNECT_FAILED,
+                            -922 => MDB2_ERROR_NOSUCHDB,
+                            -923 => MDB2_ERROR_CONNECT_FAILED,
+                            -924 => MDB2_ERROR_CONNECT_FAILED
+                        );
+                    }
+                    if (isset($ecode_map[$native_code])) {
+                        $error = $ecode_map[$native_code];
+                    }
+                    break;
                 }
-                //create autoincrement sequence + trigger
-                return $this->_makeAutoincrement($field_name, $name, 1);
-            }
-        }
-    }
-
-    // }}}
-    // {{{ checkSupportedChanges()
-
-    /**
-     * check if planned changes are supported
-     *
-     * @param string $name name of the database that should be dropped
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function checkSupportedChanges(&$changes)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        foreach ($changes as $change_name => $change) {
-            switch ($change_name) {
-            case 'notnull':
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'checkSupportedChanges: it is not supported changes to field not null constraint');
-            case 'default':
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'checkSupportedChanges: it is not supported changes to field default value');
-            case 'length':
-                /*
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'checkSupportedChanges: it is not supported changes to field default length');
-                */
-            case 'unsigned':
-            case 'type':
-            case 'declaration':
-            case 'definition':
-                break;
-            default:
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'checkSupportedChanges: it is not supported change of type' . $change_name);
-            }
-        }
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ dropTable()
-
-    /**
-     * drop an existing table
-     *
-     * @param string $name name of the table that should be dropped
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function dropTable($name)
-    {
-        $result = $this->_dropAutoincrement($name);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        return parent::dropTable($name);
-    }
-
-    // }}}
-    // {{{ alterTable()
-
-    /**
-     * alter an existing table
-     *
-     * @param string $name         name of the table that is intended to be changed.
-     * @param array $changes     associative array that contains the details of each type
-     *                             of change that is intended to be performed. The types of
-     *                             changes that are currently supported are defined as follows:
-     *
-     *                             name
-     *
-     *                                New name for the table.
-     *
-     *                            add
-     *
-     *                                Associative array with the names of fields to be added as
-     *                                 indexes of the array. The value of each entry of the array
-     *                                 should be set to another associative array with the properties
-     *                                 of the fields to be added. The properties of the fields should
-     *                                 be the same as defined by the Metabase parser.
-     *
-     *
-     *                            remove
-     *
-     *                                Associative array with the names of fields to be removed as indexes
-     *                                 of the array. Currently the values assigned to each entry are ignored.
-     *                                 An empty array should be used for future compatibility.
-     *
-     *                            rename
-     *
-     *                                Associative array with the names of fields to be renamed as indexes
-     *                                 of the array. The value of each entry of the array should be set to
-     *                                 another associative array with the entry named name with the new
-     *                                 field name and the entry named Declaration that is expected to contain
-     *                                 the portion of the field declaration already in DBMS specific SQL code
-     *                                 as it is used in the CREATE TABLE statement.
-     *
-     *                            change
-     *
-     *                                Associative array with the names of the fields to be changed as indexes
-     *                                 of the array. Keep in mind that if it is intended to change either the
-     *                                 name of a field and any other properties, the change array entries
-     *                                 should have the new names of the fields as array indexes.
-     *
-     *                                The value of each entry of the array should be set to another associative
-     *                                 array with the properties of the fields to that are meant to be changed as
-     *                                 array entries. These entries should be assigned to the new values of the
-     *                                 respective properties. The properties of the fields should be the same
-     *                                 as defined by the Metabase parser.
-     *
-     *                            Example
-     *                                array(
-     *                                    'name' => 'userlist',
-     *                                    'add' => array(
-     *                                        'quota' => array(
-     *                                            'type' => 'integer',
-     *                                            'unsigned' => 1
-     *                                        )
-     *                                    ),
-     *                                    'remove' => array(
-     *                                        'file_limit' => array(),
-     *                                        'time_limit' => array()
-     *                                    ),
-     *                                    'change' => array(
-     *                                        'name' => array(
-     *                                            'length' => '20',
-     *                                            'definition' => array(
-     *                                                'type' => 'text',
-     *                                                'length' => 20,
-     *                                            ),
-     *                                        )
-     *                                    ),
-     *                                    'rename' => array(
-     *                                        'sex' => array(
-     *                                            'name' => 'gender',
-     *                                            'definition' => array(
-     *                                                'type' => 'text',
-     *                                                'length' => 1,
-     *                                                'default' => 'M',
-     *                                            ),
-     *                                        )
-     *                                    )
-     *                                )
-     *
-     * @param boolean $check     indicates whether the function should just check if the DBMS driver
-     *                             can perform the requested table alterations if the value is true or
-     *                             actually perform them otherwise.
-     * @access public
-     *
-      * @return mixed MDB2_OK on success, a MDB2 error on failure
-     */
-    function alterTable($name, $changes, $check)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        foreach ($changes as $change_name => $change) {
-            switch ($change_name) {
-            case 'add':
-            case 'remove':
-            case 'rename':
-                break;
-            case 'change':
-                foreach ($changes['change'] as $field) {
-                    if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
-                        return $err;
+            } else {
+                static $error_regexps;
+                if (!isset($error_regexps)) {
+                    $error_regexps = array(
+                        '/generator .* is not defined/'
+                            => MDB2_ERROR_SYNTAX,  // for compat. w ibase_errcode()
+                        '/table.*(not exist|not found|unknown)/i'
+                            => MDB2_ERROR_NOSUCHTABLE,
+                        '/table .* already exists/i'
+                            => MDB2_ERROR_ALREADY_EXISTS,
+                        '/unsuccessful metadata update .* failed attempt to store duplicate value/i'
+                            => MDB2_ERROR_ALREADY_EXISTS,
+                        '/unsuccessful metadata update .* not found/i'
+                            => MDB2_ERROR_NOT_FOUND,
+                        '/validation error for column .* value "\*\*\* null/i'
+                            => MDB2_ERROR_CONSTRAINT_NOT_NULL,
+                        '/violation of [\w ]+ constraint/i'
+                            => MDB2_ERROR_CONSTRAINT,
+                        '/conversion error from string/i'
+                            => MDB2_ERROR_INVALID_NUMBER,
+                        '/no permission for/i'
+                            => MDB2_ERROR_ACCESS_VIOLATION,
+                        '/arithmetic exception, numeric overflow, or string truncation/i'
+                            => MDB2_ERROR_INVALID,
+                    );
+                }
+                foreach ($error_regexps as $regexp => $code) {
+                    if (preg_match($regexp, $native_msg, $m)) {
+                        $error = $code;
+                        break;
                     }
                 }
+            }
+        }
+        return array($error, $native_code, $native_msg);
+    }
+
+    // }}}
+    // {{{ quoteIdentifier()
+
+    /**
+     * Delimited identifiers are a nightmare with InterBase, so they're disabled
+     *
+     * @param string $str  identifier name to be quoted
+     * @param bool   $check_option  check the 'quote_identifier' option
+     *
+     * @return string  quoted identifier string
+     *
+     * @access public
+     */
+    function quoteIdentifier($str, $check_option = false)
+
+    {
+        return strtoupper($str);
+    }
+
+    // }}}
+    // {{{ getConnection()
+
+    /**
+     * Returns a native connection
+     *
+     * @return  mixed   a valid MDB2 connection object,
+     *                  or a MDB2 error object on error
+     * @access  public
+     */
+    function getConnection()
+    {
+        $result = $this->connect();
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($this->in_transaction) {
+            return $this->transaction_id;
+        }
+        return $this->connection;
+    }
+
+    // }}}
+    // {{{ beginTransaction()
+
+    /**
+     * Start a transaction.
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function beginTransaction()
+    {
+        $this->debug('starting transaction', 'beginTransaction');
+        if ($this->in_transaction) {
+            return MDB2_OK;  //nothing to do
+        }
+        $result = ibase_trans();
+        if (!$result) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'beginTransaction: could not start a transaction');
+        }
+        $this->transaction_id = $result;
+        $this->in_transaction = true;
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ commit()
+
+    /**
+     * Commit the database changes done during a transaction that is in
+     * progress.
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function commit()
+    {
+        $this->debug('commit transaction', 'commit');
+        if (!$this->in_transaction) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'commit: transaction changes are being auto committed');
+        }
+        if (!ibase_commit($this->transaction_id)) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'commit: could not commit a transaction');
+        }
+        $this->in_transaction = false;
+        //$this->transaction_id = 0;
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ rollback()
+
+    /**
+     * Cancel any database changes done during a transaction that is in
+     * progress.
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function rollback()
+    {
+        $this->debug('rolling back transaction', 'rollback');
+        if (!$this->in_transaction) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'rollback: transactions can not be rolled back when changes are auto committed');
+        }
+        if ($this->transaction_id && !ibase_rollback($this->transaction_id)) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'rollback: Could not rollback a pending transaction: '.ibase_errmsg());
+        }
+        $this->in_transaction = false;
+        $this->transaction_id = 0;
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ getDatabaseFile()
+
+    /**
+     * Builds the string with path+dbname+extension
+     *
+     * @return string full database path+file
+     * @access protected
+     */
+    function _getDatabaseFile($database_name)
+    {
+        if ($database_name == '') {
+            return $database_name;
+        }
+        $ret = $this->options['database_path'] . $database_name;
+        if (   strpos($database_name, '.fdb') === false
+            && strpos($database_name, '.gdb') === false
+        ) {
+            $ret .= $this->options['database_extension'];
+        }
+        return $ret;
+    }
+
+    // }}}
+    // {{{ _doConnect()
+
+    /**
+     * Does the grunt work of connecting to the database
+     *
+     * @return mixed connection resource on success, MDB2 Error Object on failure
+     * @access protected
+     */
+    function _doConnect($database_name, $persistent = false)
+    {
+        $user    = $this->dsn['username'];
+        $pw      = $this->dsn['password'];
+        $dbhost  = $this->dsn['hostspec'] ?
+            ($this->dsn['hostspec'].':'.$database_name) : $database_name;
+
+        $params = array();
+        $params[] = $dbhost;
+        $params[] = !empty($user) ? $user : null;
+        $params[] = !empty($pw) ? $pw : null;
+        $params[] = isset($this->dsn['charset']) ? $this->dsn['charset'] : null;
+        $params[] = isset($this->dsn['buffers']) ? $this->dsn['buffers'] : null;
+        $params[] = isset($this->dsn['dialect']) ? $this->dsn['dialect'] : null;
+        $params[] = isset($this->dsn['role'])    ? $this->dsn['role'] : null;
+
+        $connect_function = $persistent ? 'ibase_pconnect' : 'ibase_connect';
+
+        $connection = @call_user_func_array($connect_function, $params);
+        if ($connection <= 0) {
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+        }
+        if (function_exists('ibase_timefmt')) {
+            @ibase_timefmt("%Y-%m-%d %H:%M:%S", IBASE_TIMESTAMP);
+            @ibase_timefmt("%Y-%m-%d", IBASE_DATE);
+        } else {
+            @ini_set("ibase.timestampformat", "%Y-%m-%d %H:%M:%S");
+            //@ini_set("ibase.timeformat", "%H:%M:%S");
+            @ini_set("ibase.dateformat", "%Y-%m-%d");
+        }
+
+        return $connection;
+    }
+
+    // }}}
+    // {{{ connect()
+
+    /**
+     * Connect to the database
+     *
+     * @return true on success, MDB2 Error Object on failure
+     * @access public
+     */
+    function connect()
+    {
+        $database_file = $this->_getDatabaseFile($this->database_name);
+        if (is_resource($this->connection)) {
+            if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
+                && $this->connected_database_name == $database_file
+                && $this->opened_persistent == $this->options['persistent']
+            ) {
+                return MDB2_OK;
+            }
+            $this->disconnect(false);
+        }
+
+        if (!PEAR::loadExtension('interbase')) {
+            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'connect: extension '.$this->phptype.' is not compiled into PHP');
+        }
+
+        if (!empty($this->database_name)) {
+            $connection = $this->_doConnect($database_file, $this->options['persistent']);
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+            $this->connection =& $connection;
+            $this->connected_dsn = $this->dsn;
+            $this->connected_database_name = $database_file;
+            $this->opened_persistent = $this->options['persistent'];
+            $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ disconnect()
+
+    /**
+     * Log out and disconnect from the database.
+     *
+     * @return mixed true on success, false if not connected and error
+     *                object on error
+     * @access public
+     */
+    function disconnect($force = true)
+    {
+        if (is_resource($this->connection)) {
+            if ($this->in_transaction) {
+                $this->rollback();
+            }
+            if ($force || !$this->opened_persistent) {
+                @ibase_close($this->connection);
+            }
+            $this->connection = 0;
+            $this->in_transaction = false;
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _doQuery()
+
+    /**
+     * Execute a query
+     * @param string $query  query
+     * @param boolean $is_manip  if the query is a manipulation query
+     * @param resource $connection
+     * @param string $database_name
+     * @return result or error object
+     * @access protected
+     */
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    {
+        $this->last_query = $query;
+        $this->debug($query, 'query');
+        if ($this->getOption('disable_query')) {
+            if ($is_manip) {
+                return 0;
+            }
+            return null;
+        }
+
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+        $result = ibase_query($connection, $query);
+
+        if ($result === false) {
+            return $this->raiseError();
+        }
+
+        return $result;
+    }
+
+    // }}}
+    // {{{ _affectedRows()
+
+    /**
+     * returns the number of rows affected
+     *
+     * @param resource $result
+     * @param resource $connection
+     * @return mixed MDB2 Error Object or the number of rows affected
+     * @access private
+     */
+    function _affectedRows($connection, $result = null)
+    {
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+        return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
+    }
+
+    // }}}
+    // {{{ _modifyQuery()
+
+    /**
+     * Changes a query string for various DBMS specific reasons
+     *
+     * @param string $query  query to modify
+     * @return the new (modified) query
+     * @access protected
+     */
+    function _modifyQuery($query, $is_manip, $limit, $offset)
+    {
+        if ($limit > 0 && $this->dsn['dbsyntax'] == 'firebird') {
+            $query = preg_replace('/^([\s(])*SELECT(?!\s*FIRST\s*\d+)/i',
+                "SELECT FIRST $limit SKIP $offset", $query);
+        }
+        return $query;
+    }
+
+    // }}}
+    // {{{ getServerVersion()
+
+    /**
+     * return version information about the server
+     *
+     * @param string     $native  determines if the raw version string should be returned
+     * @return mixed array with versoin information or row string
+     * @access public
+     */
+    function getServerVersion($native = false)
+    {
+        $ibserv = ibase_service_attach($this->dsn['hostspec'], $this->options['DBA_username'], $this->options['DBA_password']);
+        $server_info = ibase_server_info($ibserv, IBASE_SVC_SERVER_VERSION);
+        ibase_service_detach($ibserv);
+        if (!$native) {
+            //WI-V1.5.3.4854 Firebird 1.5
+            preg_match('/-V([\d\.]*)/', $server_info, $matches);
+            $tmp = explode('.', $matches[1]);
+            $server_info = array(
+                'major' => @$tmp[0],
+                'minor' => @$tmp[1],
+                'patch' => @$tmp[2],
+                'extra' => @$tmp[3],
+                'native' => $server_info,
+            );
+        }
+        return $server_info;
+    }
+
+    // }}}
+    // {{{ prepare()
+
+    /**
+     * Prepares a query for multiple execution with execute().
+     * With some database backends, this is emulated.
+     * prepare() requires a generic query as string like
+     * 'INSERT INTO numbers VALUES(?,?)' or
+     * 'INSERT INTO numbers VALUES(:foo,:bar)'.
+     * The ? and :[a-zA-Z] and  are placeholders which can be set using
+     * bindParam() and the query can be send off using the execute() method.
+     *
+     * @param string $query the query to prepare
+     * @param mixed   $types  array that contains the types of the placeholders
+     * @param mixed   $result_types  array that contains the types of the columns in
+     *                        the result set, if set to MDB2_PREPARE_MANIP the
+                              query is handled as a manipulation query
+     * @return mixed resource handle for the prepared query on success, a MDB2
+     *        error on failure
+     * @access public
+     * @see bindParam, execute
+     */
+    function &prepare($query, $types = null, $result_types = null)
+    {
+        $is_manip = ($result_types === MDB2_PREPARE_MANIP);
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
+        $this->debug($query, 'prepare');
+        $placeholder_type_guess = $placeholder_type = null;
+        $question = '?';
+        $colon = ':';
+        $positions = array();
+        $position = 0;
+        while ($position < strlen($query)) {
+            $q_position = strpos($query, $question, $position);
+            $c_position = strpos($query, $colon, $position);
+            if ($q_position && $c_position) {
+                $p_position = min($q_position, $c_position);
+            } elseif ($q_position) {
+                $p_position = $q_position;
+            } elseif ($c_position) {
+                $p_position = $c_position;
+            } else {
                 break;
-            default:
-                return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
-                    'alterTable: change type ' . $change_name . ' not yet supported');
             }
-        }
-        if ($check) {
-            return MDB2_OK;
-        }
-        $query = '';
-        if (array_key_exists('add', $changes)) {
-            foreach ($changes['add'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                }
-                $query.= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field, $name);
+            if (is_null($placeholder_type)) {
+                $placeholder_type_guess = $query[$p_position];
             }
-        }
-
-        if (array_key_exists('remove', $changes)) {
-            foreach ($changes['remove'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                }
-                $field_name = $db->quoteIdentifier($field_name, true);
-                $query.= 'DROP ' . $field_name;
-            }
-        }
-
-        if (array_key_exists('rename', $changes)) {
-            foreach ($changes['rename'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                }
-                $field_name = $db->quoteIdentifier($field_name, true);
-                $query.= 'ALTER ' . $field_name . ' TO ' . $db->quoteIdentifier($field['name'], true);
-            }
-        }
-
-        if (array_key_exists('change', $changes)) {
-            // missing support to change DEFAULT and NULLability
-            foreach ($changes['change'] as $field_name => $field) {
-                if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
+            if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
+                if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
+                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        'prepare: query with an unterminated text string specified');
                     return $err;
                 }
-                if ($query) {
-                    $query.= ', ';
+                switch ($this->escape_quotes) {
+                case '':
+                case "'":
+                    $position = $end_quote + 1;
+                    break;
+                default:
+                    if ($end_quote == $quote + 1) {
+                        $position = $end_quote + 1;
+                    } else {
+                        if ($query[$end_quote-1] == $this->escape_quotes) {
+                            $position = $end_quote;
+                        } else {
+                            $position = $end_quote + 1;
+                        }
+                    }
+                    break;
                 }
-                $db->loadModule('Datatype', null, true);
-                $field_name = $db->quoteIdentifier($field_name, true);
-                $query.= 'ALTER ' . $field_name.' TYPE ' . $db->datatype->getTypeDeclaration($field['definition']);
+            } elseif ($query[$position] == $placeholder_type_guess) {
+                if (is_null($placeholder_type)) {
+                    $placeholder_type = $query[$p_position];
+                    $question = $colon = $placeholder_type;
+                }
+                if ($placeholder_type == ':') {
+                    $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
+                    if ($parameter === '') {
+                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                            'prepare: named parameter with an empty name');
+                        return $err;
+                    }
+                    $positions[$parameter] = $p_position;
+                    $query = substr_replace($query, '?', $position, strlen($parameter)+1);
+                } else {
+                    $positions[] = $p_position;
+                }
+                $position = $p_position + 1;
+            } else {
+                $position = $p_position;
             }
         }
-
-        if (!strlen($query)) {
-            return MDB2_OK;
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $statement = @ibase_prepare($connection, $query);
+        if (!$statement) {
+            $err =& $this->raiseError(MDB2_ERROR, null, null,
+                'Could not create statement');
+            return $err;
         }
 
-        $name = $db->quoteIdentifier($name, true);
-        return $db->exec("ALTER TABLE $name $query");
+        $class_name = 'MDB2_Statement_'.$this->phptype;
+        $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
+        return $obj;
     }
 
     // }}}
-    // {{{ listTables()
+    // {{{ getSequenceName()
 
     /**
-     * list all tables in the current database
+     * adds sequence name formatting to a sequence name
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string $sqn name of the sequence
+     * @return string formatted sequence name
      * @access public
      */
-    function listTables()
+    function getSequenceName($sqn)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-        $query = 'SELECT DISTINCT R.RDB$RELATION_NAME FROM RDB$RELATION_FIELDS R WHERE R.RDB$SYSTEM_FLAG=0';
-        $result = $db->queryCol($query);
+        return strtoupper(parent::getSequenceName($sqn));
+    }
+
+    // }}}
+    // {{{ nextID()
+
+    /**
+     * returns the next free id of a sequence
+     *
+     * @param string $seq_name name of the sequence
+     * @param boolean $ondemand when true the seqence is
+     *                          automatic created, if it
+     *                          not exists
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function nextID($seq_name, $ondemand = true)
+    {
+        $sequence_name = $this->getSequenceName($seq_name);
+        $query = 'SELECT GEN_ID('.$sequence_name.', 1) as the_value FROM RDB$DATABASE';
+        $this->expectError('*');
+        $result = $this->queryOne($query, 'integer');
+        $this->popExpect();
         if (PEAR::isError($result)) {
-            return $result;
-        }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        return $result;
-    }
-
-    // }}}
-    // {{{ listTableFields()
-
-    /**
-     * list all fields in a tables in the current database
-     *
-     * @param string $table name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
-     */
-    function listTableFields($table)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-        $table = strtoupper($table);
-        $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE UPPER(RDB\$RELATION_NAME)='$table'";
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        return $result;
-    }
-
-    // }}}
-    // {{{ listUsers()
-
-    /**
-     * list all users
-     *
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
-     */
-    function listUsers()
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-        return $db->queryCol('SELECT DISTINCT RDB$USER FROM RDB$USER_PRIVILEGES');
-    }
-
-    // }}}
-    // {{{ listViews()
-
-    /**
-     * list the views in the database
-     *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function listViews()
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $result = $db->queryCol('SELECT RDB$VIEW_NAME');
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        return $result;
-    }
-
-    // }}}
-    // {{{ createIndex()
-
-    /**
-     * get the stucture of a field into an array
-     *
-     * @param string    $table         name of the table on which the index is to be created
-     * @param string    $name         name of the index to be created
-     * @param array     $definition        associative array that defines properties of the index to be created.
-     *                                 Currently, only one property named FIELDS is supported. This property
-     *                                 is also an associative with the names of the index fields as array
-     *                                 indexes. Each entry of this array is set to another type of associative
-     *                                 array that specifies properties of the index that are specific to
-     *                                 each field.
-     *
-     *                                Currently, only the sorting property is supported. It should be used
-     *                                 to define the sorting direction of the index. It may be set to either
-     *                                 ascending or descending.
-     *
-     *                                Not all DBMS support index sorting direction configuration. The DBMS
-     *                                 drivers of those that do not support it ignore this property. Use the
-     *                                 function support() to determine whether the DBMS driver can manage indexes.
-
-     *                                 Example
-     *                                    array(
-     *                                        'fields' => array(
-     *                                            'user_name' => array(
-     *                                                'sorting' => 'ascending'
-     *                                            ),
-     *                                            'last_login' => array()
-     *                                        )
-     *                                    )
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function createIndex($table, $name, $definition)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-        $query = 'CREATE';
-
-        $query_sort = '';
-        foreach ($definition['fields'] as $field) {
-            if (!strcmp($query_sort, '') && isset($field['sorting'])) {
-                switch ($field['sorting']) {
-                case 'ascending':
-                    $query_sort = ' ASC';
-                    break;
-                case 'descending':
-                    $query_sort = ' DESC';
-                    break;
+            if ($ondemand) {
+                $this->loadModule('Manager', null, true);
+                // Since we are creating the sequence on demand
+                // we know the first id = 1 so initialize the
+                // sequence at 2
+                $result = $this->manager->createSequence($seq_name, 2);
+                if (PEAR::isError($result)) {
+                    return $this->raiseError(MDB2_ERROR, null, null,
+                        'nextID: on demand sequence could not be created');
+                } else {
+                    // First ID of a newly created sequence is 1
+                    // return 1;
+                    // BUT generators are not always reset, so return the actual value
+                    return $this->currID($seq_name);
                 }
             }
         }
-        $table = $db->quoteIdentifier($table, true);
-        $name  = $db->quoteIdentifier($db->getIndexName($name), true);
-        $query .= $query_sort. " INDEX $name ON $table";
-        $fields = array();
-        foreach (array_keys($definition['fields']) as $field) {
-            $fields[] = $db->quoteIdentifier($field, true);
-        }
-        $query .= ' ('.implode(', ', $fields) . ')';
-        return $db->exec($query);
+        return $result;
     }
 
     // }}}
-    // {{{ listTableIndexes()
+    // {{{ currID()
 
     /**
-     * list all indexes in a table
+     * returns the current id of a sequence
      *
-     * @param string $table name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string $seq_name name of the sequence
+     * @return mixed MDB2 Error Object or id
      * @access public
      */
-    function listTableIndexes($table)
+    function currID($seq_name)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
+        $sequence_name = $this->getSequenceName($seq_name);
+        $query = 'SELECT GEN_ID('.$sequence_name.', 0) as the_value FROM RDB$DATABASE';
+        $value = @$this->queryOne($query);
+        if (PEAR::isError($value)) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'currID: Unable to select from ' . $seq_name) ;
         }
-        $table = strtoupper($table);
-        $query = "SELECT RDB\$INDEX_NAME
-                    FROM RDB\$INDICES
-                   WHERE RDB\$RELATION_NAME='$table'
-                     AND RDB\$UNIQUE_FLAG IS NULL
-                     AND RDB\$FOREIGN_KEY IS NULL";
-        $indexes = $db->queryCol($query, 'text');
-        if (PEAR::isError($indexes)) {
-            return $indexes;
+        if (!is_numeric($value)) {
+            return $this->raiseError(MDB2_ERROR, null, null,
+                'currID: could not find value in sequence table');
         }
-
-        $result = array();
-        foreach ($indexes as $index) {
-            if ($index = $this->_fixIndexName($index)) {
-                $result[$index] = true;
-            }
-        }
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_change_key_case($result, $db->options['field_case']);
-        }
-        return array_keys($result);
+        return $value;
     }
 
     // }}}
-    // {{{ createConstraint()
+}
+
+class MDB2_Result_ibase extends MDB2_Result_Common
+{
+    // {{{ _skipLimitOffset()
 
     /**
-     * create a constraint on a table
+     * Skip the first row of a result set.
      *
-     * @param string    $table      name of the table on which the constraint is to be created
-     * @param string    $name       name of the constraint to be created
-     * @param array     $definition associative array that defines properties of the constraint to be created.
-     *                              Currently, only one property named FIELDS is supported. This property
-     *                              is also an associative with the names of the constraint fields as array
-     *                              constraints. Each entry of this array is set to another type of associative
-     *                              array that specifies properties of the constraint that are specific to
-     *                              each field.
+     * @param resource $result
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access protected
+     */
+    function _skipLimitOffset()
+    {
+        if ($this->db->dsn['dbsyntax'] == 'firebird') {
+            return true;
+        }
+        if ($this->limit) {
+            if ($this->rownum > $this->limit) {
+                return false;
+            }
+        }
+        if ($this->offset) {
+            while ($this->offset_count < $this->offset) {
+                ++$this->offset_count;
+                if (!is_array(@ibase_fetch_row($this->result))) {
+                    $this->offset_count = $this->offset;
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // }}}
+    // {{{ fetchRow()
+
+    /**
+     * Fetch a row and insert the data into an existing array.
      *
-     *                              Example
-     *                                  array(
-     *                                      'fields' => array(
-     *                                          'user_name' => array(),
-     *                                          'last_login' => array(),
-     *                                      )
-     *                                  )
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @param int  $fetchmode how the array data should be indexed
+     * @param int  $rownum    number of the row where the data can be found
+     * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function createConstraint($table, $name, $definition)
+    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
+        if ($this->result === true) {
+            //query successfully executed, but without results...
+            $null = null;
+            return $null;
         }
-        $table = $db->quoteIdentifier($table, true);
-        $name  = $db->quoteIdentifier($db->getIndexName($name), true);
-        $query = "ALTER TABLE $table ADD";
-        if (array_key_exists('primary', $definition) && $definition['primary']) {
-            if (!empty($name)) {
-                $query.= ' CONSTRAINT '.$name;
+        if (!$this->_skipLimitOffset()) {
+            $null = null;
+            return $null;
+        }
+        if (!is_null($rownum)) {
+            $seek = $this->seek($rownum);
+            if (PEAR::isError($seek)) {
+                return $seek;
             }
-            $query.= ' PRIMARY KEY';
+        }
+        if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
+            $fetchmode = $this->db->fetchmode;
+        }
+        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
+            $row = @ibase_fetch_assoc($this->result);
+            if (is_array($row)
+                && $this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            ) {
+                $row = array_change_key_case($row, $this->db->options['field_case']);
+            }
         } else {
-            $query.= ' CONSTRAINT '. $name;
-            if (array_key_exists('unique', $definition) && $definition['unique']) {
-               $query.= ' UNIQUE';
+            $row = @ibase_fetch_row($this->result);
+        }
+        if (!$row) {
+            if (is_null($this->result)) {
+                $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                    'fetchRow: resultset has already been freed');
+                return $err;
+            }
+            $null = null;
+            return $null;
+        }
+        if (($mode = ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM)
+            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL))
+        ) {
+            $this->db->_fixResultArrayValues($row, $mode);
+        }
+        if (!empty($this->values)) {
+            $this->_assignBindColumns($row);
+        }
+        if (!empty($this->types)) {
+            $row = $this->db->datatype->convertResultRow($this->types, $row);
+        }
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $object_class = $this->db->options['fetch_class'];
+            if ($object_class == 'stdClass') {
+                $row = (object) $row;
+            } else {
+                $row = &new $object_class($row);
             }
         }
-        $fields = array();
-        foreach (array_keys($definition['fields']) as $field) {
-            $fields[] = $db->quoteIdentifier($field, true);
-        }
-        $query .= ' ('. implode(', ', $fields) . ')';
-        return $db->exec($query);
+        ++$this->rownum;
+        return $row;
     }
 
     // }}}
-    // {{{ listTableConstraints()
+    // {{{ _getColumnNames()
 
     /**
-     * list all sonstraints in a table
+     * Retrieve the names of columns returned by the DBMS in a query result.
      *
-     * @param string    $table      name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed associative array variable
+     *      that holds the names of columns. The indexes of the array are
+     *      the column names mapped to lower case and the values are the
+     *      respective numbers of the columns starting from 0. Some DBMS may
+     *      not return any columns when the result set does not contain any
+     *      rows.
+     * @access private
+     */
+    function _getColumnNames()
+    {
+        $columns = array();
+        $numcols = $this->numCols();
+        if (PEAR::isError($numcols)) {
+            return $numcols;
+        }
+        for ($column = 0; $column < $numcols; $column++) {
+            $column_info = @ibase_field_info($this->result, $column);
+            $columns[$column_info['alias']] = $column;
+        }
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $columns = array_change_key_case($columns, $this->db->options['field_case']);
+        }
+        return $columns;
+    }
+
+    // }}}
+    // {{{ numCols()
+
+    /**
+     * Count the number of columns returned by the DBMS in a query result.
+     *
+     * @return mixed integer value with the number of columns, a MDB2 error
+     *      on failure
      * @access public
      */
-    function listTableConstraints($table)
+    function numCols()
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-        $table = strtoupper($table);
-        $query = "SELECT RDB\$INDEX_NAME
-                    FROM RDB\$INDICES
-                   WHERE UPPER(RDB\$RELATION_NAME)='$table'
-                     AND (
-                           RDB\$UNIQUE_FLAG IS NOT NULL
-                        OR RDB\$FOREIGN_KEY IS NOT NULL
-                     )";
-        $constraints = $db->queryCol($query);
-        if (PEAR::isError($constraints)) {
-            return $constraints;
+        if ($this->result === true) {
+            //query successfully executed, but without results...
+            return 0;
         }
 
-        $result = array();
-        foreach ($constraints as $constraint) {
-            $result[$this->_fixIndexName($constraint)] = true;
+        if (!is_resource($this->result)) {
+            return $this->db->raiseError('numCols(): not a valid ibase resource');
         }
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_change_key_case($result, $db->options['field_case']);
+        $cols = @ibase_num_fields($this->result);
+        if (is_null($cols)) {
+            if (is_null($this->result)) {
+                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                    'numCols: resultset has already been freed');
+            }
+            return $this->db->raiseError();
         }
-        return array_keys($result);
+        return $cols;
     }
 
     // }}}
-    // {{{ createSequence()
+    // {{{ free()
 
     /**
-     * create sequence
+     * Free the internal resources associated with $result.
      *
-     * @param string $seq_name name of the sequence to be created
-     * @param string $start start value of the sequence; default is 1
+     * @return boolean true on success, false if $result is invalid
+     * @access public
+     */
+    function free()
+    {
+        if (is_resource($this->result)) {
+            $free = @ibase_free_result($this->result);
+            if (!$free) {
+                if (is_null($this->result)) {
+                    return MDB2_OK;
+                }
+                return $this->db->raiseError();
+            }
+        }
+        $this->result = null;
+        return MDB2_OK;
+    }
+
+    // }}}
+}
+
+class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
+{
+    // {{{ class vars
+
+    var $buffer;
+    var $buffer_rownum = - 1;
+
+    // }}}
+    // {{{ _fillBuffer()
+
+    /**
+     * Fill the row buffer
+     *
+     * @param int $rownum   row number upto which the buffer should be filled
+     *                      if the row number is null all rows are ready into the buffer
+     * @return boolean true on success, false on failure
+     * @access protected
+     */
+    function _fillBuffer($rownum = null)
+    {
+        if (isset($this->buffer) && is_array($this->buffer)) {
+            if (is_null($rownum)) {
+                if (!end($this->buffer)) {
+                    return false;
+                }
+            } elseif (isset($this->buffer[$rownum])) {
+                return (bool) $this->buffer[$rownum];
+            }
+        }
+
+        if (!$this->_skipLimitOffset()) {
+            return false;
+        }
+
+        $buffer = true;
+        while ((is_null($rownum) || $this->buffer_rownum < $rownum)
+            && (!$this->limit || $this->buffer_rownum < $this->limit)
+            && ($buffer = @ibase_fetch_row($this->result))
+        ) {
+            ++$this->buffer_rownum;
+            $this->buffer[$this->buffer_rownum] = $buffer;
+        }
+
+        if (!$buffer) {
+            ++$this->buffer_rownum;
+            $this->buffer[$this->buffer_rownum] = false;
+            return false;
+        } elseif ($this->limit && $this->buffer_rownum >= $this->limit) {
+            ++$this->buffer_rownum;
+            $this->buffer[$this->buffer_rownum] = false;
+        }
+        return true;
+    }
+
+    // }}}
+    // {{{ fetchRow()
+
+    /**
+     * Fetch a row and insert the data into an existing array.
+     *
+     * @param int       $fetchmode  how the array data should be indexed
+     * @param int    $rownum    number of the row where the data can be found
+     * @return int data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
+    {
+        if ($this->result === true) {
+            //query successfully executed, but without results...
+            $null = null;
+            return $null;
+        }
+        if (is_null($this->result)) {
+            $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'fetchRow: resultset has already been freed');
+            return $err;
+        }
+        if (!is_null($rownum)) {
+            $seek = $this->seek($rownum);
+            if (PEAR::isError($seek)) {
+                return $seek;
+            }
+        }
+        $target_rownum = $this->rownum + 1;
+        if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
+            $fetchmode = $this->db->fetchmode;
+        }
+        if (!$this->_fillBuffer($target_rownum)) {
+            $null = null;
+            return $null;
+        }
+        $row = $this->buffer[$target_rownum];
+        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
+            $column_names = $this->getColumnNames();
+            foreach ($column_names as $name => $i) {
+                $column_names[$name] = $row[$i];
+            }
+            $row = $column_names;
+        }
+        if (($mode = ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM)
+            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL))
+        ) {
+            $this->db->_fixResultArrayValues($row, $mode);
+        }
+        if (!empty($this->values)) {
+            $this->_assignBindColumns($row);
+        }
+        if (!empty($this->types)) {
+            $row = $this->db->datatype->convertResultRow($this->types, $row);
+        }
+        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
+            $object_class = $this->db->options['fetch_class'];
+            if ($object_class == 'stdClass') {
+                $row = (object) $row;
+            } else {
+                $row = &new $object_class($row);
+            }
+        }
+        ++$this->rownum;
+        return $row;
+    }
+
+    // }}}
+    // {{{ seek()
+
+    /**
+     * seek to a specific row in a result set
+     *
+     * @param int    $rownum    number of the row where the data can be found
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createSequence($seq_name, $start = 1)
+    function seek($rownum = 0)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
+        if (is_null($this->result)) {
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'seek: resultset has already been freed');
+        }
+        $this->rownum = $rownum - 1;
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ valid()
+
+    /**
+     * check if the end of the result set has been reached
+     *
+     * @return mixed true or false on sucess, a MDB2 error on failure
+     * @access public
+     */
+    function valid()
+    {
+        if (is_null($this->result)) {
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'valid: resultset has already been freed');
+        }
+        if ($this->_fillBuffer($this->rownum + 1)) {
+            return true;
+        }
+        return false;
+    }
+
+    // }}}
+    // {{{ numRows()
+
+    /**
+     * returns the number of rows in a result object
+     *
+     * @return mixed MDB2 Error Object or the number of rows
+     * @access public
+     */
+    function numRows()
+    {
+        if (is_null($this->result)) {
+            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'seek: resultset has already been freed');
+        }
+        $this->_fillBuffer();
+        return $this->buffer_rownum;
+    }
+
+    // }}}
+    // {{{ free()
+
+    /**
+     * Free the internal resources associated with $result.
+     *
+     * @return boolean true on success, false if $result is invalid
+     * @access public
+     */
+    function free()
+    {
+        $this->buffer = null;
+        $this->buffer_rownum = null;
+        $free = parent::free();
+    }
+
+    // }}}
+}
+
+class MDB2_Statement_ibase extends MDB2_Statement_Common
+{
+    // {{{ _execute()
+
+    /**
+     * Execute a prepared query statement helper method.
+     *
+     * @param mixed $result_class string which specifies which result class to use
+     * @param mixed $result_wrap_class string which specifies which class to wrap results in
+     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function &_execute($result_class = true, $result_wrap_class = false)
+    {
+        $this->db->last_query = $this->query;
+        $this->db->debug($this->query, 'execute');
+        if ($this->db->getOption('disable_query')) {
+            if ($this->is_manip) {
+                $return = 0;
+                return $return;
+            }
+            $null = null;
+            return $null;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
-        if (PEAR::isError($result = $db->exec('CREATE GENERATOR '.$sequence_name))) {
-            return $result;
+        $connection = $this->db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
-        if (PEAR::isError($result = $db->exec('SET GENERATOR '.$sequence_name.' TO '.($start-1)))) {
-            if (PEAR::isError($err = $db->dropSequence($seq_name))) {
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'createSequence: Could not setup sequence start value and then it was not possible to drop it: '.
-                    $err->getMessage().' - ' .$err->getUserInfo());
+
+        $parameters = array(0 => $this->statement);
+        foreach ($this->positions as $parameter => $current_position) {
+            if (!array_key_exists($parameter, $this->values)) {
+                return $this->db->raiseError();
             }
+            $value = $this->values[$parameter];
+            $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
+            $parameters[] = $this->db->quote($value, $type, false);
         }
+
+        $result = call_user_func_array('ibase_execute', $parameters);
+        if ($result === false) {
+            $err =& $this->db->raiseError();
+            return $err;
+        }
+
+        if ($this->is_manip) {
+            $affected_rows = $this->db->_affectedRows($connection);
+            return $affected_rows;
+        }
+
+        $result =& $this->db->_wrapResult($result, $this->result_types,
+            $result_class, $result_wrap_class, $this->limit, $this->offset);
         return $result;
     }
 
     // }}}
-    // {{{ dropSequence()
+
+    // }}}
+    // {{{ free()
 
     /**
-     * drop existing sequence
+     * Release resources allocated for the specified prepared query.
      *
-     * @param string $seq_name name of the sequence to be dropped
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function dropSequence($seq_name)
+    function free()
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
+        if (!@ibase_free_query($this->statement)) {
+            return $this->db->raiseError();
         }
-
-        $sequence_name = $db->getSequenceName($seq_name);
-        $query = "DELETE FROM RDB\$GENERATORS WHERE UPPER(RDB\$GENERATOR_NAME)='$sequence_name'";
-        return $db->exec($query);
-    }
-
-    // }}}
-    // {{{ listSequences()
-
-    /**
-     * list all sequences in the current database
-     *
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
-     */
-    function listSequences()
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS WHERE RDB$SYSTEM_FLAG IS NULL';
-        $table_names = $db->queryCol($query);
-        if (PEAR::isError($table_names)) {
-            return $table_names;
-        }
-        $result = array();
-        foreach ($table_names as $table_name) {
-            $result[] = $this->_fixSequenceName($table_name);
-        }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        return $result;
+        return MDB2_OK;
     }
 }
 ?>
