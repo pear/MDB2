@@ -62,17 +62,18 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-
         $start_pos = strpos($sql, '(');
         $end_pos = strrpos($sql, ')');
         $column_def = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
+        // replace the decimal length-places-separator with a colon
+        $column_def = preg_replace('/(\d),(\d)/', '\1:\2', $column_def);
         $column_sql = split(',', $column_def);
         $columns = array();
         $count = count($column_sql);
         if ($count == 0) {
             return $db->raiseError('unexpected empty table column definition list');
         }
-        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|SMALLINT|INT|INTEGER|DECIMAL|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( \(([1-9][0-9]*)(,([1-9][0-9]*))?\))?( UNSIGNED)?( PRIMARY KEY)?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
+        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|SMALLINT|INT|INTEGER|DECIMAL|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( ?\(([1-9][0-9]*)(:([1-9][0-9]*))?\))?( UNSIGNED)?( PRIMARY KEY)?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
         for ($i=0, $j=0; $i<$count; ++$i) {
             if (!preg_match($regexp, trim($column_sql[$i]), $matches)) {
                 return $db->raiseError('unexpected table column SQL definition: "'.$column_sql[$i].'"');
