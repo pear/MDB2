@@ -550,7 +550,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      * return version information about the server
      *
      * @param string     $native  determines if the raw version string should be returned
-     * @return mixed array with versoin information or row string
+     * @return mixed array/string with version information or MDB2 error object
      * @access public
      */
     function getServerVersion($native = false)
@@ -561,13 +561,18 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         }
         $server_info = @mysqli_get_server_info($connection);
         if (!$native) {
-            $tmp = explode('.', $server_info);
-            $tmp2 = explode('-', @$tmp[2]);
+            $tmp = explode('.', $server_info, 3);
+            if (isset($tmp[2]) && strpos($tmp[2], '-')) {
+                $tmp2 = explode('-', @$tmp[2], 2);
+            } else {
+                $tmp2[0] = isset($tmp[2]) ? $tmp[2] : null;
+                $tmp2[1] = null;
+            }
             $server_info = array(
-                'major' => @$tmp[0],
-                'minor' => @$tmp[1],
-                'patch' => @$tmp2[0],
-                'extra' => @$tmp2[1],
+                'major' => isset($tmp[0]) ? $tmp[0] : null,
+                'minor' => isset($tmp[1]) ? $tmp[1] : null,
+                'patch' => $tmp2[0],
+                'extra' => $tmp2[1],
                 'native' => $server_info,
             );
         }

@@ -550,7 +550,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * return version information about the server
      *
      * @param string     $native  determines if the raw version string should be returned
-     * @return mixed array with versoin information or row string
+     * @return mixed array/string with version information or MDB2 error object
      * @access public
      */
     function getServerVersion($native = false)
@@ -561,12 +561,15 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         $server_info = ociserverversion($connection);
         if (!$native) {
-            preg_match('/ (\d+)\.(\d+)\.(\d+)\.([\d\.]+) /', $server_info, $tmp);
+            if (!preg_match('/ (\d+)\.(\d+)\.(\d+)\.([\d\.]+) /', $server_info, $tmp)) {
+                return $this->raiseError(MDB2_ERROR, null, null,
+                    'Could not parse version information:'.$server_info);
+            }
             $server_info = array(
-                'major' => @$tmp[1],
-                'minor' => @$tmp[2],
-                'patch' => @$tmp[3],
-                'extra' => @$tmp[4],
+                'major' => $tmp[1],
+                'minor' => $tmp[2],
+                'patch' => $tmp[3],
+                'extra' => $tmp[4],
                 'native' => $server_info,
             );
         }

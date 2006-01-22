@@ -529,7 +529,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * return version information about the server
      *
      * @param string     $native  determines if the raw version string should be returned
-     * @return mixed array with versoin information or row string
+     * @return mixed array/string with version information or MDB2 error object
      * @access public
      */
     function getServerVersion($native = false)
@@ -537,21 +537,23 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $query = 'SHOW SERVER_VERSION';
         $server_info = $this->queryOne($query, 'text');
         if (!$native && !PEAR::isError($server_info)) {
-            $tmp = explode('.', $server_info);
-            if (!array_key_exists(2, $tmp)) {
-                preg_match('/(\d+)(.*)/', @$tmp[1], $tmp2);
+            $tmp = explode('.', $server_info, 3);
+            if (!array_key_exists(2, $tmp)
+                && isset($tmp[1])
+                && preg_match('/(\d+)(.*)/', $tmp[1], $tmp2)
+            ) {
                 $server_info = array(
-                    'major' => @$tmp[0],
-                    'minor' => @$tmp2[1],
+                    'major' => $tmp[0],
+                    'minor' => $tmp2[1],
                     'patch' => null,
-                    'extra' => @$tmp2[2],
+                    'extra' => $tmp2[2],
                     'native' => $server_info,
                 );
             } else {
                 $server_info = array(
-                    'major' => @$tmp[0],
-                    'minor' => @$tmp[1],
-                    'patch' => @$tmp[2],
+                    'major' => isset($tmp[0]) ? $tmp[0] : null,
+                    'minor' => isset($tmp[1]) ? $tmp[1] : null,
+                    'patch' => isset($tmp[2]) ? $tmp[2] : null,
                     'extra' => null,
                     'native' => $server_info,
                 );

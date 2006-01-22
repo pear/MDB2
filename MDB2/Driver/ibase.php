@@ -545,7 +545,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * return version information about the server
      *
      * @param string     $native  determines if the raw version string should be returned
-     * @return mixed array with versoin information or row string
+     * @return mixed array/string with version information or MDB2 error object
      * @access public
      */
     function getServerVersion($native = false)
@@ -555,13 +555,16 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         ibase_service_detach($ibserv);
         if (!$native) {
             //WI-V1.5.3.4854 Firebird 1.5
-            preg_match('/-V([\d\.]*)/', $server_info, $matches);
-            $tmp = explode('.', $matches[1]);
+            if (!preg_match('/-V([\d\.]*)/', $server_info, $matches)) {
+                return $this->raiseError(MDB2_ERROR, null, null,
+                    'Could not parse version information:'.$server_info);
+            }
+            $tmp = explode('.', $matches[1], 4);
             $server_info = array(
-                'major' => @$tmp[0],
-                'minor' => @$tmp[1],
-                'patch' => @$tmp[2],
-                'extra' => @$tmp[3],
+                'major' => isset($tmp[0]) ? $tmp[0] : null,
+                'minor' => isset($tmp[1]) ? $tmp[1] : null,
+                'patch' => isset($tmp[2]) ? $tmp[2] : null,
+                'extra' => isset($tmp[3]) ? $tmp[3] : null,
                 'native' => $server_info,
             );
         }

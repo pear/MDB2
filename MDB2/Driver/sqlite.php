@@ -456,7 +456,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      * return version information about the server
      *
      * @param string     $native  determines if the raw version string should be returned
-     * @return mixed array with versoin information or row string
+     * @return mixed array/string with version information or MDB2 error object
      * @access public
      */
     function getServerVersion($native = false)
@@ -466,11 +466,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
         $server_info = sqlite_libversion();
         if (!$native) {
-            $tmp = explode('.', $server_info);
+            $tmp = explode('.', $server_info, 3);
             $server_info = array(
-                'major' => @$tmp[0],
-                'minor' => @$tmp[1],
-                'patch' => @$tmp[2],
+                'major' => isset($tmp[0]) ? $tmp[0] : null,
+                'minor' => isset($tmp[1]) ? $tmp[1] : null,
+                'patch' => isset($tmp[2]) ? $tmp[2] : null,
                 'extra' => null,
                 'native' => $server_info,
             );
