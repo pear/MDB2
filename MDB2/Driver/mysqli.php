@@ -81,7 +81,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
-        $this->supported['sub_selects'] = false;
+        $this->supported['sub_selects'] = 'emulated';
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
 
@@ -394,7 +394,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $this->supported['transactions'] = true;
         }
 
-        $this->supported['sub_selects'] = false;
+        $this->supported['sub_selects'] = 'emulated';
         $server_info = $this->getServerVersion();
         if (is_array($server_info)
             && ($server_info['major'] > 4

@@ -396,7 +396,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             $this->supported['transactions'] = true;
         }
 
-        $this->supported['sub_selects'] = false;
+        $this->supported['sub_selects'] = 'emulated';
         $server_info = $this->getServerVersion();
         if (is_array($server_info)
             && ($server_info['major'] > 4
