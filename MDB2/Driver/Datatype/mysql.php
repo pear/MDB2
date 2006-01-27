@@ -135,7 +135,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             }
             return 'INT';
         case 'boolean':
-            return 'TINYINT';
+            return 'TINYINT(1)';
         case 'date':
             return 'DATE';
         case 'time':
