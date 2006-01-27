@@ -147,14 +147,15 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
     // {{{ concat()
 
     /**
-     * return string to caoncatenate two strings
+     * returns string to concatenate two or more string parameters
      *
      * @return string to caoncatenate two strings
      * @access public
      */
     function concat($value1, $value2)
     {
-        return "$value1 || $value2";
+        $args = func_get_args();
+        return "(".implode(' || ', $args).")";
     }
 
     // }}}
