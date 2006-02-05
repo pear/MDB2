@@ -139,6 +139,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = strtoupper($table);
         $index_name  = $table . '_AUTOINCREMENT_PK';
         $definition = array(
             'primary' => true,
@@ -194,6 +195,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = strtoupper($table);
         $trigger_name = $table . '_AUTOINCREMENT_PK';
         $trigger_name = $db->quoteIdentifier($trigger_name, true);
         $trigger = $db->queryOne("SELECT trigger_name FROM user_triggers WHERE trigger_name = '$trigger_name'");
@@ -215,7 +217,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                     '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
             }
 
-            $index_name  = $table . '_AUTOINCREMENT_PK';
+            $index_name = $table . '_AUTOINCREMENT_PK';
             $result = $db->manager->dropConstraint($table, $index_name);
             if (PEAR::isError($result)) {
                 return $db->raiseError(MDB2_ERROR, null, null,
