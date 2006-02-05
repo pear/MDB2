@@ -124,12 +124,12 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 if ($length <= 2) {
                     return 'SMALLINT';
                 } elseif ($length == 3 || $length == 4) {
-                    return 'INT';
+                    return 'INTEGER';
                 } elseif ($length > 4) {
                     return 'BIGINT';
                 }
             }
-            return 'INT';
+            return 'INTEGER';
         case 'boolean':
             return 'BOOLEAN';
         case 'date':
