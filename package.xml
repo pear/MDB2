@@ -69,23 +69,24 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.0.0RC4</version>
-  <date>2006-01-13</date>
+  <version>2.0.0RC5</version>
+  <date>2006-02-05</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- some cleanups in loadModule()
-- eliminate possible warnings in execute() and _assignBindColumns()
-- do not silence includes when debug option is enabled
-- fixed serious bug in autoincrement test
-- added dbsyntax to getDSN() string output (feature request #6463)
-- fixed signature of executeStoredProc()
-- nextResult() returns false if there are no more result sets to read
-- renamed _isIndexName() to _fixIndexName()
-- _fixIndexName() now just attempts to remove possible formatting
-- renamed _isSequenceName() to _fixSequenceName()
-- _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
+  <notes>- expanded testing of prepared queries (out of order binding, escape characters
+  inside the string, lobs without named parameters that match the field name)
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- added support for out of order parameter binding in prepared queries
+- expanded testing of prepared queries (out of order binding, escape characters
+  inside the string, lobs without named parameters that match the field name)
+- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
+- cosmetic fix (removed &quot;row_&quot; prefix from &quot;row_limit&quot; and &quot;row_offset&quot;)
+- now using INT/TINYINT/SMALLINT by default instead of CHAR(1) for the boolean datatype
+  (BC BREAK!)
+- added MDB2_datatype_testcase to test suite
+- support an arbitrary number of arguments in concat()
+- add property phpdoc comments to LOB.php
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -197,6 +198,9 @@ portability. Among other things MDB2 features:
      <file role="test" name="MDB2_Connect_Test.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
+     <file role="test" name="MDB2_datatype_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
      <file role="test" name="MDB2_function_testcase.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
@@ -241,6 +245,27 @@ portability. Among other things MDB2 features:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.0.0RC5</version>
+    <date>2006-02-05</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- expanded testing of prepared queries (out of order binding, escape characters
+  inside the string, lobs without named parameters that match the field name)
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- added support for out of order parameter binding in prepared queries
+- expanded testing of prepared queries (out of order binding, escape characters
+  inside the string, lobs without named parameters that match the field name)
+- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
+- cosmetic fix (removed &quot;row_&quot; prefix from &quot;row_limit&quot; and &quot;row_offset&quot;)
+- now using INT/TINYINT/SMALLINT by default instead of CHAR(1) for the boolean datatype
+  (BC BREAK!)
+- added MDB2_datatype_testcase to test suite
+- support an arbitrary number of arguments in concat()
+- add property phpdoc comments to LOB.php
+    </notes>
+   </release>
    <release>
     <version>2.0.0RC4</version>
     <date>2006-01-13</date>

@@ -14,18 +14,17 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.3</version>
-  <date>2006-01-13</date>
+  <version>0.2.4</version>
+  <date>2006-02-05</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- fixed signature of executeStoredProc()
-- typo fixes in error handling of nextResult() and numRows() calls
-- _fixIndexName() now just attempts to remove possible formatting
-- renamed _isSequenceName() to _fixSequenceName()
-- _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
-- fixed bug that caused unique indexes from not being seen (bug #6476)
+  <notes>- added support for length in integer and decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- added support for out of order parameter binding in prepared queries
+- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
+- cosmetic fix (removed &quot;row_&quot; prefix from &quot;row_limit&quot; and &quot;row_offset&quot;)
+- improved parsing in getServerInfo() (bug #6550)
 
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
@@ -74,6 +73,25 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.4</version>
+    <date>2006-02-05</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- added support for length in integer and decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- added support for out of order parameter binding in prepared queries
+- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
+- cosmetic fix (removed &quot;row_&quot; prefix from &quot;row_limit&quot; and &quot;row_offset&quot;)
+- improved parsing in getServerInfo() (bug #6550)
+
+open todo items:
+- considering migrating away from OID&apos;s to bytea, since this is encourage
+  since version 8 and is also what PDO expects, however there is no streaming
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
+    </notes>
+   </release>
    <release>
     <version>0.2.3</version>
     <date>2006-01-13</date>

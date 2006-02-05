@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.5">
+<package version="1.0" packagerversion="1.4.6">
  <name>MDB2_Driver_querysim</name>
  <summary>querysim MDB2 driver</summary>
  <description>This is the Querysim MDB2 driver.
@@ -14,18 +14,13 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.0</version>
-  <date>2005-12-21</date>
+  <version>0.2.1</version>
+  <date>2006-02-05</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- use getConnection() to access connection property
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added getServerVersion()
-- basic querysim test files
-- fixed several critical errors
+  <notes>- improved parsing in getServerInfo() (bug #6550)
 
 open todo items:
-- this driver is currently unmaintained/untested
 - add ability to reference multiple results set files for different queries
   </notes>
   <deps>
@@ -59,6 +54,17 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.1</version>
+    <date>2006-02-05</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- improved parsing in getServerInfo() (bug #6550)
+
+open todo items:
+- add ability to reference multiple results set files for different queries
+    </notes>
+   </release>
    <release>
     <version>0.2.0</version>
     <date>2005-12-21</date>

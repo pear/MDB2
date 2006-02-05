@@ -14,20 +14,18 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.3</version>
-  <date>2006-01-13</date>
+  <version>0.2.4</version>
+  <date>2006-02-05</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- properly handle PRIMARY keys in listTableConstraints()
-- apply _isIndexName() on non primary keys in getTableConstraintDefinition()
-- fixed signature of quoteIdentifier() to make second param optional
-- fixed signature of executeStoredProc()
-- typo fixes in error handling of nextResult() and numRows() calls
-- _fixIndexName() now just attempts to remove possible formatting
-- renamed _isSequenceName() to _fixSequenceName()
-- _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
+  <notes>- added support for length in integer and decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- now using TINYINT(1) by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
+- typo fix in error message in createTable()
+- improved parsing in getServerInfo() (bug #6550)
+- fixed subselect emulation
+- support an arbitrary number of arguments in concat()
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -71,6 +69,21 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.4</version>
+    <date>2006-02-05</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- added support for length in integer and decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- now using TINYINT(1) by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
+- typo fix in error message in createTable()
+- improved parsing in getServerInfo() (bug #6550)
+- fixed subselect emulation
+- support an arbitrary number of arguments in concat()
+    </notes>
+   </release>
    <release>
     <version>0.2.3</version>
     <date>2006-01-13</date>
