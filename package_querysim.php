@@ -2,16 +2,11 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.0';
+$version = '0.2.1';
 $notes = <<<EOT
-- use getConnection() to access connection property
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- added getServerVersion()
-- basic querysim test files
-- fixed several critical errors
+- improved parsing in getServerInfo() (bug #6550)
 
 open todo items:
-- this driver is currently unmaintained/untested
 - add ability to reference multiple results set files for different queries
 EOT;
 
