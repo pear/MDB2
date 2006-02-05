@@ -149,6 +149,9 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
     /**
      * returns string to concatenate two or more string parameters
      *
+     * @param string $value1
+     * @param string $value2
+     * @param string $values...
      * @return string to caoncatenate two strings
      * @access public
      */

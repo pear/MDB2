@@ -89,6 +89,9 @@ class MDB2_Driver_Function_mssql extends MDB2_Driver_Function_Common
     /**
      * returns string to concatenate two or more string parameters
      *
+     * @param string $value1
+     * @param string $value2
+     * @param string $values...
      * @return string to caoncatenate two strings
      * @access public
      **/
