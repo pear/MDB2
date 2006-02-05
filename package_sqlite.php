@@ -10,6 +10,8 @@ $notes = <<<EOT
 - improved regexp for column reverse engineering
 - removed ugly hack for quote parameter in quote() since it was insufficient
   (escaping also needs to be prevented)
+- Now integer fields are created and mapped as INTEGER instead of INT, this
+  kick started the auto increment feature properly
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
