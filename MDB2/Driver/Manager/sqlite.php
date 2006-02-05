@@ -481,7 +481,13 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
+        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $query.= "LOWER(tbl_name)='".strtolower($table)."'";
+        } else {
+            $query.= "tbl_name='$table'";
+        }
+        $query.= " AND sql NOT NULL ORDER BY name";
         $indexes = $db->queryCol($query, 'text');
         if (PEAR::isError($indexes)) {
             return $indexes;
@@ -489,8 +495,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($indexes as $sql) {
-            $sql = strtolower($sql);
-            if (preg_match("/^create index ([^ ]*) on /", $sql, $tmp)) {
+            if (preg_match("/^create index ([^ ]*) on /i", $sql, $tmp)) {
                 $result[$this->_fixIndexName($tmp[1])] = true;
             }
         }
@@ -604,7 +609,13 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
+        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $query.= "LOWER(tbl_name)='".strtolower($table)."'";
+        } else {
+            $query.= "tbl_name='$table'";
+        }
+        $query.= " AND sql NOT NULL ORDER BY name";
         $indexes = $db->queryCol($query, 'text');
         if (PEAR::isError($indexes)) {
             return $indexes;
@@ -612,8 +623,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($indexes as $sql) {
-            $sql = strtolower($sql);
-            if (preg_match("/^create unique index ([^ ]*) on /", $sql, $tmp)) {
+            if (preg_match("/^create unique index ([^ ]*) on /i", $sql, $tmp)) {
                 $result[$this->_fixIndexName($tmp[1])] = true;
             }
         }

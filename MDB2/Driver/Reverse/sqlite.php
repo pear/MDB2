@@ -131,7 +131,12 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $query = "SELECT sql FROM sqlite_master WHERE type='table' AND name='$table'";
+        $query = "SELECT sql FROM sqlite_master WHERE type='table' AND ";
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $query.= "LOWER(name)='".strtolower($table)."'";
+        } else {
+            $query.= "name='$table'";
+        }
         $sql = $db->queryOne($query);
         if (PEAR::isError($sql)) {
             return $sql;
@@ -210,7 +215,13 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
 
         $index_name = $db->getIndexName($index_name);
-        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND name='$index_name' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
+        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $query.= "LOWER(name)='".strtolower($index_name)."' AND LOWER(tbl_name)='".strtolower($table)."'";
+        } else {
+            $query.= "name='$index_name' AND tbl_name='$table'";
+        }
+        $query.= " AND sql NOT NULL ORDER BY name";
         $sql = $db->queryOne($query, 'text');
         if (PEAR::isError($sql)) {
             return $sql;
@@ -269,7 +280,13 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
 
         $index_name = $db->getIndexName($index_name);
-        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND name='$index_name' AND tbl_name='$table' AND sql NOT NULL ORDER BY name";
+        $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $query.= "LOWER(name)='".strtolower($index_name)."' AND LOWER(tbl_name)='".strtolower($table)."'";
+        } else {
+            $query.= "name='$index_name' AND tbl_name='$table'";
+        }
+        $query.= " AND sql NOT NULL ORDER BY name";
         $sql = $db->queryOne($query, 'text');
         if (PEAR::isError($sql)) {
             return $sql;
