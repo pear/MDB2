@@ -168,7 +168,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
-        $sequence_name = strtoupper($db->getSequenceName($table));
+        $sequence_name = $db->getSequenceName($table);
         $trigger_name  = $db->quoteIdentifier($table . '_AUTOINCREMENT_PK', true);
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->quoteIdentifier($name, true);
