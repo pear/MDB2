@@ -12,6 +12,10 @@ $notes = <<<EOT
 - reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
 - cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
 - now using SMALLINT by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
+- check if a constraint name is given in createConstraint()
+- added private _silentCommit() method to avoid uncommitted queries preventing
+  further queries to succeed (@see bug #6494)
+- improved parsing in getServerInfo() (bug #6550)
 
 open todo items:
 - handle autoincremement fields in alterTable()

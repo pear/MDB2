@@ -10,6 +10,7 @@ $notes = <<<EOT
 - added support for out of order parameter binding in prepared queries
 - reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
 - cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
+- improved parsing in getServerInfo() (bug #6550)
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

@@ -12,11 +12,13 @@ $notes = <<<EOT
   (escaping also needs to be prevented)
 - Now integer fields are created and mapped as INTEGER instead of INT, this
   kick started the auto increment feature properly
+- improved parsing in getServerInfo() (bug #6550)
+- fix case when reading from sqlite information schema (bug #6491)
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
   primary keys to existing tables
-- the alter table test fails because this is unsupported in sqlite2
+- the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
 EOT;

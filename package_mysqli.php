@@ -11,7 +11,11 @@ $notes = <<<EOT
 - added support for out of order parameter binding in prepared queries
 - reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
 - cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
-- now using TINYINT by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
+- now using TINYINT(1) by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
+- typo fix in error message in createTable()
+- improved parsing in getServerInfo() (bug #6550)
+- fixed subselect emulation
+- support an arbitrary number of arguments in concat()
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
