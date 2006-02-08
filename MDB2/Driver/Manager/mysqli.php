@@ -712,7 +712,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         } else {
             $name = $db->quoteIdentifier($db->getIndexName($name), true);
             if (array_key_exists('unique', $definition) && $definition['unique']) {
-                $type = ' UNIQUE';
+                $type = 'UNIQUE';
             }
         }
 
