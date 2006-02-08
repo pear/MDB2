@@ -411,9 +411,6 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             );
             $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
             $res[$i]['mdb2type'] = $mdb2type_info[0][0];
-            if ($mode & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES) {
-                $res[$i]['name'] = preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $res[$i]['name']);
-            }
 
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
