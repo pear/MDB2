@@ -60,6 +60,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
     var $_lasterror = '';
 
+    var $fix_assoc_fields_names = false;
+
     // }}}
     // {{{ constructor
 
@@ -314,6 +316,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if (!$connection) {
                 return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
             }
+
             $this->connection = $connection;
             $this->connected_dsn = $this->dsn;
             $this->connected_database_name = $database_file;
@@ -349,6 +352,29 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ getConnection()
+
+    /**
+     * Returns a native connection
+     *
+     * @return  mixed   a valid MDB2 connection object,
+     *                  or a MDB2 error object on error
+     * @access  public
+     */
+    function getConnection()
+    {
+        $connection = parent::getConnection();
+
+        $fix_assoc_fields_names = $this->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES;
+        if ($fix_assoc_fields_names !== $this->fix_assoc_fields_names) {
+            @sqlite_query("PRAGMA short_column_names = $fix_assoc_fields_names;", $connection);
+            $this->fix_assoc_fields_names = $fix_assoc_fields_names;
+        }
+
+        return $connection;
+    }
+
+    // }}}
     // {{{ _doQuery()
 
     /**
@@ -363,7 +389,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $this->debug($query, 'query');
+        $this->debug($query, 'query', $is_manip);
         if ($this->options['disable_query']) {
             if ($is__manip) {
                 return 0;
@@ -583,7 +609,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
         $query = "REPLACE INTO $table ($query) VALUES ($values)";
         $this->last_query = $query;
-        $this->debug($query, 'query');
+        $this->debug($query, 'query', true);
         $result = $this->_doQuery($query, true, $connection);
         if (PEAR::isError($result)) {
             return $result;
@@ -719,7 +745,7 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
            $row = @sqlite_fetch_array($this->result, SQLITE_NUM);
         }
         if (!$row) {
-            if (is_null($this->result)) {
+            if ($this->result === false) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
                 return $err;
@@ -727,10 +753,8 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
             $null = null;
             return $null;
         }
-        if (($mode = ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES)
-            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL))
-        ) {
-            $this->db->_fixResultArrayValues($row, $mode);
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
+            $this->db->_fixResultArrayValues($row, MDB2_PORTABILITY_EMPTY_TO_NULL);
         }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
@@ -782,9 +806,6 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
         if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $columns = array_change_key_case($columns, $this->db->options['field_case']);
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES) {
-            $this->db->_fixResultArrayValues($columns, MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES);
-        }
         return $columns;
     }
 
@@ -802,9 +823,11 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
     {
         $cols = @sqlite_num_fields($this->result);
         if (is_null($cols)) {
-            if (is_null($this->result)) {
+            if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numCols: resultset has already been freed');
+            } elseif (is_null($this->result)) {
+                return count($this->types);
             }
             return $this->db->raiseError();
         }
@@ -826,9 +849,11 @@ class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
     function seek($rownum = 0)
     {
         if (!@sqlite_seek($this->result, $rownum)) {
-            if (is_null($this->result)) {
+            if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'seek: resultset has already been freed');
+            } elseif (is_null($this->result)) {
+                return MDB2_OK;
             }
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
                 'seek: tried to seek to an invalid row number ('.$rownum.')');
@@ -868,9 +893,11 @@ class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
     {
         $rows = @sqlite_num_rows($this->result);
         if (is_null($rows)) {
-            if (is_null($this->result)) {
+            if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numRows: resultset has already been freed');
+            } elseif (is_null($this->result)) {
+                return 0;
             }
             return $this->db->raiseError();
         }
