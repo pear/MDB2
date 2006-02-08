@@ -148,7 +148,7 @@ class MDB2_Iterator implements Iterator
         if ($this->result) {
             return $this->result->free();
         }
-        $this->result = null;
+        $this->result = false;
         $this->row = null;
         return false;
     }

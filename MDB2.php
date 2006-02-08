@@ -1346,10 +1346,10 @@ class MDB2_Driver_Common extends PEAR
      * @param string $message Message with information for the user.
      * @access public
      */
-    function debug($message, $scope = '')
+    function debug($message, $scope = '', $is_manip = null)
     {
         if ($this->options['debug'] && $this->options['debug_handler']) {
-            call_user_func_array($this->options['debug_handler'], array(&$this, $scope, $message));
+            call_user_func_array($this->options['debug_handler'], array(&$this, $scope, $message, $is_manip));
         }
     }
 
@@ -1890,7 +1890,7 @@ class MDB2_Driver_Common extends PEAR
     function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $this->debug($query, 'query');
+        $this->debug($query, 'query', $is_manip);
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             '_doQuery: method not implemented');
     }
@@ -2304,7 +2304,7 @@ class MDB2_Driver_Common extends PEAR
         $offset = $this->offset;
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
-        $this->debug($query, 'prepare');
+        $this->debug($query, 'prepare', $is_manip);
         $positions = array();
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
@@ -2696,7 +2696,7 @@ class MDB2_Result_Common extends MDB2_Result
     var $db;
     var $result;
     var $rownum = -1;
-    var $types;
+    var $types = array();
     var $values = array();
     var $offset;
     var $offset_count = 0;
@@ -3122,7 +3122,7 @@ class MDB2_Result_Common extends MDB2_Result
      */
     function free()
     {
-        $this->result = null;
+        $this->result = false;
         return MDB2_OK;
     }
 }
@@ -3411,7 +3411,7 @@ function MDB2_closeOpenTransactions()
  * if the error code was unknown
  * @access public
  */
-function MDB2_defaultDebugOutput(&$db, $scope, $message)
+function MDB2_defaultDebugOutput(&$db, $scope, $message, $is_manip = null)
 {
     $db->debug_output.= $scope.'('.$db->db_index.'): ';
     $db->debug_output.= $message.$db->getOption('log_line_break');

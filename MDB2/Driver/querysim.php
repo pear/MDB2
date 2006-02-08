@@ -340,7 +340,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             $query = $this->_readFile();
         }
         $this->last_query = $query;
-        $this->debug($query, 'query');
+        $this->debug($query, 'query', $is_manip);
         if ($is_manip) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
         }
@@ -577,10 +577,12 @@ class MDB2_Result_querysim extends MDB2_Result_Common
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        if (is_null($this->result)) {
+        if ($this->result === false) {
             $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'fetchRow: resultset has already been freed');
             return $err;
+        } elseif (is_null($this->result)) {
+            return null;
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
@@ -648,9 +650,11 @@ class MDB2_Result_querysim extends MDB2_Result_Common
      */
     function _getColumnNames()
     {
-        if (is_null($this->result)) {
+        if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'getColumnNames: resultset has already been freed');
+        } elseif (is_null($this->result)) {
+            return array();
         }
         $columns = array_flip($this->result[0]);
         if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -671,9 +675,11 @@ class MDB2_Result_querysim extends MDB2_Result_Common
      */
     function numCols()
     {
-        if (is_null($this->result)) {
+        if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'numCols: resultset has already been freed');
+        } elseif (is_null($this->result)) {
+            return count($this->types);
         }
         $cols = count($this->result[0]);
         return $cols;
@@ -694,7 +700,7 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
      */
     function seek($rownum = 0)
     {
-        if (is_null($this->result)) {
+        if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'seek: resultset has already been freed');
         }
@@ -731,9 +737,11 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
      */
     function numRows()
     {
-        if (is_null($this->result)) {
+        if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'numRows: resultset has already been freed');
+        } elseif (is_null($this->result)) {
+            return 0;
         }
         $rows = count($this->result[1]);
         return $rows;

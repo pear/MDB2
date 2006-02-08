@@ -449,7 +449,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $this->debug($query, 'query');
+        $this->debug($query, 'query', $is_manip);
         if ($this->options['disable_query']) {
             if ($is_manip) {
                 return 0;
@@ -685,7 +685,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
         $query = "REPLACE INTO $table ($query) VALUES ($values)";
         $this->last_query = $query;
-        $this->debug($query, 'query');
+        $this->debug($query, 'query', true);
         $result = $this->_doQuery($query, true, $connection);
         if (PEAR::isError($result)) {
             return $result;
@@ -822,7 +822,7 @@ class MDB2_Result_mysql extends MDB2_Result_Common
         }
 
         if (!$row) {
-            if (is_null($this->result)) {
+            if ($this->result === false) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'fetchRow: resultset has already been freed');
                 return $err;
@@ -900,9 +900,11 @@ class MDB2_Result_mysql extends MDB2_Result_Common
     {
         $cols = @mysql_num_fields($this->result);
         if (is_null($cols)) {
-            if (is_null($this->result)) {
+            if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numCols: resultset has already been freed');
+            } elseif (is_null($this->result)) {
+                return count($this->types);
             }
             return $this->db->raiseError();
         }
@@ -922,12 +924,12 @@ class MDB2_Result_mysql extends MDB2_Result_Common
     {
         $free = @mysql_free_result($this->result);
         if (!$free) {
-            if (is_null($this->result)) {
+            if (!$this->result) {
                 return MDB2_OK;
             }
             return $this->db->raiseError();
         }
-        $this->result = null;
+        $this->result = false;
         return MDB2_OK;
     }
 }
@@ -947,9 +949,11 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
     function seek($rownum = 0)
     {
         if ($this->rownum != ($rownum - 1) && !@mysql_data_seek($this->result, $rownum)) {
-            if (is_null($this->result)) {
+            if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'seek: resultset has already been freed');
+            } elseif (is_null($this->result)) {
+                return MDB2_OK;
             }
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
                 'seek: tried to seek to an invalid row number ('.$rownum.')');
@@ -989,9 +993,11 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
     {
         $rows = @mysql_num_rows($this->result);
         if (is_null($rows)) {
-            if (is_null($this->result)) {
+            if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'numRows: resultset has already been freed');
+            } elseif (is_null($this->result)) {
+                return 0;
             }
             return $this->db->raiseError();
         }
