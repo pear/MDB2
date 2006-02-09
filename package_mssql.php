@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.0';
+$version = '1.0.0';
 $notes = <<<EOT
 - unified case fixing in the list*() methods
 - use getConnection() to access connection property
@@ -36,7 +36,7 @@ $notes = <<<EOT
 - handle null as resource when disable_query option is enabled in result object
 
 open todo items:
-- added missing index/contraint methods to the manager and reverse module methods
+- add missing index/contraint methods to the manager and reverse module methods
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
 - fix alterTable()
 EOT;
@@ -50,7 +50,7 @@ $result = $package->setOptions(
         'summary'           => 'mssql MDB2 driver',
         'description'       => 'This is the Microsoft SQL Server MDB2 driver.',
         'version'           => $version,
-        'state'             => 'alpha',
+        'state'             => 'stable',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*mssql*'),
