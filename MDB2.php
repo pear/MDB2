@@ -853,7 +853,7 @@ class MDB2_Error extends PEAR_Error
     /**
      * MDB2_Error constructor.
      *
-     * @param mixed   $code      MDB error code, or string with error message.
+     * @param mixed   $code      MDB2 error code, or string with error message.
      * @param integer $mode      what 'error mode' to operate in
      * @param integer $level     what error level to use for
      *                           $mode & PEAR_ERROR_TRIGGER

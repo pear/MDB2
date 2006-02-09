@@ -414,7 +414,7 @@ class MDB2_Extended extends MDB2_Module_Common
      * will be an array of the values from column 2-n.  If the result
      * set contains only two columns, the returned value will be a
      * scalar with the value of the second column (unless forced to an
-     * array with the $force_array parameter).  A MDB error code is
+     * array with the $force_array parameter).  A MDB2 error code is
      * returned on errors.  If the result set contains fewer than two
      * columns, a MDB2_ERROR_TRUNCATED error is returned.
      *

@@ -591,7 +591,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     /**
      * list all tables in the current database
      *
-     * @return mixed data array on success, a MDB error on failure
+     * @return mixed data array on success, a MDB2 error on failure
      * @access public
      **/
     function listTables()
@@ -621,7 +621,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      * list all fields in a tables in the current database
      *
      * @param string $table name of table that should be used in method
-     * @return mixed data array on success, a MDB error on failure
+     * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
     function listTableFields($table)
