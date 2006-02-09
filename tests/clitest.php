@@ -106,7 +106,7 @@ foreach ($dbarray as $db) {
     $options = array_key_exists('options', $db) ? $db['options'] : array();
     $GLOBALS['_show_silenced'] = array_key_exists('debug', $options) ? $options['debug'] :false;
 
-    $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":" . $dsn['password'] . "@" . $dsn['hostspec'] . "/" . $database;
+    $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":XXX@" . $dsn['hostspec'] . "/" . $database;
     echo "=== Start test of $display_dsn ===\n";
 
     $suite = new PHPUnit_TestSuite();
