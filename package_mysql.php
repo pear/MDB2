@@ -2,16 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.4';
+$version = '1.0.0';
 $notes = <<<EOT
-- added support for length in integer and decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- now using TINYINT(1) by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
-- typo fix in error message in createTable()
-- improved parsing in getServerInfo() (bug #6550)
-- fixed subselect emulation
-- support an arbitrary number of arguments in concat()
+- handle null as ressource when disable_query option is enabled in result object
 EOT;
 
 $package = new PEAR_PackageFileManager();
@@ -23,7 +16,7 @@ $result = $package->setOptions(
         'summary'           => 'mysql MDB2 driver',
         'description'       => 'This is the MySQL MDB2 driver.',
         'version'           => $version,
-        'state'             => 'beta',
+        'state'             => 'stable',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'ignore'            => array('*mysqli*', 'package_mysql.php'),

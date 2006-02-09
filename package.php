@@ -2,22 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0RC5';
+$version = '2.0.0';
 $notes = <<<EOT
-- expanded testing of prepared queries (out of order binding, escape characters
-  inside the string, lobs without named parameters that match the field name)
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- added support for out of order parameter binding in prepared queries
-- expanded testing of prepared queries (out of order binding, escape characters
-  inside the string, lobs without named parameters that match the field name)
-- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
-- cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
-- now using INT/TINYINT/SMALLINT by default instead of CHAR(1) for the boolean datatype
-  (BC BREAK!)
-- added MDB2_datatype_testcase to test suite
-- support an arbitrary number of arguments in concat()
-- add property phpdoc comments to LOB.php
+- handle null as ressource when disable_query option is enabled in result object
 EOT;
 
 $description =<<<EOT
@@ -63,7 +50,7 @@ $result = $package->setOptions(
         'summary'           => 'database abstraction layer',
         'description'       => $description,
         'version'           => $version,
-        'state'             => 'beta',
+        'state'             => 'stable',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'ignore'            => array('package*.php', 'package*.xml', 'sqlite*', 'mssql*', 'oci8*', 'pgsql*', 'mysqli*', 'mysql*', 'fbsql*', 'querysim*', 'ibase*', 'peardb*'),

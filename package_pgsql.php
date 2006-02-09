@@ -2,15 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.4';
+$version = '1.0.0';
 $notes = <<<EOT
-- added support for length in integer and decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- added support for out of order parameter binding in prepared queries
-- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
-- cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
-- improved parsing in getServerInfo() (bug #6550)
+- handle null as ressource when disable_query option is enabled in result object
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage
@@ -27,7 +21,7 @@ $result = $package->setOptions(
         'summary'           => 'pgsql MDB2 driver',
         'description'       => 'This is the PostGreSQL MDB2 driver.',
         'version'           => $version,
-        'state'             => 'beta',
+        'state'             => 'stable',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*pgsql*'),

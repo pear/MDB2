@@ -2,20 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.2';
+$version = '1.0.0';
 $notes = <<<EOT
-- native DECIMAL datatype is now used instead of converting it to a string
-- added support for length in decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- added support for out of order parameter binding in prepared queries
-- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
-- cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
-- now using SMALLINT by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
-- check if a constraint name is given in createConstraint()
-- added private _silentCommit() method to avoid uncommitted queries preventing
-  further queries to succeed (@see bug #6494)
-- improved parsing in getServerInfo() (bug #6550)
+- handle null as ressource when disable_query option is enabled in result object
 
 open todo items:
 - handle autoincremement fields in alterTable()
@@ -30,7 +19,7 @@ $result = $package->setOptions(
         'summary'           => 'ibase MDB2 driver',
         'description'       => 'This is the Firebird/Interbase MDB2 driver.',
         'version'           => $version,
-        'state'             => 'beta',
+        'state'             => 'stable',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*ibase*'),

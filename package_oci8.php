@@ -2,18 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.4';
+$version = '0.2.5';
 $notes = <<<EOT
-- added support for length in decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- added support for out of order parameter binding in prepared queries
-- tried to fix issues with lobs where the placeholder is not named like the field
-- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
-- rewrite queries for limit/offset (taken from ezc) instead of emulating
-- cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
-- now using INT by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
-- improved parsing in getServerInfo() (bug #6550)
+- handle null as ressource when disable_query option is enabled in result object
 
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field

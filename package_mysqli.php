@@ -2,20 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.4';
+$version = '1.0.0';
 $notes = <<<EOT
-- typo fix in getTableConstraintDefinition() (bug #6487)
-- added support for length in integer and decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- added support for out of order parameter binding in prepared queries
-- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
-- cosmetic fix (removed "row_" prefix from "row_limit" and "row_offset")
-- now using TINYINT(1) by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
-- typo fix in error message in createTable()
-- improved parsing in getServerInfo() (bug #6550)
-- fixed subselect emulation
-- support an arbitrary number of arguments in concat()
+- handle null as ressource when disable_query option is enabled in result object
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
@@ -30,7 +19,7 @@ $result = $package->setOptions(
         'summary'           => 'mysqli MDB2 driver',
         'description'       => 'This is the MySQLi MDB2 driver.',
         'version'           => $version,
-        'state'             => 'beta',
+        'state'             => 'stable',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*mysqli*'),

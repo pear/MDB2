@@ -2,18 +2,10 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.4';
+$version = '1.0.0';
 $notes = <<<EOT
-- datatype 'clob' missing in mapNativeDatatype() (bug #6490)
-- removed bogus result->free() (bug #6491)
-- added support for length in integer and decimal columns
-- improved regexp for column reverse engineering
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- Now integer fields are created and mapped as INTEGER instead of INT, this
-  kick started the auto increment feature properly
-- improved parsing in getServerInfo() (bug #6550)
-- fix case when reading from sqlite information schema (bug #6491)
+- use PRAGMA short_column_names = 1/0 for MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES handling
+- handle null as ressource when disable_query option is enabled in result object
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
@@ -32,7 +24,7 @@ $result = $package->setOptions(
         'summary'           => 'sqlite MDB2 driver',
         'description'       => 'This is the SQLite MDB2 driver.',
         'version'           => $version,
-        'state'             => 'beta',
+        'state'             => 'stable',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*sqlite*'),
