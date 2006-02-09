@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '0.2.5';
 $notes = <<<EOT
-- handle null as ressource when disable_query option is enabled in result object
+- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field

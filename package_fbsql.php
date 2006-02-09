@@ -33,7 +33,7 @@ $notes = <<<EOT
 - added support for length in decimal columns
 - removed ugly hack for quote parameter in quote() since it was insufficient
   (escaping also needs to be prevented)
-- handle null as ressource when disable_query option is enabled in result object
+- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

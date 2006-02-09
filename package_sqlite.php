@@ -5,7 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '1.0.0';
 $notes = <<<EOT
 - use PRAGMA short_column_names = 1/0 for MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES handling
-- handle null as ressource when disable_query option is enabled in result object
+- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

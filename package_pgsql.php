@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '1.0.0';
 $notes = <<<EOT
-- handle null as ressource when disable_query option is enabled in result object
+- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

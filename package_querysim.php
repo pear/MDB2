@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '0.2.2';
 $notes = <<<EOT
-- handle null as ressource when disable_query option is enabled in result object
+- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - add ability to reference multiple results set files for different queries
