@@ -20,22 +20,11 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.2</version>
-  <date>2006-02-05</date>
+  <version>1.0.0</version>
+  <date>2006-02-09</date>
   <license>BSD License</license>
-  <state>beta</state>
-  <notes>- native DECIMAL datatype is now used instead of converting it to a string
-- added support for length in decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- added support for out of order parameter binding in prepared queries
-- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
-- cosmetic fix (removed &quot;row_&quot; prefix from &quot;row_limit&quot; and &quot;row_offset&quot;)
-- now using SMALLINT by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
-- check if a constraint name is given in createConstraint()
-- added private _silentCommit() method to avoid uncommitted queries preventing
-  further queries to succeed (@see bug #6494)
-- improved parsing in getServerInfo() (bug #6550)
+  <state>stable</state>
+  <notes>- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - handle autoincremement fields in alterTable()
@@ -82,6 +71,17 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.0</version>
+    <date>2006-02-09</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- handle null as resource when disable_query option is enabled in result object
+
+open todo items:
+- handle autoincremement fields in alterTable()
+    </notes>
+   </release>
    <release>
     <version>0.2.2</version>
     <date>2006-02-05</date>

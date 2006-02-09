@@ -14,22 +14,11 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.4</version>
-  <date>2006-02-05</date>
+  <version>1.0.0</version>
+  <date>2006-02-09</date>
   <license>BSD License</license>
-  <state>beta</state>
-  <notes>- typo fix in getTableConstraintDefinition() (bug #6487)
-- added support for length in integer and decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- added support for out of order parameter binding in prepared queries
-- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
-- cosmetic fix (removed &quot;row_&quot; prefix from &quot;row_limit&quot; and &quot;row_offset&quot;)
-- now using TINYINT(1) by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
-- typo fix in error message in createTable()
-- improved parsing in getServerInfo() (bug #6550)
-- fixed subselect emulation
-- support an arbitrary number of arguments in concat()
+  <state>stable</state>
+  <notes>- handle null as resource when disable_query option is enabled in result object
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
@@ -37,7 +26,7 @@ open todo item:
   <deps>
    <dep type="php" rel="ge" version="5.0.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0RC4" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC5" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">mysqli</dep>
   </deps>
   <filelist>
@@ -76,6 +65,17 @@ open todo item:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.0</version>
+    <date>2006-02-09</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- handle null as resource when disable_query option is enabled in result object
+
+open todo item:
+- use native prepared queries for prepared SELECT statements
+    </notes>
+   </release>
    <release>
     <version>0.2.4</version>
     <date>2006-02-05</date>

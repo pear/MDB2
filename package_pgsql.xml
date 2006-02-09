@@ -14,17 +14,11 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.4</version>
-  <date>2006-02-05</date>
+  <version>1.0.0</version>
+  <date>2006-02-09</date>
   <license>BSD License</license>
-  <state>beta</state>
-  <notes>- added support for length in integer and decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- added support for out of order parameter binding in prepared queries
-- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
-- cosmetic fix (removed &quot;row_&quot; prefix from &quot;row_limit&quot; and &quot;row_offset&quot;)
-- improved parsing in getServerInfo() (bug #6550)
+  <state>stable</state>
+  <notes>- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
@@ -34,7 +28,7 @@ open todo items:
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0RC4" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC5" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">pgsql</dep>
   </deps>
   <filelist>
@@ -73,6 +67,19 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.0</version>
+    <date>2006-02-09</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- handle null as resource when disable_query option is enabled in result object
+
+open todo items:
+- considering migrating away from OID&apos;s to bytea, since this is encourage
+  since version 8 and is also what PDO expects, however there is no streaming
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
+    </notes>
+   </release>
    <release>
     <version>0.2.4</version>
     <date>2006-02-05</date>

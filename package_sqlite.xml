@@ -14,20 +14,12 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.4</version>
-  <date>2006-02-05</date>
+  <version>1.0.0</version>
+  <date>2006-02-09</date>
   <license>BSD License</license>
-  <state>beta</state>
-  <notes>- datatype &apos;clob&apos; missing in mapNativeDatatype() (bug #6490)
-- removed bogus result-&gt;free() (bug #6491)
-- added support for length in integer and decimal columns
-- improved regexp for column reverse engineering
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- Now integer fields are created and mapped as INTEGER instead of INT, this
-  kick started the auto increment feature properly
-- improved parsing in getServerInfo() (bug #6550)
-- fix case when reading from sqlite information schema (bug #6491)
+  <state>stable</state>
+  <notes>- use PRAGMA short_column_names = 1/0 for MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES handling
+- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
@@ -39,7 +31,7 @@ open todo items:
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0RC4" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.0RC5" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">sqlite</dep>
   </deps>
   <filelist>
@@ -78,6 +70,22 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.0</version>
+    <date>2006-02-09</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- use PRAGMA short_column_names = 1/0 for MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES handling
+- handle null as resource when disable_query option is enabled in result object
+
+open todo items:
+- a number of the manager test cases fail because sqlite does not support adding
+  primary keys to existing tables
+- the alter table tests fails because this is unsupported in sqlite2
+- the test replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+    </notes>
+   </release>
    <release>
     <version>0.2.4</version>
     <date>2006-02-05</date>
