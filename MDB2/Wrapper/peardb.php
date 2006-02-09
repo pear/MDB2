@@ -251,7 +251,7 @@ class DB_result extends MDB2_Result_Common
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         $arr = $this->result->fetchRow($fetchmode, $rownum);
-        if ($this->result->mdb->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
+        if ($this->result->db->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
             $this->_convertNullArrayValuesToEmpty($arr);
         }
         return $arr;
@@ -260,7 +260,7 @@ class DB_result extends MDB2_Result_Common
     function fetchInto(&$arr, $fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         $arr = $this->fetchRow($fetchmode, $rownum);
-        if ($this->result->mdb->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
+        if ($this->result->db->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
             $this->_convertNullArrayValuesToEmpty($arr);
         }
         return DB_OK;
