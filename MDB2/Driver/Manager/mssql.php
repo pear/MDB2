@@ -369,6 +369,53 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ listTriggers()
+    /**
+     * This function will be called to 
+     * display all the triggers
+     * on a table (X) from a database (Z) 
+     * so All X from Z.
+     *
+     * @access public
+     * @param  string $table  The table name if no table is
+     *                        passed, it will get all the
+     *                        triggers of the database instance.
+     *                        Default is set to null.
+     * @return mixed Array of the triggers if the query
+     *               is successful, otherwise, false which
+     *               could be a db error if the db is not
+     *               instantiated or could be the results
+     *               of the error that occured during the 
+     *               query'ing of the sysobject module.
+     */
+    function listTriggers($table = null)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name
+                   FROM sysobjects
+                    WHERE xtype = 'TR'";
+        if (!is_null($table)) {
+            $query .= "AND object_name(parent_obj) = '$table'";
+        }
+
+        $result = $db->queryCol($query);
+        if (PEAR::isError($results)) {
+            return $result;
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE &&
+            $db->options['field_case'] == CASE_LOWER) 
+        {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 
+                          'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+    // }}}
     // {{{ createSequence()
 
     /**
@@ -399,6 +446,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if ($start == 1) {
             return MDB2_OK;
         }
+
 
         $query = "SET IDENTITY_INSERT $sequence_name ON ".
                  "INSERT INTO $sequence_name ($seqcol_name) VALUES ($start)";
