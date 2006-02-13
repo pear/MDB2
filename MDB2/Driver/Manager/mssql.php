@@ -416,8 +416,41 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         return $result;
     }
     // }}}
-    // {{{ createSequence()
+    // {{{ listViews
+    /**
+     * This function is a simple method that lists
+     * all the views that are set on a db instance
+     * (The db connected to it)
+     *
+     * @access public
+     * @return mixed Error on failure or array of views for a database.
+     */
+    function listViews()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
 
+        $query = "SELECT name
+                   FROM sysobjects
+                    WHERE xtype = 'V'";
+
+        $result = $db->queryCol($query);
+        if (PEAR::isError($results)) {
+            return $result;
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE &&
+            $db->options['field_case'] == CASE_LOWER) 
+        {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 
+                          'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+    // }}}
+    // {{{ createSequence()
     /**
      * create sequence
      *
