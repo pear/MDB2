@@ -310,6 +310,9 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                            : '',
             );
             $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
+            if (PEAR::isError($mdb2type_info)) {
+               return $mdb2type_info;
+            }
             $res[$i]['mdb2type'] = $mdb2type_info[0][0];
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
