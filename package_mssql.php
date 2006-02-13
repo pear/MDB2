@@ -5,6 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '1.1.0';
 $notes = <<<EOT
 - Added the listTriggers() method to the Manager.
+- Added the listViews() method to the Manager.
 EOT;
 
 $package = new PEAR_PackageFileManager();
