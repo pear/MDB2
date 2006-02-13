@@ -2,43 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.0';
+$version = '1.1.0';
 $notes = <<<EOT
-- unified case fixing in the list*() methods
-- use getConnection() to access connection property
-- split index and constraint handling
-- quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- setting in_transaction to false on disconnect
-- added new Function modules to handle difference in SQL functions
-- force rollback() with open transactions on disconnect
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- only if result_types is set to false in prepare() method the query will be
-  handled as a DML statement *BC BREAK*
-- use lastInsertID() method in nextID()
-- cleanup _checkSequence() method to not raise errors when no table was found
-- added 'mdbtype' to tableInfo() output
-- changed 'len' to 'length' in tableInfo() output *BC BREAK*
-- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- fixed signature of quoteIdentifier() to make second param optional
-- fixed signature of executeStoredProc()
-- typo fixes in error handling of nextResult() and numRows() calls
-- nextResult() returns false if there are no more result sets to read
-- _fixIndexName() now just attempts to remove possible formatting
-- renamed _isSequenceName() to _fixSequenceName()
-- _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new "check" parameter is set to true
-- added support for length in decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- handle null as resource when disable_query option is enabled in result object
-
-open todo items:
-- add missing index/contraint methods to the manager and reverse module methods
-- ensure that all primary/unique/foreign key handling is only in the contraint methods
-- fix alterTable()
+- Added the listTriggers() method to the Manager.
 EOT;
 
 $package = new PEAR_PackageFileManager();
