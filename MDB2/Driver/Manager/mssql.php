@@ -53,11 +53,11 @@ require_once 'MDB2/Driver/Manager/Common.php';
  * @package MDB2
  * @category Database
  * @author  Frank M. Kromann <frank@kromann.info>
+ * @author  David Coallier <davidc@php.net>
  */
 class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 {
     // {{{ createDatabase()
-
     /**
      * create a new database
      *
@@ -76,11 +76,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $query = "CREATE DATABASE $name";
         if ($db->options['database_device']) {
             $query.= ' ON '.$db->options['database_device'];
-            $query.= $db->options['database_size'] ? '='.$db->options['database_size'] : '';
+            $query.= $db->options['database_size'] ? '=' . 
+                     $db->options['database_size'] : '';
         }
         return $db->standaloneQuery($query, null, true);
     }
-
     // }}}
     // {{{ dropDatabase()
 
@@ -244,7 +244,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                     $query.= ', ';
                 }
                 // todo: this looks wrong ..
-                $query.= $db->getDeclaration($field['type'], $field_name, $field);
+                $query .= $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
 
@@ -255,10 +255,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $name $query");
     }
-
     // }}}
     // {{{ listTables()
-
     /**
      * list all tables in the current database
      *
@@ -285,14 +283,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 
+                        'strtolower' : 'strtoupper'), $result);
         }
         return $result;
     }
-
     // }}}
     // {{{ listTableFields()
-
     /**
      * list all fields in a tables in the current database
      *
@@ -319,7 +316,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return array_flip($result);
     }
-
     // }}}
     // {{{ listTableIndexes()
 
@@ -367,7 +363,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return array_keys($result);
     }
-
     // }}}
     // {{{ listTriggers()
     /**
@@ -416,7 +411,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         return $result;
     }
     // }}}
-    // {{{ listViews
+    // {{{ listViews()
     /**
      * This function is a simple method that lists
      * all the views that are set on a db instance
@@ -500,14 +495,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                'createSequence: could not create sequence table ('.
                $res->getMessage(). ' ('.$res->getUserInfo(). '))');
     }
-
     // }}}
     // {{{ dropSequence()
-
     /**
-     * drop existing sequence
+     * This function drops an existing sequence
      *
-     * @param string    $seq_name     name of the sequence to be dropped
+     * @param string $seq_name name of the sequence to be dropped
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -521,10 +514,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("DROP TABLE $sequence_name");
     }
-
     // }}}
     // {{{ listSequences()
-
     /**
      * list all sequences in the current database
      *
@@ -550,7 +541,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 
+                          'strtolower' : 'strtoupper'), $result);
         }
         return $result;
     }
