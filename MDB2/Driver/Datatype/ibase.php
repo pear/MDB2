@@ -301,12 +301,21 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $type[] = 'integer';
             if ($length == '1') {
                 $type[] = 'boolean';
+                if (preg_match('/^[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
             }
             break;
         case 'char':
         case 'varchar':
         case 'cstring':
             $type[] = 'text';
+            if ($length == '1') {
+                $type[] = 'boolean';
+                if (preg_match('/^[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            }
             break;
         case 'date':
             $type[] = 'date';

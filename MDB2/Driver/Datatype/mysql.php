@@ -274,6 +274,12 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
         case 'char':
         case 'varchar':
             $type[] = 'text';
+            if ($length == '1') {
+                $type[] = 'boolean';
+                if (preg_match('/^[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            }
             break;
         case 'enum':
             preg_match_all('/\'.+\'/U', $field['type'], $matches);
@@ -281,6 +287,12 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             if (is_array($matches)) {
                 foreach ($matches[0] as $value) {
                     $length = max($length, strlen($value)-2);
+                }
+                if ($length == '1' && count($matches[0]) == 2) {
+                    $type[] = 'boolean';
+                    if (preg_match('/^[is|has]/', $field['name'])) {
+                        $type = array_reverse($type);
+                    }
                 }
             }
         case 'set':
