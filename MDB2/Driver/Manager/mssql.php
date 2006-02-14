@@ -383,13 +383,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *               of the error that occured during the 
      *               query'ing of the sysobject module.
      */
-    function listTriggers($table = null)
+    function listTriggers($table = null, $database = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
-
+        
         $query = "SELECT name
                    FROM sysobjects
                     WHERE xtype = 'TR'";
@@ -397,6 +397,10 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $query .= "AND object_name(parent_obj) = '$table'";
         }
 
+        if (!is_null($database)) {
+            $db->setDatabase($database);
+        }
+        
         $result = $db->queryCol($query);
         if (PEAR::isError($results)) {
             return $result;
@@ -409,6 +413,29 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                           'strtolower' : 'strtoupper'), $result);
         }
         return $result;
+    }
+    // }}}
+    // {{{ listExternalTriggers
+    /**
+     * This function will be called to list the triggers
+     * located on other databases. This will call the 
+     * good driver (mysql/mssql/pgsql) and execute
+     * the function _listTriggers but the name of the
+     * database to query against will have to be passed to it.
+     *
+     * @access protected
+     * @param  string $database   The name of the database to query.
+     * @param  string $table      The name of the table from the 
+     *                            previous database to query against.
+     * @retturn mixed Error on failure (Message telling the user)
+     *                that this method is not yet implemented and
+     *                therefore cannot be used. Otherwise, if it is
+     *                supported, it will return and array of triggers
+     *                of that table on that database.
+     */
+    function listExternalTriggers($table, $database)
+    {
+        return $this->listTriggers($table, $database);
     }
     // }}}
     // {{{ listViews()
