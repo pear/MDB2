@@ -363,6 +363,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return array_keys($result);
     }
+
     // }}}
     // {{{ listTriggers()
     /**
@@ -372,10 +373,9 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * so All X from Z.
      *
      * @access public
-     * @param  string $table  The table name if no table is
-     *                        passed, it will get all the
-     *                        triggers of the database instance.
-     *                        Default is set to null.
+     * @param  string $table      The name of the table from the 
+     *                            previous database to query against.
+     * @param  string $database   The name of the database to query.
      * @return mixed Array of the triggers if the query
      *               is successful, otherwise, false which
      *               could be a db error if the db is not
@@ -414,29 +414,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return $result;
     }
-    // }}}
-    // {{{ listExternalTriggers
-    /**
-     * This function will be called to list the triggers
-     * located on other databases. This will call the 
-     * good driver (mysql/mssql/pgsql) and execute
-     * the function _listTriggers but the name of the
-     * database to query against will have to be passed to it.
-     *
-     * @access protected
-     * @param  string $database   The name of the database to query.
-     * @param  string $table      The name of the table from the 
-     *                            previous database to query against.
-     * @retturn mixed Error on failure (Message telling the user)
-     *                that this method is not yet implemented and
-     *                therefore cannot be used. Otherwise, if it is
-     *                supported, it will return and array of triggers
-     *                of that table on that database.
-     */
-    function listExternalTriggers($table, $database)
-    {
-        return $this->listTriggers($table, $database);
-    }
+
     // }}}
     // {{{ listViews()
     /**
