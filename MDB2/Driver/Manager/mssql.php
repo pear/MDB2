@@ -365,14 +365,14 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ listTriggers()
+    // {{{ _listTriggers()
     /**
      * This function will be called to 
      * display all the triggers
      * on a table (X) from a database (Z) 
      * so All X from Z.
      *
-     * @access public
+     * @access private
      * @param  string $table      The name of the table from the 
      *                            previous database to query against.
      * @return mixed Array of the triggers if the query
