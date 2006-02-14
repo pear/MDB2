@@ -375,7 +375,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * @access public
      * @param  string $table      The name of the table from the 
      *                            previous database to query against.
-     * @param  string $database   The name of the database to query.
      * @return mixed Array of the triggers if the query
      *               is successful, otherwise, false which
      *               could be a db error if the db is not
@@ -383,13 +382,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *               of the error that occured during the 
      *               query'ing of the sysobject module.
      */
-    function listTriggers($table = null, $database = null)
+    function _listTriggers($table = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         $query = "SELECT name
                    FROM sysobjects
                     WHERE xtype = 'TR'";
@@ -397,10 +396,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $query .= "AND object_name(parent_obj) = '$table'";
         }
 
-        if (!is_null($database)) {
-            $db->setDatabase($database);
-        }
-        
         $result = $db->queryCol($query);
         if (PEAR::isError($results)) {
             return $result;
@@ -410,7 +405,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $db->options['field_case'] == CASE_LOWER) 
         {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 
-                          'strtolower' : 'strtoupper'), $result);
+                'strtolower' : 'strtoupper'), $result);
         }
         return $result;
     }
