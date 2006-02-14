@@ -444,6 +444,50 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     }
 
     // }}}
+    // {{{ listExternalTriggers
+    /**
+     * This function will be called to list the triggers
+     * located on other databases. This will call the 
+     * good driver (mysql/mssql/pgsql) and execute
+     * the function _listTriggers but the name of the
+     * database to query against will have to be passed to it.
+     *
+     * @access public
+     * @param  string $database   The name of the database to query.
+     * @param  string $table      The name of the table from the 
+     *                            previous database to query against.
+     * @retturn mixed Error on failure (Message telling the user)
+     *                that this method is not yet implemented and
+     *                therefore cannot be used. Otherwise, if it is
+     *                supported, it will return and array of triggers
+     *                of that table on that database.
+     */
+    function listExternalTriggers()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                               'listExternalTriggers: list function is not supported');
+    }
+    // }}}
+    // {{{ listTriggers()
+    /**
+     * list all triggers in the current database
+     *
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'listTriggers: list function is not supported');
+    // }}}
     // {{{ listFunctions()
 
     /**
@@ -462,7 +506,6 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'listFunctions: list function is not supported');
     }
-
     // }}}
     // {{{ listTables()
 
