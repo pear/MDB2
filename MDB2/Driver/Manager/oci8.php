@@ -438,7 +438,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (array_key_exists('rename', $changes)) {
             foreach ($changes['rename'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name, true);
-                $result = $db->exec("ALTER TABLE $name RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name'], true));
+                $query = "ALTER TABLE $name RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name']);
+                $result = $db->exec($query);
                 if (PEAR::isError($result)) {
                     return $result;
                 }
@@ -484,10 +485,10 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         if ($db->options['database_name_prefix']) {
-            $query = 'SELECT SUBSTR(username, '
-                .(strlen($db->options['database_name_prefix'])+1)
-                .") FROM sys.dba_users WHERE username LIKE '"
-                .$db->options['database_name_prefix']."%'";
+            $query = 'SELECT SUBSTR(username, ';
+            $query.= (strlen($db->options['database_name_prefix'])+1);
+            $query.= ") FROM sys.dba_users WHERE username LIKE '";
+            $query.= $db->options['database_name_prefix']."%'";
         } else {
             $query = 'SELECT username FROM sys.dba_users';
         }
