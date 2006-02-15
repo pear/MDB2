@@ -78,8 +78,8 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $result;
         }
 
-        $query = 'SELECT column_name AS name, data_type AS type';
-        $query.= ', data_length AS length, nullable, data_default AS "default"';
+        $query = 'SELECT column_name name, data_type type';
+        $query.= ', data_length length, nullable, data_default "default"';
         $query.= ' FROM user_tab_columns';
         $query.= ' WHERE table_name='.$db->quote(strtoupper($table), 'text');
         $query.= ' AND column_name = '.$db->quote(strtoupper($field_name), 'text');
