@@ -5,12 +5,12 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '0.2.5';
 $notes = <<<EOT
 - handle null as resource when disable_query option is enabled in result object
+- added missing methods in the reverse and datatype module
 
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field
 - fix crash in _makeAutoincrement()
 - handle autoincremement fields in alterTable()
-- there are still a number of missing methods in the reverse and datatype module
 - there are still severe stability issues due to ext/oci8, especially on windows
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
 EOT;
@@ -49,6 +49,7 @@ if (PEAR::isError($result)) {
 }
 
 $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
+$package->addMaintainer('justinpatrin', 'developer', 'Justin Patrin', 'justinpatrin@php.net');
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
