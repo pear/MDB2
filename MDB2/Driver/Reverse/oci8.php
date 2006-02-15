@@ -78,19 +78,17 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $result;
         }
 
-        $column = $db->queryRow('SELECT column_name, data_type, data_length, '
-                                . 'nullable '
-                                . 'FROM user_tab_columns '
-                                . 'WHERE table_name=\''.strtoupper($table).'\' AND column_name = \''.strtoupper($field_name).'\' '
-                                . 'ORDER BY column_id', null, MDB2_FETCHMODE_ASSOC);
+        $query = 'SELECT column_name AS name, data_type AS type';
+        $query.= ', data_length AS length, nullable, data_default AS "default"';
+        $query.= ' FROM user_tab_columns';
+        $query.= ' WHERE table_name='.$db->quote(strtoupper($table), 'text');
+        $query.= ' AND column_name = '.$db->quote(strtoupper($field_name), 'text');
+        $query.= ' ORDER BY column_id';
+        $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($column)) {
             return $column;
         }
         if ($column) {
-            $column['name'] = $column['column_name'];
-            unset($column['column_name']);
-            $column['type'] = $column['data_type'];
-            unset($column['data_type']);
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 if ($db->options['field_case'] == CASE_LOWER) {
                     $column['name'] = strtolower($column['name']);
@@ -102,12 +100,15 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             }
             list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
             $notnull = false;
-            if (array_key_exists('nullable', $column) && $column['nullable'] != 'N') {
+            if (array_key_exists('nullable', $column) && $column['nullable'] == 'N') {
                 $notnull = true;
             }
             $default = false;
             if (array_key_exists('default', $column)) {
                 $default = $column['default'];
+                if ($default === 'NULL') {
+                    $default = null;
+                }
                 if (is_null($default) && $notnull) {
                     $default = '';
                 }
@@ -115,9 +116,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $definition = array();
             foreach ($types as $key => $type) {
                 $definition[$key] = array(
-                                          'type' => $type,
-                                          'notnull' => $notnull,
-                                          );
+                    'type' => $type,
+                    'notnull' => $notnull,
+                );
                 if ($length > 0) {
                     $definition[$key]['length'] = $length;
                 }
@@ -154,9 +155,10 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $index_name = $db->quote($db->getIndexName(strtoupper($index_name)));
-        $table = $db->quote($db->getIndexName(strtoupper($table)));
-        $row = $db->queryRow("SELECT * FROM user_indexes where table_name = $table AND index_name = $index_name", null, MDB2_FETCHMODE_ASSOC);
+        $index_name = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
+        $table = $db->quote(strtoupper($table), 'text');
+        $query = "SELECT * FROM user_indexes where table_name = $table AND index_name = $index_name";
+        $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
         }
@@ -175,12 +177,8 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                     $key_name = strtoupper($key_name);
                 }
             }
-            /*if (!$row['non_unique']) {
-                return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                                       'getTableIndexDefinition: it was not specified an existing table index');
-            }*/
-            $result = $db->query('SELECT * FROM user_ind_columns WHERE index_name = '.$index_name.
-                                 ' AND table_name = '.$table);
+            $query = "SELECT * FROM user_ind_columns WHERE index_name = $index_name AND table_name = $table";
+            $result = $db->query($query);
             if (PEAR::isError($result)) {
                 return $result;
             }
@@ -195,8 +193,8 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 }
                 $definition['fields'][$column_name] = array();
                 if (array_key_exists('descend', $colrow)) {
-                    $definition['fields'][$column_name]['sorting'] = ($colrow['descend'] == 'ASC'
-                                                                      ? 'ascending' : 'descending');
+                    $definition['fields'][$column_name]['sorting'] =
+                        ($colrow['descend'] == 'ASC' ? 'ascending' : 'descending');
                 }
             }
             $result->free();
@@ -229,11 +227,12 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         if (strtolower($index_name) != 'primary') {
             $index_name = $db->getIndexName($index_name);
         }
-        $dsn = $db->getDsn();
-        $dbName = $db->quote($dsn['database']);
-        $index_name = $db->quote($index_name);
-        $table = $db->quote($table);
-        $result = $db->query("SELECT * FROM ALL_CONSTRAINTS WHERE OWNER = $dbName AND TABLE_NAME = $table AND INDEX_NAME = $index_name");
+        // todo: name sure this works
+        $dbName = $db->quote($db->getDatabase(), 'text');
+        $index_name = $db->quote($index_name, 'text');
+        $table = $db->quote($table, 'text');
+        $query = "SELECT * FROM all_contraints WHERE owner = $dbName AND table_name = $table AND index_name = $index_name";
+        $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -256,9 +255,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 $definition['primary'] = $row['constraint_type'] == 'P';
                 $definition['unique'] = $row['constraint_type'] == 'U';
 
-                $colres = $db->query('SELECT * FROM ALL_CONS_COLUMNS WHERE CONSTRAINT_NAME = '.
-                                     $db->quote($key_name).
-                                     ' AND TABLE_NAME = '.$table);
+                $query = 'SELECT * FROM all_cons_columns WHERE contraint_name = ';
+                $query.= $db->quote($key_name, 'text').' AND table_name = '.$table;
+                $colres = $db->query($query);
                 while ($colrow = $colres->fetchRow(MDB2_FETCHMODE_ASSOC)) {
                     $column_name = $row['column_name'];
                     if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -281,8 +280,40 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
     }
 
     // }}}
+    // {{{ getSequenceDefinition()
 
+    /**
+     * get the stucture of a sequence into an array
+     *
+     * @param string    $sequence   name of sequence that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getSequenceDefinition($sequence)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
 
+        $sequence_name = $db->quote(strtoupper($db->getSequenceName($sequence)), 'text');
+        $query = "SELECT last_number FROM user_sequences WHERE sequence_name = $sequence_name";
+        $start = $db->queryOne($query);
+        if (PEAR::isError($start)) {
+            return $start;
+        }
+        $start = ($db->currId($sequence)+1);
+        if (PEAR::isError($start)) {
+            return $start;
+        }
+        $definition = array();
+        if ($start != 1) {
+            $definition = array('start' => $start);
+        }
+        return $definition;
+    }
+
+    // }}}
     // {{{ tableInfo()
 
     /**
@@ -388,8 +419,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                     'length' => @OCIColumnSize($result, $i+1),
                     'flags'  => '',
                 );
-                // todo: implement $db->datatype->mapNativeDatatype();
-                $res[$i]['mdb2type'] = $res[$i]['type'];
+                $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
                 if ($mode & MDB2_TABLEINFO_ORDER) {
                     $res['order'][$res[$i]['name']] = $i;
                 }
@@ -400,39 +430,5 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
         return $res;
     }
-
-    /**
-     * get the stucture of a sequence into an array
-     *
-     * @param string    $sequence   name of sequence that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
-     */
-    function getSequenceDefinition($sequence)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $sequence_name = $db->quote($db->getSequenceName($sequence));
-        $start = $db->queryOne("SELECT last_number FROM user_sequences WHERE sequence_name = $sequence_name");
-        if (PEAR::isError($start)) {
-            return $start;
-        }
-        if ($db->supports('current_id')) {
-            $start++;
-        } else {
-            $db->warnings[] = 'database does not support getting current
-                sequence value, the sequence value was incremented';
-        }
-        $definition = array();
-        if ($start != 1) {
-            $definition = array('start' => $start);
-        }
-        return $definition;
-    }
-
-    // }}}
 }
 ?>
