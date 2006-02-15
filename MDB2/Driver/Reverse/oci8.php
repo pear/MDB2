@@ -56,7 +56,233 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 {
+    // {{{ getTableFieldDefinition()
+
+    /**
+     * get the stucture of a field into an array
+     *
+     * @param string    $table         name of table that should be used in method
+     * @param string    $field_name     name of field that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableFieldDefinition($table, $field_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $result = $db->loadModule('Datatype', null, true);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        $column = $db->queryRow('SELECT column_name, data_type, data_length, '
+                                . 'nullable '
+                                . 'FROM user_tab_columns '
+                                . 'WHERE table_name=\''.strtoupper($table).'\' AND column_name = \''.strtoupper($field_name).'\' '
+                                . 'ORDER BY column_id', null, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($column)) {
+            return $column;
+        }
+        if ($column) {
+            $column['name'] = $column['column_name'];
+            unset($column['column_name']);
+            $column['type'] = $column['data_type'];
+            unset($column['data_type']);
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $column['name'] = strtolower($column['name']);
+                } else {
+                    $column['name'] = strtoupper($column['name']);
+                }
+            } else {
+                $column = array_change_key_case($column, $db->options['field_case']);
+            }
+            list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
+            $notnull = false;
+            if (array_key_exists('nullable', $column) && $column['nullable'] != 'N') {
+                $notnull = true;
+            }
+            $default = false;
+            if (array_key_exists('default', $column)) {
+                $default = $column['default'];
+                if (is_null($default) && $notnull) {
+                    $default = '';
+                }
+            }
+            $definition = array();
+            foreach ($types as $key => $type) {
+                $definition[$key] = array(
+                                          'type' => $type,
+                                          'notnull' => $notnull,
+                                          );
+                if ($length > 0) {
+                    $definition[$key]['length'] = $length;
+                }
+                if ($unsigned) {
+                    $definition[$key]['unsigned'] = true;
+                }
+                if ($default !== false) {
+                    $definition[$key]['default'] = $default;
+                }
+            }
+            return $definition;
+        }
+
+        return $db->raiseError(MDB2_ERROR, null, null,
+            'getTableFieldDefinition: it was not specified an existing table column');
+    }
+
     // }}}
+
+    // {{{ getTableIndexDefinition()
+
+    /**
+     * get the stucture of an index into an array
+     *
+     * @param string    $table      name of table that should be used in method
+     * @param string    $index_name name of index that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableIndexDefinition($table, $index_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $index_name = $db->quote($db->getIndexName(strtoupper($index_name)));
+        $table = $db->quote($db->getIndexName(strtoupper($table)));
+        $row = $db->queryRow("SELECT * FROM user_indexes where table_name = $table AND index_name = $index_name", null, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($row)) {
+            return $row;
+        }
+        $definition = array();
+        if ($row) {
+            if (!($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE)
+                || $db->options['field_case'] != CASE_LOWER
+            ) {
+                $row = array_change_key_case($row, CASE_LOWER);
+            }
+            $key_name = $row['index_name'];
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $key_name = strtolower($key_name);
+                } else {
+                    $key_name = strtoupper($key_name);
+                }
+            }
+            /*if (!$row['non_unique']) {
+                return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                                       'getTableIndexDefinition: it was not specified an existing table index');
+            }*/
+            $result = $db->query('SELECT * FROM user_ind_columns WHERE index_name = '.$index_name.
+                                 ' AND table_name = '.$table);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+            while ($colrow = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+                $column_name = $colrow['column_name'];
+                if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                    if ($db->options['field_case'] == CASE_LOWER) {
+                        $column_name = strtolower($column_name);
+                    } else {
+                        $column_name = strtoupper($column_name);
+                    }
+                }
+                $definition['fields'][$column_name] = array();
+                if (array_key_exists('descend', $colrow)) {
+                    $definition['fields'][$column_name]['sorting'] = ($colrow['descend'] == 'ASC'
+                                                                      ? 'ascending' : 'descending');
+                }
+            }
+            $result->free();
+        }
+        if (!array_key_exists('fields', $definition)) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'getTableIndexDefinition: it was not specified an existing table index');
+        }
+        return $definition;
+    }
+
+    // }}}
+    // {{{ getTableConstraintDefinition()
+
+    /**
+     * get the stucture of a constraint into an array
+     *
+     * @param string    $table      name of table that should be used in method
+     * @param string    $index_name name of index that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableConstraintDefinition($table, $index_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (strtolower($index_name) != 'primary') {
+            $index_name = $db->getIndexName($index_name);
+        }
+        $dsn = $db->getDsn();
+        $dbName = $db->quote($dsn['database']);
+        $index_name = $db->quote($index_name);
+        $table = $db->quote($table);
+        $result = $db->query("SELECT * FROM ALL_CONSTRAINTS WHERE OWNER = $dbName AND TABLE_NAME = $table AND INDEX_NAME = $index_name");
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        $definition = array();
+        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+            if (!($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE)
+                || $db->options['field_case'] != CASE_LOWER
+            ) {
+                $row = array_change_key_case($row, CASE_LOWER);
+            }
+            $key_name = $row['constraint_name'];
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $key_name = strtolower($key_name);
+                } else {
+                    $key_name = strtoupper($key_name);
+                }
+            }
+            if ($row) {
+                $definition['primary'] = $row['constraint_type'] == 'P';
+                $definition['unique'] = $row['constraint_type'] == 'U';
+
+                $colres = $db->query('SELECT * FROM ALL_CONS_COLUMNS WHERE CONSTRAINT_NAME = '.
+                                     $db->quote($key_name).
+                                     ' AND TABLE_NAME = '.$table);
+                while ($colrow = $colres->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+                    $column_name = $row['column_name'];
+                    if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                        if ($db->options['field_case'] == CASE_LOWER) {
+                            $column_name = strtolower($column_name);
+                        } else {
+                            $column_name = strtoupper($column_name);
+                        }
+                    }
+                    $definition['fields'][$column_name] = array();
+                }
+            }
+        }
+        $result->free();
+        if (!array_key_exists('fields', $definition)) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'getTableConstraintDefinition: it was not specified an existing table constraint');
+        }
+        return $definition;
+    }
+
+    // }}}
+
+
     // {{{ tableInfo()
 
     /**
@@ -174,5 +400,39 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
         return $res;
     }
+
+    /**
+     * get the stucture of a sequence into an array
+     *
+     * @param string    $sequence   name of sequence that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getSequenceDefinition($sequence)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $sequence_name = $db->quote($db->getSequenceName($sequence));
+        $start = $db->queryOne("SELECT last_number FROM user_sequences WHERE sequence_name = $sequence_name");
+        if (PEAR::isError($start)) {
+            return $start;
+        }
+        if ($db->supports('current_id')) {
+            $start++;
+        } else {
+            $db->warnings[] = 'database does not support getting current
+                sequence value, the sequence value was incremented';
+        }
+        $definition = array();
+        if ($start != 1) {
+            $definition = array('start' => $start);
+        }
+        return $definition;
+    }
+
+    // }}}
 }
 ?>

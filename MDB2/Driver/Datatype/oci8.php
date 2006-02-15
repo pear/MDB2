@@ -280,6 +280,99 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         }
         return MDB2_OK;
     }
+
+    /**
+     * Maps a native array description of a field to a MDB2 datatype and length
+     *
+     * @param array  $field native field description
+     * @return array containing the various possible types and the length
+     * @access public
+     */
+    function mapNativeDatatype($field)
+    {
+        $db_type = strtolower($field['type']);
+        //?
+        $db_type = strtok($db_type, '(), ');
+        if ($db_type == 'national') {
+            $db_type = strtok('(), ');
+        }
+        if (array_key_exists('data_length', $field)) {
+            $length = $field['data_length'];
+            $decimal = '';
+        } else {
+            $length = strtok('(), ');
+            $decimal = strtok('(), ');
+        }
+        $type = array();
+        $unsigned = null;
+        switch ($db_type) {
+        case 'integer':
+        case 'pls_integer':
+        case 'binary_integer':
+            $type[] = 'integer';
+            if ($length == '1') {
+                $type[] = 'boolean';
+                if (preg_match('/^[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            }
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            break;
+        case 'varchar':
+        case 'varchar2':
+        case 'nvarchar2':
+        case 'char':
+        case 'nchar':
+            $type[] = 'text';
+            break;
+        case 'date':
+        case 'timestamp':
+            $type[] = 'timestamp';
+            $length = null;
+            break;
+        case 'float':
+            $type[] = 'float';
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            break;
+        case 'number':
+            if (strpos($length, ',') === false) {
+                $type[] = 'integer';
+            } else {
+                $type[] = 'decimal';
+            }
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            break;
+        case 'long':
+            if ($decimal == 'binary') {
+                $type[] = 'blob';
+            }
+            $type[] = 'clob';
+            $type[] = 'text';
+            break;
+        case 'blob':
+        case 'clob':
+        case 'nclob':
+        case 'raw':
+        case 'long raw':
+        case 'bfile':
+            $type[] = 'blob';
+            $type[] = 'text';
+            $length = null;
+            break;
+        case 'rowid':
+        case 'urowid':
+        default:
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableFieldDefinition: unknown database attribute type: '.$db_type);
+        }
+
+        return array($type, $length, $unsigned);
+    }
 }
 
 ?>
