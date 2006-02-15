@@ -291,20 +291,11 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function mapNativeDatatype($field)
     {
         $db_type = strtolower($field['type']);
-        //?
-        $db_type = strtok($db_type, '(), ');
-        if ($db_type == 'national') {
-            $db_type = strtok('(), ');
-        }
-        if (array_key_exists('data_length', $field)) {
-            $length = $field['data_length'];
-            $decimal = '';
-        } else {
-            $length = strtok('(), ');
-            $decimal = strtok('(), ');
-        }
         $type = array();
-        $unsigned = null;
+        $length = $unsigned = null;
+        if (array_key_exists('length', $field)) {
+            $length = $field['length'];
+        }
         switch ($db_type) {
         case 'integer':
         case 'pls_integer':
@@ -316,7 +307,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
                     $type = array_reverse($type);
                 }
             }
-            $unsigned = preg_match('/ unsigned/i', $db_type);
             break;
         case 'varchar':
         case 'varchar2':
@@ -332,7 +322,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             break;
         case 'float':
             $type[] = 'float';
-            $unsigned = preg_match('/ unsigned/i', $db_type);
             break;
         case 'number':
             if (strpos($length, ',') === false) {
@@ -340,7 +329,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             } else {
                 $type[] = 'decimal';
             }
-            $unsigned = preg_match('/ unsigned/i', $db_type);
             break;
         case 'long':
             if ($decimal == 'binary') {
