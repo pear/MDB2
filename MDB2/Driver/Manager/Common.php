@@ -446,62 +446,15 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     // }}}
     // {{{ listTriggers()
     /**
-     * This function will be called to 
-     * display all the triggers
-     * on a table (X) from a database (Z) 
-     * so All X from Z.
+     * This function will be called to get all triggers of the 
+     * current database ($db->getDatabase())
      *
      * @access public
      * @param  string $table      The name of the table from the 
      *                            previous database to query against.
-     * @param  string $database   The name of the database to query.
-     * @return mixed Array of the triggers if the query
-     *               is successful, otherwise, false which
-     *               could be a db error if the db is not
-     *               instantiated or could be the results
-     *               of the error that occured during the 
-     *               query'ing of the sysobject module.
+     * @return mixed Array on success or MDB2 error on failure
      */
-    function listTriggers($table = null, $database = null)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        if (!is_null($database) && $db->getDatabase() != $database) {
-            $old_database = $db->getDatabase();
-            $db->setDatabase($database);
-        }
-
-        $result = $this->_listTriggers($table);
-
-        if (isset($old_database)) {
-            $db->setDatabase($old_database);
-        }
-
-        return $result;
-    }
-
-    // }}}
-    // {{{ _listTriggers()
-    /**
-     * This function will be called to 
-     * display all the triggers
-     * on a table (X) from a database (Z) 
-     * so All X from Z.
-     *
-     * @access private
-     * @param  string $table      The name of the table from the 
-     *                            previous database to query against.
-     * @return mixed Array of the triggers if the query
-     *               is successful, otherwise, false which
-     *               could be a db error if the db is not
-     *               instantiated or could be the results
-     *               of the error that occured during the 
-     *               query'ing of the sysobject module.
-     */
-    function _listTriggers($table = null)
+    function listTriggers($table = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -509,9 +462,8 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTriggers: list function is not supported');
+            'listTriggers: list view is not supported');
     }
-
     // }}}
     // {{{ listFunctions()
 

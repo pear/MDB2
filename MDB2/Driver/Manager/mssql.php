@@ -365,14 +365,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ _listTriggers()
+    // {{{ listTriggers()
     /**
      * This function will be called to 
-     * display all the triggers
-     * on a table (X) from a database (Z) 
-     * so All X from Z.
+     * display all the triggers from the current
+     * database ($db->getDatabase()).
      *
-     * @access private
+     * @access public
      * @param  string $table      The name of the table from the 
      *                            previous database to query against.
      * @return mixed Array of the triggers if the query
@@ -382,7 +381,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *               of the error that occured during the 
      *               query'ing of the sysobject module.
      */
-    function _listTriggers($table = null)
+    function listTriggers($table = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -409,7 +408,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return $result;
     }
-
     // }}}
     // {{{ listViews()
     /**
