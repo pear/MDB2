@@ -227,14 +227,13 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
                          RDB\$INDICES.RDB\$DESCRIPTION AS description,
-                         RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE as constraint_type
+                         RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE AS constraint_type
                     FROM RDB\$INDEX_SEGMENTS
                LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                    WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)='$table'
                      AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)='$index_name'
-                     AND (RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE IS NULL OR
-                          RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE <> 'PRIMARY KEY')
+                     AND RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE IS NULL
                 ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION;";
         $result = $db->query($query);
         if (PEAR::isError($result)) {
@@ -296,7 +295,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
                          RDB\$INDICES.RDB\$DESCRIPTION AS description,
-                         RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE as constraint_type
+                         RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE AS constraint_type
                     FROM RDB\$INDEX_SEGMENTS
                LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
