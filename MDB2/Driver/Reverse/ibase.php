@@ -226,8 +226,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
-                         RDB\$INDICES.RDB\$DESCRIPTION AS description,
-                         RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE AS constraint_type
+                         RDB\$INDICES.RDB\$DESCRIPTION AS description
                     FROM RDB\$INDEX_SEGMENTS
                LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
@@ -256,9 +255,6 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
 
         $definition = array();
-        if ($index['unique_flag']) {
-            $definition['unique'] = true;
-        }
         foreach ($fields as $field) {
             $definition['fields'][$field] = array();
             //collation?!?
