@@ -2,9 +2,11 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.0';
+$version = '1.0.1';
 $notes = <<<EOT
-- handle null as resource when disable_query option is enabled in result object
+- discard all constraints in MDB2_Driver_Reverse::getTableIndexDefinition(),
+  leave them to MDB2_Driver_Reverse::getTableConstraintDefinition().
+- return the constraint type in MDB2_Driver_Reverse::getTableConstraintDefinition().
 
 open todo items:
 - handle autoincremement fields in alterTable()
