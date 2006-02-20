@@ -324,7 +324,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         } elseif ($index['unique_flag']) {
             $definition['unique'] = true;
         } elseif ($index['foreign_key']) {
-            $definition['foreign_key'] = true;
+            $definition['foreign'] = true;
         }
         if (!$index['unique_flag'] && !$index['foreign_key']) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
