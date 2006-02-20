@@ -586,8 +586,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @param string $query the query to prepare
      * @param mixed   $types  array that contains the types of the placeholders
      * @param mixed   $result_types  array that contains the types of the columns in
-     *                        the result set, if set to MDB2_PREPARE_MANIP the
-                              query is handled as a manipulation query
+     *                        the result set or MDB2_PREPARE_RESULT, if set to
+     *                        MDB2_PREPARE_MANIP the query is handled as a manipulation query
+     * @param mixed   $lobs   key (field) value (parameter) pair for all lob placeholders
      * @return mixed resource handle for the prepared query on success, a MDB2
      *        error on failure
      * @access public
