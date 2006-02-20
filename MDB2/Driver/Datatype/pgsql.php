@@ -536,6 +536,7 @@ for some reason this piece of code causes an apache crash
             $type[] = 'boolean';
             $length = null;
             break;
+        case 'unknown':
         case 'text':
         case 'char':
         case 'varchar':
