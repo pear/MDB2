@@ -238,7 +238,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _readLOB($lob, $length)
     {
-        $data = ibase_blob_get($lob['handle'], $length);
+        $data = @ibase_blob_get($lob['handle'], $length);
         if (!is_string($data)) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {

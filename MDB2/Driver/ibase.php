@@ -265,7 +265,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        $result = ibase_trans();
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $result = @ibase_trans(IBASE_DEFAULT, $connection);
         if (!$result) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'beginTransaction: could not start a transaction');
@@ -292,7 +296,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto committed');
         }
-        if (!ibase_commit($this->transaction_id)) {
+        if (!@ibase_commit($this->transaction_id)) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: could not commit a transaction');
         }
@@ -318,9 +322,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        if ($this->transaction_id && !ibase_rollback($this->transaction_id)) {
+        if ($this->transaction_id && !@ibase_rollback($this->transaction_id)) {
             return $this->raiseError(MDB2_ERROR, null, null,
-                'rollback: Could not rollback a pending transaction: '.ibase_errmsg());
+                'rollback: Could not rollback a pending transaction: '.@ibase_errmsg());
         }
         $this->in_transaction = false;
         $this->transaction_id = 0;
@@ -488,7 +492,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 return $connection;
             }
         }
-        $result = ibase_query($connection, $query);
+        $result = @ibase_query($connection, $query);
 
         if ($result === false) {
             return $this->raiseError();
@@ -516,7 +520,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 return $connection;
             }
         }
-        return (function_exists('ibase_affected_rows') ? ibase_affected_rows($connection) : 0);
+        return (function_exists('ibase_affected_rows') ? @ibase_affected_rows($connection) : 0);
     }
 
     // }}}
@@ -550,9 +554,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function getServerVersion($native = false)
     {
-        $ibserv = ibase_service_attach($this->dsn['hostspec'], $this->options['DBA_username'], $this->options['DBA_password']);
-        $server_info = ibase_server_info($ibserv, IBASE_SVC_SERVER_VERSION);
-        ibase_service_detach($ibserv);
+        $ibserv = @ibase_service_attach($this->dsn['hostspec'], $this->options['DBA_username'], $this->options['DBA_password']);
+        $server_info = @ibase_server_info($ibserv, IBASE_SVC_SERVER_VERSION);
+        @ibase_service_detach($ibserv);
         if (!$native) {
             //WI-V1.5.3.4854 Firebird 1.5
             if (!preg_match('/-V([\d\.]*)/', $server_info, $matches)) {
@@ -1209,7 +1213,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             $parameters[] = $this->db->quote($value, $type, false);
         }
 
-        $result = call_user_func_array('ibase_execute', $parameters);
+        $result = @call_user_func_array('ibase_execute', $parameters);
         if ($result === false) {
             $err =& $this->db->raiseError();
             return $err;
