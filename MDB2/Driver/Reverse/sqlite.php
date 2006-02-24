@@ -349,18 +349,17 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        if (is_string($result)) {
-            /*
-             * Probably received a table name.
-             * Create a result resource identifier.
-             */
-            $id = $db->queryAll("PRAGMA table_info('$result');", null, MDB2_FETCHMODE_ASSOC);
-            $got_string = true;
-        } else {
+        if (!is_string($result)) {
             return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
-                                     'This DBMS can not obtain tableInfo' .
-                                     ' from result sets');
+                'This DBMS can not obtain tableInfo from result sets');
         }
+
+        /*
+         * Probably received a table name.
+         * Create a result resource identifier.
+         */
+        $id = $db->queryAll("PRAGMA table_info('$result');", null, MDB2_FETCHMODE_ASSOC);
+        $got_string = true;
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             if ($db->options['field_case'] == CASE_LOWER) {
@@ -381,6 +380,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
+            $id[$i] = array_change_key_case($id[$i], CASE_LOWER);
             if (strpos($id[$i]['type'], '(') !== false) {
                 $bits = explode('(', $id[$i]['type']);
                 $type = $bits[0];

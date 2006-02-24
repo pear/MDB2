@@ -88,52 +88,52 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($column)) {
             return $column;
         }
-        if ($column) {
-            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                if ($db->options['field_case'] == CASE_LOWER) {
-                    $column['name'] = strtolower($column['name']);
-                } else {
-                    $column['name'] = strtoupper($column['name']);
-                }
-            } else {
-                $column = array_change_key_case($column, $db->options['field_case']);
-            }
-            list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
-            $notnull = false;
-            if (array_key_exists('nullable', $column) && $column['nullable'] == 'N') {
-                $notnull = true;
-            }
-            $default = false;
-            if (array_key_exists('default', $column)) {
-                $default = $column['default'];
-                if ($default === 'NULL') {
-                    $default = null;
-                }
-                if (is_null($default) && $notnull) {
-                    $default = '';
-                }
-            }
-            $definition = array();
-            foreach ($types as $key => $type) {
-                $definition[$key] = array(
-                    'type' => $type,
-                    'notnull' => $notnull,
-                );
-                if ($length > 0) {
-                    $definition[$key]['length'] = $length;
-                }
-                if ($unsigned) {
-                    $definition[$key]['unsigned'] = true;
-                }
-                if ($default !== false) {
-                    $definition[$key]['default'] = $default;
-                }
-            }
-            return $definition;
+
+        if (empty($column)) {
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'getTableFieldDefinition: it was not specified an existing table column');
         }
 
-        return $db->raiseError(MDB2_ERROR, null, null,
-            'getTableFieldDefinition: it was not specified an existing table column');
+        $column = array_change_key_case($column, CASE_LOWER);
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $column['name'] = strtolower($column['name']);
+            } else {
+                $column['name'] = strtoupper($column['name']);
+            }
+        }
+        list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
+        $notnull = false;
+        if (array_key_exists('nullable', $column) && $column['nullable'] == 'N') {
+            $notnull = true;
+        }
+        $default = false;
+        if (array_key_exists('default', $column)) {
+            $default = $column['default'];
+            if ($default === 'NULL') {
+                $default = null;
+            }
+            if (is_null($default) && $notnull) {
+                $default = '';
+            }
+        }
+        $definition = array();
+        foreach ($types as $key => $type) {
+            $definition[$key] = array(
+                'type' => $type,
+                'notnull' => $notnull,
+            );
+            if ($length > 0) {
+                $definition[$key]['length'] = $length;
+            }
+            if ($unsigned) {
+                $definition[$key]['unsigned'] = true;
+            }
+            if ($default !== false) {
+                $definition[$key]['default'] = $default;
+            }
+        }
+        return $definition;
     }
 
     // }}}
@@ -163,12 +163,8 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $row;
         }
         $definition = array();
-        if ($row) {
-            if (!($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE)
-                || $db->options['field_case'] != CASE_LOWER
-            ) {
-                $row = array_change_key_case($row, CASE_LOWER);
-            }
+        if (!empty($row)) {
+            $row = array_change_key_case($row, CASE_LOWER);
             $key_name = $row['index_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 if ($db->options['field_case'] == CASE_LOWER) {
@@ -183,6 +179,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 return $result;
             }
             while ($colrow = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+                $colrow = array_change_key_case($colrow, CASE_LOWER);
                 $column_name = $colrow['column_name'];
                 if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                     if ($db->options['field_case'] == CASE_LOWER) {
@@ -238,11 +235,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
-            if (!($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE)
-                || $db->options['field_case'] != CASE_LOWER
-            ) {
-                $row = array_change_key_case($row, CASE_LOWER);
-            }
+            $row = array_change_key_case($row, CASE_LOWER);
             $key_name = $row['constraint_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 if ($db->options['field_case'] == CASE_LOWER) {
@@ -259,6 +252,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 $query.= $db->quote($key_name, 'text').' AND table_name = '.$table;
                 $colres = $db->query($query);
                 while ($colrow = $colres->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+                    $colrow = array_change_key_case($colrow, CASE_LOWER);
                     $column_name = $row['column_name'];
                     if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                         if ($db->options['field_case'] == CASE_LOWER) {

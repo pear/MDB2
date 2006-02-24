@@ -161,14 +161,13 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR, null, null,
                 'getTableFieldDefinition: it was not specified an existing table column');
         }
+        $column = array_change_key_case($column, CASE_LOWER);
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             if ($db->options['field_case'] == CASE_LOWER) {
                 $column['name'] = strtolower($column['name']);
             } else {
                 $column['name'] = strtoupper($column['name']);
             }
-        } else {
-            $column = array_change_key_case($column, $db->options['field_case']);
         }
 
         $column['type'] = array_key_exists($column['field_type_code'], $this->types)
@@ -244,8 +243,10 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
+
         $fields = array();
         do {
+            $row = array_change_key_case($row, CASE_LOWER);
             $fields[] = $row['field_name'];
         } while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)));
         $result->free();
@@ -310,6 +311,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
         $fields = array();
         do {
+            $row = array_change_key_case($row, CASE_LOWER);
             $fields[] = $row['field_name'];
         } while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)));
         $result->free();

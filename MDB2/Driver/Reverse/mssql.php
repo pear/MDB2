@@ -202,6 +202,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             $res = $db->queryAll("EXEC SP_HELPINDEX[$table]", null, MDB2_FETCHMODE_ASSOC);
 
             foreach ($res as $val) {
+                $val = array_change_key_case($val, CASE_LOWER);
                 $keys = explode(', ', $val['index_keys']);
 
                 if (sizeof($keys) > 1) {
@@ -225,7 +226,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             $res = $db->queryAll("EXEC SP_COLUMNS[$table]", null, MDB2_FETCHMODE_ASSOC);
 
             foreach ($res as $val) {
-                $val = array_change_key_case($val, $db->options['field_case']);
+                $val = array_change_key_case($val, CASE_LOWER);
                 if ($val['nullable'] == '0') {
                     $this->_add_flag($flags[$val['column_name']], 'not_null');
                 }

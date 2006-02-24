@@ -94,6 +94,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($column)) {
             return $column;
         }
+        $column = array_change_key_case($column, CASE_LOWER);
         list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
         $notnull = false;
         if (array_key_exists('attnotnull', $column) && $column['attnotnull'] == 't') {
@@ -156,10 +157,14 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
-        } elseif (!$row) {
+        }
+
+        if (empty($row)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
+
+        $row = array_change_key_case($row, CASE_LOWER);
 
         $db->loadModule('Manager', null, true);
         $columns = $db->manager->listTableFields($table);
@@ -198,10 +203,14 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
-        } elseif (!$row) {
+        }
+
+        if (empty($row)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
         }
+
+        $row = array_change_key_case($row, CASE_LOWER);
 
         $db->loadModule('Manager', null, true);
         $columns = $db->manager->listTableFields($table);
