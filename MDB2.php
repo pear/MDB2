@@ -1460,6 +1460,7 @@ class MDB2_Driver_Common extends PEAR
      * Do all necessary conversions on result arrays to fix DBMS quirks
      *
      * @param array  $array  the array to be fixed (passed by reference)
+     * @param array  $mode   bit-wise addition of the required portability modes
      * @return void
      * @access protected
      */
