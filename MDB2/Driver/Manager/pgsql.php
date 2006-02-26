@@ -240,7 +240,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                 $field_name = $db->quoteIdentifier($field_name, true);
                 if (array_key_exists('type', $field)) {
                     $db->loadModule('Datatype', null, true);
-                    $query.= "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field['definition']);
+                    $query = "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field['definition']);
                     $result = $db->exec("ALTER TABLE $name $query");
                     if (PEAR::isError($result)) {
                         return $result;
@@ -254,7 +254,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                     }
                 }
                 if (array_key_exists('notnull', $field)) {
-                    $query.= "ALTER $field_name ".($field['definition']['notnull'] ? "SET" : "DROP").' NOT NULL';
+                    $query = "ALTER $field_name ".($field['definition']['notnull'] ? "SET" : "DROP").' NOT NULL';
                     $result = $db->exec("ALTER TABLE $name $query");
                     if (PEAR::isError($result)) {
                         return $result;
