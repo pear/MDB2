@@ -47,9 +47,143 @@ require_once 'MDB2_testcase.php';
 
 class MDB2_Reverse_TestCase extends MDB2_TestCase
 {
+    //test table name (it is dynamically created/dropped)
+    var $table       = 'testtable';
+    var $fields      = array();
+    var $indices     = array();
+    var $constraints = array();
+
     function setUp() {
         parent::setUp();
         $this->db->loadModule('Reverse', null, true);
+        $this->db->loadModule('Manager', null, true);
+        
+        /**
+         * Table DDL
+         */
+        $this->fields = array(
+            'id' => array(  //PK
+                'type'     => 'integer',
+                'unsigned' => 1,
+                'notnull'  => 1,
+                'default'  => 0,
+            ),
+            'id2' => array( //UNIQUE_MULTIFIELD(1/2)
+                'type'     => 'integer',
+                'unsigned' => 1,
+                'notnull'  => 1,
+                'default'  => 0,
+            ),
+            'id3' => array( //UNIQUE_MULTIFIELD(2/2)
+                'type'     => 'integer',
+                'unsigned' => 1,
+                'notnull'  => 1,
+                'default'  => 0,
+            ),
+            'id4' => array( //UNIQUE
+                'type'     => 'integer',
+                'unsigned' => 1,
+                'notnull'  => 1,
+                'default'  => 0,
+            ),
+            'somename' => array( //NORMAL INDEX
+                'type'   => 'text',
+                'length' => 12,
+            ),
+            'somedescription' => array( //INDEX_MULTIFIELD(1/2)
+                'type'   => 'text',
+                'length' => 12,
+            ),
+            'sex' => array( //INDEX_MULTIFIELD(2/2)
+                'type' => 'text',
+                'length' => 1,
+                'default' => 'M',
+            ),
+        );
+
+        /**
+         * Indices DDL
+         */
+        $this->indices = array(
+            'sometestindex' => array(
+                'fields' => array(
+                    'somename' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+                'unique' => false,
+            ),
+            'multipletestindex' => array(
+                'fields' => array(
+                    'somedescription' => array(
+                        'sorting' => 'ascending',
+                    ),
+                    'sex' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+            ),
+        );
+
+        /**
+         * Constraints DDL
+         */
+        $this->constraints = array(
+            'pkfield' => array(
+                'fields' => array(
+                    'id' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+                'primary' => true,
+            ),
+            'multipleunique' => array(
+                'fields' => array(
+                    'id2' => array(
+                        'sorting' => 'ascending',
+                    ),
+                    'id3' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+                'unique' => true,
+            ),
+            'singleunique' => array(
+                'fields' => array(
+                    'id4' => array(
+                        'sorting' => 'ascending',
+                    ),
+                ),
+                'unique' => true,
+            ),
+        );
+
+        if (!$this->tableExists($this->table)) {
+            $this->db->manager->createTable($this->table, $this->fields);
+        }
+        foreach ($this->indices as $index_name => $index) {
+            $result = $this->db->manager->createIndex($this->table, $index_name, $index);
+            $this->assertFalse(PEAR::isError($result), 'Error creating index: '.$index_name);
+            if (PEAR::isError($result)) {
+                unset($indices[$index_name]);
+            }
+        }
+        foreach ($this->constraints as $constraint_name => $constraint) {
+            $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
+            $this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
+        }
+    }
+
+    function tearDown() {
+        if ($this->tableExists($this->table)) {
+            $this->db->manager->dropTable($this->table);
+        }
+        $this->db->popExpect();
+        unset($this->dsn);
+        if (!PEAR::isError($this->db->manager)) {
+            $this->db->disconnect();
+        }
+        unset($this->db);
     }
 
     /**
@@ -61,13 +195,13 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             return;
         }
 
-        $table_info = $this->db->reverse->tableInfo('users');
+        $table_info = $this->db->reverse->tableInfo($this->table);
         if (PEAR::isError($table_info)) {
             $this->assertTrue(false, 'Error in tableInfo(): '.$table_info->getMessage());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
-                $this->assertEquals('users', $field_info['table'], "the table name is not correct");
+                $this->assertEquals($this->table, $field_info['table'], "the table name is not correct");
                 if (!array_key_exists(strtolower($field_info['name']), $this->fields)) {
                     $this->assertTrue(false, 'Field names do not match ('.$field_info['name'].' is unknown)');
                 }
@@ -77,7 +211,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
     }
 
     /**
-     * Test getTableFieldDefinition($table, $field)
+     * Test getTableFieldDefinition($table, $field_name)
      */
     function testGetTableFieldDefinition()
     {
@@ -122,7 +256,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
     }
 
     /**
-     * Test getTableIndexDefinition($table, $index)
+     * Test getTableIndexDefinition($table, $index_name)
      */
     function testGetTableIndexDefinition()
     {
@@ -130,76 +264,111 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             return;
         }
 
-        //setup
-        $this->db->loadModule('Manager', null, true);
-        $fields = array(
-            'id' => array(
-                'type'     => 'integer',
-                'unsigned' => 1,
-                'notnull'  => 1,
-                'default'  => 0,
-            ),
-            'somename' => array(
-                'type'   => 'text',
-                'length' => 12,
-            ),
-            'somedescription' => array(
-                'type'   => 'text',
-                'length' => 12,
-            ),
-            'sex' => array(
-                'type' => 'text',
-                'length' => 1,
-                'default' => 'M',
-            ),
-        );
-        $table = 'newtable';
-        if ($this->tableExists($table)) {
-            $result = $this->db->manager->dropTable($table);
-            $this->assertFalse(PEAR::isError($result), 'Error dropping table');
-        }
-        $result = $this->db->manager->createTable($table, $fields);
-        $this->assertFalse(PEAR::isError($result), 'Error creating table');
-        $indices = array(
-            'someindex' => array(
-                'fields' => array(
-                    'somename' => array(
-                        'sorting' => 'ascending',
-                    ),
-                ),
-                'unique' => false,
-            ),
-            'multipleindex' => array(
-                'fields' => array(
-                    'somedescription' => array(
-                        'sorting' => 'ascending',
-                    ),
-                    'sex' => array(
-                        'sorting' => 'ascending',
-                    ),
-                ),
-            ),
-        );
-        foreach ($indices as $index_name => $index) {
-            $result = $this->db->manager->createIndex($table, $index_name, $index);
-            $this->assertFalse(PEAR::isError($result), 'Error creating index: '.$index_name);
-            if (PEAR::isError($result)) {
-                unset($indices[$index_name]);
-            }
-        }
-
-        //test
-        foreach ($indices as $index_name => $index) {
-            $result = $this->db->reverse->getTableIndexDefinition($table, $index_name);
-            if (PEAR::isError($result)) {
+        //test index names
+        foreach ($this->indices as $index_name => $index) {
+            $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
+            if (PEAR::isError($index_info)) {
                 $this->assertFalse(true, 'Error getting table index definition');
             } else {
                 $field_names = array_keys($index['fields']);
-                $this->assertEquals($field_names, array_keys($result['fields']), 'Error listing index fields');
-                if (!empty($index['unique'])) {
-                    $this->assertFalse($result['unique'], 'Error: no UNIQUE constraint expected');
-                }
+                $this->assertEquals($field_names, array_keys($index_info['fields']), 'Error listing index fields');
             }
+        }
+
+        //constraints should NOT be listed
+        foreach (array_keys($this->constraints) as $constraint_name) {
+            $this->db->expectError(MDB2_ERROR_NOT_FOUND);
+            $result = $this->db->reverse->getTableIndexDefinition($this->table, $constraint_name);
+            $this->assertTrue(PEAR::isError($result), 'Error listing index definition, this is a CONSTRAINT');
+        }
+
+        //test INDEX
+        $index_name = 'sometestindex';
+        $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
+        if (PEAR::isError($index_info)) {
+            $this->assertTrue(false, 'Error in getTableIndexDefinition(): '.$index_info->getMessage());
+        } else {
+            $this->assertEquals(1, count($index_info['fields']), 'The INDEX is not on one field unlike it was expected');
+            $expected_fields = array_keys($this->indices[$index_name]['fields']);
+            $actual_fields = array_keys($index_info['fields']);
+            $this->assertEquals($expected_fields, $actual_fields, 'The INDEX field names don\'t match');
+        }
+
+        //test INDEX on MULTIPLE FIELDS
+        $index_name = 'multipletestindex';
+        $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
+        if (PEAR::isError($index_info)) {
+            $this->assertTrue(false, 'Error in getTableIndexDefinition(): '.$index_info->getMessage());
+        } else {
+            $this->assertEquals(2, count($index_info['fields']), 'The INDEX is not on two fields unlike it was expected');
+            $expected_fields = array_keys($this->indices[$index_name]['fields']);
+            $actual_fields = array_keys($index_info['fields']);
+            $this->assertEquals($expected_fields, $actual_fields, 'The INDEX field names don\'t match');
+        }
+    }
+
+    /**
+     * Test testGetTableConstraintDefinition($table, $constraint_name)
+     */
+    function testGetTableConstraintDefinition()
+    {
+        if (!$this->methodExists($this->db->reverse, 'getTableConstraintDefinition')) {
+            return;
+        }
+
+        //test constraint names
+        foreach ($this->constraints as $constraint_name => $constraint) {
+            $result = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
+            //echo '<pre>';var_dump($result);echo '</pre>';
+            if (PEAR::isError($result)) {
+                $this->assertFalse(true, 'Error getting table constraint definition');
+            } else {
+                $constraint_names = array_keys($constraint['fields']);
+                $this->assertEquals($constraint_names, array_keys($result['fields']), 'Error listing constraint fields');
+            }
+        }
+
+        //indices should NOT be listed
+        foreach (array_keys($this->indices) as $index_name) {
+            $this->db->expectError(MDB2_ERROR_NOT_FOUND);
+            $result = $this->db->reverse->getTableConstraintDefinition($this->table, $index_name);
+            $this->assertTrue(PEAR::isError($result), 'Error listing constraint definition, this is a normal INDEX');
+        }
+        
+        //test PK
+        $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, 'pkfield');
+        if (PEAR::isError($constraint_info)) {
+            $this->assertTrue(false, 'Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
+        } else {
+            $this->assertTrue($constraint_info['primary'], 'The field is not a PK unlike it was expected');
+        }
+
+        //test UNIQUE
+        $constraint_name = 'singleunique';
+        $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
+        if (PEAR::isError($constraint_info)) {
+            $this->assertTrue(false, 'Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
+        } else {
+            $this->assertTrue($constraint_info['unique'], 'The field is not a PK unlike it was expected');
+            $this->assertTrue(empty($constraint_info['primary']), 'The field is a PK unlike it was expected');
+            $this->assertEquals(1, count($constraint_info['fields']), 'The UNIQUE INDEX is not on one field unlike it was expected');
+            $expected_fields = array_keys($this->constraints[$constraint_name]['fields']);
+            $actual_fields = array_keys($constraint_info['fields']);
+            $this->assertEquals($expected_fields, $actual_fields, 'The UNIQUE INDEX field names don\'t match');
+        }
+
+        //test UNIQUE on MULTIPLE FIELDS
+        $constraint_name = 'multipleunique';
+        $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
+        if (PEAR::isError($constraint_info)) {
+            $this->assertTrue(false, 'Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
+        } else {
+            $this->assertTrue($constraint_info['unique'], 'The field is not a PK unlike it was expected');
+            $this->assertTrue(empty($constraint_info['primary']), 'The field is a PK unlike it was expected');
+            $this->assertEquals(2, count($constraint_info['fields']), 'The UNIQUE INDEX is not on two fields unlike it was expected');
+            $expected_fields = array_keys($this->constraints[$constraint_name]['fields']);
+            $actual_fields = array_keys($constraint_info['fields']);
+            $this->assertEquals($expected_fields, $actual_fields, 'The UNIQUE INDEX field names don\'t match');
         }
     }
 

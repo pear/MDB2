@@ -2,9 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.0';
+$version = '2.0.1';
 $notes = <<<EOT
-- handle null as resource when disable_query option is enabled in result object
+- added new comprehensive tests for the Reverse module
 EOT;
 
 $description =<<<EOT
