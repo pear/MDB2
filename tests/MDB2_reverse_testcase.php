@@ -58,9 +58,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $this->db->loadModule('Reverse', null, true);
         $this->db->loadModule('Manager', null, true);
         
-        /**
-         * Table DDL
-         */
+        //Table structure
         $this->fields = array(
             'id' => array(  //PK
                 'type'     => 'integer',
@@ -101,9 +99,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             ),
         );
 
-        /**
-         * Indices DDL
-         */
+        //Indices definition
         $this->indices = array(
             'sometestindex' => array(
                 'fields' => array(
@@ -125,9 +121,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             ),
         );
 
-        /**
-         * Constraints DDL
-         */
+        //Constraints definition
         $this->constraints = array(
             'pkfield' => array(
                 'fields' => array(
