@@ -299,11 +299,10 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $connection = $db->getConnection();
-            if (PEAR::isError($connection)) {
-                return $connection;
+            $id = $db->_doQuery("SELECT * FROM $result LIMIT 0", false);
+            if (PEAR::isError($id)) {
+                return $id;
             }
-            $id = @mysql_list_fields($db->database_name, $result, $connection);
             $got_string = true;
         } elseif (MDB2::isResultCommon($result)) {
             /*
