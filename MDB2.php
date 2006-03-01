@@ -776,12 +776,11 @@ class MDB2
         // process the different protocol options
         $parsed['protocol'] = (!empty($proto)) ? $proto : 'tcp';
         $proto_opts = rawurldecode($proto_opts);
+        if (strpos($proto_opts, ':') !== false) {
+            list($proto_opts, $parsed['port']) = explode(':', $proto_opts);
+        }
         if ($parsed['protocol'] == 'tcp') {
-            if (strpos($proto_opts, ':') !== false) {
-                list($parsed['hostspec'], $parsed['port']) = explode(':', $proto_opts);
-            } else {
-                $parsed['hostspec'] = $proto_opts;
-            }
+            $parsed['hostspec'] = $proto_opts;
         } elseif ($parsed['protocol'] == 'unix') {
             $parsed['socket'] = $proto_opts;
         }
