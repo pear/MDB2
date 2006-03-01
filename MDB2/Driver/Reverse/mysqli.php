@@ -409,13 +409,15 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             $flags = trim($flags);
 
             $res[$i] = array(
-                'table' => $case_func($tmp->table),
-                'name'  => $case_func($tmp->name),
-                'type'  => isset($this->types[$tmp->type])
+                'table'  => $case_func($tmp->table),
+                'name'   => $case_func($tmp->name),
+                'type'   => isset($this->types[$tmp->type])
                                     ? $this->types[$tmp->type]
                                     : 'unknown',
-                'length'   => $tmp->max_length,
-                'flags' => $flags,
+                // work around for http://bugs.php.net/?id=36579
+                'length' => ($tmp->max_length && isset($tmp->length))
+                    ? $tmp->max_length : $tmp->length,
+                'flags'  => $flags,
             );
             $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
             if (PEAR::isError($mdb2type_info)) {
