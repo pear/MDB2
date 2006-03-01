@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2005 Manuel Lemos, Paul Cooper, Lorenzo Alberton  |
+// | Copyright (c) 1998-2006 Manuel Lemos, Paul Cooper, Lorenzo Alberton  |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
