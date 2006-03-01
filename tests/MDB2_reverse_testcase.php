@@ -164,6 +164,11 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         }
         foreach ($this->constraints as $constraint_name => $constraint) {
             $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
+            if (PEAR::isError($result) && isset($constraint['primary']) && $constraint['primary']) {
+                echo 'Error creating primary constraint, trying with name "primary" instead .. ';
+                $name = 'primary';
+                $result = $this->db->manager->createConstraint($this->table, $name, $constraint);
+            }
             $this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
         }
     }
@@ -312,8 +317,14 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
 
         //test constraint names
         foreach ($this->constraints as $constraint_name => $constraint) {
+            $this->db->expectError(MDB2_ERROR_NOT_FOUND);
             $result = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
-            //echo '<pre>';var_dump($result);echo '</pre>';
+            $this->db->popExpect();
+            if (PEAR::isError($result) && isset($constraint['primary']) && $constraint['primary']) {
+                echo 'Error reading primary constraint, trying with name "primary" instead .. ';
+                $constraint_name = 'primary';
+                $result = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
+            }
             if (PEAR::isError($result)) {
                 $this->assertFalse(true, 'Error getting table constraint definition');
             } else {
@@ -326,11 +337,18 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         foreach (array_keys($this->indices) as $index_name) {
             $this->db->expectError(MDB2_ERROR_NOT_FOUND);
             $result = $this->db->reverse->getTableConstraintDefinition($this->table, $index_name);
+            $this->db->popExpect();
             $this->assertTrue(PEAR::isError($result), 'Error listing constraint definition, this is a normal INDEX');
         }
         
         //test PK
+        $this->db->expectError(MDB2_ERROR_NOT_FOUND);
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, 'pkfield');
+        $this->db->popExpect();
+        if (PEAR::isError($result)) {
+            echo 'Error reading primary constraint, trying with name "primary" instead .. ';
+            $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, 'primary');
+        }
         if (PEAR::isError($constraint_info)) {
             $this->assertTrue(false, 'Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
         } else {
