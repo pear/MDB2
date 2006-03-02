@@ -414,9 +414,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 'type'   => isset($this->types[$tmp->type])
                                     ? $this->types[$tmp->type]
                                     : 'unknown',
-                // work around for http://bugs.php.net/?id=36579
-                'length' => ($tmp->max_length && isset($tmp->length))
-                    ? $tmp->max_length : $tmp->length,
+                // http://bugs.php.net/?id=36579
+                'length' => $tmp->length,
                 'flags'  => $flags,
             );
             $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
