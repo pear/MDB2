@@ -340,12 +340,12 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->db->popExpect();
             $this->assertTrue(PEAR::isError($result), 'Error listing constraint definition, this is a normal INDEX');
         }
-        
+
         //test PK
         $this->db->expectError(MDB2_ERROR_NOT_FOUND);
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, 'pkfield');
         $this->db->popExpect();
-        if (PEAR::isError($result)) {
+        if (PEAR::isError($constraint_info)) {
             echo 'Error reading primary constraint, trying with name "primary" instead .. ';
             $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, 'primary');
         }
