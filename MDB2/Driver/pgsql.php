@@ -83,6 +83,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = 'emulated';
         $this->supported['primary_key'] = true;
+
+        $this->options['multi_query'] = false;
     }
 
     // }}}
@@ -461,9 +463,16 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
         }
 
-        $result = @pg_query($connection, $query);
+        $function = $this->options['multi_query'] ? 'pg_send_query' : 'pg_query';
+        $result = @$function($connection, $query);
         if (!$result) {
             return $this->raiseError();
+        }
+
+        if ($this->options['multi_query']) {
+            if (!($result = @pg_get_result($connection))) {
+                $this->raiseError();
+            }
         }
 
         return $result;
@@ -870,6 +879,29 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
             return $this->db->raiseError();
         }
         return $cols;
+    }
+ 
+    // }}}
+    // {{{ nextResult()
+
+    /**
+     * Move the internal result pointer to the next available result
+     *
+     * @param a valid result resource
+     * @return true on success, false if there is no more result set or an error object on failure
+     * @access public
+     */
+    function nextResult()
+    {
+        $connection = $this->db->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        if (!($this->result = @pg_get_result($connection))) {
+            return false;
+        }
+        return MDB2_OK;
     }
 
     // }}}
