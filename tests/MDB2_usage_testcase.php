@@ -244,6 +244,59 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     }
 
     /**
+     * Test multi_query option
+     *
+     * This test attempts to send multiple queries at once using the multi_query
+     * option and then retrieves each result.
+     */
+    function testMultiQuery() {
+        $multi_query_orig = $this->db->getOption('multi_query');
+        if (PEAR::isError($multi_query_orig)) {
+            $this->assertTrue(false, 'Error getting multi_query option value: '.$result->getMessage());
+            return;
+        }
+
+        $this->db->setOption('multi_query', true);
+
+        $data = array();
+        $total_rows = 5;
+
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), false);
+
+        for ($row = 0; $row < $total_rows; $row++) {
+            $data[$row] = $this->getSampleData($row);
+            $result = $stmt->execute(array_values($data[$row]));
+
+            if (PEAR::isError($result)) {
+                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+            }
+        }
+
+        $stmt->free();
+
+        $query = '';
+        for ($row = 0; $row < $total_rows; $row++) {
+            $query.= 'SELECT user_name FROM users WHERE user_id='.$row.';';
+        }
+        $result =& $this->db->query($query, 'text');
+
+        for ($row = 0; $row < $total_rows; $row++) {
+            $value = $result->fetchOne();
+            if (PEAR::isError($value)) {
+                $this->assertTrue(false, 'Error fetching row '.$row);
+            } else {
+                $this->assertEquals(strval($data[$row]['user_name']), strval(trim($value)), 'the query field username of type "text" for row '.$row);
+            }
+            if (PEAR::isError($result->nextResult())) {
+                $this->assertTrue(false, 'Error moving result pointer');
+            }
+        }
+
+        $result->free();
+        $this->db->setOption('multi_query', $multi_query_orig);
+    }
+
+    /**
      * Test prepared queries
      *
      * Tests prepared queries, making sure they correctly deal with ?, !, and '
