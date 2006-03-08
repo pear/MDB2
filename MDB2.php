@@ -826,11 +826,10 @@ class MDB2
      */
     function fileExists($file)
     {
-        $dirs = explode(PATH_SEPARATOR, ini_get('include_path'));
-        foreach ($dirs as $dir) {
-            if (is_readable($dir . DIRECTORY_SEPARATOR . $file)) {
-                return true;
-            }
+        $fp = @fopen($file, 'r', true);
+        if (is_resource($fp)) {
+            @fclose($fp);
+            return true;
         }
         return false;
     }
