@@ -674,9 +674,9 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     }
                     $length = strlen($name) + 1;
                 }
-                if (array_key_exists($name, $types)) {
+                if (is_array($types) && array_key_exists($name, $types)) {
                     $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$name]);
-                } elseif (array_key_exists($parameter, $types)) {
+                } elseif (is_array($types) && array_key_exists($parameter, $types)) {
                     $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$parameter]);
                 } else {
                     $pgtypes[] = 'text';
