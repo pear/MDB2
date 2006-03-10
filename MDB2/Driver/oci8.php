@@ -455,7 +455,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * Changes a query string for various DBMS specific reasons
      *
      * @param string $query  query to modify
-     * @return the new (modified) query
+     * @param boolean $is_manip  if it is a DML query
+     * @param integer $limit  limit the number of rows
+     * @param integer $offset  start reading from given offset
+     * @return string modified query
      * @access protected
      */
     function _modifyQuery($query, $is_manip, $limit, $offset)
