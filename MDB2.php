@@ -1718,6 +1718,20 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ inTransaction()
+
+    /**
+     * If a transaction is currently open.
+     *
+     * @return boolean true if a transaction is currently open, else false
+     * @access public
+     */
+    function inTransaction()
+    {
+        return $this->in_transaction;
+    }
+
+    // }}}
     // {{{ disconnect()
 
     /**
