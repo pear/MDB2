@@ -259,6 +259,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'it was not specified a valid Oracle Service Identifier (SID)');
         }
 
+        if (isset($this->dsn['client_charset']) && !empty($this->dsn['client_charset'])
+            && !@putenv('NLS_LANG='.$this->dsn['client_charset']))
+        ) {
+            return $this->raiseError(MDB2_ERROR,
+                null, null, 'Unable to set client charset: '.$this->dsn['client_charset']);
+        }
+
         if (function_exists('oci_connect')) {
             if (isset($this->dsn['new_link'])
                 && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true)
@@ -276,12 +283,31 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 $connection = @$connect_function($username, $password, null, $charset);
             }
         } else {
+            if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+                return $this->raiseError(MDB2_ERROR,
+                    null, null, 'Unable to set connection charset: '.$this->dsn['charset']);
+            }
+
             $connect_function = $persistent ? 'OCIPLogon' : 'OCILogon';
             $connection = @$connect_function($username, $password, $sid);
         }
 
         if (!$connection) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+        }
+
+        $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
+        $err = $this->_doQuery($query, true);
+        if (PEAR::isError($err)) {
+            $this->disconnect(false);
+            return $err;
+        }
+
+        $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
+        $err = $this->_doQuery($query, true);
+        if (PEAR::isError($err)) {
+            $this->disconnect(false);
+            return $err;
         }
 
         return $connection;
@@ -322,20 +348,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->connected_dsn = $this->dsn;
         $this->opened_persistent = $this->options['persistent'];
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
-
-        $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-        $err = $this->_doQuery($query, true);
-        if (PEAR::isError($err)) {
-            $this->disconnect(false);
-            return $err;
-        }
-
-        $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
-        $err = $this->_doQuery($query, true);
-        if (PEAR::isError($err)) {
-            $this->disconnect(false);
-            return $err;
-        }
 
         return MDB2_OK;
     }

@@ -244,6 +244,16 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
+        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED,
+                null, null, 'Unable to set connection charset: '.$this->dsn['charset']);
+        }
+
+        if (isset($this->dsn['client_charset']) && !empty($this->dsn['client_charset'])) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED,
+                null, null, 'Unable to set client charset: '.$this->dsn['client_charset']);
+        }
+
         $params = array(
             $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost',
             $this->dsn['username'] ? $this->dsn['username'] : null,

@@ -361,6 +361,20 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             }
         }
 
+        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])
+            && !@mysql_query('SET character_set_connection = '.$this->quote($this->dsn['charset'], 'text'), $connection)
+        ) {
+            return $this->raiseError(MDB2_ERROR,
+                null, null, 'Unable to set connection charset: '.$this->dsn['charset']);
+        }
+
+        if (isset($this->dsn['client_charset']) && !empty($this->dsn['client_charset'])
+            && !@mysql_query('SET character_set_client = '.$this->quote($this->dsn['client_charset'], 'text'), $connection)
+        ) {
+            return $this->raiseError(MDB2_ERROR,
+                null, null, 'Unable to set client charset: '.$this->dsn['client_charset']);
+        }
+
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';

@@ -365,6 +365,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function _doConnect($database_name, $persistent = false)
     {
+        if (isset($this->dsn['client_charset']) && !empty($this->dsn['client_charset'])) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED,
+                null, null, 'Unable to set client charset: '.$this->dsn['client_charset']);
+        }
+
         $user    = $this->dsn['username'];
         $pw      = $this->dsn['password'];
         $dbhost  = $this->dsn['hostspec'] ?
@@ -385,6 +390,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($connection <= 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
+
         if (function_exists('ibase_timefmt')) {
             @ibase_timefmt("%Y-%m-%d %H:%M:%S", IBASE_TIMESTAMP);
             @ibase_timefmt("%Y-%m-%d", IBASE_DATE);
