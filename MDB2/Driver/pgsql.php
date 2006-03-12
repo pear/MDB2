@@ -291,16 +291,16 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if (!empty($this->dsn['options'])) {
             $params[0].= ' options=' . $this->dsn['options'];
         }
-        if (!empty($this->dsn['tty'])) {
+        if (isset($this->dsn['tty']) && !empty($this->dsn['tty'])) {
             $params[0].= ' tty=' . $this->dsn['tty'];
         }
-        if (!empty($this->dsn['connect_timeout'])) {
+        if (isset($this->dsn['connect_timeout']) && !empty($this->dsn['connect_timeout'])) {
             $params[0].= ' connect_timeout=' . $this->dsn['connect_timeout'];
         }
-        if (!empty($this->dsn['sslmode'])) {
+        if (isset($this->dsn['sslmode']) && !empty($this->dsn['sslmode'])) {
             $params[0].= ' sslmode=' . $this->dsn['sslmode'];
         }
-        if (!empty($this->dsn['service'])) {
+        if (isset($this->dsn['service']) && !empty($this->dsn['service'])) {
             $params[0].= ' service=' . $this->dsn['service'];
         }
 
@@ -323,6 +323,12 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if (!$connection) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED,
                 null, null, strip_tags($php_errormsg));
+        }
+        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])
+            && !@pg_set_client_encoding($this->dsn['charset'])
+        ) {
+            return $this->raiseError(MDB2_ERROR,
+                null, null, 'Unable to set charset: '.$this->dsn['charset']);
         }
         return $connection;
     }
