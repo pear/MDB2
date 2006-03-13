@@ -140,7 +140,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $table = strtoupper($table);
-        $index_name  = $table . '_AUTOINCREMENT_PK';
+        $index_name  = $table . '_AI_PK';
         $definition = array(
             'primary' => true,
             'fields' => array($name => true),
@@ -169,7 +169,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
         $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $db->quoteIdentifier($table . '_AUTOINCREMENT_PK', true);
+        $trigger_name  = $db->quoteIdentifier($table . '_AI_PK', true);
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->quoteIdentifier($name, true);
         $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
@@ -196,7 +196,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
 
         $table = strtoupper($table);
-        $trigger_name = $table . '_AUTOINCREMENT_PK';
+        $trigger_name = $table . '_AI_PK';
         $trigger_name = $db->quoteIdentifier($trigger_name, true);
         $trigger = $db->queryOne("SELECT trigger_name FROM user_triggers WHERE trigger_name = '$trigger_name'");
         if (PEAR::isError($trigger)) {
@@ -217,7 +217,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                     '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
             }
 
-            $index_name = $table . '_AUTOINCREMENT_PK';
+            $index_name = $table . '_AI_PK';
             $result = $db->manager->dropConstraint($table, $index_name);
             if (PEAR::isError($result)) {
                 return $db->raiseError(MDB2_ERROR, null, null,
