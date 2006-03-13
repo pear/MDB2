@@ -256,11 +256,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      **/
     function _doConnect($database_name, $persistent = false)
     {
-        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED,
-                null, null, 'Unable to set connection charset: '.$this->dsn['charset']);
-        }
-
         if ($database_name == '') {
             $database_name = 'template1';
         }
@@ -333,11 +328,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 null, null, 'Unable to set connection charset: '.$this->dsn['charset']);
         }
 
-        if (isset($this->dsn['client_charset']) && !empty($this->dsn['client_charset'])
-            && !@pg_set_client_encoding($connection, $this->dsn['client_charset'])
+        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])
+            && !@pg_set_client_encoding($connection, $this->dsn['charset'])
         ) {
             return $this->raiseError(MDB2_ERROR,
-                null, null, 'Unable to set client charset: '.$this->dsn['client_charset']);
+                null, null, 'Unable to set client charset: '.$this->dsn['charset']);
         }
 
         return $connection;

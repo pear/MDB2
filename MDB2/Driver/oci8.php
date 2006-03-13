@@ -259,13 +259,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'it was not specified a valid Oracle Service Identifier (SID)');
         }
 
-        if (isset($this->dsn['client_charset']) && !empty($this->dsn['client_charset'])
-            && !@putenv('NLS_LANG='.$this->dsn['client_charset']))
-        ) {
-            return $this->raiseError(MDB2_ERROR,
-                null, null, 'Unable to set client charset: '.$this->dsn['client_charset']);
-        }
-
         if (function_exists('oci_connect')) {
             if (isset($this->dsn['new_link'])
                 && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true)
@@ -285,7 +278,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         } else {
             if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
                 return $this->raiseError(MDB2_ERROR,
-                    null, null, 'Unable to set connection charset: '.$this->dsn['charset']);
+                    null, null, 'Unable to set client charset: '.$this->dsn['charset']);
             }
 
             $connect_function = $persistent ? 'OCIPLogon' : 'OCILogon';
