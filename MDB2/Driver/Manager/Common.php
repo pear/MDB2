@@ -205,34 +205,33 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * create a new table
      *
-     * @param string $name     Name of the database that should be created
-     * @param array $fields Associative array that contains the definition of each field of the new table
-     *                        The indexes of the array entries are the names of the fields of the table an
-     *                        the array entry values are associative arrays like those that are meant to be
-     *                         passed with the field definitions to get[Type]Declaration() functions.
+     * @param string $name   Name of the database that should be created
+     * @param array $fields  Associative array that contains the definition of each field of the new table
+     *                       The indexes of the array entries are the names of the fields of the table an
+     *                       the array entry values are associative arrays like those that are meant to be
+     *                       passed with the field definitions to get[Type]Declaration() functions.
+     *                          array(
+     *                              'id' => array(
+     *                                  'type' => 'integer',
+     *                                  'unsigned' => 1
+     *                                  'notnull' => 1
+     *                                  'default' => 0
+     *                              ),
+     *                              'name' => array(
+     *                                  'type' => 'text',
+     *                                  'length' => 12
+     *                              ),
+     *                              'password' => array(
+     *                                  'type' => 'text',
+     *                                  'length' => 12
+     *                              )
+     *                          );
+     * @param array $options  An associative array of table options:
      *
-     *                        Example
-     *                        array(
-     *
-     *                            'id' => array(
-     *                                'type' => 'integer',
-     *                                'unsigned' => 1
-     *                                'notnull' => 1
-     *                                'default' => 0
-     *                            ),
-     *                            'name' => array(
-     *                                'type' => 'text',
-     *                                'length' => 12
-     *                            ),
-     *                            'password' => array(
-     *                                'type' => 'text',
-     *                                'length' => 12
-     *                            )
-     *                        );
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createTable($name, $fields)
+    function createTable($name, $fields, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {

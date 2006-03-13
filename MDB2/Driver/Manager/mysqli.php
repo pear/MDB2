@@ -183,40 +183,46 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         return MDB2_OK;
     }
 
+
     // }}}
     // {{{ createTable()
 
     /**
      * create a new table
      *
-     * @param string $name     Name of the database that should be created
-     * @param array $fields Associative array that contains the definition of each field of the new table
-     *                        The indexes of the array entries are the names of the fields of the table an
-     *                        the array entry values are associative arrays like those that are meant to be
-     *                         passed with the field definitions to get[Type]Declaration() functions.
+     * @param string $name   Name of the database that should be created
+     * @param array $fields  Associative array that contains the definition of each field of the new table
+     *                       The indexes of the array entries are the names of the fields of the table an
+     *                       the array entry values are associative arrays like those that are meant to be
+     *                       passed with the field definitions to get[Type]Declaration() functions.
+     *                          array(
+     *                              'id' => array(
+     *                                  'type' => 'integer',
+     *                                  'unsigned' => 1
+     *                                  'notnull' => 1
+     *                                  'default' => 0
+     *                              ),
+     *                              'name' => array(
+     *                                  'type' => 'text',
+     *                                  'length' => 12
+     *                              ),
+     *                              'password' => array(
+     *                                  'type' => 'text',
+     *                                  'length' => 12
+     *                              )
+     *                          );
+     * @param array $options  An associative array of table options:
+     *                          array(
+     *                              'comment' => 'Foo',
+     *                              'charset' => 'utf8',
+     *                              'collate' => 'utf8_unicode_ci',
+     *                              'type'    => 'innodb',
+     *                          );
      *
-     *                        Example
-     *                        array(
-     *
-     *                            'id' => array(
-     *                                'type' => 'integer',
-     *                                'unsigned' => 1
-     *                                'notnull' => 1
-     *                                'default' => 0
-     *                            ),
-     *                            'name' => array(
-     *                                'type' => 'text',
-     *                                'length' => 12
-     *                            ),
-     *                            'password' => array(
-     *                                'type' => 'text',
-     *                                'length' => 12
-     *                            )
-     *                        );
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createTable($name, $fields)
+    function createTable($name, $fields, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -231,19 +237,40 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: no fields specified for table "'.$name.'"');
         }
-        $verify = $this->_verifyTableType($db->options['default_table_type']);
-        if (PEAR::isError($verify)) {
-            return $verify;
-        }
         $query_fields = $this->getFieldDeclarationList($fields);
         if (PEAR::isError($query_fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 'createTable: '.$query_fields->getUserinfo());
         }
         $name = $db->quoteIdentifier($name, true);
-        $query = "CREATE TABLE $name ($query_fields)".(strlen($db->options['default_table_type'])
-            ? ' TYPE='.$db->options['default_table_type'] : '');
+        $query = "CREATE TABLE $name ($query_fields)";
 
+        $options_strings = array();
+        if (array_key_exists('comment', $options)) {
+            $options_strings[] = 'COMMENT = '.$db->quote($options['comment'], 'text');
+        }
+
+        if (array_key_exists('collate', $options) && array_key_exists('charset', $options)) {
+            $options_strings[] = 'CHARACTER SET '.$options['charset'].' COLLATE '.$options['collate'];
+        }
+
+        $type = false;
+        if (array_key_exists('type', $options)) {
+            $type = $options['type'];
+        } elseif ($db->options['default_table_type']) {
+            $type = $db->options['default_table_type'];
+        }
+        if ($type) {
+            $verify_type = $this->_verifyTableType($type);
+            if (PEAR::isError($verify_type)) {
+                return $verify_type;
+            }
+            $options_strings[] = "TYPE $type";
+        }
+
+        if (!empty($options_strings)) {
+            $query.= ' '.implode(', ', $options_strings);
+        }
         return $db->exec($query);
     }
 
