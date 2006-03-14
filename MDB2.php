@@ -611,16 +611,22 @@ class MDB2
     /**
      * Return a textual error message for a MDB2 error code
      *
-     * @param   int     $value error code
+     * @param   int|array $value integer error code,
+                                null to get the current error code-message map,
+                                or an array with a new error code-message map
      * @return  string  error message, or false if the error code was
      *                  not recognized
      * @access public
      */
-    function errorMessage($value)
+    function errorMessage($value = null)
     {
         static $errorMessages;
-        if (!isset($errorMessages)) {
+        if (is_array($value)) {
+            $errorMessages = $value;
+            return MDB2_OK;
+        } elseif (!isset($errorMessages)) {
             $errorMessages = array(
+                MDB2_OK                       => 'no error',
                 MDB2_ERROR                    => 'unknown error',
                 MDB2_ERROR_ALREADY_EXISTS     => 'already exists',
                 MDB2_ERROR_CANNOT_CREATE      => 'can not create',
@@ -646,7 +652,6 @@ class MDB2
                 MDB2_ERROR_VALUE_COUNT_ON_ROW => 'value count on row',
                 MDB2_ERROR_INVALID_DSN        => 'invalid DSN',
                 MDB2_ERROR_CONNECT_FAILED     => 'connect failed',
-                MDB2_OK                       => 'no error',
                 MDB2_ERROR_NEED_MORE_DATA     => 'insufficient data supplied',
                 MDB2_ERROR_EXTENSION_NOT_FOUND=> 'extension not found',
                 MDB2_ERROR_NOSUCHDB           => 'no such database',
@@ -655,6 +660,10 @@ class MDB2
                 MDB2_ERROR_TRUNCATED          => 'truncated',
                 MDB2_ERROR_DEADLOCK           => 'deadlock detected',
             );
+        }
+
+        if (is_null($value)) {
+            return $errorMessages;
         }
 
         if (PEAR::isError($value)) {
