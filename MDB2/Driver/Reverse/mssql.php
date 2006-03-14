@@ -133,6 +133,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             $res['num_fields'] = $count;
         }
 
+        $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
                 'table' => $got_string ? $case_func($result) : '',
@@ -143,8 +144,11 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                 'flags' => $got_string
                            ? $this->_mssql_field_flags($result, @mssql_field_name($id, $i)) : '',
             );
-            // todo: implement $db->datatype->mapNativeDatatype();
-            $res[$i]['mdb2type'] = $res[$i]['type'];
+            $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
+            if (PEAR::isError($mdb2type_info)) {
+               return $mdb2type_info;
+            }
+            $res[$i]['mdb2type'] = $mdb2type_info[0][0];
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
             }

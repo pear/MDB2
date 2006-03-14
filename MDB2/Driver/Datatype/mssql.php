@@ -202,6 +202,66 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     {
         return ($value ? 1 : 0);
     }
+
+    // }}}
+    // {{{ mapNativeDatatype()
+
+    /**
+     * Maps a native array description of a field to a MDB2 datatype and length
+     *
+     * @param array  $field native field description
+     * @return array containing the various possible types and the length
+     * @access public
+     */
+    function mapNativeDatatype($field)
+    {
+        $db_type = preg_replace('/\d/','', strtolower($field['type']) );
+        $length = $field['length'];
+        if ($length == '-1' && array_key_exists('atttypmod', $field)) {
+            $length = $field['atttypmod'] - 4;
+        }
+        if ((int)$length <= 0) {
+            $length = null;
+        }
+        $type = array();
+        $unsigned = null;
+        switch ($db_type) {
+		case 'bit':
+			$type[0] = 'boolean';
+			break;
+		case 'int':
+			$type[0] = 'integer';
+			break;
+		case 'datetime':
+			$type[0] = 'timestamp';
+			break;
+		case 'float':
+		case 'real':
+		case 'numeric':
+            $type[0] = 'float';
+			break;
+        case 'decimal':
+		case 'money':
+            $type[0] = 'decimal';
+			break;
+		case 'text':
+		case 'char':
+		case 'varchar':
+			$type[0] = 'text';
+			break;
+        default:
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
+            return $db->raiseError(MDB2_ERROR, null, null,
+                'mapNativeDatatype: unknown database attribute type: '.$db_type);
+        }
+
+        return array($type, $length, $unsigned);
+    }
+    // }}}
 }
 
 ?>
