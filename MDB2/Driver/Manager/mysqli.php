@@ -246,12 +246,16 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         $query = "CREATE TABLE $name ($query_fields)";
 
         $options_strings = array();
+
         if (array_key_exists('comment', $options)) {
-            $options_strings[] = 'COMMENT = '.$db->quote($options['comment'], 'text');
+            $options_strings['comment'] = 'COMMENT = '.$db->quote($options['comment'], 'text');
         }
 
-        if (array_key_exists('collate', $options) && array_key_exists('charset', $options)) {
-            $options_strings[] = 'CHARACTER SET '.$options['charset'].' COLLATE '.$options['collate'];
+        if (array_key_exists('charset', $options)) {
+            $options_strings['charset'] = 'DEFAULT CHARACTER SET '.$options['charset'];
+            if (array_key_exists('collate', $options)) {
+                $options_strings['charset'].= 'COLLATE '.$options['collate'];
+            }
         }
 
         $type = false;
@@ -269,7 +273,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
 
         if (!empty($options_strings)) {
-            $query.= ' '.implode(', ', $options_strings);
+            $query.= ' '.implode(' ', $options_strings);
         }
         return $db->exec($query);
     }
