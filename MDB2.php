@@ -3222,7 +3222,7 @@ class MDB2_Statement_Common
     }
 
     // }}}
-    // {{{ bindParam()
+    // {{{ bindValue()
 
     /**
      * Set the value of a parameter of a prepared query.
@@ -3230,6 +3230,35 @@ class MDB2_Statement_Common
      * @param int $parameter the order number of the parameter in the query
      *       statement. The order number of the first parameter is 1.
      * @param mixed $value value that is meant to be assigned to specified
+     *       parameter. The type of the value depends on the $type argument.
+     * @param string $type specifies the type of the field
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function bindValue($parameter, &$value, $type = null)
+    {
+        if (!is_numeric($parameter)) {
+            $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
+        }
+        if (!array_key_exists($parameter, $this->positions)) {
+            return $this->db->raiseError();
+        }
+        $this->values[$parameter] = $value;
+        if (!is_null($type)) {
+            $this->types[$parameter] = $type;
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ bindParam()
+
+    /**
+     * Bind a variable to a parameter of a prepared query.
+     *
+     * @param int $parameter the order number of the parameter in the query
+     *       statement. The order number of the first parameter is 1.
+     * @param mixed $value variable that is meant to be bound to specified
      *       parameter. The type of the value depends on the $type argument.
      * @param string $type specifies the type of the field
      * @return mixed MDB2_OK on success, a MDB2 error on failure
