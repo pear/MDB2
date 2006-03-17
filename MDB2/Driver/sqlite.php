@@ -249,7 +249,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function _getDatabaseFile($database_name)
     {
-        if ($database_name == '') {
+        if ($database_name === '' || $database_name === ':memory:') {
             return $database_name;
         }
         return $this->options['database_path'].$database_name.$this->options['database_extension'];
@@ -282,29 +282,31 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
 
         if (!empty($this->database_name)) {
-            if (!file_exists($database_file)) {
-                if (!touch($database_file)) {
-                    return $this->raiseError(MDB2_ERROR_NOT_FOUND);
-                }
-                if (!isset($this->dsn['mode'])
-                    || !is_numeric($this->dsn['mode'])
-                ) {
-                    $mode = 0644;
-                } else {
-                    $mode = octdec($this->dsn['mode']);
-                }
-                if (!chmod($database_file, $mode)) {
-                    return $this->raiseError(MDB2_ERROR_NOT_FOUND);
-                }
+            if ($database_file !== ':memory:') {
                 if (!file_exists($database_file)) {
-                    return $this->raiseError(MDB2_ERROR_NOT_FOUND);
+                    if (!touch($database_file)) {
+                        return $this->raiseError(MDB2_ERROR_NOT_FOUND);
+                    }
+                    if (!isset($this->dsn['mode'])
+                        || !is_numeric($this->dsn['mode'])
+                    ) {
+                        $mode = 0644;
+                    } else {
+                        $mode = octdec($this->dsn['mode']);
+                    }
+                    if (!chmod($database_file, $mode)) {
+                        return $this->raiseError(MDB2_ERROR_NOT_FOUND);
+                    }
+                    if (!file_exists($database_file)) {
+                        return $this->raiseError(MDB2_ERROR_NOT_FOUND);
+                    }
                 }
-            }
-            if (!is_file($database_file)) {
-                return $this->raiseError(MDB2_ERROR_INVALID);
-            }
-            if (!is_readable($database_file)) {
-                return $this->raiseError(MDB2_ERROR_ACCESS_VIOLATION);
+                if (!is_file($database_file)) {
+                    return $this->raiseError(MDB2_ERROR_INVALID);
+                }
+                if (!is_readable($database_file)) {
+                    return $this->raiseError(MDB2_ERROR_ACCESS_VIOLATION);
+                }
             }
 
             $connect_function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
