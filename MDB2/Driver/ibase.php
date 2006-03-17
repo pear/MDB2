@@ -96,6 +96,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '.gdb';
         $this->options['default_text_field_length'] = 4096;
+        $this->options['server_version'] = '';
     }
 
     // }}}
@@ -559,14 +560,23 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function getServerVersion($native = false)
     {
-        $ibserv = @ibase_service_attach($this->dsn['hostspec'], $this->options['DBA_username'], $this->options['DBA_password']);
-        $server_info = @ibase_server_info($ibserv, IBASE_SVC_SERVER_VERSION);
-        @ibase_service_detach($ibserv);
+        $server_info = false;
+        if ($this->options['server_version']) {
+            $server_info = $this->options['server_version'];
+        } elseif ($this->options['DBA_username']) {
+            $ibserv = @ibase_service_attach($this->dsn['hostspec'], $this->options['DBA_username'], $this->options['DBA_password']);
+            $server_info = @ibase_server_info($ibserv, IBASE_SVC_SERVER_VERSION);
+            @ibase_service_detach($ibserv);
+        }
+        if (!$server_info) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'getServerVersion: Requires either "server_version" or "DBA_username"/"DBA_password" option');
+         }
         if (!$native) {
             //WI-V1.5.3.4854 Firebird 1.5
             if (!preg_match('/-V([\d\.]*)/', $server_info, $matches)) {
                 return $this->raiseError(MDB2_ERROR, null, null,
-                    'Could not parse version information:'.$server_info);
+                    'getServerVersion: Could not parse version information:'.$server_info);
             }
             $tmp = explode('.', $matches[1], 4);
             $server_info = array(
