@@ -89,6 +89,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
+        $this->supported['result_introspection'] = true;
 
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;

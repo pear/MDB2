@@ -87,7 +87,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->supported['transactions'] = true;
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = true;
-        $this->supported['primary_key'] =  false; // not implemented
+        $this->supported['primary_key'] =  false; // requires alter table implementation
+        $this->supported['result_introspection'] = false; // not implemented
 
         $this->options['base_transaction_name'] = '___php_MDB2_sqlite_auto_commit_off';
         $this->options['fixed_float'] = 0;

@@ -84,6 +84,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->supported['sub_selects'] = 'emulated';
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
+        $this->supported['result_introspection'] = true;
 
         $this->options['default_table_type'] = null;
         $this->options['multi_query'] = false;

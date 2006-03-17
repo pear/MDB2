@@ -951,6 +951,7 @@ class MDB2_Driver_Common extends PEAR
         'sub_selects' => false,
         'auto_increment' => false,
         'primary_key' => false,
+        'result_introspection' => false,
     );
 
     /**
@@ -2022,14 +2023,18 @@ class MDB2_Driver_Common extends PEAR
         $result_wrap_class = false, $limit = null, $offset = null)
     {
         if ($types === true) {
-            $this->loadModule('Reverse', null, true);
-            $tableInfo = $this->reverse->tableInfo($result);
-            if (PEAR::isError($tableInfo)) {
-                return $tableInfo;
-            }
-            $types = array();
-            foreach ($tableInfo as $field) {
-                $types[] = $field['mdb2type'];
+            if ($this->supports('result_introspection')) {
+                $this->loadModule('Reverse', null, true);
+                $tableInfo = $this->reverse->tableInfo($result);
+                if (PEAR::isError($tableInfo)) {
+                    return $tableInfo;
+                }
+                $types = array();
+                foreach ($tableInfo as $field) {
+                    $types[] = $field['mdb2type'];
+                }
+            } else {
+                $types = null;
             }
         }
 
