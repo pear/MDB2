@@ -510,17 +510,23 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     /**
      * list all tables in the current database
      *
+     * @param string database, the current is default
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function listTables()
+    function listTables($database = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $table_names = $db->queryCol('SHOW TABLES');
+        $query = "SHOW TABLES";
+        if(!is_null($database)) {
+            $query .= " FROM $database";
+        }
+
+        $table_names = $db->queryCol($query);
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
@@ -536,6 +542,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
         return $result;
     }
+
 
     // }}}
     // {{{ listTableFields()
@@ -918,17 +925,22 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     /**
      * list all sequences in the current database
      *
+     * @param string database, the current is default
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function listSequences()
+    function listSequences($database = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $table_names = $db->queryCol('SHOW TABLES');
+        $query = "SHOW TABLES";
+        if(!is_null($database)) {
+            $query .= " FROM $database";
+        }
+        $table_names = $db->queryCol($query);
         if (PEAR::isError($table_names)) {
             return $table_names;
         }

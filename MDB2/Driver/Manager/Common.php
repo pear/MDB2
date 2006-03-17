@@ -488,10 +488,11 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * list all tables in the current database
      *
+     * @param string database, the current is default
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function listTables()
+    function listTables($database = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -759,10 +760,11 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * list all sequences in the current database
      *
+     * @param string database, the current is default
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function listSequences()
+    function listSequences($database = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
