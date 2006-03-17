@@ -17,6 +17,7 @@ $dsn = array(
     'hostspec' => 'localhost',
     'database' => 'driver_test',
 );
+#$dsn = 'sqlite:///:memory:';
 
 // create MDB2 instance
 $mdb2 = MDB2::factory($dsn);
