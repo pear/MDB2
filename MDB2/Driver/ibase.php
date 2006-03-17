@@ -799,7 +799,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function _skipLimitOffset()
     {
-        if ($this->supports('limit_queries') === true) {
+        if ($this->db->supports('limit_queries') === true) {
             return true;
         }
         if ($this->limit) {
