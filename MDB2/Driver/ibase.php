@@ -82,7 +82,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['order_by_text'] = true;
         $this->supported['transactions'] = true;
         $this->supported['current_id'] = true;
-        // maybe this needs different handling for ibase and firebird?
         $this->supported['limit_queries'] = 'emulated';
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = false;
@@ -437,6 +436,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $this->connected_database_name = $database_file;
             $this->opened_persistent = $this->options['persistent'];
             $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
+            $this->supported['limit_queries'] = ($this->dbsyntax == 'firebird') ? true : 'emulated';
         }
         return MDB2_OK;
     }
@@ -541,7 +541,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function _modifyQuery($query, $is_manip, $limit, $offset)
     {
-        if ($limit > 0 && $this->dsn['dbsyntax'] == 'firebird') {
+        if ($limit > 0 && $this->supports('limit_queries') === true) {
             $query = preg_replace('/^([\s(])*SELECT(?!\s*FIRST\s*\d+)/i',
                 "SELECT FIRST $limit SKIP $offset", $query);
         }
@@ -799,7 +799,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function _skipLimitOffset()
     {
-        if ($this->db->dsn['dbsyntax'] == 'firebird') {
+        if ($this->supports('limit_queries') === true) {
             return true;
         }
         if ($this->limit) {
