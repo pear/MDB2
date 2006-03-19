@@ -2521,7 +2521,7 @@ class MDB2_Driver_Common extends PEAR
     function getSequenceName($sqn)
     {
         return sprintf($this->options['seqname_format'],
-            preg_replace('/[^a-z0-9_.]/i', '_', $sqn));
+            preg_replace('/[^a-z0-9_\$.]/i', '_', $sqn));
     }
 
     // }}}
