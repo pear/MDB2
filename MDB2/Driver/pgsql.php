@@ -709,7 +709,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if ($pgtypes) {
             $types_string = ' ('.implode(', ', $pgtypes).') ';
         }
-        $statement_name = 'MDB2_Statement_'.$this->phptype.md5(time());
+        $statement_name = 'MDB2_Statement_'.$this->phptype.md5(time() + rand());
         $query = 'PREPARE '.$statement_name.$types_string.' AS '.$query;
         $statement = $this->_doQuery($query, $is_manip, $connection);
         if (PEAR::isError($statement)) {
