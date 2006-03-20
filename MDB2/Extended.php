@@ -92,7 +92,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $db;
         }
 
-        return $db->prepare($query, $types, false);
+        return $db->prepare($query, $types, MDB2_PREPARE_MANIP);
     }
     // }}}
 
