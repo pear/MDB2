@@ -291,14 +291,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-        $err = $this->_doQuery($query, true);
+        $err = $this->_doQuery($query, true, $connection);
         if (PEAR::isError($err)) {
             $this->disconnect(false);
             return $err;
         }
 
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
-        $err = $this->_doQuery($query, true);
+        $err = $this->_doQuery($query, true, $connection);
         if (PEAR::isError($err)) {
             $this->disconnect(false);
             return $err;
