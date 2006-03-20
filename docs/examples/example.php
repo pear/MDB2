@@ -134,7 +134,7 @@
                      array(3, 'three', 'trois'),
                      array(4, 'four', 'quatre')
     );
-    $stmt = $mdb2->prepare('INSERT INTO numbers VALUES(?,?,?)', array('integer', 'text', 'text'), false);
+    $stmt = $mdb2->prepare('INSERT INTO numbers VALUES(?,?,?)', array('integer', 'text', 'text'), MDB2_PREPARE_MANIP);
     foreach ($alldata as $row) {
         echo('running execute<br>');
         $stmt->bindParamArray($row);

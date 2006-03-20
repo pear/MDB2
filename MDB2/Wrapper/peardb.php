@@ -441,8 +441,9 @@ class MDB2_PEARProxy extends PEAR
     function prepare($query)
     {
         // parse for ! and &
-        // set types
-        return $this->db_object->prepare($query);
+        $types = array();
+        $result_types = DB::isManip($query) ? MDB2_PREPARE_MANIP : MDB2_PREPARE_RESULT;
+        return $this->db_object->prepare($query, $types, $result_types);
     }
 
     function autoPrepare($table, $table_fields, $mode = MDB2_AUTOQUERY_INSERT, $where = false)
