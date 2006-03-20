@@ -51,7 +51,7 @@ $query = "INSERT INTO $table (somename, somedate) VALUES (:name, :date)";
 // parameters:
 // 1) the query (notice we are using named parameters, but we could also use ? instead
 // 2) types of the placeholders (either keyed numerically in order or by name)
-// 3) true denotes a DML statement
+// 3) MDB2_PREPARE_MANIP denotes a DML statement
 $stmt = $mdb2->prepare($query, array('text', 'date'), MDB2_PREPARE_MANIP);
 
 // load Date helper class
