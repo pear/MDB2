@@ -1151,7 +1151,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteDate($value, $quote)
     {
-       return $this->_quoteText($value, $quote);
+        if ($value === 'CURRENT_DATE') {
+            return 'CURRENT_DATE';
+        }
+        return $this->_quoteText($value, $quote);
     }
 
     // }}}
@@ -1169,7 +1172,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteTimestamp($value, $quote)
     {
-       return $this->_quoteText($value, $quote);
+        if ($value === 'CURRENT_TIMESTAMP') {
+            return 'CURRENT_TIMESTAMP';
+        }
+        return $this->_quoteText($value, $quote);
     }
 
     // }}}
@@ -1187,7 +1193,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteTime($value, $quote)
     {
-       return $this->_quoteText($value, $quote);
+        if ($value === 'CURRENT_TIME') {
+            return 'CURRENT_TIME';
+        }
+        return $this->_quoteText($value, $quote);
     }
 
     // }}}
