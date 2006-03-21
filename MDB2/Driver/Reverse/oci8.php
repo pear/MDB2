@@ -374,8 +374,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                     'length' => @OCIResult($stmt, 3),
                     'flags'  => (@OCIResult($stmt, 4) == 'N') ? 'not_null' : '',
                 );
-                // todo: implement $db->datatype->mapNativeDatatype();
-                $res[$i]['mdb2type'] = $res[$i]['type'];
+                $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
                 if ($mode & MDB2_TABLEINFO_ORDER) {
                     $res['order'][$res[$i]['name']] = $i;
                 }
