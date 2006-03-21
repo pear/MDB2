@@ -67,9 +67,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         'integer'   => 0,
         'decimal'   => 0.0,
         'float'     => 0.0,
-        'date'      => '0000-00-00 00:00:00',
+        'timestamp' => '1970-01-01 00:00:00',
         'time'      => '00:00:00',
-        'timestamp' => '0000-00-00',
+        'date'      => '1970-01-01',
         'clob'      => '',
         'blob'      => '',
     );
@@ -359,7 +359,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if ($field['default'] === '') {
                 $field['default'] = (array_key_exists('notnull', $field) && $field['notnull'])
                     ? $this->valid_types[$field['type']] : null;
+                if ($field['default'] === ''
+                    && $db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
+                ) {
+                    $field['default'] = ' ';
+                }
             }
+
             $default = ' DEFAULT '.$this->quote($field['default'], $field['type']);
         }
 
