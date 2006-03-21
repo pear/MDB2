@@ -223,28 +223,21 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         $query = '';
         if (array_key_exists('add', $changes)) {
-            if ($query) {
-                $query.= ', ';
-            }
-            $query.= 'ADD ';
             foreach ($changes['add'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
                 }
-                $query.= $db->getDeclaration($field['type'], $field_name, $field);
+                $query.= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
+
         if (array_key_exists('remove', $changes)) {
-            if ($query) {
-            $query.= ', ';
-            }
-            $query.= 'DROP COLUMN';
             foreach ($changes['remove'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
                 }
-                // todo: this looks wrong ..
-                $query .= $db->getDeclaration($field['type'], $field_name, $field);
+                $field_name = $db->quoteIdentifier($field_name, true);
+                $query.= 'DROP COLUMN ' . $field_name;
             }
         }
 
