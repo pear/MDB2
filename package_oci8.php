@@ -11,6 +11,7 @@ $notes = <<<EOT
 - added 'result_introspection' supported metadata support
 - use NUMBER(1) for booleans (partial fix for bug #7170)
 - use mapNativeDatatype() in tableInfo() where necessary
+- properly quote table names in tableInfo() (related to bug #6573)
 
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field

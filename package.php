@@ -25,7 +25,7 @@ $notes = <<<EOT
 - fixed default values for date and timestamp
 - if MDB2_PORTABILITY_EMPTY_TO_NULL is set change '' to ' ' in _getDeclaration()
 - refactored class loading into MDB2::loadClass()
-- begun work on allow CURRENT_* in temporal types (bug #6416)
+- properly quote CURRENT_* for temporal types (bug #6416)
 EOT;
 
 $description =<<<EOT

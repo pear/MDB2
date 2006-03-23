@@ -11,6 +11,8 @@ $notes = <<<EOT
 - added 'result_introspection' supported metadata support
 - allow explicit definition of server_version
 - some clean ups with determining if limit_queries needs to be emulated or not
+- honor check_option parameter in quoteIdentifier()
+- properly quote table names in tableInfo() (related to bug #6573)
 
 open todo items:
 - handle autoincremement fields in alterTable()

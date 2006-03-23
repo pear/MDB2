@@ -11,6 +11,7 @@ $notes = <<<EOT
 - added 'result_introspection' supported metadata support
 - fixed alterTable() when adding/dropping multiple columns
 - improve test suite documentation
+- properly quote table names in tableInfo() (related to bug #6573)
 EOT;
 
 $package = new PEAR_PackageFileManager();

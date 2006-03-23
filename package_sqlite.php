@@ -7,6 +7,7 @@ $notes = <<<EOT
 - aligned _modifyQuery() signature and phpdoc
 - fix bug sqlite:///:memory: trys to open file (bug #6599)
 - added 'result_introspection' supported metadata support
+- properly quote table names in tableInfo() (related to bug #6573)
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

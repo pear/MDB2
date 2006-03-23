@@ -9,6 +9,7 @@ $notes = <<<EOT
 - added support for tabe options in createTable() (bug ##7079)
 - added optional database parameter to listTables() and listSequences()
 - added 'result_introspection' supported metadata support
+- properly quote table names in tableInfo() (related to bug #6573)
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
