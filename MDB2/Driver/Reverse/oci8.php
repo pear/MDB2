@@ -354,11 +354,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $result = strtoupper($result);
-            $query = 'SELECT column_name, data_type, data_length, '
-                        . 'nullable '
-                        . 'FROM user_tab_columns '
-                        . "WHERE table_name='$result' ORDER BY column_id";
+            $query = 'SELECT column_name, data_type, data_length, nullable';
+            $query.= ' FROM user_tab_columns';
+            $query.= ' WHERE table_name='.$db->quote(strtoupper($result), 'text').' ORDER BY column_id';
 
             $stmt = $db->_doQuery($query, false);
             if (PEAR::isError($stmt)) {

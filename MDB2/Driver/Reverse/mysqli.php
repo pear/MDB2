@@ -350,7 +350,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = $db->_doQuery("SELECT * FROM $result LIMIT 0", false);
+            $id = $db->_doQuery('SELECT * FROM '.$db->quoteIdentifier($result).' LIMIT 0', false);
             if (PEAR::isError($id)) {
                 return $id;
             }

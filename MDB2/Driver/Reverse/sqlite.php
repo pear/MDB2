@@ -358,7 +358,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
          * Probably received a table name.
          * Create a result resource identifier.
          */
-        $id = $db->queryAll("PRAGMA table_info('$result');", null, MDB2_FETCHMODE_ASSOC);
+        $id = $db->queryAll('PRAGMA table_info('.$db->quote($result, 'text').');', null, MDB2_FETCHMODE_ASSOC);
         $got_string = true;
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {

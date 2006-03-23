@@ -378,7 +378,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = $db->_doQuery("SELECT * FROM $result WHERE 1=0", false);
+            $id = $db->_doQuery('SELECT * FROM '.$db->quoteIdentifier($result).' WHERE 1=0', false);
             if (PEAR::isError($id)) {
                 return $id;
             }
