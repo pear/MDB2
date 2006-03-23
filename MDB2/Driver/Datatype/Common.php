@@ -1152,6 +1152,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _quoteDate($value, $quote)
     {
         if ($value === 'CURRENT_DATE') {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            if (isset($db->function) && is_a($db->function, 'MDB2_Driver_Function_Common')) {
+                return $db->function->now('date');
+            }
             return 'CURRENT_DATE';
         }
         return $this->_quoteText($value, $quote);
@@ -1173,6 +1180,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _quoteTimestamp($value, $quote)
     {
         if ($value === 'CURRENT_TIMESTAMP') {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            if (isset($db->function) && is_a($db->function, 'MDB2_Driver_Function_Common')) {
+                return $db->function->now('timestamp');
+            }
             return 'CURRENT_TIMESTAMP';
         }
         return $this->_quoteText($value, $quote);
@@ -1194,6 +1208,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _quoteTime($value, $quote)
     {
         if ($value === 'CURRENT_TIME') {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            if (isset($db->function) && is_a($db->function, 'MDB2_Driver_Function_Common')) {
+                return $db->function->now('time');
+            }
             return 'CURRENT_TIME';
         }
         return $this->_quoteText($value, $quote);
