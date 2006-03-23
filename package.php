@@ -11,8 +11,8 @@ $notes = <<<EOT
   MDB2::parseDSN() (bug #5982)
 - added test for multi_query option
 - typo fix in get constraint test
-- use ugly fopen() hack in fileExists() since its more efficient and reliable
-  than using is_readable()
+- use ugly fopen() hack in fileExists()
+  http://marc.theaimsgroup.com/?l=pear-dev&m=114148949106207&w=2
 - allow "." and "$" in sequence name (bug #7081)
 - aligned _modifyQuery() signature and phpdoc
 - added inTransaction() to determine if a transaction is currently open
