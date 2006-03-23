@@ -224,8 +224,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @access public
      */
     function quoteIdentifier($str, $check_option = false)
-
     {
+        if ($check_option && !$this->options['quote_identifier']) {
+            return $str;
+        }
         return strtoupper($str);
     }
 
