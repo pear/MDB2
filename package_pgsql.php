@@ -2,9 +2,14 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.0';
+$version = '1.0.1';
 $notes = <<<EOT
-- handle null as resource when disable_query option is enabled in result object
+- implemented multi_query option
+- aligned _modifyQuery() signature and phpdoc
+- ensure that types is an array before accessing it as an array in prepare()
+- added support for setting the client charset (bug #6814)
+- added 'result_introspection' supported metadata support
+- make sure that statement names are truely unique
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

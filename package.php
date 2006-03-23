@@ -5,13 +5,31 @@ require_once 'PEAR/PackageFileManager.php';
 $version = '2.0.1';
 $notes = <<<EOT
 - added new comprehensive tests for the Reverse module
+- fixed testcases to pass for mysql[i] (needs pk's to be called "primary") ..
+  sqlite is probably severely broken for these tests
+- added ability to specify port number when using unix sockets in
+  MDB2::parseDSN() (bug #5982)
+- added test for multi_query option
+- typo fix in get constraint test
+- use ugly fopen() hack in fileExists() since its more efficient and reliable
+  than using is_readable()
+- allow "." and "$" in sequence name (bug #7081)
+- aligned _modifyQuery() signature and phpdoc
+- added inTransaction() to determine if a transaction is currently open
+- added support for tabe options in createTable() (bug ##7079)
+- make it possible to overwrite the error code-message map
+- added sample sqlite in memory dsn to php5 example
+- added 'result_introspection' supported metadata support
+- added bindValue() method
+- use MDB2_PREPARE_MANIP where we previously were using false
+- fixed default values for date and timestamp
+- if MDB2_PORTABILITY_EMPTY_TO_NULL is set change '' to ' ' in _getDeclaration()
+- refactored class loading into MDB2::loadClass()
+- begun work on allow CURRENT_* in temporal types (bug #6416)
 EOT;
 
 $description =<<<EOT
 PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
-
-Note that the API will be adapted to better fit with the new php5 only PDO
-before the first stable release.
 
 It provides a common API for all supported RDBMS. The main difference to most
 other DB abstraction packages is that MDB2 goes much further to ensure

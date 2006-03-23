@@ -2,9 +2,13 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.0';
+$version = '1.0.1';
 $notes = <<<EOT
-- handle null as resource when disable_query option is enabled in result object
+- fixed length handling in tableInfo() (bug #6887)
+- aligned _modifyQuery() signature and phpdoc
+- added support for tabe options in createTable() (bug ##7079)
+- added optional database parameter to listTables() and listSequences()
+- added 'result_introspection' supported metadata support
 
 open todo item:
 - use native prepared queries for prepared SELECT statements

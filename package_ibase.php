@@ -7,6 +7,10 @@ $notes = <<<EOT
 - discard all constraints in MDB2_Driver_Reverse::getTableIndexDefinition(),
   leave them to MDB2_Driver_Reverse::getTableConstraintDefinition().
 - return the constraint type in MDB2_Driver_Reverse::getTableConstraintDefinition().
+- aligned _modifyQuery() signature and phpdoc
+- added 'result_introspection' supported metadata support
+- allow explicit definition of server_version
+- some clean ups with determining if limit_queries needs to be emulated or not
 
 open todo items:
 - handle autoincremement fields in alterTable()

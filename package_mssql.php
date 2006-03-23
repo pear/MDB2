@@ -2,10 +2,15 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.1.0';
+$version = '1.0.1';
 $notes = <<<EOT
-- Added the listTriggers() method to the Manager.
-- Added the listViews() method to the Manager.
+- added the listTriggers() method to the Manager.
+- added the listViews() method to the Manager.
+- aligned _modifyQuery() signature and phpdoc
+- added the map datatype patch for (bug #6863)
+- added 'result_introspection' supported metadata support
+- fixed alterTable() when adding/dropping multiple columns
+- improve test suite documentation
 EOT;
 
 $package = new PEAR_PackageFileManager();

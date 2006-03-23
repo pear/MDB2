@@ -6,6 +6,11 @@ $version = '0.2.5';
 $notes = <<<EOT
 - handle null as resource when disable_query option is enabled in result object
 - added missing methods in the reverse and datatype module
+- aligned _modifyQuery() signature and phpdoc
+- shorten autoincrement emulation related identifiers (bug #7109)
+- added 'result_introspection' supported metadata support
+- use NUMBER(1) for booleans (partial fix for bug #7170)
+- use mapNativeDatatype() in tableInfo() where necessary
 
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field

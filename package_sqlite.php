@@ -2,10 +2,11 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.0';
+$version = '1.0.1';
 $notes = <<<EOT
-- use PRAGMA short_column_names = 1/0 for MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES handling
-- handle null as resource when disable_query option is enabled in result object
+- aligned _modifyQuery() signature and phpdoc
+- fix bug sqlite:///:memory: trys to open file (bug #6599)
+- added 'result_introspection' supported metadata support
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
