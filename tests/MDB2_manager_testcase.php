@@ -274,7 +274,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
      *
      */
     function testCreateUniqueConstraint() {
-        if (!$this->methodExists($this->db->manager, 'createIndex')) {
+        if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
         $index = array(
