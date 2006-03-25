@@ -952,6 +952,13 @@ class MDB2_Driver_Common extends PEAR
     var $connected_database_name = '';
 
     /**
+     * server version information
+     * @var string
+     * @access protected
+     */
+    var $connected_server_info = '';
+
+    /**
      * list of all supported features of the given driver
      * @var array
      * @access public
@@ -1749,6 +1756,12 @@ class MDB2_Driver_Common extends PEAR
      */
     function disconnect()
     {
+        $this->connection = 0;
+        $this->connected_dsn = array();
+        $this->connected_database_name = '';
+        $this->opened_persistent = null;
+        $this->connected_server_info = '';
+        $this->in_transaction = false;
         return MDB2_OK;
     }
 
