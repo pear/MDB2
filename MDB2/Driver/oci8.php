@@ -369,11 +369,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     @OCILogOff($this->connection);
                 }
             }
-            $this->connection = 0;
-            $this->in_transaction = false;
             $this->uncommitedqueries = 0;
         }
-        return MDB2_OK;
+        return parent::disconnect($force);
     }
 
     // }}}
@@ -568,7 +566,16 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        $server_info = ociserverversion($connection);
+        if ($this->connected_server_info) {
+            $server_info = $this->connected_server_info;
+        } else {
+            $server_info = @ociserverversion($connection);
+        }
+        if (!$server_info) {
+            return $this->raiseError();
+        }
+        // cache server_info
+        $this->connected_server_info = $server_info;
         if (!$native) {
             if (!preg_match('/ (\d+)\.(\d+)\.(\d+)\.([\d\.]+) /', $server_info, $tmp)) {
                 return $this->raiseError(MDB2_ERROR, null, null,

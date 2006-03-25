@@ -433,10 +433,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             if ($force) {
                 @mysqli_close($this->connection);
             }
-            $this->connection = 0;
-            $this->in_transaction = false;
         }
-        return MDB2_OK;
+        return parent::disconnect($force);
     }
 
     // }}}
@@ -570,7 +568,16 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        $server_info = @mysqli_get_server_info($connection);
+        if ($this->connected_server_info) {
+            $server_info = $this->connected_server_info;
+        } else {
+            $server_info = @mysqli_get_server_info($connection);
+        }
+        if (!$server_info) {
+            return $this->raiseError();
+        }
+        // cache server_info
+        $this->connected_server_info = $server_info;
         if (!$native) {
             $tmp = explode('.', $server_info, 3);
             if (isset($tmp[2]) && strpos($tmp[2], '-')) {

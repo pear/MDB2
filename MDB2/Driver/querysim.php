@@ -318,9 +318,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             if ($this->opened_persistent) {
                 @fclose($this->connection);
             }
-            $this->connection = 0;
         }
-        return MDB2_OK;
+        return parent::disconnect($force);
     }
 
     // }}}
@@ -548,6 +547,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     function getServerVersion($native = false)
     {
         $server_info = '@package_version@';
+        // cache server_info
+        $this->connected_server_info = $server_info;
         if (!$native) {
             $tmp = explode('.', $server_info, 3);
             if (!isset($tmp[2]) || !preg_match('/(\d+)(.*)/', $tmp[2], $tmp2)) {

@@ -321,10 +321,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             if (!$this->opened_persistent || $force) {
                 @mssql_close($this->connection);
             }
-            $this->connection = 0;
-            $this->in_transaction = false;
         }
-        return MDB2_OK;
+        return parent::disconnect($force);
     }
 
     // }}}

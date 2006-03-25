@@ -294,9 +294,8 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             if (!$this->opened_persistent || $force) {
                 @fbsql_close($this->connection);
             }
-            $this->connection = 0;
-            $this->in_transaction = false;
         }
+        return parent::disconnect($force);
         return MDB2_OK;
     }
 

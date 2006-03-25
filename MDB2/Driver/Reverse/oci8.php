@@ -356,7 +356,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
              */
             $query = 'SELECT column_name, data_type, data_length, nullable';
             $query.= ' FROM user_tab_columns';
-            $query.= ' WHERE table_name='.$db->quote(strtoupper($result), 'text').' ORDER BY column_id';
+            $query.= ' WHERE table_name='.$db->quote(strtoupper($result), 'text');
+            $query.= ' OR table_name='.$db->quote($result, 'text');
+            $query.= ' ORDER BY column_id';
 
             $stmt = $db->_doQuery($query, false);
             if (PEAR::isError($stmt)) {

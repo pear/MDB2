@@ -459,13 +459,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             if ($this->in_transaction) {
                 $this->rollback();
             }
-            if ($force || !$this->opened_persistent) {
+            if (!$this->opened_persistent || $force) {
                 @ibase_close($this->connection);
             }
-            $this->connection = 0;
-            $this->in_transaction = false;
         }
-        return MDB2_OK;
+        return parent::disconnect($force);
     }
 
     // }}}
@@ -563,7 +561,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function getServerVersion($native = false)
     {
         $server_info = false;
-        if ($this->options['server_version']) {
+        if ($this->connected_server_info) {
+            $server_info = $this->connected_server_info;
+        } elseif ($this->options['server_version']) {
             $server_info = $this->options['server_version'];
         } elseif ($this->options['DBA_username']) {
             $ibserv = @ibase_service_attach($this->dsn['hostspec'], $this->options['DBA_username'], $this->options['DBA_password']);
@@ -573,7 +573,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if (!$server_info) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'getServerVersion: Requires either "server_version" or "DBA_username"/"DBA_password" option');
-         }
+        }
+        // cache server_info
+        $this->connected_server_info = $server_info;
         if (!$native) {
             //WI-V1.5.3.4854 Firebird 1.5
             if (!preg_match('/-V([\d\.]*)/', $server_info, $matches)) {

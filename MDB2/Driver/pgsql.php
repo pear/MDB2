@@ -398,10 +398,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             if (!$this->opened_persistent || $force) {
                 @pg_close($this->connection);
             }
-            $this->connection = 0;
-            $this->in_transaction = false;
         }
-        return MDB2_OK;
+        return parent::disconnect($force);
     }
 
     // }}}
@@ -559,7 +557,16 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function getServerVersion($native = false)
     {
         $query = 'SHOW SERVER_VERSION';
-        $server_info = $this->queryOne($query, 'text');
+        if ($this->connected_server_info) {
+            $server_info = $this->connected_server_info;
+        } else {
+            $server_info = $this->queryOne($query, 'text');
+            if (PEAR::isError($server_info)) {
+                return $server_info;
+            }
+        }
+        // cache server_info
+        $this->connected_server_info = $server_info;
         if (!$native && !PEAR::isError($server_info)) {
             $tmp = explode('.', $server_info, 3);
             if (!array_key_exists(2, $tmp)
