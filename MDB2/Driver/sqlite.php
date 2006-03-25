@@ -94,6 +94,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->options['fixed_float'] = 0;
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '';
+        $this->options['server_version'] = '';
     }
 
     // }}}
@@ -353,10 +354,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if (!$this->opened_persistent || $force) {
                 @sqlite_close($this->connection);
             }
-            $this->connection = 0;
-            $this->in_transaction = false;
         }
-        return MDB2_OK;
+        return parent::disconnect($force);
     }
 
     // }}}
@@ -498,10 +497,20 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function getServerVersion($native = false)
     {
-        if (!function_exists('sqlite_libversion')) {
-            return parent::getServerVersion($native);
+        $server_info = false;
+        if ($this->connected_server_info) {
+            $server_info = $this->connected_server_info;
+        } elseif ($this->options['server_version']) {
+            $server_info = $this->options['server_version'];
+        } elseif (function_exists('sqlite_libversion')) {
+            $server_info = @sqlite_libversion();
         }
-        $server_info = sqlite_libversion();
+        if (!$server_info) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'getServerVersion: Requires either the "server_version" option or the sqlite_libversion() function');
+        }
+        // cache server_info
+        $this->connected_server_info = $server_info;
         if (!$native) {
             $tmp = explode('.', $server_info, 3);
             $server_info = array(
