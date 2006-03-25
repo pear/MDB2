@@ -8,6 +8,9 @@ $notes = <<<EOT
 - fix bug sqlite:///:memory: trys to open file (bug #6599)
 - added 'result_introspection' supported metadata support
 - properly quote table names in tableInfo() (related to bug #6573)
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
+- added server_version option
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
@@ -54,7 +57,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.0', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.0.1', 'ge', 'pkg', false);
 $package->addDependency('sqlite', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

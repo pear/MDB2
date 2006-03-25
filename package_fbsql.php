@@ -36,6 +36,8 @@ $notes = <<<EOT
 - handle null as resource when disable_query option is enabled in result object
 - aligned _modifyQuery() signature and phpdoc
 - added 'result_introspection' supported metadata support
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested
@@ -80,7 +82,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.0', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.0.1', 'ge', 'pkg', false);
 $package->addDependency('fbsql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

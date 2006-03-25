@@ -12,6 +12,8 @@ $notes = <<<EOT
 - use NUMBER(1) for booleans (partial fix for bug #7170)
 - use mapNativeDatatype() in tableInfo() where necessary
 - properly quote table names in tableInfo() (related to bug #6573)
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
 
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field
@@ -59,7 +61,7 @@ $package->addMaintainer('justinpatrin', 'developer', 'Justin Patrin', 'justinpat
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.0', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.0.1', 'ge', 'pkg', false);
 $package->addDependency('oci8', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

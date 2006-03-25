@@ -26,6 +26,8 @@ $notes = <<<EOT
 - if MDB2_PORTABILITY_EMPTY_TO_NULL is set change '' to ' ' in _getDeclaration()
 - refactored class loading into MDB2::loadClass()
 - properly quote CURRENT_* for temporal types (bug #6416)
+- added connected_server_info to cache server info in getServerInfo()
+- reset all connection related properties in disconnect()
 EOT;
 
 $description =<<<EOT

@@ -10,6 +10,8 @@ $notes = <<<EOT
 - added support for setting the client charset (bug #6814)
 - added 'result_introspection' supported metadata support
 - make sure that statement names are truely unique
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage
@@ -54,7 +56,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.0', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.0.1', 'ge', 'pkg', false);
 $package->addDependency('pgsql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
