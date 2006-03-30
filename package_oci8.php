@@ -18,7 +18,6 @@ $notes = <<<EOT
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field
 - fix crash in _makeAutoincrement()
-- handle autoincremement fields in alterTable()
 - there are still severe stability issues due to ext/oci8, especially on windows
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
 EOT;

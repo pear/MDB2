@@ -28,6 +28,9 @@ $notes = <<<EOT
 - properly quote CURRENT_* for temporal types (bug #6416)
 - added connected_server_info to cache server info in getServerInfo()
 - reset all connection related properties in disconnect()
+
+open todo items:
+- handle autoincremement fields in alterTable()
 EOT;
 
 $description =<<<EOT

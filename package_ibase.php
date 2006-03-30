@@ -15,9 +15,6 @@ $notes = <<<EOT
 - properly quote table names in tableInfo() (related to bug #6573)
 - use connected_server_info in getServerVersion() as a cache cache
 - use parent::disconnect() in disconnect()
-
-open todo items:
-- handle autoincremement fields in alterTable()
 EOT;
 
 $package = new PEAR_PackageFileManager();
