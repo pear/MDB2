@@ -93,6 +93,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->options['emulate_database'] = true;
         $this->options['default_tablespace'] = false;
         $this->options['default_text_field_length'] = 4000;
+        $this->options['result_prefetching'] = false;
     }
 
     // }}}
@@ -252,6 +253,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         if (isset($this->dsn['hostspec'])) {
             $sid = $this->dsn['hostspec'];
+            if (isset($this->dsn['port'])) {
+                $sid = '//'.$sid.':'.$this->dsn['port'];
+            }
         } else {
             $sid = getenv('ORACLE_SID');
         }
@@ -522,8 +526,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $this->raiseError($result);
         }
 
-        if (is_numeric($this->options['result_buffering'])) {
-            @ocisetprefetch($result, $this->options['result_buffering']);
+        if (is_numeric($this->options['result_prefetching'])) {
+            @ocisetprefetch($result, $this->options['result_prefetching']);
         }
         return $result;
     }
