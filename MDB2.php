@@ -987,7 +987,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['result_class'] -> class used for result sets
      * $options['buffered_result_class'] -> class used for buffered result sets
      * $options['result_wrap_class'] -> class used to wrap result sets into
-     * $options['result_buffering'] -> boolean|integer should results be buffered or not?
+     * $options['result_buffering'] -> boolean should results be buffered or not?
      * $options['fetch_class'] -> class to use when fetch mode object is used
      * $options['persistent'] -> boolean persistent connection?
      * $options['debug'] -> integer numeric debug level
