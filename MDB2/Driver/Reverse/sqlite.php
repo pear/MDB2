@@ -71,12 +71,14 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         $columns = array();
         $count = count($column_sql);
         if ($count == 0) {
-            return $db->raiseError('unexpected empty table column definition list');
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'unexpected empty table column definition list');
         }
         $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|SMALLINT|INT|INTEGER|DECIMAL|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( ?\(([1-9][0-9]*)(:([1-9][0-9]*))?\))?( UNSIGNED)?( PRIMARY KEY)?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
         for ($i=0, $j=0; $i<$count; ++$i) {
             if (!preg_match($regexp, trim($column_sql[$i]), $matches)) {
-                return $db->raiseError('unexpected table column SQL definition: "'.$column_sql[$i].'"');
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'unexpected table column SQL definition: "'.$column_sql[$i].'"');
             }
             $columns[$j]['name'] = $matches[1];
             $columns[$j]['type'] = strtolower($matches[2]);

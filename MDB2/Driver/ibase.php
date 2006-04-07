@@ -945,7 +945,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
 
         if (!is_resource($this->result)) {
-            return $this->db->raiseError('numCols(): not a valid ibase resource');
+            return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'numCols(): not a valid ibase resource');
         }
         $cols = @ibase_num_fields($this->result);
         if (is_null($cols)) {

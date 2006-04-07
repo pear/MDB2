@@ -1325,7 +1325,8 @@ class MDB2_Driver_Common extends PEAR
             $this->fetchmode = $fetchmode;
             break;
         default:
-            return $this->raiseError('invalid fetchmode mode');
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'invalid fetchmode mode');
         }
 
         return MDB2_OK;
