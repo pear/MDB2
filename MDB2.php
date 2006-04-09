@@ -290,6 +290,22 @@ class MDB2
     }
 
     /**
+     * Checks if a class exists without triggering __autoload
+     *
+     * @param  string  classname
+     * @return bool true success and false on error
+     *
+     * @access public
+     */
+    function classExists($classname)
+    {
+        if (version_compare(phpversion(), "5.0", ">=") {
+            return class_exists($classname, false);
+        }
+        return class_exists($classname);
+    }
+
+    /**
      * Loads a PEAR class.
      *
      * @param  string  $class_name  classname to load
@@ -300,7 +316,7 @@ class MDB2
      */
     function loadClass($class_name, $debug)
     {
-        if (!class_exists($class_name)) {
+        if (!MDB2::classExists($class_name)) {
             $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
             if ($debug) {
                 $include = include_once($file_name);
@@ -1596,7 +1612,7 @@ class MDB2_Driver_Common extends PEAR
                 $file_name = str_replace('_', DIRECTORY_SEPARATOR, $class_name).'.php';
             }
             if ($phptype_specific === false
-                || (!class_exists($class_name) && !MDB2::fileExists($file_name))
+                || (!MDB2::classExists($class_name) && !MDB2::fileExists($file_name))
             ) {
                 $version = false;
                 $class_name = 'MDB2_'.$module;
