@@ -11,6 +11,7 @@ $notes = <<<EOT
 - use connected_server_info in getServerVersion() as a cache cache
 - use parent::disconnect() in disconnect()
 - added server_version option
+- set error code in all raiseError() calls
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

@@ -28,6 +28,8 @@ $notes = <<<EOT
 - properly quote CURRENT_* for temporal types (bug #6416)
 - added connected_server_info to cache server info in getServerInfo()
 - reset all connection related properties in disconnect()
+- separated result_buffering and prefetching by adding the new result_prefetching option
+- set error code in all raiseError() calls
 
 open todo items:
 - handle autoincremement fields in alterTable()

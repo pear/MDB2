@@ -14,6 +14,8 @@ $notes = <<<EOT
 - properly quote table names in tableInfo() (related to bug #6573)
 - use connected_server_info in getServerVersion() as a cache cache
 - use parent::disconnect() in disconnect()
+- separated result_buffering and prefetching by adding the new result_prefetching option
+- support optional dsn item "port" in connect (bug #7216)
 
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field
