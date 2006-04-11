@@ -588,7 +588,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $result = $db->queryCol('SELECT RDB$VIEW_NAME');
+        $result = $db->queryCol('SELECT RDB$VIEW_NAME FROM RDB$VIEW_RELATIONS');
         if (PEAR::isError($result)) {
             return $result;
         }

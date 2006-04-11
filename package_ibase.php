@@ -16,6 +16,7 @@ $notes = <<<EOT
 - use connected_server_info in getServerVersion() as a cache cache
 - use parent::disconnect() in disconnect()
 - set error code in all raiseError() calls
+- fixed query in listViews()
 EOT;
 
 $package = new PEAR_PackageFileManager();
