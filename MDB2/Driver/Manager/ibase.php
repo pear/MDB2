@@ -515,7 +515,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $query = 'SELECT DISTINCT R.RDB$RELATION_NAME FROM RDB$RELATION_FIELDS R WHERE R.RDB$SYSTEM_FLAG=0';
+        $query = 'SELECT RDB$RELATION_NAME FROM RDB$RELATIONS WHERE RDB$SYSTEM_FLAG=0 AND RDB$VIEW_BLR IS NULL';
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
