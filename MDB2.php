@@ -299,7 +299,7 @@ class MDB2
      */
     function classExists($classname)
     {
-        if (version_compare(phpversion(), "5.0", ">=") {
+        if (version_compare(phpversion(), "5.0", ">=")) {
             return class_exists($classname, false);
         }
         return class_exists($classname);
