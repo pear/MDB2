@@ -225,8 +225,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('integer', $field_info['type'], 'The field type is different from the expected one');
-// length is not really supported for integers
-#            $this->assertEquals(4, $field_info['length'], 'The field length is different from the expected one');
+            $this->assertEquals(4, $field_info['length'], 'The field length is different from the expected one');
             $this->assertTrue($field_info['notnull'], 'The field can be null unlike it was expected');
             $this->assertEquals('0', $field_info['default'], 'The field default value is different from the expected one');
         }
