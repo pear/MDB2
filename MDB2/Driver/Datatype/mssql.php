@@ -217,6 +217,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     {
         $db_type = preg_replace('/\d/','', strtolower($field['type']) );
         $length = $field['length'];
+        // todo: is this not just copied from pgsql?
         if ($length == '-1' && array_key_exists('atttypmod', $field)) {
             $length = $field['atttypmod'] - 4;
         }
@@ -224,31 +225,38 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             $length = null;
         }
         $type = array();
+        // todo: unsigned handling seems to be missing
         $unsigned = null;
         switch ($db_type) {
-		case 'bit':
-			$type[0] = 'boolean';
-			break;
-		case 'int':
-			$type[0] = 'integer';
-			break;
-		case 'datetime':
-			$type[0] = 'timestamp';
-			break;
-		case 'float':
-		case 'real':
-		case 'numeric':
+        case 'bit':
+            $type[0] = 'boolean';
+            break;
+        case 'int':
+            $type[0] = 'integer';
+            break;
+        case 'datetime':
+            $type[0] = 'timestamp';
+            break;
+        case 'float':
+        case 'real':
+        case 'numeric':
             $type[0] = 'float';
-			break;
+            break;
         case 'decimal':
-		case 'money':
+        case 'money':
             $type[0] = 'decimal';
-			break;
-		case 'text':
-		case 'char':
-		case 'varchar':
-			$type[0] = 'text';
-			break;
+            break;
+        case 'text':
+        case 'char':
+        case 'varchar':
+            $type[0] = 'text';
+            if ($length == '1') {
+                $type[] = 'boolean';
+                if (preg_match('/^[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            }
+            break;
         default:
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {

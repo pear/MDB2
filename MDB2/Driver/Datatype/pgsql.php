@@ -520,19 +520,30 @@ for some reason this piece of code causes an apache crash
         $unsigned = null;
         switch ($db_type) {
         case 'smallint':
-        case 'int':
-        case 'integer':
-        case 'bigint':
-        case 'serial':
+        case 'int2':
             $type[] = 'integer';
-            if ($length == '1') {
-                $type[] = 'boolean';
-                if (preg_match('/^[is|has]/', $field['name'])) {
-                    $type = array_reverse($type);
-                }
-            }
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $length = 2;
+            break;
+        case 'int':
+        case 'int4':
+        case 'integer':
+        case 'serial':
+        case 'serial4':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $length = 4;
+            break;
+        case 'bigint':
+        case 'int8':
+        case 'bigserial':
+        case 'serial8':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $length = 8;
             break;
         case 'bool':
+        case 'boolean':
             $type[] = 'boolean';
             $length = null;
             break;
@@ -542,12 +553,7 @@ for some reason this piece of code causes an apache crash
         case 'varchar':
         case 'bpchar':
             $type[] = 'text';
-            if ($length == '1') {
-                $type[] = 'boolean';
-                if (preg_match('/^[is|has]/', $field['name'])) {
-                    $type = array_reverse($type);
-                }
-            } elseif (strstr($db_type, 'text')) {
+            if (strstr($db_type, 'text')) {
                 $type[] = 'clob';
             }
             break;

@@ -257,19 +257,34 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         $unsigned = null;
         switch ($db_type) {
         case 'tinyint':
-        case 'smallint':
-        case 'mediumint':
-        case 'int':
-        case 'integer':
-        case 'bigint':
             $type[] = 'integer';
-            if ($length == '1') {
-                $type[] = 'boolean';
-                if (preg_match('/^[is|has]/', $field['name'])) {
-                    $type = array_reverse($type);
-                }
+            $type[] = 'boolean';
+            if (preg_match('/^[is|has]/', $field['name'])) {
+                $type = array_reverse($type);
             }
             $unsigned = preg_match('/ unsigned/i', $db_type);
+            $length = 1;
+            break;
+        case 'smallint':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $length = 2;
+            break;
+        case 'mediumint':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $length = 3;
+            break;
+        case 'int':
+        case 'integer':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $length = 4;
+            break;
+        case 'bigint':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $length = 8;
             break;
         case 'char':
         case 'varchar':

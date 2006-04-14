@@ -314,6 +314,12 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'char':
         case 'nchar':
             $type[] = 'text';
+            if ($length == '1') {
+                $type[] = 'boolean';
+                if (preg_match('/^[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            }
             break;
         case 'date':
         case 'timestamp':
@@ -326,6 +332,12 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'number':
             if (strpos($length, ',') === false) {
                 $type[] = 'integer';
+                if ($length == '1') {
+                    $type[] = 'boolean';
+                    if (preg_match('/^[is|has]/', $field['name'])) {
+                        $type = array_reverse($type);
+                    }
+                }
             } else {
                 $type[] = 'decimal';
             }
