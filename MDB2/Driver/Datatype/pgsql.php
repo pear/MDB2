@@ -522,7 +522,7 @@ for some reason this piece of code causes an apache crash
         case 'smallint':
         case 'int2':
             $type[] = 'integer';
-            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $unsigned = false;
             $length = 2;
             break;
         case 'int':
@@ -531,7 +531,7 @@ for some reason this piece of code causes an apache crash
         case 'serial':
         case 'serial4':
             $type[] = 'integer';
-            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $unsigned = false;
             $length = 4;
             break;
         case 'bigint':
@@ -539,7 +539,7 @@ for some reason this piece of code causes an apache crash
         case 'bigserial':
         case 'serial8':
             $type[] = 'integer';
-            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $unsigned = false;
             $length = 8;
             break;
         case 'bool':
