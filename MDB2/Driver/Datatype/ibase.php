@@ -341,7 +341,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             break;
         case 'blob':
             $type[] = (array_key_exists('field_sub_type', $field) 
-                      && (strtolower($field['field_sub_type']) == 'text')) ? 'clob' : 'blob';
+                && (strtolower($field['field_sub_type']) == 'text')) ? 'clob' : 'blob';
             $length = null;
             break;
         default:
