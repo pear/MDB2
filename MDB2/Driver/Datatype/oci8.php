@@ -123,6 +123,9 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'blob':
             return 'BLOB';
         case 'integer':
+            if (array_key_exists('length', $field)) {
+                return 'NUMBER('.$field['length'].')';
+            }
             return 'INT';
         case 'boolean':
             return 'NUMBER(1)';
