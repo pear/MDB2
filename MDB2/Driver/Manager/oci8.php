@@ -197,8 +197,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         $table = strtoupper($table);
         $trigger_name = $table . '_AI_PK';
-        $trigger_name = $db->quoteIdentifier($trigger_name, true);
-        $trigger = $db->queryOne("SELECT trigger_name FROM user_triggers WHERE trigger_name = '$trigger_name'");
+        $trigger_name = $db->quote($trigger_name, 'text');
+        $trigger = $db->queryOne("SELECT trigger_name FROM user_triggers WHERE trigger_name = $trigger_name");
         if (PEAR::isError($trigger)) {
             return $trigger;
         }
@@ -632,8 +632,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = strtoupper($table);
-        $query = "SELECT column_name FROM user_tab_columns WHERE table_name='$table' ORDER BY column_id";
+        $table = $db->quote(strtoupper($table), 'text');
+        $query = "SELECT column_name FROM user_tab_columns WHERE table_name=$table ORDER BY column_id";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -662,8 +662,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = strtoupper($table);
-        $query = "SELECT index_name name FROM user_indexes WHERE table_name='$table'";
+
+        $table = $db->quote(strtoupper($table), 'text');
+        $query = "SELECT index_name name FROM user_indexes WHERE table_name=$table";
         $indexes = $db->queryCol($query, 'text');
         if (PEAR::isError($indexes)) {
             return $indexes;
@@ -698,8 +699,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = strtoupper($table);
-        $query = "SELECT index_name name FROM user_constraints WHERE table_name='$table'";
+
+        $table = $db->quote(strtoupper($table), 'text');
+        $query = "SELECT index_name name FROM user_constraints WHERE table_name=$table";
         $constraints = $db->queryCol($query);
         if (PEAR::isError($constraints)) {
             return $constraints;

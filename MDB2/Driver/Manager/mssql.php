@@ -337,12 +337,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $pk_name  = strtoupper($pk_name);
             }
         }
-        $query = "EXEC sp_statistics @table_name='$table'";
+        $table = $db->quote($table, 'text');
+        $query = "EXEC sp_statistics @table_name=$table";
         $indexes = $db->queryCol($query, 'text', $key_name);
         if (PEAR::isError($indexes)) {
             return $indexes;
         }
-        $query = "EXEC sp_pkeys @table_name='$table'";
+        $query = "EXEC sp_pkeys @table_name=$table";
         $pk_all = $db->queryCol($query, 'text', $pk_name);
         $result = array();
         foreach ($indexes as $index) {
@@ -381,11 +382,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $table = $db->quote($table, 'text');
         $query = "SELECT name
                    FROM sysobjects
                     WHERE xtype = 'TR'";
         if (!is_null($table)) {
-            $query .= "AND object_name(parent_obj) = '$table'";
+            $query .= "AND object_name(parent_obj) = $table";
         }
 
         $result = $db->queryCol($query);

@@ -140,8 +140,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $table = strtoupper($table);
-        $field_name = strtoupper($field_name);
+        $table = $db->quote(strtoupper($table), 'text');
+        $field_name = $db->quote(strtoupper($field_name), 'text');
         $query = "SELECT RDB\$RELATION_FIELDS.RDB\$FIELD_NAME AS name,
                          RDB\$FIELDS.RDB\$FIELD_LENGTH AS \"length\",
                          RDB\$FIELDS.RDB\$FIELD_TYPE AS field_type_code,
@@ -151,8 +151,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                          RDB\$RELATION_FIELDS.RDB\$DEFAULT_SOURCE AS default_source
                     FROM RDB\$FIELDS
                LEFT JOIN RDB\$RELATION_FIELDS ON RDB\$FIELDS.RDB\$FIELD_NAME = RDB\$RELATION_FIELDS.RDB\$FIELD_SOURCE
-                   WHERE UPPER(RDB\$RELATION_FIELDS.RDB\$RELATION_NAME)='$table'
-                     AND UPPER(RDB\$RELATION_FIELDS.RDB\$FIELD_NAME)='$field_name';";
+                   WHERE UPPER(RDB\$RELATION_FIELDS.RDB\$RELATION_NAME)=$table
+                     AND UPPER(RDB\$RELATION_FIELDS.RDB\$FIELD_NAME)=$field_name;";
         $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($column)) {
             return $column;
@@ -220,8 +220,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = strtoupper($table);
-        $index_name = strtoupper($db->getIndexName($index_name));
+        $table = $db->quote(strtoupper($table), 'text');
+        $index_name = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
@@ -229,8 +229,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                     FROM RDB\$INDEX_SEGMENTS
                LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
-                   WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)='$table'
-                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)='$index_name'
+                   WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)=$table
+                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)=$index_name
                      AND RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE IS NULL
                 ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION;";
         $result = $db->query($query);
@@ -286,8 +286,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = strtoupper($table);
-        $index_name = strtoupper($db->getIndexName($index_name));
+        $table = $db->quote(strtoupper($table), 'text');
+        $index_name = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
@@ -296,8 +296,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                     FROM RDB\$INDEX_SEGMENTS
                LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
-                   WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)='$table'
-                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)='$index_name'
+                   WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)=$table
+                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)=$index_name
                 ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION;";
         $result = $db->query($query);
         if (PEAR::isError($result)) {

@@ -191,9 +191,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
         }
         //remove autoincrement trigger associated with the table
-        $table = strtoupper($table);
-        $trigger_name  = $table . '_AUTOINCREMENT_PK';
-        $result = $db->exec("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)='$table' AND UPPER(RDB\$TRIGGER_NAME)='$trigger_name'");
+        $table = $db->quote(strtoupper($table), 'text');
+        $trigger_name = $db->quote(strtoupper($table) . '_AUTOINCREMENT_PK', 'text');
+        $result = $db->exec("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)=$table AND UPPER(RDB\$TRIGGER_NAME)=$trigger_name");
         if (PEAR::isError($result)) {
             return $db->raiseError(MDB2_ERROR, null, null,
                 '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
@@ -542,8 +542,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = strtoupper($table);
-        $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE UPPER(RDB\$RELATION_NAME)='$table'";
+        $table = $db->quote(strtoupper($table), 'text');
+        $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE UPPER(RDB\$RELATION_NAME)=$table";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -683,10 +683,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = strtoupper($table);
+        $table = $db->quote(strtoupper($table), 'text');
         $query = "SELECT RDB\$INDEX_NAME
                     FROM RDB\$INDICES
-                   WHERE UPPER(RDB\$RELATION_NAME)='$table'
+                   WHERE UPPER(RDB\$RELATION_NAME)=$table
                      AND RDB\$UNIQUE_FLAG IS NULL
                      AND RDB\$FOREIGN_KEY IS NULL";
         $indexes = $db->queryCol($query, 'text');
@@ -780,10 +780,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = strtoupper($table);
+        $table = $db->quote(strtoupper($table), 'text');
         $query = "SELECT RDB\$INDEX_NAME
                     FROM RDB\$INDICES
-                   WHERE UPPER(RDB\$RELATION_NAME)='$table'
+                   WHERE UPPER(RDB\$RELATION_NAME)=$table
                      AND (
                            RDB\$UNIQUE_FLAG IS NOT NULL
                         OR RDB\$FOREIGN_KEY IS NOT NULL
@@ -853,8 +853,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $sequence_name = $db->getSequenceName($seq_name);
-        $query = "DELETE FROM RDB\$GENERATORS WHERE UPPER(RDB\$GENERATOR_NAME)='$sequence_name'";
+         = $db->getSequenceName($seq_name);
+        $sequence_name = $db->quote($sequence_name, 'text');
+        $query = "DELETE FROM RDB\$GENERATORS WHERE UPPER(RDB\$GENERATOR_NAME)=$sequence_name";
         return $db->exec($query);
     }
 
