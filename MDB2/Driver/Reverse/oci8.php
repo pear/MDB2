@@ -224,11 +224,11 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         if (strtolower($index_name) != 'primary') {
             $index_name = $db->getIndexName($index_name);
         }
-        // todo: name sure this works
-        $dbName = $db->quote($db->getDatabase(), 'text');
-        $index_name = $db->quote($index_name, 'text');
-        $table = $db->quote($table, 'text');
-        $query = "SELECT * FROM all_contraints WHERE owner = $dbName AND table_name = $table AND index_name = $index_name";
+
+        $database_name = $db->quote(strtoupper($db->dsn['username']), 'text');
+        $index_name = $db->quote(strtoupper($index_name), 'text');
+        $table = $db->quote(strtoupper($table), 'text');
+        $query = "SELECT * FROM all_constraints WHERE owner = $database_name AND table_name = $table AND index_name = $index_name";
         $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -237,13 +237,6 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
             $row = array_change_key_case($row, CASE_LOWER);
             $key_name = $row['constraint_name'];
-            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                if ($db->options['field_case'] == CASE_LOWER) {
-                    $key_name = strtolower($key_name);
-                } else {
-                    $key_name = strtoupper($key_name);
-                }
-            }
             if ($row) {
                 $definition['primary'] = $row['constraint_type'] == 'P';
                 $definition['unique'] = $row['constraint_type'] == 'U';
