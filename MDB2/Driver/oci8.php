@@ -253,7 +253,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         if (isset($this->dsn['hostspec'])) {
             $sid = $this->dsn['hostspec'];
-            if (isset($this->dsn['port'])) {
+            if (isset($this->dsn['port']) && $this->dsn['port']) {
                 $sid = '//'.$sid.':'.$this->dsn['port'];
             }
         } else {
