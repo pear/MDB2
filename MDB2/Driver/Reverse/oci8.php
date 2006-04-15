@@ -249,12 +249,15 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 $definition['primary'] = $row['constraint_type'] == 'P';
                 $definition['unique'] = $row['constraint_type'] == 'U';
 
-                $query = 'SELECT * FROM all_cons_columns WHERE contraint_name = ';
-                $query.= $db->quote($key_name, 'text').' AND table_name = '.$table;
+                $query = 'SELECT * FROM all_cons_columns WHERE constraint_name='.$db->quote($key_name, 'text');
+                $query.= ' AND (table_name='.$table.' OR table_name='.strtoupper($table).')';
                 $colres = $db->query($query);
+                if (PEAR::isError($colres)) {
+                    return $colres;
+                }
                 while ($colrow = $colres->fetchRow(MDB2_FETCHMODE_ASSOC)) {
                     $colrow = array_change_key_case($colrow, CASE_LOWER);
-                    $column_name = $row['column_name'];
+                    $column_name = $colrow['column_name'];
                     if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                         if ($db->options['field_case'] == CASE_LOWER) {
                             $column_name = strtolower($column_name);
