@@ -428,10 +428,11 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * list all views in the current database
      *
+     * @param string database, the current is default
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function listViews()
+    function listViews($database = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -443,7 +444,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     }
 
     // }}}
-    // {{{ listTriggers()
+    // {{{ listTableTriggers()
     /**
      * This function will be called to get all triggers of the 
      * current database ($db->getDatabase())
@@ -453,7 +454,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
      *                            previous database to query against.
      * @return mixed Array on success or MDB2 error on failure
      */
-    function listTriggers($table = null)
+    function listTableTriggers($table = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {

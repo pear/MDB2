@@ -359,7 +359,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ listTriggers()
+    // {{{ listTableTriggers()
     /**
      * This function will be called to 
      * display all the triggers from the current
@@ -375,7 +375,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *               of the error that occured during the 
      *               query'ing of the sysobject module.
      */
-    function listTriggers($table = null)
+    function listTableTriggers($table = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -383,9 +383,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quote($table, 'text');
-        $query = "SELECT name
-                   FROM sysobjects
-                    WHERE xtype = 'TR'";
+        $query = "SELECT name FROM sysobjects WHERE xtype = 'TR'";
         if (!is_null($table)) {
             $query .= "AND object_name(parent_obj) = $table";
         }
