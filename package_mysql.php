@@ -14,6 +14,7 @@ $notes = <<<EOT
 - use parent::disconnect() in disconnect()
 - added support for length in integer reverse engineering
 - some fixes regarding boolean reverse engineering
+- added listViews() and hide views in listTables()
 EOT;
 
 $package = new PEAR_PackageFileManager();
