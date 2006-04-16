@@ -16,6 +16,11 @@ $notes = <<<EOT
 - use parent::disconnect() in disconnect()
 - separated result_buffering and prefetching by adding the new result_prefetching option
 - support optional dsn item "port" in connect (bug #7216)
+- added support for length in integer declarations
+- some fixes regarding boolean reverse engineering
+- protect against sql injection in the reverse and manager module
+- improve handling for quoted identifiers in the reverse and manager module
+- fixed queries in getTableConstraintDefinition()
 
 open todo items:
 - fix issues with lobs where the placeholder is not named like the field

@@ -18,6 +18,7 @@ $notes = <<<EOT
 - set error code in all raiseError() calls
 - don't return views in listTables()
 - fixed query in listViews()
+- protect against sql injection in the reverse and manager module
 EOT;
 
 $package = new PEAR_PackageFileManager();

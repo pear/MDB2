@@ -30,6 +30,8 @@ $notes = <<<EOT
 - reset all connection related properties in disconnect()
 - separated result_buffering and prefetching by adding the new result_prefetching option
 - set error code in all raiseError() calls
+- added support for length in reverse engineering of integer fields
+- improve test suite documentation
 
 open todo items:
 - handle autoincremement fields in alterTable()

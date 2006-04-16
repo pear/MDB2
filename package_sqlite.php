@@ -12,6 +12,9 @@ $notes = <<<EOT
 - use parent::disconnect() in disconnect()
 - added server_version option
 - set error code in all raiseError() calls
+- added support for length in integer reverse engineering
+- some fixes regarding boolean reverse engineering
+- protect against sql injection in the reverse and manager module
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

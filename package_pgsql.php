@@ -12,6 +12,10 @@ $notes = <<<EOT
 - make sure that statement names are truely unique
 - use connected_server_info in getServerVersion() as a cache cache
 - use parent::disconnect() in disconnect()
+- added support for length in integer reverse engineering
+- some fixes regarding boolean reverse engineering
+- pgsql does not support unsigned ints
+- protect against sql injection in the reverse and manager module
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

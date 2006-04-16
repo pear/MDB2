@@ -8,12 +8,15 @@ $notes = <<<EOT
 - added the listViews() method to the Manager.
 - aligned _modifyQuery() signature and phpdoc
 - added the map datatype patch for (bug #6863)
+- added support for length in reverse engineering of integer fields
 - added 'result_introspection' supported metadata support
 - fixed alterTable() when adding/dropping multiple columns
-- improve test suite documentation
 - properly quote table names in tableInfo() (related to bug #6573)
 - use connected_server_info in getServerVersion() as a cache cache
 - use parent::disconnect() in disconnect()
+- added support for length in integer reverse engineering
+- some fixes regarding boolean reverse engineering
+- protect against sql injection in the reverse and manager module
 EOT;
 
 $package = new PEAR_PackageFileManager();
