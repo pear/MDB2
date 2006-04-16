@@ -526,7 +526,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $query = "SHOW /*!50002 FULL*/ TABLES";
-        if(!is_null($database)) {
+        if (!is_null($database)) {
             $query .= " FROM $database";
         }
         $query.= "/*!50002  WHERE Table_type = 'BASE TABLE'*/";
@@ -566,7 +566,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SHOW FULL TABLES';
-        if(!is_null($database)) {
+        if (!is_null($database)) {
             $query.= " FROM $database";
         }
         $query.= " WHERE Table_type = 'VIEW'";
@@ -975,7 +975,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $query = "SHOW TABLES";
-        if(!is_null($database)) {
+        if (!is_null($database)) {
             $query .= " FROM $database";
         }
         $table_names = $db->queryCol($query);
