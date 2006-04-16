@@ -525,20 +525,62 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = "SHOW TABLES";
+        $query = "SHOW /*!50002 FULL*/ TABLES";
         if(!is_null($database)) {
             $query .= " FROM $database";
         }
 
-        $table_names = $db->queryCol($query);
+        $table_names = $db->queryAll($query, null, MDB2_FETCHMODE_ORDERED);
         if (PEAR::isError($table_names)) {
             return $table_names;
         }
 
         $result = array();
-        foreach ($table_names as $table_name) {
-            if (!$this->_fixSequenceName($table_name, true)) {
-                $result[] = $table_name;
+        foreach ($table_names as $table) {
+            if (isset($table[1]) && strtolower($table[1]) == 'view') {
+                continue;
+            }
+            if (!$this->_fixSequenceName($table[0], true)) {
+                $result[] = $table[0];
+            }
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ listViews()
+
+    /**
+     * list the views in the database
+     *
+     * @param string database, the current is default
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     **/
+    function listViews($database = null)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SHOW FULL TABLES";
+        if(!is_null($database)) {
+            $query .= " FROM $database";
+        }
+
+        $table_names = $db->queryAll($query, null, MDB2_FETCHMODE_ORDERED);
+        if (PEAR::isError($table_names)) {
+            return $table_names;
+        }
+
+        $result = array();
+        foreach ($table_names as $table) {
+            if (strtolower($table[1]) == 'view') {
+                $result[] = $table[0];
             }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
