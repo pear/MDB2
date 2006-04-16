@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.6">
+<package version="1.0" packagerversion="1.4.9">
  <name>MDB2_Driver_oci8</name>
  <summary>oci8 MDB2 driver</summary>
  <description>This is the Oracle OCI8 MDB2 driver.
@@ -12,35 +12,46 @@
    <email>smith@pooteeweet.org</email>
    <role>lead</role>
   </maintainer>
+  <maintainer>
+   <user>justinpatrin</user>
+   <name>Justin Patrin</name>
+   <email>justinpatrin@php.net</email>
+   <role>developer</role>
+  </maintainer>
   </maintainers>
  <release>
-  <version>0.2.4</version>
-  <date>2006-02-05</date>
+  <version>0.2.5</version>
+  <date>2006-04-16</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes>- added support for length in decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- added support for out of order parameter binding in prepared queries
-- tried to fix issues with lobs where the placeholder is not named like the field
-- reset row_limit and row_offset after calling prepare() just like we do for query() and exec()
-- rewrite queries for limit/offset (taken from ezc) instead of emulating
-- cosmetic fix (removed &quot;row_&quot; prefix from &quot;row_limit&quot; and &quot;row_offset&quot;)
-- now using INT by default instead of CHAR(1) for the boolean datatype (BC BREAK!)
-- improved parsing in getServerInfo() (bug #6550)
+  <notes>- handle null as resource when disable_query option is enabled in result object
+- added missing methods in the reverse and datatype module
+- aligned _modifyQuery() signature and phpdoc
+- shorten autoincrement emulation related identifiers (bug #7109)
+- added &apos;result_introspection&apos; supported metadata support
+- use NUMBER(1) for booleans (partial fix for bug #7170)
+- use mapNativeDatatype() in tableInfo() where necessary
+- properly quote table names in tableInfo() (related to bug #6573)
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
+- separated result_buffering and prefetching by adding the new result_prefetching option
+- support optional dsn item &quot;port&quot; in connect (bug #7216)
+- added support for length in integer declarations
+- some fixes regarding boolean reverse engineering
+- protect against sql injection in the reverse and manager module
+- improve handling for quoted identifiers in the reverse and manager module
+- fixed queries in getTableConstraintDefinition()
 
 open todo items:
-- fix issues with lobs where the placeholder is not named like the field
-- fix crash in _makeAutoincrement()
-- handle autoincremement fields in alterTable()
-- there are still a number of missing methods in the reverse and datatype module
+- fix issues with lobs (where the placeholder is not named like the field)
+- fix crash/issues in _makeAutoincrement()
 - there are still severe stability issues due to ext/oci8, especially on windows
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0RC4" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">oci8</dep>
   </deps>
   <filelist>
@@ -79,6 +90,36 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.5</version>
+    <date>2006-04-16</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>- handle null as resource when disable_query option is enabled in result object
+- added missing methods in the reverse and datatype module
+- aligned _modifyQuery() signature and phpdoc
+- shorten autoincrement emulation related identifiers (bug #7109)
+- added &apos;result_introspection&apos; supported metadata support
+- use NUMBER(1) for booleans (partial fix for bug #7170)
+- use mapNativeDatatype() in tableInfo() where necessary
+- properly quote table names in tableInfo() (related to bug #6573)
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
+- separated result_buffering and prefetching by adding the new result_prefetching option
+- support optional dsn item &quot;port&quot; in connect (bug #7216)
+- added support for length in integer declarations
+- some fixes regarding boolean reverse engineering
+- protect against sql injection in the reverse and manager module
+- improve handling for quoted identifiers in the reverse and manager module
+- fixed queries in getTableConstraintDefinition()
+
+open todo items:
+- fix issues with lobs (where the placeholder is not named like the field)
+- fix crash/issues in _makeAutoincrement()
+- there are still severe stability issues due to ext/oci8, especially on windows
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+    </notes>
+   </release>
    <release>
     <version>0.2.4</version>
     <date>2006-02-05</date>

@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.6">
+<package version="1.0" packagerversion="1.4.9">
  <name>MDB2</name>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
-
-Note that the API will be adapted to better fit with the new php5 only PDO
-before the first stable release.
 
 It provides a common API for all supported RDBMS. The main difference to most
 other DB abstraction packages is that MDB2 goes much further to ensure
@@ -69,11 +66,41 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.0.0</version>
-  <date>2006-02-09</date>
+  <version>2.0.1</version>
+  <date>2006-04-16</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- handle null as resource when disable_query option is enabled in result object
+  <notes>- added new comprehensive tests for the Reverse module
+- fixed testcases to pass for mysql[i] (needs pk&apos;s to be called &quot;primary&quot;) ..
+  sqlite is probably severely broken for these tests
+- added ability to specify port number when using unix sockets in
+  MDB2::parseDSN() (bug #5982)
+- added test for multi_query option
+- typo fix in get constraint test
+- use ugly fopen() hack in fileExists()
+  http://marc.theaimsgroup.com/?l=pear-dev&amp;m=114148949106207&amp;w=2
+- allow &quot;.&quot; and &quot;$&quot; in sequence name (bug #7081)
+- aligned _modifyQuery() signature and phpdoc
+- added inTransaction() to determine if a transaction is currently open
+- added support for tabe options in createTable() (bug ##7079)
+- make it possible to overwrite the error code-message map
+- added sample sqlite in memory dsn to php5 example
+- added &apos;result_introspection&apos; supported metadata support
+- added bindValue() method
+- use MDB2_PREPARE_MANIP where we previously were using false
+- fixed default values for date and timestamp
+- if MDB2_PORTABILITY_EMPTY_TO_NULL is set change &apos;&apos; to &apos; &apos; in _getDeclaration()
+- refactored class loading into MDB2::loadClass()
+- properly quote CURRENT_* for temporal types (bug #6416)
+- added connected_server_info to cache server info in getServerInfo()
+- reset all connection related properties in disconnect()
+- separated result_buffering and prefetching by adding the new result_prefetching option
+- set error code in all raiseError() calls
+- added support for length in reverse engineering of integer fields
+- improve test suite documentation
+
+open todo items:
+- handle autoincremement fields in alterTable()
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -232,6 +259,44 @@ portability. Among other things MDB2 features:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.0.1</version>
+    <date>2006-04-16</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- added new comprehensive tests for the Reverse module
+- fixed testcases to pass for mysql[i] (needs pk&apos;s to be called &quot;primary&quot;) ..
+  sqlite is probably severely broken for these tests
+- added ability to specify port number when using unix sockets in
+  MDB2::parseDSN() (bug #5982)
+- added test for multi_query option
+- typo fix in get constraint test
+- use ugly fopen() hack in fileExists()
+  http://marc.theaimsgroup.com/?l=pear-dev&amp;m=114148949106207&amp;w=2
+- allow &quot;.&quot; and &quot;$&quot; in sequence name (bug #7081)
+- aligned _modifyQuery() signature and phpdoc
+- added inTransaction() to determine if a transaction is currently open
+- added support for tabe options in createTable() (bug ##7079)
+- make it possible to overwrite the error code-message map
+- added sample sqlite in memory dsn to php5 example
+- added &apos;result_introspection&apos; supported metadata support
+- added bindValue() method
+- use MDB2_PREPARE_MANIP where we previously were using false
+- fixed default values for date and timestamp
+- if MDB2_PORTABILITY_EMPTY_TO_NULL is set change &apos;&apos; to &apos; &apos; in _getDeclaration()
+- refactored class loading into MDB2::loadClass()
+- properly quote CURRENT_* for temporal types (bug #6416)
+- added connected_server_info to cache server info in getServerInfo()
+- reset all connection related properties in disconnect()
+- separated result_buffering and prefetching by adding the new result_prefetching option
+- set error code in all raiseError() calls
+- added support for length in reverse engineering of integer fields
+- improve test suite documentation
+
+open todo items:
+- handle autoincremement fields in alterTable()
+    </notes>
+   </release>
    <release>
     <version>2.0.0</version>
     <date>2006-02-09</date>

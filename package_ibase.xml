@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.6">
+<package version="1.0" packagerversion="1.4.9">
  <name>MDB2_Driver_ibase</name>
  <summary>ibase MDB2 driver</summary>
  <description>This is the Firebird/Interbase MDB2 driver.
@@ -20,19 +20,30 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.0.0</version>
-  <date>2006-02-09</date>
+  <version>1.0.1</version>
+  <date>2006-04-16</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- handle null as resource when disable_query option is enabled in result object
-
-open todo items:
-- handle autoincremement fields in alterTable()
+  <notes>- discard all constraints in MDB2_Driver_Reverse::getTableIndexDefinition(),
+  leave them to MDB2_Driver_Reverse::getTableConstraintDefinition().
+- return the constraint type in MDB2_Driver_Reverse::getTableConstraintDefinition().
+- aligned _modifyQuery() signature and phpdoc
+- added &apos;result_introspection&apos; supported metadata support
+- added server_version option
+- some clean ups with determining if limit_queries needs to be emulated or not
+- honor check_option parameter in quoteIdentifier()
+- properly quote table names in tableInfo() (related to bug #6573)
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
+- set error code in all raiseError() calls
+- don&apos;t return views in listTables()
+- fixed query in listViews()
+- protect against sql injection in the reverse and manager module
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.4" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0RC5" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">interbase</dep>
   </deps>
   <filelist>
@@ -71,6 +82,28 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.1</version>
+    <date>2006-04-16</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- discard all constraints in MDB2_Driver_Reverse::getTableIndexDefinition(),
+  leave them to MDB2_Driver_Reverse::getTableConstraintDefinition().
+- return the constraint type in MDB2_Driver_Reverse::getTableConstraintDefinition().
+- aligned _modifyQuery() signature and phpdoc
+- added &apos;result_introspection&apos; supported metadata support
+- added server_version option
+- some clean ups with determining if limit_queries needs to be emulated or not
+- honor check_option parameter in quoteIdentifier()
+- properly quote table names in tableInfo() (related to bug #6573)
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
+- set error code in all raiseError() calls
+- don&apos;t return views in listTables()
+- fixed query in listViews()
+- protect against sql injection in the reverse and manager module
+    </notes>
+   </release>
    <release>
     <version>1.0.0</version>
     <date>2006-02-09</date>

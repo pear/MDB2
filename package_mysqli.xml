@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.6">
+<package version="1.0" packagerversion="1.4.9">
  <name>MDB2_Driver_mysqli</name>
  <summary>mysqli MDB2 driver</summary>
  <description>This is the MySQLi MDB2 driver.
@@ -14,11 +14,21 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.0.0</version>
-  <date>2006-02-09</date>
+  <version>1.0.1</version>
+  <date>2006-04-16</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- handle null as resource when disable_query option is enabled in result object
+  <notes>- fixed length handling in tableInfo() (bug #6887)
+- aligned _modifyQuery() signature and phpdoc
+- added support for tabe options in createTable() (bug ##7079)
+- added optional database parameter to listTables() and listSequences()
+- added &apos;result_introspection&apos; supported metadata support
+- properly quote table names in tableInfo() (related to bug #6573)
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
+- added support for length in integer reverse engineering
+- some fixes regarding boolean reverse engineering
+- added listViews() and hide views in listTables()
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
@@ -26,7 +36,7 @@ open todo item:
   <deps>
    <dep type="php" rel="ge" version="5.0.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0RC5" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">mysqli</dep>
   </deps>
   <filelist>
@@ -65,6 +75,27 @@ open todo item:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.1</version>
+    <date>2006-04-16</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- fixed length handling in tableInfo() (bug #6887)
+- aligned _modifyQuery() signature and phpdoc
+- added support for tabe options in createTable() (bug ##7079)
+- added optional database parameter to listTables() and listSequences()
+- added &apos;result_introspection&apos; supported metadata support
+- properly quote table names in tableInfo() (related to bug #6573)
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
+- added support for length in integer reverse engineering
+- some fixes regarding boolean reverse engineering
+- added listViews() and hide views in listTables()
+
+open todo item:
+- use native prepared queries for prepared SELECT statements
+    </notes>
+   </release>
    <release>
     <version>1.0.0</version>
     <date>2006-02-09</date>

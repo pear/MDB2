@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.6">
+<package version="1.0" packagerversion="1.4.9">
  <name>MDB2_Driver_querysim</name>
  <summary>querysim MDB2 driver</summary>
  <description>This is the Querysim MDB2 driver.
@@ -14,11 +14,13 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.1</version>
-  <date>2006-02-05</date>
+  <version>0.2.2</version>
+  <date>2006-04-16</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- improved parsing in getServerInfo() (bug #6550)
+  <notes>- handle null as resource when disable_query option is enabled in result object
+- added &apos;result_introspection&apos; supported metadata support
+- aligned _modifyQuery() signature and phpdoc
 
 open todo items:
 - add ability to reference multiple results set files for different queries
@@ -54,6 +56,19 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.2</version>
+    <date>2006-04-16</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- handle null as resource when disable_query option is enabled in result object
+- added &apos;result_introspection&apos; supported metadata support
+- aligned _modifyQuery() signature and phpdoc
+
+open todo items:
+- add ability to reference multiple results set files for different queries
+    </notes>
+   </release>
    <release>
     <version>0.2.1</version>
     <date>2006-02-05</date>

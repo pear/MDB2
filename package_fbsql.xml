@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.5">
+<package version="1.0" packagerversion="1.4.9">
  <name>MDB2_Driver_fbsql</name>
  <summary>fbsql MDB2 driver</summary>
  <description>This is the Frontbase SQL MDB2 driver.
@@ -21,7 +21,7 @@
   </maintainers>
  <release>
   <version>0.2.0</version>
-  <date>2005-12-18</date>
+  <date>2006-04-16</date>
   <license>BSD License</license>
   <state>alpha</state>
   <notes>- do not fix case in listUsers()
@@ -41,6 +41,23 @@
 - use lastInsertID() method in nextID()
 - added &apos;mdbtype&apos; to tableInfo()
 - changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
+- fixed &apos;change&apos; in alterTable()
+- proper quote new table name in alterTable()
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- typo fixes in error handling of nextResult() and numRows() calls
+- nextResult() returns false if there are no more result sets to read
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
+- added support for length in decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- handle null as resource when disable_query option is enabled in result object
+- aligned _modifyQuery() signature and phpdoc
+- added &apos;result_introspection&apos; supported metadata support
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
 
 open todo items:
 - this driver needs a serious update as it&apos;s currently unmaintained/untested
@@ -49,7 +66,7 @@ open todo items:
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.0RC1" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">fbsql</dep>
   </deps>
   <filelist>
@@ -90,7 +107,7 @@ open todo items:
  <changelog>
    <release>
     <version>0.2.0</version>
-    <date>2005-12-18</date>
+    <date>2006-04-16</date>
     <license>BSD License</license>
     <state>alpha</state>
     <notes>- do not fix case in listUsers()
@@ -110,6 +127,23 @@ open todo items:
 - use lastInsertID() method in nextID()
 - added &apos;mdbtype&apos; to tableInfo()
 - changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
+- fixed &apos;change&apos; in alterTable()
+- proper quote new table name in alterTable()
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- typo fixes in error handling of nextResult() and numRows() calls
+- nextResult() returns false if there are no more result sets to read
+- _fixIndexName() now just attempts to remove possible formatting
+- renamed _isSequenceName() to _fixSequenceName()
+- _fixSequenceName() now just attempts to remove possible formatting, and only
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
+- added support for length in decimal columns
+- removed ugly hack for quote parameter in quote() since it was insufficient
+  (escaping also needs to be prevented)
+- handle null as resource when disable_query option is enabled in result object
+- aligned _modifyQuery() signature and phpdoc
+- added &apos;result_introspection&apos; supported metadata support
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
 
 open todo items:
 - this driver needs a serious update as it&apos;s currently unmaintained/untested
