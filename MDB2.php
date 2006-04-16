@@ -54,6 +54,7 @@
 
 require_once 'PEAR.php';
 
+// {{{ Error constants 
 /**
  * The method mapErrorCode in each MDB2_dbtype implementation maps
  * native error codes to one of these.
@@ -98,14 +99,16 @@ define('MDB2_ERROR_MANAGER',            -32);
 define('MDB2_ERROR_MANAGER_PARSE',      -33);
 define('MDB2_ERROR_LOADMODULE',         -34);
 define('MDB2_ERROR_INSUFFICIENT_DATA',  -35);
-
+// }}}
+// {{{ Verbose constants 
 /**
  * These are just helper constants to more verbosely express parameters to prepare()
  */
 
 define('MDB2_PREPARE_MANIP', false);
 define('MDB2_PREPARE_RESULT', null);
-
+// }}}
+// {{{ Fetchmode constants 
 /**
  * This is a special constant that tells MDB2 the user hasn't specified
  * any particular get mode, so the default should be used.
@@ -139,9 +142,8 @@ define('MDB2_FETCHMODE_OBJECT', 3);
  */
 
 define('MDB2_FETCHMODE_FLIPPED', 4);
-
 // }}}
-// {{{ portability modes
+// {{{ Portability mode constants 
 
 /**
  * Portability: turn off all portability features.
@@ -216,7 +218,8 @@ define('MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES', 64);
  */
 
 define('MDB2_PORTABILITY_ALL', 127);
-
+// }}}
+// {{{ Globals for class instance tracking 
 /**
  * These are global variables that are used to track the various class instances
  */
@@ -234,7 +237,9 @@ $GLOBALS['_MDB2_dsninfo_default'] = array(
     'database' => false,
     'mode'     => false,
 );
+// }}}
 
+// {{{ class MDB2 
 /**
  * The main 'MDB2' class is simply a container class with some static
  * methods for creating DB objects as well as some utility functions
@@ -264,10 +269,10 @@ $GLOBALS['_MDB2_dsninfo_default'] = array(
  * @category Database
  * @author   Lukas Smith <smith@pooteeweet.org>
  */
+
 class MDB2
 {
-    // }}}
-    // {{{ setOptions()
+    // {{{ function setOptions(&$db, $options) 
 
     /**
      * set option array in an exiting database object
@@ -288,7 +293,9 @@ class MDB2
         }
         return MDB2_OK;
     }
+    // }}}
 
+    // {{{ function classExists($classname) 
     /**
      * Checks if a class exists without triggering __autoload
      *
@@ -304,7 +311,9 @@ class MDB2
         }
         return class_exists($classname);
     }
+    // }}}
 
+    // {{{ function loadClass($class_name, $debug) 
     /**
      * Loads a PEAR class.
      *
@@ -335,9 +344,9 @@ class MDB2
         }
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ factory()
+
+    // {{{ function &factory($dsn, $options = false) 
 
     /**
      * Create a new MDB2 object for the specified database type
@@ -386,9 +395,9 @@ class MDB2
 
         return $db;
     }
-
     // }}}
-    // {{{ connect()
+
+    // {{{ function &connect($dsn, $options = false) 
 
     /**
      * Create a new MDB2 connection object and connect to the specified
@@ -433,9 +442,9 @@ class MDB2
 
         return $db;
     }
-
     // }}}
-    // {{{ singleton()
+
+    // {{{ function &singleton($dsn = null, $options = false) 
 
     /**
      * Returns a MDB2 connection with the requested DSN.
@@ -484,9 +493,9 @@ class MDB2
         $db =& MDB2::factory($dsn, $options);
         return $db;
     }
-
     // }}}
-    // {{{ loadFile()
+
+    // {{{ function loadFile($file) 
 
     /**
      * load a file (like 'Date')
@@ -508,9 +517,9 @@ class MDB2
         }
         return $file_name;
     }
-
     // }}}
-    // {{{ apiVersion()
+
+    // {{{ function apiVersion() 
 
     /**
      * Return the MDB2 API version
@@ -522,9 +531,9 @@ class MDB2
     {
         return '@package_version@';
     }
-
     // }}}
-    // {{{ raiseError()
+
+    // {{{ function &raiseError($code = null, $mode = null, $options = null, $userinfo = null) 
 
     /**
      * This method is used to communicate an error and invoke error
@@ -554,9 +563,9 @@ class MDB2
         $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
         return $err;
     }
-
     // }}}
-    // {{{ isError()
+
+    // {{{ function isError($data, $code = null) 
 
     /**
      * Tell whether a value is a MDB2 error.
@@ -583,9 +592,9 @@ class MDB2
         }
         return false;
     }
-
     // }}}
-    // {{{ isConnection()
+
+    // {{{ function isConnection($value) 
     /**
      * Tell whether a value is a MDB2 connection
      *
@@ -597,9 +606,9 @@ class MDB2
     {
         return is_a($value, 'MDB2_Driver_Common');
     }
-
     // }}}
-    // {{{ isResult()
+
+    // {{{ function isResult($value) 
     /**
      * Tell whether a value is a MDB2 result
      *
@@ -611,9 +620,9 @@ class MDB2
     {
         return is_a($value, 'MDB2_Result');
     }
-
     // }}}
-    // {{{ isResultCommon()
+
+    // {{{ function isResultCommon($value) 
     /**
      * Tell whether a value is a MDB2 result implementing the common interface
      *
@@ -625,9 +634,9 @@ class MDB2
     {
         return is_a($value, 'MDB2_Result_Common');
     }
-
     // }}}
-    // {{{ isStatement()
+
+    // {{{ function isStatement($value) 
     /**
      * Tell whether a value is a MDB2 statement interface
      *
@@ -639,9 +648,9 @@ class MDB2
     {
         return is_a($value, 'MDB2_Statement');
     }
-
     // }}}
-    // {{{ errorMessage()
+
+    // {{{ function errorMessage($value = null) 
 
     /**
      * Return a textual error message for a MDB2 error code
@@ -708,9 +717,9 @@ class MDB2
         return isset($errorMessages[$value]) ?
            $errorMessages[$value] : $errorMessages[MDB2_ERROR];
     }
-
     // }}}
-    // {{{ parseDSN()
+
+    // {{{ function parseDSN($dsn) 
 
     /**
      * Parse a data source name.
@@ -856,9 +865,9 @@ class MDB2
 
         return $parsed;
     }
-
     // }}}
-    // {{{ fileExists()
+
+    // {{{ function fileExists($file) 
 
     /**
      * checks if a file exists in the include path
@@ -877,8 +886,11 @@ class MDB2
         }
         return false;
     }
+    // }}}
 }
+// }}}
 
+// {{{ class MDB2_Error extends PEAR_Error 
 /**
  * MDB2_Error implements a class for reporting portable database error
  * messages.
@@ -889,8 +901,7 @@ class MDB2
  */
 class MDB2_Error extends PEAR_Error
 {
-    // }}}
-    // {{{ constructor
+    // {{{ constructor: function MDB2_Error($code = MDB2_ERROR, $mode = PEAR_ERROR_RETURN, $level = E_USER_NOTICE, $debuginfo = null) 
 
     /**
      * MDB2_Error constructor.
@@ -907,8 +918,11 @@ class MDB2_Error extends PEAR_Error
         $this->PEAR_Error('MDB2 Error: '.MDB2::errorMessage($code), $code,
             $mode, $level, $debuginfo);
     }
+    // }}}
 }
+// }}}
 
+// {{{ class MDB2_Driver_Common extends PEAR 
 /**
  * MDB2_Driver_Common: Base class that is extended by each MDB2 driver
  *
@@ -918,6 +932,7 @@ class MDB2_Error extends PEAR_Error
  */
 class MDB2_Driver_Common extends PEAR
 {
+    // {{{ Variables (Properties) 
     /**
      * index of the MDB2 object within the $GLOBALS['_MDB2_databases'] array
      * @var integer
@@ -1135,9 +1150,9 @@ class MDB2_Driver_Common extends PEAR
     * @access protected
     */
     var $destructor_registered = true;
-
     // }}}
-    // {{{ constructor
+
+    // {{{ constructor: function __construct() 
 
     /**
      * Constructor
@@ -1149,9 +1164,9 @@ class MDB2_Driver_Common extends PEAR
         $GLOBALS['_MDB2_databases'][$db_index] = &$this;
         $this->db_index = $db_index;
     }
-
     // }}}
-    // {{{ MDB2_Driver_Common
+
+    // {{{ function MDB2_Driver_Common() 
 
     /**
      * PHP 4 Constructor
@@ -1161,9 +1176,9 @@ class MDB2_Driver_Common extends PEAR
         $this->destructor_registered = false;
         $this->__construct();
     }
-
     // }}}
-    // {{{ Destructor
+
+    // {{{ destructor: function __destruct() 
 
     /**
      *  Destructor
@@ -1172,9 +1187,9 @@ class MDB2_Driver_Common extends PEAR
     {
         $this->disconnect(false);
     }
-
     // }}}
-    // {{{ free()
+
+    // {{{ function free() 
 
     /**
      * Free the internal references so that the instance can be destroyed
@@ -1188,9 +1203,9 @@ class MDB2_Driver_Common extends PEAR
         unset($this->db_index);
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ __toString()
+
+    // {{{ function __toString() 
 
     /**
      * String conversation
@@ -1207,9 +1222,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return $info;
     }
-
     // }}}
-    // {{{ errorInfo()
+
+    // {{{ function errorInfo($error = null) 
 
     /**
      * This method is used to collect information about an error
@@ -1222,9 +1237,9 @@ class MDB2_Driver_Common extends PEAR
     {
         return array($error, null, null);
     }
-
     // }}}
-    // {{{ raiseError()
+
+    // {{{ function &raiseError($code = null, $mode = null, $options = null, $userinfo = null) 
 
     /**
      * This method is used to communicate an error and invoke error
@@ -1280,9 +1295,9 @@ class MDB2_Driver_Common extends PEAR
         $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
         return $err;
     }
-
     // }}}
-    // {{{ resetWarnings()
+
+    // {{{ function resetWarnings() 
 
     /**
      * reset the warning array
@@ -1293,9 +1308,9 @@ class MDB2_Driver_Common extends PEAR
     {
         $this->warnings = array();
     }
-
     // }}}
-    // {{{ getWarnings()
+
+    // {{{ function getWarnings() 
 
     /**
      * get all warnings in reverse order.
@@ -1309,9 +1324,9 @@ class MDB2_Driver_Common extends PEAR
     {
         return array_reverse($this->warnings);
     }
-
     // }}}
-    // {{{ setFetchMode()
+
+    // {{{ function setFetchMode($fetchmode, $object_class = 'stdClass') 
 
     /**
      * Sets which fetch mode should be used by default on queries
@@ -1347,9 +1362,9 @@ class MDB2_Driver_Common extends PEAR
 
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ setOption()
+
+    // {{{ function setOption($option, $value) 
 
     /**
      * set the option for the db class
@@ -1368,9 +1383,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             "unknown option $option");
     }
-
     // }}}
-    // {{{ getOption()
+
+    // {{{ function getOption($option) 
 
     /**
      * returns the value of an option
@@ -1387,9 +1402,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             "unknown option $option");
     }
-
     // }}}
-    // {{{ debug()
+
+    // {{{ function debug($message, $scope = '', $is_manip = null) 
 
     /**
      * set a debug message
@@ -1403,9 +1418,9 @@ class MDB2_Driver_Common extends PEAR
             call_user_func_array($this->options['debug_handler'], array(&$this, $scope, $message, $is_manip));
         }
     }
-
     // }}}
-    // {{{ getDebugOutput()
+
+    // {{{ function getDebugOutput() 
 
     /**
      * output debug info
@@ -1417,9 +1432,9 @@ class MDB2_Driver_Common extends PEAR
     {
         return $this->debug_output;
     }
-
     // }}}
-    // {{{ escape()
+
+    // {{{ function escape($text) 
 
     /**
      * Quotes a string so it can be safely used in a query. It will quote
@@ -1436,9 +1451,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return str_replace("'", $this->escape_quotes . "'", $text);
     }
-
     // }}}
-    // {{{ quoteIdentifier()
+
+    // {{{ function quoteIdentifier($str, $check_option = false) 
 
     /**
      * Quote a string so it can be safely used as a table or column name
@@ -1484,9 +1499,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return '"' . str_replace('"', '""', $str) . '"';
     }
-
     // }}}
-    // {{{ getConnection()
+
+    // {{{ function getConnection() 
 
     /**
      * Returns a native connection
@@ -1503,9 +1518,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return $this->connection;
     }
-
     // }}}
-    // {{{ _fixResultArrayValues()
+
+    // {{{ function _fixResultArrayValues(&$array, $mode) 
 
     /**
      * Do all necessary conversions on result arrays to fix DBMS quirks
@@ -1582,10 +1597,9 @@ class MDB2_Driver_Common extends PEAR
             break;
         }
     }
-
     // }}}
-    // {{{ loadModule()
 
+    // {{{ function &loadModule($module, $property = null, $phptype_specific = null) 
     /**
      * loads a module
      *
@@ -1598,6 +1612,7 @@ class MDB2_Driver_Common extends PEAR
      *                and on failure a PEAR error
      * @access public
      */
+
     function &loadModule($module, $property = null, $phptype_specific = null)
     {
         if (!$property) {
@@ -1655,7 +1670,9 @@ class MDB2_Driver_Common extends PEAR
 
         return $this->{$property};
     }
+    // }}}
 
+    // {{{ function __call($method, $params) 
     /**
      * Calls a module method using the __call magic method
      *
@@ -1692,9 +1709,9 @@ class MDB2_Driver_Common extends PEAR
         }
         trigger_error(sprintf('Call to undefined function: %s::%s().', get_class($this), $method), E_USER_ERROR);
     }
-
     // }}}
-    // {{{ beginTransaction()
+
+    // {{{ function beginTransaction() 
 
     /**
      * Start a transaction.
@@ -1708,9 +1725,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'beginTransaction: transactions are not supported');
     }
-
     // }}}
-    // {{{ commit()
+
+    // {{{ function commit() 
 
     /**
      * Commit the database changes done during a transaction that is in
@@ -1727,9 +1744,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'commit: commiting transactions is not supported');
     }
-
     // }}}
-    // {{{ rollback()
+
+    // {{{ function rollback() 
 
     /**
      * Cancel any database changes done during a transaction that is in
@@ -1746,9 +1763,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'rollback: rolling back transactions is not supported');
     }
-
     // }}}
-    // {{{ inTransaction()
+
+    // {{{ function inTransaction() 
 
     /**
      * If a transaction is currently open.
@@ -1760,9 +1777,9 @@ class MDB2_Driver_Common extends PEAR
     {
         return $this->in_transaction;
     }
-
     // }}}
-    // {{{ disconnect()
+
+    // {{{ function disconnect($force = true) 
 
     /**
      * Log out and disconnect from the database.
@@ -1783,9 +1800,9 @@ class MDB2_Driver_Common extends PEAR
         $this->in_transaction = false;
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ setDatabase()
+
+    // {{{ function setDatabase($name) 
 
     /**
      * Select a different database
@@ -1800,9 +1817,9 @@ class MDB2_Driver_Common extends PEAR
         $this->database_name = $name;
         return $previous_database_name;
     }
-
     // }}}
-    // {{{ getDatabase()
+
+    // {{{ function getDatabase() 
 
     /**
      * get the current database
@@ -1814,9 +1831,9 @@ class MDB2_Driver_Common extends PEAR
     {
         return $this->database_name;
     }
-
     // }}}
-    // {{{ setDSN()
+
+    // {{{ function setDSN($dsn) 
 
     /**
      * set the DSN
@@ -1836,9 +1853,9 @@ class MDB2_Driver_Common extends PEAR
         $this->dsn = array_merge($dsn_default, $dsn);
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ getDSN()
+
+    // {{{ function getDSN($type = 'string', $hidepw = false) 
 
     /**
      * return the DSN as a string
@@ -1872,9 +1889,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return $dsn;
     }
-
     // }}}
-    // {{{ standaloneQuery()
+
+    // {{{ function &standaloneQuery($query, $types = null, $is_manip = false) 
 
    /**
      * execute a query as database administrator
@@ -1910,9 +1927,9 @@ class MDB2_Driver_Common extends PEAR
         $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
         return $result;
     }
-
     // }}}
-    // {{{ _modifyQuery()
+
+    // {{{ function _modifyQuery($query, $is_manip, $limit, $offset) 
 
     /**
      * Changes a query string for various DBMS specific reasons
@@ -1928,9 +1945,9 @@ class MDB2_Driver_Common extends PEAR
     {
         return $query;
     }
-
     // }}}
-    // {{{ _doQuery()
+
+    // {{{ function _doQuery($query, $is_manip = false, $connection = null, $database_name = null) 
 
     /**
      * Execute a query
@@ -1948,9 +1965,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             '_doQuery: method not implemented');
     }
-
     // }}}
-    // {{{ _affectedRows()
+
+    // {{{ function _affectedRows($connection, $result = null) 
 
     /**
      * returns the number of rows affected
@@ -1965,10 +1982,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             '_affectedRows: method not implemented');
     }
-
     // }}}
-    // {{{ exec()
 
+    // {{{ function exec($query) 
     /**
      * Execute a manipulation query to the database and return any the affected rows
      *
@@ -1995,9 +2011,9 @@ class MDB2_Driver_Common extends PEAR
 
         return $this->_affectedRows($connection, $result);
     }
-
     // }}}
-    // {{{ query()
+
+    // {{{ function &query($query, $types = null, $result_class = true, $result_wrap_class = false) 
 
     /**
      * Send a query to the database and return any results
@@ -2030,9 +2046,9 @@ class MDB2_Driver_Common extends PEAR
         $result =& $this->_wrapResult($result, $types, $result_class, $result_wrap_class, $limit, $offset);
         return $result;
     }
-
     // }}}
-    // {{{ _wrapResult()
+
+    // {{{ function &_wrapResult($result, $types = array(), $result_class = true, $result_wrap_class = false, $limit = null, $offset = null) 
 
     /**
      * wrap a result set into the correct class
@@ -2105,9 +2121,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return $result;
     }
-
     // }}}
-    // {{{ getServerVersion()
+
+    // {{{ function getServerVersion($native = false) 
 
     /**
      * return version information about the server
@@ -2121,9 +2137,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getServerVersion: method not implemented');
     }
-
     // }}}
-    // {{{ setLimit()
+
+    // {{{ function setLimit($limit, $offset = null) 
 
     /**
      * set the range of the next query
@@ -2155,9 +2171,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ subSelect()
+
+    // {{{ function subSelect($query, $type = false) 
 
     /**
      * simple subselect emulation: leaves the query untouched for all RDBMS
@@ -2195,9 +2211,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return implode(', ', $col);
     }
-
     // }}}
-    // {{{ replace()
+
+    // {{{ function replace($table, $fields) 
 
     /**
      * Execute a SQL REPLACE query. A REPLACE query is identical to a INSERT
@@ -2332,9 +2348,9 @@ class MDB2_Driver_Common extends PEAR
 
         return $affected_rows;
     }
-
     // }}}
-    // {{{ prepare()
+
+    // {{{ function &prepare($query, $types = null, $result_types = null, $lobs = array()) 
 
     /**
      * Prepares a query for multiple execution with execute().
@@ -2449,9 +2465,9 @@ class MDB2_Driver_Common extends PEAR
         $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
         return $obj;
     }
-
     // }}}
-    // {{{ quote()
+
+    // {{{ function quote($value, $type = null, $quote = true) 
 
     /**
      * Convert a text value into a DBMS specific format that is suitable to
@@ -2471,9 +2487,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return $this->datatype->quote($value, $type, $quote);
     }
-
     // }}}
-    // {{{ getDeclaration()
+
+    // {{{ function getDeclaration($type, $name, $field) 
 
     /**
      * Obtain DBMS specific SQL code portion needed to declare
@@ -2494,9 +2510,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return $this->datatype->getDeclaration($type, $name, $field);
     }
-
     // }}}
-    // {{{ compareDefinition()
+
+    // {{{ function compareDefinition($current, $previous) 
 
     /**
      * Obtain an array of changes that may need to applied
@@ -2514,9 +2530,9 @@ class MDB2_Driver_Common extends PEAR
         }
         return $this->datatype->compareDefinition($current, $previous);
     }
-
     // }}}
-    // {{{ supports()
+
+    // {{{ function supports($feature) 
 
     /**
      * Tell whether a DB implementation or its backend extension
@@ -2535,9 +2551,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             "unknown support feature $feature");
     }
-
     // }}}
-    // {{{ getSequenceName()
+
+    // {{{ function getSequenceName($sqn) 
 
     /**
      * adds sequence name formatting to a sequence name
@@ -2551,9 +2567,9 @@ class MDB2_Driver_Common extends PEAR
         return sprintf($this->options['seqname_format'],
             preg_replace('/[^a-z0-9_\$.]/i', '_', $sqn));
     }
-
     // }}}
-    // {{{ getIndexName()
+
+    // {{{ function getIndexName($idx) 
 
     /**
      * adds index name formatting to a index name
@@ -2567,9 +2583,9 @@ class MDB2_Driver_Common extends PEAR
         return sprintf($this->options['idxname_format'],
             preg_replace('/[^a-z0-9_\$]/i', '_', $idx));
     }
-
     // }}}
-    // {{{ nextID()
+
+    // {{{ function nextID($seq_name, $ondemand = true) 
 
     /**
      * returns the next free id of a sequence
@@ -2586,9 +2602,9 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'nextID: method not implemented');
     }
-
     // }}}
-    // {{{ lastInsertID()
+
+    // {{{ function lastInsertID($table = null, $field = null) 
 
     /**
      * returns the autoincrement ID if supported or $id
@@ -2603,9 +2619,9 @@ class MDB2_Driver_Common extends PEAR
         $seq = $table.(empty($field) ? '' : '_'.$field);
         return $this->currID($seq);
     }
-
     // }}}
-    // {{{ currID()
+
+    // {{{ function currID($seq_name) 
 
     /**
      * returns the current id of a sequence
@@ -2620,9 +2636,9 @@ class MDB2_Driver_Common extends PEAR
             sequence value, the sequence value was incremented';
         return $this->nextID($seq_name);
     }
-
     // }}}
-    // {{{ queryOne()
+
+    // {{{ function queryOne($query, $type = null) 
 
     /**
      * Execute the specified query, fetch the value from the first column of
@@ -2648,9 +2664,9 @@ class MDB2_Driver_Common extends PEAR
         $result->free();
         return $one;
     }
-
     // }}}
-    // {{{ queryRow()
+
+    // {{{ function queryRow($query, $types = null, $fetchmode = MDB2_FETCHMODE_DEFAULT) 
 
     /**
      * Execute the specified query, fetch the values from the first
@@ -2677,9 +2693,9 @@ class MDB2_Driver_Common extends PEAR
         $result->free();
         return $row;
     }
-
     // }}}
-    // {{{ queryCol()
+
+    // {{{ function queryCol($query, $type = null, $colnum = 0) 
 
     /**
      * Execute the specified query, fetch the value from the first column of
@@ -2705,9 +2721,9 @@ class MDB2_Driver_Common extends PEAR
         $result->free();
         return $col;
     }
-
     // }}}
-    // {{{ queryAll()
+
+    // {{{ function queryAll($query, $types = null, $fetchmode = MDB2_FETCHMODE_DEFAULT, $rekey = false, $force_array = false, $group = false) 
 
     /**
      * Execute the specified query, fetch all the rows of the result set into
@@ -2743,14 +2759,19 @@ class MDB2_Driver_Common extends PEAR
         $result->free();
         return $all;
     }
+    // }}}
 }
+// }}}
 
+// {{{ class MDB2_Result 
 class MDB2_Result
 {
 }
-
+// }}}
+// {{{ class MDB2_Result_Common extends MDB2_Result 
 class MDB2_Result_Common extends MDB2_Result
 {
+    // {{{ Variables (Properties)
     var $db;
     var $result;
     var $rownum = -1;
@@ -2760,8 +2781,9 @@ class MDB2_Result_Common extends MDB2_Result
     var $offset_count = 0;
     var $limit;
     var $column_names;
+    // }}}
 
-    // {{{ constructor
+    // {{{ constructor: function __construct(&$db, &$result, $limit = 0, $offset = 0) 
 
     /**
      * Constructor
@@ -2773,14 +2795,20 @@ class MDB2_Result_Common extends MDB2_Result
         $this->offset = $offset;
         $this->limit = max(0, $limit - 1);
     }
+    // }}}
 
+    // {{{ function MDB2_Result_Common(&$db, &$result, $limit = 0, $offset = 0) 
+
+    /**
+     * PHP 4 Constructor
+     */
     function MDB2_Result_Common(&$db, &$result, $limit = 0, $offset = 0)
     {
         $this->__construct($db, $result, $limit, $offset);
     }
-
     // }}}
-    // {{{ setResultTypes()
+
+    // {{{ function setResultTypes($types) 
 
     /**
      * Define the list of types to be associated with the columns of a given
@@ -2814,10 +2842,9 @@ class MDB2_Result_Common extends MDB2_Result
         $this->types = $types;
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ seek()
 
+    // {{{ function seek($rownum = 0) 
     /**
      * seek to a specific row in a result set
      *
@@ -2837,9 +2864,9 @@ class MDB2_Result_Common extends MDB2_Result
         }
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ fetchRow()
+
+    // {{{ function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null) 
 
     /**
      * Fetch and return a row of data
@@ -2855,9 +2882,9 @@ class MDB2_Result_Common extends MDB2_Result
             'fetch: method not implemented');
         return $err;
     }
-
     // }}}
-    // {{{ fetchOne()
+
+    // {{{ function fetchOne($colnum = 0) 
 
     /**
      * fetch single column from the first row from a result set
@@ -2878,9 +2905,9 @@ class MDB2_Result_Common extends MDB2_Result
         }
         return $row[$colnum];
     }
-
     // }}}
-    // {{{ fetchCol()
+
+    // {{{ function fetchCol($colnum = 0) 
 
     /**
      * Fetch and return a column of data (it uses current for that)
@@ -2907,9 +2934,9 @@ class MDB2_Result_Common extends MDB2_Result
         }
         return $column;
     }
-
     // }}}
-    // {{{ fetchAll()
+
+    // {{{ function fetchAll($fetchmode = MDB2_FETCHMODE_DEFAULT, $rekey = false, $force_array = false, $group = false) 
 
     /**
      * Fetch and return a column of data (it uses fetchRow for that)
@@ -2993,21 +3020,21 @@ class MDB2_Result_Common extends MDB2_Result
 
         return $all;
     }
-
     // }}}
-    // {{{ rowCount()
 
+    // {{{ function rowCount() 
     /**
      * returns the actual row number that was last fetched (count from 0)
      * @return integer
      */
+
     function rowCount()
     {
         return $this->rownum + 1;
     }
-
     // }}}
-    // {{{ numRows()
+
+    // {{{ function numRows() 
 
     /**
      * returns the number of rows in a result object
@@ -3020,10 +3047,9 @@ class MDB2_Result_Common extends MDB2_Result
         return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'numRows: method not implemented');
     }
-
     // }}}
-    // {{{ nextResult()
 
+    // {{{ function nextResult() 
     /**
      * Move the internal result pointer to the next available result
      *
@@ -3031,14 +3057,15 @@ class MDB2_Result_Common extends MDB2_Result
      * @return true on success, false if there is no more result set or an error object on failure
      * @access public
      */
+
     function nextResult()
     {
         return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'nextResult: method not implemented');
     }
-
     // }}}
-    // {{{ getColumnNames()
+
+    // {{{ function getColumnNames() 
 
     /**
      * Retrieve the names of columns returned by the DBMS in a query result or
@@ -3064,9 +3091,9 @@ class MDB2_Result_Common extends MDB2_Result
         }
         return $this->column_names;
     }
-
     // }}}
-    // {{{ _getColumnNames()
+
+    // {{{ function _getColumnNames() 
 
     /**
      * Retrieve the names of columns returned by the DBMS in a query result.
@@ -3085,9 +3112,9 @@ class MDB2_Result_Common extends MDB2_Result
         return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'getColumnNames: method not implemented');
     }
-
     // }}}
-    // {{{ numCols()
+
+    // {{{ function numCols() 
 
     /**
      * Count the number of columns returned by the DBMS in a query result.
@@ -3101,24 +3128,23 @@ class MDB2_Result_Common extends MDB2_Result
         return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'numCols: method not implemented');
     }
-
     // }}}
-    // {{{ getResource()
 
+    // {{{ function getResource() 
     /**
      * return the resource associated with the result object
      *
      * @return resource
      * @access public
      */
+
     function getResource()
     {
         return $this->result;
     }
-
     // }}}
-    // {{{ bindColumn()
 
+    // {{{ function bindColumn($column, &$value, $type = null) 
     /**
      * Set bind variable to a column.
      *
@@ -3128,6 +3154,7 @@ class MDB2_Result_Common extends MDB2_Result
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
+
     function bindColumn($column, &$value, $type = null)
     {
         if (!is_numeric($column)) {
@@ -3147,9 +3174,9 @@ class MDB2_Result_Common extends MDB2_Result
         }
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ _assignBindColumns()
+
+    // {{{ function _assignBindColumns($row) 
 
     /**
      * Bind a variable to a value in the result row.
@@ -3168,9 +3195,9 @@ class MDB2_Result_Common extends MDB2_Result
         }
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ free()
+
+    // {{{ function free() 
 
     /**
      * Free the internal resources associated with result.
@@ -3183,9 +3210,10 @@ class MDB2_Result_Common extends MDB2_Result
         $this->result = false;
         return MDB2_OK;
     }
+    // }}}
 }
-
 // }}}
+
 // {{{ class MDB2_Row
 
 /**
@@ -3194,7 +3222,7 @@ class MDB2_Result_Common extends MDB2_Result
  */
 class MDB2_Row
 {
-    // {{{ constructor
+    // {{{ constructor: function __construct(&$row) 
 
     /**
      * constructor
@@ -3207,15 +3235,27 @@ class MDB2_Row
             $this->$key = &$row[$key];
         }
     }
+    // }}} 
 
+    // {{{ function MDB2_Row(&$row) 
+
+    /**
+     * PHP 4 Constructor
+     *
+     * @param resource row data as array
+     */
     function MDB2_Row(&$row)
     {
         $this->__construct($row);
     }
+    // }}}
 }
+// }}}
 
+// {{{ class MDB2_Statement_Common 
 class MDB2_Statement_Common
 {
+    // {{{ Variables (Properties)
     var $db;
     var $statement;
     var $query;
@@ -3225,8 +3265,9 @@ class MDB2_Statement_Common
     var $limit;
     var $offset;
     var $is_manip;
+    // }}}
 
-    // {{{ constructor
+    // {{{ constructor: function __construct(&$db, &$statement, $positions, $query, $types, $result_types, $is_manip = false, $limit = null, $offset = null) 
 
     /**
      * Constructor
@@ -3243,14 +3284,20 @@ class MDB2_Statement_Common
         $this->is_manip = $is_manip;
         $this->offset = $offset;
     }
+    // }}}
 
+    // {{{ function MDB2_Statement_Common(&$db, &$statement, $positions, $query, $types, $result_types, $is_manip = false, $limit = null, $offset = null) 
+
+    /**
+     * PHP 4 Constructor
+     */
     function MDB2_Statement_Common(&$db, &$statement, $positions, $query, $types, $result_types, $is_manip = false, $limit = null, $offset = null)
     {
         $this->__construct($db, $statement, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
     }
-
     // }}}
-    // {{{ bindValue()
+
+    // {{{ function bindValue($parameter, &$value, $type = null) 
 
     /**
      * Set the value of a parameter of a prepared query.
@@ -3277,9 +3324,9 @@ class MDB2_Statement_Common
         }
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ bindParam()
+
+    // {{{ function bindParam($parameter, &$value, $type = null) 
 
     /**
      * Bind a variable to a parameter of a prepared query.
@@ -3306,9 +3353,9 @@ class MDB2_Statement_Common
         }
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ bindParamArray()
+
+    // {{{ function bindParamArray(&$values, $types = null) 
 
     /**
      * Set the values of multiple a parameter of a prepared query in bulk.
@@ -3330,9 +3377,9 @@ class MDB2_Statement_Common
         }
         return MDB2_OK;
     }
-
     // }}}
-    // {{{ execute()
+
+    // {{{ function &execute($values = null, $result_class = true, $result_wrap_class = false) 
 
     /**
      * Execute a prepared query statement.
@@ -3356,9 +3403,9 @@ class MDB2_Statement_Common
         }
         return $result;
     }
-
     // }}}
-    // {{{ _execute()
+
+    // {{{ function &_execute($result_class = true, $result_wrap_class = false) 
 
     /**
      * Execute a prepared query statement helper method.
@@ -3401,9 +3448,9 @@ class MDB2_Statement_Common
         }
         return $result;
     }
-
     // }}}
-    // {{{ free()
+
+    // {{{ function free() 
 
     /**
      * Release resources allocated for the specified prepared query.
@@ -3415,10 +3462,14 @@ class MDB2_Statement_Common
     {
         return MDB2_OK;
     }
+    // }}}
 }
+// }}}
 
+// {{{ class MDB2_Module_Common 
 class MDB2_Module_Common
 {
+    // {{{ Variables (Properties) 
     /**
      * contains the key to the global MDB2 instance array of the associated
      * MDB2 instance
@@ -3427,8 +3478,9 @@ class MDB2_Module_Common
      * @access protected
      */
     var $db_index;
+    // }}}
 
-    // {{{ constructor
+    // {{{ constructor: function __construct($db_index) 
 
     /**
      * Constructor
@@ -3437,14 +3489,20 @@ class MDB2_Module_Common
     {
         $this->db_index = $db_index;
     }
+    // }}}
 
+    // {{{ function MDB2_Module_Common($db_index) 
+
+    /**
+     * PHP 4 Constructor
+     */
     function MDB2_Module_Common($db_index)
     {
         $this->__construct($db_index);
     }
-
     // }}}
-    // {{{ getDBInstance()
+
+    // {{{ function &getDBInstance() 
 
     /**
      * get the instance of MDB2 associated with the module instance
@@ -3461,17 +3519,18 @@ class MDB2_Module_Common
         }
         return $result;
     }
+    // }}}
 }
-
 // }}}
-// {{{ MDB2_closeOpenTransactions()
 
+// {{{ function MDB2_closeOpenTransactions() 
 /**
  * close any open transactions form persistant connections
  *
  * @return void
  * @access public
  */
+
 function MDB2_closeOpenTransactions()
 {
     reset($GLOBALS['_MDB2_databases']);
@@ -3484,10 +3543,9 @@ function MDB2_closeOpenTransactions()
         }
     }
 }
-
 // }}}
-// {{{ MDB2_defaultDebugOutput()
 
+// {{{ function MDB2_defaultDebugOutput(&$db, $scope, $message, $is_manip = null) 
 /**
  * default debug output handler
  *
@@ -3503,5 +3561,6 @@ function MDB2_defaultDebugOutput(&$db, $scope, $message, $is_manip = null)
     $db->debug_output.= $scope.'('.$db->db_index.'): ';
     $db->debug_output.= $message.$db->getOption('log_line_break');
 }
+// }}}
 
 ?>
