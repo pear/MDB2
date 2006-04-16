@@ -529,6 +529,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         if(!is_null($database)) {
             $query .= " FROM $database";
         }
+        $query.= "/*!50002  WHERE Table_type = 'BASE TABLE'*/";
 
         $table_names = $db->queryAll($query, null, MDB2_FETCHMODE_ORDERED);
         if (PEAR::isError($table_names)) {
@@ -537,9 +538,6 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($table_names as $table) {
-            if (isset($table[1]) && strtolower($table[1]) == 'view') {
-                continue;
-            }
             if (!$this->_fixSequenceName($table[0], true)) {
                 $result[] = $table[0];
             }
@@ -567,22 +565,17 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = "SHOW FULL TABLES";
+        $query = 'SHOW FULL TABLES';
         if(!is_null($database)) {
-            $query .= " FROM $database";
+            $query.= " FROM $database";
+        }
+        $query.= " WHERE Table_type = 'VIEW'";
+
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
 
-        $table_names = $db->queryAll($query, null, MDB2_FETCHMODE_ORDERED);
-        if (PEAR::isError($table_names)) {
-            return $table_names;
-        }
-
-        $result = array();
-        foreach ($table_names as $table) {
-            if (strtolower($table[1]) == 'view') {
-                $result[] = $table[0];
-            }
-        }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
         }
