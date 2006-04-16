@@ -196,11 +196,13 @@ class MDB2_xxx extends MDB2_Driver_Common
     /**
      * Log out and disconnect from the database.
      *
+     * @param  boolean $force if the disconnect should be forced even if the
+     *                        connection is opened persistently
      * @return mixed true on success, false if not connected and error
      *                object on error
      * @access public
      */
-    function disconnect()
+    function disconnect($force = true)
     {
         // take this from the corresponding Metabase driver: Close()
     }
