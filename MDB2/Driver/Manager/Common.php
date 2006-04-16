@@ -446,11 +446,11 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     // }}}
     // {{{ listTableTriggers()
     /**
-     * This function will be called to get all triggers of the 
+     * This function will be called to get all triggers of the
      * current database ($db->getDatabase())
      *
      * @access public
-     * @param  string $table      The name of the table from the 
+     * @param  string $table      The name of the table from the
      *                            previous database to query against.
      * @return mixed Array on success or MDB2 error on failure
      */

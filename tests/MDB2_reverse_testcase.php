@@ -57,7 +57,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         parent::setUp();
         $this->db->loadModule('Reverse', null, true);
         $this->db->loadModule('Manager', null, true);
-        
+
         //Table structure
         $this->fields = array(
             'id' => array(  //PK

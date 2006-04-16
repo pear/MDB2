@@ -99,7 +99,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         }
         unset($this->db);
     }
-    
+
     /**
      * Get the types of each field given its name
      *
@@ -117,7 +117,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         }
         return $types;
     }
-    
+
     /**
      * Insert the values into the sample table
      *
@@ -125,12 +125,12 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
      */
     function insertValues($values) {
         $types = $this->getFieldTypes(array_keys($values));
-        
+
         $result = $this->db->exec('DELETE FROM '.$this->table);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error emptying table: '.$result->getMessage());
         }
-        
+
         $query = sprintf('INSERT INTO %s (%s) VALUES (%s)',
             $this->table,
             implode(', ', array_keys($values)),
@@ -153,7 +153,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
      */
     function selectAndCheck($values) {
         $types = $this->getFieldTypes(array_keys($values));
-    
+
         $query = 'SELECT '. implode (', ', array_keys($values)). ' FROM '.$this->table;
         $result = $this->db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
         foreach ($values as $name => $value) {
@@ -207,7 +207,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         );
         $this->insertValues($data);
         $this->selectAndCheck($data);
-        
+
         $data = array(
             'id'           => 2,
             'booleanfield' => false,

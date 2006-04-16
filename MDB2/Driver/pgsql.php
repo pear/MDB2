@@ -904,7 +904,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
         }
         return $cols;
     }
- 
+
     // }}}
     // {{{ nextResult()
 

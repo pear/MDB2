@@ -100,7 +100,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
     // }}}
     // {{{ _silentCommit()
-    
+
     /**
      * conditional COMMIT query to make changes permanent, when auto
      * @access private
@@ -115,7 +115,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             @$db->exec('COMMIT');
         }
     }
-    
+
     // }}}
     // {{{ _makeAutoincrement()
 

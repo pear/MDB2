@@ -76,7 +76,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $query = "CREATE DATABASE $name";
         if ($db->options['database_device']) {
             $query.= ' ON '.$db->options['database_device'];
-            $query.= $db->options['database_size'] ? '=' . 
+            $query.= $db->options['database_size'] ? '=' .
                      $db->options['database_size'] : '';
         }
         return $db->standaloneQuery($query, null, true);
@@ -276,7 +276,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ?
                         'strtolower' : 'strtoupper'), $result);
         }
         return $result;
@@ -361,18 +361,18 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     // }}}
     // {{{ listTableTriggers()
     /**
-     * This function will be called to 
+     * This function will be called to
      * display all the triggers from the current
      * database ($db->getDatabase()).
      *
      * @access public
-     * @param  string $table      The name of the table from the 
+     * @param  string $table      The name of the table from the
      *                            previous database to query against.
      * @return mixed Array of the triggers if the query
      *               is successful, otherwise, false which
      *               could be a db error if the db is not
      *               instantiated or could be the results
-     *               of the error that occured during the 
+     *               of the error that occured during the
      *               query'ing of the sysobject module.
      */
     function listTableTriggers($table = null)
@@ -394,9 +394,9 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE &&
-            $db->options['field_case'] == CASE_LOWER) 
+            $db->options['field_case'] == CASE_LOWER)
         {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ?
                 'strtolower' : 'strtoupper'), $result);
         }
         return $result;
@@ -428,9 +428,9 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE &&
-            $db->options['field_case'] == CASE_LOWER) 
+            $db->options['field_case'] == CASE_LOWER)
         {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ?
                           'strtolower' : 'strtoupper'), $result);
         }
         return $result;
@@ -532,7 +532,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             }
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ?
                           'strtolower' : 'strtoupper'), $result);
         }
         return $result;
