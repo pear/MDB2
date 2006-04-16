@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = '1.0.1';
 $notes = <<<EOT
-- added the listTriggers() method to the Manager.
+- added the listTableTriggers() method to the Manager.
 - added the listViews() method to the Manager.
 - aligned _modifyQuery() signature and phpdoc
 - added the map datatype patch for (bug #6863)
