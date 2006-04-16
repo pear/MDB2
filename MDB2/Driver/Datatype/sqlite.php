@@ -281,6 +281,12 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 foreach ($matches[0] as $value) {
                     $length = max($length, strlen($value)-2);
                 }
+                if ($length == '1' && count($matches[0]) == 2) {
+                    $type[] = 'boolean';
+                    if (preg_match('/^[is|has]/', $field['name'])) {
+                        $type = array_reverse($type);
+                    }
+                }
             }
         case 'set':
             $type[] = 'text';

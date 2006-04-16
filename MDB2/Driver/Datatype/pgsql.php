@@ -524,6 +524,12 @@ for some reason this piece of code causes an apache crash
             $type[] = 'integer';
             $unsigned = false;
             $length = 2;
+            if ($length == '2') {
+                $type[] = 'boolean';
+                if (preg_match('/^[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            }
             break;
         case 'int':
         case 'int4':
@@ -553,7 +559,12 @@ for some reason this piece of code causes an apache crash
         case 'varchar':
         case 'bpchar':
             $type[] = 'text';
-            if (strstr($db_type, 'text')) {
+            if ($length == '1') {
+                $type[] = 'boolean';
+                if (preg_match('/^[is|has]/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            } elseif (strstr($db_type, 'text')) {
                 $type[] = 'clob';
             }
             break;
