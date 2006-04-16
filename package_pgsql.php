@@ -2,20 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.1';
+$version = 'XXX';
 $notes = <<<EOT
-- implemented multi_query option
-- aligned _modifyQuery() signature and phpdoc
-- ensure that types is an array before accessing it as an array in prepare()
-- added support for setting the client charset (bug #6814)
-- added 'result_introspection' supported metadata support
-- make sure that statement names are truely unique
-- use connected_server_info in getServerVersion() as a cache cache
-- use parent::disconnect() in disconnect()
-- added support for length in integer reverse engineering
-- some fixes regarding boolean reverse engineering
-- pgsql does not support unsigned ints
-- protect against sql injection in the reverse and manager module
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

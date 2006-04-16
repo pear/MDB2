@@ -2,25 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.5';
+$version = 'XXX';
 $notes = <<<EOT
-- handle null as resource when disable_query option is enabled in result object
-- added missing methods in the reverse and datatype module
-- aligned _modifyQuery() signature and phpdoc
-- shorten autoincrement emulation related identifiers (bug #7109)
-- added 'result_introspection' supported metadata support
-- use NUMBER(1) for booleans (partial fix for bug #7170)
-- use mapNativeDatatype() in tableInfo() where necessary
-- properly quote table names in tableInfo() (related to bug #6573)
-- use connected_server_info in getServerVersion() as a cache cache
-- use parent::disconnect() in disconnect()
-- separated result_buffering and prefetching by adding the new result_prefetching option
-- support optional dsn item "port" in connect (bug #7216)
-- added support for length in integer declarations
-- some fixes regarding boolean reverse engineering
-- protect against sql injection in the reverse and manager module
-- improve handling for quoted identifiers in the reverse and manager module
-- fixed queries in getTableConstraintDefinition()
 
 open todo items:
 - fix issues with lobs (where the placeholder is not named like the field)

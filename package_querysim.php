@@ -2,11 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.2';
+$version = 'XXX';
 $notes = <<<EOT
-- handle null as resource when disable_query option is enabled in result object
-- added 'result_introspection' supported metadata support
-- aligned _modifyQuery() signature and phpdoc
 
 open todo items:
 - add ability to reference multiple results set files for different queries

@@ -2,19 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.1';
+$version = 'XXX';
 $notes = <<<EOT
-- fixed length handling in tableInfo() (bug #6887)
-- aligned _modifyQuery() signature and phpdoc
-- added support for tabe options in createTable() (bug ##7079)
-- added optional database parameter to listTables() and listSequences()
-- added 'result_introspection' supported metadata support
-- properly quote table names in tableInfo() (related to bug #6573)
-- use connected_server_info in getServerVersion() as a cache cache
-- use parent::disconnect() in disconnect()
-- added support for length in integer reverse engineering
-- some fixes regarding boolean reverse engineering
-- added listViews() and hide views in listTables()
 
 open todo item:
 - use native prepared queries for prepared SELECT statements

@@ -2,42 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.0';
+$version = 'XXX';
 $notes = <<<EOT
-- do not fix case in listUsers()
-- unified case fixing in the list*() methods
-- split index and constraint handling
-- quote identifiers where possible inside the manager methods depending on
-  the new 'quote_identifier' option (defaults to off)
-- refactored get*Declaration() methods to use getTypeDeclaration()
-- setting in_transaction to false on disconnect
-- added new Function modules to handle difference in SQL functions
-- force rollback() with open transactions on disconnect
-- fixed table renaming
-- escape floats to make sure they do not contain evil characters (bug #5608)
-- split off manipulation queries into exec() method from the query() method *BC BREAK*
-- only if result_types is set to false in prepare() method the query will be
-  handled as a DML statement *BC BREAK*
-- use lastInsertID() method in nextID()
-- added 'mdbtype' to tableInfo()
-- changed 'len' to 'length' in tableInfo() output *BC BREAK*
-- fixed 'change' in alterTable()
-- proper quote new table name in alterTable()
-- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
-- typo fixes in error handling of nextResult() and numRows() calls
-- nextResult() returns false if there are no more result sets to read
-- _fixIndexName() now just attempts to remove possible formatting
-- renamed _isSequenceName() to _fixSequenceName()
-- _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new "check" parameter is set to true
-- added support for length in decimal columns
-- removed ugly hack for quote parameter in quote() since it was insufficient
-  (escaping also needs to be prevented)
-- handle null as resource when disable_query option is enabled in result object
-- aligned _modifyQuery() signature and phpdoc
-- added 'result_introspection' supported metadata support
-- use connected_server_info in getServerVersion() as a cache cache
-- use parent::disconnect() in disconnect()
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

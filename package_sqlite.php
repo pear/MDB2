@@ -2,19 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.1';
+$version = 'XXX';
 $notes = <<<EOT
-- aligned _modifyQuery() signature and phpdoc
-- fix bug sqlite:///:memory: trys to open file (bug #6599)
-- added 'result_introspection' supported metadata support
-- properly quote table names in tableInfo() (related to bug #6573)
-- use connected_server_info in getServerVersion() as a cache cache
-- use parent::disconnect() in disconnect()
-- added server_version option
-- set error code in all raiseError() calls
-- added support for length in integer reverse engineering
-- some fixes regarding boolean reverse engineering
-- protect against sql injection in the reverse and manager module
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
