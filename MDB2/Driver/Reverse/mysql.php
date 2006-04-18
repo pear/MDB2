@@ -77,7 +77,8 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $columns = $db->queryAll("SHOW COLUMNS FROM $table", null, MDB2_FETCHMODE_ASSOC);
+        $query = "SHOW COLUMNS FROM $table LIKE ".$db->quote($field_name);
+        $columns = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($columns)) {
             return $columns;
         }
@@ -157,7 +158,8 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         }
 
         $index_name = $db->getIndexName($index_name);
-        $result = $db->query("SHOW INDEX FROM $table");
+        $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = ".$db->quote($index_name)." */";
+        $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -221,7 +223,8 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         if (strtolower($index_name) != 'primary') {
             $index_name = $db->getIndexName($index_name);
         }
-        $result = $db->query("SHOW INDEX FROM $table");
+        $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = ".$db->quote($index_name)." */";
+        $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
         }
