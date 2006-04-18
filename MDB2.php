@@ -1721,7 +1721,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function beginTransaction()
     {
-        $this->debug('Starting transaction', 'beginTransaction');
+        $this->debug('Starting transaction', 'beginTransaction', false);
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'beginTransaction: transactions are not supported');
     }
@@ -1740,7 +1740,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function commit()
     {
-        $this->debug('commiting transaction', 'commit');
+        $this->debug('commiting transaction', 'commit', false);
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'commit: commiting transactions is not supported');
     }
@@ -1759,7 +1759,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function rollback()
     {
-        $this->debug('rolling back transaction', 'rollback');
+        $this->debug('rolling back transaction', 'rollback', false);
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'rollback: rolling back transactions is not supported');
     }

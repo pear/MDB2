@@ -171,7 +171,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function beginTransaction()
     {
-        $this->debug('starting transaction', 'beginTransaction');
+        $this->debug('starting transaction', 'beginTransaction', false);
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
@@ -200,7 +200,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function commit()
     {
-        $this->debug('commit transaction', 'commit');
+        $this->debug('commit transaction', 'commit', false);
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'commit: transaction changes are being auto committed');
@@ -226,7 +226,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function rollback()
     {
-        $this->debug('rolling back transaction', 'rollback');
+        $this->debug('rolling back transaction', 'rollback', false);
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');

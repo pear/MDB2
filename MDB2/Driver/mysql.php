@@ -211,7 +211,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function beginTransaction()
     {
-        $this->debug('starting transaction', 'beginTransaction');
+        $this->debug('starting transaction', 'beginTransaction', false);
         if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'beginTransaction: transactions are not in use');
@@ -243,7 +243,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function commit()
     {
-        $this->debug('commit transaction', 'commit');
+        $this->debug('commit transaction', 'commit', false);
         if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'commit: transactions are not in use');
@@ -276,7 +276,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function rollback()
     {
-        $this->debug('rolling back transaction', 'rollback');
+        $this->debug('rolling back transaction', 'rollback', false);
         if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'rollback: transactions are not in use');
