@@ -160,7 +160,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function beginTransaction()
     {
-        $this->debug('starting transaction', 'beginTransaction');
+        $this->debug('starting transaction', 'beginTransaction', false);
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
@@ -188,7 +188,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->debug('commit transaction', 'commit');
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
-                'commit: transaction changes are being auto committed');
+                'commit: transaction changes are being auto committed', false);
         }
         if ($this->uncommitedqueries) {
             $connection = $this->getConnection();
@@ -216,7 +216,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function rollback()
     {
-        $this->debug('rolling back transaction', 'rollback');
+        $this->debug('rolling back transaction', 'rollback', false);
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
@@ -1147,7 +1147,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
     function &_execute($result_class = true, $result_wrap_class = false)
     {
         $this->db->last_query = $this->query;
-        $this->db->debug($this->query, 'execute');
+        $this->db->debug($this->query, 'execute', $this->is_manip);
+        $this->db->debug($this->values, 'parameters', $this->is_manip);
         if ($this->db->getOption('disable_query')) {
             if ($this->is_manip) {
                 $return = 0;
