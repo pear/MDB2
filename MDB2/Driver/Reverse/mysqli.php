@@ -131,7 +131,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $columns = $db->queryAll("SHOW COLUMNS FROM $table", null, MDB2_FETCHMODE_ASSOC);
+        $query = "SHOW COLUMNS FROM $table LIKE ".$db->quote($field_name);
+        $columns = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($columns)) {
             return $columns;
         }
@@ -149,7 +150,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 $column = array_change_key_case($column, $db->options['field_case']);
             }
             if ($field_name == $column['name']) {
-                list($types, $length) = $db->datatype->mapNativeDatatype($column);
+                list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
                 $notnull = false;
                 if (array_key_exists('null', $column) && $column['null'] != 'YES') {
                     $notnull = true;
@@ -173,6 +174,9 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                     );
                     if ($length > 0) {
                         $definition[$key]['length'] = $length;
+                    }
+                    if ($unsigned) {
+                        $definition[$key]['unsigned'] = true;
                     }
                     if ($default !== false) {
                         $definition[$key]['default'] = $default;
@@ -208,7 +212,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         }
 
         $index_name = $db->getIndexName($index_name);
-        $result = $db->query("SHOW INDEX FROM $table");
+        $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = ".$db->quote($index_name)." */";
+        $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -272,7 +277,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         if (strtolower($index_name) != 'primary') {
             $index_name = $db->getIndexName($index_name);
         }
-        $result = $db->query("SHOW INDEX FROM $table");
+        $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = ".$db->quote($index_name)." */";
+        $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
         }

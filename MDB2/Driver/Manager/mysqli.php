@@ -48,7 +48,7 @@
 require_once 'MDB2/Driver/Manager/Common.php';
 
 /**
- * MDB2 MySQL driver for the management modules
+ * MDB2 MySQLi driver for the management modules
  *
  * @package MDB2
  * @category Database
@@ -183,7 +183,6 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         return MDB2_OK;
     }
 
-
     // }}}
     // {{{ createTable()
 
@@ -214,7 +213,8 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      * @param array $options  An associative array of table options:
      *                          array(
      *                              'comment' => 'Foo',
-     *                              'charset' => 'utf8',
+     *                              'character_set' => 'utf8',
+     *                              'collate' => 'utf8_unicode_ci',
      *                              'collate' => 'utf8_unicode_ci',
      *                              'type'    => 'innodb',
      *                          );
@@ -254,7 +254,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         if (array_key_exists('charset', $options)) {
             $options_strings['charset'] = 'DEFAULT CHARACTER SET '.$options['charset'];
             if (array_key_exists('collate', $options)) {
-                $options_strings['charset'].= 'COLLATE '.$options['collate'];
+                $options_strings['charset'].= ' COLLATE '.$options['collate'];
             }
         }
 
@@ -655,7 +655,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quoteIdentifier($table, true);
-        $name  = $db->quoteIdentifier($db->getIndexName($name), true);
+        $name = $db->quoteIdentifier($db->getIndexName($name), true);
         $query = "CREATE INDEX $name ON $table";
         $fields = array();
         foreach ($definition['fields'] as $field => $fieldinfo) {
@@ -905,10 +905,9 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $result;
         }
 
-        $res = $db->exec("CREATE TABLE $sequence_name".
-            "($seqcol_name INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ($seqcol_name))".
-            (strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : '')
-        );
+        $query = "CREATE TABLE $sequence_name ($seqcol_name INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ($seqcol_name))";
+        $query.= strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : '';
+        $res = $db->exec($query);
 
         if (PEAR::isError($res)) {
             return $res;
@@ -918,7 +917,8 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $res = $db->exec("INSERT INTO $sequence_name ($seqcol_name) VALUES (".($start-1).')');
+        $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (".($start-1).')';
+        $res = $db->exec($query);
         if (!PEAR::isError($res)) {
             return MDB2_OK;
         }
