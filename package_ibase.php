@@ -6,6 +6,7 @@ $version = 'XXX';
 $notes = <<<EOT
 - implemented listTableTriggers(), listTableViews() and listFunctions()
   in the Manager module
+- implemented getTriggerDefinition() in the Reverse module
 EOT;
 
 $package = new PEAR_PackageFileManager();

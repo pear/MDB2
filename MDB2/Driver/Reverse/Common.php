@@ -170,6 +170,27 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     }
 
     // }}}
+    // {{{ getTriggerDefinition()
+
+    /**
+     * get the stucture of an trigger into an array
+     *
+     * @param string    $trigger    name of trigger that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTriggerDefinition($trigger)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'getTriggerDefinition: getting trigger definition is not supported');
+    }
+
+    // }}}
     // {{{ tableInfo()
 
     /**

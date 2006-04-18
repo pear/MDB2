@@ -4,6 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+- added getTriggerDefinition() in the Reverse module
 EOT;
 
 open todo items:

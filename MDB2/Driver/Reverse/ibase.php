@@ -346,6 +346,34 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     }
 
     // }}}
+    // {{{ getTriggerDefinition()
+
+    /**
+     * get the stucture of an trigger into an array
+     *
+     * @param string    $trigger    name of trigger that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTriggerDefinition($trigger)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $trigger = $db->quote(strtoupper($trigger), 'text');
+        $query = "SELECT RDB\$TRIGGER_NAME AS trigger_name,
+                         RDB\$RELATION_NAME AS table_name,
+                         RDB\$TRIGGER_SOURCE AS trigger_body,
+                         RDB\$TRIGGER_TYPE AS trigger_type,
+                         RDB\$DESCRIPTION AS comment
+                    FROM RDB\$TRIGGERS
+                   WHERE UPPER(RDB\$TRIGGER_NAME)=$trigger";
+        return $db->queryRow();
+    }
+
+    // }}}
     // {{{ tableInfo()
 
     /**
