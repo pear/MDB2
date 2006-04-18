@@ -444,6 +444,27 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     }
 
     // }}}
+    // {{{ listTableViews()
+
+    /**
+     * list the views in the database that reference a given table
+     *
+     * @param string table for which all references views should be found
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     **/
+    function listTableViews($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'listTableViews: list view by table is not supported');
+    }
+
+    // }}}
     // {{{ listTableTriggers()
     /**
      * This function will be called to get all triggers of the
