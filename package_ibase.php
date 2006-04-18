@@ -4,6 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+- implemented listTableTriggers() and listFunctions() in the Manager module
 EOT;
 
 $package = new PEAR_PackageFileManager();
