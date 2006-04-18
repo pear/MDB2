@@ -599,6 +599,36 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ listTableViews()
+
+    /**
+     * list the views in the database that reference a given table
+     *
+     * @param string table for which all references views should be found
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableViews($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = 'SELECT DISTINCT RDB$VIEW_NAME FROM RDB$VIEW_RELATIONS';
+        $table = $db->quote(strtoupper($table), 'text');
+        $query .= "WHERE UPPER(RDB\$RELATION_NAME)=$table";
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
     // {{{ listFunctions()
 
     /**
@@ -627,6 +657,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
     // }}}
     // {{{ listTableTriggers()
+
     /**
      * This function will be called to get all triggers of the
      * current database ($db->getDatabase())
@@ -657,6 +688,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         return $result;
     }
+
     // }}}
     // {{{ createIndex()
 
