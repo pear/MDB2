@@ -681,7 +681,6 @@ class MDB2_Result_mssql extends MDB2_Result_Common
 
     /**
      * Move the internal result pointer to the next available result
-     * Currently not supported
      *
      * @return true on success, false if there is no more result set or an error object on failure
      * @access public

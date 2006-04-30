@@ -89,18 +89,19 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db;
         }
 
-        if (is_array($fields)) {
-            foreach ($fields as $field_name => $field) {
-                $query = $db->getDeclaration($field['type'], $field_name, $field);
-                if (PEAR::isError($query)) {
-                    return $query;
-                }
-                $query_fields[] = $query;
-            }
-            return implode(', ', $query_fields);
+        if (!is_array($fields) || empty($fields)) {
+            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'getFieldDeclarationList: missing any fields');
         }
-        return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-            'getFieldDeclarationList: the definition of the table "'.$table_name.'" does not contain any fields');
+
+        foreach ($fields as $field_name => $field) {
+            $query = $db->getDeclaration($field['type'], $field_name, $field);
+            if (PEAR::isError($query)) {
+                return $query;
+            }
+            $query_fields[] = $query;
+        }
+        return implode(', ', $query_fields);
     }
 
     // }}}
@@ -175,7 +176,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'createDatabase: database creation is not supported');
+            'createDatabase: method not implemented');
     }
 
     // }}}
@@ -196,7 +197,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'dropDatabase: database dropping is not supported');
+            'dropDatabase: method not implemented');
     }
 
     // }}}
@@ -379,7 +380,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'alterTable: database table alterations are not supported');
+            'alterTable: method not implemented');
     }
 
     // }}}
@@ -399,7 +400,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listDatabases: list databases is not supported');
+            'listDatabases: method not implementedd');
     }
 
     // }}}
@@ -419,7 +420,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listUsers: list user is not supported');
+            'listUsers: method not implemented');
     }
 
     // }}}
@@ -440,7 +441,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listViews: list view is not supported');
+            'listViews: method not implemented');
     }
 
     // }}}
@@ -461,7 +462,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTableViews: list view by table is not supported');
+            'listTableViews: method not implemented');
     }
 
     // }}}
@@ -483,7 +484,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTriggers: list view is not supported');
+            'listTriggers: method not implemented');
     }
     // }}}
     // {{{ listFunctions()
@@ -502,7 +503,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listFunctions: list function is not supported');
+            'listFunctions: method not implemented');
     }
     // }}}
     // {{{ listTables()
@@ -522,7 +523,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTables: list tables is not supported');
+            'listTables: method not implemented');
     }
 
     // }}}
@@ -543,7 +544,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTableFields: list table fields is not supported');
+            'listTableFields: method not implemented');
     }
 
     // }}}
@@ -639,7 +640,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTableIndexes: List Indexes is not supported');
+            'listTableIndexes: method not implemented');
     }
 
     // }}}
@@ -730,7 +731,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTableConstraints: List Constraints is not supported');
+            'listTableConstraints: method not implemented');
     }
 
     // }}}
@@ -752,7 +753,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'createSequence: sequence creation not supported');
+            'createSequence: method not implemented');
     }
 
     // }}}
@@ -773,7 +774,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'dropSequence: sequence dropping not supported');
+            'dropSequence: method not implemented');
     }
 
     // }}}
@@ -794,7 +795,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listSequences: List sequences is not supported');
+            'listSequences: method not implemented');
     }
 }
 

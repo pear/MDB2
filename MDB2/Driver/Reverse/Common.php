@@ -88,7 +88,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTableFieldDefinition: table field definition is not supported');
+            'getTableFieldDefinition: method not implemented');
     }
 
     // }}}
@@ -110,7 +110,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTableIndexDefinition: getting index definition is not supported');
+            'getTableIndexDefinition: method not implemented');
     }
 
     // }}}
@@ -132,7 +132,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTableConstraintDefinition: getting index definition is not supported');
+            'getTableConstraintDefinition: method not implemented');
     }
 
     // }}}
@@ -187,7 +187,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTriggerDefinition: getting trigger definition is not supported');
+            'getTriggerDefinition: method not implemented');
     }
 
     // }}}
