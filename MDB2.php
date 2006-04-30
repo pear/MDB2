@@ -269,7 +269,6 @@ $GLOBALS['_MDB2_dsninfo_default'] = array(
  * @category Database
  * @author   Lukas Smith <smith@pooteeweet.org>
  */
-
 class MDB2
 {
     // {{{ function setOptions(&$db, $options)
@@ -2764,11 +2763,28 @@ class MDB2_Driver_Common extends PEAR
 // }}}
 
 // {{{ class MDB2_Result
+
+/**
+ * The dummy class that all user space result classes should extend from
+ *
+ * @package  MDB2
+ * @category Database
+ * @author   Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Result
 {
 }
 // }}}
+
 // {{{ class MDB2_Result_Common extends MDB2_Result
+
+/**
+ * The common result class for MDB2 result objects
+ *
+ * @package  MDB2
+ * @category Database
+ * @author   Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Result_Common extends MDB2_Result
 {
     // {{{ Variables (Properties)
@@ -3217,8 +3233,11 @@ class MDB2_Result_Common extends MDB2_Result
 // {{{ class MDB2_Row
 
 /**
- * Pear MDB2 Row Object
- * @see MDB2_Driver_Common::setFetchMode()
+ * The simple class that accepts row data as an array
+ *
+ * @package  MDB2
+ * @category Database
+ * @author   Lukas Smith <smith@pooteeweet.org>
  */
 class MDB2_Row
 {
@@ -3253,6 +3272,14 @@ class MDB2_Row
 // }}}
 
 // {{{ class MDB2_Statement_Common
+
+/**
+ * The common statement class for MDB2 statement objects
+ *
+ * @package  MDB2
+ * @category Database
+ * @author   Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Statement_Common
 {
     // {{{ Variables (Properties)
@@ -3467,6 +3494,14 @@ class MDB2_Statement_Common
 // }}}
 
 // {{{ class MDB2_Module_Common
+
+/**
+ * The common modules class for MDB2 module objects
+ *
+ * @package  MDB2
+ * @category Database
+ * @author   Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Module_Common
 {
     // {{{ Variables (Properties)
