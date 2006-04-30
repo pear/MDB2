@@ -2887,8 +2887,8 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Fetch and return a row of data
      *
-     * @param int       $fetchmode  how the array data should be indexed
-     * @param int    $rownum    number of the row where the data can be found
+     * @param int $fetchmode  how the array data should be indexed
+     * @param int $rownum    number of the row where the data can be found
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
@@ -2903,16 +2903,17 @@ class MDB2_Result_Common extends MDB2_Result
     // {{{ function fetchOne($colnum = 0)
 
     /**
-     * fetch single column from the first row from a result set
+     * fetch single column from the next row from a result set
      *
      * @param int $colnum the column number to fetch
+     * @param int $rownum    number of the row where the data can be found
      * @return string data on success, a MDB2 error on failure
      * @access public
      */
-    function fetchOne($colnum = 0)
+    function fetchOne($colnum = 0, $rownum = null)
     {
         $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
-        $row = $this->fetchRow($fetchmode);
+        $row = $this->fetchRow($fetchmode, $rownum);
         if (!is_array($row) || PEAR::isError($row)) {
             return $row;
         }
