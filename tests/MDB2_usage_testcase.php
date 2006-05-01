@@ -905,7 +905,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $character_lob = '';
         $binary_lob = '';
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             for ($code = 32; $code <= 127; $code++) {
                 $character_lob.= chr($code);
             }
@@ -976,28 +976,28 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), MDB2_PREPARE_MANIP);
 
         $character_data_file = 'character_data';
-        if (($file = fopen($character_data_file, 'w'))) {
-            $character_data = '';
-            for ($i = 0; $i < 100; $i++) {
-                for ($code = 32; $code <= 127; $code++) {
-                    $character_data.= chr($code);
-                }
+        $file = fopen($character_data_file, 'w');
+        $this->assertTrue(((bool)$file), 'Error creating clob file to read from');
+        $character_data = '';
+        for ($i = 0; $i < 1000; $i++) {
+            for ($code = 32; $code <= 127; $code++) {
+                $character_data.= chr($code);
             }
-            $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
-            fclose($file);
         }
+        $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
+        fclose($file);
 
         $binary_data_file = 'binary_data';
-        if (($file = fopen($binary_data_file, 'wb'))) {
-            $binary_data = '';
-            for ($i = 0; $i < 100; $i++) {
-                for ($code = 0; $code <= 255; $code++) {
-                    $binary_data.= chr($code);
-                }
+        $file = fopen($binary_data_file, 'wb');
+        $this->assertTrue(((bool)$file), 'Error creating blob file to read from');
+        $binary_data = '';
+        for ($i = 0; $i < 1000; $i++) {
+            for ($code = 0; $code <= 255; $code++) {
+                $binary_data.= chr($code);
             }
-            $this->assertTrue((fwrite($file, $binary_data, strlen($binary_data)) == strlen($binary_data)), 'Error creating blob file to read from');
-            fclose($file);
         }
+        $this->assertTrue((fwrite($file, $binary_data, strlen($binary_data)) == strlen($binary_data)), 'Error creating blob file to read from');
+        fclose($file);
 
         $character_data_file_tmp = 'file://'.$character_data_file;
         $stmt->bindParam('document', $character_data_file_tmp);
