@@ -696,12 +696,13 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * drop existing constraint
      *
-     * @param string    $table         name of table that should be used in method
+     * @param string    $table        name of table that should be used in method
      * @param string    $name         name of the constraint to be dropped
+     * @param string    $primary      hint if the constraint is primary
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function dropConstraint($table, $name)
+    function dropConstraint($table, $name, $primary = false)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {

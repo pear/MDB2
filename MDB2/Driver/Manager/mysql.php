@@ -798,12 +798,13 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     /**
      * drop existing constraint
      *
-     * @param string    $table         name of table that should be used in method
+     * @param string    $table        name of table that should be used in method
      * @param string    $name         name of the constraint to be dropped
+     * @param string    $primary      hint if the constraint is primary
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function dropConstraint($table, $name)
+    function dropConstraint($table, $name, $primary = false)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -811,7 +812,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quoteIdentifier($table, true);
-        if (strtolower($name) == 'primary') {
+        if ($primary || strtolower($name) == 'primary') {
             $query = "ALTER TABLE $table DROP PRIMARY KEY";
         } else {
             $name = $db->quoteIdentifier($db->getIndexName($name), true);
