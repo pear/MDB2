@@ -262,11 +262,6 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         );
         $name = 'pkindex';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
-        if (PEAR::isError($result)) {
-            echo 'Error creating primary index, trying with name "primary" instead .. ';
-            $name = 'primary';
-            $result = $this->db->manager->createConstraint($this->table, $name, $index);
-        }
         $this->assertFalse(PEAR::isError($result), 'Error creating primary index');
     }
 
@@ -308,14 +303,9 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $name = 'pkindex';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
         if (PEAR::isError($result)) {
-            echo 'Error creating primary index, trying with name "primary" instead .. ';
-            $name = 'primary';
-            $result = $this->db->manager->createConstraint($this->table, $name, $index);
-        }
-        if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error creating primary index');
         } else {
-            $result = $this->db->manager->dropConstraint($this->table, $name);
+            $result = $this->db->manager->dropConstraint($this->table, $name, true);
             $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
         }
     }

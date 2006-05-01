@@ -164,11 +164,6 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         }
         foreach ($this->constraints as $constraint_name => $constraint) {
             $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
-            if (PEAR::isError($result) && isset($constraint['primary']) && $constraint['primary']) {
-                echo 'Error creating primary constraint, trying with name "primary" instead .. ';
-                $name = 'primary';
-                $result = $this->db->manager->createConstraint($this->table, $name, $constraint);
-            }
             $this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
         }
     }
