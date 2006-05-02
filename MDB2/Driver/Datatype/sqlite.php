@@ -92,8 +92,11 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            return array_key_exists('length', $field)
-                ? 'CHAR('.$field['length'].')' : 'TEXT';
+            $length = array_key_exists('length', $field)
+                ? $field['length'] : false;
+            $fixed = array_key_exists('fixed', $field) ? $field['fixed'] : false;
+            return $fixed ? ( ? 'CHAR('.$length.')' : 'CHAR('.$db->options['default_text_field_length'].')')
+                : ($length ? 'VARCHAR('.$length.')' : 'TEXT');
         case 'clob':
             if (array_key_exists('length', $field)) {
                 $length = $field['length'];

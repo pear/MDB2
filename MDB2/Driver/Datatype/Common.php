@@ -298,7 +298,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
         switch ($field['type']) {
         case 'text':
-            return array_key_exists('length', $field) ? 'CHAR ('.$field['length'].')' : 'TEXT';
+            $length = array_key_exists('length', $field)
+                ? $field['length'] : $db->options['default_text_field_length'];
+            $fixed = array_key_exists('fixed', $field) ? $field['fixed'] : false;
+            return $fixed ? ( ? 'CHAR('.$length.')' : 'CHAR('.$db->options['default_text_field_length'].')')
+                : ($length ? 'VARCHAR('.$length.')' : 'TEXT');
         case 'clob':
             return 'TEXT';
         case 'blob':
@@ -777,6 +781,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $length = array_key_exists('length', $current) ? $current['length'] : 0;
         if ($previous_length != $length) {
             $change['length'] = true;
+        }
+        $previous_fixed = array_key_exists('fixed', $previous) ? $previous['fixed'] : 0;
+        $fixed = array_key_exists('fixed', $current) ? $current['fixed'] : 0;
+        if ($previous_fixed != $fixed) {
+            $change['fixed'] = true;
         }
         return $change;
     }

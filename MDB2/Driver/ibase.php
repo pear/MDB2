@@ -94,7 +94,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->options['DBA_password'] = false;
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '.gdb';
-        $this->options['default_text_field_length'] = 4096;
         $this->options['server_version'] = '';
     }
 

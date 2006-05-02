@@ -121,8 +121,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            return array_key_exists('length', $field)
-                ? 'VARCHAR ('.$field['length'].')' : 'TEXT';
+            $length = array_key_exists('length', $field)
+                ? $field['length'] : $db->options['default_text_field_length'];
+            $fixed = array_key_exists('fixed', $field) ? $field['fixed'] : false;
+            return $fixed ? ( ? 'CHAR('.$length.')' : 'CHAR('.$db->options['default_text_field_length'].')')
+                : ($length ? 'VARCHAR('.$length.')' : 'TEXT');
         case 'clob':
             return 'OID';
         case 'blob':

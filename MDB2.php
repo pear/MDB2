@@ -1022,6 +1022,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['persistent'] -> boolean persistent connection?
      * $options['debug'] -> integer numeric debug level
      * $options['debug_handler'] -> string function/method that captures debug messages
+     * $options['default_text_field_length'] -> default text field length to use
      * $options['lob_buffer_length'] -> integer LOB buffer length
      * $options['log_line_break'] -> string line-break format
      * $options['idxname_format'] -> string pattern for index name
@@ -1047,6 +1048,7 @@ class MDB2_Driver_Common extends PEAR
             'persistent' => false,
             'debug' => 0,
             'debug_handler' => 'MDB2_defaultDebugOutput',
+            'default_text_field_length' => 4096,
             'lob_buffer_length' => 8192,
             'log_line_break' => "\n",
             'idxname_format' => '%s_idx',
