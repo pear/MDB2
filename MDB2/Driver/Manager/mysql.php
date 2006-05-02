@@ -614,7 +614,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     // {{{ createIndex()
 
     /**
-     * get the stucture of a field into an array
+     * Get the stucture of a field into an array
      *
      * @author Leoncx
      * @param string    $table         name of the table on which the index is to be created

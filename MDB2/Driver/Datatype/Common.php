@@ -688,7 +688,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access public
      */
     function compareDefinition($current, $previous)
@@ -740,7 +740,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareIntegerDefinition($current, $previous)
@@ -767,7 +767,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareTextDefinition($current, $previous)
@@ -789,7 +789,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareCLOBDefinition($current, $previous)
@@ -805,7 +805,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareBLOBDefinition($current, $previous)
@@ -821,7 +821,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareDateDefinition($current, $previous)
@@ -837,7 +837,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareTimeDefinition($current, $previous)
@@ -853,7 +853,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareTimestampDefinition($current, $previous)
@@ -869,7 +869,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareBooleanDefinition($current, $previous)
@@ -885,7 +885,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareFloatDefinition($current, $previous)
@@ -901,7 +901,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access protected
      */
     function _compareDecimalDefinition($current, $previous)

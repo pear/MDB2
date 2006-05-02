@@ -64,7 +64,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     // {{{ getFieldDeclarationList()
 
     /**
-     * get declaration of a number of field in bulk
+     * Get declaration of a number of field in bulk
      *
      * @param string $fields  a multidimensional associative array.
      *      The first dimension determines the field name, while the second
@@ -551,7 +551,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     // {{{ createIndex()
 
     /**
-     * get the stucture of a field into an array
+     * Get the stucture of a field into an array
      *
      * @param string    $table         name of the table on which the index is to be created
      * @param string    $name         name of the index to be created

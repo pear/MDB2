@@ -381,7 +381,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     // {{{ _affectedRows()
 
     /**
-     * returns the number of rows affected
+     * Returns the number of rows affected
      *
      * @param resource $result
      * @param resource $connection
@@ -450,10 +450,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     // {{{ nextID()
 
     /**
-     * returns the next free id of a sequence
+     * Returns the next free id of a sequence
      *
      * @param string $seq_name name of the sequence
-     * @param boolean $ondemand when true the seqence is
+     * @param boolean $ondemand when true the sequence is
      *                          automatic created, if it
      *                          not exists
      *
@@ -503,7 +503,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     // }}}
     // {{{ lastInsertID()
     /**
-     * returns the autoincrement ID if supported or $id
+     * Returns the autoincrement ID if supported or $id
      *
      * @param mixed $id value as returned by getBeforeId()
      * @param string $table name of the table into which a new row was inserted
@@ -725,7 +725,7 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
     // {{{ seek()
 
     /**
-     * seek to a specific row in a result set
+     * Seek to a specific row in a result set
      *
      * @param int    $rownum    number of the row where the data can be found
      * @return mixed MDB2_OK on success, a MDB2 error on failure
@@ -750,7 +750,7 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
     // {{{ valid()
 
     /**
-     * check if the end of the result set has been reached
+     * Check if the end of the result set has been reached
      *
      * @return mixed true or false on sucess, a MDB2 error on failure
      * @access public
@@ -768,7 +768,7 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
     // {{{ numRows()
 
     /**
-     * returns the number of rows in a result object
+     * Returns the number of rows in a result object
      *
      * @return mixed MDB2 Error Object or the number of rows
      * @access public

@@ -113,7 +113,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
     // {{{ getTableFieldDefinition()
 
     /**
-     * get the stucture of a field into an array
+     * Get the stucture of a field into an array
      *
      * @param string    $table         name of table that should be used in method
      * @param string    $field_name     name of field that should be used in method
@@ -197,7 +197,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
     // {{{ getTableIndexDefinition()
 
     /**
-     * get the stucture of an index into an array
+     * Get the stucture of an index into an array
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
@@ -260,7 +260,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
     // {{{ getTableConstraintDefinition()
 
     /**
-     * get the stucture of a constraint into an array
+     * Get the stucture of a constraint into an array
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method

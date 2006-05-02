@@ -183,7 +183,7 @@ class MDB2_LOB
     // {{{ stream_eof()
 
     /**
-     * check if stream reaches EOF
+     * Check if stream reaches EOF
      *
      * @return bool
      * @access public
@@ -207,7 +207,7 @@ class MDB2_LOB
     // {{{ stream_seek()
 
     /**
-     * seek stream, not implemented
+     * Seek stream, not implemented
      *
      * @param int offset
      * @param int whence

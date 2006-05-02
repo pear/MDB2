@@ -70,7 +70,7 @@ class MDB2_Iterator implements Iterator
     // {{{ seek()
 
     /**
-     * seek forward to a specific row in a result set
+     * Seek forward to a specific row in a result set
      *
      * @param int number of the row where the data can be found
      *
@@ -124,7 +124,7 @@ class MDB2_Iterator implements Iterator
     // {{{ valid()
 
     /**
-     * check if the end of the result set has been reached
+     * Check if the end of the result set has been reached
      *
      * @return bool true/false, false is also returned on failure
      * @access public
@@ -157,7 +157,7 @@ class MDB2_Iterator implements Iterator
     // {{{ key()
 
     /**
-     * returns the row number
+     * Returns the row number
      *
      * @return int|bool|MDB2_Error true on success, false|MDB2_Error if result is invalid
      * @access public
@@ -174,7 +174,7 @@ class MDB2_Iterator implements Iterator
     // {{{ rewind()
 
     /**
-     * seek to the first row in a result set
+     * Seek to the first row in a result set
      *
      * @return void
      * @access public
@@ -201,7 +201,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     // {{{ valid()
 
     /**
-     * check if the end of the result set has been reached
+     * Check if the end of the result set has been reached
      *
      * @return bool|MDB2_Error true on success, false|MDB2_Error if result is invalid
      * @access public
@@ -218,7 +218,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     // {{{count()
 
     /**
-     * returns the number of rows in a result object
+     * Returns the number of rows in a result object
      *
      * @return int|MDB2_Error number of rows, false|MDB2_Error if result is invalid
      * @access public
@@ -235,7 +235,7 @@ class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
     // {{{ rewind()
 
     /**
-     * seek to the first row in a result set
+     * Seek to the first row in a result set
      *
      * @return void
      * @access public

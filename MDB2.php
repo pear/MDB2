@@ -317,7 +317,7 @@ class MDB2
      * Loads a PEAR class.
      *
      * @param  string  $class_name  classname to load
-     * @param  bool    $debug       if errors should be supressed
+     * @param  bool    $debug       if errors should be suppressed
      * @return bool  true success or false on failure
      *
      * @access public
@@ -447,8 +447,8 @@ class MDB2
 
     /**
      * Returns a MDB2 connection with the requested DSN.
-     * A newnew MDB2 connection object is only created if no object with the
-     * reuested DSN exists yet.
+     * A new MDB2 connection object is only created if no object with the
+     * requested DSN exists yet.
      *
      * IMPORTANT: In order for MDB2 to work properly it is necessary that
      * you make sure that you work with a reference of the original
@@ -869,7 +869,7 @@ class MDB2
     // {{{ function fileExists($file)
 
     /**
-     * checks if a file exists in the include path
+     * Checks if a file exists in the include path
      *
      * @access public
      * @param  string   filename
@@ -975,7 +975,7 @@ class MDB2_Driver_Common extends PEAR
     var $database_name = '';
 
     /**
-     * the name of the database currrently selected
+     * the name of the database currently selected
      * @var string
      * @access protected
      */
@@ -1013,7 +1013,7 @@ class MDB2_Driver_Common extends PEAR
     /**
      * $options['ssl'] -> determines if ssl should be used for connections
      * $options['field_case'] -> determines what case to force on field/table names
-     * $options['disable_query'] -> determines if querys should be executed
+     * $options['disable_query'] -> determines if queries should be executed
      * $options['result_class'] -> class used for result sets
      * $options['buffered_result_class'] -> class used for buffered result sets
      * $options['result_wrap_class'] -> class used to wrap result sets into
@@ -1021,7 +1021,7 @@ class MDB2_Driver_Common extends PEAR
      * $options['fetch_class'] -> class to use when fetch mode object is used
      * $options['persistent'] -> boolean persistent connection?
      * $options['debug'] -> integer numeric debug level
-     * $options['debug_handler'] -> string function/meothd that captures debug messages
+     * $options['debug_handler'] -> string function/method that captures debug messages
      * $options['lob_buffer_length'] -> integer LOB buffer length
      * $options['log_line_break'] -> string line-break format
      * $options['idxname_format'] -> string pattern for index name
@@ -1312,7 +1312,7 @@ class MDB2_Driver_Common extends PEAR
     // {{{ function getWarnings()
 
     /**
-     * get all warnings in reverse order.
+     * Get all warnings in reverse order.
      * This means that the last warning is the first element in the array
      *
      * @return array with warnings
@@ -1338,7 +1338,7 @@ class MDB2_Driver_Common extends PEAR
      *                               MDB2_FETCHMODE_OBJECT mode is selected.
      *                               If no class is specified by default a cast
      *                               to object from the assoc array row will be
-     *                               done.  There is also the posibility to use
+     *                               done.  There is also the possibility to use
      *                               and extend the 'MDB2_row' class.
      *
      * @return mixed MDB2_OK or MDB2 Error Object
@@ -1387,7 +1387,7 @@ class MDB2_Driver_Common extends PEAR
     // {{{ function getOption($option)
 
     /**
-     * returns the value of an option
+     * Returns the value of an option
      *
      * @param string $option option name
      * @return mixed the option value or error object
@@ -1660,7 +1660,7 @@ class MDB2_Driver_Common extends PEAR
             $this->{$property} =& new $class_name($this->db_index);
             $this->modules[$module] =& $this->{$property};
             if ($version) {
-                // this wil be used in the connect method to determine if the module
+                // this will be used in the connect method to determine if the module
                 // needs to be loaded with a different version if the server
                 // version changed in between connects
                 $this->loaded_version_modules[] = $property;
@@ -1821,7 +1821,7 @@ class MDB2_Driver_Common extends PEAR
     // {{{ function getDatabase()
 
     /**
-     * get the current database
+     * Get the current database
      *
      * @return string name of the database
      * @access public
@@ -1969,7 +1969,7 @@ class MDB2_Driver_Common extends PEAR
     // {{{ function _affectedRows($connection, $result = null)
 
     /**
-     * returns the number of rows affected
+     * Returns the number of rows affected
      *
      * @param resource $result
      * @param resource $connection
@@ -2128,7 +2128,7 @@ class MDB2_Driver_Common extends PEAR
      * return version information about the server
      *
      * @param string     $native  determines if the raw version string should be returned
-     * @return mixed array with versoin information or row string
+     * @return mixed array with version information or row string
      * @access public
      */
     function getServerVersion($native = false)
@@ -2221,9 +2221,9 @@ class MDB2_Driver_Common extends PEAR
      * inserting a new row.
      *
      * The REPLACE type of query does not make part of the SQL standards. Since
-     * pratically only MySQL implements it natively, this type of query is
-     * emulated through this method for other DBMS using standard types of
-     * queries inside a transaction to assure the atomicity of the operation.
+     * practically only MySQL and SQLIte implement it natively, this type of
+     * query isemulated through this method for other DBMS using standard types
+     * of queries inside a transaction to assure the atomicity of the operation.
      *
      * @param string $table name of the table on which the REPLACE query will
      *       be executed.
@@ -2518,7 +2518,7 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param array $current new definition
      * @param array  $previous old definition
-     * @return array  containg all changes that will need to be applied
+     * @return array  containing all changes that will need to be applied
      * @access public
      */
     function compareDefinition($current, $previous)
@@ -2587,10 +2587,10 @@ class MDB2_Driver_Common extends PEAR
     // {{{ function nextID($seq_name, $ondemand = true)
 
     /**
-     * returns the next free id of a sequence
+     * Returns the next free id of a sequence
      *
      * @param string $seq_name name of the sequence
-     * @param boolean $ondemand when true the seqence is
+     * @param boolean $ondemand when true the sequence is
      *                           automatic created, if it
      *                           not exists
      * @return mixed MDB2 Error Object or id
@@ -2606,7 +2606,7 @@ class MDB2_Driver_Common extends PEAR
     // {{{ function lastInsertID($table = null, $field = null)
 
     /**
-     * returns the autoincrement ID if supported or $id
+     * Returns the autoincrement ID if supported or $id
      *
      * @param mixed $id value as returned by getBeforeId()
      * @param string $table name of the table into which a new row was inserted
@@ -2623,7 +2623,7 @@ class MDB2_Driver_Common extends PEAR
     // {{{ function currID($seq_name)
 
     /**
-     * returns the current id of a sequence
+     * Returns the current id of a sequence
      *
      * @param string $seq_name name of the sequence
      * @return mixed MDB2 Error Object or id
@@ -2862,7 +2862,7 @@ class MDB2_Result_Common extends MDB2_Result
 
     // {{{ function seek($rownum = 0)
     /**
-     * seek to a specific row in a result set
+     * Seek to a specific row in a result set
      *
      * @param int    $rownum    number of the row where the data can be found
      * @return mixed MDB2_OK on success, a MDB2 error on failure
@@ -3041,7 +3041,7 @@ class MDB2_Result_Common extends MDB2_Result
 
     // {{{ function rowCount()
     /**
-     * returns the actual row number that was last fetched (count from 0)
+     * Returns the actual row number that was last fetched (count from 0)
      * @return integer
      */
 
@@ -3054,7 +3054,7 @@ class MDB2_Result_Common extends MDB2_Result
     // {{{ function numRows()
 
     /**
-     * returns the number of rows in a result object
+     * Returns the number of rows in a result object
      *
      * @return mixed MDB2 Error Object or the number of rows
      * @access public
@@ -3388,7 +3388,7 @@ class MDB2_Statement_Common
     /**
      * Set the values of multiple a parameter of a prepared query in bulk.
      *
-     * @param array $values array thats specifies all necessary infromation
+     * @param array $values array that specifies all necessary information
      *       for bindParam() the array elements must use keys corresponding to
      *       the number of the position of the parameter.
      * @param array $types specifies the types of the fields
@@ -3412,7 +3412,7 @@ class MDB2_Statement_Common
     /**
      * Execute a prepared query statement.
      *
-     * @param array $values array thats specifies all necessary infromation
+     * @param array $values array that specifies all necessary information
      *       for bindParam() the array elements must use keys corresponding to
      *       the number of the position of the parameter.
      * @param mixed $result_class string which specifies which result class to use
@@ -3541,7 +3541,7 @@ class MDB2_Module_Common
     // {{{ function &getDBInstance()
 
     /**
-     * get the instance of MDB2 associated with the module instance
+     * Get the instance of MDB2 associated with the module instance
      *
      * @return object MDB2 instance or a MDB2 error on failure
      * @access public
@@ -3561,7 +3561,7 @@ class MDB2_Module_Common
 
 // {{{ function MDB2_closeOpenTransactions()
 /**
- * close any open transactions form persistant connections
+ * Close any open transactions form persistent connections
  *
  * @return void
  * @access public

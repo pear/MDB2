@@ -539,7 +539,7 @@ class MDB2_Extended extends MDB2_Module_Common
     // {{{ getBeforeID()
 
     /**
-     * returns the next free id of a sequence if the RDBMS
+     * Returns the next free id of a sequence if the RDBMS
      * does not support auto increment
      *
      * @param string name of the table into which a new row was inserted
@@ -571,7 +571,7 @@ class MDB2_Extended extends MDB2_Module_Common
     // {{{ getAfterID()
 
     /**
-     * returns the autoincrement ID if supported or $id
+     * Returns the autoincrement ID if supported or $id
      *
      * @param mixed value as returned by getBeforeId()
      * @param string name of the table into which a new row was inserted
