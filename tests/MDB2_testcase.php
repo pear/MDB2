@@ -56,6 +56,8 @@ class MDB2_TestCase extends PHPUnit_TestCase {
     var $fields;
     // contains the types of the fields from the test table
     var $types;
+    // if the tables should be cleared in the setUp() and tearDown() methods
+    var $clear_tables = true;
 
     function MDB2_TestCase($name) {
         $this->PHPUnit_TestCase($name);
@@ -93,6 +95,9 @@ class MDB2_TestCase extends PHPUnit_TestCase {
     }
 
     function clearTables() {
+        if (!$this->clear_tables) {
+            return;
+        }
         if ($this->tableExists('users') && PEAR::isError($this->db->exec('DELETE FROM users'))) {
             $this->assertTrue(false, 'Error deleting from table users');
         }

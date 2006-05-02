@@ -46,6 +46,8 @@
 require_once 'MDB2_testcase.php';
 
 class MDB2_Api_TestCase extends MDB2_TestCase {
+    var $clear_tables = false;
+
     //test stuff in common.php
     function testConnect() {
         $db =& MDB2::factory($this->dsn, $this->options);
