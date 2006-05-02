@@ -98,7 +98,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
         if (!$this->clear_tables) {
             return;
         }
-        if PEAR::isError($this->db->exec('DELETE FROM users'))) {
+        if (PEAR::isError($this->db->exec('DELETE FROM users'))) {
             $this->assertTrue(false, 'Error deleting from table users');
         }
         if (PEAR::isError($this->db->exec('DELETE FROM files'))) {
