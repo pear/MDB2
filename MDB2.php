@@ -1277,8 +1277,12 @@ class MDB2_Driver_Common extends PEAR
                 $mode    = $this->_default_error_mode;
                 $options = $this->_default_error_options;
             }
-        } elseif (is_null($userinfo) && isset($this->connection)) {
-            if (!empty($this->last_query)) {
+            if (is_null($userinfo)) {
+                $userinfo = $code->getUserinfo();
+            }
+            $code = $code->getCode();
+        } elseif (isset($this->connection)) {
+            if (is_null($userinfo) && !empty($this->last_query)) {
                 $userinfo = "[Last query: {$this->last_query}]\n";
             }
             $native_errno = $native_msg = null;
@@ -1916,7 +1920,7 @@ class MDB2_Driver_Common extends PEAR
             return $connection;
         }
 
-        $result = $this->_doQuery($query, $is_manip, $connection, false);
+        $result =& $this->_doQuery($query, $is_manip, $connection, false);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -1948,7 +1952,7 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
-    // {{{ function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    // {{{ function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
 
     /**
      * Execute a query
@@ -1959,12 +1963,13 @@ class MDB2_Driver_Common extends PEAR
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query', $is_manip);
-        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        $err =& $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             '_doQuery: method not implemented');
+        return $err;
     }
     // }}}
 
@@ -2005,7 +2010,7 @@ class MDB2_Driver_Common extends PEAR
             return $connection;
         }
 
-        $result = $this->_doQuery($query, true, $connection, $this->database_name);
+        $result =& $this->_doQuery($query, true, $connection, $this->database_name);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -2039,7 +2044,7 @@ class MDB2_Driver_Common extends PEAR
             return $connection;
         }
 
-        $result = $this->_doQuery($query, false, $connection, $this->database_name);
+        $result =& $this->_doQuery($query, false, $connection, $this->database_name);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -2323,13 +2328,13 @@ class MDB2_Driver_Common extends PEAR
 
         $condition = ' WHERE '.implode(' AND ', $condition);
         $query = "DELETE FROM $table$condition";
-        $result = $this->_doQuery($query, true, $connection);
+        $result =& $this->_doQuery($query, true, $connection);
         if (!PEAR::isError($result)) {
             $affected_rows = $this->_affectedRows($connection, $result);
             $insert = implode(', ', array_keys($values));
             $values = implode(', ', $values);
             $query = "INSERT INTO $table ($insert) VALUES ($values)";
-            $result = $this->_doQuery($query, true, $connection);
+            $result =& $this->_doQuery($query, true, $connection);
             if (!PEAR::isError($result)) {
                 $affected_rows += $this->_affectedRows($connection, $result);;
             }
@@ -3346,7 +3351,8 @@ class MDB2_Statement_Common
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
         }
         if (!array_key_exists($parameter, $this->positions)) {
-            return $this->db->raiseError();
+            return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'bindValue: Unable to bind to missing placeholder: '.$parameter);
         }
         $this->values[$parameter] = $value;
         if (!is_null($type)) {
@@ -3375,7 +3381,8 @@ class MDB2_Statement_Common
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
         }
         if (!array_key_exists($parameter, $this->positions)) {
-            return $this->db->raiseError();
+            return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'bindParam: Unable to bind to missing placeholder: '.$parameter);
         }
         $this->values[$parameter] =& $value;
         if (!is_null($type)) {
@@ -3451,7 +3458,8 @@ class MDB2_Statement_Common
         $last_position = 0;
         foreach ($this->positions as $parameter => $current_position) {
             if (!array_key_exists($parameter, $this->values)) {
-                return $this->db->raiseError();
+                return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                    '_execute: Unable to bind to missing placeholder: '.$parameter);
             }
             $value = $this->values[$parameter];
             $query.= substr($this->query, $last_position, $current_position - $last_position);
@@ -3553,7 +3561,8 @@ class MDB2_Module_Common
         if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
             $result =& $GLOBALS['_MDB2_databases'][$this->db_index];
         } else {
-            $result =& MDB2::raiseError(MDB2_ERROR, null, null, 'could not find MDB2 instance');
+            $result =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'could not find MDB2 instance');
         }
         return $result;
     }
