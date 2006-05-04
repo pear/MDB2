@@ -4,6 +4,9 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+
+open todo item:
+- only use native prepared queries of mysql 4.1 or higher
 EOT;
 
 $package = new PEAR_PackageFileManager();

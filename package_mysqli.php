@@ -7,6 +7,7 @@ $notes = <<<EOT
 
 open todo item:
 - use native prepared queries for prepared SELECT statements
+- only use native prepared queries of mysql 4.1 or higher
 EOT;
 
 $package = new PEAR_PackageFileManager();
