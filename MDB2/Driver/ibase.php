@@ -273,7 +273,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
         $result = @ibase_trans(IBASE_DEFAULT, $connection);
         if (!$result) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(null, null, null,
                 'beginTransaction: could not start a transaction');
         }
         $this->transaction_id = $result;
@@ -295,11 +295,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     {
         $this->debug('commit transaction', 'commit', false);
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit: transaction changes are being auto committed');
         }
         if (!@ibase_commit($this->transaction_id)) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(null, null, null,
                 'commit: could not commit a transaction');
         }
         $this->in_transaction = false;
@@ -321,12 +321,12 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     {
         $this->debug('rolling back transaction', 'rollback', false);
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
         if ($this->transaction_id && !@ibase_rollback($this->transaction_id)) {
-            return $this->raiseError(MDB2_ERROR, null, null,
-                'rollback: Could not rollback a pending transaction: '.@ibase_errmsg());
+            return $this->raiseError(null, null, null,
+                'rollback: Could not rollback a pending transaction');
         }
         $this->in_transaction = false;
         $this->transaction_id = 0;
@@ -479,7 +479,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query', $is_manip);
@@ -499,7 +499,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $result = @ibase_query($connection, $query);
 
         if ($result === false) {
-            return $this->raiseError();
+            $err = $this->raiseError(null, null, null,
+                '_doQuery: Could not execute statement');
+            return $err;
         }
 
         return $result;
@@ -580,7 +582,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if (!$native) {
             //WI-V1.5.3.4854 Firebird 1.5
             if (!preg_match('/-V([\d\.]*)/', $server_info, $matches)) {
-                return $this->raiseError(MDB2_ERROR, null, null,
+                return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                     'getServerVersion: Could not parse version information:'.$server_info);
             }
             $tmp = explode('.', $matches[1], 4);
@@ -696,7 +698,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
         $statement = @ibase_prepare($connection, $query);
         if (!$statement) {
-            $err =& $this->raiseError(MDB2_ERROR, null, null,
+            $err =& $this->raiseError(null, null, null,
                 'Could not create statement');
             return $err;
         }
@@ -749,7 +751,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 // sequence at 2
                 $result = $this->manager->createSequence($seq_name, 2);
                 if (PEAR::isError($result)) {
-                    return $this->raiseError(MDB2_ERROR, null, null,
+                    return $this->raiseError($result, null, null,
                         'nextID: on demand sequence could not be created');
                 } else {
                     // First ID of a newly created sequence is 1
@@ -776,9 +778,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $query = 'SELECT GEN_ID('.$sequence_name.', 0) as the_value FROM RDB$DATABASE';
-        $value = @$this->queryOne($query);
+        $value = $this->queryOne($query);
         if (PEAR::isError($value)) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError($result, null, null,
                 'currID: Unable to select from ' . $seq_name) ;
         }
         if (!is_numeric($value)) {
@@ -957,7 +959,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             } elseif (is_null($this->result)) {
                 return count($this->types);
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'numCols: Could not get column count');
         }
         return $cols;
     }
@@ -979,7 +982,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
                 if (!$this->result) {
                     return MDB2_OK;
                 }
-                return $this->db->raiseError();
+                return $this->db->raiseError(null, null, null,
+                    'numCols: Could not free result');
             }
         }
         $this->result = false;
@@ -1228,7 +1232,8 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         $parameters = array(0 => $this->statement);
         foreach ($this->positions as $parameter => $current_position) {
             if (!array_key_exists($parameter, $this->values)) {
-                return $this->db->raiseError();
+                return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                    '_execute: Unable to bind to missing placeholder: '.$parameter);
             }
             $value = $this->values[$parameter];
             $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
@@ -1237,7 +1242,8 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
 
         $result = @call_user_func_array('ibase_execute', $parameters);
         if ($result === false) {
-            $err =& $this->db->raiseError();
+            $err =& $this->db->raiseError(null, null, null,
+                '_execute: Could not execute statement');
             return $err;
         }
 
@@ -1265,7 +1271,8 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
     function free()
     {
         if (!@ibase_free_query($this->statement)) {
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'free: Could not free statement');
         }
         return MDB2_OK;
     }

@@ -301,7 +301,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             $length = array_key_exists('length', $field)
                 ? $field['length'] : $db->options['default_text_field_length'];
             $fixed = array_key_exists('fixed', $field) ? $field['fixed'] : false;
-            return $fixed ? ( ? 'CHAR('.$length.')' : 'CHAR('.$db->options['default_text_field_length'].')')
+            return $fixed ? ($length ? 'CHAR('.$length.')' : 'CHAR('.$db->options['default_text_field_length'].')')
                 : ($length ? 'VARCHAR('.$length.')' : 'TEXT');
         case 'clob':
             return 'TEXT';
@@ -1300,17 +1300,17 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $fp = fopen($file, 'wb');
-        while (!feof($lob)) {
-            $result = fread($lob, $db->options['lob_buffer_length']);
+        $fp = @fopen($file, 'wb');
+        while (!@feof($lob)) {
+            $result = @fread($lob, $db->options['lob_buffer_length']);
             $read = strlen($result);
-            if (fwrite($fp, $result, $read) != $read) {
-                fclose($fp);
+            if (@fwrite($fp, $result, $read) != $read) {
+                @fclose($fp);
                 return $db->raiseError(MDB2_ERROR, null, null,
                     'writeLOBToFile: could not write to the output file');
             }
         }
-        fclose($fp);
+        @fclose($fp);
         return MDB2_OK;
     }
 

@@ -89,7 +89,8 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = $db->_doQuery('SELECT TOP 0 * FROM '.$db->quoteIdentifier($result), false);
+            $query = 'SELECT TOP 0 * FROM '.$db->quoteIdentifier($result);
+            $id =& $db->_doQuery($query, false);
             if (PEAR::isError($id)) {
                 return $id;
             }

@@ -264,7 +264,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
              * Create a result resource identifier.
              */
             $query = "SELECT * FROM ".$db->quoteIdentifier($result)." LIMIT 0";
-            $id = $db->_doQuery($query, false);
+            $id =& $db->_doQuery($query, false);
             if (PEAR::isError($id)) {
                 return $id;
             }

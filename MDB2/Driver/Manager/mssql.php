@@ -477,14 +477,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         $result = $db->exec("DROP TABLE $sequence_name");
         if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
-                   'createSequence: could not drop inconsistent sequence table ('.
-                   $result->getMessage().' ('.$result->getUserInfo(). '))');
+            return $db->raiseError($result, null, null,
+                'createSequence: could not drop inconsistent sequence table');
         }
 
-        return $db->raiseError(MDB2_ERROR, null, null,
-               'createSequence: could not create sequence table ('.
-               $res->getMessage(). ' ('.$res->getUserInfo(). '))');
+        return $db->raiseError($res, null, null,
+            'createSequence: could not create sequence table');
     }
     // }}}
     // {{{ dropSequence()

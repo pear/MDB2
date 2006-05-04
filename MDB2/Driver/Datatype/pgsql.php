@@ -247,7 +247,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return $connection;
         }
         if (!$db->in_transaction && !@pg_query($connection, 'BEGIN')) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(null, null, null,
                 'error starting transaction');
         }
         if (is_resource($value)) {
@@ -276,7 +276,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                             break;
                         }
                         if (!@pg_lo_write($handle, $data)) {
-                            $result = $db->raiseError();
+                            $result = $db->raiseError(null, null, null,
+                                '_quoteLOB: Unable to write LOB into the database');
                             break;
                         }
                     }
@@ -285,7 +286,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                     }
                     @pg_lo_close($handle);
                 } else {
-                    $result = $db->raiseError();
+                    $result = $db->raiseError(null, null, null,
+                                '_quoteLOB: Unable to open LOB in the database');
                     @pg_lo_unlink($connection, $lo);
                 }
             }
@@ -294,7 +296,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             }
         } else {
             if (!@pg_lo_import($connection, $value)) {
-                $result = $db->raiseError();
+                $result = $db->raiseError(null, null, null,
+                    '_quoteLOB: Unable to import LOB into the database');
             }
         }
         if (!$db->in_transaction) {
@@ -390,7 +393,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         $lob_data = stream_get_meta_data($lob);
         $lob_index = $lob_data['wrapper_data']->lob_index;
         if (!pg_lo_export($connection, $this->lobs[$lob_index]['ressource'], $file)) {
-            return $db->raiseError();
+            return $db->raiseError(null, null, null,
+                'writeLOBToFile: Unable to write LOB to file');
         }
         return MDB2_OK;
     }
@@ -420,7 +424,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
 
             if (!$db->in_transaction) {
                 if (!@pg_query($connection, 'BEGIN')) {
-                    return $db->raiseError();
+                    return $db->raiseError(null, null, null,
+                        '_retrieveLOB: Unable to start transaction');
                 }
                 $lob['in_transaction'] = true;
             }
@@ -430,7 +435,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                     @pg_query($connection, 'END');
                     unset($lob['in_transaction']);
                 }
-                return $db->raiseError();
+                return $db->raiseError(null, null, null,
+                    '_retrieveLOB: Unable to open LOB');
             }
         }
         return MDB2_OK;
@@ -459,7 +465,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                 return $db;
             }
 
-            return $db->raiseError();
+            return $db->raiseError(null, null, null,
+                    '_readLOB: Unable to read LOB');
         }
         return $data;
     }
@@ -617,7 +624,7 @@ for some reason this piece of code causes an apache crash
                 return $db;
             }
 
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'getTableFieldDefinition: unknown database attribute type: '.$db_type);
         }
 

@@ -265,7 +265,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
                 return $db;
             }
 
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'mapNativeDatatype: unknown database attribute type: '.$db_type);
         }
 

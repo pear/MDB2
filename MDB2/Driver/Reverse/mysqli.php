@@ -189,7 +189,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             }
         }
 
-        return $db->raiseError(MDB2_ERROR, null, null,
+        return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
             'getTableFieldDefinition: it was not specified an existing table column');
     }
 
@@ -356,7 +356,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = $db->_doQuery('SELECT * FROM '.$db->quoteIdentifier($result).' LIMIT 0', false);
+            $query = 'SELECT * FROM '.$db->quoteIdentifier($result).' LIMIT 0';
+            $id =& $db->_doQuery($query, false);
             if (PEAR::isError($id)) {
                 return $id;
             }

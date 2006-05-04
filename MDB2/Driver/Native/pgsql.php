@@ -76,7 +76,8 @@ class MDB2_Driver_Native_pgsql extends MDB2_Module_Common
         }
 
         if (!@pg_lo_unlink($connection, $OID)) {
-            return $db->raiseError();
+            return $db->raiseError(null, null, null,
+                'deleteOID: Unable to unlink OID: '.$OID);
         }
         return MDB2_OK;
     }

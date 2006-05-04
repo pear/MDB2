@@ -180,7 +180,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
         $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
-        $result = $this->_doQuery($query, true);
+        $result =& $this->_doQuery($query, true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -202,11 +202,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     {
         $this->debug('commit transaction', 'commit', false);
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit: transaction changes are being auto committed');
         }
         $query = 'COMMIT TRANSACTION '.$this->options['base_transaction_name'];
-        $result = $this->_doQuery($query, true);
+        $result =& $this->_doQuery($query, true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -228,11 +228,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     {
         $this->debug('rolling back transaction', 'rollback', false);
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
         $query = 'ROLLBACK TRANSACTION '.$this->options['base_transaction_name'];
-        $result = $this->_doQuery($query, true);
+        $result =& $this->_doQuery($query, true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -322,8 +322,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             }
 
             if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
-                return $this->raiseError(MDB2_ERROR_UNSUPPORTED,
-                    null, null, 'Unable to set client charset: '.$this->dsn['charset']);
+                return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'Unable to set client charset: '.$this->dsn['charset']);
             }
 
             $this->connection = $connection;
@@ -395,7 +395,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query', $is_manip);
@@ -422,7 +422,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->_lasterror = $php_errormsg;
 
         if (!$result) {
-            return $this->raiseError();
+            $err =& $this->raiseError(null, null, null,
+                '_doQuery: Could not execute statement');
+            return $err;
         }
 
         return $result;
@@ -632,7 +634,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $query = "REPLACE INTO $table ($query) VALUES ($values)";
         $this->last_query = $query;
         $this->debug($query, 'query', true);
-        $result = $this->_doQuery($query, true, $connection);
+        $result =& $this->_doQuery($query, true, $connection);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -659,7 +661,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $seqcol_name = $this->options['seqcol_name'];
         $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (NULL)";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->_doQuery($query, true);
+        $result =& $this->_doQuery($query, true);
         $this->popExpect();
         if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -669,7 +671,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 // sequence at 2
                 $result = $this->manager->createSequence($seq_name, 2);
                 if (PEAR::isError($result)) {
-                    return $this->raiseError(MDB2_ERROR, null, null,
+                    return $this->raiseError($result, null, null,
                         'nextID: on demand sequence '.$seq_name.' could not be created');
                 } else {
                     // First ID of a newly created sequence is 1
@@ -681,7 +683,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $value = $this->lastInsertID();
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
-            $result = $this->_doQuery($query, true);
+            $result =& $this->_doQuery($query, true);
             if (PEAR::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
             }
@@ -708,7 +710,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
         $value = @sqlite_last_insert_rowid($connection);
         if (!$value) {
-            return $this->raiseError();
+            return $this->raiseError(null, null, null,
+                'lastInsertID: Could not get last insert ID');
         }
         return $value;
     }
@@ -851,7 +854,8 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
             } elseif (is_null($this->result)) {
                 return count($this->types);
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'numCols: Could not get column count');
         }
         return $cols;
     }
@@ -921,7 +925,8 @@ class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
             } elseif (is_null($this->result)) {
                 return 0;
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'numRows: Could not get row count');
         }
         return $rows;
     }

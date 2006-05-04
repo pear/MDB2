@@ -158,7 +158,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $column;
         }
         if (empty($column)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableFieldDefinition: it was not specified an existing table column');
         }
         $column = array_change_key_case($column, CASE_LOWER);
@@ -406,7 +406,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = $db->_doQuery('SELECT * FROM '.$db->quoteIdentifier($result).' WHERE 1=0', false);
+            $id =& $db->_doQuery('SELECT * FROM '.$db->quoteIdentifier($result).' WHERE 1=0', false);
             if (PEAR::isError($id)) {
                 return $id;
             }
@@ -512,7 +512,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                .' WHERE I.RDB$FIELD_NAME=\'' . $field_name . '\''
                .'  AND UPPER(R.RDB$RELATION_NAME)=\'' . strtoupper($table_name) . '\'';
 
-        $result = $db->_doQuery($query, false);
+        $result =& $db->_doQuery($query, false);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -537,7 +537,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                .' WHERE UPPER(R.RDB$RELATION_NAME)=\'' . strtoupper($table_name) . '\''
                .'  AND R.RDB$FIELD_NAME=\'' . $field_name . '\'';
 
-        $result = $db->_doQuery($query, false);
+        $result =& $db->_doQuery($query, false);
         if (PEAR::isError($result)) {
             return $result;
         }

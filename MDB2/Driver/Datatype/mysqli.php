@@ -370,7 +370,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
                 return $db;
             }
 
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'getTableFieldDefinition: unknown database attribute type: '.$db_type);
         }
 

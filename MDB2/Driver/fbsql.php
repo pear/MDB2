@@ -155,7 +155,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             $this->destructor_registered = true;
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
-        $result = $this->_doQuery('SET COMMIT FALSE;', true);
+        $result =& $this->_doQuery('SET COMMIT FALSE;', true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -177,14 +177,14 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     {
         $this->debug('commit transaction', 'commit', false);
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit: transaction changes are being auto commited');
         }
-        $result = $this->_doQuery('COMMIT;', true);
+        $result =& $this->_doQuery('COMMIT;', true);
         if (PEAR::isError($result)) {
             return $result;
         }
-        $result = $this->_doQuery('SET COMMIT TRUE;', true);
+        $result =& $this->_doQuery('SET COMMIT TRUE;', true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -206,14 +206,14 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     {
         $this->debug('rolling back transaction', 'rollback', false);
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result = $this->_doQuery('ROLLBACK;', true);
+        $result =& $this->_doQuery('ROLLBACK;', true);
         if (PEAR::isError($result)) {
             return $result;
         }
-        $result = $this->_doQuery('SET COMMIT TRUE;', true);
+        $result =& $this->_doQuery('SET COMMIT TRUE;', true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -246,8 +246,8 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
 
         if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED,
-                null, null, 'Unable to set client charset: '.$this->dsn['charset']);
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'Unable to set client charset: '.$this->dsn['charset']);
         }
 
         $params = array(
@@ -313,7 +313,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query', $is_manip);
@@ -337,7 +337,9 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         if ($database_name) {
             if ($database_name != $this->connected_database_name) {
                 if (!@fbsql_select_db($database_name, $connection)) {
-                    return $this->raiseError();
+                    $err = $this->raiseError(null, null, null,
+                        '_doQuery: Could not select the database: '.$database_name);
+                    return $err;
                 }
                 $this->connected_database_name = $database_name;
             }
@@ -345,7 +347,9 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
 
         $result = @fbsql_query($query, $connection);
         if (!$result) {
-            return $this->raiseError();
+            $err = $this->raiseError(null, null, null,
+                '_doQuery: Could not execute statement');
+            return $err;
         }
 
         return $result;
@@ -421,7 +425,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (NULL);";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->_doQuery($query, true);
+        $result =& $this->_doQuery($query, true);
         $this->popExpect();
         if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -431,7 +435,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 // sequence at 2
                 $result = $this->manager->createSequence($seq_name, 2);
                 if (PEAR::isError($result)) {
-                    return $this->raiseError(MDB2_ERROR, null, null,
+                    return $this->raiseError($result, null, null,
                         'nextID: on demand sequence '.$seq_name.' could not be created');
                 } else {
                     // First ID of a newly created sequence is 1
@@ -443,7 +447,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $value = $this->lastInsertID();
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
-            $result = $this->_doQuery($query, true);
+            $result =& $this->_doQuery($query, true);
             if (PEAR::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
             }
@@ -470,7 +474,8 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
         $value = @fbsql_insert_id($connection);
         if (!$value) {
-            return $this->raiseError();
+            return $this->raiseError(null, null, null,
+                'lastInsertID: Could not get last insert ID');
         }
         return $value;
     }
@@ -613,7 +618,8 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
             } elseif (is_null($this->result)) {
                 return count($this->types);
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'numCols: Could not get column count');
         }
         return $cols;
     }
@@ -654,7 +660,8 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
             if (!$this->result) {
                 return MDB2_OK;
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'free: Could not free result');
         }
         $this->result = false;
         return MDB2_OK;
@@ -726,7 +733,8 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
             } elseif (is_null($this->result)) {
                 return 0;
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'numRows: Could not get row count');
         }
         return $rows;
     }

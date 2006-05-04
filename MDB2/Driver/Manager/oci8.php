@@ -88,9 +88,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $query = 'DROP USER '.$username.' CASCADE';
             $result2 = $db->standaloneQuery($query, null, true);
             if (PEAR::isError($result2)) {
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'createDatabase: could not setup the database user ('.$result->getUserinfo().
-                        ') and then could drop its records ('.$result2->getUserinfo().')');
+                return $db->raiseError($result2, null, null,
+                    'createDatabase: could not setup the database user');
             }
             return $result;
         }
@@ -147,7 +146,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         );
         $result = $db->manager->createConstraint($table, $index_name, $definition);
         if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError($result, null, null,
                 '_makeAutoincrement: primary key for autoincrement PK could not be created');
         }
 
@@ -165,7 +164,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $result = $db->manager->createSequence($table, $start);
         }
         if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError($result, null, null,
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
         $sequence_name = $db->getSequenceName($table);
@@ -209,20 +208,20 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
             $result = $db->exec($trigger_sql);
             if (PEAR::isError($result)) {
-                return $db->raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError($result, null, null,
                     '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
             }
 
             $result = $db->manager->dropSequence($table);
             if (PEAR::isError($result)) {
-                return $db->raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError($result, null, null,
                     '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
             }
 
             $index_name = $table . '_AI_PK';
             $result = $db->manager->dropConstraint($table, $index_name);
             if (PEAR::isError($result)) {
-                return $db->raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError($result, null, null,
                     '_dropAutoincrement: primary key for autoincrement PK could not be dropped');
             }
         }

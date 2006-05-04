@@ -149,7 +149,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $result = $db->manager->createSequence($table, $start);
         }
         if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(null, null, null,
                 '_makeAutoincrement: sequence for autoincrement PK could not be created');
         }
 
@@ -187,7 +187,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         $result = $db->manager->dropSequence($table);
         if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(null, null, null,
                 '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
         }
         //remove autoincrement trigger associated with the table
@@ -195,7 +195,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $trigger_name = $db->quote(strtoupper($table) . '_AUTOINCREMENT_PK', 'text');
         $result = $db->exec("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)=$table AND UPPER(RDB\$TRIGGER_NAME)=$trigger_name");
         if (PEAR::isError($result)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(null, null, null,
                 '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
         }
         return MDB2_OK;
@@ -280,14 +280,14 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
             case 'notnull':
-                return $db->raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'checkSupportedChanges: it is not supported changes to field not null constraint');
             case 'default':
-                return $db->raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'checkSupportedChanges: it is not supported changes to field default value');
             case 'length':
                 /*
-                return $db->raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'checkSupportedChanges: it is not supported changes to field default length');
                 */
             case 'unsigned':
@@ -296,7 +296,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             case 'definition':
                 break;
             default:
-                return $db->raiseError(MDB2_ERROR, null, null,
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'checkSupportedChanges: it is not supported change of type' . $change_name);
             }
         }
@@ -919,9 +919,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         if (PEAR::isError($result = $db->exec('SET GENERATOR '.$sequence_name.' TO '.($start-1)))) {
             if (PEAR::isError($err = $db->dropSequence($seq_name))) {
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    'createSequence: Could not setup sequence start value and then it was not possible to drop it: '.
-                    $err->getMessage().' - ' .$err->getUserInfo());
+                return $db->raiseError($result, null, null,
+                    'createSequence: Could not setup sequence start value and then it was not possible to drop it');
             }
         }
         return $result;

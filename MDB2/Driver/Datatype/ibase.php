@@ -215,8 +215,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                     return $db;
                 }
 
-                return $db->raiseError(MDB2_ERROR, null, null,
-                    '_retrieveLOB: Could not open fetched large object field' . @ibase_errmsg());
+                return $db->raiseError(null, null, null,
+                    '_retrieveLOB: Could not open fetched large object field');
             }
         }
         return MDB2_OK;
@@ -245,8 +245,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                 return $db;
             }
 
-            return $db->raiseError(MDB2_ERROR, null, null,
-                'Read Result LOB: ' . @ibase_errmsg());
+            return $db->raiseError(null, null, null,
+                    '_readLOB: Unable to read LOB');
         }
         return $data;
     }
@@ -350,7 +350,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                 return $db;
             }
 
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'getTableFieldDefinition: unknown database attribute type: '.$db_type);
         }
 

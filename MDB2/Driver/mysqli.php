@@ -220,7 +220,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        $result = $this->_doQuery('SET AUTOCOMMIT = 0', true);
+        $result =& $this->_doQuery('SET AUTOCOMMIT = 0', true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -246,14 +246,14 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 'commit: transactions are not in use');
         }
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit: transaction changes are being auto committed');
         }
-        $result = $this->_doQuery('COMMIT', true);
+        $result =& $this->_doQuery('COMMIT', true);
         if (PEAR::isError($result)) {
             return $result;
         }
-        $result = $this->_doQuery('SET AUTOCOMMIT = 1', true);
+        $result =& $this->_doQuery('SET AUTOCOMMIT = 1', true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -279,14 +279,14 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 'rollback: transactions are not in use');
         }
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result = $this->_doQuery('ROLLBACK', true);
+        $result =& $this->_doQuery('ROLLBACK', true);
         if (PEAR::isError($result)) {
             return $result;
         }
-        $result = $this->_doQuery('SET AUTOCOMMIT = 1', true);
+        $result =& $this->_doQuery('SET AUTOCOMMIT = 1', true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -364,8 +364,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])
             && !@mysqli_query('SET character_set_client = '.$this->quote($this->dsn['charset'], 'text'), $connection)
         ) {
-            return $this->raiseError(MDB2_ERROR,
-                null, null, 'Unable to set client charset: '.$this->dsn['charset']);
+            return $this->raiseError(null, null, null,
+                'Unable to set client charset: '.$this->dsn['charset']);
         }
 
         $this->connection = $connection;
@@ -451,7 +451,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query', $is_manip);
@@ -475,7 +475,9 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if ($database_name) {
             if ($database_name != $this->connected_database_name) {
                 if (!@mysqli_select_db($connection, $database_name)) {
-                    return $this->raiseError();
+                    $err = $this->raiseError(null, null, null,
+                        '_doQuery: Could not select the database: '.$database_name);
+                    return $err;
                 }
                 $this->connected_database_name = $database_name;
             }
@@ -485,16 +487,22 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             ($this->options['result_buffering'] ? 'mysqli_query' : 'mysqli_unbuffered_query');
         $result = @$function($connection, $query);
         if (!$result) {
-            return $this->raiseError();
+            $err = $this->raiseError(null, null, null,
+                '_doQuery: Could not execute statement');
+            return $err;
         }
 
         if ($this->options['multi_query']) {
             if ($this->options['result_buffering']) {
                 if (!($result = @mysqli_store_result($connection))) {
-                    $this->raiseError();
+                    $err = $this->raiseError(null, null, null,
+                        '_doQuery: Could not get the first result from a multi query');
+                    return $err;
                 }
             } elseif (!($result = @mysqli_use_result($connection))) {
-                $this->raiseError();
+                $err = $this->raiseError(null, null, null,
+                        '_doQuery: Could not get the first result from a multi query');
+                return $err;
             }
         }
 
@@ -576,7 +584,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $server_info = @mysqli_get_server_info($connection);
         }
         if (!$server_info) {
-            return $this->raiseError();
+            return $this->raiseError(null, null, null,
+                'getServerVersion: Could not get server information');
         }
         // cache server_info
         $this->connected_server_info = $server_info;
@@ -705,7 +714,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         }
         $statement = @mysqli_prepare($connection, $query);
         if (!$statement) {
-            $err =& $this->raiseError();
+            $err =& $this->raiseError(null, null, null,
+                'prepare: Unable to create prepared statement handle');
             return $err;
         }
         $class_name = 'MDB2_Statement_'.$this->phptype;
@@ -819,7 +829,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $query = "REPLACE INTO $table ($query) VALUES ($values)";
         $this->last_query = $query;
         $this->debug($query, 'query', true);
-        $result = $this->_doQuery($query, true, $connection);
+        $result =& $this->_doQuery($query, true, $connection);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -846,7 +856,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (NULL)";
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        $result = $this->_doQuery($query, true);
+        $result =& $this->_doQuery($query, true);
         $this->popExpect();
         if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
@@ -856,7 +866,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 // sequence at 2
                 $result = $this->manager->createSequence($seq_name, 2);
                 if (PEAR::isError($result)) {
-                    return $this->raiseError(MDB2_ERROR, null, null,
+                    return $this->raiseError($result, null, null,
                         'nextID: on demand sequence '.$seq_name.' could not be created');
                 } else {
                     // First ID of a newly created sequence is 1
@@ -868,7 +878,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $value = $this->lastInsertID();
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
-            $result = $this->_doQuery($query, true);
+            $result =& $this->_doQuery($query, true);
             if (PEAR::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
             }
@@ -895,7 +905,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         }
         $value = @mysqli_insert_id($connection);
         if (!$value) {
-            return $this->raiseError();
+            return $this->raiseError(null, null, null,
+                'lastInsertID: Could not get last insert ID');
         }
         return $value;
     }
@@ -1039,7 +1050,8 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
             } elseif (is_null($this->result)) {
                 return count($this->types);
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'numCols: Could not get column count');
         }
         return $cols;
     }
@@ -1084,7 +1096,14 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
      */
     function free()
     {
-        @mysqli_free_result($this->result);
+        $free = @mysqli_free_result($this->result);
+        if (!$free) {
+            if (!$this->result) {
+                return MDB2_OK;
+            }
+            return $this->db->raiseError(null, null, null,
+                'free: Could not free result');
+        }
         $this->result = false;
         return MDB2_OK;
     }
@@ -1155,7 +1174,8 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
             } elseif (is_null($this->result)) {
                 return 0;
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'numRows: Could not get row count');
         }
         return $rows;
     }
@@ -1231,7 +1251,8 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             $i = 0;
             foreach ($this->positions as $parameter => $foo) {
                 if (!array_key_exists($parameter, $this->values)) {
-                    return $this->db->raiseError();
+                    return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                        '_execute: Unable to bind to missing placeholder: '.$parameter);
                 }
                 $value = $this->values[$parameter];
                 $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
@@ -1248,7 +1269,8 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
 
             $result = @call_user_func_array('mysqli_stmt_bind_param', $parameters);
             if ($result === false) {
-                $err =& $this->db->raiseError();
+                $err =& $this->db->raiseError(null, null, null,
+                    '_execute: Unable to bind parameters');
                 return $err;
             }
 
@@ -1280,7 +1302,8 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
         }
 
         if (!@mysqli_stmt_execute($this->statement)) {
-            $err =& $this->db->raiseError();
+            $err =& $this->db->raiseError(null, null, null,
+                '_execute: Unable to execute statement');
             return $err;
         }
 
@@ -1317,7 +1340,8 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             return parent::free();
         }
         if (!@mysqli_stmt_close($this->statement)) {
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'free: Could not free statement');
         }
         return MDB2_OK;
     }

@@ -188,7 +188,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $this->destructor_registered = true;
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
-        $result = $this->_doQuery('BEGIN', true);
+        $result =& $this->_doQuery('BEGIN', true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -210,10 +210,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         $this->debug('commit transaction', 'commit', false);
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit: transaction changes are being auto committed');
         }
-        $result = $this->_doQuery('COMMIT', true);
+        $result =& $this->_doQuery('COMMIT', true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -235,10 +235,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         $this->debug('rolling back transaction', 'rollback', false);
         if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR, null, null,
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result = $this->_doQuery('ROLLBACK', true);
+        $result =& $this->_doQuery('ROLLBACK', true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -325,15 +325,15 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         if (!@pg_query($connection, "SET SESSION DATESTYLE = 'ISO'")) {
-            return $this->raiseError(MDB2_ERROR,
-                null, null, 'Unable to set connection charset: '.$this->dsn['charset']);
+            return $this->raiseError(null, null, null,
+                'Unable to set connection charset: '.$this->dsn['charset']);
         }
 
         if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])
             && !@pg_set_client_encoding($connection, $this->dsn['charset'])
         ) {
-            return $this->raiseError(MDB2_ERROR,
-                null, null, 'Unable to set client charset: '.$this->dsn['charset']);
+            return $this->raiseError(null, null, null,
+                'Unable to set client charset: '.$this->dsn['charset']);
         }
 
         return $connection;
@@ -431,7 +431,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
-        $result = $this->_doQuery($query, $is_manip, $connection, false);
+        $result =& $this->_doQuery($query, $is_manip, $connection, false);
         @pg_close($connection);
         if (PEAR::isError($result)) {
             return $result;
@@ -457,7 +457,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $this->debug($query, 'query', $is_manip);
@@ -478,12 +478,16 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $function = $this->options['multi_query'] ? 'pg_send_query' : 'pg_query';
         $result = @$function($connection, $query);
         if (!$result) {
-            return $this->raiseError();
+            $err =& $this->raiseError(null, null, null,
+                '_doQuery: Could not execute statement');
+            return $err;
         }
 
         if ($this->options['multi_query']) {
             if (!($result = @pg_get_result($connection))) {
-                $this->raiseError();
+                $err =& $this->raiseError(null, null, null,
+                        '_doQuery: Could not get the first result from a multi query');
+                return $err;
             }
         }
 
@@ -720,7 +724,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
         $statement_name = 'MDB2_Statement_'.$this->phptype.md5(time() + rand());
         $query = 'PREPARE '.$statement_name.$types_string.' AS '.$query;
-        $statement = $this->_doQuery($query, $is_manip, $connection);
+        $statement =& $this->_doQuery($query, $is_manip, $connection);
         if (PEAR::isError($statement)) {
             return $statement;
         }
@@ -755,7 +759,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 $this->loadModule('Manager', null, true);
                 $result = $this->manager->createSequence($seq_name, 1);
                 if (PEAR::isError($result)) {
-                    return $this->raiseError(MDB2_ERROR, null, null,
+                    return $this->raiseError($result, null, null,
                         'nextID: on demand sequence could not be created');
                 }
                 return $this->nextId($seq_name, false);
@@ -900,7 +904,8 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
             } elseif (is_null($this->result)) {
                 return count($this->types);
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'numCols: Could not get column count');
         }
         return $cols;
     }
@@ -944,7 +949,8 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
             if (!$this->result) {
                 return MDB2_OK;
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'free: Could not free result');
         }
         $this->result = false;
         return MDB2_OK;
@@ -1015,7 +1021,8 @@ class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
             } elseif (is_null($this->result)) {
                 return 0;
             }
-            return $this->db->raiseError();
+            return $this->db->raiseError(null, null, null,
+                'numRows: Could not get row count');
         }
         return $rows;
     }
@@ -1057,7 +1064,8 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
             $parameters = array();
             foreach ($this->positions as $parameter => $current_position) {
                 if (!array_key_exists($parameter, $this->values)) {
-                    return $this->db->raiseError();
+                    return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                        '_execute: Unable to bind to missing placeholder: '.$parameter);
                 }
                 $value = $this->values[$parameter];
                 $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;

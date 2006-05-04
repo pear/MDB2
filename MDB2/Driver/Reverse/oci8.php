@@ -92,7 +92,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
 
         if (empty($column)) {
-            return $db->raiseError(MDB2_ERROR, null, null,
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableFieldDefinition: it was not specified an existing table column');
         }
 
@@ -365,7 +365,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $query.= ' OR table_name='.$db->quote($result, 'text');
             $query.= ' ORDER BY column_id';
 
-            $stmt = $db->_doQuery($query, false);
+            $stmt =& $db->_doQuery($query, false);
             if (PEAR::isError($stmt)) {
                 return $stmt;
             }

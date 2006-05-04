@@ -336,7 +336,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      * @return result or error object
      * @access protected
      */
-    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         if ($this->database_name) {
             $query = $this->_readFile();
@@ -344,7 +344,9 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $this->last_query = $query;
         $this->debug($query, 'query', $is_manip);
         if ($is_manip) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
+            $err =& $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                '_doQuery: Manipulation statements are not supported');
+            return $err;
         }
         if ($this->options['disable_query']) {
             return null;

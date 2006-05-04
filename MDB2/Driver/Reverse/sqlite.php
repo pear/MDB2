@@ -195,7 +195,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             }
         }
 
-        return $db->raiseError(MDB2_ERROR, null, null,
+        return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
             'getTableFieldDefinition: it was not specified an existing table column');
     }
 
