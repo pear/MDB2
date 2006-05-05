@@ -468,7 +468,7 @@ class MDB2_PEARProxy extends PEAR
 
     function &execute($stmt, $data = false)
     {
-        $stmt->bindParamArray($data);
+        $stmt->bindValueArray($data);
         return $stmt->execute();
     }
 
@@ -487,7 +487,7 @@ class MDB2_PEARProxy extends PEAR
             if (!is_array($params)) {
                 $params = array($params);
             }
-            $stmt->bindParamArray($params);
+            $stmt->bindValueArray($params);
             return $stmt->execute();
         }
         if (DB::isManip($query)) {

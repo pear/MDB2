@@ -137,7 +137,7 @@
     $stmt = $mdb2->prepare('INSERT INTO numbers VALUES(?,?,?)', array('integer', 'text', 'text'), MDB2_PREPARE_MANIP);
     foreach ($alldata as $row) {
         echo('running execute<br>');
-        $stmt->bindParamArray($row);
+        $stmt->bindValueArray($row);
         $stmt->execute();
     }
     $array = array(4);
