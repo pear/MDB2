@@ -3362,6 +3362,30 @@ class MDB2_Statement_Common
     }
     // }}}
 
+    // {{{ function bindValueArray($values, $types = null)
+
+    /**
+     * Set the values of multiple a parameter of a prepared query in bulk.
+     *
+     * @param array $values array that specifies all necessary information
+     *       for bindValue() the array elements must use keys corresponding to
+     *       the number of the position of the parameter.
+     * @param array $types specifies the types of the fields
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     * @see bindParam()
+     */
+    function bindValueArray(&$values, $types = null)
+    {
+        $types = is_array($types) ? array_values($types) : array_fill(0, count($values), null);
+        $parameters = array_keys($values);
+        foreach ($parameters as $key => $parameter) {
+            $this->bindValue($parameter, $values[$parameter], $types[$key]);
+        }
+        return MDB2_OK;
+    }
+    // }}}
+
     // {{{ function bindParam($parameter, &$value, $type = null)
 
     /**
@@ -3395,7 +3419,7 @@ class MDB2_Statement_Common
     // {{{ function bindParamArray(&$values, $types = null)
 
     /**
-     * Set the values of multiple a parameter of a prepared query in bulk.
+     * Bind the variables of multiple a parameter of a prepared query in bulk.
      *
      * @param array $values array that specifies all necessary information
      *       for bindParam() the array elements must use keys corresponding to
@@ -3432,7 +3456,8 @@ class MDB2_Statement_Common
     function &execute($values = null, $result_class = true, $result_wrap_class = false)
     {
         if (!empty($values)) {
-            $this->bindParamArray($values);
+            $values = (array)$values;
+            $this->bindValueArray($values);
         }
         $result =& $this->_execute($result_class, $result_wrap_class);
         if (is_numeric($result)) {
