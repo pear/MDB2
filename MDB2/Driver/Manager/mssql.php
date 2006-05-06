@@ -46,6 +46,7 @@
 //
 
 require_once 'MDB2/Driver/Manager/Common.php';
+
 // {{{ class MDB2_Driver_Manager_mssql
 /**
  * MDB2 MSSQL driver for the management modules

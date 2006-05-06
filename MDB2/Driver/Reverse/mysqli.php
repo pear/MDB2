@@ -48,7 +48,7 @@
 require_once 'MDB2/Driver/Reverse/Common.php';
 
 /**
- * MDB2 MySQL driver for the schema reverse engineering module
+ * MDB2 MySQLi driver for the schema reverse engineering module
  *
  * @package MDB2
  * @category Database

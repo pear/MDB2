@@ -523,6 +523,13 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 // }}}
 // {{{ Class MDB2_Result_mssql
 
+/**
+ * MDB2 MSSQL Server result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Frank M. Kromann <frank@kromann.info>
+ */
 class MDB2_Result_mssql extends MDB2_Result_Common
 {
     // {{{ _skipLimitOffset()
@@ -725,6 +732,13 @@ class MDB2_Result_mssql extends MDB2_Result_Common
     }
 }
 
+/**
+ * MDB2 MSSQL Server buffered result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Frank M. Kromann <frank@kromann.info>
+ */
 class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
 {
     // }}}
@@ -803,6 +817,14 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
 }
 // }}}
 // {{{ MDB2_Statement_mssql
+
+/**
+ * MDB2 MSSQL Server statement driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Frank M. Kromann <frank@kromann.info>
+ */
 class MDB2_Statement_mssql extends MDB2_Statement_Common
 {
 

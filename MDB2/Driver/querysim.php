@@ -571,6 +571,13 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     }
 }
 
+/**
+ * MDB2 QuerySim result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Alan Richmond <arichmond@bigfoot.com>
+ */
 class MDB2_Result_querysim extends MDB2_Result_Common
 {
     // }}}
@@ -695,6 +702,13 @@ class MDB2_Result_querysim extends MDB2_Result_Common
     }
 }
 
+/**
+ * MDB2 QuerySim buffered result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Alan Richmond <arichmond@bigfoot.com>
+ */
 class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
 {
     // }}}
@@ -757,6 +771,13 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
     }
 }
 
+/**
+ * MDB2 QuerySim statement driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Alan Richmond <arichmond@bigfoot.com>
+ */
 class MDB2_Statement_querysim extends MDB2_Statement_Common
 {
 

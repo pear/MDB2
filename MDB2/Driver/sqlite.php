@@ -735,6 +735,13 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     }
 }
 
+/**
+ * MDB2 SQLite result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Result_sqlite extends MDB2_Result_Common
 {
     // }}}
@@ -861,6 +868,13 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
     }
 }
 
+/**
+ * MDB2 SQLite buffered result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
 {
     // {{{ seek()
@@ -932,6 +946,13 @@ class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
     }
 }
 
+/**
+ * MDB2 SQLite statement driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Statement_sqlite extends MDB2_Statement_Common
 {
 

@@ -49,7 +49,7 @@
 require_once 'MDB2/Driver/Datatype/Common.php';
 
 /**
- * MDB2 MySQL driver
+ * MDB2 MySQLi driver
  *
  * @package MDB2
  * @category Database

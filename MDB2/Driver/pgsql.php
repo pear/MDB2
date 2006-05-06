@@ -785,6 +785,13 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 }
 
+/**
+ * MDB2 PostGreSQL result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Paul Cooper <pgc@ucecom.com>
+ */
 class MDB2_Result_pgsql extends MDB2_Result_Common
 {
     // }}}
@@ -957,6 +964,13 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
     }
 }
 
+/**
+ * MDB2 PostGreSQL buffered result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Paul Cooper <pgc@ucecom.com>
+ */
 class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
 {
     // {{{ seek()
@@ -1028,6 +1042,13 @@ class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
     }
 }
 
+/**
+ * MDB2 PostGreSQL statement driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Paul Cooper <pgc@ucecom.com>
+ */
 class MDB2_Statement_pgsql extends MDB2_Statement_Common
 {
     // {{{ _execute()

@@ -45,6 +45,8 @@
 // $Id$
 
 /**
+ * PHP5 Iterator
+ *
  * @package  MDB2
  * @category Database
  * @author   Lukas Smith <smith@pooteeweet.org>
@@ -196,6 +198,13 @@ class MDB2_Iterator implements Iterator
     // }}}
 }
 
+/**
+ * PHP5 buffered Iterator
+ *
+ * @package  MDB2
+ * @category Database
+ * @author   Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_BufferedIterator extends MDB2_Iterator implements SeekableIterator
 {
     // {{{ valid()

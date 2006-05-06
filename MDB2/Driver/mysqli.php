@@ -47,7 +47,7 @@
 //
 
 /**
- * MDB2 MySQL driver
+ * MDB2 MySQLi driver
  *
  * @package MDB2
  * @category Database
@@ -930,6 +930,13 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     }
 }
 
+/**
+ * MDB2 MySQLi result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Result_mysqli extends MDB2_Result_Common
 {
     // }}}
@@ -1109,6 +1116,13 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
     }
 }
 
+/**
+ * MDB2 MySQLi buffered result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
 {
     // }}}
@@ -1210,6 +1224,13 @@ class MDB2_BufferedResult_mysqli extends MDB2_Result_mysqli
     }
 }
 
+/**
+ * MDB2 MySQLi statement driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Statement_mysqli extends MDB2_Statement_Common
 {
     // {{{ _execute()

@@ -46,6 +46,7 @@
 //
 
 require_once 'MDB2/Driver/Function/Common.php';
+
 // {{{ class MDB2_Driver_Function_mssql
 /**
  * MDB2 MSSQL driver for the function modules

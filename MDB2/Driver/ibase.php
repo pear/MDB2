@@ -793,6 +793,13 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     // }}}
 }
 
+/**
+ * MDB2 FireBird/InterBase result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lorenzo Alberton <l.alberton@quipo.it>
+ */
 class MDB2_Result_ibase extends MDB2_Result_Common
 {
     // {{{ _skipLimitOffset()
@@ -993,6 +1000,13 @@ class MDB2_Result_ibase extends MDB2_Result_Common
     // }}}
 }
 
+/**
+ * MDB2 FireBird/InterBase buffered result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lorenzo Alberton <l.alberton@quipo.it>
+ */
 class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
 {
     // {{{ class vars
@@ -1198,6 +1212,13 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     // }}}
 }
 
+/**
+ * MDB2 FireBird/InterBase statement driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lorenzo Alberton <l.alberton@quipo.it>
+ */
 class MDB2_Statement_ibase extends MDB2_Statement_Common
 {
     // {{{ _execute()

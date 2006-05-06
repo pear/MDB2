@@ -46,7 +46,7 @@
 //
 
 /**
- * MDB2 MySQL driver for the native module
+ * MDB2 MySQLi driver for the native module
  *
  * @package MDB2
  * @category Database

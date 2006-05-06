@@ -48,7 +48,7 @@
 require_once 'MDB2/Driver/Function/Common.php';
 
 /**
- * MDB2 MySQL driver for the function modules
+ * MDB2 MySQLi driver for the function modules
  *
  * @package MDB2
  * @category Database

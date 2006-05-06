@@ -806,6 +806,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     }
 }
 
+/**
+ * MDB2 OCI8 result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Result_oci8 extends MDB2_Result_Common
 {
     // }}}
@@ -952,6 +959,13 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     }
 }
 
+/**
+ * MDB2 OCI8 buffered result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
 {
     var $buffer;
@@ -1139,6 +1153,13 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     }
 }
 
+/**
+ * MDB2 OCI8 statement driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Statement_oci8 extends MDB2_Statement_Common
 {
     // }}}

@@ -499,6 +499,13 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     }
 }
 
+/**
+ * MDB2 FrontbaseSQL result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lukas Smith <smith@pooteeweet.org>
+ */
 class MDB2_Result_fbsql extends MDB2_Result_Common
 {
     // }}}
@@ -668,6 +675,14 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
     }
 }
 
+/**
+ * MDB2 FrontbaseSQL buffered result driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lukas Smith <smith@pooteeweet.org>
+ */
+
 class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
 {
     // }}}
@@ -739,6 +754,14 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
         return $rows;
     }
 }
+
+/**
+ * MDB2 FrontbaseSQL statement driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author  Lukas Smith <smith@pooteeweet.org>
+ */
 
 class MDB2_Statement_fbsql extends MDB2_Statement_Common
 {
