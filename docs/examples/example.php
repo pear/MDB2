@@ -53,13 +53,13 @@
     // this is a separate package you must install
     require_once 'MDB2/Schema.php';
     // you can either pass a dsn string, a dsn array or an exisiting mdb2 connection
-    $manager =& MDB2_Schema::factory($mdb2);
+    $schema =& MDB2_Schema::factory($mdb2);
     $input_file = 'metapear_test_db.schema';
     // lets create the database using 'metapear_test_db.schema'
     // if you have allready run this script you should have 'metapear_test_db.schema.before'
     // in that case MDB2 will just compare the two schemas and make any
     // necessary modifications to the existing database
-    Var_Dump($manager->updateDatabase($input_file, $input_file.'.before'));
+    Var_Dump($schema->updateDatabase($input_file, $input_file.'.before'));
     echo('updating database from xml schema file<br>');
 
     echo('switching to database: '.$mdb2_name.'<br>');
@@ -183,24 +183,26 @@
     echo(Var_Dump($mdb2->manager->createIndex('test', 'test_id_index', $index_def)).'<br>');
 
     if ($mdb2_type == 'mysql') {
-        $manager->db->setOption('debug', true);
-        $manager->db->setOption('log_line_break', '<br>');
+        $schema->db->setOption('debug', true);
+        $schema->db->setOption('log_line_break', '<br>');
         // ok now lets create a new xml schema file from the existing DB
+        $database_definition = $schema->getDefinitionFromDatabase();
         // we will not use the 'metapear_test_db.schema' for this
         // this feature is especially interesting for people that have an existing Db and want to move to MDB2's xml schema management
         // you can also try MDB2_MANAGER_DUMP_ALL and MDB2_MANAGER_DUMP_CONTENT
-        echo(Var_Dump($manager->dumpDatabase(
+        echo(Var_Dump($schema->dumpDatabase(
+            $database_definition,
             array(
                 'output_mode' => 'file',
                 'output' => $mdb2_name.'2.schema'
             ),
             MDB2_SCHEMA_DUMP_STRUCTURE
         )).'<br>');
-        if ($manager->db->getOption('debug') === true) {
-            echo($manager->db->getDebugOutput().'<br>');
+        if ($schema->db->getOption('debug') === true) {
+            echo($schema->db->getDebugOutput().'<br>');
         }
         // this is the database definition as an array
-        echo(Var_Dump($manager->database_definition).'<br>');
+        echo(Var_Dump($database_definition).'<br>');
     }
 
     echo('<br>just a simple delete query:<br>');
