@@ -258,6 +258,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             if (isset($this->dsn['port']) && $this->dsn['port']) {
                 $sid = '//'.$sid.':'.$this->dsn['port'];
             }
+            if (isset($this->database_name) && $this->database_name) {
+                $sid.= '/'.$this->database_name;
+            }
         } else {
             $sid = getenv('ORACLE_SID');
         }
@@ -329,6 +332,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         if (is_resource($this->connection)) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
+                && $this->connected_database_name == $this->database_name
                 && $this->opened_persistent == $this->options['persistent']
             ) {
                 return MDB2_OK;
@@ -346,6 +350,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
+        $this->connected_database_name = $this->database_name;
         $this->opened_persistent = $this->options['persistent'];
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
