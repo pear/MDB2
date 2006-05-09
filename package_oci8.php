@@ -4,6 +4,14 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+- explicitly set is_manip parameter to false for transaction debug calls
+- pass parameter array as debug() all with scope "parameters" in every execute()
+  call (bug #4119)
+- typo fixes in phpdoc (thx Stoyan)
+- added support for fixed and variable types for 'text' (Request #1523)
+- made _doQuery() return a reference
+- added userinfo's to all raiseError calls that previously had none
+- allow using the database name in the SID generation
 
 open todo items:
 - fix issues with lobs (where the placeholder is not named like the field)

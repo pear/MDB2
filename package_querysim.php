@@ -4,6 +4,9 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+- typo fixes in phpdoc (thx Stoyan)
+- made _doQuery() return a reference
+- added userinfo's to all raiseError calls that previously had none
 
 open todo items:
 - add ability to reference multiple results set files for different queries

@@ -17,6 +17,13 @@ $notes = <<<EOT
 - added support for length in integer reverse engineering
 - some fixes regarding boolean reverse engineering
 - protect against sql injection in the reverse and manager module
+- explicitly set is_manip parameter to false for transaction debug calls
+- various minor tweaks to error messages, phpdoc and adding stub methods to the
+  common driver
+- typo fixes in phpdoc (thx Stoyan)
+- added support for fixed and variable types for 'text' (Request #1523)
+- made _doQuery() return a reference
+- added userinfo's to all raiseError calls that previously had none
 EOT;
 
 $package = new PEAR_PackageFileManager();
