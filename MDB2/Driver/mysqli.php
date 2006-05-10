@@ -85,6 +85,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
         $this->supported['result_introspection'] = true;
+        $this->supported['prepared_statements'] = 'emulated';
 
         $this->options['default_table_type'] = null;
         $this->options['multi_query'] = false;
@@ -410,6 +411,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             )
         ) {
             $this->supported['sub_selects'] = true;
+            $this->supported['prepared_statements'] = true;
         }
         return MDB2_OK;
     }
@@ -633,11 +635,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function &prepare($query, $types = null, $result_types = null)
     {
-        if ($result_types !== MDB2_PREPARE_MANIP) {
+        if (!$this->supported['prepared_statements']) {
             $obj =& parent::prepare($query, $types, $result_types);
             return $obj;
         }
-        $is_manip = true;
+        $is_manip = ($result_types === MDB2_PREPARE_MANIP);
         $offset = $this->offset;
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
@@ -712,12 +714,25 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        $statement = @mysqli_prepare($connection, $query);
-        if (!$statement) {
-            $err =& $this->raiseError(null, null, null,
-                'prepare: Unable to create prepared statement handle');
-            return $err;
+
+        if (!$is_manip) {
+            $statement_name = 'MDB2_Statement_'.$this->phptype.md5(time() + rand());
+            $query = "PREPARE $statement_name FROM '$query'";
+
+            $statement =& $this->_doQuery($query, true, $connection);
+            if (PEAR::isError($statement)) {
+                return $statement;
+            }
+            $statement = $statement_name;
+        } else {
+            $statement = @mysqli_prepare($connection, $query);
+            if (!$statement) {
+                $err =& $this->raiseError(null, null, null,
+                    'prepare: Unable to create prepared statement handle');
+                return $err;
+            }
         }
+
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
         return $obj;
@@ -1105,7 +1120,7 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
     {
         $free = @mysqli_free_result($this->result);
         if (!$free) {
-            if (!$this->result) {
+            if (is_null($free) || !$this->result) {
                 return MDB2_OK;
             }
             return $this->db->raiseError(null, null, null,
@@ -1245,7 +1260,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
      */
     function &_execute($result_class = true, $result_wrap_class = false)
     {
-        if (!$this->is_manip) {
+        if (is_null($this->statement)) {
             $result =& parent::_execute($result_class, $result_wrap_class);
             return $result;
         }
@@ -1266,6 +1281,9 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             return $connection;
         }
 
+        if (!is_object($this->statement)) {
+            $query = 'EXECUTE '.$this->statement;
+        }
         if (!empty($this->positions)) {
             $parameters = array(0 => $this->statement, 1 => '');
             $lobs = array();
@@ -1277,74 +1295,117 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                 }
                 $value = $this->values[$parameter];
                 $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
-                if (is_resource($value) || $type == 'clob' || $type == 'blob') {
-                    $parameters[] = null;
-                    $parameters[1].= 'b';
-                    $lobs[$i] = $parameter;
+                if (!is_object($this->statement)) {
+                    if (is_resource($value) || $type == 'clob' || $type == 'blob') {
+                        if (!is_resource($value) && preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+                            if ($match[1] == 'file://') {
+                                $value = $match[2];
+                            }
+                            $value = @fopen($value, 'r');
+                            $close = true;
+                        }
+                        if (is_resource($value)) {
+                            $data = '';
+                            while (!@feof($value)) {
+                                $data.= @fread($value, $this->db->options['lob_buffer_length']);
+                            }
+                            if ($close) {
+                                @fclose($value);
+                            }
+                            $value = $data;
+                        }
+                    }
+                    $param_query = 'SET @'.$parameter.' = '.$this->db->quote($value, $type);
+                    $result = $this->db->_doQuery($param_query, true, $connection);
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
                 } else {
-                    $parameters[] = $this->db->quote($value, $type, false);
-                    $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
+                    if (is_resource($value) || $type == 'clob' || $type == 'blob') {
+                        $parameters[] = null;
+                        $parameters[1].= 'b';
+                        $lobs[$i] = $parameter;
+                    } else {
+                        $parameters[] = $this->db->quote($value, $type, false);
+                        $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
+                    }
+                    ++$i;
                 }
-                ++$i;
             }
 
-            $result = @call_user_func_array('mysqli_stmt_bind_param', $parameters);
-            if ($result === false) {
+            if (!is_object($this->statement)) {
+                $query.= ' USING @'.implode(', @', array_keys($this->positions));
+            } else {
+                $result = @call_user_func_array('mysqli_stmt_bind_param', $parameters);
+                if ($result === false) {
+                    $err =& $this->db->raiseError(null, null, null,
+                        '_execute: Unable to bind parameters');
+                    return $err;
+                }
+
+                foreach ($lobs as $i => $parameter) {
+                    $value = $this->values[$parameter];
+                    $close = false;
+                    if (!is_resource($value)) {
+                        $close = true;
+                        if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+                            if ($match[1] == 'file://') {
+                                $value = $match[2];
+                            }
+                            $value = @fopen($value, 'r');
+                        } else {
+                            $fp = @tmpfile();
+                            @fwrite($fp, $value);
+                            @rewind($fp);
+                            $value = $fp;
+                        }
+                    }
+                    while (!@feof($value)) {
+                        $data = @fread($value, $this->db->options['lob_buffer_length']);
+                        @mysqli_stmt_send_long_data($this->statement, $i, $data);
+                    }
+                    if ($close) {
+                        @fclose($value);
+                    }
+                }
+            }
+        }
+
+        if (!is_object($this->statement)) {
+            $result = $this->db->_doQuery($query, $this->is_manip, $connection);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+
+            if ($this->is_manip) {
+                $affected_rows = $this->db->_affectedRows($connection, $result);
+                return $affected_rows;
+            }
+
+            $result =& $this->db->_wrapResult($result, $this->result_types,
+                $result_class, $result_wrap_class);
+        } else {
+            if (!@mysqli_stmt_execute($this->statement)) {
                 $err =& $this->db->raiseError(null, null, null,
-                    '_execute: Unable to bind parameters');
+                    '_execute: Unable to execute statement');
                 return $err;
             }
 
-            foreach ($lobs as $i => $parameter) {
-                $value = $this->values[$parameter];
-                $close = false;
-                if (!is_resource($value)) {
-                    $close = true;
-                    if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
-                        if ($match[1] == 'file://') {
-                            $value = $match[2];
-                        }
-                        $value = @fopen($value, 'r');
-                    } else {
-                        $fp = @tmpfile();
-                        @fwrite($fp, $value);
-                        @rewind($fp);
-                        $value = $fp;
-                    }
-                }
-                while (!@feof($value)) {
-                    $data = @fread($value, $this->db->options['lob_buffer_length']);
-                    @mysqli_stmt_send_long_data($this->statement, $i, $data);
-                }
-                if ($close) {
-                    @fclose($value);
-                }
+            if ($this->is_manip) {
+                $affected_rows = @mysqli_stmt_affected_rows($this->statement);
+                return $affected_rows;
             }
+
+            if ($this->db->options['result_buffering']) {
+                @mysqli_stmt_store_result($this->statement);
+            }
+
+            $result =& $this->db->_wrapResult($this->statement, $this->result_types,
+                $result_class, $result_wrap_class);
         }
 
-        if (!@mysqli_stmt_execute($this->statement)) {
-            $err =& $this->db->raiseError(null, null, null,
-                '_execute: Unable to execute statement');
-            return $err;
-        }
-
-        if ($this->is_manip) {
-            $affected_rows = @mysqli_stmt_affected_rows($this->statement);
-            return $affected_rows;
-        }
-
-        if ($this->db->options['result_buffering']) {
-            @mysqli_stmt_store_result($this->statement);
-        }
-
-        $result =& $this->db->_wrapResult($this->statement, $this->result_types,
-            $result_class, $result_wrap_class);
         return $result;
     }
-
-    // }}}
-
-    // }}}
 
     // }}}
     // {{{ free()
@@ -1357,9 +1418,20 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
      */
     function free()
     {
-        if (!$this->is_manip) {
+        if (is_null($this->statement)) {
             return parent::free();
         }
+
+        if (!is_object($this->statement)) {
+            $connection = $this->db->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+
+            $query = 'DEALLOCATE PREPARE '.$this->statement;
+            return $this->db->_doQuery($query, true, $connection);
+        }
+
         if (!@mysqli_stmt_close($this->statement)) {
             return $this->db->raiseError(null, null, null,
                 'free: Could not free statement');
