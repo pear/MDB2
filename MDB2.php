@@ -2060,7 +2060,7 @@ class MDB2_Driver_Common extends PEAR
     /**
      * wrap a result set into the correct class
      *
-     * @param ressource $result
+     * @param resource $result
      * @param mixed   $types  array that contains the types of the columns in
      *                        the result set
      * @param mixed $result_class string which specifies which result class to use
