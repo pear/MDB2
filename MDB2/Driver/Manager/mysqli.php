@@ -776,13 +776,9 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         $type = '';
         $name = $db->quoteIdentifier($db->getIndexName($name), true);
         if (array_key_exists('primary', $definition) && $definition['primary']) {
-            if (strtolower($name) != 'primary') {
-                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'Primary Key may must be named primary');
-            }
             $type = 'PRIMARY';
             $name = 'KEY';
-        } else if (array_key_exists('unique', $definition) && $definition['unique']) {
+        } elseif (array_key_exists('unique', $definition) && $definition['unique']) {
             $type = 'UNIQUE';
         }
 
@@ -816,7 +812,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quoteIdentifier($table, true);
-        if (strtolower($name) == 'primary') {
+        if ($primary || strtolower($name) == 'primary') {
             $query = "ALTER TABLE $table DROP PRIMARY KEY";
         } else {
             $name = $db->quoteIdentifier($db->getIndexName($name), true);
