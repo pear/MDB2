@@ -72,6 +72,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['emulate_database']) {
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'createDatabase: database creation is only supported if the "emulate_database" option is enabled');
+        }
+
         $username = $db->options['database_name_prefix'].$name;
         $password = $db->dsn['password'] ? $db->dsn['password'] : $name;
         $tablespace = $db->options['default_tablespace']
@@ -112,6 +117,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
+        }
+
+        if (!$db->options['emulate_database']) {
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'dropDatabase: database dropping is only supported if the "emulate_database" option is enabled');
         }
 
         $username = $db->options['database_name_prefix'].$name;
@@ -485,6 +495,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['emulate_database']) {
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'listDatabases: database listing is only supported if the "emulate_database" option is enabled');
+        }
+
         if ($db->options['database_name_prefix']) {
             $query = 'SELECT SUBSTR(username, ';
             $query.= (strlen($db->options['database_name_prefix'])+1);
@@ -526,7 +541,14 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'SELECT username FROM sys.all_users';
+        if ($db->options['emulate_database'] && $db->options['database_name_prefix']) {
+            $query = 'SELECT SUBSTR(username, ';
+            $query.= (strlen($db->options['database_name_prefix'])+1);
+            $query.= ") FROM sys.dba_users WHERE username NOT LIKE '";
+            $query.= $db->options['database_name_prefix']."%'";
+        } else {
+            $query = 'SELECT username FROM sys.dba_users';
+        }
         return $db->queryCol($query);
     }
     // }}}
