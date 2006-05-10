@@ -244,9 +244,15 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function writeLOBToFile($lob, $file)
     {
+        if (preg_match('/^(\w+:\/\/)(.*)$/', $file, $match)) {
+            if ($match[1] == 'file://') {
+                $file = $match[2];
+            }
+        }
+
         $lob_data = stream_get_meta_data($lob);
         $lob_index = $lob_data['wrapper_data']->lob_index;
-        if (!@$this->lobs[$lob_index]['value']->writelobtofile($file)) {
+        if (!@$this->lobs[$lob_index]['resource']->writelobtofile($file)) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
@@ -271,7 +277,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function _retrieveLOB(&$lob)
     {
         if (!array_key_exists('loaded', $lob)) {
-            if (!is_object($lob['ressource'])) {
+            if (!is_object($lob['resource'])) {
                 $db =& $this->getDBInstance();
                 if (PEAR::isError($db)) {
                     return $db;
@@ -280,7 +286,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
                return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                    'attemped to retrieve LOB from non existing or NULL column');
             }
-            $lob['value'] = $lob['ressource']->load();
+            $lob['value'] = $lob['resource']->load();
             $lob['loaded'] = true;
         }
         return MDB2_OK;
