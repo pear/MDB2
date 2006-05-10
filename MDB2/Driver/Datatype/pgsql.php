@@ -390,9 +390,15 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return $connection;
         }
 
+        if (preg_match('/^(\w+:\/\/)(.*)$/', $file, $match)) {
+            if ($match[1] == 'file://') {
+                $file = $match[2];
+            }
+        }
+
         $lob_data = stream_get_meta_data($lob);
         $lob_index = $lob_data['wrapper_data']->lob_index;
-        if (!pg_lo_export($connection, $this->lobs[$lob_index]['ressource'], $file)) {
+        if (!pg_lo_export($connection, $this->lobs[$lob_index]['resource'], $file)) {
             return $db->raiseError(null, null, null,
                 'writeLOBToFile: Unable to write LOB to file');
         }
@@ -429,7 +435,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                 }
                 $lob['in_transaction'] = true;
             }
-            $lob['handle'] = @pg_lo_open($connection, $lob['ressource'], 'r');
+            $lob['handle'] = @pg_lo_open($connection, $lob['resource'], 'r');
             if (!$lob['handle']) {
                 if (array_key_exists('in_transaction', $lob)) {
                     @pg_query($connection, 'END');

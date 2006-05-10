@@ -157,7 +157,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 'position' => 0,
                 'lob_index' => null,
                 'endOfLOB' => false,
-                'ressource' => $value,
+                'resource' => $value,
                 'value' => null,
             );
             end($this->lobs);
@@ -1300,6 +1300,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
 
+        if (preg_match('/^(\w+:\/\/)(.*)$/', $file, $match)) {
+            if ($match[1] == 'file://') {
+                $file = $match[2];
+            }
+        }
+
         $fp = @fopen($file, 'wb');
         while (!@feof($lob)) {
             $result = @fread($lob, $db->options['lob_buffer_length']);
@@ -1327,7 +1333,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _retrieveLOB(&$lob)
     {
         if (is_null($lob['value'])) {
-            $lob['value'] = $lob['ressource'];
+            $lob['value'] = $lob['resource'];
         }
         return MDB2_OK;
     }
