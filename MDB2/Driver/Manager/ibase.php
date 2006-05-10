@@ -674,7 +674,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'SELECT RDB$TRIGGER_NAME FROM RDB$TRIGGERS WHERE RDB$SYSTEM_FLAG IS NULL';
+        $query = 'SELECT RDB$TRIGGER_NAME
+                    FROM RDB$TRIGGERS
+                   WHERE RDB$SYSTEM_FLAG IS NULL
+                      OR RDB$SYSTEM_FLAG = 0';
         if (!is_null($table)) {
             $table = $db->quote(strtoupper($table), 'text');
             $query .= "WHERE UPPER(RDB\$RELATION_NAME)=$table";
