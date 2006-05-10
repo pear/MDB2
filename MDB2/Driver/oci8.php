@@ -256,11 +256,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         if (isset($this->dsn['hostspec'])) {
             $sid = $this->dsn['hostspec'];
-            if (isset($this->dsn['port']) && $this->dsn['port']) {
-                $sid = '//'.$sid.':'.$this->dsn['port'];
-            }
-            if (isset($this->database_name) && $this->database_name) {
-                $sid.= '/'.$this->database_name;
+            if (!$this->options['emulate_database']) {
+                if (isset($this->dsn['port']) && $this->dsn['port']) {
+                    $sid = '//'.$sid.':'.$this->dsn['port'];
+                }
+                if (isset($this->database_name) && $this->database_name) {
+                    $sid.= '/'.$this->database_name;
+                }
             }
         } else {
             $sid = getenv('ORACLE_SID');
@@ -708,7 +710,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                             'prepare: named parameter with an empty name');
                         return $err;
                     }
-                    $positions[$parameter] = $p_position;
                     // use parameter name in type array
                     if (isset($count) && isset($types_tmp[++$count])) {
                         $types[$parameter] = $types_tmp[$count];
@@ -718,6 +719,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     ++$parameter;
                     $length = strlen($parameter);
                 }
+                $positions[$parameter] = $p_position;
                 if (isset($types[$parameter])
                     && ($types[$parameter] == 'clob' || $types[$parameter] == 'blob')
                 ) {
@@ -728,7 +730,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $query = substr_replace($query, $value, $p_position, $length);
                     $position = $p_position + strlen($value) - 1;
                 } elseif ($placeholder_type == '?') {
-                    $positions[] = $p_position;
                     $query = substr_replace($query, ':'.$parameter, $p_position, 1);
                     $position = $p_position + $length;
                 } else {
