@@ -208,7 +208,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _retrieveLOB(&$lob)
     {
         if (!array_key_exists('handle', $lob)) {
-            $lob['handle'] = @ibase_blob_open($lob['ressource']);
+            $lob['handle'] = @ibase_blob_open($lob['resource']);
             if (!$lob['handle']) {
                 $db =& $this->getDBInstance();
                 if (PEAR::isError($db)) {
