@@ -15,11 +15,14 @@ $notes = <<<EOT
 - only support createDatabase(), dropDatabase() and listDatabases()
   if emulate_database is enabled
 - added 'prepared_statements' supported meta data setting
+- fixed issue in prepare() with parsing of ? type placeholders for LOBs
+- strip of file:// prefix in writeLOBToFile()
+- typo fix ressource/resource in LOB array
+- do not use foreach() on lob descriptor reference array
 
 open todo items:
-- fix issues with lobs (where the placeholder is not named like the field)
-- fix crash/issues in _makeAutoincrement()
-- there are still severe stability issues due to ext/oci8, especially on windows
+- fix issues with testlobfiles (crash when calling writeLOBToFile() in the test)
+- fix issues with testcreateautoincrementtable (error on sequence creation)
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
 EOT;
 

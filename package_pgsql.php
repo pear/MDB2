@@ -14,6 +14,8 @@ $notes = <<<EOT
 - added userinfo's to all raiseError calls that previously had none
 - calling PREPARE is always a manip query
 - added 'prepared_statements' supported meta data setting
+- strip of file:// prefix in writeLOBToFile()
+- typo fix ressource/resource in LOB array
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

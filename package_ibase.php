@@ -15,6 +15,7 @@ $notes = <<<EOT
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
 - added 'prepared_statements' supported meta data setting
+- typo fix ressource/resource in LOB array
 EOT;
 
 $package = new PEAR_PackageFileManager();
