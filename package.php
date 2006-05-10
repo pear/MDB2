@@ -33,6 +33,8 @@ $notes = <<<EOT
 
 open todo items:
 - handle fixed column types in "text" reverse engineering
+- add support for ADODB style "smart transactions":
+  http://phplens.com/lens/adodb/docs-adodb.htm#ex11
 EOT;
 
 open todo items:
