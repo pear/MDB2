@@ -119,7 +119,6 @@ class MDB2_LOB
             return false;
         }
         $this->lob =& $db->datatype->lobs[$this->lob_index];
-        $db->datatype->_retrieveLOB($this->lob);
         return true;
     }
     // }}}
@@ -138,6 +137,7 @@ class MDB2_LOB
     {
         if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
             $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+            $db->datatype->_retrieveLOB($this->lob);
 
             $data = $db->datatype->_readLOB($this->lob, $count);
             $length = strlen($data);
@@ -193,7 +193,10 @@ class MDB2_LOB
         if (!isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
             return true;
         }
+
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+        $db->datatype->_retrieveLOB($this->lob);
+
         $result = $db->datatype->_endOfLOB($this->lob);
         if (version_compare(phpversion(), "5.0", ">=")
             && version_compare(phpversion(), "5.1", "<")
