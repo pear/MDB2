@@ -86,6 +86,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->supported['auto_increment'] = false; // not implemented
         $this->supported['primary_key'] =  false; // not implemented
         $this->supported['result_introspection'] = true;
+        $this->supported['prepared_statements'] = true;
 
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;

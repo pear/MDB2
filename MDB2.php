@@ -1008,6 +1008,7 @@ class MDB2_Driver_Common extends PEAR
         'auto_increment' => false,
         'primary_key' => false,
         'result_introspection' => false,
+        'prepared_statements' => false,
     );
 
     /**

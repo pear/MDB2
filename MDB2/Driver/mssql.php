@@ -85,6 +85,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
         $this->supported['result_introspection'] = true;
+        $this->supported['prepared_statements'] = 'emulated';
 
         $this->options['database_device'] = false;
         $this->options['database_size'] = false;
