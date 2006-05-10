@@ -12,6 +12,8 @@ $notes = <<<EOT
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
 - allow using the database name in the SID generation
+- only support createDatabase(), dropDatabase() and listDatabases()
+  if emulate_database is enabled
 
 open todo items:
 - fix issues with lobs (where the placeholder is not named like the field)
