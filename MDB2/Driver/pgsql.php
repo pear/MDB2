@@ -84,6 +84,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['auto_increment'] = 'emulated';
         $this->supported['primary_key'] = true;
         $this->supported['result_introspection'] = true;
+        $this->supported['prepared_statements'] = true;
 
         $this->options['multi_query'] = false;
     }
@@ -724,7 +725,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
         $statement_name = 'MDB2_Statement_'.$this->phptype.md5(time() + rand());
         $query = 'PREPARE '.$statement_name.$types_string.' AS '.$query;
-        $statement =& $this->_doQuery($query, $is_manip, $connection);
+        $statement =& $this->_doQuery($query, true, $connection);
         if (PEAR::isError($statement)) {
             return $statement;
         }
@@ -1124,13 +1125,10 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
             return $affected_rows;
         }
 
-        $result =& $this->db->_wrapResult($result, $this->result_types, $result_class, $result_wrap_class);
+        $result =& $this->db->_wrapResult($result, $this->result_types,
+            $result_class, $result_wrap_class);
         return $result;
     }
-
-    // }}}
-
-    // }}}
 
     // }}}
     // {{{ free()
