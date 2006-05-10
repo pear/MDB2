@@ -1248,6 +1248,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             ++$i;
         }
 
+        $lob_keys = array_keys($lobs);
         if (!PEAR::isError($result)) {
             $mode = (!empty($lobs) || $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
             if (!@OCIExecute($this->statement, $mode)) {
@@ -1256,12 +1257,12 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
 
             if (!empty($lobs)) {
-                foreach ($lobs as $i => $stream) {
-                    if (!is_null($stream['value']) && $stream['value'] !== '') {
-                        if ($stream['file']) {
-                            $result = $lobs[$i]['descriptor']->savefile($stream['value']);
+                foreach ($lob_keys as $i) {
+                    if (!is_null($lobs[$i]['value']) && $lobs[$i]['value'] !== '') {
+                        if ($lobs[$i]['file']) {
+                            $result = $lobs[$i]['descriptor']->savefile($lobs[$i]['value']);
                         } else {
-                            $result = $lobs[$i]['descriptor']->save($stream['value']);
+                            $result = $lobs[$i]['descriptor']->save($lobs[$i]['value']);
                         }
                         if (!$result) {
                             $result = $this->db->raiseError(null, null, null,
@@ -1284,9 +1285,9 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
         }
 
-        $keys = array_keys($lobs);
-        foreach ($keys as $key) {
-            $lobs[$key]['descriptor']->free();
+        $lob_keys = array_keys($lobs);
+        foreach ($lob_keys as $i) {
+            $lobs[$i]['descriptor']->free();
         }
 
         if (PEAR::isError($result)) {
