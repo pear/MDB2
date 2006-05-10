@@ -12,6 +12,8 @@ $notes = <<<EOT
 - added support for fixed and variable types for 'text' (Request #1523)
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
+- calling PREPARE is always a manip query
+- added 'prepared_statements' supported meta data setting
 
 open todo items:
 - considering migrating away from OID's to bytea, since this is encourage

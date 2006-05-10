@@ -14,6 +14,7 @@ $notes = <<<EOT
 - allow using the database name in the SID generation
 - only support createDatabase(), dropDatabase() and listDatabases()
   if emulate_database is enabled
+- added 'prepared_statements' supported meta data setting
 
 open todo items:
 - fix issues with lobs (where the placeholder is not named like the field)

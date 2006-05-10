@@ -29,6 +29,7 @@ $notes = <<<EOT
 - removed the skeleton drivers, since its too much work to maintain them
   and there are plenty of sample drivers to look at
 - fixed example due to API change in MDB2_Schema (Bug #7575)
+- added 'prepared_statements' supported meta data setting
 
 open todo items:
 - handle fixed column types in "text" reverse engineering

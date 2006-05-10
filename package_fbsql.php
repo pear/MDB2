@@ -11,6 +11,7 @@ $notes = <<<EOT
 - added support for fixed and variable types for 'text' (Request #1523)
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
+- added 'prepared_statements' supported meta data setting
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

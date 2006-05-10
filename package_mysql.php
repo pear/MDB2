@@ -13,9 +13,8 @@ $notes = <<<EOT
 - added support for fixed and variable types for 'text' (Request #1523)
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
-
-open todo item:
-- only use native prepared queries of mysql 4.1 or higher
+- use native prepared queries of mysql 4.1 or higher
+- added 'prepared_statements' supported meta data setting
 EOT;
 
 $package = new PEAR_PackageFileManager();
