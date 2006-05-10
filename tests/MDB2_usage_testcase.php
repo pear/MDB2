@@ -349,6 +349,10 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $stmt = $this->db->prepare('SELECT user_name, user_password, user_id FROM users WHERE user_id=:user_id', array('integer'), array('text', 'text', 'integer'));
         foreach ($data as $row_data) {
             $result =& $stmt->execute(array('user_id' => $row_data['user_id']));
+            if (PEAR::isError($result)) {
+                $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared. Error: '.$result->getUserinfo());
+                break;
+            }
             $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
             if (!is_array($row)) {
                 $this->assertTrue(false, 'Prepared SELECT failed');
