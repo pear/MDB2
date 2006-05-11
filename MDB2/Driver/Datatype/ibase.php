@@ -265,6 +265,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         if (isset($this->lobs[$lob_index]['handle'])) {
            @ibase_blob_close($this->lobs[$lob_index]['handle']);
+            unset($this->lobs[$lob_index]['handle']);
         }
     }
 
