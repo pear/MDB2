@@ -1023,38 +1023,48 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $row = $result->fetchRow();
         $clob = $row[0];
         if (!PEAR::isError($clob) && is_resource($clob)) {
-            $this->db->datatype->writeLOBToFile($clob, $character_data_file);
+            unlink($character_data_file);
+            $res = $this->db->datatype->writeLOBToFile($clob, $character_data_file);
             $this->db->datatype->destroyLOB($clob);
 
-            $file = fopen($character_data_file, 'r');
-            $this->assertTrue($file, "Error opening character data file: $character_data_file");
-            $value = '';
-            while (!feof($file)) {
-                $value.= fread($file, 8192);
-            }
-            $this->assertEquals('string', gettype($value), "Could not read from character LOB file: $character_data_file");
-            fclose($file);
+            if (PEAR::isError($res)) {
+                $this->assertTrue(false, 'Error writing character LOB in a file');
+            } else {
+                $file = fopen($character_data_file, 'r');
+                $this->assertTrue($file, "Error opening character data file: $character_data_file");
+                $value = '';
+                while (!feof($file)) {
+                    $value.= fread($file, 8192);
+                }
+                $this->assertEquals('string', gettype($value), "Could not read from character LOB file: $character_data_file");
+                fclose($file);
 
-            $this->assertEquals($character_data, $value, "retrieved character LOB value is different from what was stored");
+                $this->assertEquals($character_data, $value, "retrieved character LOB value is different from what was stored");
+            }
         } else {
             $this->assertTrue(false, 'Error creating character LOB in a file');
         }
 
         $blob = $row[1];
         if (!PEAR::isError($blob) && is_resource($blob)) {
-            $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
+            unlink($binary_data_file);
+            $res = $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
             $this->db->datatype->destroyLOB($blob);
 
-            $file = fopen($binary_data_file, 'rb');
-            $this->assertTrue($file, "Error opening binary data file: $binary_data_file");
-            $value = '';
-            while (!feof($file)) {
-                $value.= fread($file, 8192);
-            }
-            $this->assertEquals('string', gettype($value), "Could not read from binary LOB file: $binary_data_file");
-            fclose($file);
+            if (PEAR::isError($res)) {
+                $this->assertTrue(false, 'Error writing binary LOB in a file');
+            } else {
+                $file = fopen($binary_data_file, 'rb');
+                $this->assertTrue($file, "Error opening binary data file: $binary_data_file");
+                $value = '';
+                while (!feof($file)) {
+                    $value.= fread($file, 8192);
+                }
+                $this->assertEquals('string', gettype($value), "Could not read from binary LOB file: $binary_data_file");
+                fclose($file);
 
-            $this->assertEquals($binary_data, $value, "retrieved binary LOB value is different from what was stored");
+                $this->assertEquals($binary_data, $value, "retrieved binary LOB value is different from what was stored");
+            }
         } else {
             $this->assertTrue(false, 'Error creating binary LOB in a file');
         }
