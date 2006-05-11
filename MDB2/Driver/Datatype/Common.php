@@ -1441,7 +1441,6 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         return implode(', ', $return);
     }
 
-
     // }}}
     // {{{ mapNativeDatatype()
 
