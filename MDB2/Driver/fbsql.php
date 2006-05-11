@@ -84,7 +84,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->supported['replace'] ='emulated';
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = false; // not implemented
-        $this->supported['primary_key'] = false; // not implemented
+        $this->supported['primary_key'] = true;
         $this->supported['result_introspection'] = true;
         $this->supported['prepared_statements'] = 'emulated';
     }
