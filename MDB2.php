@@ -1012,30 +1012,44 @@ class MDB2_Driver_Common extends PEAR
     );
 
     /**
-     * $options['ssl'] -> determines if ssl should be used for connections
-     * $options['field_case'] -> determines what case to force on field/table names
-     * $options['disable_query'] -> determines if queries should be executed
-     * $options['result_class'] -> class used for result sets
-     * $options['buffered_result_class'] -> class used for buffered result sets
-     * $options['result_wrap_class'] -> class used to wrap result sets into
-     * $options['result_buffering'] -> boolean should results be buffered or not?
-     * $options['fetch_class'] -> class to use when fetch mode object is used
-     * $options['persistent'] -> boolean persistent connection?
-     * $options['debug'] -> integer numeric debug level
-     * $options['debug_handler'] -> string function/method that captures debug messages
-     * $options['default_text_field_length'] -> default text field length to use
-     * $options['lob_buffer_length'] -> integer LOB buffer length
-     * $options['log_line_break'] -> string line-break format
-     * $options['idxname_format'] -> string pattern for index name
-     * $options['seqname_format'] -> string pattern for sequence name
-     * $options['seqcol_name'] -> string sequence column name
-     * $options['quote_identifier'] -> if identifier quoting should be done when check_option is used
-     * $options['use_transactions'] -> boolean
-     * $options['decimal_places'] -> integer
-     * $options['portability'] -> portability constant
-     * $options['modules'] -> short to long module name mapping for __call()
+     * Array of supported options that can be passed to the MDB2 instance.
+     * 
+     * The options can be set during object creation, using
+     * MDB2::connect(), MDB2::factory() or MDB2::singleton(). The options can 
+     * also be set after the object is created, using MDB2::setOptions() or 
+     * MDB2_Driver_Common::setOption().
+     * The list of available option includes:
+     * <ul>
+     *  <li>$options['ssl'] -> determines if ssl should be used for connections</li>
+     *  <li>$options['field_case'] -> determines what case to force on field/table names</li>
+     *  <li>$options['disable_query'] -> determines if queries should be executed</li>
+     *  <li>$options['result_class'] -> class used for result sets</li>
+     *  <li>$options['buffered_result_class'] -> class used for buffered result sets</li>
+     *  <li>$options['result_wrap_class'] -> class used to wrap result sets into</li>
+     *  <li>$options['result_buffering'] -> boolean should results be buffered or not?</li>
+     *  <li>$options['fetch_class'] -> class to use when fetch mode object is used</li>
+     *  <li>$options['persistent'] -> boolean persistent connection?</li>
+     *  <li>$options['debug'] -> integer numeric debug level</li>
+     *  <li>$options['debug_handler'] -> string function/method that captures debug messages</li>
+     *  <li>$options['default_text_field_length'] -> default text field length to use</li>
+     *  <li>$options['lob_buffer_length'] -> integer LOB buffer length</li>
+     *  <li>$options['log_line_break'] -> string line-break format</li>
+     *  <li>$options['idxname_format'] -> string pattern for index name</li>
+     *  <li>$options['seqname_format'] -> string pattern for sequence name</li>
+     *  <li>$options['seqcol_name'] -> string sequence column name</li>
+     *  <li>$options['quote_identifier'] -> if identifier quoting should be done when check_option is used</li>
+     *  <li>$options['use_transactions'] -> boolean</li>
+     *  <li>$options['decimal_places'] -> integer</li>
+     *  <li>$options['portability'] -> portability constant</li>
+     *  <li>$options['modules'] -> short to long module name mapping for __call()</li>
+     * </ul>
+     *
      * @var array
      * @access public
+     * @see MDB2::connect()
+     * @see MDB2::factory()
+     * @see MDB2::singleton()
+     * @see MDB2_Driver_Common::setOption()
      */
     var $options = array(
             'ssl' => false,
@@ -2614,10 +2628,11 @@ class MDB2_Driver_Common extends PEAR
     // {{{ function lastInsertID($table = null, $field = null)
 
     /**
-     * Returns the autoincrement ID if supported or $id
+     * Returns the autoincrement ID if supported or $id or fetches the current
+     * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
      *
-     * @param mixed $id value as returned by getBeforeId()
      * @param string $table name of the table into which a new row was inserted
+     * @param string $field name of the field into which a new row was inserted
      * @return mixed MDB2 Error Object or id
      * @access public
      */

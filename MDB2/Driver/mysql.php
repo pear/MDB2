@@ -890,10 +890,11 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     // {{{ lastInsertID()
 
     /**
-     * Returns the autoincrement ID if supported or $id
+     * Returns the autoincrement ID if supported or $id or fetches the current
+     * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
      *
-     * @param mixed $id value as returned by getBeforeId()
      * @param string $table name of the table into which a new row was inserted
+     * @param string $field name of the field into which a new row was inserted
      * @return mixed MDB2 Error Object or id
      * @access public
      */
