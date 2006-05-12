@@ -21,7 +21,6 @@ $notes = <<<EOT
 - do not use foreach() on lob descriptor reference array
 
 open todo items:
-- fix issues with testlobfiles (crash when calling writeLOBToFile() in the test)
 - fix issues with testcreateautoincrementtable (error on sequence creation)
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
 EOT;
