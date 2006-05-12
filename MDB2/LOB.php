@@ -167,7 +167,10 @@ class MDB2_LOB
      */
     function stream_tell()
     {
-        return $db->datatype->lobs[$this->lob_index]['position'];
+        if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
+            $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
+            return $db->datatype->lobs[$this->lob_index]['position'];
+        }
     }
     // }}}
 
