@@ -254,19 +254,26 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        if (isset($this->dsn['hostspec'])) {
+        $sid = '';
+        if ($this->dsn['hostspec']) {
             $sid = $this->dsn['hostspec'];
-            if (!$this->options['emulate_database']) {
-                if (isset($this->dsn['port']) && $this->dsn['port']) {
-                    $sid = '//'.$sid.':'.$this->dsn['port'];
+            if (!$this->options['emulate_database'] && $this->database_name) {
+                $port = $service = '';
+                if ($this->dsn['port']) {
+                    $port = ':'.$this->dsn['port'];
                 }
-                if (isset($this->database_name) && $this->database_name) {
-                    $sid.= '/'.$this->database_name;
+                $service = $this->database_name;
+                if (substr($service, 0, 1) !== '/') {
+                    $service = '/'.$service;
                 }
+                $sid = '//'.$sid.$port.$service;
             }
+        } elseif (!$this->options['emulate_database'] && $this->database_name) {
+            $sid = $this->database_name;
         } else {
             $sid = getenv('ORACLE_SID');
         }
+
         if (empty($sid)) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'it was not specified a valid Oracle Service Identifier (SID)');
