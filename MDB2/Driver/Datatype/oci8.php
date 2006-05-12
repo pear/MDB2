@@ -231,6 +231,8 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
        return $this->_quoteText("0001-01-01 $value", $quote);
     }
 
+function foo() {}
+
     // }}}
     // {{{ writeLOBToFile()
 
@@ -249,10 +251,11 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
                 $file = $match[2];
             }
         }
-
         $lob_data = stream_get_meta_data($lob);
-        $lob_index = $lob_data['wrapper_data']->lob_index;
-        if (!@$this->lobs[$lob_index]['resource']->writelobtofile($file)) {
+        $lob_index = (int)$lob_data['wrapper_data']->lob_index;
+        $result = $this->lobs[$lob_index]['resource']->writetofile($file);
+        $lob_data = stream_get_meta_data($lob);
+        if (!$result) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
@@ -276,21 +279,70 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      */
     function _retrieveLOB(&$lob)
     {
-        if (!array_key_exists('loaded', $lob)) {
-            if (!is_object($lob['resource'])) {
-                $db =& $this->getDBInstance();
-                if (PEAR::isError($db)) {
-                    return $db;
-                }
-
-               return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                   'attemped to retrieve LOB from non existing or NULL column');
+        if (!is_object($lob['resource'])) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
             }
+
+           return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+               'attemped to retrieve LOB from non existing or NULL column');
+        }
+
+        if (!$lob['loaded']
+#            && !method_exists($lob['resource'], 'read')
+        ) {
             $lob['value'] = $lob['resource']->load();
             $lob['loaded'] = true;
         }
         return MDB2_OK;
     }
+
+    // }}}
+    // {{{ _readLOB()
+
+    /**
+     * Read data from large object input stream.
+     *
+     * @param resource $lob stream handle
+     * @param blob $data reference to a variable that will hold data to be
+     *      read from the large object input stream
+     * @param int $length integer value that indicates the largest ammount of
+     *      data to be read from the large object input stream.
+     * @return mixed length on success, a MDB2 error on failure
+     * @access protected
+     */
+    function _readLOB($lob, $length)
+    {
+        if ($lob['loaded']) {
+            return parent::_readLOB($lob, $length);
+        }
+
+        if (!is_object($lob['resource'])) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
+           return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+               'attemped to retrieve LOB from non existing or NULL column');
+        }
+
+        $data = $lob['resource']->read($length);
+        if (!is_string($data)) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+
+            return $db->raiseError(null, null, null,
+                    '_readLOB: Unable to read LOB');
+        }
+        return $data;
+    }
+
+    // }}}
+    // {{{ mapNativeDatatype()
 
     /**
      * Maps a native array description of a field to a MDB2 datatype and length

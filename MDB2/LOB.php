@@ -189,8 +189,6 @@ class MDB2_LOB
         }
 
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $db->datatype->_retrieveLOB($db->datatype->lobs[$this->lob_index]);
-
         $result = $db->datatype->_endOfLOB($db->datatype->lobs[$this->lob_index]);
         if (version_compare(phpversion(), "5.0", ">=")
             && version_compare(phpversion(), "5.1", "<")

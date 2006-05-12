@@ -159,6 +159,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 'endOfLOB' => false,
                 'resource' => $value,
                 'value' => null,
+                'loaded' => false,
             );
             end($this->lobs);
             $lob_index = key($this->lobs);
@@ -1332,6 +1333,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _retrieveLOB(&$lob)
     {
+        $lob['loaded'] = true;
         if (is_null($lob['value'])) {
             $lob['value'] = $lob['resource'];
         }
