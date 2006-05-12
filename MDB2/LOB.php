@@ -79,14 +79,6 @@ class MDB2_LOB
      */
     var $lob_index;
 
-    /**
-     * LOB data
-     *
-     * @var string
-     * @access protected
-     */
-    var $lob;
-
     // {{{ stream_open()
 
     /**
@@ -118,7 +110,6 @@ class MDB2_LOB
         if (!isset($db->datatype->lobs[$this->lob_index])) {
             return false;
         }
-        $this->lob =& $db->datatype->lobs[$this->lob_index];
         return true;
     }
     // }}}
@@ -137,14 +128,14 @@ class MDB2_LOB
     {
         if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
             $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-            $db->datatype->_retrieveLOB($this->lob);
+            $db->datatype->_retrieveLOB($db->datatype->lobs[$this->lob_index]);
 
-            $data = $db->datatype->_readLOB($this->lob, $count);
+            $data = $db->datatype->_readLOB($db->datatype->lobs[$this->lob_index], $count);
             $length = strlen($data);
             if ($length == 0) {
-                $this->lob['endOfLOB'] = true;
+                $db->datatype->lobs[$this->lob_index]['endOfLOB'] = true;
             }
-            $this->lob['position'] += $length;
+            $db->datatype->lobs[$this->lob_index]['position'] += $length;
             return $data;
         }
     }
@@ -176,7 +167,7 @@ class MDB2_LOB
      */
     function stream_tell()
     {
-        return $this->lob['position'];
+        return $db->datatype->lobs[$this->lob_index]['position'];
     }
     // }}}
 
@@ -195,9 +186,9 @@ class MDB2_LOB
         }
 
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $db->datatype->_retrieveLOB($this->lob);
+        $db->datatype->_retrieveLOB($db->datatype->lobs[$this->lob_index]);
 
-        $result = $db->datatype->_endOfLOB($this->lob);
+        $result = $db->datatype->_endOfLOB($db->datatype->lobs[$this->lob_index]);
         if (version_compare(phpversion(), "5.0", ">=")
             && version_compare(phpversion(), "5.1", "<")
         ) {
