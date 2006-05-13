@@ -65,6 +65,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 'unsigned' => 1,
                 'notnull'  => 1,
                 'default'  => 0,
+                'length'  => 4,
             ),
             'id2' => array( //UNIQUE_MULTIFIELD(1/2)
                 'type'     => 'integer',
@@ -214,7 +215,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         }
 
         //test integer not null
-        $field_info = $this->db->reverse->getTableFieldDefinition('files', 'id');
+        $field_info = $this->db->reverse->getTableFieldDefinition($this->table, 'id');
         if (PEAR::isError($field_info)) {
             $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
