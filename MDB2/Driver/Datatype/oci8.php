@@ -431,7 +431,7 @@ function foo() {}
             }
 
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'getTableFieldDefinition: unknown database attribute type: '.$db_type);
+                'mapNativeDatatype: unknown database attribute type: '.$db_type);
         }
 
         return array($type, $length, $unsigned);
