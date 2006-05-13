@@ -91,7 +91,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;
         $this->options['database_name_prefix'] = false;
-        $this->options['emulate_database'] = false;
+        $this->options['emulate_database'] = true;
         $this->options['default_tablespace'] = false;
         $this->options['default_text_field_length'] = 2000;
         $this->options['result_prefetching'] = false;
