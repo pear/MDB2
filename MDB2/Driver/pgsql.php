@@ -160,13 +160,16 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     => MDB2_ERROR_VALUE_COUNT_ON_ROW,
             );
         }
-        foreach ($error_regexps as $regexp => $code) {
-            if (preg_match($regexp, $native_msg)) {
-                $error_code = $code;
-                break;
+        if (is_numeric($error) && $error < 0) {
+            $error_code = $error;
+        } else {
+            foreach ($error_regexps as $regexp => $code) {
+                if (preg_match($regexp, $native_msg)) {
+                    $error_code = $code;
+                    break;
+                }
             }
         }
-
         return array($error_code, null, $native_msg);
     }
 
