@@ -143,7 +143,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         }
         $stmt->free();
         $query = 'SELECT * FROM '.$this->table;
-        $data = $this->db->queryAll($query, MDB2_FETCHMODE_ASSOC);
+        $data = $this->db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($data)) {
             $this->assertTrue(true, 'Error executing select');
             return;
