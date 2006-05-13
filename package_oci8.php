@@ -20,7 +20,7 @@ $notes = <<<EOT
 - typo fix ressource/resource in LOB array
 - do not use foreach() on lob descriptor reference array
 - marked primary key as supported
-- some more fixes related to connecting (Bug #4104)
+- fix DSN handling in _doConnect() (Bug #4104)
 - seek(0) after calling load()/writetofile()
 - fixed _destroyLOB() API to match other private LOB methods
 - fixed phpdoc comments of all private LOB methods
