@@ -101,12 +101,12 @@ class MDB2_LOB
         if (!array_key_exists('host', $url) && !array_key_exists('user', $url)) {
             return false;
         }
-        $this->db_index = $url['host'];
+        $this->db_index = (int)$url['host'];
         if (!isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
             return false;
         }
         $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
-        $this->lob_index = $url['user'];
+        $this->lob_index = (int)$url['user'];
         if (!isset($db->datatype->lobs[$this->lob_index])) {
             return false;
         }
