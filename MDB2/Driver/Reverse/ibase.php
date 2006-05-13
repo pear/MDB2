@@ -148,7 +148,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                          RDB\$FIELDS.RDB\$FIELD_SUB_TYPE AS field_sub_type_code,
                          RDB\$RELATION_FIELDS.RDB\$DESCRIPTION AS description,
                          RDB\$RELATION_FIELDS.RDB\$NULL_FLAG AS null_flag,
-                         RDB\$RELATION_FIELDS.RDB\$DEFAULT_SOURCE AS default_source
+                         RDB\$FIELDS.RDB\$DEFAULT_SOURCE AS default_source
                     FROM RDB\$FIELDS
                LEFT JOIN RDB\$RELATION_FIELDS ON RDB\$FIELDS.RDB\$FIELD_NAME = RDB\$RELATION_FIELDS.RDB\$FIELD_SOURCE
                    WHERE UPPER(RDB\$RELATION_FIELDS.RDB\$RELATION_NAME)=$table
