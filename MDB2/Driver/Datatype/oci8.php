@@ -254,7 +254,7 @@ function foo() {}
         $lob_data = stream_get_meta_data($lob);
         $lob_index = (int)$lob_data['wrapper_data']->lob_index;
         $result = $this->lobs[$lob_index]['resource']->writetofile($file);
-        $lob_data = stream_get_meta_data($lob);
+        $this->lobs[$lob_index]['resource']->seek(0);
         if (!$result) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
@@ -293,6 +293,7 @@ function foo() {}
 #            && !method_exists($lob['resource'], 'read')
         ) {
             $lob['value'] = $lob['resource']->load();
+            $lob['resource']->seek(0);
             $lob['loaded'] = true;
         }
         return MDB2_OK;
