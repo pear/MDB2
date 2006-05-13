@@ -231,15 +231,13 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
        return $this->_quoteText("0001-01-01 $value", $quote);
     }
 
-function foo() {}
-
     // }}}
     // {{{ writeLOBToFile()
 
     /**
      * retrieve LOB from the database
      *
-     * @param resource $lob stream handle
+     * @param array $lob array
      * @param string $file name of the file into which the LOb should be fetched
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
@@ -252,7 +250,7 @@ function foo() {}
             }
         }
         $lob_data = stream_get_meta_data($lob);
-        $lob_index = (int)$lob_data['wrapper_data']->lob_index;
+        $lob_index = $lob_data['wrapper_data']->lob_index;
         $result = $this->lobs[$lob_index]['resource']->writetofile($file);
         $this->lobs[$lob_index]['resource']->seek(0);
         if (!$result) {
@@ -273,7 +271,7 @@ function foo() {}
     /**
      * retrieve LOB from the database
      *
-     * @param int $lob_index from the lob array
+     * @param array $lob array
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
@@ -305,7 +303,7 @@ function foo() {}
     /**
      * Read data from large object input stream.
      *
-     * @param resource $lob stream handle
+     * @param array $lob array
      * @param blob $data reference to a variable that will hold data to be
      *      read from the large object input stream
      * @param int $length integer value that indicates the largest ammount of

@@ -1327,7 +1327,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     /**
      * retrieve LOB from the database
      *
-     * @param resource $lob stream handle
+     * @param array $lob array
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
@@ -1368,7 +1368,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * Determine whether it was reached the end of the large object and
      * therefore there is no more data to be read for the its input stream.
      *
-     * @param resource $lob stream handle
+     * @param array $lob array
      * @return mixed true or false on success, a MDB2 error on failure
      * @access protected
      */
@@ -1393,7 +1393,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $lob_index = $lob_data['wrapper_data']->lob_index;
         fclose($lob);
         if (isset($this->lobs[$lob_index])) {
-            $this->_destroyLOB($lob_index);
+            $this->_destroyLOB($this->lobs[$lob_index]);
             unset($this->lobs[$lob_index]);
         }
         return MDB2_OK;
@@ -1406,10 +1406,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * Free any resources allocated during the lifetime of the large object
      * handler object.
      *
-     * @param int $lob_index from the lob array
+     * @param array $lob array
      * @access private
      */
-    function _destroyLOB($lob_index)
+    function _destroyLOB(&$lob)
     {
         return MDB2_OK;
     }

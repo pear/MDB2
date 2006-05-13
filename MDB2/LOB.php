@@ -228,7 +228,7 @@ class MDB2_LOB
         if (isset($GLOBALS['_MDB2_databases'][$this->db_index])) {
             $db =& $GLOBALS['_MDB2_databases'][$this->db_index];
             if (isset($db->datatype->lobs[$this->lob_index])) {
-                $db->datatype->_destroyLOB($this->lob_index);
+                $db->datatype->_destroyLOB($db->datatype->lobs[$this->lob_index]);
                 unset($db->datatype->lobs[$this->lob_index]);
             }
         }

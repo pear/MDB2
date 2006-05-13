@@ -201,7 +201,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     /**
      * retrieve LOB from the database
      *
-     * @param resource $lob stream handle
+     * @param array $lob array
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access protected
      */
@@ -229,7 +229,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     /**
      * Read data from large object input stream.
      *
-     * @param resource $lob stream handle
+     * @param array $lob array
      * @param blob $data reference to a variable that will hold data to be
      *      read from the large object input stream
      * @param int $length integer value that indicates the largest ammount of
@@ -237,7 +237,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * @return mixed length on success, a MDB2 error on failure
      * @access protected
      */
-    function _readLOB($lob, $length)
+    function _readLOB(&$lob, $length)
     {
         $data = @ibase_blob_get($lob['handle'], $length);
         if (!is_string($data)) {
@@ -259,14 +259,14 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * Free any resources allocated during the lifetime of the large object
      * handler object.
      *
-     * @param resource $lob stream handle
+     * @param array $lob array
      * @access protected
      */
-    function _destroyLOB($lob_index)
+    function _destroyLOB(&$lob)
     {
-        if (isset($this->lobs[$lob_index]['handle'])) {
-           @ibase_blob_close($this->lobs[$lob_index]['handle']);
-            unset($this->lobs[$lob_index]['handle']);
+        if (isset($lob['handle'])) {
+           @ibase_blob_close($lob['handle']);
+            unset($lob['handle']);
         }
     }
 
