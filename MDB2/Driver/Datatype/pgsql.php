@@ -81,6 +81,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return substr($value, 0, strlen('HH:MM:SS'));
         case 'timestamp':
             return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
+        case 'blob':
+            $value = pg_unescape_bytea($value);
         default:
             return $this->_baseConvertResult($value, $type);
         }
@@ -127,9 +129,9 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return $fixed ? ($length ? 'CHAR('.$length.')' : 'CHAR('.$db->options['default_text_field_length'].')')
                 : ($length ? 'VARCHAR('.$length.')' : 'TEXT');
         case 'clob':
-            return 'OID';
+            return 'TEXT';
         case 'blob':
-            return 'OID';
+            return 'BYTEA';
         case 'integer':
             if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
                 if (array_key_exists('length', $field)) {
@@ -223,94 +225,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ _quoteLOB()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string $value text string value that is intended to be converted.
-     * @param bool $quote determines if the value should be quoted and escaped
-     * @return string text string that represents the given argument value in
-     *      a DBMS specific format.
-     * @access protected
-     */
-    function _quoteLOB($value, $quote)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $connection = $db->getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-        if (!$db->in_transaction && !@pg_query($connection, 'BEGIN')) {
-            return $db->raiseError(null, null, null,
-                'error starting transaction');
-        }
-        if (is_resource($value)) {
-            $close = false;
-        } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
-            $close = true;
-            if ($match[1] == 'file://') {
-                $value = $match[2];
-            }
-            // disabled use of pg_lo_import() for now with the following line
-            $value = @fopen($value, 'r');
-        } else {
-            $close = true;
-            $fp = @tmpfile();
-            @fwrite($fp, $value);
-            @rewind($fp);
-            $value = $fp;
-        }
-        $result = false;
-        if (is_resource($value)) {
-            if (($lo = @pg_lo_create($connection))) {
-                if (($handle = @pg_lo_open($connection, $lo, 'w'))) {
-                    while (!@feof($value)) {
-                        $data = @fread($value, $db->options['lob_buffer_length']);
-                        if ($data === '') {
-                            break;
-                        }
-                        if (!@pg_lo_write($handle, $data)) {
-                            $result = $db->raiseError(null, null, null,
-                                '_quoteLOB: Unable to write LOB into the database');
-                            break;
-                        }
-                    }
-                    if (!PEAR::isError($result)) {
-                        $result = strval($lo);
-                    }
-                    @pg_lo_close($handle);
-                } else {
-                    $result = $db->raiseError(null, null, null,
-                                '_quoteLOB: Unable to open LOB in the database');
-                    @pg_lo_unlink($connection, $lo);
-                }
-            }
-            if ($close) {
-                @fclose($value);
-            }
-        } else {
-            if (!@pg_lo_import($connection, $value)) {
-                $result = $db->raiseError(null, null, null,
-                    '_quoteLOB: Unable to import LOB into the database');
-            }
-        }
-        if (!$db->in_transaction) {
-            if (PEAR::isError($result)) {
-                @pg_query($connection, 'ROLLBACK');
-            } else {
-                @pg_query($connection, 'COMMIT');
-            }
-        }
-        return $result;
-    }
-
-    // }}}
     // {{{ _quoteCLOB()
 
     /**
@@ -325,7 +239,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteCLOB($value, $quote)
     {
-        return $this->_quoteLOB($value, $quote);
+        return $this->_quoteText($value, $quote);
     }
 
     // }}}
@@ -343,7 +257,10 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteBLOB($value, $quote)
     {
-        return $this->_quoteLOB($value, $quote);
+        if (!$quote) {
+            return $value;
+        }
+        return "'".pg_escape_bytea($value)."'";
     }
 
     // }}}
@@ -365,152 +282,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return ($value ? 't' : 'f');
         }
         return ($value ? "'t'" : "'f'");
-    }
-
-    // }}}
-    // {{{ writeLOBToFile()
-
-    /**
-     * retrieve LOB from the database
-     *
-     * @param resource $lob stream handle
-     * @param string $file name of the file into which the LOb should be fetched
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access protected
-     */
-    function writeLOBToFile($lob, $file)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $connection = $db->getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-
-        if (preg_match('/^(\w+:\/\/)(.*)$/', $file, $match)) {
-            if ($match[1] == 'file://') {
-                $file = $match[2];
-            }
-        }
-
-        $lob_data = stream_get_meta_data($lob);
-        $lob_index = $lob_data['wrapper_data']->lob_index;
-        if (!pg_lo_export($connection, $this->lobs[$lob_index]['resource'], $file)) {
-            return $db->raiseError(null, null, null,
-                'writeLOBToFile: Unable to write LOB to file');
-        }
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ _retrieveLOB()
-
-    /**
-     * retrieve LOB from the database
-     *
-     * @param resource $lob stream handle
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access protected
-     */
-    function _retrieveLOB(&$lob)
-    {
-        if (!array_key_exists('handle', $lob)) {
-            $db =& $this->getDBInstance();
-            if (PEAR::isError($db)) {
-                return $db;
-            }
-
-            $connection = $db->getConnection();
-            if (PEAR::isError($connection)) {
-                return $connection;
-            }
-
-            if (!$db->in_transaction) {
-                if (!@pg_query($connection, 'BEGIN')) {
-                    return $db->raiseError(null, null, null,
-                        '_retrieveLOB: Unable to start transaction');
-                }
-                $lob['in_transaction'] = true;
-            }
-            $lob['handle'] = @pg_lo_open($connection, $lob['resource'], 'r');
-            if (!$lob['handle']) {
-                if (array_key_exists('in_transaction', $lob)) {
-                    @pg_query($connection, 'END');
-                    unset($lob['in_transaction']);
-                }
-                return $db->raiseError(null, null, null,
-                    '_retrieveLOB: Unable to open LOB');
-            }
-        }
-        $lob['loaded'] = true;
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ _readLOB()
-
-    /**
-     * Read data from large object input stream.
-     *
-     * @param resource $lob stream handle
-     * @param blob $data reference to a variable that will hold data to be
-     *      read from the large object input stream
-     * @param int $length integer value that indicates the largest ammount of
-     *      data to be read from the large object input stream.
-     * @return mixed length on success, a MDB2 error on failure
-     * @access protected
-     */
-    function _readLOB($lob, $length)
-    {
-        $data = @pg_lo_read($lob['handle'], $length);
-        if (!is_string($data)) {
-            $db =& $this->getDBInstance();
-            if (PEAR::isError($db)) {
-                return $db;
-            }
-
-            return $db->raiseError(null, null, null,
-                    '_readLOB: Unable to read LOB');
-        }
-        return $data;
-    }
-
-    // }}}
-    // {{{ _destroyLOB()
-
-    /**
-     * Free any resources allocated during the lifetime of the large object
-     * handler object.
-     *
-     * @param int $lob_index from the lob array
-     * @access protected
-     */
-    function _destroyLOB($lob_index)
-    {
-        if (isset($this->lobs[$lob_index]['handle'])) {
-            @pg_lo_close($this->lobs[$lob_index]['handle']);
-            unset($this->lobs[$lob_index]['handle']);
-            if (isset($this->lobs[$lob_index]['in_transaction'])) {
-/*
-for some reason this piece of code causes an apache crash
-                $db =& $this->getDBInstance();
-                if (PEAR::isError($db)) {
-                    return $db;
-                }
-
-
-            $connection = $db->getConnection();
-            if (PEAR::isError($connection)) {
-                return $connection;
-            }
-
-                @pg_query($connection, 'END');
-*/
-            }
-        }
     }
 
     // }}}
@@ -612,6 +383,7 @@ for some reason this piece of code causes an apache crash
         case 'mediumblob':
         case 'longblob':
         case 'blob':
+        case 'bytea':
             $type[] = 'blob';
             $length = null;
             break;
@@ -659,8 +431,9 @@ for some reason this piece of code causes an apache crash
             case 'float':
                 return 'numeric';
             case 'clob':
+                return 'text';
             case 'blob':
-                return 'oid';
+                return 'bytea';
             default:
                 break;
         }
