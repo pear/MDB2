@@ -630,7 +630,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      * @access public
      * @see bindParam, execute
      */
-    function &prepare($query, $types = null, $result_types = null)
+    function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         if (!$this->supported['prepared_statements']) {
             $obj =& parent::prepare($query, $types, $result_types);
