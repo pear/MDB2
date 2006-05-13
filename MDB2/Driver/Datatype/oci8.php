@@ -294,8 +294,8 @@ function foo() {}
         ) {
             $lob['value'] = $lob['resource']->load();
             $lob['resource']->seek(0);
-            $lob['loaded'] = true;
         }
+        $lob['loaded'] = true;
         return MDB2_OK;
     }
 

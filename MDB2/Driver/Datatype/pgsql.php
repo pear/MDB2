@@ -417,7 +417,6 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _retrieveLOB(&$lob)
     {
-        $lob['loaded'] = true;
         if (!array_key_exists('handle', $lob)) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
@@ -446,6 +445,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                     '_retrieveLOB: Unable to open LOB');
             }
         }
+        $lob['loaded'] = true;
         return MDB2_OK;
     }
 

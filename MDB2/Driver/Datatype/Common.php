@@ -1333,10 +1333,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _retrieveLOB(&$lob)
     {
-        $lob['loaded'] = true;
         if (is_null($lob['value'])) {
             $lob['value'] = $lob['resource'];
         }
+        $lob['loaded'] = true;
         return MDB2_OK;
     }
 

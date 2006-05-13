@@ -207,7 +207,6 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _retrieveLOB(&$lob)
     {
-        $lob['loaded'] = true;
         if (!array_key_exists('handle', $lob)) {
             $lob['handle'] = @ibase_blob_open($lob['resource']);
             if (!$lob['handle']) {
@@ -220,6 +219,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                     '_retrieveLOB: Could not open fetched large object field');
             }
         }
+        $lob['loaded'] = true;
         return MDB2_OK;
     }
 
