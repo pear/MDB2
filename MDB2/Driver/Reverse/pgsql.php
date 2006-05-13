@@ -151,9 +151,10 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         }
 
         $index_name = $db->getIndexName($index_name);
-        $query = "SELECT relname, indkey FROM pg_index, pg_class
-            WHERE pg_class.relname = ".$db->quote($index_name, 'text')." AND pg_class.oid = pg_index.indexrelid
-               AND indisunique != 't' AND indisprimary != 't'";
+        $query = 'SELECT relname, indkey FROM pg_index, pg_class';
+        $query.= ' WHERE pg_class.oid = pg_index.indexrelid';
+        $query.= " AND indisunique != 't' AND indisprimary != 't'";
+        $query.= ' AND pg_class.relname = '.$db->quote($index_name, 'text');
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
@@ -197,9 +198,10 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         }
 
         $index_name = $db->getIndexName($index_name);
-        $query = "SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class
-            WHERE pg_class.relname = ".$db->quote($index_name, 'text')." AND pg_class.oid = pg_index.indexrelid
-              AND (indisunique = 't' OR indisprimary = 't')";
+        $query = 'SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class';
+        $query.= ' WHERE pg_class.oid = pg_index.indexrelid';
+        $query.= " AND (indisunique = 't' OR indisprimary = 't')";
+        $query.= ' AND pg_class.relname = '.$db->quote($index_name, 'text');
         $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row)) {
             return $row;
