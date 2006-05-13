@@ -19,6 +19,11 @@ $notes = <<<EOT
 - strip of file:// prefix in writeLOBToFile()
 - typo fix ressource/resource in LOB array
 - do not use foreach() on lob descriptor reference array
+- marked primary key as supported
+- some more fixes related to connecting (Bug #4104)
+- seek(0) after calling load()/writetofile()
+- fixed _destroyLOB() API to match other private LOB methods
+- fixed phpdoc comments of all private LOB methods
 
 open todo items:
 - fix issues with testcreateautoincrementtable (error on sequence creation)

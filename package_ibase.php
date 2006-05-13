@@ -16,6 +16,10 @@ $notes = <<<EOT
 - added userinfo's to all raiseError calls that previously had none
 - added 'prepared_statements' supported meta data setting
 - typo fix ressource/resource in LOB array
+- added missing unset() to _destroyLOB()
+- fixed _destroyLOB() API to match other private LOB methods
+- fixed phpdoc comments of all private LOB methods
+- added missing supported parameter to prepare() signature
 EOT;
 
 $package = new PEAR_PackageFileManager();

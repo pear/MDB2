@@ -14,7 +14,7 @@ $notes = <<<EOT
 - added ability to hint that a constraint is a primary key in dropConstraint()
 - since we no longer complain about primary keys not being called primary we can
   remove the necessary hacks in the test suite
-- increased the size of the LOBs in the test suite
+- improved LOB tests in the test suite
 - do not require Manager module for core API tests
 - added support for fixed and variable types for 'text' (Request #1523)
 - updated MAINTAINERS to current status
@@ -28,9 +28,14 @@ $notes = <<<EOT
   and there are plenty of sample drivers to look at
 - fixed example due to API change in MDB2_Schema (Bug #7575)
 - added 'prepared_statements' supported meta data setting
-- do not retrieve lob in the constructor
+- do not retrieve lob in the stream constructor and streams_eof()
 - strip of file:// prefix in writeLOBToFile()
 - typo fix ressource/resource in LOB array
+- removed lob property from the LOB streams wrapper (references are always
+  shaky business in PHP so lets use them as little as possible)
+- fixed _destroyLOB() API to match other private LOB methods
+- fixed phpdoc comments of all private LOB methods
+- typo fix in autoincrement test
 
 open todo items:
 - handle autoincrement fields in alterTable()

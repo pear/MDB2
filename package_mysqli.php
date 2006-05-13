@@ -20,6 +20,7 @@ $notes = <<<EOT
 - only use native prepared queries of mysql 4.1 or higher
 - added 'prepared_statements' supported meta data setting
 - fixed issue with free() returning void
+- added missing supported parameter to prepare() signature
 EOT;
 
 $package = new PEAR_PackageFileManager();

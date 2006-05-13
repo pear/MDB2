@@ -16,11 +16,9 @@ $notes = <<<EOT
 - added 'prepared_statements' supported meta data setting
 - strip of file:// prefix in writeLOBToFile()
 - typo fix ressource/resource in LOB array
-
-open todo items:
-- considering migrating away from OID's to bytea, since this is encourage
-  since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes
+- added missing supported parameter to prepare() signature
+- properly handle explicit error codes in errorInfo()
+- moved from OID to TEXT and BYTEA (OID handling was broken, its also deprecated)
 EOT;
 
 $package = new PEAR_PackageFileManager();

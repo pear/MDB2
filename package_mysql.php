@@ -15,6 +15,7 @@ $notes = <<<EOT
 - added userinfo's to all raiseError calls that previously had none
 - use native prepared queries of mysql 4.1 or higher
 - added 'prepared_statements' supported meta data setting
+- added missing supported parameter to prepare() signature
 EOT;
 
 $package = new PEAR_PackageFileManager();
