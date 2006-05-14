@@ -296,6 +296,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         case 'text':
         case 'varchar':
             $fixed = false;
+        case 'string':
         case 'char':
             $type[] = 'text';
             if ($length == '1') {
@@ -354,6 +355,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
             $type[] = 'float';
             $unsigned = preg_match('/ unsigned/i', $field['type']);
             break;
+        case 'unknown':
         case 'decimal':
         case 'numeric':
             $type[] = 'decimal';
