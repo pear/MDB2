@@ -49,10 +49,6 @@ open todo items:
   http://phplens.com/lens/adodb/docs-adodb.htm#ex11
 EOT;
 
-open todo items:
-- handle autoincremement fields in alterTable()
-EOT;
-
 $description =<<<EOT
 PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
 
