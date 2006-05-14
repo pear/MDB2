@@ -422,8 +422,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 'table'  => $case_func($tmp->table),
                 'name'   => $case_func($tmp->name),
                 'type'   => isset($this->types[$tmp->type])
-                                    ? $this->types[$tmp->type]
-                                    : 'unknown',
+                    ? $this->types[$tmp->type] : 'unknown',
                 // http://bugs.php.net/?id=36579
                 'length' => $tmp->length,
                 'flags'  => $flags,
