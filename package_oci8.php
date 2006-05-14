@@ -2,29 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.2.6';
+$version = 'XXX';
 $notes = <<<EOT
-- explicitly set is_manip parameter to false for transaction debug calls
-- pass parameter array as debug() all with scope "parameters" in every execute()
-  call (bug #4119)
-- typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for 'text' in declarations,
-  as well as in reverse engineering (Request #1523)
-- made _doQuery() return a reference
-- added userinfo's to all raiseError calls that previously had none
-- allow using the database name in the SID generation
-- only support createDatabase(), dropDatabase() and listDatabases()
-  if emulate_database is enabled
-- added 'prepared_statements' supported meta data setting
-- fixed issue in prepare() with parsing of ? type placeholders for LOBs
-- strip of file:// prefix in writeLOBToFile()
-- typo fix ressource/resource in LOB array
-- do not use foreach() on lob descriptor reference array
-- marked primary key as supported
-- fix DSN handling in _doConnect() (Bug #4104)
-- seek(0) after calling load()/writetofile()
-- fixed _destroyLOB() API to match other private LOB methods
-- fixed phpdoc comments of all private LOB methods
 
 open todo items:
 - fix issues with testcreateautoincrementtable (error on sequence creation)
