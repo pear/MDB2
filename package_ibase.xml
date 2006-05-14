@@ -41,6 +41,7 @@
 - fixed _destroyLOB() API to match other private LOB methods
 - fixed phpdoc comments of all private LOB methods
 - added missing supported parameter to prepare() signature
+- fix default field value in getTableFieldDefinition() [Reverse module]
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.4" optional="no"/>
@@ -106,6 +107,7 @@
 - fixed _destroyLOB() API to match other private LOB methods
 - fixed phpdoc comments of all private LOB methods
 - added missing supported parameter to prepare() signature
+- fix default field value in getTableFieldDefinition() [Reverse module]
     </notes>
    </release>
    <release>
