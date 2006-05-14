@@ -2,23 +2,25 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.0.1';
 $notes = <<<EOT
-- added listTableViews() (request #6773)
-- explicitly set is_manip parameter to false for transaction debug calls
-- pass parameter array as debug() all with scope "parameters" in every execute()
-  call (bug #4119)
-- typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for 'text' (Request #1523)
-- made _doQuery() return a reference
-- added userinfo's to all raiseError calls that previously had none
-- calling PREPARE is always a manip query
-- added 'prepared_statements' supported meta data setting
-- strip of file:// prefix in writeLOBToFile()
-- typo fix ressource/resource in LOB array
-- added missing supported parameter to prepare() signature
-- properly handle explicit error codes in errorInfo()
-- moved from OID to TEXT and BYTEA (OID handling was broken, its also deprecated)
+- implemented multi_query option
+- aligned _modifyQuery() signature and phpdoc
+- ensure that types is an array before accessing it as an array in prepare()
+- added support for setting the client charset (bug #6814)
+- added 'result_introspection' supported metadata support
+- make sure that statement names are truely unique
+- use connected_server_info in getServerVersion() as a cache cache
+- use parent::disconnect() in disconnect()
+- added support for length in integer reverse engineering
+- some fixes regarding boolean reverse engineering
+- pgsql does not support unsigned ints
+- protect against sql injection in the reverse and manager module
+
+open todo items:
+- considering migrating away from OID's to bytea, since this is encourage
+  since version 8 and is also what PDO expects, however there is no streaming
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
 EOT;
 
 $package = new PEAR_PackageFileManager();
