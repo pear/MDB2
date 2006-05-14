@@ -277,7 +277,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      * Maps a native array description of a field to a MDB2 datatype and length
      *
      * @param array  $field native field description
-     * @return array containing the various possible types and the length
+     * @return array containing the various possible types, length, sign, fixed
      * @access public
      */
     function mapNativeDatatype($field)
@@ -287,7 +287,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $length = null;
         }
         $type = array();
-        $unsigned = null;
+        $unsigned = $fixed = null;
         $db_type = strtolower($field['type']);
         switch ($db_type) {
         case 'smallint':
@@ -308,8 +308,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                 }
             }
             break;
-        case 'char':
         case 'varchar':
+            $fixed = false;
+        case 'char':
         case 'cstring':
             $type[] = 'text';
             if ($length == '1') {
@@ -317,6 +318,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                 if (preg_match('/^[is|has]/', $field['name'])) {
                     $type = array_reverse($type);
                 }
+            }
+            if ($fixed !== false) {
+                $fixed = true;
             }
             break;
         case 'date':
@@ -356,7 +360,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                 'mapNativeDatatype: unknown database attribute type: '.$db_type);
         }
 
-        return array($type, $length, $unsigned);
+        return array($type, $length, $unsigned, $fixed);
     }
 
     // }}}

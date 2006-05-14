@@ -239,7 +239,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
      * Maps a native array description of a field to a MDB2 datatype and length
      *
      * @param array  $field native field description
-     * @return array containing the various possible types and the length
+     * @return array containing the various possible types, length, sign, fixed
      * @access public
      */
     function mapNativeDatatype($field)
@@ -257,7 +257,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
             $decimal = strtok('(), ');
         }
         $type = array();
-        $unsigned = null;
+        $unsigned = $fixed = null;
         switch ($db_type) {
         case 'tinyint':
             $type[] = 'integer';
@@ -289,19 +289,36 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
             $unsigned = preg_match('/ unsigned/i', $db_type);
             $length = 8;
             break;
-        case 'char':
+        case 'tinytext':
+        case 'mediumtext':
+        case 'longtext':
+        case 'text':
+        case 'text':
         case 'varchar':
+            $fixed = false;
+        case 'char':
             $type[] = 'text';
             if ($length == '1') {
                 $type[] = 'boolean';
                 if (preg_match('/^[is|has]/', $field['name'])) {
                     $type = array_reverse($type);
                 }
+            } elseif (strstr($db_type, 'text')) {
+                $type[] = 'clob';
+                if ($decimal == 'binary') {
+                    $type[] = 'blob';
+                }
+                $type = array_reverse($type);
+            }
+            if ($fixed !== false) {
+                $fixed = true;
             }
             break;
         case 'enum':
+            $type[] = 'text';
             preg_match_all('/\'.+\'/U', $field['type'], $matches);
             $length = 0;
+            $fixed = false;
             if (is_array($matches)) {
                 foreach ($matches[0] as $value) {
                     $length = max($length, strlen($value)-2);
@@ -313,6 +330,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
                     }
                 }
             }
+            $type[] = 'integer';
         case 'set':
             $type[] = 'text';
             $type[] = 'integer';
@@ -341,22 +359,11 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
             $type[] = 'decimal';
             $unsigned = preg_match('/ unsigned/i', $db_type);
             break;
-        case 'tinytext':
-        case 'mediumtext':
-        case 'longtext':
-        case 'text':
-            if ($decimal == 'binary') {
-                $type[] = 'blob';
-            }
-            $type[] = 'clob';
-            $type[] = 'text';
-            break;
         case 'tinyblob':
         case 'mediumblob':
         case 'longblob':
         case 'blob':
             $type[] = 'blob';
-            $type[] = 'text';
             $length = null;
             break;
         case 'year':
@@ -374,7 +381,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
                 'mapNativeDatatype: unknown database attribute type: '.$db_type);
         }
 
-        return array($type, $length, $unsigned);
+        return array($type, $length, $unsigned, $fixed);
     }
 
     // }}}

@@ -212,7 +212,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      * Maps a native array description of a field to a MDB2 datatype and length
      *
      * @param array  $field native field description
-     * @return array containing the various possible types and the length
+     * @return array containing the various possible types, length, sign, fixed
      * @access public
      */
     function mapNativeDatatype($field)
@@ -228,7 +228,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         }
         $type = array();
         // todo: unsigned handling seems to be missing
-        $unsigned = null;
+        $unsigned = $fixed = null;
         switch ($db_type) {
         case 'bit':
             $type[0] = 'boolean';
@@ -249,15 +249,27 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             $type[0] = 'decimal';
             break;
         case 'text':
-        case 'char':
         case 'varchar':
+            $fixed = false;
+        case 'char':
             $type[0] = 'text';
             if ($length == '1') {
                 $type[] = 'boolean';
                 if (preg_match('/^[is|has]/', $field['name'])) {
                     $type = array_reverse($type);
                 }
+            } elseif (strstr($db_type, 'text')) {
+                $type[] = 'clob';
+                $type = array_reverse($type);
             }
+            if ($fixed !== false) {
+                $fixed = true;
+            }
+            break;
+        case 'image':
+        case 'varbinary':
+            $type[] = 'blob';
+            $length = null;
             break;
         default:
             $db =& $this->getDBInstance();
@@ -269,7 +281,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
                 'mapNativeDatatype: unknown database attribute type: '.$db_type);
         }
 
-        return array($type, $length, $unsigned);
+        return array($type, $length, $unsigned, $fixed);
     }
     // }}}
 }

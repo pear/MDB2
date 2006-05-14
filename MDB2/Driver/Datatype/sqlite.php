@@ -214,7 +214,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
      * Maps a native array description of a field to a MDB2 datatype and length
      *
      * @param array  $field native field description
-     * @return array containing the various possible types and the length
+     * @return array containing the various possible types, length, sign, fixed
      * @access public
      */
     function mapNativeDatatype($field)
@@ -222,6 +222,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         $db_type = strtolower($field['type']);
         $length = array_key_exists('length', $field) ? $field['length'] : null;
         $unsigned = array_key_exists('unsigned', $field) ? $field['unsigned'] : null;
+        $fixed = null;
         $type = array();
         switch ($db_type) {
         case 'boolean':
@@ -264,9 +265,10 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         case 'mediumtext':
         case 'longtext':
         case 'text':
-        case 'char':
         case 'varchar':
         case "varchar2":
+            $fixed = false;
+        case 'char':
             $type[] = 'text';
             if ($length == '1') {
                 $type[] = 'boolean';
@@ -275,25 +277,8 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 }
             } elseif (strstr($db_type, 'text')) {
                 $type[] = 'clob';
+                $type = array_reverse($type);
             }
-            break;
-        case 'enum':
-            preg_match_all('/\'.+\'/U',$row[$type_column], $matches);
-            $length = 0;
-            if (is_array($matches)) {
-                foreach ($matches[0] as $value) {
-                    $length = max($length, strlen($value)-2);
-                }
-                if ($length == '1' && count($matches[0]) == 2) {
-                    $type[] = 'boolean';
-                    if (preg_match('/^[is|has]/', $field['name'])) {
-                        $type = array_reverse($type);
-                    }
-                }
-            }
-        case 'set':
-            $type[] = 'text';
-            $type[] = 'integer';
             break;
         case 'date':
             $type[] = 'date';
@@ -339,7 +324,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 'mapNativeDatatype: unknown database attribute type: '.$db_type);
         }
 
-        return array($type, $length, $unsigned);
+        return array($type, $length, $unsigned, $fixed);
     }
 }
 

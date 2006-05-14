@@ -291,7 +291,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      * Maps a native array description of a field to a MDB2 datatype and length
      *
      * @param array  $field native field description
-     * @return array containing the various possible types and the length
+     * @return array containing the various possible types, length, sign, fixed
      * @access public
      */
     function mapNativeDatatype($field)
@@ -305,7 +305,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             $length = null;
         }
         $type = array();
-        $unsigned = null;
+        $unsigned = $fixed = null;
         switch ($db_type) {
         case 'smallint':
         case 'int2':
@@ -341,10 +341,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             $type[] = 'boolean';
             $length = null;
             break;
-        case 'unknown':
         case 'text':
-        case 'char':
         case 'varchar':
+            $fixed = false;
+        case 'unknown':
+        case 'char':
         case 'bpchar':
             $type[] = 'text';
             if ($length == '1') {
@@ -354,6 +355,10 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                 }
             } elseif (strstr($db_type, 'text')) {
                 $type[] = 'clob';
+                $type = array_reverse($type);
+            }
+            if ($fixed !== false) {
+                $fixed = true;
             }
             break;
         case 'date':
@@ -407,7 +412,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                 'mapNativeDatatype: unknown database attribute type: '.$db_type);
         }
 
-        return array($type, $length, $unsigned);
+        return array($type, $length, $unsigned, $fixed);
     }
 
     // }}}

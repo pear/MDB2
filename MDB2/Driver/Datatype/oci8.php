@@ -347,14 +347,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      * Maps a native array description of a field to a MDB2 datatype and length
      *
      * @param array  $field native field description
-     * @return array containing the various possible types and the length
+     * @return array containing the various possible types, length, sign, fixed
      * @access public
      */
     function mapNativeDatatype($field)
     {
         $db_type = strtolower($field['type']);
         $type = array();
-        $length = $unsigned = null;
+        $length = $unsigned = $fixed = null;
         if (array_key_exists('length', $field)) {
             $length = $field['length'];
         }
@@ -373,6 +373,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'varchar':
         case 'varchar2':
         case 'nvarchar2':
+            $fixed = false;
         case 'char':
         case 'nchar':
             $type[] = 'text';
@@ -381,6 +382,9 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
                 if (preg_match('/^[is|has]/', $field['name'])) {
                     $type = array_reverse($type);
                 }
+            }
+            if ($fixed !== false) {
+                $fixed = true;
             }
             break;
         case 'date':
@@ -418,7 +422,6 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'long raw':
         case 'bfile':
             $type[] = 'blob';
-            $type[] = 'text';
             $length = null;
             break;
         case 'rowid':
@@ -433,7 +436,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
                 'mapNativeDatatype: unknown database attribute type: '.$db_type);
         }
 
-        return array($type, $length, $unsigned);
+        return array($type, $length, $unsigned, $fixed);
     }
 }
 
