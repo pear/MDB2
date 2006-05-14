@@ -266,7 +266,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         case 'longtext':
         case 'text':
         case 'varchar':
-        case "varchar2":
+        case 'varchar2':
             $fixed = false;
         case 'char':
             $type[] = 'text';
@@ -278,6 +278,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
             } elseif (strstr($db_type, 'text')) {
                 $type[] = 'clob';
                 $type = array_reverse($type);
+            }
+            if ($fixed !== false) {
+                $fixed = true;
             }
             break;
         case 'date':
