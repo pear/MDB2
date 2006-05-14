@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.0.2';
 $notes = <<<EOT
 - optimized listTables() and listViews()
 - optimized show related queries
@@ -10,7 +10,8 @@ $notes = <<<EOT
 - silently change name of primary key contraints to PRIMARY
 - added ability to hint that a constraint is a primary key in dropConstraint()
 - typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for 'text' (Request #1523)
+- added support for fixed and variable types for 'text' in declarations,
+  as well as in reverse engineering (Request #1523)
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
 - use native prepared queries of mysql 4.1 or higher

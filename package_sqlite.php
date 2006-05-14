@@ -2,12 +2,13 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.0.2';
 $notes = <<<EOT
 - explicitly set is_manip parameter to false for transaction debug calls
 - added ability to hint that a constraint is a primary key in dropConstraint()
 - typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for 'text' (Request #1523)
+- added support for fixed and variable types for 'text' in declarations,
+  as well as in reverse engineering (Request #1523)
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
 - added 'prepared_statements' supported meta data setting

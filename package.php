@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '2.0.2';
 $notes = <<<EOT
 - phpdoc and folding mark fixes (thx Laurent and Stoyan)
 - added getTriggerDefinition() in the Reverse module
@@ -16,7 +16,8 @@ $notes = <<<EOT
   remove the necessary hacks in the test suite
 - improved LOB tests in the test suite
 - do not require Manager module for core API tests
-- added support for fixed and variable types for 'text' (Request #1523)
+- added support for fixed and variable types for 'text' in declarations,
+  as well as in reverse engineering (Request #1523)
 - updated MAINTAINERS to current status
 - readded STATUS document, still needs to be filled with content
 - tweaked handling of error objects inside raiseError()
@@ -36,10 +37,14 @@ $notes = <<<EOT
 - fixed _destroyLOB() API to match other private LOB methods
 - fixed phpdoc comments of all private LOB methods
 - typo fix in autoincrement test
+- reworked index/constraint creation to not affected unnecessary reverse tests
+
+Note: Due to changes in generation of declaration statements you may need to
+update your test databases (for example by rerunning the MDB2_Schema
+installation using the CVS version or a release greater than 0.5.0)
 
 open todo items:
 - handle autoincrement fields in alterTable()
-- handle fixed column types in "text" reverse engineering
 - add support for ADODB style "smart transactions":
   http://phplens.com/lens/adodb/docs-adodb.htm#ex11
 EOT;

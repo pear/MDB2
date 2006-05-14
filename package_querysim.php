@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '0.2.3';
 $notes = <<<EOT
 - typo fixes in phpdoc (thx Stoyan)
 - made _doQuery() return a reference

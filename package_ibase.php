@@ -11,7 +11,8 @@ $notes = <<<EOT
 - pass parameter array as debug() all with scope "parameters" in every execute()
   call (bug #4119)
 - typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for 'text' (Request #1523)
+- added support for fixed and variable types for 'text' in declarations,
+  as well as in reverse engineering (Request #1523)
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
 - added 'prepared_statements' supported meta data setting

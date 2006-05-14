@@ -8,7 +8,8 @@ $notes = <<<EOT
 - various minor tweaks to error messages, phpdoc and adding stub methods to the
   common driver
 - typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for 'text' (Request #1523)
+- added support for fixed and variable types for 'text' in declarations,
+  as well as in reverse engineering (Request #1523)
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
 - added 'prepared_statements' supported meta data setting
