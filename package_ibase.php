@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.0.2';
 $notes = <<<EOT
 - implemented listTableTriggers(), listTableViews() and listFunctions()
   in the Manager module
@@ -21,6 +21,7 @@ $notes = <<<EOT
 - fixed _destroyLOB() API to match other private LOB methods
 - fixed phpdoc comments of all private LOB methods
 - added missing supported parameter to prepare() signature
+- fix default field value in getTableFieldDefinition() [Reverse module]
 EOT;
 
 $package = new PEAR_PackageFileManager();
