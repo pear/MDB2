@@ -14,13 +14,14 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.2</version>
-  <date>2006-04-16</date>
+  <version>0.2.3</version>
+  <date>2006-05-14</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- handle null as resource when disable_query option is enabled in result object
-- added &apos;result_introspection&apos; supported metadata support
-- aligned _modifyQuery() signature and phpdoc
+  <notes>- typo fixes in phpdoc (thx Stoyan)
+- made _doQuery() return a reference
+- added userinfo&apos;s to all raiseError calls that previously had none
+- added &apos;prepared_statements&apos; supported meta data setting
 
 open todo items:
 - add ability to reference multiple results set files for different queries
@@ -56,6 +57,20 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.3</version>
+    <date>2006-05-14</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- typo fixes in phpdoc (thx Stoyan)
+- made _doQuery() return a reference
+- added userinfo&apos;s to all raiseError calls that previously had none
+- added &apos;prepared_statements&apos; supported meta data setting
+
+open todo items:
+- add ability to reference multiple results set files for different queries
+    </notes>
+   </release>
    <release>
     <version>0.2.2</version>
     <date>2006-04-16</date>

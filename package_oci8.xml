@@ -20,32 +20,34 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.2.5</version>
-  <date>2006-04-16</date>
+  <version>0.2.6</version>
+  <date>2006-05-14</date>
   <license>BSD License</license>
-  <state>alpha</state>
-  <notes>- handle null as resource when disable_query option is enabled in result object
-- added missing methods in the reverse and datatype module
-- aligned _modifyQuery() signature and phpdoc
-- shorten autoincrement emulation related identifiers (bug #7109)
-- added &apos;result_introspection&apos; supported metadata support
-- use NUMBER(1) for booleans (partial fix for bug #7170)
-- use mapNativeDatatype() in tableInfo() where necessary
-- properly quote table names in tableInfo() (related to bug #6573)
-- use connected_server_info in getServerVersion() as a cache cache
-- use parent::disconnect() in disconnect()
-- separated result_buffering and prefetching by adding the new result_prefetching option
-- support optional dsn item &quot;port&quot; in connect (bug #7216)
-- added support for length in integer declarations
-- some fixes regarding boolean reverse engineering
-- protect against sql injection in the reverse and manager module
-- improve handling for quoted identifiers in the reverse and manager module
-- fixed queries in getTableConstraintDefinition()
+  <state>beta</state>
+  <notes>- explicitly set is_manip parameter to false for transaction debug calls
+- pass parameter array as debug() all with scope &quot;parameters&quot; in every execute()
+  call (bug #4119)
+- typo fixes in phpdoc (thx Stoyan)
+- added support for fixed and variable types for &apos;text&apos; in declarations,
+  as well as in reverse engineering (Request #1523)
+- made _doQuery() return a reference
+- added userinfo&apos;s to all raiseError calls that previously had none
+- allow using the database name in the SID generation
+- only support createDatabase(), dropDatabase() and listDatabases()
+  if emulate_database is enabled
+- added &apos;prepared_statements&apos; supported meta data setting
+- fixed issue in prepare() with parsing of ? type placeholders for LOBs
+- strip of file:// prefix in writeLOBToFile()
+- typo fix ressource/resource in LOB array
+- do not use foreach() on lob descriptor reference array
+- marked primary key as supported
+- fix DSN handling in _doConnect() (Bug #4104)
+- seek(0) after calling load()/writetofile()
+- fixed _destroyLOB() API to match other private LOB methods
+- fixed phpdoc comments of all private LOB methods
 
 open todo items:
-- fix issues with lobs (where the placeholder is not named like the field)
-- fix crash/issues in _makeAutoincrement()
-- there are still severe stability issues due to ext/oci8, especially on windows
+- fix issues with testcreateautoincrementtable (error on sequence creation)
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
   </notes>
   <deps>
@@ -90,6 +92,38 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.2.6</version>
+    <date>2006-05-14</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- explicitly set is_manip parameter to false for transaction debug calls
+- pass parameter array as debug() all with scope &quot;parameters&quot; in every execute()
+  call (bug #4119)
+- typo fixes in phpdoc (thx Stoyan)
+- added support for fixed and variable types for &apos;text&apos; in declarations,
+  as well as in reverse engineering (Request #1523)
+- made _doQuery() return a reference
+- added userinfo&apos;s to all raiseError calls that previously had none
+- allow using the database name in the SID generation
+- only support createDatabase(), dropDatabase() and listDatabases()
+  if emulate_database is enabled
+- added &apos;prepared_statements&apos; supported meta data setting
+- fixed issue in prepare() with parsing of ? type placeholders for LOBs
+- strip of file:// prefix in writeLOBToFile()
+- typo fix ressource/resource in LOB array
+- do not use foreach() on lob descriptor reference array
+- marked primary key as supported
+- fix DSN handling in _doConnect() (Bug #4104)
+- seek(0) after calling load()/writetofile()
+- fixed _destroyLOB() API to match other private LOB methods
+- fixed phpdoc comments of all private LOB methods
+
+open todo items:
+- fix issues with testcreateautoincrementtable (error on sequence creation)
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+    </notes>
+   </release>
    <release>
     <version>0.2.5</version>
     <date>2006-04-16</date>

@@ -66,41 +66,53 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.0.1</version>
-  <date>2006-04-16</date>
+  <version>2.0.2</version>
+  <date>2006-05-14</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- added new comprehensive tests for the Reverse module
-- fixed testcases to pass for mysql[i] (needs pk&apos;s to be called &quot;primary&quot;) ..
-  sqlite is probably severely broken for these tests
-- added ability to specify port number when using unix sockets in
-  MDB2::parseDSN() (bug #5982)
-- added test for multi_query option
-- typo fix in get constraint test
-- use ugly fopen() hack in fileExists()
-  http://marc.theaimsgroup.com/?l=pear-dev&amp;m=114148949106207&amp;w=2
-- allow &quot;.&quot; and &quot;$&quot; in sequence name (bug #7081)
-- aligned _modifyQuery() signature and phpdoc
-- added inTransaction() to determine if a transaction is currently open
-- added support for tabe options in createTable() (bug ##7079)
-- make it possible to overwrite the error code-message map
-- added sample sqlite in memory dsn to php5 example
-- added &apos;result_introspection&apos; supported metadata support
-- added bindValue() method
-- use MDB2_PREPARE_MANIP where we previously were using false
-- fixed default values for date and timestamp
-- if MDB2_PORTABILITY_EMPTY_TO_NULL is set change &apos;&apos; to &apos; &apos; in _getDeclaration()
-- refactored class loading into MDB2::loadClass()
-- properly quote CURRENT_* for temporal types (bug #6416)
-- added connected_server_info to cache server info in getServerInfo()
-- reset all connection related properties in disconnect()
-- separated result_buffering and prefetching by adding the new result_prefetching option
-- set error code in all raiseError() calls
-- added support for length in reverse engineering of integer fields
-- improve test suite documentation
+  <notes>- phpdoc and folding mark fixes (thx Laurent and Stoyan)
+- added getTriggerDefinition() in the Reverse module
+- added listTableViews() in the Manager module
+- explicitly set is_manip parameter to false for transaction debug calls
+- various minor tweaks to error messages, phpdoc and adding stub methods to the
+  common driver
+- added row seeking support to fetchOne()
+- added ability to hint that a constraint is a primary key in dropConstraint()
+- since we no longer complain about primary keys not being called primary we can
+  remove the necessary hacks in the test suite
+- improved LOB tests in the test suite
+- do not require Manager module for core API tests
+- added support for fixed and variable types for &apos;text&apos; in declarations,
+  as well as in reverse engineering (Request #1523)
+- updated MAINTAINERS to current status
+- readded STATUS document, still needs to be filled with content
+- tweaked handling of error objects inside raiseError()
+- made _doQuery() return a reference
+- added userinfo&apos;s to all raiseError calls that previously had none
+- added bindValueArray()
+- use bindValueArray() instead of bindParamArray() in all internal calls
+- removed the skeleton drivers, since its too much work to maintain them
+  and there are plenty of sample drivers to look at
+- fixed example due to API change in MDB2_Schema (Bug #7575)
+- added &apos;prepared_statements&apos; supported meta data setting
+- do not retrieve lob in the stream constructor and streams_eof()
+- strip of file:// prefix in writeLOBToFile()
+- typo fix ressource/resource in LOB array
+- removed lob property from the LOB streams wrapper (references are always
+  shaky business in PHP so lets use them as little as possible)
+- fixed _destroyLOB() API to match other private LOB methods
+- fixed phpdoc comments of all private LOB methods
+- typo fix in autoincrement test
+- reworked index/constraint creation to not affected unnecessary reverse tests
+
+Note: Due to changes in generation of declaration statements you may need to
+update your test databases (for example by rerunning the MDB2_Schema
+installation using the CVS version or a release greater than 0.5.0)
 
 open todo items:
-- handle autoincremement fields in alterTable()
+- handle autoincrement fields in alterTable()
+- add support for ADODB style &quot;smart transactions&quot;:
+  http://phplens.com/lens/adodb/docs-adodb.htm#ex11
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -126,25 +138,13 @@ open todo items:
      <file role="doc" name="datatypes.html">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
-     <file role="doc" name="Driver_Datatype_skeleton.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="doc" name="Driver_Manager_skeleton.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="doc" name="Driver_Native_skeleton.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="doc" name="Driver_Reverse_skeleton.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="doc" name="Driver_skeleton.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
      <file role="doc" name="MAINTAINERS">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="doc" name="README">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
+     <file role="doc" name="STATUS">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
      <file role="doc" name="TODO">
@@ -259,6 +259,56 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.0.2</version>
+    <date>2006-05-14</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- phpdoc and folding mark fixes (thx Laurent and Stoyan)
+- added getTriggerDefinition() in the Reverse module
+- added listTableViews() in the Manager module
+- explicitly set is_manip parameter to false for transaction debug calls
+- various minor tweaks to error messages, phpdoc and adding stub methods to the
+  common driver
+- added row seeking support to fetchOne()
+- added ability to hint that a constraint is a primary key in dropConstraint()
+- since we no longer complain about primary keys not being called primary we can
+  remove the necessary hacks in the test suite
+- improved LOB tests in the test suite
+- do not require Manager module for core API tests
+- added support for fixed and variable types for &apos;text&apos; in declarations,
+  as well as in reverse engineering (Request #1523)
+- updated MAINTAINERS to current status
+- readded STATUS document, still needs to be filled with content
+- tweaked handling of error objects inside raiseError()
+- made _doQuery() return a reference
+- added userinfo&apos;s to all raiseError calls that previously had none
+- added bindValueArray()
+- use bindValueArray() instead of bindParamArray() in all internal calls
+- removed the skeleton drivers, since its too much work to maintain them
+  and there are plenty of sample drivers to look at
+- fixed example due to API change in MDB2_Schema (Bug #7575)
+- added &apos;prepared_statements&apos; supported meta data setting
+- do not retrieve lob in the stream constructor and streams_eof()
+- strip of file:// prefix in writeLOBToFile()
+- typo fix ressource/resource in LOB array
+- removed lob property from the LOB streams wrapper (references are always
+  shaky business in PHP so lets use them as little as possible)
+- fixed _destroyLOB() API to match other private LOB methods
+- fixed phpdoc comments of all private LOB methods
+- typo fix in autoincrement test
+- reworked index/constraint creation to not affected unnecessary reverse tests
+
+Note: Due to changes in generation of declaration statements you may need to
+update your test databases (for example by rerunning the MDB2_Schema
+installation using the CVS version or a release greater than 0.5.0)
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add support for ADODB style &quot;smart transactions&quot;:
+  http://phplens.com/lens/adodb/docs-adodb.htm#ex11
+    </notes>
+   </release>
    <release>
     <version>2.0.1</version>
     <date>2006-04-16</date>

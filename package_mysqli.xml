@@ -14,24 +14,28 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.0.1</version>
-  <date>2006-04-16</date>
+  <version>1.0.2</version>
+  <date>2006-05-14</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- fixed length handling in tableInfo() (bug #6887)
-- aligned _modifyQuery() signature and phpdoc
-- added support for tabe options in createTable() (bug ##7079)
-- added optional database parameter to listTables() and listSequences()
-- added &apos;result_introspection&apos; supported metadata support
-- properly quote table names in tableInfo() (related to bug #6573)
-- use connected_server_info in getServerVersion() as a cache cache
-- use parent::disconnect() in disconnect()
-- added support for length in integer reverse engineering
-- some fixes regarding boolean reverse engineering
-- added listViews() and hide views in listTables()
-
-open todo item:
+  <notes>- optimized listTables() and listViews()
+- optimized show related queries
+- merged in some features and fixes from the mysql driver
+- explicitly set is_manip parameter to false for transaction debug calls
+- pass parameter array as debug() all with scope &quot;parameters&quot; in every execute()
+  call (bug #4119)
+- silently change name of primary key contraints to PRIMARY
+- added ability to hint that a constraint is a primary key in dropConstraint()
+- typo fixes in phpdoc (thx Stoyan)
+- added support for fixed and variable types for &apos;text&apos; in declarations,
+  as well as in reverse engineering (Request #1523)
+- made _doQuery() return a reference
+- added userinfo&apos;s to all raiseError calls that previously had none
 - use native prepared queries for prepared SELECT statements
+- only use native prepared queries of mysql 4.1 or higher
+- added &apos;prepared_statements&apos; supported meta data setting
+- fixed issue with free() returning void
+- added missing supported parameter to prepare() signature
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.0" optional="no"/>
@@ -75,6 +79,31 @@ open todo item:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.2</version>
+    <date>2006-05-14</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- optimized listTables() and listViews()
+- optimized show related queries
+- merged in some features and fixes from the mysql driver
+- explicitly set is_manip parameter to false for transaction debug calls
+- pass parameter array as debug() all with scope &quot;parameters&quot; in every execute()
+  call (bug #4119)
+- silently change name of primary key contraints to PRIMARY
+- added ability to hint that a constraint is a primary key in dropConstraint()
+- typo fixes in phpdoc (thx Stoyan)
+- added support for fixed and variable types for &apos;text&apos; in declarations,
+  as well as in reverse engineering (Request #1523)
+- made _doQuery() return a reference
+- added userinfo&apos;s to all raiseError calls that previously had none
+- use native prepared queries for prepared SELECT statements
+- only use native prepared queries of mysql 4.1 or higher
+- added &apos;prepared_statements&apos; supported meta data setting
+- fixed issue with free() returning void
+- added missing supported parameter to prepare() signature
+    </notes>
+   </release>
    <release>
     <version>1.0.1</version>
     <date>2006-04-16</date>
