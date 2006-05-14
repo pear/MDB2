@@ -4,6 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+- fixed unsigned handling in mapNativeDatatype()
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
-
+- fixed unsigned handling and minor tweaks to type mapping in mapNativeDatatype()
 EOT;
 
 $package = new PEAR_PackageFileManager();
