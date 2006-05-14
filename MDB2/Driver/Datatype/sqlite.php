@@ -234,30 +234,30 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
             if (preg_match('/^[is|has]/', $field['name'])) {
                 $type = array_reverse($type);
             }
-            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
             $length = 1;
             break;
         case 'smallint':
             $type[] = 'integer';
-            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
             $length = 2;
             break;
         case 'mediumint':
             $type[] = 'integer';
-            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
             $length = 3;
             break;
         case 'int':
         case 'integer':
         case 'serial':
             $type[] = 'integer';
-            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
             $length = 4;
             break;
         case 'bigint':
         case 'bigserial':
             $type[] = 'integer';
-            $unsigned = preg_match('/ unsigned/i', $db_type);
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
             $length = 8;
             break;
         case 'clob':
