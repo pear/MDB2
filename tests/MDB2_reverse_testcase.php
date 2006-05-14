@@ -100,6 +100,25 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             ),
         );
 
+        if (!$this->tableExists($this->table)) {
+            $this->db->manager->createTable($this->table, $this->fields);
+        }
+    }
+
+    function tearDown() {
+        if ($this->tableExists($this->table)) {
+            $this->db->manager->dropTable($this->table);
+        }
+        $this->db->popExpect();
+        unset($this->dsn);
+        if (!PEAR::isError($this->db->manager)) {
+            $this->db->disconnect();
+        }
+        unset($this->db);
+    }
+
+    function setUpIndices()
+    {
         //Indices definition
         $this->indices = array(
             'sometestindex' => array(
@@ -121,7 +140,17 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 ),
             ),
         );
+        foreach ($this->indices as $index_name => $index) {
+            $result = $this->db->manager->createIndex($this->table, $index_name, $index);
+            $this->assertFalse(PEAR::isError($result), 'Error creating index: '.$index_name);
+            if (PEAR::isError($result)) {
+                unset($indices[$index_name]);
+            }
+        }
+    }
 
+    function setUpConstraints()
+    {
         //Constraints definition
         $this->constraints = array(
             'pkfield' => array(
@@ -152,33 +181,10 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 'unique' => true,
             ),
         );
-
-        if (!$this->tableExists($this->table)) {
-            $this->db->manager->createTable($this->table, $this->fields);
-        }
-        foreach ($this->indices as $index_name => $index) {
-            $result = $this->db->manager->createIndex($this->table, $index_name, $index);
-            $this->assertFalse(PEAR::isError($result), 'Error creating index: '.$index_name);
-            if (PEAR::isError($result)) {
-                unset($indices[$index_name]);
-            }
-        }
         foreach ($this->constraints as $constraint_name => $constraint) {
             $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
             $this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
         }
-    }
-
-    function tearDown() {
-        if ($this->tableExists($this->table)) {
-            $this->db->manager->dropTable($this->table);
-        }
-        $this->db->popExpect();
-        unset($this->dsn);
-        if (!PEAR::isError($this->db->manager)) {
-            $this->db->disconnect();
-        }
-        unset($this->db);
     }
 
     /**
@@ -246,6 +252,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->assertEquals(12, $field_info['length'], 'The field length is different from the expected one');
             $this->assertFalse($field_info['notnull'], 'The field can be null unlike it was expected');
             $this->assertNull($field_info['default'], 'The field default value is different from the expected one');
+            $this->assertFalse($field_info['fixed'], 'The field fixed value is different from the expected one');
         }
     }
 
@@ -258,6 +265,8 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             return;
         }
 
+        $this->setUpIndices();
+
         //test index names
         foreach ($this->indices as $index_name => $index) {
             $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
@@ -269,6 +278,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             }
         }
 
+        $this->setUpConstraints();
         //constraints should NOT be listed
         foreach (array_keys($this->constraints) as $constraint_name) {
             $this->db->expectError(MDB2_ERROR_NOT_FOUND);
@@ -310,6 +320,8 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             return;
         }
 
+        $this->setUpConstraints();
+
         //test constraint names
         foreach ($this->constraints as $constraint_name => $constraint) {
             $this->db->expectError(MDB2_ERROR_NOT_FOUND);
@@ -328,6 +340,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             }
         }
 
+        $this->setUpIndices();
         //indices should NOT be listed
         foreach (array_keys($this->indices) as $index_name) {
             $this->db->expectError(MDB2_ERROR_NOT_FOUND);
