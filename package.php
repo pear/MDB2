@@ -9,6 +9,7 @@ open todo items:
 - handle autoincrement fields in alterTable()
 - add support for ADODB style "smart transactions":
   http://phplens.com/lens/adodb/docs-adodb.htm#ex11
+- add length handling to LOB reverse engineering
 EOT;
 
 $description =<<<EOT
