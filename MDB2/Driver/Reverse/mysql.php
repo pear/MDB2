@@ -96,7 +96,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                 $column = array_change_key_case($column, $db->options['field_case']);
             }
             if ($field_name == $column['name']) {
-                list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
+                list($types, $length, $unsigned, $fixed) = $db->datatype->mapNativeDatatype($column);
                 $notnull = false;
                 if (array_key_exists('null', $column) && $column['null'] != 'YES') {
                     $notnull = true;
@@ -121,8 +121,11 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     if ($length > 0) {
                         $definition[$key]['length'] = $length;
                     }
-                    if ($unsigned) {
-                        $definition[$key]['unsigned'] = true;
+                    if (!is_null($unsigned)) {
+                        $definition[$key]['unsigned'] = $unsigned;
+                    }
+                    if (!is_null($fixed)) {
+                        $definition[$key]['fixed'] = $fixed;
                     }
                     if ($default !== false) {
                         $definition[$key]['default'] = $default;

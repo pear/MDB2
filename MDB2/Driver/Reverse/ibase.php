@@ -180,7 +180,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         } else {
             $column['field_sub_type'] = null;
         }
-        list($types, $length, $unsigned) = $db->datatype->mapNativeDatatype($column);
+        list($types, $length, $unsigned, $fixed) = $db->datatype->mapNativeDatatype($column);
         $notnull = !empty($column['null_flag']);
         $default = $column['default_source'];
         if (is_null($default) && $notnull) {
@@ -195,8 +195,11 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             if ($length > 0) {
                 $definition[$key]['length'] = $length;
             }
-            if ($unsigned) {
-                $definition[$key]['unsigned'] = true;
+            if (!is_null($unsigned)) {
+                $definition[$key]['unsigned'] = $unsigned;
+            }
+            if (!is_null($fixed)) {
+                $definition[$key]['fixed'] = $fixed;
             }
             $definition[$key]['default'] = $default;
         }
