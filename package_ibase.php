@@ -2,26 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.2';
+$version = 'XXX';
 $notes = <<<EOT
-- implemented listTableTriggers(), listTableViews() and listFunctions()
-  in the Manager module
-- implemented getTriggerDefinition() in the Reverse module
-- explicitly set is_manip parameter to false for transaction debug calls
-- pass parameter array as debug() all with scope "parameters" in every execute()
-  call (bug #4119)
-- typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for 'text' in declarations,
-  as well as in reverse engineering (Request #1523)
-- made _doQuery() return a reference
-- added userinfo's to all raiseError calls that previously had none
-- added 'prepared_statements' supported meta data setting
-- typo fix ressource/resource in LOB array
-- added missing unset() to _destroyLOB()
-- fixed _destroyLOB() API to match other private LOB methods
-- fixed phpdoc comments of all private LOB methods
-- added missing supported parameter to prepare() signature
-- fix default field value in getTableFieldDefinition() [Reverse module]
+
 EOT;
 
 $package = new PEAR_PackageFileManager();
