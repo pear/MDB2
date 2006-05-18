@@ -955,14 +955,15 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 $type = 'integer';
                 break;
             case 'double':
-                // todo
+                // todo: default to decimal as float is quite unusual
+                // $type = 'float';
                 $type = 'decimal';
-                $type = 'float';
                 break;
             case 'boolean':
                 $type = 'boolean';
                 break;
             case 'array':
+                 $value = serialize($value);
             case 'object':
                  $type = 'text';
                 break;
@@ -1246,15 +1247,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteFloat($value, $quote)
     {
-        if (!$quote) {
-            return $value;
+        if (preg_match('/^(.*)e([-+])(\d+)$/i', $value, $matches)) {
+            $value = $matches[1].'E'.$matches[2].str_pad($matches[3], 2, '0', STR_PAD_LEFT);
+        } else {
+            $value = $this->_quoteDecimal($value, $quote);
         }
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->escape($value);
+        return $value;
     }
 
     // }}}
@@ -1272,15 +1270,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteDecimal($value, $quote)
     {
-        if (!$quote) {
-            return $value;
+        $precision = strlen($value) - strlen(intval($value));
+        if ($precision) {
+            --$precision; // don't count decimal seperator
         }
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->escape($value);
+        return number_format($value, $precision, '.', '');
     }
 
     // }}}
