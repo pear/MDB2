@@ -404,6 +404,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         }
 
         $this->supported['sub_selects'] = 'emulated';
+        $this->supported['prepared_statements'] = 'emulated';
         $server_info = $this->getServerVersion();
         if (is_array($server_info)
             && ($server_info['major'] > 4
@@ -635,7 +636,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
-        if (!$this->supported['prepared_statements']) {
+        if ($this->supported['prepared_statements'] === true) {
             $obj =& parent::prepare($query, $types, $result_types);
             return $obj;
         }
