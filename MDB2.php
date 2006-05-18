@@ -47,9 +47,9 @@
 //
 
 /**
- * @package  MDB2
- * @category Database
- * @author   Lukas Smith <smith@pooteeweet.org>
+ * @package     MDB2
+ * @category    Database
+ * @author      Lukas Smith <smith@pooteeweet.org>
  */
 
 require_once 'PEAR.php';
@@ -265,19 +265,22 @@ $GLOBALS['_MDB2_dsninfo_default'] = array(
  *              connections, the object returned is an instance of this
  *              class.
  *
- * @package  MDB2
- * @category Database
- * @author   Lukas Smith <smith@pooteeweet.org>
+ * @package     MDB2
+ * @category    Database
+ * @author      Lukas Smith <smith@pooteeweet.org>
  */
 class MDB2
 {
     // {{{ function setOptions(&$db, $options)
 
     /**
-     * set option array in an exiting database object
+     * set option array   in an exiting database object
      *
-     * @param   MDB2_Driver_Common  $db       MDB2 object
-     * @param   array   $options  An associative array of option names and their values.
+     * @param   MDB2_Driver_Common  MDB2 object
+     * @param   array   An associative array of option names and their values.
+     *
+     * @return mixed   MDB2_OK or a PEAR Error object
+     *
      * @access  public
      */
     function setOptions(&$db, $options)
@@ -298,10 +301,11 @@ class MDB2
     /**
      * Checks if a class exists without triggering __autoload
      *
-     * @param  string  classname
-     * @return bool true success and false on error
+     * @param   string  classname
      *
-     * @access public
+     * @return  bool    true success and false on error
+     *
+     * @access  public
      */
     function classExists($classname)
     {
@@ -316,11 +320,12 @@ class MDB2
     /**
      * Loads a PEAR class.
      *
-     * @param  string  $class_name  classname to load
-     * @param  bool    $debug       if errors should be suppressed
-     * @return bool  true success or false on failure
+     * @param   string  classname to load
+     * @param   bool    if errors should be suppressed
      *
-     * @access public
+     * @return  bool    true success or false on failure
+     *
+     * @access  public
      */
     function loadClass($class_name, $debug)
     {
@@ -360,13 +365,15 @@ class MDB2
      * And not:
      *     $db = MDB2::factory($dsn);
      *
-     * @param   mixed   $dsn      'data source name', see the MDB2::parseDSN
-     *                            method for a description of the dsn format.
-     *                            Can also be specified as an array of the
-     *                            format returned by MDB2::parseDSN.
-     * @param   array   $options  An associative array of option names and
+     * @param   mixed   'data source name', see the MDB2::parseDSN
+     *                      method for a description of the dsn format.
+     *                      Can also be specified as an array of the
+     *                      format returned by MDB2::parseDSN.
+     * @param   array   An associative array of option names and
      *                            their values.
+     *
      * @return  mixed   a newly created MDB2 object, or false on error
+     *
      * @access  public
      */
     function &factory($dsn, $options = false)
@@ -413,14 +420,16 @@ class MDB2
      *     $db = MDB2::connect($dsn);
      *          ^^
      *
-     * @param   mixed   $dsn      'data source name', see the MDB2::parseDSN
+     * @param   mixed   'data source name', see the MDB2::parseDSN
      *                            method for a description of the dsn format.
      *                            Can also be specified as an array of the
      *                            format returned by MDB2::parseDSN.
-     * @param   array   $options  An associative array of option names and
+     * @param   array   An associative array of option names and
      *                            their values.
+     *
      * @return  mixed   a newly created MDB2 connection object, or a MDB2
      *                  error object on error
+     *
      * @access  public
      * @see     MDB2::parseDSN
      */
@@ -461,14 +470,16 @@ class MDB2
      *     $db = MDB2::singleton($dsn);
      *          ^^
      *
-     * @param   mixed   $dsn      'data source name', see the MDB2::parseDSN
+     * @param   mixed   'data source name', see the MDB2::parseDSN
      *                            method for a description of the dsn format.
      *                            Can also be specified as an array of the
      *                            format returned by MDB2::parseDSN.
-     * @param   array   $options  An associative array of option names and
+     * @param   array   An associative array of option names and
      *                            their values.
+     *
      * @return  mixed   a newly created MDB2 connection object, or a MDB2
      *                  error object on error
+     *
      * @access  public
      * @see     MDB2::parseDSN
      */
@@ -499,9 +510,11 @@ class MDB2
     /**
      * load a file (like 'Date')
      *
-     * @param  string     $file  name of the file in the MDB2 directory (without '.php')
-     * @return string     name of the file that was included
-     * @access public
+     * @param   string  name of the file in the MDB2 directory (without '.php')
+     *
+     * @return  string  name of the file that was included
+     *
+     * @access  public
      */
     function loadFile($file)
     {
@@ -523,8 +536,9 @@ class MDB2
     /**
      * Return the MDB2 API version
      *
-     * @return string     the MDB2 API version number
-     * @access public
+     * @return  string  the MDB2 API version number
+     *
+     * @access  public
      */
     function apiVersion()
     {
@@ -539,23 +553,26 @@ class MDB2
      * callbacks etc.  Basically a wrapper for PEAR::raiseError
      * without the message string.
      *
-     * @param mixed    integer error code
+     * @param   mixed   int error code
      *
-     * @param int      error mode, see PEAR_Error docs
+     * @param   int     error mode, see PEAR_Error docs
      *
-     * @param mixed    If error mode is PEAR_ERROR_TRIGGER, this is the
+     * @param   mixed   If error mode is PEAR_ERROR_TRIGGER, this is the
      *                 error level (E_USER_NOTICE etc).  If error mode is
      *                 PEAR_ERROR_CALLBACK, this is the callback function,
      *                 either as a function name, or as an array of an
      *                 object and method name.  For other error modes this
      *                 parameter is ignored.
      *
-     * @param string   Extra debug information.  Defaults to the last
+     * @param   string  Extra debug information.  Defaults to the last
      *                 query and native error code.
      *
-     * @return object  a PEAR error object
+     * @param   object  a PEAR error object
      *
-     * @see PEAR_Error
+     * @return PEAR_Error instance of a PEAR Error object
+     *
+     * @access  private
+     * @see     PEAR_Error
      */
     function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
     {
@@ -569,13 +586,15 @@ class MDB2
     /**
      * Tell whether a value is a MDB2 error.
      *
-     * @param   mixed $data   the value to test
-     * @param   int   $code   if $data is an error object, return true
+     * @param   mixed   the value to test
+     * @param   int     if is an error object, return true
      *                        only if $code is a string and
      *                        $db->getMessage() == $code or
      *                        $code is an integer and $db->getCode() == $code
-     * @access  public
+     *
      * @return  bool    true if parameter is an error
+     *
+     * @access  public
      */
     function isError($data, $code = null)
     {
@@ -597,9 +616,11 @@ class MDB2
     /**
      * Tell whether a value is a MDB2 connection
      *
-     * @param mixed $value value to test
-     * @return bool whether $value is a MDB2 connection
-     * @access public
+     * @param   mixed   value to test
+     *
+     * @return  bool    whether $value is a MDB2 connection
+     *
+     * @access  public
      */
     function isConnection($value)
     {
@@ -611,9 +632,11 @@ class MDB2
     /**
      * Tell whether a value is a MDB2 result
      *
-     * @param mixed $value value to test
-     * @return bool whether $value is a MDB2 result
-     * @access public
+     * @param   mixed   value to test
+     *
+     * @return  bool    whether $value is a MDB2 result
+     *
+     * @access  public
      */
     function isResult($value)
     {
@@ -625,9 +648,11 @@ class MDB2
     /**
      * Tell whether a value is a MDB2 result implementing the common interface
      *
-     * @param mixed $value value to test
-     * @return bool whether $value is a MDB2 result implementing the common interface
-     * @access public
+     * @param   mixed   value to test
+     *
+     * @return  bool    whether $value is a MDB2 result implementing the common interface
+     *
+     * @access  public
      */
     function isResultCommon($value)
     {
@@ -639,9 +664,11 @@ class MDB2
     /**
      * Tell whether a value is a MDB2 statement interface
      *
-     * @param mixed $value value to test
-     * @return bool whether $value is a MDB2 statement interface
-     * @access public
+     * @param   mixed   value to test
+     *
+     * @return  bool    whether $value is a MDB2 statement interface
+     *
+     * @access  public
      */
     function isStatement($value)
     {
@@ -654,12 +681,14 @@ class MDB2
     /**
      * Return a textual error message for a MDB2 error code
      *
-     * @param   int|array $value integer error code,
+     * @param   int|array   integer error code,
                                 null to get the current error code-message map,
                                 or an array with a new error code-message map
+     *
      * @return  string  error message, or false if the error code was
      *                  not recognized
-     * @access public
+     *
+     * @access  public
      */
     function errorMessage($value = null)
     {
@@ -743,9 +772,9 @@ class MDB2
      *  phptype
      * </code>
      *
-     * @param string $dsn Data Source Name to be parsed
+     * @param   string  Data Source Name to be parsed
      *
-     * @return array an associative array with the following keys:
+     * @return  array   an associative array with the following keys:
      *  + phptype:  Database backend used in PHP (mysql, odbc etc.)
      *  + dbsyntax: Database used with regards to SQL syntax etc.
      *  + protocol: Communication protocol to use (tcp, unix etc.)
@@ -754,7 +783,8 @@ class MDB2
      *  + username: User name for login
      *  + password: Password for login
      *
-     * @author Tomas V.V.Cox <cox@idecnet.com>
+     * @access  public
+     * @author  Tomas V.V.Cox <cox@idecnet.com>
      */
     function parseDSN($dsn)
     {
@@ -871,10 +901,11 @@ class MDB2
     /**
      * Checks if a file exists in the include path
      *
-     * @access public
-     * @param  string   filename
+     * @param   string  filename
      *
-     * @return boolean true success and false on error
+     * @return  bool    true success and false on error
+     *
+     * @access  public
      */
     function fileExists($file)
     {
@@ -894,9 +925,9 @@ class MDB2
  * MDB2_Error implements a class for reporting portable database error
  * messages.
  *
- * @package MDB2
- * @category Database
- * @author  Stig Bakken <ssb@fast.no>
+ * @package     MDB2
+ * @category    Database
+ * @author Stig Bakken <ssb@fast.no>
  */
 class MDB2_Error extends PEAR_Error
 {
@@ -905,11 +936,10 @@ class MDB2_Error extends PEAR_Error
     /**
      * MDB2_Error constructor.
      *
-     * @param mixed   $code      MDB2 error code, or string with error message.
-     * @param integer $mode      what 'error mode' to operate in
-     * @param integer $level     what error level to use for
-     *                           $mode & PEAR_ERROR_TRIGGER
-     * @param smixed  $debuginfo additional debug info, such as the last query
+     * @param   mixed   MDB2 error code, or string with error message.
+     * @param   int     what 'error mode' to operate in
+     * @param   int     what error level to use for $mode & PEAR_ERROR_TRIGGER
+     * @param   smixed   additional debug info, such as the last query
      */
     function MDB2_Error($code = MDB2_ERROR, $mode = PEAR_ERROR_RETURN,
               $level = E_USER_NOTICE, $debuginfo = null)
@@ -925,73 +955,73 @@ class MDB2_Error extends PEAR_Error
 /**
  * MDB2_Driver_Common: Base class that is extended by each MDB2 driver
  *
- * @package MDB2
- * @category Database
- * @author Lukas Smith <smith@pooteeweet.org>
+ * @package     MDB2
+ * @category    Database
+ * @author      Lukas Smith <smith@pooteeweet.org>
  */
 class MDB2_Driver_Common extends PEAR
 {
     // {{{ Variables (Properties)
     /**
      * index of the MDB2 object within the $GLOBALS['_MDB2_databases'] array
-     * @var integer
-     * @access public
+     * @var     int
+     * @access  public
      */
     var $db_index = 0;
 
     /**
      * DSN used for the next query
-     * @var array
-     * @access protected
+     * @var     array
+     * @access  protected
      */
     var $dsn = array();
 
     /**
      * DSN that was used to create the current connection
-     * @var array
-     * @access protected
+     * @var     array
+     * @access  protected
      */
     var $connected_dsn = array();
 
     /**
      * connection resource
-     * @var mixed
-     * @access protected
+     * @var     mixed
+     * @access  protected
      */
     var $connection = 0;
 
     /**
      * if the current opened connection is a persistent connection
-     * @var boolean
-     * @access protected
+     * @var     bool
+     * @access  protected
      */
     var $opened_persistent;
 
     /**
      * the name of the database for the next query
-     * @var string
-     * @access protected
+     * @var     string
+     * @access  protected
      */
     var $database_name = '';
 
     /**
      * the name of the database currently selected
-     * @var string
-     * @access protected
+     * @var     string
+     * @access  protected
      */
     var $connected_database_name = '';
 
     /**
      * server version information
-     * @var string
-     * @access protected
+     * @var     string
+     * @access  protected
      */
     var $connected_server_info = '';
 
     /**
      * list of all supported features of the given driver
-     * @var array
-     * @access public
+     * @var     array
+     * @access  public
      */
     var $supported = array(
         'sequences' => false,
@@ -1044,12 +1074,12 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['modules'] -> short to long module name mapping for __call()</li>
      * </ul>
      *
-     * @var array
-     * @access public
-     * @see MDB2::connect()
-     * @see MDB2::factory()
-     * @see MDB2::singleton()
-     * @see MDB2_Driver_Common::setOption()
+     * @var     array
+     * @access  public
+     * @see     MDB2::connect()
+     * @see     MDB2::factory()
+     * @see     MDB2::singleton()
+     * @see     MDB2_Driver_Common::setOption()
      */
     var $options = array(
             'ssl' => false,
@@ -1085,85 +1115,85 @@ class MDB2_Driver_Common extends PEAR
 
     /**
      * escape character
-     * @var string
-     * @access protected
+     * @var     string
+     * @access  protected
      */
     var $escape_quotes = '';
 
     /**
      * warnings
-     * @var array
-     * @access protected
+     * @var     array
+     * @access  protected
      */
     var $warnings = array();
 
     /**
      * string with the debugging information
-     * @var string
-     * @access public
+     * @var     string
+     * @access  public
      */
     var $debug_output = '';
 
     /**
      * determine if there is an open transaction
-     * @var boolean
-     * @access protected
+     * @var     bool
+     * @access  protected
      */
     var $in_transaction = false;
 
     /**
      * result offset used in the next query
-     * @var integer
-     * @access protected
+     * @var     int
+     * @access  protected
      */
     var $offset = 0;
 
     /**
      * result limit used in the next query
-     * @var integer
-     * @access protected
+     * @var     int
+     * @access  protected
      */
     var $limit = 0;
 
     /**
      * Database backend used in PHP (mysql, odbc etc.)
-     * @var string
-     * @access protected
+     * @var     string
+     * @access  protected
      */
     var $phptype;
 
     /**
      * Database used with regards to SQL syntax etc.
-     * @var string
-     * @access protected
+     * @var     string
+     * @access  protected
      */
     var $dbsyntax;
 
     /**
      * the last query sent to the driver
-     * @var string
-     * @access public
+     * @var     string
+     * @access  public
      */
     var $last_query;
 
     /**
      * the default fetchmode used
-     * @var integer
-     * @access protected
+     * @var     int
+     * @access  protected
      */
     var $fetchmode = MDB2_FETCHMODE_ORDERED;
 
     /**
      * array of module instances
-     * @var array
-     * @access protected
+     * @var     array
+     * @access  protected
      */
     var $modules = array();
 
     /**
      * determines of the PHP4 destructor emulation has been enabled yet
-    * @var array
-    * @access protected
+    * @var     array
+    * @access  protected
     */
     var $destructor_registered = true;
     // }}}
@@ -1210,8 +1240,9 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Free the internal references so that the instance can be destroyed
      *
-     * @return boolean true on success, false if result is invalid
-     * @access public
+     * @return  bool    true on success, false if result is invalid
+     *
+     * @access  public
      */
     function free()
     {
@@ -1226,8 +1257,9 @@ class MDB2_Driver_Common extends PEAR
     /**
      * String conversation
      *
-     * @return string
-     * @access public
+     * @return  string representation of the object
+     *
+     * @access  public
      */
     function __toString()
     {
@@ -1245,9 +1277,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * This method is used to collect information about an error
      *
-     * @param integer $error
-     * @return array
-     * @access public
+     * @param   mixed   error codeor ressource
+     *
+     * @return  array   with MDB2 errorcode, native error code, native message
+     *
+     * @access  public
      */
     function errorInfo($error = null)
     {
@@ -1262,25 +1296,28 @@ class MDB2_Driver_Common extends PEAR
      * callbacks etc.  Basically a wrapper for PEAR::raiseError
      * without the message string.
      *
-     * @param mixed    integer error code, or a PEAR error object (all
+     * @param   mixed   integer error code, or a PEAR error object (all
      *                 other parameters are ignored if this parameter is
      *                 an object
      *
-     * @param int      error mode, see PEAR_Error docs
+     * @param   int     error mode, see PEAR_Error docs
      *
-     * @param mixed    If error mode is PEAR_ERROR_TRIGGER, this is the
+     * @param   mixed   If error mode is PEAR_ERROR_TRIGGER, this is the
      *                 error level (E_USER_NOTICE etc).  If error mode is
      *                 PEAR_ERROR_CALLBACK, this is the callback function,
      *                 either as a function name, or as an array of an
      *                 object and method name.  For other error modes this
      *                 parameter is ignored.
      *
-     * @param string   Extra debug information.  Defaults to the last
+     * @param   string  Extra debug information.  Defaults to the last
      *                 query and native error code.
      *
-     * @return object  a PEAR error object
+     * @param   object  a PEAR error object
      *
-     * @see PEAR_Error
+     * @return PEAR_Error   instance of a PEAR Error object
+     *
+     * @access  public
+     * @see     PEAR_Error
      */
     function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
     {
@@ -1322,7 +1359,9 @@ class MDB2_Driver_Common extends PEAR
     /**
      * reset the warning array
      *
-     * @access public
+     * @return void
+     *
+     * @access  public
      */
     function resetWarnings()
     {
@@ -1336,9 +1375,10 @@ class MDB2_Driver_Common extends PEAR
      * Get all warnings in reverse order.
      * This means that the last warning is the first element in the array
      *
-     * @return array with warnings
-     * @access public
-     * @see resetWarnings()
+     * @return  array   with warnings
+     *
+     * @access  public
+     * @see     resetWarnings()
      */
     function getWarnings()
     {
@@ -1352,9 +1392,9 @@ class MDB2_Driver_Common extends PEAR
      * Sets which fetch mode should be used by default on queries
      * on this connection
      *
-     * @param integer $fetchmode    MDB2_FETCHMODE_ORDERED, MDB2_FETCHMODE_ASSOC
+     * @param   int     MDB2_FETCHMODE_ORDERED, MDB2_FETCHMODE_ASSOC
      *                               or MDB2_FETCHMODE_OBJECT
-     * @param string $object_class  the class name of the object to be returned
+     * @param   string  the class name of the object to be returned
      *                               by the fetch methods when the
      *                               MDB2_FETCHMODE_OBJECT mode is selected.
      *                               If no class is specified by default a cast
@@ -1362,9 +1402,10 @@ class MDB2_Driver_Common extends PEAR
      *                               done.  There is also the possibility to use
      *                               and extend the 'MDB2_row' class.
      *
-     * @return mixed MDB2_OK or MDB2 Error Object
-     * @see MDB2_FETCHMODE_ORDERED, MDB2_FETCHMODE_ASSOC, MDB2_FETCHMODE_OBJECT
-     * @access public
+     * @return  mixed   MDB2_OK or MDB2 Error Object
+     *
+     * @access  public
+     * @see     MDB2_FETCHMODE_ORDERED, MDB2_FETCHMODE_ASSOC, MDB2_FETCHMODE_OBJECT
      */
     function setFetchMode($fetchmode, $object_class = 'stdClass')
     {
@@ -1389,10 +1430,12 @@ class MDB2_Driver_Common extends PEAR
     /**
      * set the option for the db class
      *
-     * @param string $option option name
-     * @param mixed $value value for the option
-     * @return mixed MDB2_OK or MDB2 Error Object
-     * @access public
+     * @param   string  option name
+     * @param   mixed   value for the option
+     *
+     * @return  mixed   MDB2_OK or MDB2 Error Object
+     *
+     * @access  public
      */
     function setOption($option, $value)
     {
@@ -1410,9 +1453,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Returns the value of an option
      *
-     * @param string $option option name
-     * @return mixed the option value or error object
-     * @access public
+     * @param   string  option name
+     *
+     * @return  mixed   the option value or error object
+     *
+     * @access  public
      */
     function getOption($option)
     {
@@ -1429,8 +1474,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * set a debug message
      *
-     * @param string $message Message with information for the user.
-     * @access public
+     * @param   string  Message with information for the user.
+     *
+     * @return void
+     *
+     * @access  public
      */
     function debug($message, $scope = '', $is_manip = null)
     {
@@ -1445,8 +1493,9 @@ class MDB2_Driver_Common extends PEAR
     /**
      * output debug info
      *
-     * @return string content of the debug_output class variable
-     * @access public
+     * @return  string  content of the debug_output class variable
+     *
+     * @access  public
      */
     function getDebugOutput()
     {
@@ -1460,9 +1509,11 @@ class MDB2_Driver_Common extends PEAR
      * Quotes a string so it can be safely used in a query. It will quote
      * the text so it can safely be used within a query.
      *
-     * @param string $text the input string to quote
-     * @return string quoted string
-     * @access public
+     * @param   string  the input string to quote
+     *
+     * @return  string  quoted string
+     *
+     * @access  public
      */
     function escape($text)
     {
@@ -1505,12 +1556,12 @@ class MDB2_Driver_Common extends PEAR
      * InterBase doesn't seem to be able to use delimited identifiers
      * via PHP 4.  They work fine under PHP 5.
      *
-     * @param string $str  identifier name to be quoted
-     * @param bool   $check_option  check the 'quote_identifier' option
+     * @param   string  identifier name to be quoted
+     * @param   bool    check the 'quote_identifier' option
      *
-     * @return string  quoted identifier string
+     * @return  string  quoted identifier string
      *
-     * @access public
+     * @access  public
      */
     function quoteIdentifier($str, $check_option = false)
     {
@@ -1528,6 +1579,7 @@ class MDB2_Driver_Common extends PEAR
      *
      * @return  mixed   a valid MDB2 connection object,
      *                  or a MDB2 error object on error
+     *
      * @access  public
      */
     function getConnection()
@@ -1545,10 +1597,12 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Do all necessary conversions on result arrays to fix DBMS quirks
      *
-     * @param array  $array  the array to be fixed (passed by reference)
-     * @param array  $mode   bit-wise addition of the required portability modes
-     * @return void
-     * @access protected
+     * @param   array   the array to be fixed (passed by reference)
+     * @param   array   bit-wise addition of the required portability modes
+     *
+     * @return  void
+     *
+     * @access  protected
      */
     function _fixResultArrayValues(&$array, $mode)
     {
@@ -1623,14 +1677,15 @@ class MDB2_Driver_Common extends PEAR
     /**
      * loads a module
      *
-     * @param string $module name of the module that should be loaded
+     * @param   string  name of the module that should be loaded
      *      (only used for error messages)
-     * @param string $property name of the property into which the class will be loaded
-     * @param boolean $phptype_specific if the class to load for the module
+     * @param   string  name of the property into which the class will be loaded
+     * @param   bool    if the class to load for the module
                                         is specific to the phptype
-     * @return object on success a reference to the given module is returned
+     * @param   object  on success a reference to the given module is returned
      *                and on failure a PEAR error
-     * @access public
+     *
+     * @access  public
      */
 
     function &loadModule($module, $property = null, $phptype_specific = null)
@@ -1696,9 +1751,10 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Calls a module method using the __call magic method
      *
-     * @param string Method name.
-     * @param array Arguments.
-     * @return mixed Returned value.
+     * @param   string  Method name.
+     * @param   array   Arguments.
+     *
+     * @return  mixed   Returned value.
      */
     function __call($method, $params)
     {
@@ -1736,8 +1792,9 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Start a transaction.
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function beginTransaction()
     {
@@ -1755,8 +1812,9 @@ class MDB2_Driver_Common extends PEAR
      * disabled, otherwise it will fail. Therefore, a new transaction is
      * implicitly started after committing the pending changes.
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function commit()
     {
@@ -1774,8 +1832,9 @@ class MDB2_Driver_Common extends PEAR
      * disabled, otherwise it will fail. Therefore, a new transaction is
      * implicitly started after canceling the pending changes.
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function rollback()
     {
@@ -1790,8 +1849,9 @@ class MDB2_Driver_Common extends PEAR
     /**
      * If a transaction is currently open.
      *
-     * @return boolean true if a transaction is currently open, else false
-     * @access public
+     * @return  bool    true if a transaction is currently open, else false
+     *
+     * @access  public
      */
     function inTransaction()
     {
@@ -1804,11 +1864,13 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Log out and disconnect from the database.
      *
-     * @param  boolean $force if the disconnect should be forced even if the
+     * @param   bool    if the disconnect should be forced even if the
      *                        connection is opened persistently
-     * @return mixed true on success, false if not connected and error
+     *
+     * @return  mixed   true on success, false if not connected and error
      *                object on error
-     * @access public
+     *
+     * @access  public
      */
     function disconnect($force = true)
     {
@@ -1827,9 +1889,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Select a different database
      *
-     * @param string $name name of the database that should be selected
-     * @return string name of the database previously connected to
-     * @access public
+     * @param   string  name of the database that should be selected
+     *
+     * @return  string  name of the database previously connected to
+     *
+     * @access  public
      */
     function setDatabase($name)
     {
@@ -1844,8 +1908,9 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Get the current database
      *
-     * @return string name of the database
-     * @access public
+     * @return  string  name of the database
+     *
+     * @access  public
      */
     function getDatabase()
     {
@@ -1858,9 +1923,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * set the DSN
      *
-     * @param mixed     $dsn    DSN string or array
-     * @return MDB2_OK
-     * @access public
+     * @param   mixed   DSN string or array
+     *
+     * @return  MDB2_OK
+     *
+     * @access  public
      */
     function setDSN($dsn)
     {
@@ -1880,10 +1947,12 @@ class MDB2_Driver_Common extends PEAR
     /**
      * return the DSN as a string
      *
-     * @param string     $type    format to return ("array", "string")
-     * @param string     $hidepw  string to hide the password with
-     * @return mixed DSN in the chosen type
-     * @access public
+     * @param   string  format to return ("array", "string")
+     * @param   string  string to hide the password with
+     *
+     * @return  mixed   DSN in the chosen type
+     *
+     * @access  public
      */
     function getDSN($type = 'string', $hidepw = false)
     {
@@ -1916,12 +1985,14 @@ class MDB2_Driver_Common extends PEAR
    /**
      * execute a query as database administrator
      *
-     * @param string $query the SQL query
-     * @param mixed   $types  array that contains the types of the columns in
+     * @param   string  the SQL query
+     * @param   mixed   array that contains the types of the columns in
      *                        the result set
-     * @param boolean $is_manip  if the query is a manipulation query
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   bool    if the query is a manipulation query
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function &standaloneQuery($query, $types = null, $is_manip = false)
     {
@@ -1954,12 +2025,14 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Changes a query string for various DBMS specific reasons
      *
-     * @param string $query  query to modify
-     * @param boolean $is_manip  if it is a DML query
-     * @param integer $limit  limit the number of rows
-     * @param integer $offset  start reading from given offset
-     * @return string modified query
-     * @access protected
+     * @param   string  query to modify
+     * @param   bool    if it is a DML query
+     * @param   int  limit the number of rows
+     * @param   int  start reading from given offset
+     *
+     * @return  string  modified query
+     *
+     * @access  protected
      */
     function _modifyQuery($query, $is_manip, $limit, $offset)
     {
@@ -1971,12 +2044,14 @@ class MDB2_Driver_Common extends PEAR
 
     /**
      * Execute a query
-     * @param string $query  query
-     * @param boolean $is_manip  if the query is a manipulation query
-     * @param resource $connection
-     * @param string $database_name
-     * @return result or error object
-     * @access protected
+     * @param   string  query
+     * @param   bool    if the query is a manipulation query
+     * @param   resource connection handle
+     * @param   string  database name
+     *
+     * @return  result or error object
+     *
+     * @access  protected
      */
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
@@ -1993,10 +2068,12 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Returns the number of rows affected
      *
-     * @param resource $result
-     * @param resource $connection
-     * @return mixed MDB2 Error Object or the number of rows affected
-     * @access private
+     * @param   resource result handle
+     * @param   resource connection handle
+     *
+     * @return  mixed   MDB2 Error Object or the number of rows affected
+     *
+     * @access  private
      */
     function _affectedRows($connection, $result = null)
     {
@@ -2009,9 +2086,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Execute a manipulation query to the database and return any the affected rows
      *
-     * @param string $query the SQL query
-     * @return mixed affected rows on success, a MDB2 error on failure
-     * @access public
+     * @param   string  the SQL query
+     *
+     * @return  mixed   affected rows on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function exec($query)
     {
@@ -2039,13 +2118,16 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Send a query to the database and return any results
      *
-     * @param string $query the SQL query
-     * @param mixed   $types  array that contains the types of the columns in
+     * @param   string  the SQL query
+     * @param   mixed   array that contains the types of the columns in
      *                        the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return object a result handle on success, a MDB2 error on failure
-     * @access public
+     * @param   mixed   string which specifies which result class to use
+     * @param   mixed   string which specifies which class to wrap results in
+     * @param   object  a result handle on success, a MDB2 error on failure
+     *
+     * @return mixed   an MDB2_Result, a MDB2 error on failure
+     *
+     * @access  public
      */
     function &query($query, $types = null, $result_class = true, $result_wrap_class = false)
     {
@@ -2074,15 +2156,17 @@ class MDB2_Driver_Common extends PEAR
     /**
      * wrap a result set into the correct class
      *
-     * @param resource $result
-     * @param mixed   $types  array that contains the types of the columns in
+     * @param   resource result handle
+     * @param   mixed   array that contains the types of the columns in
      *                        the result set
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @param string $limit number of rows to select
-     * @param string $offset first row to select
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access protected
+     * @param   mixed   string which specifies which result class to use
+     * @param   mixed   string which specifies which class to wrap results in
+     * @param   string  number of rows to select
+     * @param   string  first row to select
+     *
+     * @return mixed   an MDB2_Result, a MDB2 error on failure
+     *
+     * @access  protected
      */
     function &_wrapResult($result, $types = array(), $result_class = true,
         $result_wrap_class = false, $limit = null, $offset = null)
@@ -2149,9 +2233,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * return version information about the server
      *
-     * @param string     $native  determines if the raw version string should be returned
-     * @return mixed array with version information or row string
-     * @access public
+     * @param   string  determines if the raw version string should be returned
+     *
+     * @return  mixed   array with version information or row string
+     *
+     * @access  public
      */
     function getServerVersion($native = false)
     {
@@ -2165,10 +2251,12 @@ class MDB2_Driver_Common extends PEAR
     /**
      * set the range of the next query
      *
-     * @param string $limit number of rows to select
-     * @param string $offset first row to select
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   string  number of rows to select
+     * @param   string  first row to select
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function setLimit($limit, $offset = null)
     {
@@ -2200,13 +2288,13 @@ class MDB2_Driver_Common extends PEAR
      * simple subselect emulation: leaves the query untouched for all RDBMS
      * that support subselects
      *
-     * @access public
-     *
-     * @param string $query the SQL query for the subselect that may only
+     * @param   string  the SQL query for the subselect that may only
      *                      return a column
-     * @param string $type determines type of the field
+     * @param   string  determines type of the field
      *
-     * @return string the query
+     * @return  string  the query
+     *
+     * @access  public
      */
     function subSelect($query, $type = false)
     {
@@ -2247,9 +2335,9 @@ class MDB2_Driver_Common extends PEAR
      * query isemulated through this method for other DBMS using standard types
      * of queries inside a transaction to assure the atomicity of the operation.
      *
-     * @param string $table name of the table on which the REPLACE query will
+     * @param   string  name of the table on which the REPLACE query will
      *       be executed.
-     * @param array $fields associative array that describes the fields and the
+     * @param   array   associative array   that describes the fields and the
      *       values that will be inserted or updated in the specified table. The
      *       indexes of the array are the names of all the fields of the table.
      *       The values of the array are also associative arrays that describe
@@ -2272,7 +2360,7 @@ class MDB2_Driver_Common extends PEAR
      *           Default: no type conversion
      *
      *       null
-     *           Boolean property that indicates that the value for this field
+     *           bool    property that indicates that the value for this field
      *           should be set to null.
      *
      *           The default value for fields missing in INSERT queries may be
@@ -2284,7 +2372,7 @@ class MDB2_Driver_Common extends PEAR
      *           Default: 0
      *
      *       key
-     *           Boolean property that indicates that this field should be
+     *           bool    property that indicates that this field should be
      *           handled as a primary key or at least as part of the compound
      *           unique index of the table that will determine the row that will
      *           updated if it exists or inserted a new row otherwise.
@@ -2294,8 +2382,10 @@ class MDB2_Driver_Common extends PEAR
      *           part of unique index they may not be null.
      *
      *           Default: 0
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function replace($table, $fields)
     {
@@ -2382,16 +2472,18 @@ class MDB2_Driver_Common extends PEAR
      * The ? and :[a-zA-Z] and  are placeholders which can be set using
      * bindParam() and the query can be send off using the execute() method.
      *
-     * @param string  $query the query to prepare
-     * @param mixed   $types  array that contains the types of the placeholders
-     * @param mixed   $result_types  array that contains the types of the columns in
+     * @param   string  the query to prepare
+     * @param   mixed   array that contains the types of the placeholders
+     * @param   mixed   array that contains the types of the columns in
      *                        the result set or MDB2_PREPARE_RESULT, if set to
      *                        MDB2_PREPARE_MANIP the query is handled as a manipulation query
-     * @param mixed   $lobs   key (field) value (parameter) pair for all lob placeholders
-     * @return mixed resource handle for the prepared query on success, a MDB2
+     * @param   mixed   key (field) value (parameter) pair for all lob placeholders
+     *
+     * @return  mixed   resource handle for the prepared query on success, a MDB2
      *        error on failure
-     * @access public
-     * @see bindParam, execute
+     *
+     * @access  public
+     * @see     bindParam, execute
      */
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
@@ -2494,11 +2586,13 @@ class MDB2_Driver_Common extends PEAR
      * Convert a text value into a DBMS specific format that is suitable to
      * compose query statements.
      *
-     * @param string $value text string value that is intended to be converted.
-     * @param string $type type to which the value should be converted to
-     * @return string text string that represents the given argument value in
+     * @param   string  text string value that is intended to be converted.
+     * @param   string  type to which the value should be converted to
+     *
+     * @return  string  text string that represents the given argument value in
      *       a DBMS specific format.
-     * @access public
+     *
+     * @access  public
      */
     function quote($value, $type = null, $quote = true)
     {
@@ -2516,12 +2610,14 @@ class MDB2_Driver_Common extends PEAR
      * Obtain DBMS specific SQL code portion needed to declare
      * of the given type
      *
-     * @param string $type type to which the value should be converted to
-     * @param string  $name   name the field to be declared.
-     * @param string  $field  definition of the field
-     * @return string  DBMS specific SQL code portion that should be used to
+     * @param   string  type to which the value should be converted to
+     * @param   string  name the field to be declared.
+     * @param   string  definition of the field
+     *
+     * @return  string  DBMS specific SQL code portion that should be used to
      *                 declare the specified field.
-     * @access public
+     *
+     * @access  public
      */
     function getDeclaration($type, $name, $field)
     {
@@ -2538,10 +2634,12 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Obtain an array of changes that may need to applied
      *
-     * @param array $current new definition
-     * @param array  $previous old definition
-     * @return array  containing all changes that will need to be applied
-     * @access public
+     * @param   array   new definition
+     * @param   array   old definition
+     *
+     * @return  array   containing all changes that will need to be applied
+     *
+     * @access  public
      */
     function compareDefinition($current, $previous)
     {
@@ -2559,10 +2657,13 @@ class MDB2_Driver_Common extends PEAR
      * Tell whether a DB implementation or its backend extension
      * supports a given feature.
      *
-     * @param string $feature name of the feature (see the MDB2 class doc)
-     * @return boolean|string   whether this DB implementation supports $feature
-     *                          false means no, true means native, 'emulated' means emulated
-     * @access public
+     * @param   string  name of the feature (see the MDB2 class doc)
+     *
+     * @return  bool|string if this DB implementation supports a given feature
+     *                      false means no, true means native,
+     *                      'emulated' means emulated
+     *
+     * @access  public
      */
     function supports($feature)
     {
@@ -2579,9 +2680,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * adds sequence name formatting to a sequence name
      *
-     * @param string $sqn name of the sequence
-     * @return string formatted sequence name
-     * @access public
+     * @param   string  name of the sequence
+     *
+     * @return  string  formatted sequence name
+     *
+     * @access  public
      */
     function getSequenceName($sqn)
     {
@@ -2595,9 +2698,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * adds index name formatting to a index name
      *
-     * @param string $idx name of the index
-     * @return string formatted index name
-     * @access public
+     * @param   string  name of the index
+     *
+     * @return  string  formatted index name
+     *
+     * @access  public
      */
     function getIndexName($idx)
     {
@@ -2611,12 +2716,12 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Returns the next free id of a sequence
      *
-     * @param string $seq_name name of the sequence
-     * @param boolean $ondemand when true the sequence is
-     *                           automatic created, if it
-     *                           not exists
-     * @return mixed MDB2 Error Object or id
-     * @access public
+     * @param   string  name of the sequence
+     * @param   bool    when true missing sequences are automatic created
+     *
+     * @return  mixed   MDB2 Error Object or id
+     *
+     * @access  public
      */
     function nextID($seq_name, $ondemand = true)
     {
@@ -2631,10 +2736,12 @@ class MDB2_Driver_Common extends PEAR
      * Returns the autoincrement ID if supported or $id or fetches the current
      * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
      *
-     * @param string $table name of the table into which a new row was inserted
-     * @param string $field name of the field into which a new row was inserted
-     * @return mixed MDB2 Error Object or id
-     * @access public
+     * @param   string  name of the table into which a new row was inserted
+     * @param   string  name of the field into which a new row was inserted
+     *
+     * @return  mixed   MDB2 Error Object or id
+     *
+     * @access  public
      */
     function lastInsertID($table = null, $field = null)
     {
@@ -2648,9 +2755,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Returns the current id of a sequence
      *
-     * @param string $seq_name name of the sequence
-     * @return mixed MDB2 Error Object or id
-     * @access public
+     * @param   string  name of the sequence
+     *
+     * @return  mixed   MDB2 Error Object or id
+     *
+     * @access  public
      */
     function currID($seq_name)
     {
@@ -2667,13 +2776,15 @@ class MDB2_Driver_Common extends PEAR
      * the first row of the result set and then frees
      * the result set.
      *
-     * @param string $query the SELECT query statement to be executed.
-     * @param string $type optional argument that specifies the expected
+     * @param   string  the SELECT query statement to be executed.
+     * @param   string  optional argument that specifies the expected
      *       datatype of the result set field, so that an eventual conversion
      *       may be performed. The default datatype is text, meaning that no
      *       conversion is performed
-     * @return mixed MDB2_OK or field value on success, a MDB2 error on failure
-     * @access public
+     *
+     * @return  mixed   MDB2_OK or field value on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function queryOne($query, $type = null)
     {
@@ -2695,14 +2806,16 @@ class MDB2_Driver_Common extends PEAR
      * row of the result set into an array and then frees
      * the result set.
      *
-     * @param string $query the SELECT query statement to be executed.
-     * @param array $types optional array argument that specifies a list of
+     * @param   string  the SELECT query statement to be executed.
+     * @param   array   optional array argument that specifies a list of
      *       expected datatypes of the result set columns, so that the eventual
      *       conversions may be performed. The default list of datatypes is
      *       empty, meaning that no conversion is performed.
-     * @param int $fetchmode how the array data should be indexed
-     * @return mixed MDB2_OK or data array on success, a MDB2 error on failure
-     * @access public
+     * @param   int     how the array data should be indexed
+     *
+     * @return  mixed   MDB2_OK or data array on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function queryRow($query, $types = null, $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
@@ -2723,14 +2836,16 @@ class MDB2_Driver_Common extends PEAR
      * Execute the specified query, fetch the value from the first column of
      * each row of the result set into an array and then frees the result set.
      *
-     * @param string $query the SELECT query statement to be executed.
-     * @param string $type optional argument that specifies the expected
+     * @param   string  the SELECT query statement to be executed.
+     * @param   string  optional argument that specifies the expected
      *       datatype of the result set field, so that an eventual conversion
      *       may be performed. The default datatype is text, meaning that no
      *       conversion is performed
-     * @param int $colnum the row number to fetch
-     * @return mixed MDB2_OK or data array on success, a MDB2 error on failure
-     * @access public
+     * @param   int     the row number to fetch
+     *
+     * @return  mixed   MDB2_OK or data array on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function queryCol($query, $type = null, $colnum = 0)
     {
@@ -2751,23 +2866,25 @@ class MDB2_Driver_Common extends PEAR
      * Execute the specified query, fetch all the rows of the result set into
      * a two dimensional array and then frees the result set.
      *
-     * @param string $query the SELECT query statement to be executed.
-     * @param array $types optional array argument that specifies a list of
+     * @param   string  the SELECT query statement to be executed.
+     * @param   array   optional array argument that specifies a list of
      *       expected datatypes of the result set columns, so that the eventual
      *       conversions may be performed. The default list of datatypes is
      *       empty, meaning that no conversion is performed.
-     * @param int $fetchmode how the array data should be indexed
-     * @param boolean $rekey if set to true, the $all will have the first
+     * @param   int     how the array data should be indexed
+     * @param   bool    if set to true, the $all will have the first
      *       column as its first dimension
-     * @param boolean $force_array used only when the query returns exactly
+     * @param   bool    used only when the query returns exactly
      *       two columns. If true, the values of the returned array will be
      *       one-element arrays instead of scalars.
-     * @param boolean $group if true, the values of the returned array is
+     * @param   bool    if true, the values of the returned array is
      *       wrapped in another array.  If the same key value (in the first
      *       column) repeats itself, the values will be appended to this array
      *       instead of overwriting the existing values.
-     * @return mixed MDB2_OK or data array on success, a MDB2 error on failure
-     * @access public
+     *
+     * @return  mixed   MDB2_OK or data array on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function queryAll($query, $types = null, $fetchmode = MDB2_FETCHMODE_DEFAULT,
         $rekey = false, $force_array = false, $group = false)
@@ -2790,9 +2907,9 @@ class MDB2_Driver_Common extends PEAR
 /**
  * The dummy class that all user space result classes should extend from
  *
- * @package  MDB2
- * @category Database
- * @author   Lukas Smith <smith@pooteeweet.org>
+ * @package     MDB2
+ * @category    Database
+ * @author      Lukas Smith <smith@pooteeweet.org>
  */
 class MDB2_Result
 {
@@ -2804,9 +2921,9 @@ class MDB2_Result
 /**
  * The common result class for MDB2 result objects
  *
- * @package  MDB2
- * @category Database
- * @author   Lukas Smith <smith@pooteeweet.org>
+ * @package     MDB2
+ * @category    Database
+ * @author      Lukas Smith <smith@pooteeweet.org>
  */
 class MDB2_Result_Common extends MDB2_Result
 {
@@ -2859,14 +2976,16 @@ class MDB2_Result_Common extends MDB2_Result
      * function is not called, the type of all result set columns is assumed
      * to be text, thus leading to not perform any conversions.
      *
-     * @param string $types array variable that lists the
+     * @param   array   variable that lists the
      *       data types to be expected in the result set columns. If this array
      *       contains less types than the number of columns that are returned
      *       in the result set, the remaining columns are assumed to be of the
      *       type text. Currently, the types clob and blob are not fully
      *       supported.
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function setResultTypes($types)
     {
@@ -2887,9 +3006,11 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Seek to a specific row in a result set
      *
-     * @param int    $rownum    number of the row where the data can be found
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   int     number of the row where the data can be found
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function seek($rownum = 0)
     {
@@ -2910,10 +3031,12 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Fetch and return a row of data
      *
-     * @param int $fetchmode  how the array data should be indexed
-     * @param int $rownum    number of the row where the data can be found
-     * @return int data array on success, a MDB2 error on failure
-     * @access public
+     * @param   int     how the array data should be indexed
+     * @param   int     number of the row where the data can be found
+     *
+     * @return  int     data array on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
@@ -2928,10 +3051,12 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * fetch single column from the next row from a result set
      *
-     * @param int $colnum the column number to fetch
-     * @param int $rownum    number of the row where the data can be found
-     * @return string data on success, a MDB2 error on failure
-     * @access public
+     * @param   int     the column number to fetch
+     * @param   int     number of the row where the data can be found
+     *
+     * @return  string  data on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function fetchOne($colnum = 0, $rownum = null)
     {
@@ -2952,9 +3077,11 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Fetch and return a column of data (it uses current for that)
      *
-     * @param int $colnum the column number to fetch
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
+     * @param   int     the column number to fetch
+     *
+     * @return  mixed   data array on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function fetchCol($colnum = 0)
     {
@@ -2981,23 +3108,25 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Fetch and return a column of data (it uses fetchRow for that)
      *
-     * @param int    $fetchmode  the fetch mode to use:
+     * @param   int     $fetchmode  the fetch mode to use:
      *                            + MDB2_FETCHMODE_ORDERED
      *                            + MDB2_FETCHMODE_ASSOC
      *                            + MDB2_FETCHMODE_ORDERED | MDB2_FETCHMODE_FLIPPED
      *                            + MDB2_FETCHMODE_ASSOC | MDB2_FETCHMODE_FLIPPED
-     * @param boolean $rekey if set to true, the $all will have the first
+     * @param   bool    if set to true, the $all will have the first
      *       column as its first dimension
-     * @param boolean $force_array used only when the query returns exactly
+     * @param   bool    used only when the query returns exactly
      *       two columns. If true, the values of the returned array will be
      *       one-element arrays instead of scalars.
-     * @param boolean $group if true, the values of the returned array is
+     * @param   bool    if true, the values of the returned array is
      *       wrapped in another array.  If the same key value (in the first
      *       column) repeats itself, the values will be appended to this array
      *       instead of overwriting the existing values.
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
-     * @see getAssoc()
+     *
+     * @return  mixed   data array on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @see     getAssoc()
      */
     function fetchAll($fetchmode = MDB2_FETCHMODE_DEFAULT, $rekey = false,
         $force_array = false, $group = false)
@@ -3065,9 +3194,10 @@ class MDB2_Result_Common extends MDB2_Result
     // {{{ function rowCount()
     /**
      * Returns the actual row number that was last fetched (count from 0)
-     * @return integer
+     * @return  int
+     *
+     * @access  public
      */
-
     function rowCount()
     {
         return $this->rownum + 1;
@@ -3079,8 +3209,9 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Returns the number of rows in a result object
      *
-     * @return mixed MDB2 Error Object or the number of rows
-     * @access public
+     * @return  mixed   MDB2 Error Object or the number of rows
+     *
+     * @access  public
      */
     function numRows()
     {
@@ -3093,9 +3224,11 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Move the internal result pointer to the next available result
      *
-     * @param a valid result resource
-     * @return true on success, false if there is no more result set or an error object on failure
-     * @access public
+     * @param   a valid result resource
+     *
+     * @return  true on success, false if there is no more result set or an error object on failure
+     *
+     * @access  public
      */
 
     function nextResult()
@@ -3111,14 +3244,15 @@ class MDB2_Result_Common extends MDB2_Result
      * Retrieve the names of columns returned by the DBMS in a query result or
      * from the cache.
      *
-     * @return mixed associative array variable
+     * @return  mixed   associative array variable
      *       that holds the names of columns. The indexes of the array are
      *       the column names mapped to lower case and the values are the
      *       respective numbers of the columns starting from 0. Some DBMS may
      *       not return any columns when the result set does not contain any
      *       rows.
      *      a MDB2 error on failure
-     * @access public
+     *
+     * @access  public
      */
     function getColumnNames()
     {
@@ -3138,14 +3272,15 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Retrieve the names of columns returned by the DBMS in a query result.
      *
-     * @return mixed associative array variable
+     * @return  mixed   associative array variable
      *       that holds the names of columns. The indexes of the array are
      *       the column names mapped to lower case and the values are the
      *       respective numbers of the columns starting from 0. Some DBMS may
      *       not return any columns when the result set does not contain any
      *       rows.
      *      a MDB2 error on failure
-     * @access private
+     *
+     * @access  private
      */
     function _getColumnNames()
     {
@@ -3159,9 +3294,10 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Count the number of columns returned by the DBMS in a query result.
      *
-     * @return mixed integer value with the number of columns, a MDB2 error
+     * @return  mixed   integer value with the number of columns, a MDB2 error
      *       on failure
-     * @access public
+     *
+     * @access  public
      */
     function numCols()
     {
@@ -3174,8 +3310,9 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * return the resource associated with the result object
      *
-     * @return resource
-     * @access public
+     * @return  resource
+     *
+     * @access  public
      */
 
     function getResource()
@@ -3188,13 +3325,14 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Set bind variable to a column.
      *
-     * @param int $column
-     * @param mixed $value
-     * @param string $type specifies the type of the field
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   int     column number or name
+     * @param   mixed   variable reference
+     * @param   string  specifies the type of the field
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
-
     function bindColumn($column, &$value, $type = null)
     {
         if (!is_numeric($column)) {
@@ -3221,9 +3359,11 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Bind a variable to a value in the result row.
      *
-     * @param array $row
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access private
+     * @param   array   row data
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  private
      */
     function _assignBindColumns($row)
     {
@@ -3242,8 +3382,9 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Free the internal resources associated with result.
      *
-     * @return boolean true on success, false if result is invalid
-     * @access public
+     * @return  bool    true on success, false if result is invalid
+     *
+     * @access  public
      */
     function free()
     {
@@ -3259,9 +3400,9 @@ class MDB2_Result_Common extends MDB2_Result
 /**
  * The simple class that accepts row data as an array
  *
- * @package  MDB2
- * @category Database
- * @author   Lukas Smith <smith@pooteeweet.org>
+ * @package     MDB2
+ * @category    Database
+ * @author      Lukas Smith <smith@pooteeweet.org>
  */
 class MDB2_Row
 {
@@ -3270,7 +3411,7 @@ class MDB2_Row
     /**
      * constructor
      *
-     * @param resource row data as array
+     * @param   resource    row data as array
      */
     function __construct(&$row)
     {
@@ -3285,7 +3426,7 @@ class MDB2_Row
     /**
      * PHP 4 Constructor
      *
-     * @param resource row data as array
+     * @param   resource    row data as array
      */
     function MDB2_Row(&$row)
     {
@@ -3300,9 +3441,9 @@ class MDB2_Row
 /**
  * The common statement class for MDB2 statement objects
  *
- * @package  MDB2
- * @category Database
- * @author   Lukas Smith <smith@pooteeweet.org>
+ * @package     MDB2
+ * @category    Database
+ * @author      Lukas Smith <smith@pooteeweet.org>
  */
 class MDB2_Statement_Common
 {
@@ -3353,13 +3494,15 @@ class MDB2_Statement_Common
     /**
      * Set the value of a parameter of a prepared query.
      *
-     * @param int $parameter the order number of the parameter in the query
+     * @param   int     the order number of the parameter in the query
      *       statement. The order number of the first parameter is 1.
-     * @param mixed $value value that is meant to be assigned to specified
+     * @param   mixed   value that is meant to be assigned to specified
      *       parameter. The type of the value depends on the $type argument.
-     * @param string $type specifies the type of the field
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   string  specifies the type of the field
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function bindValue($parameter, &$value, $type = null)
     {
@@ -3383,13 +3526,15 @@ class MDB2_Statement_Common
     /**
      * Set the values of multiple a parameter of a prepared query in bulk.
      *
-     * @param array $values array that specifies all necessary information
+     * @param   array   specifies all necessary information
      *       for bindValue() the array elements must use keys corresponding to
      *       the number of the position of the parameter.
-     * @param array $types specifies the types of the fields
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     * @see bindParam()
+     * @param   array   specifies the types of the fields
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @see     bindParam()
      */
     function bindValueArray(&$values, $types = null)
     {
@@ -3407,13 +3552,15 @@ class MDB2_Statement_Common
     /**
      * Bind a variable to a parameter of a prepared query.
      *
-     * @param int $parameter the order number of the parameter in the query
+     * @param   int     the order number of the parameter in the query
      *       statement. The order number of the first parameter is 1.
-     * @param mixed $value variable that is meant to be bound to specified
+     * @param   mixed   variable that is meant to be bound to specified
      *       parameter. The type of the value depends on the $type argument.
-     * @param string $type specifies the type of the field
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   string  specifies the type of the field
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function bindParam($parameter, &$value, $type = null)
     {
@@ -3437,13 +3584,15 @@ class MDB2_Statement_Common
     /**
      * Bind the variables of multiple a parameter of a prepared query in bulk.
      *
-     * @param array $values array that specifies all necessary information
+     * @param   array   specifies all necessary information
      *       for bindParam() the array elements must use keys corresponding to
      *       the number of the position of the parameter.
-     * @param array $types specifies the types of the fields
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     * @see bindParam()
+     * @param   array   specifies the types of the fields
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @see     bindParam()
      */
     function bindParamArray(&$values, $types = null)
     {
@@ -3461,13 +3610,15 @@ class MDB2_Statement_Common
     /**
      * Execute a prepared query statement.
      *
-     * @param array $values array that specifies all necessary information
+     * @param   array   specifies all necessary information
      *       for bindParam() the array elements must use keys corresponding to
      *       the number of the position of the parameter.
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   mixed   specifies which result class to use
+     * @param   mixed   specifies which class to wrap results in
+     *
+     * @return  mixed   a result handle or MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function &execute($values = null, $result_class = true, $result_wrap_class = false)
     {
@@ -3488,10 +3639,12 @@ class MDB2_Statement_Common
     /**
      * Execute a prepared query statement helper method.
      *
-     * @param mixed $result_class string which specifies which result class to use
-     * @param mixed $result_wrap_class string which specifies which class to wrap results in
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access private
+     * @param   mixed   specifies which result class to use
+     * @param   mixed   specifies which class to wrap results in
+     *
+     * @return  mixed   MDB2_Result or integer on success, a MDB2 error on failure
+     *
+     * @access  private
      */
     function &_execute($result_class = true, $result_wrap_class = false)
     {
@@ -3534,8 +3687,9 @@ class MDB2_Statement_Common
     /**
      * Release resources allocated for the specified prepared query.
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
     function free()
     {
@@ -3550,9 +3704,9 @@ class MDB2_Statement_Common
 /**
  * The common modules class for MDB2 module objects
  *
- * @package  MDB2
- * @category Database
- * @author   Lukas Smith <smith@pooteeweet.org>
+ * @package     MDB2
+ * @category    Database
+ * @author      Lukas Smith <smith@pooteeweet.org>
  */
 class MDB2_Module_Common
 {
@@ -3561,8 +3715,8 @@ class MDB2_Module_Common
      * contains the key to the global MDB2 instance array of the associated
      * MDB2 instance
      *
-     * @var integer
-     * @access protected
+     * @var     int
+     * @access  protected
      */
     var $db_index;
     // }}}
@@ -3594,8 +3748,9 @@ class MDB2_Module_Common
     /**
      * Get the instance of MDB2 associated with the module instance
      *
-     * @return object MDB2 instance or a MDB2 error on failure
-     * @access public
+     * @return  object  MDB2 instance or a MDB2 error on failure
+     *
+     * @access  public
      */
     function &getDBInstance()
     {
@@ -3615,8 +3770,9 @@ class MDB2_Module_Common
 /**
  * Close any open transactions form persistent connections
  *
- * @return void
- * @access public
+ * @return  void
+ *
+ * @access  public
  */
 
 function MDB2_closeOpenTransactions()
@@ -3637,12 +3793,13 @@ function MDB2_closeOpenTransactions()
 /**
  * default debug output handler
  *
- * @param object $db reference to an MDB2 database object
- * @param string $message message that should be appended to the debug
- *       variable
- * @return string the corresponding error message, of false
- * if the error code was unknown
- * @access public
+ * @param   object  reference to an MDB2 database object
+ * @param   string  message that should be appended to the debug variable
+ *
+ * @return  string  the corresponding error message, of false
+ *                  if the error code was unknown
+ *
+ * @access  public
  */
 function MDB2_defaultDebugOutput(&$db, $scope, $message, $is_manip = null)
 {
