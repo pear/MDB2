@@ -123,9 +123,8 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
      *
      * @param array $values associative array (name => value)
      */
-    function insertValues($values) {
-        $types = $this->getFieldTypes(array_keys($values));
-
+    function insertValues($values, $type) {
+        $types = array('integer', $type);
         $result = $this->db->exec('DELETE FROM '.$this->table);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error emptying table: '.$result->getMessage());
@@ -169,7 +168,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
             'id'        => 1,
             'textfield' => 'test',
         );
-        $this->insertValues($data);
+        $this->insertValues($data, 'text');
         $this->selectAndCheck($data);
     }
 
@@ -181,7 +180,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
             'id'           => 1,
             'decimalfield' => 10.35,
         );
-        $this->insertValues($data);
+        $this->insertValues($data, 'decimal');
         $this->selectAndCheck($data);
     }
 
@@ -193,7 +192,21 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
             'id'         => 1,
             'floatfield' => 10.35,
         );
-        $this->insertValues($data);
+        $this->insertValues($data, 'float');
+        $this->selectAndCheck($data);
+
+        $data = array(
+            'id'         => 1,
+            'floatfield' => '1.035e+1',
+        );
+        $this->insertValues($data, 'float');
+        $this->selectAndCheck($data);
+
+        $data = array(
+            'id'         => 1,
+            'floatfield' => '1.035E+01',
+        );
+        $this->insertValues($data, 'float');
         $this->selectAndCheck($data);
     }
 
@@ -205,14 +218,14 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
             'id'           => 1,
             'booleanfield' => true,
         );
-        $this->insertValues($data);
+        $this->insertValues($data, 'boolean');
         $this->selectAndCheck($data);
 
         $data = array(
             'id'           => 2,
             'booleanfield' => false,
         );
-        $this->insertValues($data);
+        $this->insertValues($data, 'boolean');
         $this->selectAndCheck($data);
     }
 
@@ -224,7 +237,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
             'id'        => 1,
             'datefield' => date('Y-m-d'),
         );
-        $this->insertValues($data);
+        $this->insertValues($data, 'date');
         $this->selectAndCheck($data);
     }
 
@@ -236,7 +249,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
             'id'        => 1,
             'timefield' => date('H:i:s'),
         );
-        $this->insertValues($data);
+        $this->insertValues($data, 'time');
         $this->selectAndCheck($data);
     }
 
@@ -248,7 +261,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
             'id'             => 1,
             'timestampfield' => date('Y-m-d H:i:s'),
         );
-        $this->insertValues($data);
+        $this->insertValues($data, 'timestamp');
         $this->selectAndCheck($data);
     }
 }
