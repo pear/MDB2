@@ -637,7 +637,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         if ($this->supported['prepared_statements'] !== true) {
-            $obj =& parent::prepare($query, $types, $result_types);
+            $obj =& parent::prepare($query, $types, $result_types, $lobs);
             return $obj;
         }
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
