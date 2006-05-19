@@ -125,7 +125,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
                 $delta = 0;
             }
 
-            $this->assertEquals($value, $data[$field], "the value retrieved for field \"$field\" doesn't match what was stored into the row $rownum", $delta);
+            $this->assertEquals($value, $data[$field], "the value retrieved for field \"$field\" doesn't match what was stored into the rownum $rownum", $delta);
             next($row);
         }
     }
