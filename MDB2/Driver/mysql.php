@@ -633,7 +633,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
-        if ($this->supported['prepared_statements'] === true) {
+        if ($this->supported['prepared_statements'] !== true) {
             $obj =& parent::prepare($query, $types, $result_types);
             return $obj;
         }
