@@ -153,13 +153,20 @@ class MDB2_Extended extends MDB2_Module_Common
             return $db;
         }
 
-        if (count($table_fields) == 0) {
+        $count = count($table_fields);
+        if ($count == 0) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+        }
+        if ($db->options['quote_identifier']) {
+            $table_fields = array_values($table_fields);
+            for ($i = 0; $i < $count; ++$i) {
+                $table_fields[$i] = $db->quoteIdentifier($table_fields[$i]);
+            }
         }
         switch ($mode) {
         case MDB2_AUTOQUERY_INSERT:
             $cols = implode(', ', $table_fields);
-            $values = '?'.str_repeat(', ?', count($table_fields)-1);
+            $values = '?'.str_repeat(', ?', $count-1);
             return 'INSERT INTO '.$table.' ('.$cols.') VALUES ('.$values.')';
             break;
         case MDB2_AUTOQUERY_UPDATE:
