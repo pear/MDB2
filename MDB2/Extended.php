@@ -55,6 +55,7 @@
  */
 define('MDB2_AUTOQUERY_INSERT', 1);
 define('MDB2_AUTOQUERY_UPDATE', 2);
+define('MDB2_AUTOQUERY_DELETE', 3);
 
 /**
  * MDB2_Extended: class which adds several high level methods to MDB2
@@ -68,12 +69,12 @@ class MDB2_Extended extends MDB2_Module_Common
     // {{{ autoPrepare()
 
     /**
-     * Make automaticaly an insert or update query and call prepare() with it
+     * Generate an insert, update or delete query and call prepare() on it
      *
      * @param string table
      * @param array the fields names
-     * @param int type of query to make (MDB2_AUTOQUERY_INSERT or MDB2_AUTOQUERY_UPDATE)
-     * @param string (in case of update queries, this string will be put after the sql WHERE statement)
+     * @param int type of query to make (MDB2_AUTOQUERY_INSERT, MDB2_AUTOQUERY_UPDATE or MDB2_AUTOQUERY_DELETE)
+     * @param string (in case of update and delete queries, this string will be put after the sql WHERE statement)
      * @param array that contains the types of the placeholders
      *
      * @return resource handle for the query
@@ -99,12 +100,12 @@ class MDB2_Extended extends MDB2_Module_Common
     // {{{ autoExecute()
 
     /**
-     * Make automaticaly an insert or update query and call prepare() and execute() with it
+     * Generate an insert, update or delete query and call prepare() and execute() on it
      *
      * @param string name of the table
      * @param array assoc ($key=>$value) where $key is a field name and $value its value
-     * @param int type of query to make (MDB2_AUTOQUERY_INSERT or MDB2_AUTOQUERY_UPDATE)
-     * @param string (in case of update queries, this string will be put after the sql WHERE statement)
+     * @param int type of query to make (MDB2_AUTOQUERY_INSERT, MDB2_AUTOQUERY_UPDATE or MDB2_AUTOQUERY_DELETE)
+     * @param string (in case of update and delete queries, this string will be put after the sql WHERE statement)
      * @param array that contains the types of the placeholders
      * @param string which specifies which result class to use
      *
@@ -116,6 +117,7 @@ class MDB2_Extended extends MDB2_Module_Common
     function &autoExecute($table, $fields_values, $mode = MDB2_AUTOQUERY_INSERT,
         $where = false, $types = null, $result_class = true)
     {
+        $fields_values = (array)$fields_values;
         $stmt = $this->autoPrepare($table, array_keys($fields_values), $mode, $where, $types);
         if (PEAR::isError($stmt)) {
             return $stmt;
@@ -135,13 +137,13 @@ class MDB2_Extended extends MDB2_Module_Common
      * Example : buildManipSQL('table_sql', array('field1', 'field2', 'field3'), MDB2_AUTOQUERY_INSERT)
      *           will return the string : INSERT INTO table_sql (field1,field2,field3) VALUES (?,?,?)
      * NB : - This belongs more to a SQL Builder class, but this is a simple facility
-     *      - Be carefull ! If you don't give a $where param with an UPDATE query, all
-     *        the records of the table will be updated !
+     *      - Be carefull ! If you don't give a $where param with an UPDATE/DELETE query, all
+     *        the records of the table will be updated/deleted !
      *
      * @param string name of the table
      * @param ordered array containing the fields names
-     * @param int type of query to make (MDB2_AUTOQUERY_INSERT or MDB2_AUTOQUERY_UPDATE)
-     * @param string (in case of update queries, this string will be put after the sql WHERE statement)
+     * @param int type of query to make (MDB2_AUTOQUERY_INSERT, MDB2_AUTOQUERY_UPDATE or MDB2_AUTOQUERY_DELETE)
+     * @param string (in case of update and delete queries, this string will be put after the sql WHERE statement)
      *
      * @return string sql query for prepare()
      * @access public
@@ -153,16 +155,25 @@ class MDB2_Extended extends MDB2_Module_Common
             return $db;
         }
 
-        $count = count($table_fields);
-        if ($count == 0) {
-            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
-        }
-        if ($db->options['quote_identifier']) {
-            $table_fields = array_values($table_fields);
-            for ($i = 0; $i < $count; ++$i) {
-                $table_fields[$i] = $db->quoteIdentifier($table_fields[$i]);
+        if ($mode !== MDB2_AUTOQUERY_DELETE) {
+            $count = count($table_fields);
+            if ($count == 0) {
+                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            }
+            if ($db->options['quote_identifier']) {
+                $table_fields = array_values($table_fields);
+                for ($i = 0; $i < $count; ++$i) {
+                    $table_fields[$i] = $db->quoteIdentifier($table_fields[$i]);
+                }
             }
         }
+        if ($where !== false && !is_null($where)) {
+            if (is_array($where)) {
+                $where = implode(' AND ', $where);
+            }
+            $where = ' WHERE '.$where;
+        }
+
         switch ($mode) {
         case MDB2_AUTOQUERY_INSERT:
             $cols = implode(', ', $table_fields);
@@ -171,10 +182,11 @@ class MDB2_Extended extends MDB2_Module_Common
             break;
         case MDB2_AUTOQUERY_UPDATE:
             $set = implode(' = ?, ', $table_fields).' = ?';
-            $sql = 'UPDATE '.$table.' SET '.$set;
-            if ($where !== false) {
-                $sql.= ' WHERE '.$where;
-            }
+            $sql = 'UPDATE '.$table.' SET '.$set.$where;
+            return $sql;
+            break;
+        case MDB2_AUTOQUERY_DELETE:
+            $sql = 'DELETE FROM '.$table.$where;
             return $sql;
             break;
         }

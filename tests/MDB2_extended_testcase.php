@@ -89,6 +89,21 @@ class MDB2_Extended_TestCase extends MDB2_TestCase {
         $this->verifyFetchedValues($result, null, $data);
         $result->free();
 
+        $where = array($where, 'user_name = '.$this->db->quote($data['user_name'], 'text'));
+        $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_DELETE, $where, null);
+
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error auto executing insert: '.$result->getMessage());
+        }
+
+        $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
+        $result = $this->db->query('SELECT * FROM users', $this->fields);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+        }
+
+        $this->assertEquals($result->numRows(), 0, 'No rows were expected to be returned');
+        $result->free();
     }
 }
 
