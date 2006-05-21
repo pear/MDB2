@@ -693,10 +693,13 @@ class MDB2
     function errorMessage($value = null)
     {
         static $errorMessages;
+
         if (is_array($value)) {
             $errorMessages = $value;
             return MDB2_OK;
-        } elseif (!isset($errorMessages)) {
+        }
+
+        if (!isset($errorMessages)) {
             $errorMessages = array(
                 MDB2_OK                       => 'no error',
                 MDB2_ERROR                    => 'unknown error',
