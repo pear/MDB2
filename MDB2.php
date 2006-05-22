@@ -3703,6 +3703,11 @@ class MDB2_Statement_Common
      */
     function free()
     {
+        if (is_null($this->positions)) {
+            return $this->db->raiseError(MDB2_ERROR, null, null,
+                'execute: Prepared statement has already been freed');
+        }
+
         $this->statement = null;
         $this->positions = null;
         $this->query = null;

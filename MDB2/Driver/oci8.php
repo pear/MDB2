@@ -1330,6 +1330,10 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
      */
     function free()
     {
+        if (is_null($this->positions)) {
+            return $this->db->raiseError(MDB2_ERROR, null, null,
+                'execute: Prepared statement has already been freed');
+        }
         $result = MDB2_OK;
 
         if (!is_null($this->statement) && !@OCIFreeStatement($this->statement)) {
