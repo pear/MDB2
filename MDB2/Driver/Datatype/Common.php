@@ -1248,7 +1248,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _quoteFloat($value, $quote)
     {
         if (preg_match('/^(.*)e([-+])(\d+)$/i', $value, $matches)) {
-            $value = $matches[1].'E'.$matches[2].str_pad($matches[3], 2, '0', STR_PAD_LEFT);
+            $decimal = $this->_quoteDecimal($matches[1], $quote);
+            $sign = $matches[2];
+            $exponent = str_pad($matches[3], 2, '0', STR_PAD_LEFT);
+            $value = $decimal.'E'.$sign.$exponent;
         } else {
             $value = $this->_quoteDecimal($value, $quote);
         }
