@@ -66,53 +66,25 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.0.2</version>
-  <date>2006-05-14</date>
+  <version>2.0.3</version>
+  <date>2006-05-22</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- phpdoc and folding mark fixes (thx Laurent and Stoyan)
-- added getTriggerDefinition() in the Reverse module
-- added listTableViews() in the Manager module
-- explicitly set is_manip parameter to false for transaction debug calls
-- various minor tweaks to error messages, phpdoc and adding stub methods to the
-  common driver
-- added row seeking support to fetchOne()
-- added ability to hint that a constraint is a primary key in dropConstraint()
-- since we no longer complain about primary keys not being called primary we can
-  remove the necessary hacks in the test suite
-- improved LOB tests in the test suite
-- do not require Manager module for core API tests
-- added support for fixed and variable types for &apos;text&apos; in declarations,
-  as well as in reverse engineering (Request #1523)
-- updated MAINTAINERS to current status
-- readded STATUS document, still needs to be filled with content
-- tweaked handling of error objects inside raiseError()
-- made _doQuery() return a reference
-- added userinfo&apos;s to all raiseError calls that previously had none
-- added bindValueArray()
-- use bindValueArray() instead of bindParamArray() in all internal calls
-- removed the skeleton drivers, since its too much work to maintain them
-  and there are plenty of sample drivers to look at
-- fixed example due to API change in MDB2_Schema (Bug #7575)
-- added &apos;prepared_statements&apos; supported meta data setting
-- do not retrieve lob in the stream constructor and streams_eof()
-- strip of file:// prefix in writeLOBToFile()
-- typo fix ressource/resource in LOB array
-- removed lob property from the LOB streams wrapper (references are always
-  shaky business in PHP so lets use them as little as possible)
-- fixed _destroyLOB() API to match other private LOB methods
-- fixed phpdoc comments of all private LOB methods
-- typo fix in autoincrement test
-- reworked index/constraint creation to not affected unnecessary reverse tests
-
-Note: Due to changes in generation of declaration statements you may need to
-update your test databases (for example by rerunning the MDB2_Schema
-installation using the CVS version or a release greater than 0.5.0)
+  <notes>- fix float/decimal handling (Request #3021)
+- default to decimal for double (instead of float)
+- serialize arrays when no type is explicitly given
+- phpdoc fixes
+- expanded FLOAT test
+- added support for identifier quoting (Request #7671)
+- added test class for the Extended module
+- added support for DELETE in auto*() methods (Request #5345)
+- added &quot;emulate_prepared&quot; option to force prepared statement emulation
 
 open todo items:
 - handle autoincrement fields in alterTable()
 - add support for ADODB style &quot;smart transactions&quot;:
   http://phplens.com/lens/adodb/docs-adodb.htm#ex11
+- add length handling to LOB reverse engineering
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -215,6 +187,9 @@ open todo items:
      <file role="test" name="MDB2_datatype_testcase.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
+     <file role="test" name="MDB2_extended_testcase.php">
+      <replace type="package-info" from="@package_version@" to="version"/>
+     </file>
      <file role="test" name="MDB2_function_testcase.php">
       <replace type="package-info" from="@package_version@" to="version"/>
      </file>
@@ -259,6 +234,28 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.0.3</version>
+    <date>2006-05-22</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- fix float/decimal handling (Request #3021)
+- default to decimal for double (instead of float)
+- serialize arrays when no type is explicitly given
+- phpdoc fixes
+- expanded FLOAT test
+- added support for identifier quoting (Request #7671)
+- added test class for the Extended module
+- added support for DELETE in auto*() methods (Request #5345)
+- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add support for ADODB style &quot;smart transactions&quot;:
+  http://phplens.com/lens/adodb/docs-adodb.htm#ex11
+- add length handling to LOB reverse engineering
+    </notes>
+   </release>
    <release>
     <version>2.0.2</version>
     <date>2006-05-14</date>

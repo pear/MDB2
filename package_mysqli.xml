@@ -14,33 +14,18 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.0.2</version>
-  <date>2006-05-14</date>
+  <version>1.0.3</version>
+  <date>2006-05-22</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- optimized listTables() and listViews()
-- optimized show related queries
-- merged in some features and fixes from the mysql driver
-- explicitly set is_manip parameter to false for transaction debug calls
-- pass parameter array as debug() all with scope &quot;parameters&quot; in every execute()
-  call (bug #4119)
-- silently change name of primary key contraints to PRIMARY
-- added ability to hint that a constraint is a primary key in dropConstraint()
-- typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for &apos;text&apos; in declarations,
-  as well as in reverse engineering (Request #1523)
-- made _doQuery() return a reference
-- added userinfo&apos;s to all raiseError calls that previously had none
-- use native prepared queries for prepared SELECT statements
-- only use native prepared queries of mysql 4.1 or higher
-- added &apos;prepared_statements&apos; supported meta data setting
-- fixed issue with free() returning void
-- added missing supported parameter to prepare() signature
+  <notes>- fixed unsigned handling and minor tweaks to type mapping in mapNativeDatatype()
+- use emulated prepared statements on mysql 4.0 or lower
+- added &quot;emulate_prepared&quot; option to force prepared statement emulation
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.1" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.3" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">mysqli</dep>
   </deps>
   <filelist>
@@ -79,6 +64,16 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.3</version>
+    <date>2006-05-22</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- fixed unsigned handling and minor tweaks to type mapping in mapNativeDatatype()
+- use emulated prepared statements on mysql 4.0 or lower
+- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+    </notes>
+   </release>
    <release>
     <version>1.0.2</version>
     <date>2006-05-14</date>

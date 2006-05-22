@@ -2,9 +2,12 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.0.3';
 $notes = <<<EOT
 - fixed unsigned handling and minor tweaks to type mapping in mapNativeDatatype()
+- use emulated prepared statements on mysql 4.0 or lower
+- properly quote query to prepare
+- added "emulate_prepared" option to force prepared statement emulation
 EOT;
 
 $package = new PEAR_PackageFileManager();
@@ -44,7 +47,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.2', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.0.3', 'ge', 'pkg', false);
 $package->addDependency('mysql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
