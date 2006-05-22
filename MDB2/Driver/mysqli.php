@@ -1422,25 +1422,23 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
      */
     function free()
     {
-        if (is_null($this->statement)) {
-            return parent::free();
-        }
+        $result = MDB2_OK;
 
-        if (!is_object($this->statement)) {
+        if (!is_null($this->statement) && !is_object($this->statement)) {
             $connection = $this->db->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
             }
 
             $query = 'DEALLOCATE PREPARE '.$this->statement;
-            return $this->db->_doQuery($query, true, $connection);
-        }
-
-        if (!@mysqli_stmt_close($this->statement)) {
-            return $this->db->raiseError(null, null, null,
+            $result = $this->db->_doQuery($query, true, $connection);
+        } elseif (!@mysqli_stmt_close($this->statement)) {
+            $result = $this->db->raiseError(null, null, null,
                 'free: Could not free statement');
         }
-        return MDB2_OK;
-    }
+
+        parent::free();
+        return $result;
+   }
 }
 ?>

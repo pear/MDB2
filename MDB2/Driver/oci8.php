@@ -1167,7 +1167,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     {
         $this->buffer = null;
         $this->buffer_rownum = null;
-        $free = parent::free();
+        return parent::free();
     }
 }
 
@@ -1330,11 +1330,15 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
      */
     function free()
     {
-        if (!@OCIFreeStatement($this->statement)) {
-            return $this->db->raiseError(null, null, null,
+        $result = MDB2_OK;
+
+        if (!is_null($this->statement) && !@OCIFreeStatement($this->statement)) {
+            $result = $this->db->raiseError(null, null, null,
                 'free: Could not free statement');
         }
-        return MDB2_OK;
+
+        parent::free();
+        return $result;
     }
 }
 ?>

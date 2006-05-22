@@ -1276,17 +1276,19 @@ class MDB2_Statement_mysql extends MDB2_Statement_Common
      */
     function free()
     {
-        if (is_null($this->statement)) {
-            $result = parent::free();
-            return $result;
-        }
-        $connection = $this->db->getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
+        $result = MDB2_OK;
+
+        if (!is_null($this->statement)) {
+            $connection = $this->db->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+            $query = 'DEALLOCATE PREPARE '.$this->statement;
+            $result = $this->db->_doQuery($query, true, $connection);
         }
 
-        $query = 'DEALLOCATE PREPARE '.$this->statement;
-        return $this->db->_doQuery($query, true, $connection);
+        parent::free();
+        return $result;
     }
 }
 ?>

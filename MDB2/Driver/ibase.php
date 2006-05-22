@@ -1211,7 +1211,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     {
         $this->buffer = null;
         $this->buffer_rownum = null;
-        $free = parent::free();
+        return parent::free();
     }
 
     // }}}
@@ -1300,11 +1300,15 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
      */
     function free()
     {
-        if (!@ibase_free_query($this->statement)) {
-            return $this->db->raiseError(null, null, null,
+        $result = MDB2_OK;
+
+        if (!is_null($this->statement) && !@ibase_free_query($this->statement)) {
+            $result = $this->db->raiseError(null, null, null,
                 'free: Could not free statement');
         }
-        return MDB2_OK;
+
+        parent::free();
+        return $result;
     }
 }
 ?>

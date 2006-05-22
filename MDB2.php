@@ -3627,6 +3627,11 @@ class MDB2_Statement_Common
      */
     function &execute($values = null, $result_class = true, $result_wrap_class = false)
     {
+        if (is_null($this->positions)) {
+            return $this->db->raiseError(MDB2_ERROR, null, null,
+                'execute: Prepared statement has already been freed');
+        }
+
         if (!empty($values)) {
             $values = (array)$values;
             $this->bindValueArray($values);
@@ -3698,6 +3703,16 @@ class MDB2_Statement_Common
      */
     function free()
     {
+        $this->statement = null;
+        $this->positions = null;
+        $this->query = null;
+        $this->types = null;
+        $this->result_types = null;
+        $this->limit = null;
+        $this->is_manip = null;
+        $this->offset = null;
+        $this->values = null;
+
         return MDB2_OK;
     }
     // }}}
