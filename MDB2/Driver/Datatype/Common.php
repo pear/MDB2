@@ -1270,11 +1270,25 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteDecimal($value, $quote)
     {
-        $precision = strlen($value) - strlen(intval($value));
-        if ($precision) {
-            --$precision; // don't count decimal seperator
+        $value = (string)$value;
+        if (preg_match('/[^.0-9]/', $value)) {
+            if (strpos($value, ',')) {
+                // 1000,00
+                if (!strpos($value, '.')) {
+                    // convert the last "," to a "."
+                    $value = strrev(str_replace(',', '.', strrev($value)));
+                // 1.000,00
+                } elseif (strpos($value, '.') && strpos($value, '.') < strpos($value, ',')) {
+                    $value = str_replace('.', '', $value);
+                    // convert the last "," to a "."
+                    $value = strrev(str_replace(',', '.', strrev($value)));
+                // 1,000.00
+                } else {
+                    $value = str_replace(',', '', $value);
+                }
+            }
         }
-        return number_format($value, $precision, '.', '');
+        return $value;
     }
 
     // }}}

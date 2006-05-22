@@ -177,17 +177,18 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
      */
     function testDecimalDataType() {
         $data = array(
-            'id'           => 1,
-            'decimalfield' => 10.35,
+            'id'         => 1,
+            'floatfield' => 10.35,
         );
-        $this->insertValues($data, 'decimal');
+        $this->insertValues($data, 'float');
         $this->selectAndCheck($data);
-    }
 
-    /**
-     * Test the FLOAT datatype for incorrect conversions
-     */
-    function testFloatDataType() {
+        if (OS_UNIX) {
+            setlocale(LC_ALL, 'de_DE@euro', 'de_DE', 'de', 'ge');
+        } else {
+            setlocale(LC_ALL, 'de_DE@euro', 'de_DE', 'deu_deu');
+        }
+
         $data = array(
             'id'         => 1,
             'floatfield' => 10.35,
@@ -195,6 +196,36 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         $this->insertValues($data, 'float');
         $this->selectAndCheck($data);
 
+        setlocale(LC_NUMERIC, null);
+
+        $expected = 10.35;
+
+        $actual = $this->db->quote($expected, 'float');
+        $this->assertEquals($expected, $actual);
+
+        $non_us = number_format($expected, 2, ',', '');
+        $actual = $this->db->quote($non_us, 'float');
+        $this->assertEquals($expected, $actual);
+
+        $expected = 1000.35;
+
+        $non_us = '1,000.35';
+        $actual = $this->db->quote($non_us, 'float');
+        $this->assertEquals($expected, $actual);
+
+        $non_us = '1000,35';
+        $actual = $this->db->quote($non_us, 'float');
+        $this->assertEquals($expected, $actual);
+
+        $non_us = '1.000,35';
+        $actual = $this->db->quote($non_us, 'float');
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test the FLOAT datatype for incorrect conversions
+     */
+    function testFloatDataType() {
         $data = array(
             'id'         => 1,
             'floatfield' => '1.035e+1',
@@ -215,6 +246,20 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         $this->assertEquals($expected, $actual);
 
         $non_us = number_format($expected, 2, ',', '');
+        $actual = $this->db->quote($non_us, 'float');
+        $this->assertEquals($expected, $actual);
+
+        $expected = 1000.35;
+
+        $non_us = '1,000.35';
+        $actual = $this->db->quote($non_us, 'float');
+        $this->assertEquals($expected, $actual);
+
+        $non_us = '1000,35';
+        $actual = $this->db->quote($non_us, 'float');
+        $this->assertEquals($expected, $actual);
+
+        $non_us = '1.000,35';
         $actual = $this->db->quote($non_us, 'float');
         $this->assertEquals($expected, $actual);
     }
