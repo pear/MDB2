@@ -1424,11 +1424,14 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
     {
         if (is_null($this->positions)) {
             return $this->db->raiseError(MDB2_ERROR, null, null,
-                'execute: Prepared statement has already been freed');
+                'free: Prepared statement has already been freed');
         }
         $result = MDB2_OK;
 
-        if (!is_null($this->statement) && !is_object($this->statement)) {
+        if (is_object($this->statement) && !@mysqli_stmt_close($this->statement)) {
+            $result = $this->db->raiseError(null, null, null,
+                'free: Could not free statement');
+        } elseif (!is_null($this->statement)) {
             $connection = $this->db->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -1436,9 +1439,6 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
 
             $query = 'DEALLOCATE PREPARE '.$this->statement;
             $result = $this->db->_doQuery($query, true, $connection);
-        } elseif (!@mysqli_stmt_close($this->statement)) {
-            $result = $this->db->raiseError(null, null, null,
-                'free: Could not free statement');
         }
 
         parent::free();
