@@ -136,7 +136,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
             implode(', ', array_keys($values)),
             implode(', ', array_fill(0, count($values), '?'))
         );
-        $stmt = $this->db->prepare($query, $types, MDB2_PREPARE_MANIP);
+        $stmt = $this->db->prepare($query, array_values($types), MDB2_PREPARE_MANIP);
         if (PEAR::isError($stmt)) {
             $this->assertTrue(false, 'Error creating prepared query: '.$stmt->getMessage());
         }
