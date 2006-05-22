@@ -1115,6 +1115,7 @@ class MDB2_Driver_Common extends PEAR
                 'na' => 'Native',
                 'fc' => 'Function',
             ),
+            'emulate_prepared' => false,
         );
 
     /**

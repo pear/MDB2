@@ -269,7 +269,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             if (PEAR::isError($verify_type)) {
                 return $verify_type;
             }
-            $options_strings[] = "TYPE $type";
+            $options_strings[] = "ENGINE = $type";
         }
 
         if (!empty($options_strings)) {
