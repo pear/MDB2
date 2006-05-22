@@ -3637,9 +3637,6 @@ class MDB2_Statement_Common
             $this->bindValueArray($values);
         }
         $result =& $this->_execute($result_class, $result_wrap_class);
-        if (is_numeric($result)) {
-            $this->rownum = $result - 1;
-        }
         return $result;
     }
     // }}}
