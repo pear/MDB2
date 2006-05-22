@@ -208,6 +208,15 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         );
         $this->insertValues($data, 'float');
         $this->selectAndCheck($data);
+
+        $expected = 10.35;
+
+        $actual = $this->db->quote($expected, 'float');
+        $this->assertEquals($expected, $actual);
+
+        $non_us = number_format($expected, 2, ',', '');
+        $actual = $this->db->quote($non_us, 'float');
+        $this->assertEquals($expected, $actual);
     }
 
     /**
