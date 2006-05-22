@@ -1075,6 +1075,7 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['decimal_places'] -> integer</li>
      *  <li>$options['portability'] -> portability constant</li>
      *  <li>$options['modules'] -> short to long module name mapping for __call()</li>
+     *  <li>$options['emulate_prepared'] -> force prepared statements to be emulated</li>
      * </ul>
      *
      * @var     array
