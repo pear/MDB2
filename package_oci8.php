@@ -2,8 +2,12 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '0.2.6';
 $notes = <<<EOT
+- added "emulate_prepared" option to force prepared statement emulation
+
+note: please use the latest ext/oci8 version from pecl.php.net/oci8
+(binaries are available from snaps.php.net and pecl4win.php.net)
 
 open todo items:
 - fix issues with testcreateautoincrementtable (error on sequence creation)
@@ -48,7 +52,7 @@ $package->addMaintainer('justinpatrin', 'developer', 'Justin Patrin', 'justinpat
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.2', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.0.3', 'ge', 'pkg', false);
 $package->addDependency('oci8', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
