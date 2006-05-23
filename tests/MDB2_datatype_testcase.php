@@ -198,16 +198,17 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         $this->insertValues($data);
         $this->selectAndCheck($data);
 
+        $old_locale = setlocale(LC_NUMERIC, 0);
         if (OS_UNIX) {
-            setlocale(LC_ALL, 'de_DE@euro', 'de_DE', 'de', 'ge');
+            setlocale(LC_NUMERIC, 'de_DE@euro', 'de_DE', 'de', 'ge');
         } else {
-            setlocale(LC_ALL, 'de_DE@euro', 'de_DE', 'deu_deu');
+            setlocale(LC_NUMERIC, 'de_DE@euro', 'de_DE', 'deu_deu');
         }
 
         $this->insertValues($data);
         $this->selectAndCheck($data);
 
-        setlocale(LC_NUMERIC, null);
+        setlocale(LC_NUMERIC, $old_locale);
 
         $expected = 10.35;
 
@@ -254,16 +255,18 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         $this->insertValues($data);
         $this->selectAndCheck($data);
 
+        $old_locale = setlocale(LC_NUMERIC, 0);
         if (OS_UNIX) {
-            setlocale(LC_ALL, 'de_DE@euro', 'de_DE', 'de', 'ge');
+            setlocale(LC_NUMERIC, 'de_DE@euro', 'de_DE', 'de', 'ge');
         } else {
-            setlocale(LC_ALL, 'de_DE@euro', 'de_DE', 'deu_deu');
+            setlocale(LC_NUMERIC, 'de_DE@euro', 'de_DE', 'deu_deu');
         }
+
 
         $this->insertValues($data);
         $this->selectAndCheck($data);
 
-        setlocale(LC_NUMERIC, null);
+        setlocale(LC_NUMERIC, $old_locale);
 
         $data['floatfield'] = '1.035e+1';
         $this->insertValues($data);
