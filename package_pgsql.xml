@@ -14,31 +14,19 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.0.1</version>
-  <date>2006-05-14</date>
+  <version>1.0.2</version>
+  <date>2006-05-23</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- added listTableViews() (request #6773)
-- explicitly set is_manip parameter to false for transaction debug calls
-- pass parameter array as debug() all with scope &quot;parameters&quot; in every execute()
-  call (bug #4119)
-- typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for &apos;text&apos; in declarations,
-  as well as in reverse engineering (Request #1523)
-- made _doQuery() return a reference
-- added userinfo&apos;s to all raiseError calls that previously had none
-- calling PREPARE is always a manip query
-- added &apos;prepared_statements&apos; supported meta data setting
-- strip of file:// prefix in writeLOBToFile()
-- typo fix ressource/resource in LOB array
-- added missing supported parameter to prepare() signature
-- properly handle explicit error codes in errorInfo()
-- moved from OID to TEXT and BYTEA (OID handling was broken, its also deprecated)
+  <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+- tweaked handling of free() for prepared statements
+- return error if a prepared statement is attempted to be freed twice
+- fixed notice when using prepare() without placeholders
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.1" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.0.3" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">pgsql</dep>
   </deps>
   <filelist>
@@ -77,6 +65,17 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.2</version>
+    <date>2006-05-23</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+- tweaked handling of free() for prepared statements
+- return error if a prepared statement is attempted to be freed twice
+- fixed notice when using prepare() without placeholders
+    </notes>
+   </release>
    <release>
     <version>1.0.1</version>
     <date>2006-05-14</date>
