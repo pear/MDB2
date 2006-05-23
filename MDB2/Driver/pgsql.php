@@ -644,7 +644,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
-        $positions = array();
+        $positions = $pgtypes = array();
         $position = $parameter = 0;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
