@@ -2,9 +2,10 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.3';
+$version = 'XXX';
 $notes = <<<EOT
 - added "emulate_prepared" option to force prepared statement emulation
+- tweaked handling of free() for prepared statements
 EOT;
 
 $package = new PEAR_PackageFileManager();

@@ -2,12 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.3';
+$version = 'XXX';
 $notes = <<<EOT
-- fixed unsigned handling and minor tweaks to type mapping in mapNativeDatatype()
-- use emulated prepared statements on mysql 4.0 or lower
-- properly quote query to prepare
-- added "emulate_prepared" option to force prepared statement emulation
+- tweaked handling of free() for prepared statements
 EOT;
 
 $package = new PEAR_PackageFileManager();

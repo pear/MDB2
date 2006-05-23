@@ -2,17 +2,16 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.0.3';
+$version = 'XXX';
 $notes = <<<EOT
-- fix float/decimal handling (Request #3021)
-- default to decimal for double (instead of float)
-- serialize arrays when no type is explicitly given
-- phpdoc fixes
-- expanded FLOAT test
-- added support for identifier quoting (Request #7671)
-- added test class for the Extended module
-- added support for DELETE in auto*() methods (Request #5345)
-- added "emulate_prepared" option to force prepared statement emulation
+- removed bogus code from execute()
+- new test case for floats/decimals and locale
+- reworked fix for float/decimal handling
+- expanded scientific notation handling
+- fixed several minor issues with the datatype tests
+- removed use of "*" in all places in the test suite that are followed by a fetch
+- tweaked handling of free() for prepared statements
+- return error if a prepared statement is attempted to be freed twice
 
 open todo items:
 - handle autoincrement fields in alterTable()
