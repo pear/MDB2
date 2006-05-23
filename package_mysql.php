@@ -5,6 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'XXX';
 $notes = <<<EOT
 - tweaked handling of free() for prepared statements
+- return error if a prepared statement is attempted to be freed twice
 EOT;
 
 $package = new PEAR_PackageFileManager();
