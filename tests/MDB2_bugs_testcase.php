@@ -72,7 +72,8 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
 
         $stmt->free();
 
-        $result =& $this->db->query('SELECT * FROM users ORDER BY user_name');
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name';
+        $result =& $this->db->query($query);
 
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
@@ -83,7 +84,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $firstRow = $result->fetchRow();
         $this->assertEquals($firstRow['user_name'], $data['user_name'], "The data returned does not match that expected");
 
-        $result = $this->db->query('SELECT user_name, user_id, quota FROM users ORDER BY user_name');
+        $result =& $this->db->query('SELECT user_name, user_id, quota FROM users ORDER BY user_name');
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
@@ -124,7 +125,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
 
-        $result = $this->db->query('SELECT user_name FROM users');
+        $result =& $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
         if (PEAR::isError($col)) {
             $this->assertTrue(false, "Error when fetching column first first row as NULL: ".$col->getMessage());
@@ -135,7 +136,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
 
         $result = $stmt->execute(array_values($data));
 
-        $result = $this->db->query('SELECT user_name FROM users');
+        $result =& $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
         if (PEAR::isError($col)) {
             $this->assertTrue(false, "Error when fetching column: ".$col->getMessage());
@@ -150,7 +151,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
      * http://pear.php.net/bugs/bug.php?id=681
      */
     function testBug681() {
-        $result = $this->db->query('SELECT * FROM users WHERE 1=0');
+        $result =& $this->db->query('SELECT * FROM users WHERE 1=0');
 
         $numrows = $result->numRows();
         $this->assertEquals(0, $numrows, "Numrows is not returning 0 for empty result sets");
@@ -168,7 +169,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
 
-        $result = $this->db->query('SELECT * FROM users');
+        $result =& $this->db->query('SELECT * FROM users');
         $numrows = $result->numRows();
         $this->assertEquals(1, $numrows, "Numrows is not returning proper value");
 
@@ -226,8 +227,10 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         }
         $stmt->free();
 
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+
         $this->db->setLimit(3, 1);
-        $result = $this->db->query('SELECT * FROM users');
+        $result =& $this->db->query($query);
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
             if (PEAR::isError($row)) {
@@ -236,7 +239,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         }
         $result->free();
 
-        $result = $this->db->query('SELECT * FROM users');
+        $result =& $this->db->query($query);
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
             if (PEAR::isError($row)) {
@@ -253,7 +256,8 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row]['user_name'] = "user_$row";
@@ -273,7 +277,8 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         }
         $stmt->free();
 
-        $result = $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_id', $this->fields);
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_id';
+        $result =& $this->db->query($query, $this->fields);
 
         $numrows = $result->numRows($result);
 

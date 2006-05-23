@@ -142,18 +142,18 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             }
         }
         $stmt->free();
-        $query = 'SELECT * FROM '.$this->table;
-        $data = $this->db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
+        $query = 'SELECT id FROM '.$this->table;
+        $data = $this->db->queryCol($query);
         if (PEAR::isError($data)) {
             $this->assertTrue(true, 'Error executing select');
             return;
         }
         for ($i =0; $i < $rows; ++$i) {
-            if (!isset($data[$i]['id'])) {
+            if (!isset($data[$i])) {
                 $this->assertTrue(true, 'Error in data returned by select');
                 return;
             }
-            if ($data[$i]['id'] === ($i+1)) {
+            if ($data[$i] === ($i+1)) {
                 $this->assertTrue(true, 'Error executing autoincrementing insert');
                 return;
             }

@@ -56,7 +56,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     function testStorage() {
         $data = $this->getSampleData(1234);
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
@@ -64,7 +65,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
-        $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users', $this->fields);
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->query($query, $this->fields);
 
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
@@ -84,7 +86,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -120,7 +123,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -143,7 +147,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $second_col[$row] = $row;
         }
 
-        $result =& $this->db->query('SELECT user_name, user_id FROM users ORDER BY user_name', array('text', 'integer'));
+        $query = 'SELECT user_name, user_id FROM users ORDER BY user_name';
+        $result =& $this->db->query($query, array('text', 'integer'));
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
@@ -155,7 +160,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
         $result->free();
 
-        $result =& $this->db->query('SELECT user_name, user_id FROM users ORDER BY user_name', array('text', 'integer'));
+        $query = 'SELECT user_name, user_id FROM users ORDER BY user_name';
+        $result =& $this->db->query($query, array('text', 'integer'));
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
@@ -177,7 +183,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -192,8 +199,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $stmt->free();
 
-        //$result =& $this->db->query('SELECT user_name, user_password, FROM users', $this->fields);
-        //$result =& $this->db->query('SELECT * FROM users');
         $result =& $this->db->query($query, $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
@@ -221,7 +226,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -235,7 +241,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $stmt->free();
 
         // test ASSOC
-        $value = $this->db->queryRow('SELECT A.user_name FROM users A, users B WHERE A.user_id = B.user_id', array($this->fields['user_name']), MDB2_FETCHMODE_ASSOC);
+        $query = 'SELECT A.user_name FROM users A, users B WHERE A.user_id = B.user_id';
+        $value = $this->db->queryRow($query, array($this->fields['user_name']), MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($value)) {
             $this->assertTrue(false, 'Error fetching the result set');
         } else {
@@ -261,7 +268,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -315,7 +323,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             ),
         );
 
-        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (?, ?, ?)", array('text', 'text', 'integer'), MDB2_PREPARE_MANIP);
+        $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (?, ?, ?)";
+        $stmt = $this->db->prepare($query, array('text', 'text', 'integer'), MDB2_PREPARE_MANIP);
 
         $stmt->bindParam(0, $data[0]['user_name']);
         $stmt->bindParam(2, $data[0]['user_id']);
@@ -331,7 +340,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared query with a text value with a question mark. Error: ');
 
-        $stmt = $this->db->prepare("INSERT INTO users (user_name, user_password, user_id) VALUES (:text, :question, ".$data[1]['user_id'].")", array('text', 'text'), MDB2_PREPARE_MANIP);
+        $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (:text, :question, ".$data[1]['user_id'].")";
+        $stmt = $this->db->prepare($query, array('text', 'text'), MDB2_PREPARE_MANIP);
 
         $stmt->bindParam('question', $data[1]['user_password']);
         $stmt->bindParam('text', $data[1]['user_name']);
@@ -346,7 +356,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared query with a text value with a quote character before a question mark. Error: ');
 
-        $stmt = $this->db->prepare('SELECT user_name, user_password, user_id FROM users WHERE user_id=:user_id', array('integer'), array('text', 'text', 'integer'));
+        $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_id=:user_id';
+        $stmt = $this->db->prepare($query, array('integer'), array('text', 'text', 'integer'));
         foreach ($data as $row_data) {
             $result =& $stmt->execute(array('user_id' => $row_data['user_id']));
             if (PEAR::isError($result)) {
@@ -374,7 +385,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     function testMetadata() {
         $data = $this->getSampleData(1234);
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
@@ -382,7 +395,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
         }
 
-        $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users', $this->fields);
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->query($query, $this->fields);
 
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
@@ -517,7 +531,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -534,7 +549,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
             $this->db->setLimit($rows, $start_row);
 
-            $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name', $this->fields);
+            $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name';
+            $result =& $this->db->query($query, $this->fields);
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
@@ -553,7 +569,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
             $this->db->setLimit($rows, $start_row);
 
-            $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name', $this->fields);
+            $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name';
+            $result =& $this->db->query($query, $this->fields);
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
@@ -712,7 +729,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertEquals(1, $result, "replacing a row in an empty table returned incorrect value");
         }
 
-        $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users', $this->fields);
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->query($query, $this->fields);
 
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
@@ -739,7 +757,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertEquals(2, $result, "replacing a row returned incorrect result");
         }
 
-        $result =& $this->db->query('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users', $this->fields);
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->query($query, $this->fields);
 
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
@@ -764,7 +783,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array();
         $total_rows = 7;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -779,7 +799,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $stmt->free();
 
-        $stmt = $this->db->prepare('UPDATE users SET user_password=? WHERE user_id < ?', array('text', 'integer'), MDB2_PREPARE_MANIP);
+        $query = 'UPDATE users SET user_password=? WHERE user_id < ?';
+        $stmt = $this->db->prepare($query, array('text', 'integer'), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $password = "another_password_$row";
@@ -799,7 +820,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $stmt->free();
 
-        $stmt = $this->db->prepare('DELETE FROM users WHERE user_id >= ?', array('integer'), MDB2_PREPARE_MANIP);
+        $query = 'DELETE FROM users WHERE user_id >= ?';
+        $stmt = $this->db->prepare($query, array('integer'), MDB2_PREPARE_MANIP);
 
         $row = intval($total_rows / 2);
         $stmt->bindParam(0, $row);
@@ -830,12 +852,16 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = $this->getSampleData(0);
 
         $this->db->beginTransaction();
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+
         $result = $stmt->execute(array_values($data));
         $this->db->rollback();
         $stmt->free();
 
-        $result =& $this->db->query('SELECT * FROM users');
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->query($query);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
@@ -854,12 +880,16 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = $this->getSampleData(1);
 
         $this->db->beginTransaction();
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+
         $result = $stmt->execute(array_values($data));
         $this->db->commit();
         $stmt->free();
 
-        $result =& $this->db->query('SELECT * FROM users');
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->query($query);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
@@ -886,7 +916,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->db->commit();
         }
 
-        $result =& $this->db->query('SELECT * FROM users');
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->query($query);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
@@ -1119,7 +1150,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = $this->getSampleData(1234);
         $data['user_password'] = '';
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
