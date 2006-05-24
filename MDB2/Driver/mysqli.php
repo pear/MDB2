@@ -1428,9 +1428,11 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
         }
         $result = MDB2_OK;
 
-        if (is_object($this->statement) && !@mysqli_stmt_close($this->statement)) {
-            $result = $this->db->raiseError(null, null, null,
-                'free: Could not free statement');
+        if (is_object($this->statement)) {
+            if (!@mysqli_stmt_close($this->statement)) {
+                $result = $this->db->raiseError(null, null, null,
+                    'free: Could not free statement');
+            }
         } elseif (!is_null($this->statement)) {
             $connection = $this->db->getConnection();
             if (PEAR::isError($connection)) {
