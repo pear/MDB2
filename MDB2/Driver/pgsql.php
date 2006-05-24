@@ -55,7 +55,7 @@
 class MDB2_Driver_pgsql extends MDB2_Driver_Common
 {
     // {{{ properties
-    var $escape_quotes = "\\";
+    var $escape_quotes = "'";
 
     // }}}
     // {{{ constructor
@@ -173,6 +173,21 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         return array($error_code, null, $native_msg);
     }
 
+    // }}}
+    // {{{ escape()
+
+    /**
+     * Quotes a string so it can be safely used in a query. It will quote
+     * the text so it can safely be used within a query.
+     *
+     * @param string $text the input string to quote
+     * @return string quoted string
+     * @access public
+     */
+    function escape($text)
+    {
+        return @pg_escape_string($text);
+    }
     // }}}
     // {{{ beginTransaction()
 
