@@ -26,6 +26,7 @@ $notes = <<<EOT
 - made _doQuery() return a reference
 - added userinfo's to all raiseError calls that previously had none
 - added 'prepared_statements' supported meta data setting
+- limit fetch to 1 row in listTableFields()
 EOT;
 
 $package = new PEAR_PackageFileManager();

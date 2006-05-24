@@ -12,6 +12,7 @@ $notes = <<<EOT
 - removed use of "*" in all places in the test suite that are followed by a fetch
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
+- added result_wrap_class param to limitQuery()
 
 open todo items:
 - handle autoincrement fields in alterTable()
