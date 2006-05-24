@@ -364,9 +364,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quoteIdentifier($table, true);
-        $query = "SELECT * FROM $table";
         $db->setLimit(1);
-        $result2 = $db->query($query);
+        $result2 = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result2)) {
             return $result2;
         }
