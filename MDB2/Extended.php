@@ -204,11 +204,13 @@ class MDB2_Extended extends MDB2_Module_Common
      * @param integer the row to start to fetching
      * @param integer the numbers of rows to fetch
      * @param string which specifies which result class to use
+     * @param   mixed   string which specifies which class to wrap results in
      *
      * @return MDB2_Result|MDB2_Error result set on success, a MDB2 error on failure
      * @access public
      */
-    function &limitQuery($query, $types, $count, $from = 0, $result_class = true)
+    function &limitQuery($query, $types, $count, $from = 0, $result_class = true,
+        $result_wrap_class = false)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -219,7 +221,7 @@ class MDB2_Extended extends MDB2_Module_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $result =& $db->query($query, $types, $result_class);
+        $result =& $db->query($query, $types, $result_class, $result_wrap_class);
         return $result;
     }
     // }}}
