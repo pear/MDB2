@@ -299,6 +299,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quoteIdentifier($table, true);
+        $db->setLimit(1);
         $result2 = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result2)) {
             return $result2;
