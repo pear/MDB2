@@ -2,8 +2,12 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.0.3';
 $notes = <<<EOT
+SECURITY FIX (http://www.postgresql.org/docs/techdocs.50)
+- use pg_escape_string()
+- use "'" as the escape character 
+- limit fetch to 1 row in listTableFields()
 EOT;
 
 $package = new PEAR_PackageFileManager();

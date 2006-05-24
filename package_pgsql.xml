@@ -14,14 +14,14 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.0.2</version>
-  <date>2006-05-23</date>
+  <version>1.0.3</version>
+  <date>2006-05-24</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
-- tweaked handling of free() for prepared statements
-- return error if a prepared statement is attempted to be freed twice
-- fixed notice when using prepare() without placeholders
+  <notes>SECURITY FIX (http://www.postgresql.org/docs/techdocs.50)
+- use pg_escape_string()
+- use &quot;&apos;&quot; as the escape character 
+- limit fetch to 1 row in listTableFields()
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -65,6 +65,17 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.3</version>
+    <date>2006-05-24</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>SECURITY FIX (http://www.postgresql.org/docs/techdocs.50)
+- use pg_escape_string()
+- use &quot;&apos;&quot; as the escape character 
+- limit fetch to 1 row in listTableFields()
+    </notes>
+   </release>
    <release>
     <version>1.0.2</version>
     <date>2006-05-23</date>
