@@ -210,28 +210,6 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ _quoteBLOB()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string $value text string value that is intended to be converted.
-     * @param bool $quote determines if the value should be quoted and escaped
-     * @return string  text string that represents the given argument value in
-     *                 a DBMS specific format.
-     * @access protected
-     */
-    function _quoteBLOB($value, $quote)
-    {
-        $value = $this->_readFile($value);
-        if (!$quote) {
-            return $value;
-        }
-        return "'".addslashes($value)."'";
-    }
-
-    // }}}
     // {{{ mapNativeDatatype()
 
     /**
