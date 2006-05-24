@@ -188,6 +188,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         return @pg_escape_string($text);
     }
+
     // }}}
     // {{{ beginTransaction()
 
