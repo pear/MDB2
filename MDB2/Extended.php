@@ -566,11 +566,12 @@ class MDB2_Extended extends MDB2_Module_Common
      * @param string name of the table into which a new row was inserted
      * @param string name of the field into which a new row was inserted
      * @param bool when true the sequence is automatic created, if it not exists
+     * @param bool if the returned value should be quoted
      *
      * @return int|MDB2_Error id on success, a MDB2 error on failure
      * @access public
      */
-    function getBeforeID($table, $field = null, $ondemand = true)
+    function getBeforeID($table, $field = null, $ondemand = true, $quote = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -580,10 +581,12 @@ class MDB2_Extended extends MDB2_Module_Common
         if ($db->supports('auto_increment') !== true) {
             $seq = $table.(empty($field) ? '' : '_'.$field);
             $id = $db->nextID($seq, $ondemand);
-            if (PEAR::isError($id)) {
+            if (!$quote || PEAR::isError($id)) {
                 return $id;
             }
             return $db->quote($id, 'integer');
+        } elseif (!$quote) {
+            return null;
         }
         return 'NULL';
     }
