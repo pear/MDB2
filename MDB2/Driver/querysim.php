@@ -295,6 +295,14 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
                 $connection = @fopen($file, 'r');
             }
         }
+
+        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+            $result = $this->setCharset($this->dsn['charset'], $connection);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
         $this->connection = $connection;
         $this->connected_database_name = $this->database_name;
         $this->opened_persistent = $this->options['persistent'];

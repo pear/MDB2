@@ -1864,6 +1864,37 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
+    // {{{ connect()
+
+    /**
+     * Connect to the database
+     *
+     * @return true on success, MDB2 Error Object on failure
+     */
+    function connect()
+    {
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'connect: method not implemented');
+    }
+    // }}}
+
+    // {{{ setCharset()
+
+    /**
+     * Set the charset on the current connection
+     *
+     * @param string    charset
+     * @param resource  connection handle
+     *
+     * @return true on success, MDB2 Error Object on failure
+     */
+    function setCharset($charset, $connection = null)
+    {
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'setCharset: method not implemented');
+    }
+    // }}}
+
     // {{{ function disconnect($force = true)
 
     /**

@@ -363,11 +363,11 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             }
         }
 
-        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])
-            && !@mysql_query('SET character_set_client = '.$this->quote($this->dsn['charset'], 'text'), $connection)
-        ) {
-            return $this->raiseError(bull, null, null,
-                'Unable to set client charset: '.$this->dsn['charset']);
+        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+            $result = $this->setCharset($this->dsn['charset'], $connection);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
 
         $this->connection = $connection;
@@ -415,6 +415,35 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         ) {
             $this->supported['sub_selects'] = true;
             $this->supported['prepared_statements'] = true;
+        }
+
+        return MDB2_OK;
+    }
+    // }}}
+    // {{{ setCharset()
+
+    /**
+     * Set the charset on the current connection
+     *
+     * @param string    charset
+     * @param resource  connection handle
+     *
+     * @return true on success, MDB2 Error Object on failure
+     */
+    function setCharset($charset, $connection = null)
+    {
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+
+        $query = 'SET character_set_client = '.$this->quote($charset, 'text');
+        $result = @mysql_query($query, $connection);
+        if (!$result) {
+            return $this->raiseError(null, null, null,
+                'setCharset: Unable to set client charset: '.$charset);
         }
 
         return MDB2_OK;

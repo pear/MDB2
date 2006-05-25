@@ -296,13 +296,15 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 $connection = @$connect_function($username, $password, null, $charset);
             }
         } else {
-            if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
-                return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'Unable to set client charset: '.$this->dsn['charset']);
-            }
-
             $connect_function = $persistent ? 'OCIPLogon' : 'OCILogon';
             $connection = @$connect_function($username, $password, $sid);
+
+            if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+                $result = $this->setCharset($this->dsn['charset'], $connection);
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+            }
         }
 
         if (!$connection) {

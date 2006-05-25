@@ -323,8 +323,10 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             }
 
             if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
-                return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'Unable to set client charset: '.$this->dsn['charset']);
+                $result = $this->setCharset($this->dsn['charset'], $connection);
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
             }
 
             $this->connection = $connection;

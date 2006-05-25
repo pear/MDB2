@@ -349,11 +349,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 'Unable to set connection charset: '.$this->dsn['charset']);
         }
 
-        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])
-            && !@pg_set_client_encoding($connection, $this->dsn['charset'])
-        ) {
-            return $this->raiseError(null, null, null,
-                'Unable to set client charset: '.$this->dsn['charset']);
+        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+            $result = $this->setCharset($this->dsn['charset'], $connection);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
 
         return $connection;
@@ -395,6 +395,35 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $this->connected_database_name = $this->database_name;
             $this->opened_persistent = $this->options['persistent'];
             $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ setCharset()
+
+    /**
+     * Set the charset on the current connection
+     *
+     * @param string    charset
+     * @param resource  connection handle
+     *
+     * @return true on success, MDB2 Error Object on failure
+     */
+    function setCharset($charset, $connection = null)
+    {
+        if (is_null($connection)) {
+            $connection = $this->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+        }
+
+        $result = @pg_set_client_encoding($connection, $charset);
+
+        if (!$result) {
+            return $this->raiseError(null, null, null,
+                'setCharset: Unable to set client charset: '.$charset);
         }
         return MDB2_OK;
     }

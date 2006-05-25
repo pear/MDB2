@@ -268,11 +268,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                 'connect: extension '.$this->phptype.' is not compiled into PHP');
         }
 
-        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'Unable to set client charset: '.$this->dsn['charset']);
-        }
-
         $params = array(
             $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost',
             $this->dsn['username'] ? $this->dsn['username'] : null,
@@ -287,6 +282,13 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $connection = @call_user_func_array($connect_function, $params);
         if ($connection <= 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+        }
+
+        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+            $result = $this->setCharset($this->dsn['charset'], $connection);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
 
         $this->connection = $connection;
