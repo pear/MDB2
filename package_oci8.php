@@ -7,6 +7,7 @@ $notes = <<<EOT
 - added "emulate_prepared" option to force prepared statement emulation
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
+- use setCharset() in connect()/_doConnect()
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)

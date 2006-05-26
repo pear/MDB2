@@ -6,6 +6,8 @@ $version = 'XXX';
 $notes = <<<EOT
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
+- added setCharset()
+- use setCharset() in connect()/_doConnect()
 EOT;
 
 $package = new PEAR_PackageFileManager();

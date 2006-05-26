@@ -13,6 +13,8 @@ $notes = <<<EOT
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
 - added result_wrap_class param to limitQuery()
+- added parameter to not quote return value of getBeforeId()
+- added setCharset()
 
 open todo items:
 - handle autoincrement fields in alterTable()

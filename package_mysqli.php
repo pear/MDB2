@@ -6,6 +6,10 @@ $version = 'XXX';
 $notes = <<<EOT
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
+- removed use of addslashes() for BLOB quoting
+  (this might result in SQL injection vulnerability)
+- added setCharset()
+- use setCharset() in connect()/_doConnect()
 EOT;
 
 $package = new PEAR_PackageFileManager();

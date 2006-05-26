@@ -4,6 +4,8 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+- added setCharset()
+- use setCharset() in connect()/_doConnect()
 EOT;
 
 $package = new PEAR_PackageFileManager();

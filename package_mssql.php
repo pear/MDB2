@@ -27,6 +27,7 @@ $notes = <<<EOT
 - added userinfo's to all raiseError calls that previously had none
 - added 'prepared_statements' supported meta data setting
 - limit fetch to 1 row in listTableFields()
+- use setCharset() in connect()/_doConnect()
 EOT;
 
 $package = new PEAR_PackageFileManager();

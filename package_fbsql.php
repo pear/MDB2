@@ -14,6 +14,7 @@ $notes = <<<EOT
 - added userinfo's to all raiseError calls that previously had none
 - added 'prepared_statements' supported meta data setting
 - marked primary key as supported
+- use setCharset() in connect()/_doConnect()
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested
