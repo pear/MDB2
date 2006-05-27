@@ -226,10 +226,10 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
-            $this->assertEquals('integer', $field_info['type'], 'The field type is different from the expected one');
-            $this->assertEquals(4, $field_info['length'], 'The field length is different from the expected one');
+            $this->assertEquals($field_info['type'], 'integer', 'The field type is different from the expected one');
+            $this->assertEquals($field_info['length'], 4, 'The field length is different from the expected one');
             $this->assertTrue($field_info['notnull'], 'The field can be null unlike it was expected');
-            $this->assertEquals('0', $field_info['default'], 'The field default value is different from the expected one');
+            $this->assertEquals($field_info['default'], '0', 'The field default value is different from the expected one');
         }
 
         //test blob
@@ -238,7 +238,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
-            $this->assertEquals('blob', $field_info['type'], 'The field type is different from the expected one');
+            $this->assertEquals($field_info['type'], 'blob', 'The field type is different from the expected one');
             $this->assertFalse($field_info['notnull'], 'The field cannot be null unlike it was expected');
         }
 
@@ -248,11 +248,20 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
-            $this->assertEquals('text', $field_info['type'], 'The field type is different from the expected one');
-            $this->assertEquals(12, $field_info['length'], 'The field length is different from the expected one');
+            $this->assertEquals($field_info['type'], 'text', 'The field type is different from the expected one');
+            $this->assertEquals($field_info['length'], 12, 'The field length is different from the expected one');
             $this->assertFalse($field_info['notnull'], 'The field can be null unlike it was expected');
             $this->assertNull($field_info['default'], 'The field default value is different from the expected one');
             $this->assertFalse($field_info['fixed'], 'The field fixed value is different from the expected one');
+        }
+
+        //test decimal
+        $field_info = $this->db->reverse->getTableFieldDefinition('users', 'quota');
+        if (PEAR::isError($field_info)) {
+            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+        } else {
+            $field_info = array_shift($field_info);
+            $this->assertEquals($field_info['type'], 'decimal', 'The field type is different from the expected one');
         }
     }
 
