@@ -87,7 +87,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->supported['result_introspection'] = true;
         $this->supported['prepared_statements'] = 'emulated';
 
-        $this->options['default_table_type'] = null;
+        $this->options['default_table_type'] = 'INNODB';
         $this->options['multi_query'] = false;
     }
 
