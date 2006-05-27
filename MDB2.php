@@ -1104,7 +1104,7 @@ class MDB2_Driver_Common extends PEAR
             'seqname_format' => '%s_seq',
             'seqcol_name' => 'sequence',
             'quote_identifier' => false,
-            'use_transactions' => false,
+            'use_transactions' => true,
             'decimal_places' => 2,
             'portability' => MDB2_PORTABILITY_ALL,
             'modules' => array(
