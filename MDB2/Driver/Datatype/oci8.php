@@ -363,6 +363,9 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'pls_integer':
         case 'binary_integer':
             $type[] = 'integer';
+            if (array_key_exists('precision', $field) && isset($field['precision'])) {
+                $length = $field['precision'];
+            }
             if ($length == '1') {
                 $type[] = 'boolean';
                 if (preg_match('/^[is|has]/', $field['name'])) {
@@ -396,7 +399,12 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             $type[] = 'float';
             break;
         case 'number':
-            if (strpos($length, ',') === false) {
+            if (array_key_exists('precision', $field) && isset($field['precision'])) {
+                $length = $field['precision'];
+            }
+            if (array_key_exists('scale', $field) && $field['scale'] > 0) {
+                $type[] = 'decimal';
+            } else {
                 $type[] = 'integer';
                 if ($length == '1') {
                     $type[] = 'boolean';
@@ -404,14 +412,9 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
                         $type = array_reverse($type);
                     }
                 }
-            } else {
-                $type[] = 'decimal';
             }
             break;
         case 'long':
-            if ($decimal == 'binary') {
-                $type[] = 'blob';
-            }
             $type[] = 'clob';
             $type[] = 'text';
             break;
