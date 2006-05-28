@@ -217,6 +217,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
 {
     var $escape_quotes = "\\";
 
+    var $escape_identifier = '';
+
     // }}}
     // {{{ constructor
 

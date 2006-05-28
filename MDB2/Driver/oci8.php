@@ -57,6 +57,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     // {{{ properties
     var $escape_quotes = "'";
 
+    var $escape_identifier = '"';
+
     var $uncommitedqueries = 0;
 
     // }}}

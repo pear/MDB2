@@ -59,6 +59,8 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     // {{{ properties
     var $escape_quotes = "'";
 
+    var $escape_identifier = '"';
+
     // }}}
     // {{{ constructor
 

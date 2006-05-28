@@ -58,6 +58,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     // {{{ properties
     var $escape_quotes = "'";
 
+    var $escape_identifier = '';
+
     // }}}
     // {{{ constructor
 

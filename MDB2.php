@@ -1123,7 +1123,14 @@ class MDB2_Driver_Common extends PEAR
      * @var     string
      * @access  protected
      */
-    var $escape_quotes = '';
+    var $escape_quotes = "'";
+
+    /**
+     * escape character
+     * @var     string
+     * @access  protected
+     */
+    var $escape_identifier = '"';
 
     /**
      * warnings
@@ -1552,11 +1559,8 @@ class MDB2_Driver_Common extends PEAR
      *   + mysql
      *   + mysqli
      *   + oci8
-     *   + odbc(access)
-     *   + odbc(db2)
      *   + pgsql
      *   + sqlite
-     *   + sybase
      *
      * InterBase doesn't seem to be able to use delimited identifiers
      * via PHP 4.  They work fine under PHP 5.
@@ -1573,7 +1577,8 @@ class MDB2_Driver_Common extends PEAR
         if ($check_option && !$this->options['quote_identifier']) {
             return $str;
         }
-        return '"' . str_replace('"', '""', $str) . '"';
+        $str = str_replace($this->escape_identifier, $this->escape_identifier.$this->escape_identifier, $str);
+        return $this->escape_identifier . $str . $this->escape_identifier;
     }
     // }}}
 

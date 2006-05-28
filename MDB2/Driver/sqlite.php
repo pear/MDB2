@@ -58,6 +58,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     // {{{ properties
     var $escape_quotes = "'";
 
+    var $escape_identifier = '"';
+
     var $_lasterror = '';
 
     var $fix_assoc_fields_names = false;
