@@ -58,6 +58,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     // {{{ properties
     var $escape_quotes = "\\";
 
+    var $escape_identifier = '`';
+
     // }}}
     // {{{ constructor
 
@@ -173,32 +175,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return $connection;
         }
         return @mysql_real_escape_string($text, $connection);
-    }
-
-    // }}}
-    // {{{ quoteIdentifier()
-
-    /**
-     * Quote a string so it can be safely used as a table or column name
-     *
-     * Quoting style depends on which database driver is being used.
-     *
-     * MySQL can't handle the backtick character (<kbd>`</kbd>) in
-     * table or column names.
-     *
-     * @param string $str  identifier name to be quoted
-     * @param bool   $check_option  check the 'quote_identifier' option
-     *
-     * @return string  quoted identifier string
-     *
-     * @access public
-     */
-    function quoteIdentifier($str, $check_option = false)
-    {
-        if ($check_option && !$this->options['quote_identifier']) {
-            return $str;
-        }
-        return '`' . $str . '`';
     }
 
     // }}}
