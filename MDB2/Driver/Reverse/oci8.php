@@ -81,7 +81,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         $table = $db->quote($table, 'text');
         $field_name = $db->quote($field_name, 'text');
         $query = 'SELECT column_name name, data_type "type", nullable, data_default "default"';
-        $query.= ', data_length "length", data_precision "precision", data_scale "scale"';
+        $query.= ', COALESCE(data_precision, data_length) "length", data_scale "scale"';
         $query.= ' FROM user_tab_columns';
         $query.= ' WHERE (table_name='.$table.' OR table_name='.strtoupper($table).')';
         $query.= ' AND (column_name='.$field_name.' OR column_name='.strtoupper($field_name).')';
