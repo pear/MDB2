@@ -6,6 +6,8 @@ $version = 'XXX';
 $notes = <<<EOT
 - fixed unsigned handling in mapNativeDatatype()
 - use setCharset() in connect()/_doConnect()
+- generalized quoteIdentifier() with a property
+- fixed warning in replace() if type is not set (Bug #7740)
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

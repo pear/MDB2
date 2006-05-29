@@ -10,6 +10,10 @@ $notes = <<<EOT
   (this might result in SQL injection vulnerability)
 - added setCharset()
 - use setCharset() in connect()/_doConnect()
+- set transaction enabled engine as default
+- generalized quoteIdentifier() with a property
+- use general implementation of quoteIdentifier() (Bug #7738)
+- fixed warning in replace() if type is not set (Bug #7740)
 EOT;
 
 $package = new PEAR_PackageFileManager();

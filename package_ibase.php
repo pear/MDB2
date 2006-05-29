@@ -9,6 +9,7 @@ $notes = <<<EOT
 - return error if a prepared statement is attempted to be freed twice
 - added setCharset()
 - use setCharset() in connect()/_doConnect()
+- generalized quoteIdentifier() with a property
 EOT;
 
 $package = new PEAR_PackageFileManager();

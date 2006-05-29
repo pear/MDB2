@@ -5,6 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'XXX';
 $notes = <<<EOT
 - use setCharset() in connect()/_doConnect()
+- generalized quoteIdentifier() with a property
 
 open todo items:
 - add ability to reference multiple results set files for different queries

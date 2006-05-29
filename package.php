@@ -15,6 +15,10 @@ $notes = <<<EOT
 - added result_wrap_class param to limitQuery()
 - added parameter to not quote return value of getBeforeId()
 - added setCharset()
+- enable transaction by default
+- added decimal test
+- fixed parameter order to assertions in reverse tests
+- generalized quoteIdentifier() with a property
 
 open todo items:
 - handle autoincrement fields in alterTable()

@@ -6,6 +6,7 @@ $version = 'XXX';
 $notes = <<<EOT
 - added setCharset()
 - use setCharset() in connect()/_doConnect()
+- generalized quoteIdentifier() with a property
 EOT;
 
 $package = new PEAR_PackageFileManager();

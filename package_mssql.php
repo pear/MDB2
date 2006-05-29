@@ -28,6 +28,7 @@ $notes = <<<EOT
 - added 'prepared_statements' supported meta data setting
 - limit fetch to 1 row in listTableFields()
 - use setCharset() in connect()/_doConnect()
+- generalized quoteIdentifier() with a property
 EOT;
 
 $package = new PEAR_PackageFileManager();

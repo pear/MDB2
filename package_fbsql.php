@@ -15,6 +15,7 @@ $notes = <<<EOT
 - added 'prepared_statements' supported meta data setting
 - marked primary key as supported
 - use setCharset() in connect()/_doConnect()
+- generalized quoteIdentifier() with a property
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested
