@@ -11,13 +11,13 @@ $notes = <<<EOT
 - fixed several minor issues with the datatype tests
 - removed use of "*" in all places in the test suite that are followed by a fetch
 - tweaked handling of free() for prepared statements
-- return error if a prepared statement is attempted to be freed twice
+- return error if a prepared statement is attempted to be free'ed or executed again
 - added result_wrap_class param to limitQuery()
 - added parameter to not quote return value of getBeforeId()
 - added setCharset()
-- enable transaction by default
-- added decimal test
-- fixed parameter order to assertions in reverse tests
+- enable transactions by default
+- added decimal reverse engineering test
+- fixed parameter order in assertions in reverse engineering fields tests
 - generalized quoteIdentifier() with a property
 
 open todo items:
