@@ -615,7 +615,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if (isset($fields[$name]['null']) && $fields[$name]['null']) {
                 $value = 'NULL';
             } else {
-                $value = $this->quote($fields[$name]['value'], $fields[$name]['type']);
+                $type = isset($fields[$name]['type']) ? $fields[$name]['type'] : null;
+                $value = $this->quote($fields[$name]['value'], $type);
             }
             $values.= $value;
             if (isset($fields[$name]['key']) && $fields[$name]['key']) {

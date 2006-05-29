@@ -2441,11 +2441,8 @@ class MDB2_Driver_Common extends PEAR
             if (isset($fields[$name]['null']) && $fields[$name]['null']) {
                 $value = 'NULL';
             } else {
-                if (isset($fields[$name]['type'])) {
-                    $value = $this->quote($fields[$name]['value'], $fields[$name]['type']);
-                } else {
-                    $value = $fields[$name]['value'];
-                }
+                $type = isset($fields[$name]['type']) ? $fields[$name]['type'] : null;
+                $value = $this->quote($fields[$name]['value'], $type);
             }
             $values[$name] = $value;
             if (isset($fields[$name]['key']) && $fields[$name]['key']) {
