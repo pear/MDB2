@@ -17,6 +17,7 @@ note: please use the latest ext/oci8 version from pecl.php.net/oci8
 open todo items:
 - fix issues with testcreateautoincrementtable (error on sequence creation)
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
+- enable use of read() for LOBs to read a LOB in chunks
 EOT;
 
 $package = new PEAR_PackageFileManager();
