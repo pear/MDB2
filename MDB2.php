@@ -2097,7 +2097,13 @@ class MDB2_Driver_Common extends PEAR
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $this->debug($query, 'query', $is_manip);
+        $query = $this->debug($query, 'query', $is_manip);
+        if ($result) {
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+            $query = $result;
+        }
         $err =& $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             '_doQuery: method not implemented');
         return $err;
@@ -2529,7 +2535,13 @@ class MDB2_Driver_Common extends PEAR
         $offset = $this->offset;
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
-        $this->debug($query, 'prepare', $is_manip);
+        $result = $this->debug($query, 'prepare', $is_manip);
+        if ($result) {
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+            $query = $result;
+        }
         $positions = array();
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
@@ -3849,10 +3861,14 @@ function MDB2_closeOpenTransactions()
  * default debug output handler
  *
  * @param   object  reference to an MDB2 database object
+ * @param   string  usually the method name that triggered the debug call:
+ *                  for example 'query', 'prepare', 'execute', 'parameters',
+ *                  'beginTransaction', 'commit', 'rollback'
  * @param   string  message that should be appended to the debug variable
+ * @param   bool    in case of a query if its a DML statement
  *
- * @return  string  the corresponding error message, of false
- *                  if the error code was unknown
+ * @return  void|string optionally return a modified message, this allows
+ *                      rewriting a query before being issued or prepared
  *
  * @access  public
  */
@@ -3860,6 +3876,7 @@ function MDB2_defaultDebugOutput(&$db, $scope, $message, $is_manip = null)
 {
     $db->debug_output.= $scope.'('.$db->db_index.'): ';
     $db->debug_output.= $message.$db->getOption('log_line_break');
+    return $message
 }
 // }}}
 
