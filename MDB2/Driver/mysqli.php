@@ -338,7 +338,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
         }
 
-        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+        if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
             if (PEAR::isError($result)) {
                 return $result;

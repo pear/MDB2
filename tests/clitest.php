@@ -103,8 +103,8 @@ if (!isset($testmethods) || !is_array($testmethods)) {
 
 foreach ($dbarray as $db) {
     $dsn = $db['dsn'];
-    $options = array_key_exists('options', $db) ? $db['options'] : array();
-    $GLOBALS['_show_silenced'] = array_key_exists('debug', $options) ? $options['debug'] : false;
+    $options = !empty($db['options']) ? $db['options'] : array();
+    $GLOBALS['_show_silenced'] = !empty($options['debug']) ? $options['debug'] : false;
 
     $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":XXX@" . $dsn['hostspec'] . "/" . $database;
     echo "=== Start test of $display_dsn ===\n";

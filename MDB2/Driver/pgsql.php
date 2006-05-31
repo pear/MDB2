@@ -314,20 +314,20 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if (!empty($this->dsn['options'])) {
             $params[0].= ' options=' . $this->dsn['options'];
         }
-        if (isset($this->dsn['tty']) && !empty($this->dsn['tty'])) {
+        if (!empty($this->dsn['tty'])) {
             $params[0].= ' tty=' . $this->dsn['tty'];
         }
-        if (isset($this->dsn['connect_timeout']) && !empty($this->dsn['connect_timeout'])) {
+        if (!empty($this->dsn['connect_timeout'])) {
             $params[0].= ' connect_timeout=' . $this->dsn['connect_timeout'];
         }
-        if (isset($this->dsn['sslmode']) && !empty($this->dsn['sslmode'])) {
+        if (!empty($this->dsn['sslmode'])) {
             $params[0].= ' sslmode=' . $this->dsn['sslmode'];
         }
-        if (isset($this->dsn['service']) && !empty($this->dsn['service'])) {
+        if (!empty($this->dsn['service'])) {
             $params[0].= ' service=' . $this->dsn['service'];
         }
 
-        if (isset($this->dsn['new_link'])
+        if (!empty($this->dsn['new_link'])
             && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true))
         {
             if (version_compare(phpversion(), '4.3.0', '>=')) {
@@ -351,7 +351,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 'Unable to set connection charset: '.$this->dsn['charset']);
         }
 
-        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+        if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
             if (PEAR::isError($result)) {
                 return $result;
@@ -626,7 +626,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->connected_server_info = $server_info;
         if (!$native && !PEAR::isError($server_info)) {
             $tmp = explode('.', $server_info, 3);
-            if (!array_key_exists(2, $tmp)
+            if (empty($tmp[2])
                 && isset($tmp[1])
                 && preg_match('/(\d+)(.*)/', $tmp[1], $tmp2)
             ) {
@@ -735,7 +735,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
-                    if (is_array($types) && !empty($types)) {
+                    if (!empty($types) && is_array($types)) {
                         if ($placeholder_type == ':') {
                         } else {
                             $types = array_values($types);

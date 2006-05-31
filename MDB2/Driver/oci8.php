@@ -301,7 +301,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $connect_function = $persistent ? 'OCIPLogon' : 'OCILogon';
             $connection = @$connect_function($username, $password, $sid);
 
-            if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+            if (!empty($this->dsn['charset'])) {
                 $result = $this->setCharset($this->dsn['charset'], $connection);
                 if (PEAR::isError($result)) {
                     return $result;
@@ -706,7 +706,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
-                    if (is_array($types) && !empty($types)) {
+                    if (!empty($types) && is_array($types)) {
                         if ($placeholder_type == ':') {
                             if (is_int(key($types))) {
                                 $types_tmp = $types;

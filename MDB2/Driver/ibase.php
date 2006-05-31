@@ -1298,7 +1298,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
                     '_execute: Unable to bind to missing placeholder: '.$parameter);
             }
             $value = $this->values[$parameter];
-            $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
+            $type = !empty($this->types[$parameter]) ? $this->types[$parameter] : null;
             $parameters[] = $this->db->quote($value, $type, false);
         }
 

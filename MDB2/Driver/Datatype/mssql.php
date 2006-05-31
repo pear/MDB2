@@ -125,13 +125,13 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            $length = array_key_exists('length', $field)
+            $length = !empty($field['length'])
                 ? $field['length'] : false;
-            $fixed = array_key_exists('fixed', $field) ? $field['fixed'] : false;
+            $fixed = !empty($field['fixed']) ? $field['fixed'] : false;
             return $fixed ? ($length ? 'CHAR('.$length.')' : 'CHAR('.$db->options['default_text_field_length'].')')
                 : ($length ? 'VARCHAR('.$length.')' : 'TEXT');
         case 'clob':
-            if (array_key_exists('length', $field)) {
+            if (!empty($field['length'])) {
                 $length = $field['length'];
                 if ($length <= 8000) {
                     return 'VARCHAR('.$length.')';
@@ -139,7 +139,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
              }
              return 'TEXT';
         case 'blob':
-            if (array_key_exists('length', $field)) {
+            if (!empty($field['length'])) {
                 $length = $field['length'];
                 if ($length <= 8000) {
                     return "VARBINARY($length)";
@@ -159,7 +159,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         case 'float':
             return 'FLOAT';
         case 'decimal':
-            $length = array_key_exists('length', $field) ? $field['length'] : 18;
+            $length = !empty($field['length']) ? $field['length'] : 18;
             return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
         }
         return '';
@@ -220,7 +220,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $db_type = preg_replace('/\d/','', strtolower($field['type']) );
         $length = $field['length'];
         // todo: is this not just copied from pgsql?
-        if ($length == '-1' && array_key_exists('atttypmod', $field)) {
+        if ($length == '-1' && !empty($field['atttypmod'])) {
             $length = $field['atttypmod'] - 4;
         }
         if ((int)$length <= 0) {

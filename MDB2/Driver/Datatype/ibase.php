@@ -121,9 +121,9 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            $length = array_key_exists('length', $field)
+            $length = !empty($field['length'])
                 ? $field['length'] : $db->options['default_text_field_length'];
-            $fixed = array_key_exists('fixed', $field) ? $field['fixed'] : false;
+            $fixed = !empty($field['fixed']) ? $field['fixed'] : false;
             return $fixed ? 'CHAR('.$length.')' : 'VARCHAR('.$length.')';
         case 'clob':
             return 'BLOB SUB_TYPE 1';
@@ -142,7 +142,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         case 'float':
             return 'DOUBLE PRECISION';
         case 'decimal':
-            $length = array_key_exists('length', $field) ? $field['length'] : 18;
+            $length = !empty($field['length']) ? $field['length'] : 18;
             return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
         }
         return '';
@@ -207,7 +207,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _retrieveLOB(&$lob)
     {
-        if (!array_key_exists('handle', $lob)) {
+        if (empty($lob['handle'])) {
             $lob['handle'] = @ibase_blob_open($lob['resource']);
             if (!$lob['handle']) {
                 $db =& $this->getDBInstance();
@@ -289,13 +289,15 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $type = array();
         $unsigned = $fixed = null;
         $db_type = strtolower($field['type']);
+        $field['field_sub_type'] = !empty($field['field_sub_type'])
+            ? strtolower($field['field_sub_type']) : null;
         switch ($db_type) {
         case 'smallint':
         case 'integer':
         case 'int64':
             //these may be 'numeric' or 'decimal'
-            if (array_key_exists('field_sub_type', $field) && !empty($field['field_sub_type'])) {
-                $db_type = strtolower($field['field_sub_type']);
+            if (isset($field['field_sub_type'])) {
+                $db_type = $field['field_sub_type'];
                 continue;
             }
         case 'bigint':
@@ -346,8 +348,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $type[] = 'decimal';
             break;
         case 'blob':
-            $type[] = (array_key_exists('field_sub_type', $field)
-                && (strtolower($field['field_sub_type']) == 'text')) ? 'clob' : 'blob';
+            $type[] = ($field['field_sub_type'] == 'text') ? 'clob' : 'blob';
             $length = null;
             break;
         default:

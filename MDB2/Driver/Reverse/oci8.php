@@ -106,7 +106,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
         list($types, $length, $unsigned, $fixed) = $db->datatype->mapNativeDatatype($column);
         $notnull = false;
-        if (array_key_exists('nullable', $column) && $column['nullable'] == 'N') {
+        if (!empty($column['nullable']) && $column['nullable'] == 'N') {
             $notnull = true;
         }
         $default = false;
@@ -197,14 +197,14 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                     }
                 }
                 $definition['fields'][$column_name] = array();
-                if (array_key_exists('descend', $colrow)) {
+                if (!empty($colrow['descend'])) {
                     $definition['fields'][$column_name]['sorting'] =
                         ($colrow['descend'] == 'ASC' ? 'ascending' : 'descending');
                 }
             }
             $result->free();
         }
-        if (!array_key_exists('fields', $definition)) {
+        if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
@@ -272,7 +272,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             }
         }
         $result->free();
-        if (!array_key_exists('fields', $definition)) {
+        if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
         }

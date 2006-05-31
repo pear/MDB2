@@ -170,10 +170,10 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             }
         }
 
-        $column['type'] = array_key_exists($column['field_type_code'], $this->types)
+        $column['type'] = array_key_exists((int)$column['field_type_code'], $this->types)
             ? $this->types[(int)$column['field_type_code']] : 'undefined';
         if ($column['field_sub_type_code']
-            && array_key_exists($column['field_type_code'], $this->subtypes)
+            && array_key_exists((int)$column['field_type_code'], $this->subtypes)
             && array_key_exists($column['field_sub_type_code'], $this->subtypes[(int)$column['field_type_code']])
         ) {
             $column['field_sub_type'] = $this->subtypes[(int)$column['field_type_code']][$column['field_sub_type_code']];
@@ -264,7 +264,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $definition['fields'][$field] = array();
             //collation?!?
             /*
-            if (array_key_exists('collation', $row)) {
+            if (!empty($row['collation'])) {
                 $definition['fields'][$field]['sorting'] = ($row['collation'] == 'A'
                     ? 'ascending' : 'descending');
             }
@@ -340,7 +340,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $definition['fields'][$field] = array();
             //collation?!?
             /*
-            if (array_key_exists('collation', $row)) {
+            if (!empty($row['collation'])) {
                 $definition['fields'][$field]['sorting'] = ($row['collation'] == 'A'
                     ? 'ascending' : 'descending');
             }

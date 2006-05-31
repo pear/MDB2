@@ -246,7 +246,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         if (PEAR::isError($value)) {
             $this->assertTrue(false, 'Error fetching the result set');
         } else {
-            $this->assertTrue(array_key_exists('user_name', $value), 'Error fetching the associative result set from join');
+            $this->assertTrue(!empty($value['user_name']), 'Error fetching the associative result set from join');
         }
     }
 

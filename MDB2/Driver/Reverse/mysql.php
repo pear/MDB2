@@ -98,7 +98,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             if ($field_name == $column['name']) {
                 list($types, $length, $unsigned, $fixed) = $db->datatype->mapNativeDatatype($column);
                 $notnull = false;
-                if (array_key_exists('null', $column) && $column['null'] != 'YES') {
+                if (!empty($column['null']) && $column['null'] != 'YES') {
                     $notnull = true;
                 }
                 $default = false;
@@ -109,7 +109,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     }
                 }
                 $autoincrement = false;
-                if (array_key_exists('extra', $column) && $column['extra'] == 'auto_increment') {
+                if (!empty($column['extra']) && $column['extra'] == 'auto_increment') {
                     $autoincrement = true;
                 }
 
@@ -190,14 +190,14 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     }
                 }
                 $definition['fields'][$column_name] = array();
-                if (array_key_exists('collation', $row)) {
+                if (!empty($row['collation'])) {
                     $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
                         ? 'ascending' : 'descending');
                 }
             }
         }
         $result->free();
-        if (!array_key_exists('fields', $definition)) {
+        if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
@@ -260,14 +260,14 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     }
                 }
                 $definition['fields'][$column_name] = array();
-                if (array_key_exists('collation', $row)) {
+                if (!empty($row['collation'])) {
                     $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
                         ? 'ascending' : 'descending');
                 }
             }
         }
         $result->free();
-        if (!array_key_exists('fields', $definition)) {
+        if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
         }

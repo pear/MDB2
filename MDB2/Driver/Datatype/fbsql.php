@@ -123,9 +123,9 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
 
         switch ($field['type']) {
         case 'text':
-            $length = array_key_exists('length', $field)
+            $length = !empty($field['length'])
                 ? $field['length'] : $db->options['default_text_field_length'];
-            $fixed = array_key_exists('fixed', $field) ? $field['fixed'] : false;
+            $fixed = !empty($field['fixed']) ? $field['fixed'] : false;
             return $fixed ? 'CHAR('.$length.')' : 'VARCHAR('.$length.')';
         case 'clob':
             return 'CLOB';
@@ -144,7 +144,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
         case 'float':
             return 'FLOAT';
         case 'decimal':
-            $length = array_key_exists('length', $field) ? $field['length'] : 18;
+            $length = !empty($field['length']) ? $field['length'] : 18;
             return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
         }
         return '';

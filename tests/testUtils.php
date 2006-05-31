@@ -47,18 +47,18 @@ function getBacktrace()
 
     foreach ($debug_backtrace as $trace_item) {
         $message.= "\t" . '    @ ';
-        if (array_key_exists('file', $trace_item)) {
+        if (!empty($trace_item['file'])) {
             $message.= basename($trace_item['file']) . ':' . $trace_item['line'];
         } else {
             $message.= '- PHP inner-code - ';
         }
         $message.= ' -- ';
-        if (array_key_exists('class', $trace_item)) {
+        if (!empty($trace_item['class'])) {
             $message.= $trace_item['class'] . $trace_item['type'];
         }
         $message.= $trace_item['function'];
 
-        if (array_key_exists('args', $trace_item) && is_array($trace_item['args'])) {
+        if (!empty($trace_item['args']) && is_array($trace_item['args'])) {
             $message.= '('.@implode(', ', $trace_item['args']).')';
         } else {
             $message.= '()';

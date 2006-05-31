@@ -244,7 +244,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             }
         }
 
-        if (array_key_exists($column, $flags)) {
+        if (!empty($flags[$column])) {
             return(implode(' ', $flags[$column]));
         }
         return '';

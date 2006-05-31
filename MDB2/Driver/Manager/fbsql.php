@@ -240,12 +240,12 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
 
         $query = '';
-        if (array_key_exists('name', $changes)) {
+        if (!empty($changes['name'])) {
             $change_name = $db->quoteIdentifier($changes['name'], true);
             $query .= 'RENAME TO ' . $change_name;
         }
 
-        if (array_key_exists('add', $changes)) {
+        if (!empty($changes['add']) && is_array($changes['add'])) {
             foreach ($changes['add'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -254,7 +254,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (array_key_exists('remove', $changes)) {
+        if (!empty($changes['remove']) && is_array($changes['remove'])) {
             foreach ($changes['remove'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -265,13 +265,13 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
 
         $rename = array();
-        if (array_key_exists('rename', $changes)) {
+        if (!empty($changes['rename']) && is_array($changes['rename'])) {
             foreach ($changes['rename'] as $field_name => $field) {
                 $rename[$field['name']] = $field_name;
             }
         }
 
-        if (array_key_exists('change', $changes)) {
+        if (!empty($changes['change']) && is_array($changes['change'])) {
             foreach ($changes['change'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -287,7 +287,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (!empty($rename)) {
+        if (!empty($rename) && is_array($rename)) {
             foreach ($rename as $renamed_field_name => $renamed_field) {
                 if ($query) {
                     $query.= ', ';

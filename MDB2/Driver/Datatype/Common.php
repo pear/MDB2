@@ -299,9 +299,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
         switch ($field['type']) {
         case 'text':
-            $length = array_key_exists('length', $field)
-                ? $field['length'] : $db->options['default_text_field_length'];
-            $fixed = array_key_exists('fixed', $field) ? $field['fixed'] : false;
+            $length = !empty($field['length']) ? $field['length'] : $db->options['default_text_field_length'];
+            $fixed = !empty($field['fixed']) ? $field['fixed'] : false;
             return $fixed ? ($length ? 'CHAR('.$length.')' : 'CHAR('.$db->options['default_text_field_length'].')')
                 : ($length ? 'VARCHAR('.$length.')' : 'TEXT');
         case 'clob':
@@ -363,7 +362,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $default = '';
         if (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
-                $field['default'] = (array_key_exists('notnull', $field) && $field['notnull'])
+                $field['default'] = (!empty($field['notnull']))
                     ? $this->valid_types[$field['type']] : null;
                 if ($field['default'] === ''
                     && $db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL
@@ -375,7 +374,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             $default = ' DEFAULT '.$this->quote($field['default'], $field['type']);
         }
 
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : '';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
@@ -408,7 +407,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        if (array_key_exists('unsigned', $field) && $field['unsigned']) {
+        if (!empty($field['unsigned'])) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
@@ -482,7 +481,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : '';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }
@@ -518,7 +517,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $notnull = (array_key_exists('notnull', $field) && $field['notnull']) ? ' NOT NULL' : '';
+        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : '';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }
@@ -698,7 +697,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function compareDefinition($current, $previous)
     {
-        $type = array_key_exists('type', $current) ? $current['type'] : null;
+        $type = !empty($current['type']) ? $current['type'] : null;
 
         if (!method_exists($this, "_compare{$type}Definition")) {
             $db =& $this->getDBInstance();
@@ -710,7 +709,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 'type "'.$current['type'].'" is not yet supported');
         }
 
-        if (!array_key_exists('type', $previous) || $previous['type'] != $type) {
+        if (empty($previous['type']) || $previous['type'] != $type) {
             return $current;
         }
 
@@ -720,8 +719,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             $change['type'] = true;
         }
 
-        $previous_notnull = array_key_exists('notnull', $previous) ? $previous['notnull'] : false;
-        $notnull = array_key_exists('notnull', $current) ? $current['notnull'] : false;
+        $previous_notnull = !empty($previous['notnull']) ? $previous['notnull'] : false;
+        $notnull = !empty($current['notnull']) ? $current['notnull'] : false;
         if ($previous_notnull != $notnull) {
             $change['notnull'] = true;
         }
@@ -751,13 +750,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _compareIntegerDefinition($current, $previous)
     {
         $change = array();
-        $previous_unsigned = array_key_exists('unsigned', $previous) ? $previous['unsigned'] : false;
-        $unsigned = array_key_exists('unsigned', $current) ? $current['unsigned'] : false;
+        $previous_unsigned = !empty($previous['unsigned']) ? $previous['unsigned'] : false;
+        $unsigned = !empty($current['unsigned']) ? $current['unsigned'] : false;
         if ($previous_unsigned != $unsigned) {
             $change['unsigned'] = true;
         }
-        $previous_autoincrement = array_key_exists('autoincrement', $previous) ? $previous['autoincrement'] : false;
-        $autoincrement = array_key_exists('autoincrement', $current) ? $current['autoincrement'] : false;
+        $previous_autoincrement = !empty($previous['autoincrement']) ? $previous['autoincrement'] : false;
+        $autoincrement = !empty($current['autoincrement']) ? $current['autoincrement'] : false;
         if ($previous_autoincrement != $autoincrement) {
             $change['autoincrement'] = true;
         }
@@ -778,13 +777,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _compareTextDefinition($current, $previous)
     {
         $change = array();
-        $previous_length = array_key_exists('length', $previous) ? $previous['length'] : 0;
-        $length = array_key_exists('length', $current) ? $current['length'] : 0;
+        $previous_length = !empty($previous['length']) ? $previous['length'] : 0;
+        $length = !empty($current['length']) ? $current['length'] : 0;
         if ($previous_length != $length) {
             $change['length'] = true;
         }
-        $previous_fixed = array_key_exists('fixed', $previous) ? $previous['fixed'] : 0;
-        $fixed = array_key_exists('fixed', $current) ? $current['fixed'] : 0;
+        $previous_fixed = !empty($previous['fixed']) ? $previous['fixed'] : 0;
+        $fixed = !empty($current['fixed']) ? $current['fixed'] : 0;
         if ($previous_fixed != $fixed) {
             $change['fixed'] = true;
         }

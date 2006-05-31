@@ -286,7 +286,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
         }
 
-        if (isset($this->dsn['charset']) && !empty($this->dsn['charset'])) {
+        if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
             if (PEAR::isError($result)) {
                 return $result;

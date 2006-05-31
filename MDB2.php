@@ -379,14 +379,14 @@ class MDB2
     function &factory($dsn, $options = false)
     {
         $dsninfo = MDB2::parseDSN($dsn);
-        if (!array_key_exists('phptype', $dsninfo)) {
+        if (empty($dsninfo['phptype'])) {
             $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND,
                 null, null, 'no RDBMS driver specified');
             return $err;
         }
         $class_name = 'MDB2_Driver_'.$dsninfo['phptype'];
 
-        $debug = (is_array($options) && array_key_exists('debug', $options) && $options['debug']);
+        $debug = (!empty($options['debug']));
         $err = MDB2::loadClass($class_name, $debug);
         if (PEAR::isError($err)) {
             return $err;
@@ -2578,7 +2578,7 @@ class MDB2_Driver_Common extends PEAR
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
-                    if (is_array($types) && !empty($types)) {
+                    if (!empty($types) && is_array($types)) {
                         if ($placeholder_type == ':') {
                             if (is_int(key($types))) {
                                 $types_tmp = $types;
@@ -3700,7 +3700,7 @@ class MDB2_Statement_Common
             if (!isset($value)) {
                 $value_quoted = 'NULL';
             } else {
-                $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
+                $type = !empty($this->types[$parameter]) ? $this->types[$parameter] : null;
                 $value_quoted = $this->db->quote($value, $type);
                 if (PEAR::isError($value_quoted)) {
                     return $value_quoted;

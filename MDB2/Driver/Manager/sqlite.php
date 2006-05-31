@@ -250,12 +250,12 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $query = '';
-        if (array_key_exists('name', $changes)) {
+        if (!empty($changes['name'])) {
             $change_name = $db->quoteIdentifier($changes['name'], true);
             $query .= 'RENAME TO ' . $change_name;
         }
 
-        if (array_key_exists('add', $changes)) {
+        if (!empty($changes['add']) && is_array($changes['add'])) {
             foreach ($changes['add'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -425,7 +425,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $fields = array();
         foreach ($definition['fields'] as $field_name => $field) {
             $field_string = $field_name;
-            if (array_key_exists('sorting', $field)) {
+            if (!empty($field['sorting'])) {
                 switch ($field['sorting']) {
                 case 'ascending':
                     $field_string.= ' ASC';
@@ -538,7 +538,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (array_key_exists('primary', $definition) && $definition['primary']) {
+        if (!empty($definition['primary'])) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'createConstraint: Creating Primary Constraints is not supported');
         }
@@ -549,7 +549,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $fields = array();
         foreach ($definition['fields'] as $field_name => $field) {
             $field_string = $field_name;
-            if (array_key_exists('sorting', $field)) {
+            if (!empty($field['sorting'])) {
                 switch ($field['sorting']) {
                 case 'ascending':
                     $field_string.= ' ASC';

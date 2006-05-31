@@ -158,7 +158,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             if ($field_name == $column['name']) {
                 list($types, $length, $unsigned, $fixed) = $db->datatype->mapNativeDatatype($column);
                 $notnull = false;
-                if (array_key_exists('notnull', $column)) {
+                if (!empty($column['notnull'])) {
                     $notnull = $column['notnull'];
                 }
                 $default = false;
@@ -169,7 +169,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     }
                 }
                 $autoincrement = false;
-                if (array_key_exists('autoincrement', $column) && $column['autoincrement']) {
+                if (!empty($column['autoincrement'])) {
                     $autoincrement = true;
                 }
 
@@ -261,7 +261,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             }
         }
 
-        if (!array_key_exists('fields', $definition)) {
+        if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableIndexDefinition: it was not specified an existing table index');
         }
@@ -329,7 +329,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             }
         }
 
-        if (!array_key_exists('fields', $definition)) {
+        if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'getTableConstraintDefinition: it was not specified an existing table constraint');
         }

@@ -242,7 +242,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         $this->_silentCommit();
         foreach ($fields as $field_name => $field) {
-            if (array_key_exists('autoincrement', $field) && $field['autoincrement']) {
+            if (!empty($field['autoincrement'])) {
                 //create PK constraint
                 $pk_definition = array(
                     'fields' => array($field_name => array()),
@@ -446,7 +446,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
         $query = '';
-        if (array_key_exists('add', $changes)) {
+        if (!empty($changes['add']) && is_array($changes['add'])) {
             foreach ($changes['add'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -455,7 +455,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (array_key_exists('remove', $changes)) {
+        if (!empty($changes['remove']) && is_array($changes['remove'])) {
             foreach ($changes['remove'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -465,7 +465,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (array_key_exists('rename', $changes)) {
+        if (!empty($changes['rename']) && is_array($changes['rename'])) {
             foreach ($changes['rename'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -475,7 +475,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (array_key_exists('change', $changes)) {
+        if (!empty($changes['change']) && is_array($changes['change'])) {
             // missing support to change DEFAULT and NULLability
             foreach ($changes['change'] as $field_name => $field) {
                 if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
@@ -834,17 +834,17 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         $table = $db->quoteIdentifier($table, true);
         if (!empty($name)) {
-            $name  = $db->quoteIdentifier($db->getIndexName($name), true);
+            $name = $db->quoteIdentifier($db->getIndexName($name), true);
         }
         $query = "ALTER TABLE $table ADD";
-        if (array_key_exists('primary', $definition) && $definition['primary']) {
+        if (!empty($definition['primary'])) {
             if (!empty($name)) {
                 $query.= ' CONSTRAINT '.$name;
             }
             $query.= ' PRIMARY KEY';
         } else {
             $query.= ' CONSTRAINT '. $name;
-            if (array_key_exists('unique', $definition) && $definition['unique']) {
+            if (!empty($definition['unique'])) {
                $query.= ' UNIQUE';
             }
         }

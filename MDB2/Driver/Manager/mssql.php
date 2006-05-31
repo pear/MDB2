@@ -223,7 +223,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $query = '';
-        if (array_key_exists('add', $changes)) {
+        if (!empty($changes['add']) && is_array($changes['add'])) {
             foreach ($changes['add'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -232,7 +232,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (array_key_exists('remove', $changes)) {
+        if (!empty($changes['remove']) && is_array($changes['remove'])) {
             foreach ($changes['remove'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
