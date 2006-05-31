@@ -353,7 +353,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             $query = $this->_readFile();
         }
         $this->last_query = $query;
-        $query = $this->debug($query, 'query', $is_manip);
+        $result = $this->debug($query, 'query', $is_manip);
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;

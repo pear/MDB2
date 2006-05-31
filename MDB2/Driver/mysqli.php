@@ -467,7 +467,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $query = $this->debug($query, 'query', $is_manip);
+        $result = $this->debug($query, 'query', $is_manip);
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;

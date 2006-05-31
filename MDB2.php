@@ -1495,8 +1495,9 @@ class MDB2_Driver_Common extends PEAR
     function debug($message, $scope = '', $is_manip = null)
     {
         if ($this->options['debug'] && $this->options['debug_handler']) {
-            call_user_func_array($this->options['debug_handler'], array(&$this, $scope, $message, $is_manip));
+            return call_user_func_array($this->options['debug_handler'], array(&$this, $scope, $message, $is_manip));
         }
+        return null;
     }
     // }}}
 
@@ -2097,7 +2098,7 @@ class MDB2_Driver_Common extends PEAR
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $query = $this->debug($query, 'query', $is_manip);
+        $result = $this->debug($query, 'query', $is_manip);
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
