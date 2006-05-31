@@ -186,22 +186,23 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if (is_null($default) && $notnull) {
             $default = ($types[0] == 'integer') ? 0 : '';
         }
-        $definition = array();
+
+        $definition[0] = array('notnull' => $notnull);
+        if ($length > 0) {
+            $definition[0]['length'] = $length;
+        }
+        if (!is_null($unsigned)) {
+            $definition[0]['unsigned'] = $unsigned;
+        }
+        if (!is_null($fixed)) {
+            $definition[0]['fixed'] = $fixed;
+        }
+        if ($default !== false) {
+            $definition[0]['default'] = $default;
+        }
         foreach ($types as $key => $type) {
-            $definition[$key] = array(
-                'type'    => $type,
-                'notnull' => $notnull,
-            );
-            if ($length > 0) {
-                $definition[$key]['length'] = $length;
-            }
-            if (!is_null($unsigned)) {
-                $definition[$key]['unsigned'] = $unsigned;
-            }
-            if (!is_null($fixed)) {
-                $definition[$key]['fixed'] = $fixed;
-            }
-            $definition[$key]['default'] = $default;
+            $definition[$key] = $definition[0];
+            $definition[$key]['type'] = $type;
         }
         return $definition;
     }

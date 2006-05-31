@@ -172,27 +172,26 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 if (array_key_exists('autoincrement', $column) && $column['autoincrement']) {
                     $autoincrement = true;
                 }
-                $definition = array();
+
+                $definition[0] = array('notnull' => $notnull);
+                if ($length > 0) {
+                    $definition[0]['length'] = $length;
+                }
+                if (!is_null($unsigned)) {
+                    $definition[0]['unsigned'] = $unsigned;
+                }
+                if (!is_null($fixed)) {
+                    $definition[0]['fixed'] = $fixed;
+                }
+                if ($default !== false) {
+                    $definition[0]['default'] = $default;
+                }
+                if ($autoincrement !== false) {
+                    $definition[0]['autoincrement'] = $autoincrement;
+                }
                 foreach ($types as $key => $type) {
-                    $definition[$key] = array(
-                        'type' => $type,
-                        'notnull' => $notnull,
-                    );
-                    if ($length > 0) {
-                        $definition[$key]['length'] = $length;
-                    }
-                    if (!is_null($unsigned)) {
-                        $definition[$key]['unsigned'] = $unsigned;
-                    }
-                    if (!is_null($fixed)) {
-                        $definition[$key]['fixed'] = $fixed;
-                    }
-                    if ($default !== false) {
-                        $definition[$key]['default'] = $default;
-                    }
-                    if ($autoincrement !== false) {
-                        $definition[$key]['autoincrement'] = $autoincrement;
-                    }
+                    $definition[$key] = $definition[0];
+                    $definition[$key]['type'] = $type;
                 }
                 return $definition;
             }
