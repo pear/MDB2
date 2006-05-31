@@ -239,6 +239,14 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             foreach ($changes['change'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name, true);
                 if (!empty($field['type'])) {
+                    $server_info = $db->getServerVersion();
+                    if (PEAR::isError($server_info)) {
+                        return $server_info;
+                    }
+                    if (is_array($server_info) && $server_info['major'] < 8) {
+                        return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
+                            'alterTable: changing column type for "'.$change_name.'\" requires PostgreSQL 8.0 or above');
+                    }
                     $db->loadModule('Datatype', null, true);
                     $query = "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field['definition']);
                     $result = $db->exec("ALTER TABLE $name $query");
