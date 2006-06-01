@@ -3877,7 +3877,7 @@ function MDB2_defaultDebugOutput(&$db, $scope, $message, $is_manip = null)
 {
     $db->debug_output.= $scope.'('.$db->db_index.'): ';
     $db->debug_output.= $message.$db->getOption('log_line_break');
-    return $message
+    return $message;
 }
 // }}}
 
