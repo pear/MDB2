@@ -85,6 +85,47 @@ class MDB2_Driver_Function_mssql extends MDB2_Driver_Function_Common
     }
 
     // }}}
+    // {{{ now()
+
+    /**
+     * Return string to call a variable with the current timestamp inside an SQL statement
+     * There are three special variables for current date and time:
+     * - CURRENT_TIMESTAMP (date and time, TIMESTAMP type)
+     * - CURRENT_DATE (date, DATE type)
+     * - CURRENT_TIME (time, TIME type)
+     *
+     * @return string to call a variable with the current timestamp
+     * @access public
+     */
+    function now($type = 'timestamp')
+    {
+        switch ($type) {
+        case 'time':
+        case 'date':
+        case 'timestamp':
+        default:
+            return 'GETDATE()';
+        }
+    }
+
+    // }}}
+    // {{{ substring()
+
+    /**
+     * return string to call a function to get a substring inside an SQL statement
+     *
+     * @return string to call a function to get a substring
+     * @access public
+     */
+    function substring($value, $position = 1, $length = null)
+    {
+        if (!is_null($length)) {
+            return "SUBSTRING($value, $position, $length)";
+        }
+        return "SUBSTRING($value, $position, LEN($value) - $position + 1)";
+    }
+
+    // }}}
     // {{{ concat()
 
     /**
