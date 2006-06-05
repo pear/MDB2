@@ -1053,29 +1053,30 @@ class MDB2_Driver_Common extends PEAR
      * MDB2_Driver_Common::setOption().
      * The list of available option includes:
      * <ul>
-     *  <li>$options['ssl'] -> determines if ssl should be used for connections</li>
-     *  <li>$options['field_case'] -> determines what case to force on field/table names</li>
-     *  <li>$options['disable_query'] -> determines if queries should be executed</li>
-     *  <li>$options['result_class'] -> class used for result sets</li>
-     *  <li>$options['buffered_result_class'] -> class used for buffered result sets</li>
-     *  <li>$options['result_wrap_class'] -> class used to wrap result sets into</li>
+     *  <li>$options['ssl'] -> boolean: determines if ssl should be used for connections</li>
+     *  <li>$options['field_case'] -> CASE_LOWER|CASE_UPPER: determines what case to force on field/table names</li>
+     *  <li>$options['disable_query'] -> boolean: determines if queries should be executed</li>
+     *  <li>$options['result_class'] -> string: class used for result sets</li>
+     *  <li>$options['buffered_result_class'] -> string: class used for buffered result sets</li>
+     *  <li>$options['result_wrap_class'] -> string: class used to wrap result sets into</li>
      *  <li>$options['result_buffering'] -> boolean should results be buffered or not?</li>
-     *  <li>$options['fetch_class'] -> class to use when fetch mode object is used</li>
-     *  <li>$options['persistent'] -> boolean persistent connection?</li>
-     *  <li>$options['debug'] -> integer numeric debug level</li>
-     *  <li>$options['debug_handler'] -> string function/method that captures debug messages</li>
-     *  <li>$options['default_text_field_length'] -> default text field length to use</li>
-     *  <li>$options['lob_buffer_length'] -> integer LOB buffer length</li>
-     *  <li>$options['log_line_break'] -> string line-break format</li>
-     *  <li>$options['idxname_format'] -> string pattern for index name</li>
-     *  <li>$options['seqname_format'] -> string pattern for sequence name</li>
-     *  <li>$options['seqcol_name'] -> string sequence column name</li>
-     *  <li>$options['quote_identifier'] -> if identifier quoting should be done when check_option is used</li>
-     *  <li>$options['use_transactions'] -> boolean</li>
-     *  <li>$options['decimal_places'] -> integer</li>
-     *  <li>$options['portability'] -> portability constant</li>
-     *  <li>$options['modules'] -> short to long module name mapping for __call()</li>
-     *  <li>$options['emulate_prepared'] -> force prepared statements to be emulated</li>
+     *  <li>$options['fetch_class'] -> string: class to use when fetch mode object is used</li>
+     *  <li>$options['persistent'] -> boolean: persistent connection?</li>
+     *  <li>$options['debug'] -> integer: numeric debug level</li>
+     *  <li>$options['debug_handler'] -> string: function/method that captures debug messages</li>
+     *  <li>$options['default_text_field_length'] -> integer: default text field length to use</li>
+     *  <li>$options['lob_buffer_length'] -> integer: LOB buffer length</li>
+     *  <li>$options['log_line_break'] -> string: line-break format</li>
+     *  <li>$options['idxname_format'] -> string: pattern for index name</li>
+     *  <li>$options['seqname_format'] -> string: pattern for sequence name</li>
+     *  <li>$options['seqcol_name'] -> string: sequence column name</li>
+     *  <li>$options['quote_identifier'] -> boolean: if identifier quoting should be done when check_option is used</li>
+     *  <li>$options['use_transactions'] -> boolean: if transaction use should be enabled</li>
+     *  <li>$options['decimal_places'] -> integer: number of decimal places to handle</li>
+     *  <li>$options['portability'] -> integer: portability constant</li>
+     *  <li>$options['modules'] -> array: short to long module name mapping for __call()</li>
+     *  <li>$options['emulate_prepared'] -> boolean: force prepared statements to be emulated</li>
+     *  <li>$options['datatype_map'] -> array: map user defined datatypes to other primitive datatypes</li>
      * </ul>
      *
      * @var     array
@@ -1116,6 +1117,7 @@ class MDB2_Driver_Common extends PEAR
                 'fc' => 'Function',
             ),
             'emulate_prepared' => false,
+            'datatype_map' => array(),
         );
 
     /**
