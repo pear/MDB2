@@ -3297,17 +3297,16 @@ class MDB2_Result_Common extends MDB2_Result
      * Retrieve the names of columns returned by the DBMS in a query result or
      * from the cache.
      *
-     * @return  mixed   associative array variable
-     *       that holds the names of columns. The indexes of the array are
-     *       the column names mapped to lower case and the values are the
-     *       respective numbers of the columns starting from 0. Some DBMS may
-     *       not return any columns when the result set does not contain any
-     *       rows.
-     *      a MDB2 error on failure
+     * @param   bool    If set to true the values are the column names,
+     *                  otherwise the names of the columns are the keys.
+     * @return  mixed   Array variable that holds the names of columns or an
+     *                  MDB2 error on failure.
+     *                  Some DBMS may not return any columns when the result set
+     *                  does not contain any rows.
      *
      * @access  public
      */
-    function getColumnNames()
+    function getColumnNames($reverse = false)
     {
         if (!isset($this->column_names)) {
             $result = $this->_getColumnNames();
@@ -3315,6 +3314,9 @@ class MDB2_Result_Common extends MDB2_Result
                 return $result;
             }
             $this->column_names = $result;
+        }
+        if ($reverse) {
+            return array_reverse($this->column_names);
         }
         return $this->column_names;
     }
@@ -3325,13 +3327,10 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Retrieve the names of columns returned by the DBMS in a query result.
      *
-     * @return  mixed   associative array variable
-     *       that holds the names of columns. The indexes of the array are
-     *       the column names mapped to lower case and the values are the
-     *       respective numbers of the columns starting from 0. Some DBMS may
-     *       not return any columns when the result set does not contain any
-     *       rows.
-     *      a MDB2 error on failure
+     * @return  mixed   Array variable that holds the names of columns as keys
+     *                  or an MDB2 error on failure.
+     *                  Some DBMS may not return any columns when the result set
+     *                  does not contain any rows.
      *
      * @access  private
      */
