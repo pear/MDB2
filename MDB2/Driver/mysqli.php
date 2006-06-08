@@ -1410,7 +1410,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             }
 
             $result =& $this->db->_wrapResult($result, $this->result_types,
-                $result_class, $result_wrap_class);
+                $result_class, $result_wrap_class, $this->limit, $this->offset);
         } else {
             if (!@mysqli_stmt_execute($this->statement)) {
                 $err =& $this->db->raiseError(null, null, null,
@@ -1428,7 +1428,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             }
 
             $result =& $this->db->_wrapResult($this->statement, $this->result_types,
-                $result_class, $result_wrap_class);
+                $result_class, $result_wrap_class, $this->limit, $this->offset);
         }
 
         return $result;

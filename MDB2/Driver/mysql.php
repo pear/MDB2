@@ -1279,7 +1279,7 @@ class MDB2_Statement_mysql extends MDB2_Statement_Common
         }
 
         $result =& $this->db->_wrapResult($result, $this->result_types,
-            $result_class, $result_wrap_class);
+            $result_class, $result_wrap_class, $this->limit, $this->offset);
         return $result;
     }
 
