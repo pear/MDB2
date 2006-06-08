@@ -402,26 +402,23 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                  * Probably received a result object.
                  * Extract the result resource identifier.
                  */
-                $result = $result->getResource();
+                $resource = $result->getResource();
             }
 
             $res = array();
 
-            $count = @OCINumCols($result);
+            $count = $result->numCols();
             if ($mode) {
                 $res['num_fields'] = $count;
             }
             for ($i = 0; $i < $count; $i++) {
                 $column = array(
                     'table'  => '',
-                    'name'   => $case_func(@OCIColumnName($result, $i+1)),
-                    'type'   => @OCIColumnType($result, $i+1),
-                    'length' => @OCIColumnSize($result, $i+1),
+                    'name'   => $case_func(@OCIColumnName($resource, $i+1)),
+                    'type'   => @OCIColumnType($resource, $i+1),
+                    'length' => @OCIColumnSize($resource, $i+1),
                     'flags'  => '',
                 );
-                if (strtolower($column['name']) == 'mdb2rn') {
-                    continue;
-                }
                 $res[$i] = $column;
                 $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
                 if ($mode & MDB2_TABLEINFO_ORDER) {
