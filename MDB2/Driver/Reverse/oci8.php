@@ -412,13 +412,17 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 $res['num_fields'] = $count;
             }
             for ($i = 0; $i < $count; $i++) {
-                $res[$i] = array(
+                $column = array(
                     'table'  => '',
                     'name'   => $case_func(@OCIColumnName($result, $i+1)),
                     'type'   => @OCIColumnType($result, $i+1),
                     'length' => @OCIColumnSize($result, $i+1),
                     'flags'  => '',
                 );
+                if (strtolower($column['name']) == 'mdb2rn') {
+                    continue;
+                }
+                $res[$i] = $column;
                 $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
                 if ($mode & MDB2_TABLEINFO_ORDER) {
                     $res['order'][$res[$i]['name']] = $i;
