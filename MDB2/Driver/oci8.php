@@ -925,12 +925,10 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     /**
      * Retrieve the names of columns returned by the DBMS in a query result.
      *
-     * @return mixed associative array variable
-     *      that holds the names of columns. The indexes of the array are
-     *      the column names mapped to lower case and the values are the
-     *      respective numbers of the columns starting from 0. Some DBMS may
-     *      not return any columns when the result set does not contain any
-     *      rows.
+     * @return  mixed   Array variable that holds the names of columns as keys
+     *                  or an MDB2 error on failure.
+     *                  Some DBMS may not return any columns when the result set
+     *                  does not contain any rows.
      * @access private
      */
     function _getColumnNames()
@@ -1042,6 +1040,10 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             && ($row = @OCIFetchInto($this->result, $buffer, OCI_RETURN_NULLS))
         ) {
             ++$this->buffer_rownum;
+            // remove additional column at the end
+            if ($this->offset > 0) {
+                array_pop($buffer);
+            }
             $this->buffer[$this->buffer_rownum] = $buffer;
         }
 
@@ -1088,10 +1090,6 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             return $null;
         }
         $row = $this->buffer[$target_rownum];
-        // remove additional column at the end
-        if ($this->offset > 0) {
-            array_pop($row);
-        }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $column_names = $this->getColumnNames();
             foreach ($column_names as $name => $i) {
