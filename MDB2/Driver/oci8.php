@@ -500,9 +500,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             if ($limit > 0) {
                 // taken from http://svn.ez.no/svn/ezcomponents/packages/Database
-                $min = $offset + 1;
                 $max = $offset + $limit;
-                $query = "SELECT * FROM (SELECT a.*, ROWNUM rn FROM ($query) a WHERE ROWNUM <= $max) WHERE rn >= $min";
+                if ($offset > 0) {
+                    $min = $offset + 1;
+                    $query = "SELECT * FROM (SELECT a.*, ROWNUM mdb2rn FROM ($query) a WHERE ROWNUM <= $max) WHERE mdb2rn >= $min";
+                } else {
+                    $query = "SELECT a.* FROM ($query) a WHERE ROWNUM <= $max";
+                }
             }
         }
         return $query;
@@ -889,7 +893,10 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             }
             $null = null;
             return $null;
-
+        }
+        // remove additional column at the end
+        if ($this->offset > 0) {
+            array_pop($row);
         }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
             $this->db->_fixResultArrayValues($row, MDB2_PORTABILITY_RTRIM);
@@ -965,6 +972,9 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             }
             return $this->db->raiseError(null, null, null,
                 'numCols: Could not get column count');
+        }
+        if ($this->offset > 0) {
+            --$cols;
         }
         return $cols;
     }
@@ -1078,6 +1088,10 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             return $null;
         }
         $row = $this->buffer[$target_rownum];
+        // remove additional column at the end
+        if ($this->offset > 0) {
+            array_pop($row);
+        }
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
             $column_names = $this->getColumnNames();
             foreach ($column_names as $name => $i) {
@@ -1331,7 +1345,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         $result =& $this->db->_wrapResult($this->statement, $this->result_types,
-            $result_class, $result_wrap_class);
+            $result_class, $result_wrap_class, $this->limit, $this->offset);
         return $result;
     }
 
