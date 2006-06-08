@@ -196,8 +196,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        if (!empty($db->option['datatype_map'][$type])) {
-            $type = $db->option['datatype_map'][$type];
+        if (!empty($db->options['datatype_map'][$type])) {
+            $type = $db->options['datatype_map'][$type];
         }
         return $this->_baseConvertResult($value, $type);
     }
@@ -259,8 +259,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function getDeclaration($type, $name, $field)
     {
-        if (!empty($db->option['datatype_map'][$type])) {
-            $type = $db->option['datatype_map'][$type];
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (!empty($db->options['datatype_map'][$type])) {
+            $type = $db->options['datatype_map'][$type];
         }
 
         if (!method_exists($this, "_get{$type}Declaration")) {
@@ -989,8 +994,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 }
                 break;
             }
-        } elseif (!empty($db->option['datatype_map'][$type])) {
-            $type = $db->option['datatype_map'][$type];
+        } elseif (!empty($db->options['datatype_map'][$type])) {
+            $type = $db->options['datatype_map'][$type];
         }
 
         if (!method_exists($this, "_quote{$type}")) {
