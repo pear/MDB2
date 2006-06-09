@@ -1077,6 +1077,7 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['modules'] -> array: short to long module name mapping for __call()</li>
      *  <li>$options['emulate_prepared'] -> boolean: force prepared statements to be emulated</li>
      *  <li>$options['datatype_map'] -> array: map user defined datatypes to other primitive datatypes</li>
+     *  <li>$options['datatype_map_callback'] -> array: callback function/method that should be called</li>
      * </ul>
      *
      * @var     array
@@ -1118,6 +1119,7 @@ class MDB2_Driver_Common extends PEAR
             ),
             'emulate_prepared' => false,
             'datatype_map' => array(),
+            'datatype_map_callback' => array(),
         );
 
     /**
