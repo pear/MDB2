@@ -417,7 +417,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
     // {{{ mapPrepareDatatype()
 
     /**
-     * Maps an mdb2 datatype to mysqli prepare type
+     * Maps an mdb2 datatype to native prepare type
      *
      * @param string $type
      * @return string
@@ -425,6 +425,14 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function mapPrepareDatatype($type)
     {
+        if (!empty($db->options['datatype_map'][$type])) {
+            $type = $db->options['datatype_map'][$type];
+            if (!empty($db->options['datatype_map_callback'][$type])) {
+                $parameter = array('type' => $type);
+                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
+            }
+        }
+
         switch ($type) {
             case 'integer':
                 return 'int';

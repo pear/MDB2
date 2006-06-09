@@ -1499,6 +1499,28 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             'mapNativeDatatype: method not implemented');
     }
 
+    // }}}
+    // {{{ mapPrepareDatatype()
+
+    /**
+     * Maps an mdb2 datatype to mysqli prepare type
+     *
+     * @param string $type
+     * @return string
+     * @access public
+     */
+    function mapPrepareDatatype($type)
+    {
+        if (!empty($db->options['datatype_map'][$type])) {
+            $type = $db->options['datatype_map'][$type];
+            if (!empty($db->options['datatype_map_callback'][$type])) {
+                $parameter = array('type' => $type);
+                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
+            }
+        }
+
+        return $type;
+    }
 }
 
 ?>
