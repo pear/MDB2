@@ -199,7 +199,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
-                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $value));
+                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $value, $type));
             }
         }
         return $this->_baseConvertResult($value, $type);
@@ -270,7 +270,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
-                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $value));
+                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $value, $type));
             }
         }
 
@@ -998,7 +998,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         } elseif (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
-                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $value));
+                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $value, $type));
             }
         }
 
