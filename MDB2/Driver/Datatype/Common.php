@@ -199,7 +199,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
-                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, array($value, $type)));
+                $parameter = array('type' => $type, 'value' => $value);
+                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
             }
         }
         return $this->_baseConvertResult($value, $type);
@@ -270,7 +271,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
-                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, array($type, $name, $field)));
+                $parameter = array('type' => $type, 'name' => $name, 'field' => $field);
+                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
             }
         }
 
@@ -998,7 +1000,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         } elseif (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
-                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, array($value, $type, $quote)));
+                $parameter = array('type' => $type, 'value' => $value, 'quote' => $quote);
+                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
             }
         }
 
