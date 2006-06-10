@@ -112,9 +112,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 if (PEAR::isError($db)) {
                     return $db;
                 }
-
-                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'checkResultTypes: ' . $type . ' for '. $key .' is not a supported column type');
+                if (empty($db->options['datatype_map'][$type])) {
+                    return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                        'checkResultTypes: ' . $type . ' for '. $key .' is not a supported column type');
+                }
             }
         }
         return $types;
