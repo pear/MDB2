@@ -1069,15 +1069,16 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteText($value, $quote)
     {
-        if (!$quote) {
-            return $value;
-        }
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        return "'".$db->escape($value)."'";
+        $value = $db->escape($value);
+        if (!$quote) {
+            return $value;
+        }
+        return "'".$value."'";
     }
 
     // }}}

@@ -255,10 +255,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteBLOB($value, $quote)
     {
+        $value = pg_escape_bytea($value);
         if (!$quote) {
             return $value;
         }
-        return "'".pg_escape_bytea($value)."'";
+        return "'".$value."'";
     }
 
     // }}}
@@ -276,10 +277,11 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteBoolean($value, $quote)
     {
+        $value = $value ? 't' : 'f';
         if (!$quote) {
-            return ($value ? 't' : 'f');
+            return $value;
         }
-        return ($value ? "'t'" : "'f'");
+        return "'".$value."'";
     }
 
     // }}}
