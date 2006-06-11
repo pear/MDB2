@@ -180,29 +180,11 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _quoteBLOB($value, $quote)
     {
-        $value = $this->_readFile($value);
+        $value = bin2hex("0x".$this->_readFile($value));
         if (!$quote) {
             return $value;
         }
-        return bin2hex("0x".$value);
-    }
-
-    // }}}
-    // {{{ _quoteBoolean()
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param string $value text string value that is intended to be converted.
-     * @param bool $quote determines if the value should be quoted and escaped
-     * @return string text string that represents the given argument value in
-     *       a DBMS specific format.
-     * @access protected
-     */
-    function _quoteBoolean($value, $quote)
-    {
-        return ($value ? 1 : 0);
+        return $value;
     }
 
     // }}}
