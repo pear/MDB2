@@ -80,7 +80,7 @@ class MDB2_Driver_Function_mssql extends MDB2_Driver_Function_Common
         }
 
         $query = 'EXECUTE '.$name;
-        $query .= $params ? '('.implode(', ', $params).')' : '';
+        $query .= $params ? ' '.implode(', ', $params) : '';
         return $db->query($query, $types, $result_class, $result_wrap_class);
     }
 
