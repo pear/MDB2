@@ -789,11 +789,20 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if ($pgtypes) {
             $types_string = ' ('.implode(', ', $pgtypes).') ';
         }
-        $statement_name = 'MDB2_Statement_'.$this->phptype.md5(time() + rand());
-        $query = 'PREPARE '.$statement_name.$types_string.' AS '.$query;
-        $statement =& $this->_doQuery($query, true, $connection);
-        if (PEAR::isError($statement)) {
-            return $statement;
+        $statement_name = strtolower('MDB2_Statement_'.$this->phptype.md5(time() + rand()));
+        if (function_exists('pg_prepare')) {
+            $result = @pg_prepare($connection, $statement_name, $query);
+            if (!$result) {
+                $err =& $this->raiseError(null, null, null,
+                    'prepare: Unable to create prepared statement handle');
+                return $err;
+            }
+        } else {
+            $query = 'PREPARE '.$statement_name.$types_string.' AS '.$query;
+            $statement =& $this->_doQuery($query, true, $connection);
+            if (PEAR::isError($statement)) {
+                return $statement;
+            }
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
@@ -1145,9 +1154,13 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
             return $connection;
         }
 
-        $query = 'EXECUTE '.$this->statement;
+        $query = false;
+        $parameters = array();
+        // todo: disabled until pg_execute() bytea issues are cleared up
+        if (true || !function_exists('pg_execute')) {
+            $query = 'EXECUTE '.$this->statement;
+        }
         if (!empty($this->positions)) {
-            $parameters = array();
             foreach ($this->positions as $parameter => $current_position) {
                 if (!array_key_exists($parameter, $this->values)) {
                     return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
@@ -1174,14 +1187,25 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
                         $value = $data;
                     }
                 }
-                $parameters[] = $this->db->quote($value, $type);
+                $parameters[] = $this->db->quote($value, $type, $query);
             }
-            $query.= ' ('.implode(', ', $parameters).')';
+            if ($query) {
+                $query.= ' ('.implode(', ', $parameters).')';
+            }
         }
 
-        $result = $this->db->_doQuery($query, $this->is_manip, $connection);
-        if (PEAR::isError($result)) {
-            return $result;
+        if (!$query) {
+            $result = @pg_execute($connection, $this->statement, $parameters);
+            if (!$result) {
+                $err =& $this->db->raiseError(null, null, null,
+                    '_execute: Unable to execute statement');
+                return $err;
+            }
+        } else {
+            $result = $this->db->_doQuery($query, $this->is_manip, $connection);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
 
         if ($this->is_manip) {
