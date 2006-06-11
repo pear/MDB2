@@ -82,6 +82,28 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     var $lobs = array();
 
     // }}}
+    // {{{ getValidTypes()
+
+    /**
+     * Get the list of valid types
+     *
+     * This function returns an array of valid types as keys with the values
+     * being possible default values for all native datatypes and mapped types
+     * for custom datatypes.
+     *
+     * @return mixed array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getValidTypes()
+    {
+        $types = $this->valid_types;
+        if (!empty($db->options['datatype_map'])) {
+            $types+= $db->options['datatype_map'];
+        }
+        return $types;
+    }
+
+    // }}}
     // {{{ checkResultTypes()
 
     /**
