@@ -29,6 +29,7 @@ $notes = <<<EOT
 - limit fetch to 1 row in listTableFields()
 - use setCharset() in connect()/_doConnect()
 - generalized quoteIdentifier() with a property
+- drop parentheses from executeStoredProc() syntax (bug #7855)
 EOT;
 
 $package = new PEAR_PackageFileManager();
