@@ -1534,6 +1534,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function mapPrepareDatatype($type)
     {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         if (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
