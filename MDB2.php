@@ -3704,6 +3704,7 @@ class MDB2_Statement_Common
      */
     function &_execute($result_class = true, $result_wrap_class = false)
     {
+        $this->last_query = $this->query;
         $query = '';
         $last_position = 0;
         foreach ($this->positions as $parameter => $current_position) {
