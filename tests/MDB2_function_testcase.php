@@ -175,14 +175,15 @@ class MDB2_Function_TestCase extends MDB2_TestCase
             return;
         }
 
-        $rand   = $this->db->function->random();
-        $query  = 'SELECT user_id FROM users ORDER BY ' . $rand;
-        $result = $this->db->queryOne($query);
+        $rand_clause = $this->db->function->random();
+        $functionTable_clause = $this->db->function->functionTable();
+        $query = 'SELECT '.$rand_clause . $functionTable_clause;
+        $result = $this->db->queryOne($query, 'decimal');
+var_dump($result);
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting random value');
         } else {
-            // No idea if I can skip this.
-            $this->assertTrue(true, 'Error: could not get random"');
+            $this->assertTrue(($result >= 0 && $result <= 1), 'Error: could not get random"');
         }
     }
 }
