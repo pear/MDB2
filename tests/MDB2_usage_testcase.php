@@ -960,7 +960,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $stmt->free();
 
-        $result =& $this->db->query('SELECT document, picture FROM files WHERE id = ', array('clob', 'blob'));
+        $result =& $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
         }
