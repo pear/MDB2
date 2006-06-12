@@ -160,9 +160,29 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$concat_clause . $functionTable_clause;
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting substring');
+            $this->assertFalse(true, 'Error getting concat');
         } else {
             $this->assertEquals('timestamp', $result, 'Error: could not concatenate "time+stamp"');
+        }
+    }
+
+    /**
+     * Test random()
+     */
+    function testRandom()
+    {
+        if (!$this->methodExists($this->db->function, 'random')) {
+            return;
+        }
+
+        $rand   = $this->db->function->random();
+        $query  = 'SELECT user_id FROM users ORDER BY ' . $rand;
+        $result = $this->db->queryOne($query);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting random value');
+        } else {
+            // No idea if I can skip this.
+            $this->assertTrue(true, 'Error: could not get random"');
         }
     }
 }
