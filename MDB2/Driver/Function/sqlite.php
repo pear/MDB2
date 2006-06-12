@@ -105,5 +105,21 @@ class MDB2_Driver_Function_sqlite extends MDB2_Driver_Function_Common
         }
         return "substr($value,$position,length($value))";
     }
+
+    // }}}
+    // {{{ random()
+
+    /**
+     * return string to call a function to get random value inside an SQL statement
+     *
+     * @return string to call a function to get random value
+     * @access public
+     */
+    function random()
+    {
+        return 'RANDOM()';
+    }
+
+    // }}}
 }
 ?>
