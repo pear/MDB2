@@ -178,8 +178,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $rand_clause = $this->db->function->random();
         $functionTable_clause = $this->db->function->functionTable();
         $query = 'SELECT '.$rand_clause . $functionTable_clause;
-        $result = $this->db->queryOne($query, 'decimal');
-var_dump($result);
+        $result = $this->db->queryOne($query, 'float');
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting random value');
         } else {
