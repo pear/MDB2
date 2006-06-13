@@ -117,7 +117,7 @@ class MDB2_Driver_Function_sqlite extends MDB2_Driver_Function_Common
      */
     function random()
     {
-        return 'RANDOM()';
+        return '((RANDOM()+2147483648)/4294967296)';
     }
 
     // }}}
