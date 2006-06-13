@@ -2547,7 +2547,6 @@ class MDB2_Driver_Common extends PEAR
             }
             $query = $result;
         }
-        $positions = array();
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
