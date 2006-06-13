@@ -990,7 +990,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     {
         $free = @OCIFreeCursor($this->result);
         if (!$free) {
-            if (!$this->result) {
+            if (!$this->result || !$this->db->connection) {
                 return MDB2_OK;
             }
             return $this->db->raiseError(null, null, null,

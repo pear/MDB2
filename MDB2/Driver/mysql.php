@@ -1092,7 +1092,7 @@ class MDB2_Result_mysql extends MDB2_Result_Common
     {
         $free = @mysql_free_result($this->result);
         if (!$free) {
-            if (!$this->result) {
+            if (!$this->result || !$this->db->connection) {
                 return MDB2_OK;
             }
             return $this->db->raiseError(null, null, null,
