@@ -502,9 +502,13 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
         }
 
-        $function = $this->options['multi_query'] ? 'mysqli_multi_query' :
-            ($this->options['result_buffering'] ? 'mysqli_query' : 'mysqli_unbuffered_query');
-        $result = @$function($connection, $query);
+        if ($this->options['multi_query']) {
+            $result = mysqli_multi_query($connection, $query);
+        } else {
+            $resultmode = $this->options['result_buffering'] ? MYSQLI_USE_RESULT : MYSQLI_USE_RESULT;
+            $result = mysqli_query($connection, $query);
+        }
+
         if (!$result) {
             $err = $this->raiseError(null, null, null,
                 '_doQuery: Could not execute statement');
@@ -1139,13 +1143,12 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
      */
     function free()
     {
-        $free = @mysqli_free_result($this->result);
-        if (!$free) {
-            if (is_null($free) || !$this->result) {
-                return MDB2_OK;
+        if (is_object($this->result) && $this->db->connection) {
+            $free = @mysqli_free_result($this->result);
+            if ($free === false) {
+                return $this->db->raiseError(null, null, null,
+                    'free: Could not free result');
             }
-            return $this->db->raiseError(null, null, null,
-                'free: Could not free result');
         }
         $this->result = false;
         return MDB2_OK;
