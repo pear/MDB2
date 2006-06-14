@@ -180,10 +180,10 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _quoteBLOB($value, $quote)
     {
-        $value = bin2hex("0x".$this->_readFile($value));
         if (!$quote) {
             return $value;
         }
+        $value = bin2hex("0x".$this->_readFile($value));
         return $value;
     }
 

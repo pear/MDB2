@@ -255,10 +255,10 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteBLOB($value, $quote)
     {
-        $value = pg_escape_bytea($value);
         if (!$quote) {
             return $value;
         }
+        $value = pg_escape_bytea($value);
         return "'".$value."'";
     }
 
