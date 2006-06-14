@@ -182,7 +182,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         if (PEAR::isError($result)) {
             $this->assertFalse(true, 'Error getting random value');
         } else {
-            $this->assertTrue(($result >= 0 && $result <= 1), 'Error: could not get random"');
+            $this->assertTrue(($result >= 0 && $result <= 1), 'Error: could not get random value between 0 and 1: '.$result);
         }
     }
 }
