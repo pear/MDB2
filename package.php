@@ -19,6 +19,17 @@ $notes = <<<EOT
 - added decimal reverse engineering test
 - fixed parameter order in assertions in reverse engineering fields tests
 - generalized quoteIdentifier() with a property
+- switched most array_key_exists() calls to !empty() to improve readability and performance
+- fixed a few edge cases and potential warnings
+- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- added 'datatype_map' option (Request #7797)
+- added reverse parameter to getColumnNames()
+- added 'datatype_map_callback' option
+- added getValidTypes() method to handle additional types from the 'datatype_map' option
+- set last_query in _execute() to prepared statement (Bug #7856)
+- adding random function emulation to generate a float between 0 and 1
+- explicitly fetch row id = 1 in LOB tests
+- cosmetic fix to prepare() (Bug #7883)
 
 open todo items:
 - handle autoincrement fields in alterTable()

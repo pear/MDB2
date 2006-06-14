@@ -8,6 +8,10 @@ $notes = <<<EOT
 - use setCharset() in connect()/_doConnect()
 - generalized quoteIdentifier() with a property
 - fixed warning in replace() if type is not set (Bug #7740)
+- cosmetic performance tweak in getTableFieldDefinition()
+- switched most array_key_exists() calls to !empty() to improve readability and performance
+- fixed a few edge cases and potential warnings
+- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

@@ -16,6 +16,11 @@ $notes = <<<EOT
 - marked primary key as supported
 - use setCharset() in connect()/_doConnect()
 - generalized quoteIdentifier() with a property
+- switched most array_key_exists() calls to !empty() to improve readability and performance
+- fixed a few edge cases and potential warnings
+- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- check if result/connection has not yet been freed/dicsonnected before
+  attempting to free a result set(Bug #7790)
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

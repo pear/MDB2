@@ -10,6 +10,12 @@ $notes = <<<EOT
 - added setCharset()
 - use setCharset() in connect()/_doConnect()
 - generalized quoteIdentifier() with a property
+- cosmetic performance tweak in getTableFieldDefinition()
+- switched most array_key_exists() calls to !empty() to improve readability and performance
+- fixed a few edge cases and potential warnings
+- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- check if result/connection has not yet been freed/dicsonnected before
+  attempting to free a result set(Bug #7790)
 EOT;
 
 $package = new PEAR_PackageFileManager();

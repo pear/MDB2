@@ -30,6 +30,12 @@ $notes = <<<EOT
 - use setCharset() in connect()/_doConnect()
 - generalized quoteIdentifier() with a property
 - drop parentheses from executeStoredProc() syntax (bug #7855)
+- switched most array_key_exists() calls to !empty() to improve readability and performance
+- fixed a few edge cases and potential warnings
+- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- added implementation for now() and substring() (Request #7774)
+- check if result/connection has not yet been freed/dicsonnected before
+  attempting to free a result set(Bug #7790)
 EOT;
 
 $package = new PEAR_PackageFileManager();
