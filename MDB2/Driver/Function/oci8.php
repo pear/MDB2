@@ -151,4 +151,5 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
     }
 
     // }}}}
+}
 ?>
