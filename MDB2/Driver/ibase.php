@@ -1030,14 +1030,11 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      */
     function free()
     {
-        if (is_resource($this->result)) {
+        if (is_resource($this->result) && $this->db->connection) {
             $free = @ibase_free_result($this->result);
-            if (!$free) {
-                if (!$this->result || !$this->db->connection) {
-                    return MDB2_OK;
-                }
+            if ($free === false) {
                 return $this->db->raiseError(null, null, null,
-                    'numCols: Could not free result');
+                    'free: Could not free result');
             }
         }
         $this->result = false;

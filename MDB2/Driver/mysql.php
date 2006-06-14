@@ -1090,13 +1090,12 @@ class MDB2_Result_mysql extends MDB2_Result_Common
      */
     function free()
     {
-        $free = @mysql_free_result($this->result);
-        if (!$free) {
-            if (!$this->result || !$this->db->connection) {
-                return MDB2_OK;
+        if (is_resource($this->result) && $this->db->connection) {
+            $free = @mysql_free_result($this->result);
+            if ($free === false) {
+                return $this->db->raiseError(null, null, null,
+                    'free: Could not free result');
             }
-            return $this->db->raiseError(null, null, null,
-                'free: Could not free result');
         }
         $this->result = false;
         return MDB2_OK;
