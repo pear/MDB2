@@ -201,10 +201,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     {
         $db_type = preg_replace('/\d/','', strtolower($field['type']) );
         $length = $field['length'];
-        // todo: is this not just copied from pgsql?
-        if ($length == '-1' && !empty($field['atttypmod'])) {
-            $length = $field['atttypmod'] - 4;
-        }
         if ((int)$length <= 0) {
             $length = null;
         }
