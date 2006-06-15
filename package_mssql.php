@@ -80,6 +80,7 @@ if (PEAR::isError($result)) {
 
 $package->addMaintainer('davidc', 'lead', 'David Coallier', 'david@jaws.com.mx');
 $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
+$package->addMaintainer('nrf', 'lead', 'Nathan Fredrickson', 'nathan@silverorange.com');
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
