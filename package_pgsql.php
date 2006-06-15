@@ -17,6 +17,11 @@ $notes = <<<EOT
 - added code to use pg_execute() but disabled due to issues with bytea fields
 - check if result/connection has not yet been freed/dicsonnected before
   attempting to free a result set(Bug #7790)
+- revert change that would prefer 'clob' over 'text' for TEXT fields
+  (this was breaking runtime instrospection)
+
+open todo items:
+- enable pg_execute() once issues with bytea column are resolved
 EOT;
 
 $package = new PEAR_PackageFileManager();

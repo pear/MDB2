@@ -19,6 +19,7 @@ $notes = <<<EOT
 - make sure no additional fields are added due to using limit/offset
 - check if result/connection has not yet been freed/dicsonnected before
   attempting to free a result set(Bug #7790)
+- fixed small typo with 'clob' reverse engineering
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)

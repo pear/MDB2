@@ -36,6 +36,13 @@ $notes = <<<EOT
 - added implementation for now() and substring() (Request #7774)
 - check if result/connection has not yet been freed/dicsonnected before
   attempting to free a result set(Bug #7790)
+- fix range offsets (bug #7448)
+- revert change that would prefer 'clob' over 'text' for TEXT fields
+  (this was breaking runtime instrospection)
+- use SCOPE_IDENTITY() when version >= 8 (SQL Server 2000) otherwise fallback to
+  @@IDENTITY to retrieve last inserted value (bug #7291)
+- implement getServerVersion()
+- removed bogus but unharmful code from mapNativeDatatype()
 EOT;
 
 $package = new PEAR_PackageFileManager();

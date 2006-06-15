@@ -19,6 +19,8 @@ $notes = <<<EOT
 - pass limit and offset to the result object constructor in _execute() for read statements
 - check if result/connection has not yet been freed/dicsonnected before
   attempting to free a result set(Bug #7790)
+- revert change that would prefer 'clob' over 'text' for TEXT fields
+  (this was breaking runtime instrospection)
 EOT;
 
 $package = new PEAR_PackageFileManager();

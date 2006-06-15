@@ -12,6 +12,8 @@ $notes = <<<EOT
 - switched most array_key_exists() calls to !empty() to improve readability and performance
 - fixed a few edge cases and potential warnings
 - added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- revert change that would prefer 'clob' over 'text' for TEXT fields
+  (this was breaking runtime instrospection)
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
