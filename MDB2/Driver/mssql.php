@@ -617,7 +617,7 @@ class MDB2_Result_mssql extends MDB2_Result_Common
         if ($this->offset) {
             while ($this->offset_count < $this->offset) {
                 ++$this->offset_count;
-                if (!is_array(@mysql_fetch_row($this->result))) {
+                if (!is_array(@mssql_fetch_row($this->result))) {
                     $this->offset_count = $this->limit;
                     return false;
                 }
