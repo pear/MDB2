@@ -297,8 +297,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         case 'int64':
             //these may be 'numeric' or 'decimal'
             if (isset($field['field_sub_type'])) {
-                $db_type = $field['field_sub_type'];
-                continue;
+                $field['type'] = $field['field_sub_type'];
+                return $this->mapNativeDatatype($field);
             }
         case 'bigint':
         case 'quad':

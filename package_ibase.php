@@ -16,6 +16,8 @@ $notes = <<<EOT
 - added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
 - check if result/connection has not yet been freed/dicsonnected before
   attempting to free a result set(Bug #7790)
+- fixed control flow in MDB2_Driver_Datatype_ibase::mapNativeDatatype()
+  for 'numeric' or 'decimal' types
 EOT;
 
 $package = new PEAR_PackageFileManager();
