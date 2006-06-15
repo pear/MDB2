@@ -409,12 +409,12 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             }
             break;
         case 'long':
-            $type[] = 'clob';
             $type[] = 'text';
-            break;
-        case 'blob':
         case 'clob':
         case 'nclob':
+            $type[] = 'clob';
+            break;
+        case 'blob':
         case 'raw':
         case 'long raw':
         case 'bfile':
