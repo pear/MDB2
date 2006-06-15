@@ -439,6 +439,51 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         return $query;
     }
     // }}}
+    // {{{ getServerVersion()
+
+    /**
+     * return version information about the server
+     *
+     * @param string     $native  determines if the raw version string should be returned
+     * @return mixed array/string with version information or MDB2 error object
+     * @access public
+     */
+    function getServerVersion($native = false)
+    {
+        if ($this->connected_server_info) {
+            $server_info = $this->connected_server_info;
+        } else {
+            $query = 'SELECT @@VERSION';
+            $server_info = $this->queryOne($query, 'text');
+            if (PEAR::isError($server_info)) {
+                return $server_info;
+            }
+        }
+        // cache server_info
+        $this->connected_server_info = $server_info;
+        if (!$native && !PEAR::isError($server_info)) {
+            if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)/', $server_info, $tmp)) {
+                $server_info = array(
+                    'major' => $tmp[1],
+                    'minor' => $tmp[2],
+                    'patch' => $tmp[3],
+                    'extra' => null,
+                    'native' => $server_info,
+                );
+            } else {
+                $server_info = array(
+                    'major' => null,
+                    'minor' => null,
+                    'patch' => null,
+                    'extra' => null,
+                    'native' => $server_info,
+                );
+            }
+        }
+        return $server_info;
+    }
+
+    // }}}
     // {{{ _checkSequence
     /**
      * Checks if there's a sequence that exists.
