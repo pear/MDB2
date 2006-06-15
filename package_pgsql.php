@@ -58,6 +58,7 @@ if (PEAR::isError($result)) {
 }
 
 $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
+$package->addMaintainer('nrf', 'developer', 'Nathan Fredrickson', 'nathan@silverorange.com');
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
