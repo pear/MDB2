@@ -144,9 +144,10 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $result = $this->db->manager->createIndex($this->table, $index_name, $index);
             $this->assertFalse(PEAR::isError($result), 'Error creating index: '.$index_name);
             if (PEAR::isError($result)) {
-                unset($indices[$index_name]);
+                break;
             }
         }
+        return PEAR::isError($result);
     }
 
     function setUpConstraints()
@@ -184,7 +185,11 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         foreach ($this->constraints as $constraint_name => $constraint) {
             $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
             $this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
+            if (PEAR::isError($result)) {
+                break;
+            }
         }
+        return PEAR::isError($result);
     }
 
     /**
@@ -287,14 +292,6 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             }
         }
 
-        $this->setUpConstraints();
-        //constraints should NOT be listed
-        foreach (array_keys($this->constraints) as $constraint_name) {
-            $this->db->expectError(MDB2_ERROR_NOT_FOUND);
-            $result = $this->db->reverse->getTableIndexDefinition($this->table, $constraint_name);
-            $this->assertTrue(PEAR::isError($result), 'Error listing index definition, this is a CONSTRAINT');
-        }
-
         //test INDEX
         $index_name = 'sometestindex';
         $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
@@ -318,6 +315,16 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $actual_fields = array_keys($index_info['fields']);
             $this->assertEquals($expected_fields, $actual_fields, 'The INDEX field names don\'t match');
         }
+
+        if (!$this->setUpConstraints()) {
+            return;
+        }
+        //constraints should NOT be listed
+        foreach (array_keys($this->constraints) as $constraint_name) {
+            $this->db->expectError(MDB2_ERROR_NOT_FOUND);
+            $result = $this->db->reverse->getTableIndexDefinition($this->table, $constraint_name);
+            $this->assertTrue(PEAR::isError($result), 'Error listing index definition, this is a CONSTRAINT');
+        }
     }
 
     /**
@@ -329,7 +336,9 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             return;
         }
 
-        $this->setUpConstraints();
+        if (!$this->setUpConstraints()) {
+            return;
+        }
 
         //test constraint names
         foreach ($this->constraints as $constraint_name => $constraint) {
