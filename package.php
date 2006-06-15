@@ -30,6 +30,7 @@ $notes = <<<EOT
 - adding random function emulation to generate a float between 0 and 1
 - explicitly fetch row id = 1 in LOB tests
 - cosmetic fix to prepare() (Bug #7883)
+- bumped PHP dependency to 4.3.2 because of LOB stream support
 
 open todo items:
 - handle autoincrement fields in alterTable()

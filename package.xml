@@ -66,19 +66,37 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.0.3</version>
-  <date>2006-05-22</date>
+  <version>2.1.0</version>
+  <date>2006-06-15</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- fix float/decimal handling (Request #3021)
-- default to decimal for double (instead of float)
-- serialize arrays when no type is explicitly given
-- phpdoc fixes
-- expanded FLOAT test
-- added support for identifier quoting (Request #7671)
-- added test class for the Extended module
-- added support for DELETE in auto*() methods (Request #5345)
-- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+  <notes>- removed bogus code from execute()
+- new test case for floats/decimals and locale
+- reworked fix for float/decimal handling
+- expanded scientific notation handling
+- fixed several minor issues with the datatype tests
+- removed use of &quot;*&quot; in all places in the test suite that are followed by a fetch
+- tweaked handling of free() for prepared statements
+- return error if a prepared statement is attempted to be free&apos;ed or executed again
+- added result_wrap_class param to limitQuery()
+- added parameter to not quote return value of getBeforeId()
+- added setCharset()
+- enable transactions by default
+- added decimal reverse engineering test
+- fixed parameter order in assertions in reverse engineering fields tests
+- generalized quoteIdentifier() with a property
+- switched most array_key_exists() calls to !empty() to improve readability and performance
+- fixed a few edge cases and potential warnings
+- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- added &apos;datatype_map&apos; option (Request #7797)
+- added reverse parameter to getColumnNames()
+- added &apos;datatype_map_callback&apos; option
+- added getValidTypes() method to handle additional types from the &apos;datatype_map&apos; option
+- set last_query in _execute() to prepared statement (Bug #7856)
+- adding random function emulation to generate a float between 0 and 1
+- explicitly fetch row id = 1 in LOB tests
+- cosmetic fix to prepare() (Bug #7883)
+- bumped PHP dependency to 4.3.2 because of LOB stream support
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -87,7 +105,7 @@ open todo items:
 - add length handling to LOB reverse engineering
   </notes>
   <deps>
-   <dep type="php" rel="ge" version="4.3.0" optional="no"/>
+   <dep type="php" rel="ge" version="4.3.2" optional="no"/>
    <dep type="pkg" rel="ge" version="1.3.6" optional="no">PEAR</dep>
   </deps>
   <filelist>
@@ -234,6 +252,46 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.1.0</version>
+    <date>2006-06-15</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- removed bogus code from execute()
+- new test case for floats/decimals and locale
+- reworked fix for float/decimal handling
+- expanded scientific notation handling
+- fixed several minor issues with the datatype tests
+- removed use of &quot;*&quot; in all places in the test suite that are followed by a fetch
+- tweaked handling of free() for prepared statements
+- return error if a prepared statement is attempted to be free&apos;ed or executed again
+- added result_wrap_class param to limitQuery()
+- added parameter to not quote return value of getBeforeId()
+- added setCharset()
+- enable transactions by default
+- added decimal reverse engineering test
+- fixed parameter order in assertions in reverse engineering fields tests
+- generalized quoteIdentifier() with a property
+- switched most array_key_exists() calls to !empty() to improve readability and performance
+- fixed a few edge cases and potential warnings
+- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- added &apos;datatype_map&apos; option (Request #7797)
+- added reverse parameter to getColumnNames()
+- added &apos;datatype_map_callback&apos; option
+- added getValidTypes() method to handle additional types from the &apos;datatype_map&apos; option
+- set last_query in _execute() to prepared statement (Bug #7856)
+- adding random function emulation to generate a float between 0 and 1
+- explicitly fetch row id = 1 in LOB tests
+- cosmetic fix to prepare() (Bug #7883)
+- bumped PHP dependency to 4.3.2 because of LOB stream support
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add support for ADODB style &quot;smart transactions&quot;:
+  http://phplens.com/lens/adodb/docs-adodb.htm#ex11
+- add length handling to LOB reverse engineering
+    </notes>
+   </release>
    <release>
     <version>2.0.3</version>
     <date>2006-05-22</date>
