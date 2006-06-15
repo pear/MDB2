@@ -302,7 +302,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
         if (!$sql) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableIndexDefinition: it was not specified an existing table index');
+                'getTableConstraintDefinition: it was not specified an existing table index');
         }
 
         $sql = strtolower($sql);
