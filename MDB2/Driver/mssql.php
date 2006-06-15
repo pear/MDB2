@@ -575,7 +575,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     {
         $server_info = $this->getServerVersion();
         if (is_array($server_info)
-            && $server_info['major'] == null
+            && !is_null($server_info['major'])
                 && $server_info['major'] >= 8) {
                     $query = "SELECT SCOPE_IDENTITY()";
         } else {
