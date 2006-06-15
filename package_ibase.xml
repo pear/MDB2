@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.9">
+<package version="1.0" packagerversion="1.4.6">
  <name>MDB2_Driver_ibase</name>
  <summary>ibase MDB2 driver</summary>
  <description>This is the Firebird/Interbase MDB2 driver.
@@ -20,33 +20,29 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.0.2</version>
-  <date>2006-05-14</date>
+  <version>1.1.0</version>
+  <date>2006-06-15</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- implemented listTableTriggers(), listTableViews() and listFunctions()
-  in the Manager module
-- implemented getTriggerDefinition() in the Reverse module
-- explicitly set is_manip parameter to false for transaction debug calls
-- pass parameter array as debug() all with scope &quot;parameters&quot; in every execute()
-  call (bug #4119)
-- typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for &apos;text&apos; in declarations,
-  as well as in reverse engineering (Request #1523)
-- made _doQuery() return a reference
-- added userinfo&apos;s to all raiseError calls that previously had none
-- added &apos;prepared_statements&apos; supported meta data setting
-- typo fix ressource/resource in LOB array
-- added missing unset() to _destroyLOB()
-- fixed _destroyLOB() API to match other private LOB methods
-- fixed phpdoc comments of all private LOB methods
-- added missing supported parameter to prepare() signature
-- fix default field value in getTableFieldDefinition() [Reverse module]
+  <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+- tweaked handling of free() for prepared statements
+- return error if a prepared statement is attempted to be freed twice
+- added setCharset()
+- use setCharset() in connect()/_doConnect()
+- generalized quoteIdentifier() with a property
+- cosmetic performance tweak in getTableFieldDefinition()
+- switched most array_key_exists() calls to !empty() to improve readability and performance
+- fixed a few edge cases and potential warnings
+- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- check if result/connection has not yet been freed/dicsonnected before
+  attempting to free a result set(Bug #7790)
+- fixed control flow in MDB2_Driver_Datatype_ibase::mapNativeDatatype()
+  for &apos;numeric&apos; or &apos;decimal&apos; types
   </notes>
   <deps>
    <dep type="php" rel="ge" version="5.0.4" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.0.2" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.1.0" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">interbase</dep>
   </deps>
   <filelist>
@@ -85,6 +81,27 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.1.0</version>
+    <date>2006-06-15</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+- tweaked handling of free() for prepared statements
+- return error if a prepared statement is attempted to be freed twice
+- added setCharset()
+- use setCharset() in connect()/_doConnect()
+- generalized quoteIdentifier() with a property
+- cosmetic performance tweak in getTableFieldDefinition()
+- switched most array_key_exists() calls to !empty() to improve readability and performance
+- fixed a few edge cases and potential warnings
+- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- check if result/connection has not yet been freed/dicsonnected before
+  attempting to free a result set(Bug #7790)
+- fixed control flow in MDB2_Driver_Datatype_ibase::mapNativeDatatype()
+  for &apos;numeric&apos; or &apos;decimal&apos; types
+    </notes>
+   </release>
    <release>
     <version>1.0.2</version>
     <date>2006-05-14</date>
