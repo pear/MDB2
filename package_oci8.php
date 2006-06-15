@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '0.3.0';
 $notes = <<<EOT
 - added "emulate_prepared" option to force prepared statement emulation
 - tweaked handling of free() for prepared statements
@@ -68,7 +68,7 @@ $package->addMaintainer('justinpatrin', 'developer', 'Justin Patrin', 'justinpat
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.3', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.1.0', 'ge', 'pkg', false);
 $package->addDependency('oci8', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

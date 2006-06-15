@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '2.1.0';
 $notes = <<<EOT
 - removed bogus code from execute()
 - new test case for floats/decimals and locale

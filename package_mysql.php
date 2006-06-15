@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.1.0';
 $notes = <<<EOT
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
@@ -60,7 +60,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.0.3', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.1.0', 'ge', 'pkg', false);
 $package->addDependency('mysql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
