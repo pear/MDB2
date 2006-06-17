@@ -72,6 +72,15 @@ class MDB2_Extended_TestCase extends MDB2_TestCase {
         $this->verifyFetchedValues($result, null, $data);
         $result->free();
 
+        $where = 'user_id = '.$this->db->quote($data['user_id'], 'integer');
+        $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_SELECT, $where, null, true, $this->fields);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error auto executing select: '.$result->getMessage());
+        }
+
+        $this->verifyFetchedValues($result, null, $data);
+        $result->free();
+
         $update_data = array();
         $data['user_name'] = $update_data['user_name'] = 'foo';
 
@@ -92,7 +101,6 @@ class MDB2_Extended_TestCase extends MDB2_TestCase {
 
         $where = array($where, 'user_name = '.$this->db->quote($data['user_name'], 'text'));
         $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_DELETE, $where, null);
-
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error auto executing insert: '.$result->getMessage());
         }
