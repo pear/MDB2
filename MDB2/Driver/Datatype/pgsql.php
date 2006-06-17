@@ -231,13 +231,14 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access protected
      */
-    function _quoteCLOB($value, $quote)
+    function _quoteCLOB($value, $quote, $escape_wildcards)
     {
-        return $this->_quoteText($value, $quote);
+        return $this->_quoteText($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -249,11 +250,12 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *      a DBMS specific format.
      * @access protected
      */
-    function _quoteBLOB($value, $quote)
+    function _quoteBLOB($value, $quote, $escape_wildcards)
     {
         if (!$quote) {
             return $value;
@@ -271,11 +273,12 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteBoolean($value, $quote)
+    function _quoteBoolean($value, $quote, $escape_wildcards)
     {
         $value = $value ? 't' : 'f';
         if (!$quote) {

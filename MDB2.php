@@ -1130,6 +1130,13 @@ class MDB2_Driver_Common extends PEAR
     var $escape_quotes = "'";
 
     /**
+     * comparision wildcards
+     * @var     array
+     * @access  protected
+     */
+    var $wildcards = array('&', '_');
+
+    /**
      * escape character
      * @var     string
      * @access  protected
@@ -1527,15 +1534,21 @@ class MDB2_Driver_Common extends PEAR
      * the text so it can safely be used within a query.
      *
      * @param   string  the input string to quote
+     * @param   bool    escape wildcards
      *
      * @return  string  quoted string
      *
      * @access  public
      */
-    function escape($text)
+    function escape($text, $escape_wildcards = false)
     {
         if ($this->escape_quotes !== "'") {
             $text = str_replace($this->escape_quotes, $this->escape_quotes.$this->escape_quotes, $text);
+        }
+        if ($escape_wildcards) {
+            foreach ($this->wildcards as $wildcard) {
+                $text = str_replace($wildcard, $this->escape_quotes . $wildcard, $text);
+            }
         }
         return str_replace("'", $this->escape_quotes . "'", $text);
     }
@@ -2642,19 +2655,20 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param   string  text string value that is intended to be converted.
      * @param   string  type to which the value should be converted to
+     * @param   bool    escape wildcards
      *
      * @return  string  text string that represents the given argument value in
      *       a DBMS specific format.
      *
      * @access  public
      */
-    function quote($value, $type = null, $quote = true)
+    function quote($value, $type = null, $quote = true, $escape_wildcards = false)
     {
         $result = $this->loadModule('Datatype', null, true);
         if (PEAR::isError($result)) {
             return $result;
         }
-        return $this->datatype->quote($value, $type, $quote);
+        return $this->datatype->quote($value, $type, $quote, $escape_wildcards);
     }
     // }}}
 

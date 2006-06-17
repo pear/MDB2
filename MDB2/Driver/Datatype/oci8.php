@@ -150,11 +150,12 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteCLOB($value, $quote)
+    function _quoteCLOB($value, $quote, $escape_wildcards)
     {
         return 'EMPTY_CLOB()';
     }
@@ -168,11 +169,12 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteBLOB($value, $quote)
+    function _quoteBLOB($value, $quote, $escape_wildcards)
     {
         return 'EMPTY_BLOB()';
     }
@@ -186,13 +188,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteDate($value, $quote)
+    function _quoteDate($value, $quote, $escape_wildcards)
     {
-       return $this->_quoteText("$value 00:00:00", $quote);
+       return $this->_quoteText("$value 00:00:00", $quote, $escape_wildcards);
     }
 
     // }}}
@@ -204,13 +207,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteTimestamp($value, $quote)
+    function _quoteTimestamp($value, $quote, $escape_wildcards)
     {
-       return $this->_quoteText($value, $quote);
+       return $this->_quoteText($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -222,13 +226,14 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteTime($value, $quote)
+    function _quoteTime($value, $quote, $escape_wildcards)
     {
-       return $this->_quoteText("0001-01-01 $value", $quote);
+       return $this->_quoteText("0001-01-01 $value", $quote, $escape_wildcards);
     }
 
     // }}}

@@ -159,11 +159,12 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteBoolean($value, $quote)
+    function _quoteBoolean($value, $quote, $escape_wildcards)
     {
         return ($value ? 'True' : 'False');
     }
@@ -177,13 +178,14 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteDate($value, $quote)
+    function _quoteDate($value, $quote, $escape_wildcards)
     {
-        return 'DATE'.$this->_quoteText($value, $quote);
+        return 'DATE'.$this->_quoteText($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -195,13 +197,14 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteTimestamp($value, $quote)
+    function _quoteTimestamp($value, $quote, $escape_wildcards)
     {
-        return 'TIMESTAMP'.$this->_quoteText($value, $quote);
+        return 'TIMESTAMP'.$this->_quoteText($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -213,13 +216,14 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *        a DBMS specific format.
      * @access protected
      */
-    function _quoteTime($value, $quote)
+    function _quoteTime($value, $quote, $escape_wildcards)
     {
-        return 'TIME'.$this->_quoteText($value, $quote);
+        return 'TIME'.$this->_quoteText($value, $quote, $escape_wildcards);
     }
 }
 

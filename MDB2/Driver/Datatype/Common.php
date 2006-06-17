@@ -970,11 +970,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * @param string $value text string value that is intended to be converted.
      * @param string $type type to which the value should be converted to
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access public
      */
-    function quote($value, $type = null, $quote = true)
+    function quote($value, $type = null, $quote = true, $escape_wildcards = false)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -1023,7 +1024,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         } elseif (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
-                $parameter = array('type' => $type, 'value' => $value, 'quote' => $quote);
+                $parameter = array('type' => $type, 'value' => $value, 'quote' => $quote, 'escape_wildcards' => $escape_wildcards);
                 return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
             }
         }
@@ -1031,7 +1032,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (!method_exists($this, "_quote{$type}")) {
             return $db->raiseError('type not defined: '.$type);
         }
-        $value = $this->{"_quote{$type}"}($value, $quote);
+        $value = $this->{"_quote{$type}"}($value, $quote, $escape_wildcards);
 
         return $value;
     }
@@ -1045,11 +1046,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteInteger($value, $quote)
+    function _quoteInteger($value, $quote, $escape_wildcards)
     {
         return (int)$value;
     }
@@ -1063,11 +1065,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that already contains any DBMS specific
      *       escaped character sequences.
      * @access protected
      */
-    function _quoteText($value, $quote)
+    function _quoteText($value, $quote, $escape_wildcards)
     {
         if (!$quote) {
             return $value;
@@ -1078,7 +1081,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $value = $db->escape($value);
+        $value = $db->escape($value, $escape_wildcards);
         return "'".$value."'";
     }
 
@@ -1133,14 +1136,15 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteLOB($value, $quote)
+    function _quoteLOB($value, $quote, $escape_wildcards)
     {
         $value = $this->_readFile($value);
-        return $this->_quoteText($value, $quote);
+        return $this->_quoteText($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -1152,13 +1156,14 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteCLOB($value, $quote)
+    function _quoteCLOB($value, $quote, $escape_wildcards)
     {
-        return $this->_quoteLOB($value, $quote);
+        return $this->_quoteLOB($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -1170,13 +1175,14 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteBLOB($value, $quote)
+    function _quoteBLOB($value, $quote, $escape_wildcards)
     {
-        return $this->_quoteLOB($value, $quote);
+        return $this->_quoteLOB($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -1188,11 +1194,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteBoolean($value, $quote)
+    function _quoteBoolean($value, $quote, $escape_wildcards)
     {
         return ($value ? 1 : 0);
     }
@@ -1206,11 +1213,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteDate($value, $quote)
+    function _quoteDate($value, $quote, $escape_wildcards)
     {
         if ($value === 'CURRENT_DATE') {
             $db =& $this->getDBInstance();
@@ -1222,7 +1230,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             }
             return 'CURRENT_DATE';
         }
-        return $this->_quoteText($value, $quote);
+        return $this->_quoteText($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -1234,11 +1242,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteTimestamp($value, $quote)
+    function _quoteTimestamp($value, $quote, $escape_wildcards)
     {
         if ($value === 'CURRENT_TIMESTAMP') {
             $db =& $this->getDBInstance();
@@ -1250,7 +1259,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             }
             return 'CURRENT_TIMESTAMP';
         }
-        return $this->_quoteText($value, $quote);
+        return $this->_quoteText($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -1262,11 +1271,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteTime($value, $quote)
+    function _quoteTime($value, $quote, $escape_wildcards)
     {
         if ($value === 'CURRENT_TIME') {
             $db =& $this->getDBInstance();
@@ -1278,7 +1288,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             }
             return 'CURRENT_TIME';
         }
-        return $this->_quoteText($value, $quote);
+        return $this->_quoteText($value, $quote, $escape_wildcards);
     }
 
     // }}}
@@ -1290,19 +1300,20 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteFloat($value, $quote)
+    function _quoteFloat($value, $quote, $escape_wildcards)
     {
         if (preg_match('/^(.*)e([-+])(\d+)$/i', $value, $matches)) {
-            $decimal = $this->_quoteDecimal($matches[1], $quote);
+            $decimal = $this->_quoteDecimal($matches[1], $quote, $escape_wildcards);
             $sign = $matches[2];
             $exponent = str_pad($matches[3], 2, '0', STR_PAD_LEFT);
             $value = $decimal.'E'.$sign.$exponent;
         } else {
-            $value = $this->_quoteDecimal($value, $quote);
+            $value = $this->_quoteDecimal($value, $quote, $escape_wildcards);
         }
         return $value;
     }
@@ -1316,11 +1327,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param string $value text string value that is intended to be converted.
      * @param bool $quote determines if the value should be quoted and escaped
+     * @param bool $escape_wildcards if to escape escape wildcards
      * @return string text string that represents the given argument value in
      *       a DBMS specific format.
      * @access protected
      */
-    function _quoteDecimal($value, $quote)
+    function _quoteDecimal($value, $quote, $escape_wildcards)
     {
         $value = (string)$value;
         if (preg_match('/[^.0-9]/', $value)) {
