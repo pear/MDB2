@@ -133,8 +133,11 @@ class MDB2_Extended extends MDB2_Module_Common
         $where = false, $types = null, $result_class = true, $result_types = MDB2_PREPARE_MANIP)
     {
         $fields_values = (array)$fields_values;
-        if (MDB2_AUTOQUERY_SELECT && is_array($result_types)) {
-            $keys = array_keys($result_types);
+        $keys = array();
+        if (MDB2_AUTOQUERY_SELECT) {
+            if (is_array($result_types)) {
+                $keys = array_keys($result_types);
+            }
         } else {
             $keys = array_keys($fields_values);
         }
