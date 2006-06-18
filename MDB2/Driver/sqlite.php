@@ -244,6 +244,46 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ function setTransactionIsolation()
+
+    /**
+     * Set the transacton isolation level.
+     *
+     * @param   string  standard isolation level
+     *                  READ UNCOMMITTED (allows dirty reads)
+     *                  READ COMMITTED (prevents dirty reads)
+     *                  REPEATABLE READ (prevents nonrepeatable reads)
+     *                  SERIALIZABLE (prevents phantom reads)
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     */
+    function setTransactionIsolation($isolation)
+    {
+        $this->debug('setting transaction isolation level', 'setTransactionIsolation', false);
+        if (!$this->supports('transactions')) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'setTransactionIsolation: transactions are not in use');
+        }
+        switch ($isolation) {
+        case 'READ UNCOMMITTED':
+            $isolation = 0;
+            break;
+        case 'READ COMMITTED':
+        case 'REPEATABLE READ':
+        case 'SERIALIZABLE':
+            $isolation = 1;
+            break;
+        default:
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'setTransactionIsolation: isolation level is not supported: '.$isolation);
+        }
+
+        $query = "PRAGMA read_uncommitted=$isolation";
+        return $this->_doQuery($query, true);
+    }
+
+    // }}}
     // {{{ getDatabaseFile()
 
     /**

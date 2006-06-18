@@ -272,7 +272,43 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
         $this->in_transaction = 0;
         return MDB2_OK;
+    }
 
+    // }}}
+    // {{{ function setTransactionIsolation()
+
+    /**
+     * Set the transacton isolation level.
+     *
+     * @param   string  standard isolation level
+     *                  READ UNCOMMITTED (allows dirty reads)
+     *                  READ COMMITTED (prevents dirty reads)
+     *                  REPEATABLE READ (prevents nonrepeatable reads)
+     *                  SERIALIZABLE (prevents phantom reads)
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     */
+    function setTransactionIsolation($isolation)
+    {
+        $this->debug('setting transaction isolation level', 'setTransactionIsolation', false);
+        if (!$this->supports('transactions')) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'setTransactionIsolation: transactions are not in use');
+        }
+        switch ($isolation) {
+        case 'READ UNCOMMITTED':
+        case 'READ COMMITTED':
+        case 'REPEATABLE READ':
+        case 'SERIALIZABLE':
+            break;
+        default:
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'setTransactionIsolation: isolation level is not supported: '.$isolation);
+        }
+
+        $query = "SET SESSION TRANSACTION ISOLATION LEVEL $isolation";
+        return $this->_doQuery($query, true);
     }
 
     // }}}
