@@ -1158,11 +1158,19 @@ class MDB2_Driver_Common extends PEAR
     var $debug_output = '';
 
     /**
-     * determine if there is an open transaction
-     * @var     bool
+     * determine if there is an open transaction and what the smart transaction
+     * nesting depth is
+     * @var     integer
      * @access  protected
      */
-    var $in_transaction = false;
+    var $in_transaction = 0;
+
+    /**
+     * the first error that occured inside a nested transaction
+     * @var     MDB2_Error|bool
+     * @access  protected
+     */
+    var $has_transaction_error = false;
 
     /**
      * result offset used in the next query
@@ -1373,6 +1381,9 @@ class MDB2_Driver_Common extends PEAR
         }
 
         $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        if (isset($this->in_transaction) && $this->in_transaction && !$this->has_transaction_error) {
+            $this->has_transaction_error =& $err;
+        }
         return $err;
     }
     // }}}
@@ -1877,13 +1888,90 @@ class MDB2_Driver_Common extends PEAR
     /**
      * If a transaction is currently open.
      *
-     * @return  bool    true if a transaction is currently open, else false
+     * @return  int     1+ depending on the smart transaction nesting depth, else 0
      *
      * @access  public
      */
     function inTransaction()
     {
         return $this->in_transaction;
+    }
+    // }}}
+
+    // {{{ function beginNestedTransaction()
+
+    /**
+     * Start a nested transaction.
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     */
+    function beginNestedTransaction()
+    {
+        if ($this->in_transaction) {
+            ++$this->in_transaction;
+            return MDB2_OK;
+        }
+        $this->has_transaction_error = false;
+        return $this->beginTransaction();
+    }
+    // }}}
+
+    // {{{ function completeNestedTransaction()
+
+    /**
+     * Finish a nested transaction by rolling back if an error occured or
+     * commiting otherwise.
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     */
+    function completeNestedTransaction()
+    {
+        if ($this->in_transaction > 1) {
+            --$this->in_transaction;
+            return MDB2_OK;
+        }
+        if ($this->has_transaction_error) {
+            return $this->rollback();
+        }
+        return $this->commit();
+    }
+    // }}}
+
+    // {{{ function failNestedTransactionError()
+
+    /**
+     * Force setting nested transaction to failed.
+     *
+     * @return  bool     MDB2_OK
+     *
+     * @access  public
+     */
+    function failNestedTransactionError($error = null)
+    {
+        if (is_null($error)) {
+            $error = $this->has_transaction_error ? $this->has_transaction_error : true;
+        }
+        $this->has_transaction_error = $error;
+        return MDB2_OK;
+    }
+    // }}}
+
+    // {{{ function getNestedTransactionError()
+
+    /**
+     * The first error that occured since the transaction start.
+     *
+     * @return  MDB2_Error|bool     MDB2 error object if an error occured or false.
+     *
+     * @access  public
+     */
+    function getNestedTransactionError()
+    {
+        return $this->has_transaction_error;
     }
     // }}}
 
@@ -1938,7 +2026,7 @@ class MDB2_Driver_Common extends PEAR
         $this->connected_database_name = '';
         $this->opened_persistent = null;
         $this->connected_server_info = '';
-        $this->in_transaction = false;
+        $this->in_transaction = 0;
         return MDB2_OK;
     }
     // }}}
