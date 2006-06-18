@@ -201,7 +201,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $this->in_transaction = true;
+        $this->in_transaction = 1;
         return MDB2_OK;
     }
 
@@ -234,7 +234,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $this->in_transaction = false;
+        $this->in_transaction = 0;
         return MDB2_OK;
     }
 
@@ -267,7 +267,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $this->in_transaction = false;
+        $this->in_transaction = 0;
         return MDB2_OK;
     }
 
