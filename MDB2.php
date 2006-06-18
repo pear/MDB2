@@ -1898,6 +1898,28 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
+    // {{{ function setTransactionIsolation()
+
+    /**
+     * Set the transacton isolation level.
+     *
+     * @param   string  standard isolation level
+     *                  READ UNCOMMITTED (allows dirty reads)
+     *                  READ COMMITTED (prevents dirty reads)
+     *                  REPEATABLE READ (prevents nonrepeatable reads)
+     *                  SERIALIZABLE (prevents phantom reads)
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     */
+    function setTransactionIsolation($isolation)
+    {
+        $this->debug('setting transaction isolation level', 'setTransactionIsolation', false);
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'setTransactionIsolation: isolation level setting is not supported');
+    }
+    // }}}
+
     // {{{ function beginNestedTransaction()
 
     /**
@@ -1941,19 +1963,22 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
-    // {{{ function failNestedTransactionError()
+    // {{{ function failNestedTransaction()
 
     /**
      * Force setting nested transaction to failed.
      *
+     * @param   mixed    value to return in getNestededTransactionError()
      * @return  bool     MDB2_OK
      *
      * @access  public
      */
-    function failNestedTransactionError($error = null)
+    function failNestedTransaction($error = null)
     {
         if (is_null($error)) {
             $error = $this->has_transaction_error ? $this->has_transaction_error : true;
+        } elseif (!$error) {
+            $error = true;
         }
         $this->has_transaction_error = $error;
         return MDB2_OK;
