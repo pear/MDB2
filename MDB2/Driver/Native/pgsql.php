@@ -44,6 +44,8 @@
 //
 // $Id$
 
+require_once 'MDB2/Driver/Native/Common.php';
+
 /**
  * MDB2 PostGreSQL driver for the native module
  *
@@ -51,7 +53,7 @@
  * @category Database
  * @author  Paul Cooper <pgc@ucecom.com>
  */
-class MDB2_Driver_Native_pgsql extends MDB2_Module_Common
+class MDB2_Driver_Native_pgsql extends MDB2_Driver_Native_Common
 {
     // }}}
     // {{{ deleteOID()
