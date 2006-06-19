@@ -28,6 +28,7 @@ open todo items:
 - add support to generating "AS" keyword if required
 - add support for database/table/row LOCKs
 - add ActiveRecord implementation (probably as a separate package)
+- add support for FOREIGN KEYs
 EOT;
 
 $description =<<<EOT
