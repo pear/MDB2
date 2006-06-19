@@ -729,14 +729,15 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
             $query = $result;
         }
-        if (!empty($types)) {
+        $pgtypes = function_exists('pg_prepare') ? false : array();
+        if ($pgtypes !== false && !empty($types)) {
             $this->loadModule('Datatype', null, true);
         }
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
         $placeholder_type_guess = $placeholder_type = null;
         $question = '?';
         $colon = ':';
-        $positions = $pgtypes = array();
+        $positions = array();
         $position = $parameter = 0;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
@@ -799,12 +800,14 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     }
                     $length = strlen($name) + 1;
                 }
-                if (is_array($types) && array_key_exists($name, $types)) {
-                    $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$name]);
-                } elseif (is_array($types) && array_key_exists($parameter, $types)) {
-                    $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$parameter]);
-                } else {
-                    $pgtypes[] = 'text';
+                if ($pgtypes !== false) {
+                    if (is_array($types) && array_key_exists($name, $types)) {
+                        $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$name]);
+                    } elseif (is_array($types) && array_key_exists($parameter, $types)) {
+                        $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$parameter]);
+                    } else {
+                        $pgtypes[] = 'text';
+                    }
                 }
                 $positions[$name] = $p_position;
                 $query = substr_replace($query, '$'.++$parameter, $position, $length);
@@ -818,12 +821,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $connection;
         }
 
-        $types_string = '';
-        if ($pgtypes) {
-            $types_string = ' ('.implode(', ', $pgtypes).') ';
-        }
         $statement_name = strtolower('MDB2_Statement_'.$this->phptype.md5(time() + rand()));
-        if (function_exists('pg_prepare')) {
+        if ($pgtypes === false) {
             $result = @pg_prepare($connection, $statement_name, $query);
             if (!$result) {
                 $err =& $this->raiseError(null, null, null,
@@ -831,6 +830,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 return $err;
             }
         } else {
+            $types_string = '';
+            if ($pgtypes) {
+                $types_string = ' ('.implode(', ', $pgtypes).') ';
+            }
             $query = 'PREPARE '.$statement_name.$types_string.' AS '.$query;
             $statement =& $this->_doQuery($query, true, $connection);
             if (PEAR::isError($statement)) {
