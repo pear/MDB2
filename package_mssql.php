@@ -5,6 +5,9 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'XXX';
 $notes = <<<EOT
 - added ability to escape wildcard characters in escape() and quote()
+
+open todo items:
+- explore fast limit/offset emulation (Request #4544)
 EOT;
 
 $package = new PEAR_PackageFileManager();
