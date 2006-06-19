@@ -23,6 +23,11 @@ open todo items:
 - add cursor support along the lines of PDO (Request #3660 etc.)
 - expand length/scale support for numeric types (Request #7170)
 - add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
+- add support to generating "AS" keyword if required
+- add support for database/table/row LOCKs
+- add ActiveRecord implementation (probably as a separate package)
 EOT;
 
 $description =<<<EOT
