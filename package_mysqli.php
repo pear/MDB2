@@ -2,28 +2,10 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.1.0';
+$version = 'XXX';
 $notes = <<<EOT
-- tweaked handling of free() for prepared statements
-- return error if a prepared statement is attempted to be freed twice
-- removed use of addslashes() for BLOB quoting
-  (this might result in SQL injection vulnerability)
-- added setCharset()
-- use setCharset() in connect()/_doConnect()
-- set transaction enabled engine as default
-- generalized quoteIdentifier() with a property
-- use general implementation of quoteIdentifier() (Bug #7738)
-- fixed warning in replace() if type is not set (Bug #7740)
-- cosmetic performance tweak in getTableFieldDefinition()
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- pass limit and offset to the result object constructor in _execute() for read statements
-- check if result/connection has not yet been freed/dicsonnected before
-  attempting to free a result set(Bug #7790)
-- fixed unbuffered query support
-- revert change that would prefer 'clob' over 'text' for TEXT fields
-  (this was breaking runtime instrospection)
+- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
 EOT;
 
 $package = new PEAR_PackageFileManager();

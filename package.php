@@ -2,41 +2,27 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.1.0';
+$version = 'XXX';
 $notes = <<<EOT
-- removed bogus code from execute()
-- new test case for floats/decimals and locale
-- reworked fix for float/decimal handling
-- expanded scientific notation handling
-- fixed several minor issues with the datatype tests
-- removed use of "*" in all places in the test suite that are followed by a fetch
-- tweaked handling of free() for prepared statements
-- return error if a prepared statement is attempted to be free'ed or executed again
-- added result_wrap_class param to limitQuery()
-- added parameter to not quote return value of getBeforeId()
-- added setCharset()
-- enable transactions by default
-- added decimal reverse engineering test
-- fixed parameter order in assertions in reverse engineering fields tests
-- generalized quoteIdentifier() with a property
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- added 'datatype_map' option (Request #7797)
-- added reverse parameter to getColumnNames()
-- added 'datatype_map_callback' option
-- added getValidTypes() method to handle additional types from the 'datatype_map' option
-- set last_query in _execute() to prepared statement (Bug #7856)
-- adding random function emulation to generate a float between 0 and 1
-- explicitly fetch row id = 1 in LOB tests
-- cosmetic fix to prepare() (Bug #7883)
-- bumped PHP dependency to 4.3.2 because of LOB stream support
+- added MDB2_AUTOQUERY_SELECT (Request #7817)
+- inTransaction() now returns an integer instead of a boolean
+  (however casts cleanly to old value)
+- added nested transaction support (inspired by ADODB's smart transactions)
+  beginNestedTransaction(), completeNestedTransaction(),
+  failNestedTransaction(), getNestedTransactionError()
+- added setTransactionIsolation()
+- added Native base class for consistency
 
 open todo items:
 - handle autoincrement fields in alterTable()
-- add support for ADODB style "smart transactions":
-  http://phplens.com/lens/adodb/docs-adodb.htm#ex11
 - add length handling to LOB reverse engineering
+- expand charset support in schema management and result set handling (Request #4666)
+- add EXPLAIN abstraction
+- add debug() call at the end of a query execution (Request #7933)
+- add context array parameter to debug()
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- expand length/scale support for numeric types (Request #7170)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
 EOT;
 
 $description =<<<EOT

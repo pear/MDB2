@@ -2,18 +2,10 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.1.0';
+$version = 'XXX';
 $notes = <<<EOT
-- fixed unsigned handling in mapNativeDatatype()
-- use setCharset() in connect()/_doConnect()
-- generalized quoteIdentifier() with a property
-- fixed warning in replace() if type is not set (Bug #7740)
-- cosmetic performance tweak in getTableFieldDefinition()
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- revert change that would prefer 'clob' over 'text' for TEXT fields
-  (this was breaking runtime instrospection)
+- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding

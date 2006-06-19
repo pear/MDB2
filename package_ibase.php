@@ -2,21 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.1.0';
+$version = 'XXX';
 $notes = <<<EOT
-- added "emulate_prepared" option to force prepared statement emulation
-- tweaked handling of free() for prepared statements
-- return error if a prepared statement is attempted to be freed twice
-- added setCharset()
-- generalized quoteIdentifier() with a property
-- cosmetic performance tweak in getTableFieldDefinition()
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- check if result/connection has not yet been freed/disconnected before
-  attempting to free a result set(Bug #7790)
-- fixed control flow in MDB2_Driver_Datatype_ibase::mapNativeDatatype()
-  for 'numeric' or 'decimal' types
+- added ability to escape wildcard characters in escape() and quote()
 EOT;
 
 $package = new PEAR_PackageFileManager();

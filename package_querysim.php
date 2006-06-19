@@ -2,13 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.3.0';
+$version = 'XXX';
 $notes = <<<EOT
-- use setCharset() in connect()/_doConnect()
-- generalized quoteIdentifier() with a property
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
+- added ability to escape wildcard characters in escape() and quote()
 
 open todo items:
 - add ability to reference multiple results set files for different queries

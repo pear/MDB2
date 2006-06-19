@@ -2,47 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.1.0';
+$version = 'XXX';
 $notes = <<<EOT
-- added the listTableTriggers() method to the Manager.
-- added the listViews() method to the Manager.
-- aligned _modifyQuery() signature and phpdoc
-- added the map datatype patch for (bug #6863)
-- added support for length in reverse engineering of integer fields
-- added 'result_introspection' supported metadata support
-- fixed alterTable() when adding/dropping multiple columns
-- properly quote table names in tableInfo() (related to bug #6573)
-- use connected_server_info in getServerVersion() as a cache cache
-- use parent::disconnect() in disconnect()
-- added support for length in integer reverse engineering
-- some fixes regarding boolean reverse engineering
-- protect against sql injection in the reverse and manager module
-- explicitly set is_manip parameter to false for transaction debug calls
-- various minor tweaks to error messages, phpdoc and adding stub methods to the
-  common driver
-- typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for 'text' in declarations,
-  as well as in reverse engineering (Request #1523)
-- made _doQuery() return a reference
-- added userinfo's to all raiseError calls that previously had none
-- added 'prepared_statements' supported meta data setting
-- limit fetch to 1 row in listTableFields()
-- use setCharset() in connect()/_doConnect()
-- generalized quoteIdentifier() with a property
-- drop parentheses from executeStoredProc() syntax (bug #7855)
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- added implementation for now() and substring() (Request #7774)
-- check if result/connection has not yet been freed/dicsonnected before
-  attempting to free a result set(Bug #7790)
-- fix range offsets (bug #7448)
-- revert change that would prefer 'clob' over 'text' for TEXT fields
-  (this was breaking runtime instrospection)
-- use SCOPE_IDENTITY() when version >= 8 (SQL Server 2000) otherwise fallback to
-  @@IDENTITY to retrieve last inserted value (bug #7291)
-- implement getServerVersion()
-- removed bogus but unharmful code from mapNativeDatatype()
+- added ability to escape wildcard characters in escape() and quote()
 EOT;
 
 $package = new PEAR_PackageFileManager();

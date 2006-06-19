@@ -21,6 +21,7 @@ $notes = <<<EOT
 - added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
 - check if result/connection has not yet been freed/dicsonnected before
   attempting to free a result set(Bug #7790)
+- added ability to escape wildcard characters in escape() and quote()
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested
