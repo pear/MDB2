@@ -5,11 +5,11 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'XXX';
 $notes = <<<EOT
 - added MDB2_AUTOQUERY_SELECT (Request #7817)
-- inTransaction() now returns an integer instead of a boolean
-  (however casts cleanly to old value)
 - added nested transaction support (inspired by ADODB's smart transactions)
   beginNestedTransaction(), completeNestedTransaction(),
   failNestedTransaction(), getNestedTransactionError()
+- inTransaction() will not return an integer with the nested transaction depth
+  only if a nested transaction has been started
 - added setTransactionIsolation()
 - added Native base class for consistency
 
