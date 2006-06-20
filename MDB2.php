@@ -1352,6 +1352,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
     {
+        $userinfo = "[Error message: $userinfo]\n";
         // The error is yet a MDB2 error object
         if (PEAR::isError($code)) {
             // because we use the static PEAR::raiseError, our global
@@ -1365,19 +1366,17 @@ class MDB2_Driver_Common extends PEAR
             }
             $code = $code->getCode();
         } elseif (isset($this->connection)) {
-            if (is_null($userinfo) && !empty($this->last_query)) {
-                $userinfo = "[Last query: {$this->last_query}]\n";
+            if (!empty($this->last_query)) {
+                $userinfo.= "[Last query: {$this->last_query}]\n";
             }
             $native_errno = $native_msg = null;
             list($code, $native_errno, $native_msg) = $this->errorInfo($code);
-            if (!is_null($native_errno)) {
+            if (!is_null($native_errno) && $native_errno !== '') {
                 $userinfo.= "[Native code: $native_errno]\n";
             }
-            if (!is_null($native_msg)) {
+            if (!is_null($native_msg) && $native_msg !== '') {
                 $userinfo.= "[Native message: ". strip_tags($native_msg) ."]\n";
             }
-        } else {
-            $userinfo = "[Error message: $userinfo]\n";
         }
 
         $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
@@ -1955,6 +1954,9 @@ class MDB2_Driver_Common extends PEAR
         if ($this->in_transaction > 1) {
             --$this->in_transaction;
             return MDB2_OK;
+        } elseif ($this->in_transaction <= 0) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'completeNestedTransaction: no transaction is opene to complete');
         }
         if ($this->has_transaction_error) {
             return $this->rollback();
