@@ -1030,7 +1030,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         }
 
         if (!method_exists($this, "_quote{$type}")) {
-            return $db->raiseError('type not defined: '.$type);
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'type not defined: '.$type);
         }
         $value = $this->{"_quote{$type}"}($value, $quote, $escape_wildcards);
 
