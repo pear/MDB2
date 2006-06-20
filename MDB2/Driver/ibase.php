@@ -280,7 +280,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 'beginTransaction: could not start a transaction');
         }
         $this->transaction_id = $result;
-        $this->in_transaction = 1;
+        $this->in_transaction = true;
         return MDB2_OK;
     }
 
@@ -305,7 +305,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $this->raiseError(null, null, null,
                 'commit: could not commit a transaction');
         }
-        $this->in_transaction = 0;
+        $this->in_transaction = false;
         //$this->transaction_id = 0;
         return MDB2_OK;
     }
@@ -331,7 +331,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $this->raiseError(null, null, null,
                 'rollback: Could not rollback a pending transaction');
         }
-        $this->in_transaction = 0;
+        $this->in_transaction = false;
         $this->transaction_id = 0;
         return MDB2_OK;
     }

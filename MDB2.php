@@ -1160,7 +1160,7 @@ class MDB2_Driver_Common extends PEAR
     /**
      * determine if there is an open transaction and what the smart transaction
      * nesting depth is
-     * @var     integer
+     * @var     int|bool
      * @access  protected
      */
     var $in_transaction = 0;
@@ -1887,7 +1887,10 @@ class MDB2_Driver_Common extends PEAR
     /**
      * If a transaction is currently open.
      *
-     * @return  int     1+ depending on the smart transaction nesting depth, else 0
+     * @return  int|bool    - an integer with the nesting depth is returned if a
+     *                      nested transaction is open
+     *                      - true is returned for a normal open transaction
+     *                      - false is returned if no transaction is open
      *
      * @access  public
      */
@@ -1931,11 +1934,13 @@ class MDB2_Driver_Common extends PEAR
     function beginNestedTransaction()
     {
         if ($this->in_transaction) {
-            ++$this->in_transaction;
+            $this->in_transaction+= 1;
             return MDB2_OK;
         }
         $this->has_transaction_error = false;
-        return $this->beginTransaction();
+        $result = $this->beginTransaction();
+        $this->in_transaction = 1;
+        return $result;
     }
     // }}}
 
@@ -1952,10 +1957,10 @@ class MDB2_Driver_Common extends PEAR
     function completeNestedTransaction()
     {
         if ($this->in_transaction > 1) {
-            --$this->in_transaction;
+            $this->in_transaction-= 1;
             return MDB2_OK;
         } elseif ($this->in_transaction <= 0) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            return $this->raiseError(MDB2_ERROR, null, null,
                 'completeNestedTransaction: no transaction is opene to complete');
         }
         if ($this->has_transaction_error) {
@@ -2053,7 +2058,7 @@ class MDB2_Driver_Common extends PEAR
         $this->connected_database_name = '';
         $this->opened_persistent = null;
         $this->connected_server_info = '';
-        $this->in_transaction = 0;
+        $this->in_transaction = false;
         return MDB2_OK;
     }
     // }}}

@@ -187,7 +187,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $this->in_transaction = 1;
+        $this->in_transaction = true;
         return MDB2_OK;
     }
 
@@ -213,7 +213,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $this->in_transaction = 0;
+        $this->in_transaction = false;
         return MDB2_OK;
     }
 
@@ -239,7 +239,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $this->in_transaction = 0;
+        $this->in_transaction = false;
         return MDB2_OK;
     }
 

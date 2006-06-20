@@ -171,7 +171,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $this->destructor_registered = true;
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
-        $this->in_transaction = 1;
+        $this->in_transaction = true;
         ++$this->uncommitedqueries;
         return MDB2_OK;
     }
@@ -204,7 +204,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             $this->uncommitedqueries = 0;
         }
-        $this->in_transaction = 0;
+        $this->in_transaction = false;
         return MDB2_OK;
     }
 
@@ -236,7 +236,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             $this->uncommitedqueries = 0;
         }
-        $this->in_transaction = 0;
+        $this->in_transaction = false;
         return MDB2_OK;
     }
 
