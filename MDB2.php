@@ -1158,12 +1158,18 @@ class MDB2_Driver_Common extends PEAR
     var $debug_output = '';
 
     /**
-     * determine if there is an open transaction and what the smart transaction
-     * nesting depth is
-     * @var     int|bool
+     * determine if there is an open transaction
+     * @var     bool
      * @access  protected
      */
-    var $in_transaction = 0;
+    var $in_transaction = false;
+
+    /**
+     * the smart transaction nesting depth
+     * @var     int
+     * @access  protected
+     */
+    var $nested_transaction_counter = null;
 
     /**
      * the first error that occured inside a nested transaction
@@ -1380,7 +1386,7 @@ class MDB2_Driver_Common extends PEAR
         }
 
         $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
-        if (isset($this->in_transaction) && $this->in_transaction && !$this->has_transaction_error) {
+        if (isset($this->nested_transaction_counter) && !$this->has_transaction_error) {
             $this->has_transaction_error =& $err;
         }
         return $err;
@@ -1896,6 +1902,9 @@ class MDB2_Driver_Common extends PEAR
      */
     function inTransaction()
     {
+        if (isset($this->nested_transaction_counter)) {
+            return $this->nested_transaction_counter;
+        }
         return $this->in_transaction;
     }
     // }}}
@@ -1934,12 +1943,12 @@ class MDB2_Driver_Common extends PEAR
     function beginNestedTransaction()
     {
         if ($this->in_transaction) {
-            $this->in_transaction+= 1;
+            $this->nested_transaction_counter+= 1;
             return MDB2_OK;
         }
         $this->has_transaction_error = false;
         $result = $this->beginTransaction();
-        $this->in_transaction = 1;
+        $this->nested_transaction_counter = 1;
         return $result;
     }
     // }}}
@@ -1956,13 +1965,17 @@ class MDB2_Driver_Common extends PEAR
      */
     function completeNestedTransaction()
     {
-        if ($this->in_transaction > 1) {
-            $this->in_transaction-= 1;
+        if ($this->nested_transaction_counter > 1) {
+            $this->nested_transaction_counter-= 1;
             return MDB2_OK;
-        } elseif ($this->in_transaction <= 0) {
-            return $this->raiseError(MDB2_ERROR, null, null,
-                'completeNestedTransaction: no transaction is opene to complete');
         }
+        $this->nested_transaction_counter = null;
+
+        // transaction has already been rolled back
+        if (!$this->in_transaction) {
+            return MDB2_OK;
+        }
+
         if ($this->has_transaction_error) {
             return $this->rollback();
         }
@@ -1980,7 +1993,7 @@ class MDB2_Driver_Common extends PEAR
      *
      * @access  public
      */
-    function failNestedTransaction($error = null)
+    function failNestedTransaction($error = null, $immediatly = false)
     {
         if (is_null($error)) {
             $error = $this->has_transaction_error ? $this->has_transaction_error : true;
@@ -1988,7 +2001,11 @@ class MDB2_Driver_Common extends PEAR
             $error = true;
         }
         $this->has_transaction_error = $error;
-        return MDB2_OK;
+        $result = MDB2_OK;
+        if ($immediatly) {
+            $result = $this->rollback();
+        }
+        return $result;
     }
     // }}}
 
@@ -2058,7 +2075,8 @@ class MDB2_Driver_Common extends PEAR
         $this->connected_database_name = '';
         $this->opened_persistent = null;
         $this->connected_server_info = '';
-        $this->in_transaction = false;
+        $this->in_transaction = null;
+        $this->nested_transaction_counter = 0;
         return MDB2_OK;
     }
     // }}}
