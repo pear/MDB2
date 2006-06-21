@@ -14,6 +14,7 @@ $notes = <<<EOT
 - added Native base class for consistency
 
 open todo items:
+- add support for real nested transactions and savepoints
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering
 - expand charset support in schema management and result set handling (Request #4666)
