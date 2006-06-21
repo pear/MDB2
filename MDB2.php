@@ -1893,6 +1893,7 @@ class MDB2_Driver_Common extends PEAR
     /**
      * If a transaction is currently open.
      *
+     * @param   bool    if the nested transaction count should be ignored
      * @return  int|bool    - an integer with the nesting depth is returned if a
      *                      nested transaction is open
      *                      - true is returned for a normal open transaction
@@ -1900,9 +1901,9 @@ class MDB2_Driver_Common extends PEAR
      *
      * @access  public
      */
-    function inTransaction()
+    function inTransaction($ignore_nested = false)
     {
-        if (isset($this->nested_transaction_counter)) {
+        if (!$ignore_nested && isset($this->nested_transaction_counter)) {
             return $this->nested_transaction_counter;
         }
         return $this->in_transaction;
@@ -1943,7 +1944,7 @@ class MDB2_Driver_Common extends PEAR
     function beginNestedTransaction()
     {
         if ($this->in_transaction) {
-            $this->nested_transaction_counter+= 1;
+            ++$this->nested_transaction_counter;
             return MDB2_OK;
         }
         $this->has_transaction_error = false;
@@ -1968,21 +1969,23 @@ class MDB2_Driver_Common extends PEAR
     function completeNestedTransaction($force_rollback = false)
     {
         if ($this->nested_transaction_counter > 1) {
-            $this->nested_transaction_counter-= 1;
+            --$this->nested_transaction_counter;
             return MDB2_OK;
         }
         $this->nested_transaction_counter = null;
 
-        // transaction has already been rolled back
-        if (!$this->in_transaction) {
-            return MDB2_OK;
-        }
+        $result = MDB2_OK;
 
-        if ($force_rollback || $this->has_transaction_error) {
-            $this->has_transaction_error = false;
-            return $this->rollback();
+        // transaction has not yet been rolled back
+        if ($this->in_transaction) {
+            if ($force_rollback || $this->has_transaction_error) {
+                $result = $this->rollback();
+            } else {
+                $result = $this->commit();
+            }
         }
-        return $this->commit();
+        $this->has_transaction_error = false;
+        return $result;
     }
     // }}}
 
