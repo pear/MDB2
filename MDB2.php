@@ -1959,11 +1959,13 @@ class MDB2_Driver_Common extends PEAR
      * Finish a nested transaction by rolling back if an error occured or
      * commiting otherwise.
      *
+     * @param   bool    if the transaction should be rolled back regardless
+     *                  even if no error was set within the nested transaction
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      */
-    function completeNestedTransaction()
+    function completeNestedTransaction($force_rollback = false)
     {
         if ($this->nested_transaction_counter > 1) {
             $this->nested_transaction_counter-= 1;
@@ -1976,7 +1978,8 @@ class MDB2_Driver_Common extends PEAR
             return MDB2_OK;
         }
 
-        if ($this->has_transaction_error) {
+        if ($force_rollback || $this->has_transaction_error) {
+            $this->has_transaction_error = false;
             return $this->rollback();
         }
         return $this->commit();
@@ -1988,8 +1991,9 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Force setting nested transaction to failed.
      *
-     * @param   mixed    value to return in getNestededTransactionError()
-     * @return  bool     MDB2_OK
+     * @param   mixed   value to return in getNestededTransactionError()
+     * @param   bool    if the transaction should be rolled back immediatly
+     * @return  bool    MDB2_OK
      *
      * @access  public
      */
