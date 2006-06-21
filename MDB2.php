@@ -1888,7 +1888,7 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
-    // {{{ function inTransaction()
+    // {{{ function inTransaction($ignore_nested = false)
 
     /**
      * If a transaction is currently open.
@@ -1910,7 +1910,7 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
-    // {{{ function setTransactionIsolation()
+    // {{{ function setTransactionIsolation($isolation)
 
     /**
      * Set the transacton isolation level.
@@ -1954,7 +1954,7 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
-    // {{{ function completeNestedTransaction()
+    // {{{ function completeNestedTransaction($force_rollback = false)
 
     /**
      * Finish a nested transaction by rolling back if an error occured or
@@ -1993,7 +1993,7 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
-    // {{{ function failNestedTransaction()
+    // {{{ function failNestedTransaction($error = null, $immediatly = false)
 
     /**
      * Force setting nested transaction to failed.
@@ -2046,7 +2046,7 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
-    // {{{ setCharset()
+    // {{{ setCharset($charset, $connection = null)
 
     /**
      * Set the charset on the current connection
