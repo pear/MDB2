@@ -29,7 +29,7 @@ open todo items:
 - add support to generating "AS" keyword if required
 - add support for database/table/row LOCKs
 - add ActiveRecord implementation (probably as a separate package)
-- add support for FOREIGN KEYs
+- add support for FOREIGN KEYs and CHECK (enum as possible mysql fallback) constraints
 EOT;
 
 $description =<<<EOT
