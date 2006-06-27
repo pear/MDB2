@@ -97,6 +97,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function getValidTypes()
     {
         $types = $this->valid_types;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
         if (!empty($db->options['datatype_map'])) {
             $types+= $db->options['datatype_map'];
         }
