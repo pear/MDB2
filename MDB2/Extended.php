@@ -100,7 +100,6 @@ class MDB2_Extended extends MDB2_Module_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-
         return $db->prepare($query, $types, $result_types);
     }
     // }}}
@@ -137,18 +136,32 @@ class MDB2_Extended extends MDB2_Module_Common
             if (is_array($result_types)) {
                 $keys = array_keys($result_types);
             } else {
-                $keys = array();
+                $keys = $result_types = array();
             }
         } else {
             $keys = array_keys($fields_values);
         }
-        $stmt = $this->autoPrepare($table, $keys, $mode, $where, $types, $result_types);
-        if (PEAR::isError($stmt)) {
-            return $stmt;
-        }
         $params = array_values($fields_values);
-        $result =& $stmt->execute($params, $result_class);
-        $stmt->free();
+        if (empty($params)) {
+            $query = $this->buildManipSQL($table, $keys, $mode, $where);
+
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            if ($mode == MDB2_AUTOQUERY_SELECT) {
+                $result =& $db->query($query, $result_types, $result_class);
+            } else {
+                $result =& $db->exec($query);
+            }
+        } else {
+            $stmt = $this->autoPrepare($table, $keys, $mode, $where, $types, $result_types);
+            if (PEAR::isError($stmt)) {
+                return $stmt;
+            }
+            $result =& $stmt->execute($params, $result_class);
+            $stmt->free();
+        }
         return $result;
     }
     // }}}
@@ -299,9 +312,9 @@ class MDB2_Extended extends MDB2_Module_Common
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
-        $stmt->free();
 
         $one = $result->fetchOne($colnum);
+        $stmt->free();
         $result->free();
         return $one;
     }
@@ -346,9 +359,9 @@ class MDB2_Extended extends MDB2_Module_Common
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
-        $stmt->free();
 
         $row = $result->fetchRow($fetchmode);
+        $stmt->free();
         $result->free();
         return $row;
     }
@@ -394,9 +407,9 @@ class MDB2_Extended extends MDB2_Module_Common
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
-        $stmt->free();
 
         $col = $result->fetchCol($colnum);
+        $stmt->free();
         $result->free();
         return $col;
     }
@@ -450,9 +463,9 @@ class MDB2_Extended extends MDB2_Module_Common
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
-        $stmt->free();
 
         $all = $result->fetchAll($fetchmode, $rekey, $force_array, $group);
+        $stmt->free();
         $result->free();
         return $all;
     }
