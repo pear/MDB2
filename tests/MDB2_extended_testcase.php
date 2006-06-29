@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Paul Cooper                    |
+// | Copyright (c) 1998-2006 Paul Cooper, Lukas Smith, Lorenzo Alberton   |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -38,7 +38,8 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Paul Cooper <pgc@ucecom.com>                                 |
+// | Authors: Paul Cooper <pgc@ucecom.com>                                |
+// |          Lorenzo Alberton <l dot alberton at quipo dot it>           |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -50,7 +51,8 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
     /**
      *
      */
-    function testAutoExecute() {
+    function testAutoExecute()
+    {
         $data = $this->getSampleData();
         $select_query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
 
@@ -112,11 +114,17 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
             $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
         }
 
-        $this->assertEquals($result->numRows(), 0, 'No rows were expected to be returned');
+        $this->assertEquals(0, $result->numRows(), 'No rows were expected to be returned');
         $result->free();
     }
-
-    function testGetAssoc() {
+    
+    /**
+     * Test getAssoc()
+     *
+     * Test fetching two columns from a resultset. Return them as (key,value) pairs.
+     */
+    function testGetAssoc()
+    {
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
@@ -140,7 +148,124 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
             $this->assertTrue(false, 'Error executing getAssoc()'.$result->getMessage());
         }
         $this->assertTrue(array_key_exists($data['user_id'], $result), 'Unexpected returned key');
-        $this->assertEquals($result[$data['user_id']], $data['user_name'], 'Unexpected returned value');
+        $this->assertEquals($data['user_name'], $result[$data['user_id']], 'Unexpected returned value');
+        
+        //test getAssoc() without query parameters
+        $query = 'SELECT user_id, user_name FROM users WHERE user_id=1234';
+        $result = $this->db->getAssoc($query, array('integer', 'text'));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getAssoc()'.$result->getMessage());
+        }
+        $this->assertTrue(array_key_exists($data['user_id'], $result), 'Unexpected returned key');
+        $this->assertEquals($data['user_name'], $result[$data['user_id']], 'Unexpected returned value');
+
+        //test $force_array and $group parameters
+        //...
+    }
+
+    /**
+     * Test getOne()
+     *
+     * Test fetching a single value
+     */
+    function testGetOne()
+    {
+        $result = $this->db->loadModule('Extended');
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+        }
+
+        $data = $this->getSampleData(1234);
+
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        $result = $stmt->execute(array_values($data));
+        $stmt->free();
+
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+        }
+
+        //test getOne() with query parameters
+        $query = 'SELECT user_name FROM users WHERE user_id=?';
+        $result = $this->db->getOne($query, 'text', array(1234), array('integer'));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getOne()'.$result->getMessage());
+        }
+        $this->assertEquals($data['user_name'], $result, 'Unexpected returned value');
+
+        //test getOne() without query parameters
+        $query = 'SELECT user_name FROM users WHERE user_id=1234';
+        $result = $this->db->getOne($query, 'text');
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getOne()'.$result->getMessage());
+        }
+        $this->assertEquals($data['user_name'], $result, 'Unexpected returned value');
+
+        //test getOne() with column number (resultset: 0-based array)
+        $query = 'SELECT user_id, user_name, approved FROM users WHERE user_id=1234';
+        $result = $this->db->getOne($query, 'text', null, null, 1); //get the 2nd column
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getOne()'.$result->getMessage());
+        }
+        $this->assertEquals($data['user_name'], $result, 'Unexpected returned value');
+    }
+
+    /**
+     * Test getCol()
+     *
+     * Test fetching a column of result data.
+     */
+    function testGetCol()
+    {
+        $result = $this->db->loadModule('Extended');
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+        }
+
+        $data = array(
+            0 => $this->getSampleData(1234),
+            1 => $this->getSampleData(4321),
+        );
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        $result = $stmt->execute(array_values($data[0]));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+        }
+        $result = $stmt->execute(array_values($data[1]));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+        }
+        $stmt->free();
+
+        //test getCol() with query parameters
+        $query = 'SELECT user_name FROM users WHERE user_id>?';
+        $result = $this->db->getCol($query, 'text', array(1), array('integer'));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getCol()'.$result->getMessage());
+        }
+        $expected = array(
+            $data[0]['user_name'],
+            $data[1]['user_name'],
+        );
+        $this->assertEquals($expected, $result, 'Unexpected returned value');
+
+        //test getOne() without query parameters
+        $query = 'SELECT user_name FROM users';
+        $result = $this->db->getCol($query, 'text');
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getCol()'.$result->getMessage());
+        }
+        $this->assertEquals($expected, $result, 'Unexpected returned value');
+
+        //test getOne() with column number (resultset: 0-based array)
+        $query = 'SELECT user_id, user_name, approved FROM users';
+        $result = $this->db->getCol($query, 'text', null, null, 1); //get the 2nd column
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getCol()'.$result->getMessage());
+        }
+        $this->assertEquals($expected, $result, 'Unexpected returned value');
     }
 }
 
