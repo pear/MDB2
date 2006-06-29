@@ -114,6 +114,10 @@ class MDB2_TestCase extends PHPUnit_TestCase {
 
     function verifyFetchedValues(&$result, $rownum, $data) {
         $row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
+        if (!is_array($row)) {
+            $this->assertTrue(false, 'Error result row is not an array');
+            return;
+        }
         reset($row);
         foreach ($this->fields as $field => $type) {
             $value = current($row);
