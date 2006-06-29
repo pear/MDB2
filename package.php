@@ -12,6 +12,8 @@ $notes = <<<EOT
   only if a nested transaction has been started
 - added setTransactionIsolation()
 - added Native base class for consistency
+- added missing $colnum parameter to queryOne() [used by getOne()]
+- added new tests
 
 open todo items:
 - add support for real nested transactions and savepoints
