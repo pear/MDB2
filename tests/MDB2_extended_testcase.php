@@ -45,7 +45,8 @@
 
 require_once 'MDB2_testcase.php';
 
-class MDB2_Extended_TestCase extends MDB2_TestCase {
+class MDB2_Extended_TestCase extends MDB2_TestCase
+{
     /**
      *
      */
@@ -113,6 +114,33 @@ class MDB2_Extended_TestCase extends MDB2_TestCase {
 
         $this->assertEquals($result->numRows(), 0, 'No rows were expected to be returned');
         $result->free();
+    }
+
+    function testGetAssoc() {
+        $result = $this->db->loadModule('Extended');
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+        }
+
+        $data = $this->getSampleData(1234);
+
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        $result = $stmt->execute(array_values($data));
+        $stmt->free();
+
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+        }
+
+        //test getAssoc() with query parameters
+        $query = 'SELECT user_id, user_name FROM users WHERE user_id=?';
+        $result = $this->db->getAssoc($query, array('integer', 'text'), array(1234), array('integer'));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getAssoc()'.$result->getMessage());
+        }
+        $this->assertTrue(array_key_exists($data['user_id'], $result), 'Unexpected returned key');
+        $this->assertEquals($result[$data['user_id']], $data['user_name'], 'Unexpected returned value');
     }
 }
 
