@@ -565,9 +565,9 @@ class MDB2_Extended extends MDB2_Module_Common
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
-        $stmt->free();
 
         $all = $result->fetchAll($fetchmode, true, $force_array, $group);
+        $stmt->free();
         $result->free();
         return $all;
     }
