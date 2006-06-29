@@ -181,9 +181,29 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $trigger_name  = $db->quoteIdentifier($table . '_AI_PK', true);
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->quoteIdentifier($name, true);
-        $trigger_sql = "CREATE TRIGGER $trigger_name BEFORE INSERT ON $table";
-        $trigger_sql.= " FOR EACH ROW BEGIN IF (:new.$name IS NULL) THEN SELECT ";
-        $trigger_sql.= "$sequence_name.NEXTVAL INTO :new.$name FROM DUAL; END IF; END;";
+        $trigger_sql = '
+CREATE TRIGGER '.$trigger_name.'
+   BEFORE INSERT
+   ON '.$table.'
+   FOR EACH ROW
+DECLARE
+   last_Sequence NUMBER;
+   last_InsertID NUMBER;
+BEGIN
+   SELECT '.$sequence_name.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
+   IF (:NEW.'.$name.' IS NULL OR :NEW.'.$name.' = 0) THEN
+      SELECT '.$sequence_name.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
+   ELSE
+      SELECT NVL(Last_Number, 0) INTO last_Sequence
+        FROM User_Sequences
+       WHERE UPPER(Sequence_Name) = UPPER(\''.$sequence_name.'\');
+      SELECT :NEW.id INTO last_InsertID FROM DUAL;
+      WHILE (last_InsertID > last_Sequence) LOOP
+         SELECT '.$sequence_name.'.NEXTVAL INTO last_Sequence FROM DUAL;
+      END LOOP;
+   END IF;
+END;
+';
         return $db->exec($trigger_sql);
     }
 
