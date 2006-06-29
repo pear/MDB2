@@ -2995,19 +2995,20 @@ class MDB2_Driver_Common extends PEAR
      *       datatype of the result set field, so that an eventual conversion
      *       may be performed. The default datatype is text, meaning that no
      *       conversion is performed
+     * @param   int     the column number to fetch
      *
      * @return  mixed   MDB2_OK or field value on success, a MDB2 error on failure
      *
      * @access  public
      */
-    function queryOne($query, $type = null)
+    function queryOne($query, $type = null, $colnum = 0)
     {
         $result = $this->query($query, $type);
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
 
-        $one = $result->fetchOne();
+        $one = $result->fetchOne($colnum);
         $result->free();
         return $one;
     }
