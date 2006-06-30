@@ -251,7 +251,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         );
         $this->assertEquals($expected, $result, 'Unexpected returned value');
 
-        //test getOne() without query parameters
+        //test getCol() without query parameters
         $query = 'SELECT user_name FROM users';
         $result = $this->db->getCol($query, 'text');
         if (PEAR::isError($result)) {
@@ -259,13 +259,55 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         }
         $this->assertEquals($expected, $result, 'Unexpected returned value');
 
-        //test getOne() with column number (resultset: 0-based array)
+        //test getCol() with column number (resultset: 0-based array)
         $query = 'SELECT user_id, user_name, approved FROM users';
         $result = $this->db->getCol($query, 'text', null, null, 1); //get the 2nd column
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getCol()'.$result->getMessage());
         }
         $this->assertEquals($expected, $result, 'Unexpected returned value');
+    }
+
+    /**
+     * Test getRow()
+     *
+     * Test fetching a row of result data.
+     */
+    function testGetRow()
+    {
+        $result = $this->db->loadModule('Extended');
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+        }
+
+        $data = $this->getSampleData(1234);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        $result = $stmt->execute(array_values($data));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+        }
+        $stmt->free();
+
+        //test getRow() with query parameters
+        $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id=?';
+        $result = $this->db->getRow($query, array('integer', 'text', 'text'), array(1234), array('integer'), MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getRow()'.$result->getMessage());
+        }
+        $this->assertEquals($data['user_id'],       $result['user_id'],       'Unexpected returned value');
+        $this->assertEquals($data['user_name'],     $result['user_name'],     'Unexpected returned value');
+        $this->assertEquals($data['user_password'], $result['user_password'], 'Unexpected returned value');
+
+        //test getRow() without query parameters
+        $query = 'SELECT user_id, user_name, user_password FROM users';
+        $result = $this->db->getRow($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing getRow()'.$result->getMessage());
+        }
+        $this->assertEquals($data['user_id'],       $result['user_id'],       'Unexpected returned value');
+        $this->assertEquals($data['user_name'],     $result['user_name'],     'Unexpected returned value');
+        $this->assertEquals($data['user_password'], $result['user_password'], 'Unexpected returned value');
     }
 }
 
