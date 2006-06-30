@@ -102,7 +102,14 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
         if (!empty($db->options['datatype_map'])) {
-            $types+= $db->options['datatype_map'];
+            foreach ($db->options['datatype_map'] as $type => $mapped_type) {
+            if (array_key_exists($mapped_type, $types)) {
+                $types[$type] = $types[$mapped_type];
+            } elseif (!empty($db->options['datatype_map_callback'][$type])) {
+                $parameter = array('type' => $type, 'mapped_type' => $mapped_type);
+                $default =  call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
+                $types[$type] = $default;
+            }
         }
         return $types;
     }
