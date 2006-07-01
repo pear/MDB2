@@ -196,18 +196,12 @@ class MDB2_Extended extends MDB2_Module_Common
             return $db;
         }
 
-        if ($mode == MDB2_AUTOQUERY_INSERT || $mode == MDB2_AUTOQUERY_UPDATE) {
-            $count = count($table_fields);
-            if ($count == 0) {
-                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
-            }
-            if ($db->options['quote_identifier']) {
-                $table_fields = array_values($table_fields);
-                for ($i = 0; $i < $count; ++$i) {
-                    $table_fields[$i] = $db->quoteIdentifier($table_fields[$i]);
-                }
+        if (!empty($table_fields) && $db->options['quote_identifier']) {
+            foreach ($table_fields as $key => $field) {
+                $table_fields[$key] = $db->quoteIdentifier($field);
             }
         }
+
         if ($where !== false && !is_null($where)) {
             if (is_array($where)) {
                 $where = implode(' AND ', $where);
@@ -217,11 +211,17 @@ class MDB2_Extended extends MDB2_Module_Common
 
         switch ($mode) {
         case MDB2_AUTOQUERY_INSERT:
+            if (empty($table_fields)) {
+                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            }
             $cols = implode(', ', $table_fields);
-            $values = '?'.str_repeat(', ?', $count-1);
+            $values = '?'.str_repeat(', ?', (count($table_fields) - 1));
             return 'INSERT INTO '.$table.' ('.$cols.') VALUES ('.$values.')';
             break;
         case MDB2_AUTOQUERY_UPDATE:
+            if (empty($table_fields)) {
+                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            }
             $set = implode(' = ?, ', $table_fields).' = ?';
             $sql = 'UPDATE '.$table.' SET '.$set.$where;
             return $sql;
@@ -247,15 +247,15 @@ class MDB2_Extended extends MDB2_Module_Common
      *
      * @param string query
      * @param array that contains the types of the columns in the result set
-     * @param integer the row to start to fetching
      * @param integer the numbers of rows to fetch
+     * @param integer the row to start to fetching
      * @param string which specifies which result class to use
-     * @param   mixed   string which specifies which class to wrap results in
+     * @param mixed   string which specifies which class to wrap results in
      *
      * @return MDB2_Result|MDB2_Error result set on success, a MDB2 error on failure
      * @access public
      */
-    function &limitQuery($query, $types, $count, $from = 0, $result_class = true,
+    function &limitQuery($query, $types, $limit, $offset = 0, $result_class = true,
         $result_wrap_class = false)
     {
         $db =& $this->getDBInstance();
@@ -263,7 +263,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $db;
         }
 
-        $result = $db->setLimit($count, $from);
+        $result = $db->setLimit($limit, $offset);
         if (PEAR::isError($result)) {
             return $result;
         }
