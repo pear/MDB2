@@ -77,52 +77,68 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        switch (strtoupper($table_type)) {
-        case 'BERKELEYDB':
-        case 'BDB':
-            $check = array('have_bdb');
-            break;
-        case 'INNODB':
-            $check = array('have_innobase', 'have_innodb');
-            break;
-        case 'GEMINI':
-            $check = array('have_gemini');
-            break;
-        case 'HEAP':
-        case 'ISAM':
-        case 'MERGE':
-        case 'MRG_MYISAM':
-        case 'MYISAM':
-        case '':
-            return MDB2_OK;
-        default:
-            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                $table_type.' is not a supported table type');
-        }
         $connection = $db->getConnection();
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        if (isset($this->verified_table_types[$table_type])
-            && $this->verified_table_types[$table_type] == $connection
-        ) {
+
+        if ($table_type === '' || $this->verified_table_types[$table_type] === $connection) {
             return MDB2_OK;
         }
+
         $not_supported = false;
-        for ($i = 0, $j = count($check); $i < $j; ++$i) {
-            $query = 'SHOW VARIABLES LIKE '.$db->quote($check[$i], 'text');
-            $has = $db->queryRow($query, null, MDB2_FETCHMODE_ORDERED);
+
+        $server_info = $db->getServerVersion();
+        if (PEAR::isError($server_info)) {
+            return $server_info;
+        }
+        $old_query = ($server_info['major'] < 4 && $server_info['minor'] < 1 && $server_info['patch'] < 2);
+        if ($old_query) {
+            switch (strtoupper($table_type)) {
+            case 'BERKELEYDB':
+            case 'BDB':
+                $check = array('have_bdb');
+                break;
+            case 'INNODB':
+                $check = array('have_innobase', 'have_innodb');
+                break;
+            case 'GEMINI':
+                $check = array('have_gemini');
+                break;
+            default:
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    $table_type.' is not a supported table type');
+            }
+
+            for ($i = 0, $j = count($check); $i < $j; ++$i) {
+                $query = 'SHOW VARIABLES LIKE '.$db->quote($check[$i], 'text');
+                $has = $db->queryRow($query, null, MDB2_FETCHMODE_ORDERED);
+                if (PEAR::isError($has)) {
+                    return $has;
+                }
+                if (is_array($has)) {
+                    $not_supported = true;
+                    if ($has[1] !== 'NO') {
+                        $this->verified_table_types[$table_type] = $connection;
+                        return MDB2_OK;
+                    }
+                }
+            }
+        } else {
+            $query = 'SHOW STORAGE ENGINES';
+            $has = $db->query($query);
             if (PEAR::isError($has)) {
                 return $has;
-            }
-            if (is_array($has)) {
-                $not_supported = true;
-                if ($has[1] == 'YES') {
-                    $this->verified_table_types[$table_type] = $connection;
-                    return MDB2_OK;
+                if (strtoupper($row[0]) === strtoupper($table_type)) {
+                    $not_supported = true;
+                    if ($row[1] !== 'NO') {
+                        $this->verified_table_types[$table_type] = $connection;
+                        return MDB2_OK;
+                    }
                 }
             }
         }
+
         if ($not_supported) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 $table_type.' is not a supported table type by this MySQL database server');

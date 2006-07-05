@@ -89,7 +89,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->supported['result_introspection'] = true;
         $this->supported['prepared_statements'] = 'emulated';
 
-        $this->options['default_table_type'] = 'INNODB';
+        $this->options['default_table_type'] = '';
         $this->options['multi_query'] = false;
     }
 
@@ -387,33 +387,25 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->connected_database_name = $this->database_name;
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
-        $this->supported['transactions'] = false;
+        $this->supported['transactions'] = $this->options['use_transactions'];
         if ($this->options['default_table_type']) {
             switch (strtoupper($this->options['default_table_type'])) {
-            case 'BERKELEYDB':
-                $this->options['default_table_type'] = 'BDB';
-            case 'BDB':
-            case 'INNODB':
-            case 'GEMINI':
-                $this->supported['transactions'] = true;
-                break;
+            case 'BLACKHOLE':
+            case 'MEMORY':
+            case 'ARCHIVE':
+            case 'CSV':
             case 'HEAP':
             case 'ISAM':
             case 'MERGE':
+            case 'MRG_ISAM':
+            case 'ISAM':
             case 'MRG_MYISAM':
             case 'MYISAM':
-                break;
-            default:
+                $this->supported['transactions'] = false;
                 $this->warnings[] = $default_table_type.
                     ' is not a supported default table type';
+                break;
             }
-        }
-
-        if ($this->options['use_transactions'] && !$this->supports('transactions')) {
-            $this->warnings[] = $this->options['default_table_type'].
-                ' is not a transaction-safe default table type; switched to INNODB';
-            $this->options['default_table_type'] = 'INNODB';
-            $this->supported['transactions'] = true;
         }
 
         $this->supported['sub_selects'] = 'emulated';
