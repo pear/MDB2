@@ -356,6 +356,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 
         $res = array();
 
+        $db->loadModule('Datatype', null, true);
         if (is_string($result)) {
             /*
              * Probably received a table name.
@@ -398,10 +399,6 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 
         } else {
             if (MDB2::isResultCommon($result)) {
-                /*
-                 * Probably received a result object.
-                 * Extract the result resource identifier.
-                 */
                 $resource = $result->getResource();
             }
 
