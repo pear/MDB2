@@ -1923,6 +1923,7 @@ class MDB2_Driver_Common extends PEAR
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
+     * @since   2.1.1
      */
     function setTransactionIsolation($isolation)
     {
@@ -1940,6 +1941,7 @@ class MDB2_Driver_Common extends PEAR
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
+     * @since   2.1.1
      */
     function beginNestedTransaction()
     {
@@ -1966,6 +1968,7 @@ class MDB2_Driver_Common extends PEAR
      *                  and a MDB2 error on failure
      *
      * @access  public
+     * @since   2.1.1
      */
     function completeNestedTransaction($force_rollback = false)
     {
@@ -2003,6 +2006,7 @@ class MDB2_Driver_Common extends PEAR
      * @return  bool    MDB2_OK
      *
      * @access  public
+     * @since   2.1.1
      */
     function failNestedTransaction($error = null, $immediatly = false)
     {
@@ -2025,6 +2029,7 @@ class MDB2_Driver_Common extends PEAR
      * @return  MDB2_Error|bool     MDB2 error object if an error occured or false.
      *
      * @access  public
+     * @since   2.1.1
      */
     function getNestedTransactionError()
     {

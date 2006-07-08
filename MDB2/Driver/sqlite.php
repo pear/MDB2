@@ -257,6 +257,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
+     * @since   2.1.1
      */
     function setTransactionIsolation($isolation)
     {
