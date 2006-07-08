@@ -12,8 +12,19 @@ $notes = <<<EOT
   only if a nested transaction has been started
 - added setTransactionIsolation()
 - added Native base class for consistency
-- added missing $colnum parameter to queryOne() [used by getOne()]
-- added new tests
+- added missing colnum parameter to queryOne() [used by getOne()]
+- added new tests for get*() Extended module methods
+- fixed missing db variable from getValidTypes()
+- added testing of a prepared statement with no parameters
+- added handling of empty result sets to result set verification in the test suite
+- oci8 and ibase (and possibly other rdbms) do not like freeing the statement
+  before reading the result set (Bug #8068):
+  * moved statement freeing after reading the result set in get*() methods
+  * by pass prepared statement API for queries without parameters in autoExecute()
+  (this means you cannot use parameters with SELECT statements in autoExecute() on the above mentioned platforms)
+- use data type callback in getValidTypes()
+- fixed identifier quoting in buildManipSQL() for SELECT statements (thx Kailoran)
+- phpdoc and cosmetic fixes in limitQuery()
 
 open todo items:
 - add support for real nested transactions and savepoints

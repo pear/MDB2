@@ -6,12 +6,16 @@ $version = 'XXX';
 $notes = <<<EOT
 - added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
+- fixed testcreateautoincrementtable for oci8
+  There is still a problem when dropping the sequence, it gets inserted with a
+  seemingly random string as a name
+- load datatype module in tableInfo() (Bug #8116)
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)
 
 open todo items:
-- fix issues with testcreateautoincrementtable (error on sequence creation)
+- fix issues with testcreateautoincrementtable (error on sequence dropping)
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
 - enable use of read() for LOBs to read a LOB in chunks
 EOT;
