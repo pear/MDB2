@@ -1978,7 +1978,9 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Start a nested transaction.
      *
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     * @param   mixed   name of savepoint to set or true if the name should
+     *                  be determined automatically by the nesting depth
+     * @return  mixed   MDB2_OK on success/savepoint name, a MDB2 error on failure
      *
      * @access  public
      * @since   2.1.1
@@ -2014,23 +2016,25 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param   bool    if the transaction should be rolled back regardless
      *                  even if no error was set within the nested transaction
+     * @param   mixed   name of savepoint to release or true if the name should
+     *                  be determined automatically by the nesting depth
      * @return  mixed   MDB_OK on commit/counter decrementing, false on rollback
      *                  and a MDB2 error on failure
      *
      * @access  public
      * @since   2.1.1
      */
-    function completeNestedTransaction($force_rollback = false)
+    function completeNestedTransaction($force_rollback = false, $release = false)
     {
-        $savepoint = $force_rollback;
-        if ($savepoint === true) {
-            $savepoint = 'MDB2_SAVEPOINT_'.$this->nested_transaction_counter;
-        }
+        $savepoint = 'MDB2_SAVEPOINT_'.$this->nested_transaction_counter;
 
         if ($this->nested_transaction_counter > 1) {
             --$this->nested_transaction_counter;
             $result = MDB2_OK;
-            if ($savepoint) {
+            if ($release) {
+                if (is_string($release)) {
+                    $savepoint = $release;
+                }
                 $result = $this->releaseSavepoint($savepoint);
             }
             return $result;
