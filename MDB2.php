@@ -1033,6 +1033,7 @@ class MDB2_Driver_Common extends PEAR
         'summary_functions' => false,
         'order_by_text' => false,
         'transactions' => false,
+        'savepoints' => false,
         'current_id' => false,
         'limit_queries' => false,
         'LOBs' => false,
@@ -1876,13 +1877,14 @@ class MDB2_Driver_Common extends PEAR
      * disabled, otherwise it will fail. Therefore, a new transaction is
      * implicitly started after canceling the pending changes.
      *
+     * @param   string  name of a savepoint to rollback to
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      */
-    function rollback()
+    function rollback($savepoint = true)
     {
-        $this->debug('rolling back transaction', 'rollback', false);
+        $this->debug('rolling back transaction/savepoint', 'rollback', false);
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'rollback: rolling back transactions is not supported');
     }
@@ -1933,6 +1935,44 @@ class MDB2_Driver_Common extends PEAR
     }
     // }}}
 
+    // {{{ function setSavepoint($name)
+
+    /**
+     * Set a savepoint.
+     *
+     * @param   string  name of the savepoint
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @since   2.1.1
+     */
+    function setSavepoint($name)
+    {
+        $this->debug('setting savepoint', 'setSavepoint', false);
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'setSavepoint: savepoint setting is not supported');
+    }
+    // }}}
+
+    // {{{ function releaseSavepoint($name)
+
+    /**
+     * Release a savepoint.
+     *
+     * @param   string  name of the savepoint
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @since   2.1.1
+     */
+    function releaseSavepoint($name)
+    {
+        $this->debug('release savepoint', 'releaseSavepoint', false);
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'releaseSavepoint: savepoint releasing is not supported');
+    }
+    // }}}
+
     // {{{ function beginNestedTransaction()
 
     /**
@@ -1943,11 +1983,21 @@ class MDB2_Driver_Common extends PEAR
      * @access  public
      * @since   2.1.1
      */
-    function beginNestedTransaction()
+    function beginNestedTransaction($savepoint = false)
     {
         if ($this->in_transaction) {
             ++$this->nested_transaction_counter;
-            return MDB2_OK;
+            if (!$savepoint) {
+                return MDB2_OK;
+            }
+            if ($savepoint === true) {
+                $savepoint = 'MDB2_SAVEPOINT_'.$this->nested_transaction_counter;
+            }
+            $result = $this->setSavepoint($savepoint);
+            if (!PEAR::isError($result)) {
+                return $result;
+            }
+            return $savepoint;
         }
         $this->has_transaction_error = false;
         $result = $this->beginTransaction();
@@ -1972,9 +2022,18 @@ class MDB2_Driver_Common extends PEAR
      */
     function completeNestedTransaction($force_rollback = false)
     {
+        $savepoint = $force_rollback;
+        if ($savepoint === true) {
+            $savepoint = 'MDB2_SAVEPOINT_'.$this->nested_transaction_counter;
+        }
+
         if ($this->nested_transaction_counter > 1) {
             --$this->nested_transaction_counter;
-            return MDB2_OK;
+            $result = MDB2_OK;
+            if ($savepoint) {
+                $result = $this->releaseSavepoint($savepoint);
+            }
+            return $result;
         }
 
         $this->nested_transaction_counter = null;
@@ -1983,7 +2042,7 @@ class MDB2_Driver_Common extends PEAR
         // transaction has not yet been rolled back
         if ($this->in_transaction) {
             if ($force_rollback || $this->has_transaction_error) {
-                $result = $this->rollback();
+                $result = $this->rollback($savepoint);
                 if (!PEAR::isError($result)) {
                     $result = false;
                 }
