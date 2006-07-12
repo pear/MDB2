@@ -192,7 +192,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->debug('starting transaction', 'beginTransaction', false);
         if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'beginTransaction: transactions are not in use');
+                'beginTransaction: transactions are not supported');
         }
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
@@ -230,7 +230,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->debug('commit transaction', 'commit', false);
         if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'commit: transactions are not in use');
+                'commit: transactions are not supported');
         }
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
@@ -270,7 +270,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->debug('rolling back transaction', 'rollback', false);
         if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'rollback: transactions are not in use');
+                'rollback: transactions are not supported');
         }
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
@@ -316,7 +316,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->debug('setting transaction isolation level', 'setTransactionIsolation', false);
         if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'setTransactionIsolation: transactions are not in use');
+                'setTransactionIsolation: transactions are not supported');
         }
         switch ($isolation) {
         case 'READ UNCOMMITTED':
