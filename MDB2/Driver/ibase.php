@@ -83,6 +83,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
         $this->supported['transactions'] = true;
+        $this->supported['savepoints'] = true;
+        $this->supported['native_nested_transactions'] = true;
         $this->supported['current_id'] = true;
         $this->supported['limit_queries'] = 'emulated';
         $this->supported['LOBs'] = true;
@@ -317,22 +319,35 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * Cancel any database changes done during a transaction that is in
      * progress.
      *
+     * @param   string  name of a savepoint to rollback to
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function rollback()
+    function rollback($savepoint = true)
     {
-        $this->debug('rolling back transaction', 'rollback', false);
+        $this->debug('rolling back transaction/savepoint', 'rollback', false);
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        if ($this->transaction_id && !@ibase_rollback($this->transaction_id)) {
-            return $this->raiseError(null, null, null,
-                'rollback: Could not rollback a pending transaction');
+        $query = 'ROLLBACK';
+        if ($savepoint && is_string($savepoint) && $savepoint !== '') {
+            $query.= ' TO SAVEPOINT '.$savepoint;
+        } else {
+            $savepoint = false;
         }
-        $this->in_transaction = false;
-        $this->transaction_id = 0;
+        $result =& $this->_doQuery($query, true);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if (!$savepoint) {
+            if ($this->transaction_id && !@ibase_rollback($this->transaction_id)) {
+                return $this->raiseError(null, null, null,
+                    'rollback: Could not rollback a pending transaction: '.@ibase_errmsg());
+            }
+            $this->in_transaction = false;
+            $this->transaction_id = 0;
+        }
         return MDB2_OK;
     }
 
@@ -367,13 +382,59 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             break;
         case 'SERIALIZABLE':
             $ibase_isolation = 'SNAPSHOT TABLE STABILITY';
-            break
+            break;
         default:
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'setTransactionIsolation: isolation level is not supported: '.$isolation);
         }
 
         $query = "SET TRANSACTION ISOLATION LEVEL $ibase_isolation";
+        return $this->_doQuery($query, true);
+    }
+
+    // }}}
+    // {{{ function setSavepoint($name)
+
+    /**
+     * Set a savepoint.
+     *
+     * @param   string  name of the savepoint
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @since   2.1.1
+     */
+    function setSavepoint($name)
+    {
+        $this->debug('setting savepoint', 'setSavepoint', false);
+        if (!$this->in_transaction) {
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
+                'setSavepoint: savepoint cannot be set when changes are auto committed');
+        }
+        $query = 'SAVEPOINT '.$name;
+        return $this->_doQuery($query, true);
+    }
+    
+    // }}}
+    // {{{ function releaseSavepoint($name)
+
+    /**
+     * Release a savepoint.
+     *
+     * @param   string  name of the savepoint
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @since   2.1.1
+     */
+    function releaseSavepoint($name)
+    {
+        $this->debug('release savepoint', 'releaseSavepoint', false);
+        if (!$this->in_transaction) {
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
+                'releaseSavepoint: savepoint cannot be released when changes are auto committed');
+        }
+        $query = 'RELEASE SAVEPOINT '.$name;
         return $this->_doQuery($query, true);
     }
 
@@ -708,7 +769,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
         $offset = $this->offset;
-        $limit = $this->limit;
+        $limit  = $this->limit;
         $this->offset = $this->limit = 0;
         $result = $this->debug($query, 'prepare', $is_manip);
         if ($result) {
