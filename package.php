@@ -43,6 +43,7 @@ open todo items:
 - add support for database/table/row LOCKs
 - add ActiveRecord implementation (probably as a separate package)
 - add support for FOREIGN KEYs and CHECK (enum as possible mysql fallback) constraints
+- add proper pattern escaping and pattern building as per Metabase
 EOT;
 
 $description =<<<EOT
