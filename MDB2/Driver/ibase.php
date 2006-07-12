@@ -337,6 +337,47 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ function setTransactionIsolation()
+
+    /**
+     * Set the transacton isolation level.
+     *
+     * @param   string  standard isolation level
+     *                  READ UNCOMMITTED (allows dirty reads)
+     *                  READ COMMITTED (prevents dirty reads)
+     *                  REPEATABLE READ (prevents nonrepeatable reads)
+     *                  SERIALIZABLE (prevents phantom reads)
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @since   2.1.1
+     */
+    function setTransactionIsolation($isolation)
+    {
+        $this->debug('setting transaction isolation level', 'setTransactionIsolation', false);
+        switch ($isolation) {
+        case 'READ UNCOMMITTED':
+            $ibase_isolation = 'READ COMMITTED RECORD_VERSION';
+            break;
+        case 'READ COMMITTED':
+            $ibase_isolation = 'READ COMMITTED NO RECORD_VERSION';
+            break;
+        case 'REPEATABLE READ':
+            $ibase_isolation = 'SNAPSHOT';
+            break;
+        case 'SERIALIZABLE':
+            $ibase_isolation = 'SNAPSHOT TABLE STABILITY';
+            break
+        default:
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'setTransactionIsolation: isolation level is not supported: '.$isolation);
+        }
+
+        $query = "SET TRANSACTION ISOLATION LEVEL $ibase_isolation";
+        return $this->_doQuery($query, true);
+    }
+
+    // }}}
     // {{{ getDatabaseFile()
 
     /**
