@@ -262,10 +262,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function setTransactionIsolation($isolation)
     {
         $this->debug('setting transaction isolation level', 'setTransactionIsolation', false);
-        if (!$this->supports('transactions')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'setTransactionIsolation: transactions are not in use');
-        }
         switch ($isolation) {
         case 'READ UNCOMMITTED':
             $isolation = 0;
