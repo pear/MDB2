@@ -1034,6 +1034,7 @@ class MDB2_Driver_Common extends PEAR
         'order_by_text' => false,
         'transactions' => false,
         'savepoints' => false,
+        'native_nested_transactions' => false,
         'current_id' => false,
         'limit_queries' => false,
         'LOBs' => false,
@@ -1971,8 +1972,8 @@ class MDB2_Driver_Common extends PEAR
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'releaseSavepoint: savepoint releasing is not supported');
     }
-    // }}}
 
+    // }}}
     // {{{ function beginNestedTransaction()
 
     /**
@@ -2006,13 +2007,13 @@ class MDB2_Driver_Common extends PEAR
         $this->nested_transaction_counter = 1;
         return $result;
     }
-    // }}}
 
-    // {{{ function completeNestedTransaction($force_rollback = false)
+    // }}}
+    // {{{ function completeNestedTransaction()
 
     /**
      * Finish a nested transaction by rolling back if an error occured or
-     * commiting otherwise.
+     * committing otherwise.
      *
      * @param   bool    if the transaction should be rolled back regardless
      *                  even if no error was set within the nested transaction
@@ -2036,6 +2037,12 @@ class MDB2_Driver_Common extends PEAR
                     $savepoint = $release;
                 }
                 $result = $this->releaseSavepoint($savepoint);
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+            }
+            if ($this->supports('native_nested_transactions')) {
+                $result = $this->commit();
             }
             return $result;
         }
