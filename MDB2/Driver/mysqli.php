@@ -197,7 +197,17 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
-        $result =& $this->_doQuery('SET AUTOCOMMIT = 0', true);
+        $server_info = $this->getServerVersion();
+        if (is_array($server_info)
+            && ($server_info['major'] > 4
+                || ($server_info['major'] == 4 && ($server_info['minor'] > 0 || $server_info['patch'] >= 11))
+            )
+        ) {
+            $query = 'START TRANSACTION';
+        } else {
+            $query = 'SET AUTOCOMMIT = 1';
+        }
+        $result =& $this->_doQuery($query, true);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -230,9 +240,16 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $result =& $this->_doQuery('SET AUTOCOMMIT = 1', true);
-        if (PEAR::isError($result)) {
-            return $result;
+        $server_info = $this->getServerVersion();
+        if (!is_array($server_info)
+            || $server_info['major'] < 4
+            || ($server_info['major'] == 4 && $server_info['minor'] == 0 && $server_info['patch'] < 11)
+        ) {
+            $query = 'SET AUTOCOMMIT = 0';
+            $result =& $this->_doQuery($query, true);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
         $this->in_transaction = false;
         return MDB2_OK;
@@ -263,9 +280,16 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $result =& $this->_doQuery('SET AUTOCOMMIT = 1', true);
-        if (PEAR::isError($result)) {
-            return $result;
+        $server_info = $this->getServerVersion();
+        if (!is_array($server_info)
+            || $server_info['major'] < 4
+            || ($server_info['major'] == 4 && $server_info['minor'] == 0 && $server_info['patch'] < 11)
+        ) {
+            $query = 'SET AUTOCOMMIT = 0';
+            $result =& $this->_doQuery($query, true);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
         $this->in_transaction = false;
         return MDB2_OK;
