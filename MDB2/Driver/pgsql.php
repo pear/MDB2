@@ -513,8 +513,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         $result = @pg_set_client_encoding($connection, $charset);
-
-        if (!$result) {
+        if ($result == -1) {
             return $this->raiseError(null, null, null,
                 'setCharset: Unable to set client charset: '.$charset);
         }
