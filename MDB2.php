@@ -1075,6 +1075,7 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['log_line_break'] -> string: line-break format</li>
      *  <li>$options['idxname_format'] -> string: pattern for index name</li>
      *  <li>$options['seqname_format'] -> string: pattern for sequence name</li>
+     *  <li>$options['savepoint_format'] -> string: pattern for auto generated savepoint names</li>
      *  <li>$options['seqcol_name'] -> string: sequence column name</li>
      *  <li>$options['quote_identifier'] -> boolean: if identifier quoting should be done when check_option is used</li>
      *  <li>$options['use_transactions'] -> boolean: if transaction use should be enabled</li>
@@ -1110,6 +1111,7 @@ class MDB2_Driver_Common extends PEAR
         'log_line_break' => "\n",
         'idxname_format' => '%s_idx',
         'seqname_format' => '%s_seq',
+        'savepoint_format' => 'MDB2_SAVEPOINT_%s',
         'seqcol_name' => 'sequence',
         'quote_identifier' => false,
         'use_transactions' => true,
@@ -1985,28 +1987,20 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Start a nested transaction.
      *
-     * @param   mixed   name of savepoint to set or true if the name should
-     *                  be determined automatically by the nesting depth
      * @return  mixed   MDB2_OK on success/savepoint name, a MDB2 error on failure
      *
      * @access  public
      * @since   2.1.1
      */
-    function beginNestedTransaction($savepoint = false)
+    function beginNestedTransaction()
     {
         if ($this->in_transaction) {
             ++$this->nested_transaction_counter;
-            if (!$savepoint) {
-                return MDB2_OK;
+            $savepoint = sprintf($this->options['savepoint_format'], $this->nested_transaction_counter);
+            if ($this->supports('savepoints') && $savepoint) {
+                return $this->setSavepoint($savepoint);
             }
-            if ($savepoint === true) {
-                $savepoint = 'MDB2_SAVEPOINT_'.$this->nested_transaction_counter;
-            }
-            $result = $this->setSavepoint($savepoint);
-            if (!PEAR::isError($result)) {
-                return $result;
-            }
-            return $savepoint;
+            return MDB2_OK;
         }
         $this->has_transaction_error = false;
         $result = $this->beginTransaction();
@@ -2023,27 +2017,30 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param   bool    if the transaction should be rolled back regardless
      *                  even if no error was set within the nested transaction
-     * @param   mixed   name of savepoint to release or true if the name should
-     *                  be determined automatically by the nesting depth
      * @return  mixed   MDB_OK on commit/counter decrementing, false on rollback
      *                  and a MDB2 error on failure
      *
      * @access  public
      * @since   2.1.1
      */
-    function completeNestedTransaction($force_rollback = false, $release = false)
+    function completeNestedTransaction($force_rollback = false)
     {
-        $savepoint = 'MDB2_SAVEPOINT_'.$this->nested_transaction_counter;
-
         if ($this->nested_transaction_counter > 1) {
-            --$this->nested_transaction_counter;
-            $result = MDB2_OK;
-            if ($release) {
-                if (is_string($release)) {
-                    $savepoint = $release;
+            $savepoint = sprintf($this->options['savepoint_format'], $this->nested_transaction_counter);
+            if ($this->supports('savepoints') && $savepoint) {
+                if ($force_rollback || $this->has_transaction_error) {
+                    $result = $this->rollback($savepoint);
+                    if (!PEAR::isError($result)) {
+                        $result = false;
+                        $this->has_transaction_error = false;
+                    }
+                } else {
+                    $result = $this->releaseSavepoint($savepoint);
                 }
-                $result = $this->releaseSavepoint($savepoint);
+            } else {
+                $result = MDB2_OK;
             }
+            --$this->nested_transaction_counter;
             return $result;
         }
 
@@ -2053,7 +2050,7 @@ class MDB2_Driver_Common extends PEAR
         // transaction has not yet been rolled back
         if ($this->in_transaction) {
             if ($force_rollback || $this->has_transaction_error) {
-                $result = $this->rollback($savepoint);
+                $result = $this->rollback();
                 if (!PEAR::isError($result)) {
                     $result = false;
                 }
@@ -2086,8 +2083,10 @@ class MDB2_Driver_Common extends PEAR
             $error = true;
         }
         $this->has_transaction_error = $error;
-        $result = $immediately ? $this->rollback() : MDB2_OK;
-        return $result;
+        if (!$immediately) {
+            return MDB2_OK;
+        }
+        return $this->rollback();
     }
 
     // }}}
