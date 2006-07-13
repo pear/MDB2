@@ -455,8 +455,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         if ($limit > 0) {
             $fetch = $offset + $limit;
             if (!$is_manip) {
-                return preg_replace('/^([\s(])*SELECT(?!\s*TOP\s*\()/i',
-                    "\\1SELECT TOP $fetch", $query);
+                return preg_replace('/^([\s(])*SELECT( DISTINCT)?(?!\s*TOP\s*\()/i',
+                    "\\1SELECT\\2 TOP $fetch", $query);
             }
         }
         return $query;
