@@ -992,6 +992,120 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     }
 
     /**
+     * Testing emulated nested transaction support
+     */
+    function testNestedTransactions() {
+        if (!$this->supported('transactions')) {
+            return;
+        }
+
+        $data = array(
+            1 => $this->getSampleData(1234),
+            2 => $this->getSampleData(4321),
+        );
+
+        $this->db->beginNestedTransaction();
+
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+
+        $result = $stmt->execute(array_values($data[1]));
+
+        $this->db->beginNestedTransaction();
+
+        $result = $stmt->execute(array_values($data[2]));
+        $stmt->free();
+
+        $result = $this->db->completeNestedTransaction();
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Inner transaction was not committed: '.$result->getMessage());
+        }
+
+        $result = $this->db->completeNestedTransaction();
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Outer transaction was not committed: '.$result->getMessage());
+        }
+
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->query($query);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+        }
+        $this->assertTrue($result->valid(), 'Transaction commit did not make permanent the row that was inserted');
+        $result->free();
+    }
+
+    /**
+     * Testing savepoints
+     */
+    function testSavepoint() {
+        if (!$this->supported('savepoints')) {
+            return;
+        }
+
+        $savepoint = 'test_savepoint';
+
+        $data = array(
+            1 => $this->getSampleData(1234),
+            2 => $this->getSampleData(4321),
+        );
+
+        $this->db->beginNestedTransaction();
+
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+
+        $result = $stmt->execute(array_values($data[1]));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+        }
+
+        $result = $this->db->setSavepoint($savepoint);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error setting savepoint: '.$result->getMessage());
+        }
+
+        $result = $stmt->execute(array_values($data[2]));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+        }
+        $stmt->free();
+
+        $result = $this->db->rollback($savepoint);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error rolling back to savepoint: '.$result->getMessage());
+        }
+
+        $result = $this->db->completeNestedTransaction();
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Transaction not committed: '.$result->getMessage());
+        }
+
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result = $this->db->queryAll($query);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+        }
+        $rows_inserted = count($result);
+        $this->assertEquals(1, $rows_inserted, 'Error during transaction, invalid number of records inserted');
+
+        // test release savepoint
+        $this->db->beginNestedTransaction();
+        $result = $this->db->setSavepoint($savepoint);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error setting savepoint: '.$result->getMessage());
+        }
+        $result = $this->db->releaseSavepoint($savepoint);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error setting savepoint: '.$result->getMessage());
+        }
+        $result = $this->db->completeNestedTransaction();
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Transaction not committed: '.$result->getMessage());
+        }
+    }
+
+    /**
      * Testing LOB storage
      */
     function testLOBStorage() {
