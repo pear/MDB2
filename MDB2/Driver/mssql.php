@@ -162,7 +162,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function escapePattern($text)
     {
-        $text = str_replace("[", "[ [ ]", $text));
+        $text = str_replace("[", "[ [ ]", $text);
         foreach ($this->wildcards as $wildcard) {
             $text = str_replace($wildcard, '[' . $wildcard . ']', $text);
         }
