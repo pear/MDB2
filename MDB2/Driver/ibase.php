@@ -84,7 +84,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['order_by_text'] = true;
         $this->supported['transactions'] = true;
         $this->supported['savepoints'] = true;
-        $this->supported['native_nested_transactions'] = true;
+        $this->supported['nested_transactions'] = true;
         $this->supported['current_id'] = true;
         $this->supported['limit_queries'] = 'emulated';
         $this->supported['LOBs'] = true;
@@ -393,7 +393,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ function setSavepoint($name)
+    // {{{
 
     /**
      * Set a savepoint.
@@ -414,9 +414,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $query = 'SAVEPOINT '.$name;
         return $this->_doQuery($query, true);
     }
-    
+
     // }}}
-    // {{{ function releaseSavepoint($name)
+    // {{{
 
     /**
      * Release a savepoint.
