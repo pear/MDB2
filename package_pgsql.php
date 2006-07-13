@@ -7,6 +7,7 @@ $notes = <<<EOT
 - added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
 - performance tweaks for pg_prepare() enabled installations
+- added setSavepoint() and releaseSavePoint()
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

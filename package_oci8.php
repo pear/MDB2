@@ -10,6 +10,7 @@ $notes = <<<EOT
   There is still a problem when dropping the sequence, it gets inserted with a
   seemingly random string as a name
 - load datatype module in tableInfo() (Bug #8116)
+- added setSavepoint() and releaseSavePoint()
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)
