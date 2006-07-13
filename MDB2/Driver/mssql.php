@@ -78,7 +78,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->supported['affected_rows'] = true;
         $this->supported['transactions'] = true;
         $this->supported['savepoints'] = false;
-        $this->supported['nested_transactions'] = 'emulated';
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
         $this->supported['current_id'] = 'emulated';

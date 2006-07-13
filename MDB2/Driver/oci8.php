@@ -84,7 +84,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->supported['affected_rows'] = true;
         $this->supported['transactions'] = true;
         $this->supported['savepoints'] = true;
-        $this->supported['nested_transactions'] = 'emulated';
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = 'emulated';

@@ -88,7 +88,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->supported['replace'] = true;
         $this->supported['transactions'] = true;
         $this->supported['savepoints'] = false;
-        $this->supported['nested_transactions'] = 'emulated';
         $this->supported['sub_selects'] = true;
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = false; // requires alter table implementation

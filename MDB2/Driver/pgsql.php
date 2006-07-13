@@ -81,7 +81,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['order_by_text'] = true;
         $this->supported['transactions'] = true;
         $this->supported['savepoints'] = true;
-        $this->supported['nested_transactions'] = 'emulated';
         $this->supported['current_id'] = true;
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
