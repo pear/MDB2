@@ -5,12 +5,14 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'XXX';
 $notes = <<<EOT
 - added MDB2_AUTOQUERY_SELECT (Request #7817)
-- added nested transaction support (inspired by ADODB's smart transactions)
+- added nested transaction support (inspired by ADODB's smart transactions) but
+  expanded to use native nested transactions or emulate using SAVEPOINTs
   beginNestedTransaction(), completeNestedTransaction(),
   failNestedTransaction(), getNestedTransactionError()
 - inTransaction() will not return an integer with the nested transaction depth
   only if a nested transaction has been started
 - added setTransactionIsolation()
+- added setSavepoint() and releaseSavePoint()
 - added Native base class for consistency
 - added missing colnum parameter to queryOne() [used by getOne()]
 - added new tests for get*() Extended module methods
@@ -27,7 +29,6 @@ $notes = <<<EOT
 - phpdoc and cosmetic fixes in limitQuery()
 
 open todo items:
-- add support for real nested transactions and savepoints
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering
 - expand charset support in schema management and result set handling (Request #4666)
