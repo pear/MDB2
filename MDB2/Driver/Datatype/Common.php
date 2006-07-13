@@ -1538,13 +1538,24 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @access public
      *
-     * @param array $array odd values are strings, even are patterns (% and _)
+     * @param array $pattern odd values are strings, even are patterns (% and _)
+     * @param string $operator optional pattern operator (LIKE, maybe others in the future)
      *
      * @return string SQL pattern
      */
-    function matchPattern($pattern)
+    function matchPattern($pattern, $operator = null)
     {
-        $match = "'";
+        $match = '';
+        if (!is_null($operator)) {
+            switch (strtoupper($operator)) {
+            case 'LIKE':
+                $match = 'LIKE ';
+            break;
+            default:
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'matchPattern: not a supported operator type:'. $operator);
+        }
+        $match.= "'";
         $odd = true;
         foreach ($pattern as $value) {
             if ($odd) {
