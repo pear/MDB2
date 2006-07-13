@@ -18,6 +18,7 @@ note: please use the latest ext/oci8 version from pecl.php.net/oci8
 
 open todo items:
 - fix issues with testcreateautoincrementtable (error on sequence dropping)
+  maybe this: http://halisway.blogspot.com/2005/10/auto-incremental-primary-keys-in.html
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
 - enable use of read() for LOBs to read a LOB in chunks
 EOT;

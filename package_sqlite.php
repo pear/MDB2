@@ -7,6 +7,7 @@ $notes = <<<EOT
 - added setTransactionIsolation()
 
 open todo items:
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
 - a number of the manager test cases fail because sqlite does not support adding
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
