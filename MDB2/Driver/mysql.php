@@ -865,7 +865,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        $statement_name = 'MDB2_Statement_'.$this->phptype.md5(time() + rand());
+        $statement_name = 'MDB2_Statement_'.$this->phptype.'_'.md5(time() + rand());
         $query = "PREPARE $statement_name FROM ".$this->quote($query, 'text');
         $statement =& $this->_doQuery($query, true, $connection);
         if (PEAR::isError($statement)) {

@@ -867,7 +867,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         }
 
         if (!$is_manip) {
-            $statement_name = 'MDB2_Statement_'.$this->phptype.md5(time() + rand());
+            $statement_name = 'MDB2_Statement_'.$this->phptype.'_'.md5(time() + rand());
             $query = "PREPARE $statement_name FROM '$query'";
 
             $statement =& $this->_doQuery($query, true, $connection);
