@@ -149,6 +149,27 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ function escapePattern($text)
+
+    /**
+     * Quotes pattern (% and _) characters in a string)
+     *
+     * @param   string  the input string to quote
+     *
+     * @return  string  quoted string
+     *
+     * @access  public
+     */
+    function escapePattern($text)
+    {
+        $text = str_replace("[", "[ [ ]", $text));
+        foreach ($this->wildcards as $wildcard) {
+            $text = str_replace($wildcard, '[' . $wildcard . ']', $text);
+        }
+        return $text;
+    }
+
+    // }}}
     // {{{ quoteIdentifier()
 
     /**

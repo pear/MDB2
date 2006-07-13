@@ -1138,11 +1138,18 @@ class MDB2_Driver_Common extends PEAR
     var $escape_quotes = "'";
 
     /**
+     * escape character for pattern
+     * @var     string
+     * @access  protected
+     */
+    var $escape_pattern = '';
+
+    /**
      * comparision wildcards
      * @var     array
      * @access  protected
      */
-    var $wildcards = array('&', '_');
+    var $wildcards = array('%', '_');
 
     /**
      * escape character
@@ -1570,11 +1577,33 @@ class MDB2_Driver_Common extends PEAR
             $text = str_replace($this->escape_quotes, $this->escape_quotes.$this->escape_quotes, $text);
         }
         if ($escape_wildcards) {
+            $text = $this->escapePattern($text);
+        }
+        $text = str_replace("'", $this->escape_quotes . "'", $text);
+        return $text;
+    }
+
+    // }}}
+    // {{{ function escapePattern($text)
+
+    /**
+     * Quotes pattern (% and _) characters in a string)
+     *
+     * @param   string  the input string to quote
+     *
+     * @return  string  quoted string
+     *
+     * @access  public
+     */
+    function escapePattern($text)
+    {
+        if ($this->escape_pattern) {
+            $text = str_replace($this->escape_pattern, $this->escape_pattern . $this->escape_pattern, $text);
             foreach ($this->wildcards as $wildcard) {
-                $text = str_replace($wildcard, $this->escape_quotes . $wildcard, $text);
+                $text = str_replace($wildcard, $this->escape_pattern . $wildcard, $text);
             }
         }
-        return str_replace("'", $this->escape_quotes . "'", $text);
+        return $text;
     }
 
     // }}}

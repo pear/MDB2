@@ -58,6 +58,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     // {{{ properties
     var $escape_quotes = "\\";
 
+    var $escape_pattern = "\\";
+
     var $escape_identifier = '`';
 
     // }}}
@@ -167,17 +169,24 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      * Quotes a string so it can be safely used in a query. It will quote
      * the text so it can safely be used within a query.
      *
-     * @param string $text the input string to quote
-     * @return string quoted string
-     * @access public
+     * @param   string  the input string to quote
+     * @param   bool    escape wildcards
+     *
+     * @return  string  quoted string
+     *
+     * @access  public
      */
-    function escape($text)
+    function escape($text, $escape_wildcards = false)
     {
+        if ($escape_wildcards) {
+            $text = $this->escapePattern($text);
+        }
         $connection = $this->getConnection();
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        return @mysqli_real_escape_string($connection, $text);
+        $text = @mysqli_real_escape_string($connection, $text);
+        return $text;
     }
 
     // }}}

@@ -1046,7 +1046,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 'type not defined: '.$type);
         }
         $value = $this->{"_quote{$type}"}($value, $quote, $escape_wildcards);
-
+        if ($quote && $escape_wildcards && $db->escape_quotes !== $db->escape_pattern) {
+            $value.= $this->patternEscapeString();
+        }
         return $value;
     }
 
@@ -1526,6 +1528,51 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             $return = $array;
         }
         return implode(', ', $return);
+    }
+
+    // }}}
+    // {{{ matchPattern()
+
+    /**
+     * build a pattern matching string
+     *
+     * @access public
+     *
+     * @param array $array odd values are strings, even are patterns (% and _)
+     *
+     * @return string SQL pattern
+     */
+    function matchPattern($pattern)
+    {
+        $match = "'";
+        $odd = true;
+        foreach ($pattern as $value) {
+            if ($odd) {
+                $match.= $this->quote($value, 'text', false, true);
+            } else {
+                $match.= $value;
+            }
+            $odd = !$odd;
+        }
+        $match.= "'";
+        $match.= $this->patternEscapeString();
+        return $match;
+    }
+
+    // }}}
+    // {{{ patternEscapeString()
+
+    /**
+     * build string to define pattern escape character
+     *
+     * @access public
+     *
+     *
+     * @return string define pattern escape character
+     */
+    function patternEscapeString()
+    {
+        return '';
     }
 
     // }}}

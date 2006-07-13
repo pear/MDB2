@@ -346,6 +346,26 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
+    // {{{ patternEscapeString()
+
+    /**
+     * build string to define escape pattern string
+     *
+     * @access public
+     *
+     *
+     * @return string define escape pattern
+     */
+    function patternEscapeString()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        return " ESCAPE '".$this->quote($db->escape_pattern, 'text', false, true)."'";
+    }
+
+    // }}}
     // {{{ mapNativeDatatype()
 
     /**

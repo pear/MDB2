@@ -497,42 +497,90 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testEscapeSequences() {
         $test_strings = array(
-                            "'",
-                            "\"",
-                            "\\",
-                            "%",
-                            "_",
-                            "''",
-                            "\"\"",
-                            "\\\\",
-                            "\\'\\'",
-                            "\\\"\\\""
-                            );
+            "'",
+            "\"",
+            "\\",
+            "%",
+            "_",
+            "''",
+            "\"\"",
+            "\\\\",
+            "\\'\\'",
+            "\\\"\\\""
+        );
 
-        for ($string = 0; $string < count($test_strings); $string++) {
-            $this->clearTables();
-
-            $value = $this->db->quote($test_strings[$string], 'text');
-
-            $result = $this->db->exec("INSERT INTO users (user_name,user_password,user_id) VALUES ($value,$value,0)");
+        $this->clearTables();
+        foreach($test_strings as $key => $string) {
+            $value = $this->db->quote($string, 'text');
+            $query = "INSERT INTO users (user_name,user_id) VALUES ($value, $key)";
+            $result = $this->db->exec($query);
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
             }
 
-            $result =& $this->db->query('SELECT user_name,user_password FROM users', array('text', 'text'));
+            $query = 'SELECT user_name FROM users WHERE user_id = '.$key;
+            $value = $this->db->queryOne($query, 'text');
 
-            if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
+            if (PEAR::isError($value)) {
+                $this->assertTrue(false, 'Error executing select query'.$value->getMessage());
             }
 
-            $this->assertTrue($result->valid(), 'The query result seems to have reached the end of result earlier than expected');
-
-            $value = $result->fetchOne();
-            $result->free();
-
-            $this->assertEquals($test_strings[$string], rtrim($value), "the value retrieved for field \"user_name\" doesn't match what was stored");
+            $this->assertEquals($string, $value, "the value retrieved for field \"user_name\" doesn't match what was stored");
         }
+    }
+
+    /**
+     * Tests escaping of text pattern strings with special characters
+     *
+     */
+    function testEscapePatternSequences() {
+        $test_strings = array(
+            "%",
+            "_",
+            "%_",
+            "_%",
+            "%foo%",
+            "%foo_",
+            "foo%123",
+            "foo_123",
+            "_foo%",
+            "_foo_",
+            "%'",
+            "_'",
+            "'%",
+            "'_",
+            "'%'",
+            "'_'",
+        );
+
+        $this->clearTables();
+        foreach($test_strings as $key => $string) {
+            $value = $this->db->quote($string, 'text');
+            $query = "INSERT INTO users (user_name,user_id) VALUES ($value, $key)";
+            $result = $this->db->exec($query);
+            if (PEAR::isError($result)) {
+                $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
+            }
+
+            $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->quote($string, 'text', true, true);
+            $value = $this->db->queryOne($query, 'text');
+            if (PEAR::isError($value)) {
+                $this->assertTrue(false, 'Error executing select query'.$value->getMessage());
+            }
+
+            $this->assertEquals($string, $value, "the value retrieved for field \"user_name\" doesn't match what was stored");
+        }
+
+        $this->db->loadModule('Datatype', null, true);
+
+        $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->datatype->matchPattern(array('foo%', '_', '23'));
+        $value = $this->db->queryOne($query, 'text');
+        $this->assertEquals('foo%123', $value, "the value retrieved for field \"user_name\" doesn't match what was stored");
+
+        $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->datatype->matchPattern(array('', '_', 'oo', '%'));
+        $value = $this->db->queryOne($query, 'text');
+        $this->assertEquals('foo', substr($value, 0, 3), "the value retrieved for field \"user_name\" doesn't match what was stored");
     }
 
     /**
