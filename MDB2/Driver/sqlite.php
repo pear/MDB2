@@ -156,13 +156,17 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      * Quotes a string so it can be safely used in a query. It will quote
      * the text so it can safely be used within a query.
      *
-     * @param string $text the input string to quote
-     * @return string quoted string
-     * @access public
+     * @param   string  the input string to quote
+     * @param   bool    escape wildcards
+     *
+     * @return  string  quoted string
+     *
+     * @access  public
      */
-    function escape($text)
+    function escape($text, $escape_wildcards = false)
     {
-        return @sqlite_escape_string($text);
+        $text = @sqlite_escape_string($text);
+        return $text;
     }
 
     // }}}
