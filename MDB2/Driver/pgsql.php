@@ -78,6 +78,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
         $this->supported['transactions'] = true;
+        $this->supported['savepoints'] = true;
         $this->supported['current_id'] = true;
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
@@ -250,21 +251,30 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * Cancel any database changes done during a transaction that is in
      * progress.
      *
+     * @param   string  name of a savepoint to rollback to
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function rollback()
+    function rollback($savepoint = true)
     {
-        $this->debug('rolling back transaction', 'rollback', false);
+        $this->debug('rolling back transaction/savepoint', 'rollback', false);
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $result =& $this->_doQuery('ROLLBACK', true);
+        $query = 'ROLLBACK';
+        if ($savepoint && is_string($savepoint) && $savepoint !== '') {
+            $query.= ' TO SAVEPOINT '.$savepoint;
+        } else {
+            $savepoint = false;
+        }
+        $result =& $this->_doQuery($query, true);
         if (PEAR::isError($result)) {
             return $result;
         }
-        $this->in_transaction = false;
+        if (!$savepoint) {
+            $this->in_transaction = false;
+        }
         return MDB2_OK;
     }
 
@@ -299,6 +309,60 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         $query = "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL $isolation";
+        return $this->_doQuery($query, true);
+    }
+
+    // }}}
+    // {{{ function setSavepoint($name)
+
+    /**
+     * Set a savepoint.
+     *
+     * @param   string  name of the savepoint
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @since   2.1.1
+     */
+    function setSavepoint($name)
+    {
+        $this->debug('setting savepoint', 'setSavepoint', false);
+        if (!$this->supports('savepoints')) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'setSavepoint: savepoints are not supported');
+        }
+        if (!$this->in_transaction) {
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
+                'setSavepoint: savepoint cannot be set when changes are auto committed');
+        }
+        $query = 'SAVEPOINT '.$name;
+        return $this->_doQuery($query, true);
+    }
+
+    // }}}
+    // {{{ function releaseSavepoint($name)
+
+    /**
+     * Release a savepoint.
+     *
+     * @param   string  name of the savepoint
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     * @since   2.1.1
+     */
+    function releaseSavepoint($name)
+    {
+        $this->debug('release savepoint', 'releaseSavepoint', false);
+        if (!$this->supports('savepoints')) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'releaseSavepoint: savepoints are not supported');
+        }
+        if (!$this->in_transaction) {
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
+                'releaseSavepoint: savepoint cannot be released when changes are auto committed');
+        }
+        $query = 'RELEASE SAVEPOINT '.$name;
         return $this->_doQuery($query, true);
     }
 
