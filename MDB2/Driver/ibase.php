@@ -309,7 +309,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 'commit: could not commit a transaction');
         }
         $this->in_transaction = false;
-        //$this->transaction_id = 0;
+        $this->transaction_id = 0;
         return MDB2_OK;
     }
 
@@ -349,22 +349,25 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ function setTransactionIsolation()
+    // {{{ setTransactionIsolation()
 
     /**
      * Set the transacton isolation level.
      *
-     * @param   string  standard isolation level
+     * @param   string  standard isolation level (SQL-92)
      *                  READ UNCOMMITTED (allows dirty reads)
      *                  READ COMMITTED (prevents dirty reads)
      *                  REPEATABLE READ (prevents nonrepeatable reads)
      *                  SERIALIZABLE (prevents phantom reads)
+     * @param   array some transaction options:
+     *                  'wait' => 'WAIT' | 'NO WAIT'
+     *                  'rw'   => 'READ WRITE' | 'READ ONLY'
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      * @since   2.1.1
      */
-    function setTransactionIsolation($isolation)
+    function setTransactionIsolation($isolation, $options = array())
     {
         $this->debug('setting transaction isolation level', 'setTransactionIsolation', false);
         switch ($isolation) {
@@ -385,12 +388,36 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 'setTransactionIsolation: isolation level is not supported: '.$isolation);
         }
 
-        $query = "SET TRANSACTION ISOLATION LEVEL $ibase_isolation";
+        if (!empty($options['wait'])) {
+            switch ($options['wait']) {
+            case 'WAIT':
+            case 'NO WAIT':
+                $wait = $options['wait'];
+                break;
+            default:
+                return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'setTransactionIsolation: wait option is not supported: '.$options['wait']);
+            }
+        }
+
+        if (!empty($options['rw'])) {
+            switch ($options['rw']) {
+            case 'READ ONLY':
+            case 'READ WRITE':
+                $rw = $options['wait'];
+                break;
+            default:
+                return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'setTransactionIsolation: wait option is not supported: '.$options['rw']);
+            }
+        }
+
+        $query = "SET TRANSACTION $rw $wait ISOLATION LEVEL $ibase_isolation";
         return $this->_doQuery($query, true);
     }
 
     // }}}
-    // {{{
+    // {{{ setSavepoint($name)
 
     /**
      * Set a savepoint.
@@ -413,7 +440,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{
+    // {{{ releaseSavepoint($name)
 
     /**
      * Release a savepoint.
@@ -436,7 +463,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ getDatabaseFile()
+    // {{{ getDatabaseFile($database_name)
 
     /**
      * Builds the string with path+dbname+extension
