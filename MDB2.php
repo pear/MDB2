@@ -1038,7 +1038,6 @@ class MDB2_Driver_Common extends PEAR
         'order_by_text' => false,
         'transactions' => false,
         'savepoints' => false,
-        'nested_transactions' => false,
         'current_id' => false,
         'limit_queries' => false,
         'LOBs' => false,
