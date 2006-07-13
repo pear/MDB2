@@ -27,6 +27,8 @@ $notes = <<<EOT
 - use data type callback in getValidTypes()
 - fixed identifier quoting in buildManipSQL() for SELECT statements (thx Kailoran)
 - phpdoc and cosmetic fixes in limitQuery()
+- added matchPattern() and patternEscapeString(), escapePattern()
+- added ability to escape wildcard characters in escape() and quote()
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -44,7 +46,6 @@ open todo items:
 - add support for database/table/row LOCKs
 - add ActiveRecord implementation (probably as a separate package)
 - add support for FOREIGN KEYs and CHECK (enum as possible mysql fallback) constraints
-- add proper pattern escaping and pattern building as per Metabase
 EOT;
 
 $description =<<<EOT
