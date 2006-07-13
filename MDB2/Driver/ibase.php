@@ -57,6 +57,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     // {{{ properties
     var $escape_quotes = "'";
 
+    var $escape_pattern = "\\";
+
     var $escape_identifier = '';
 
     var $transaction_id = 0;
@@ -84,7 +86,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['order_by_text'] = true;
         $this->supported['transactions'] = true;
         $this->supported['savepoints'] = true;
-        $this->supported['nested_transactions'] = true;
         $this->supported['current_id'] = true;
         $this->supported['limit_queries'] = 'emulated';
         $this->supported['LOBs'] = true;
@@ -215,6 +216,34 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ function quote($value, $type = null, $quote = true)
+
+    /**
+     * Convert a text value into a DBMS specific format that is suitable to
+     * compose query statements.
+     *
+     * @param   string  text string value that is intended to be converted.
+     * @param   string  type to which the value should be converted to
+     * @param   bool    escape wildcards
+     *
+     * @return  string  text string that represents the given argument value in
+     *       a DBMS specific format.
+     *
+     * @access  public
+     */
+    function quote($value, $type = null, $quote = true, $escape_wildcards = false)
+    {
+        $quoted = parent::quote($value, $type, $quote, $escape_wildcards);
+        if (PEAR::isError($quoted)) {
+            return $quoted;
+        }
+        if ($escape_wildcards) {
+            $quoted .= ' ESCAPE \''. $this->escape_pattern .'\'';
+        }
+        return $quoted;
+    }
+
+    // }}}
     // {{{ quoteIdentifier()
 
     /**
@@ -330,17 +359,13 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback: transactions can not be rolled back when changes are auto committed');
         }
-        $query = 'ROLLBACK';
         if ($savepoint && is_string($savepoint) && $savepoint !== '') {
-            $query.= ' TO SAVEPOINT '.$savepoint;
+            $query = 'ROLLBACK TO SAVEPOINT '.$savepoint;
+            $result =& $this->_doQuery($query, true);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         } else {
-            $savepoint = false;
-        }
-        $result =& $this->_doQuery($query, true);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        if (!$savepoint) {
             if ($this->transaction_id && !@ibase_rollback($this->transaction_id)) {
                 return $this->raiseError(null, null, null,
                     'rollback: Could not rollback a pending transaction: '.@ibase_errmsg());
