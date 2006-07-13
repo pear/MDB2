@@ -4,7 +4,7 @@
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
 // | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith                                         |
+// | Stig. S. Bakken, Lukas Smith, Lorenzo Alberton                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -213,34 +213,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             }
         }
         return array($error, $native_code, $native_msg);
-    }
-
-    // }}}
-    // {{{ function quote($value, $type = null, $quote = true)
-
-    /**
-     * Convert a text value into a DBMS specific format that is suitable to
-     * compose query statements.
-     *
-     * @param   string  text string value that is intended to be converted.
-     * @param   string  type to which the value should be converted to
-     * @param   bool    escape wildcards
-     *
-     * @return  string  text string that represents the given argument value in
-     *       a DBMS specific format.
-     *
-     * @access  public
-     */
-    function quote($value, $type = null, $quote = true, $escape_wildcards = false)
-    {
-        $quoted = parent::quote($value, $type, $quote, $escape_wildcards);
-        if (PEAR::isError($quoted)) {
-            return $quoted;
-        }
-        if ($escape_wildcards) {
-            $quoted .= ' ESCAPE \''. $this->escape_pattern .'\'';
-        }
-        return $quoted;
     }
 
     // }}}
