@@ -45,7 +45,8 @@ open todo items:
 - add support to generating "AS" keyword if required
 - add support for database/table/row LOCKs
 - add ActiveRecord implementation (probably as a separate package)
-- add support for FOREIGN KEYs and CHECK (enum as possible mysql fallback) constraints
+- add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
+- extended to support for case insensitive matching via ILIKE/collate in matchPattern()
 EOT;
 
 $description =<<<EOT
