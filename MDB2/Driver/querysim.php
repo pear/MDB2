@@ -244,6 +244,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $this->supported['replace'] = 'emulated';
         $this->supported['sub_selects'] = 'emulated';
         $this->supported['transactions'] = false;
+        $this->supported['savepoints'] = false;
+        $this->supported['nested_transactions'] = false;
         $this->supported['auto_increment'] = false;
         $this->supported['primary_key'] = false;
         $this->supported['result_introspection'] = false; // not implemented

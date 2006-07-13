@@ -79,6 +79,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['order_by_text'] = true;
         $this->supported['transactions'] = true;
         $this->supported['savepoints'] = true;
+        $this->supported['nested_transactions'] = 'emulated';
         $this->supported['current_id'] = true;
         $this->supported['limit_queries'] = true;
         $this->supported['LOBs'] = true;
@@ -313,7 +314,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ function setSavepoint($name)
+    // {{{
 
     /**
      * Set a savepoint.
@@ -327,10 +328,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function setSavepoint($name)
     {
         $this->debug('setting savepoint', 'setSavepoint', false);
-        if (!$this->supports('savepoints')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'setSavepoint: savepoints are not supported');
-        }
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'setSavepoint: savepoint cannot be set when changes are auto committed');
@@ -340,7 +337,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ function releaseSavepoint($name)
+    // {{{
 
     /**
      * Release a savepoint.
@@ -354,10 +351,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function releaseSavepoint($name)
     {
         $this->debug('release savepoint', 'releaseSavepoint', false);
-        if (!$this->supports('savepoints')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'releaseSavepoint: savepoints are not supported');
-        }
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'releaseSavepoint: savepoint cannot be released when changes are auto committed');

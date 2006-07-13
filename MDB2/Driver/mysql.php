@@ -78,6 +78,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->supported['affected_rows'] = true;
         $this->supported['transactions'] = false;
         $this->supported['savepoints'] = false;
+        $this->supported['nested_transactions'] = 'emulated';
         $this->supported['summary_functions'] = true;
         $this->supported['order_by_text'] = true;
         $this->supported['current_id'] = 'emulated';
@@ -352,9 +353,9 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $query = "SET SESSION TRANSACTION ISOLATION LEVEL $isolation";
         return $this->_doQuery($query, true);
     }
-    // }}}
 
-    // {{{ function setSavepoint($name)
+    // }}}
+    // {{{
 
     /**
      * Set a savepoint.
@@ -379,9 +380,9 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $query = 'SAVEPOINT '.$name;
         return $this->_doQuery($query, true);
     }
-    // }}}
 
-    // {{{ function releaseSavepoint($name)
+    // }}}
+    // {{{
 
     /**
      * Release a savepoint.
@@ -405,7 +406,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
         $query = 'RELEASE SAVEPOINT '.$name;
         return $this->_doQuery($query, true);
-
     }
 
     // }}}
