@@ -590,6 +590,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testRanges() {
         if (!$this->supported('limit_queries')) {
+            $this->assertTrue(false, '"limit_queries" is not supported');
             return;
         }
 
@@ -662,6 +663,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testSequences() {
         if (!$this->supported('sequences')) {
+            $this->assertTrue(false, '"sequences" is not supported');
             return;
         }
 
@@ -736,6 +738,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testReplace() {
         if (!$this->supported('replace')) {
+            $this->assertTrue(false, '"replace" is not supported');
             return;
         }
 
@@ -792,6 +795,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $affected_rows = $result;
 
             $this->assertEquals(1, $result, "replacing a row in an empty table returned incorrect value");
+        } else {
+            $this->assertTrue(false, '"affected_rows" is not supported');
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
@@ -841,7 +846,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testAffectedRows() {
         if (!$this->supported('affected_rows')) {
-            $this->assertTrue(false, 'Affected row fetching not supported');
+            $this->assertTrue(false, '"affected_rows" is not supported');
             return;
         }
 
@@ -911,6 +916,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testTransactionsRollback() {
         if (!$this->supported('transactions')) {
+            $this->assertTrue(false, '"transactions" is not supported');
             return;
         }
 
@@ -939,6 +945,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testTransactionsCommit() {
         if (!$this->supported('transactions')) {
+            $this->assertTrue(false, '"transactions" is not supported');
             return;
         }
 
@@ -965,11 +972,13 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     /**
      * Testing transaction support - Test COMMIT and ROLLBACK
      */
-    function testTransactionsBoth() {
-
+    function testTransactionsBoth()
+    {
         if (!$this->supported('transactions')) {
+            $this->assertTrue(false, '"transactions" is not supported');
             return;
         }
+
         $data = $this->getSampleData(0);
 
         $this->db->beginTransaction();
@@ -996,8 +1005,10 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testNestedTransactions() {
         if (!$this->supported('transactions')) {
+            $this->assertTrue(false, '"transactions" is not supported');
             return;
         }
+
 
         $data = array(
             1 => $this->getSampleData(1234),
@@ -1040,6 +1051,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testSavepoint() {
         if (!$this->supported('savepoints')) {
+            $this->assertTrue(false, '"savepoints" is not supported');
             return;
         }
 
@@ -1110,6 +1122,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testLOBStorage() {
         if (!$this->supported('LOBs')) {
+            $this->assertTrue(false, '"LOBs" is not supported');
             return;
         }
 
@@ -1183,6 +1196,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testLOBFiles() {
         if (!$this->supported('LOBs')) {
+            $this->assertTrue(false, '"LOBs" is not supported');
             return;
         }
 
@@ -1287,6 +1301,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testLOBNulls() {
         if (!$this->supported('LOBs')) {
+            $this->assertTrue(false, '"LOBs" is not supported');
             return;
         }
 
