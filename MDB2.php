@@ -918,7 +918,6 @@ class MDB2
         }
         return false;
     }
-
     // }}}
 }
 
@@ -1047,6 +1046,8 @@ class MDB2_Driver_Common extends PEAR
         'primary_key' => false,
         'result_introspection' => false,
         'prepared_statements' => false,
+        'identifier_quoting' => false,
+        'pattern_escaping' => false,
     );
 
     /**

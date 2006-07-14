@@ -92,6 +92,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->supported['primary_key'] = true;
         $this->supported['result_introspection'] = true;
         $this->supported['prepared_statements'] = true;
+        $this->supported['identifier_quoting'] = true;
+        $this->supported['pattern_escaping'] = true;
 
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;
