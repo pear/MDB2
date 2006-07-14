@@ -1554,6 +1554,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             default:
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'matchPattern: not a supported operator type:'. $operator);
+            }
         }
         $match.= "'";
         $odd = true;
