@@ -265,7 +265,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             }
 
             return $db->raiseError(null, null, null,
-                'writeLOBToFile: Unable to write LOB to file');
+                'Unable to write LOB to file', __FUNCTION__);
         }
         return MDB2_OK;
     }
@@ -289,7 +289,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             }
 
            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-               'attemped to retrieve LOB from non existing or NULL column');
+               'attemped to retrieve LOB from non existing or NULL column', __FUNCTION__);
         }
 
         if (!$lob['loaded']
@@ -329,7 +329,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             }
 
            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-               'attemped to retrieve LOB from non existing or NULL column');
+               'attemped to retrieve LOB from non existing or NULL column', __FUNCTION__);
         }
 
         $data = $lob['resource']->read($length);
@@ -340,7 +340,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             }
 
             return $db->raiseError(null, null, null,
-                    '_readLOB: Unable to read LOB');
+                    'Unable to read LOB', __FUNCTION__);
         }
         return $data;
     }
@@ -455,7 +455,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             }
 
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'mapNativeDatatype: unknown database attribute type: '.$db_type);
+                'unknown database attribute type: '.$db_type, __FUNCTION__);
         }
 
         return array($type, $length, $unsigned, $fixed);

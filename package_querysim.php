@@ -5,6 +5,9 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'XXX';
 $notes = <<<EOT
 - added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
 
 open todo items:
 - add ability to reference multiple results set files for different queries

@@ -88,7 +88,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTableFieldDefinition: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -110,7 +110,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTableIndexDefinition: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -132,7 +132,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTableConstraintDefinition: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -187,7 +187,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'getTriggerDefinition: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -321,7 +321,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'tableInfo: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 }
 ?>

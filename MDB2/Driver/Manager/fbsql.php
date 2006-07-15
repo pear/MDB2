@@ -231,7 +231,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
                 break;
             default:
                 return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
-                    'alterTable: change type "'.$change_name.'" not yet supported');
+                    'change type "'.$change_name.'" not yet supported', __FUNCTION__);
             }
         }
 
@@ -322,7 +322,8 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE);
+        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+            'not capable', __FUNCTION__);
     }
 
     // }}}
@@ -515,10 +516,10 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         $result = $db->exec("DROP TABLE $sequence_name");
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
-                'createSequence: could not drop inconsistent sequence table');
+                'could not drop inconsistent sequence table', __FUNCTION__);
         }
         return $db->raiseError($res, null, null,
-            'createSequence: could not create sequence table');
+            'could not create sequence table', __FUNCTION__);
     }
 
     // }}}

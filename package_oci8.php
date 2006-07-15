@@ -12,6 +12,9 @@ $notes = <<<EOT
   seemingly random string as a name
 - load datatype module in tableInfo() (Bug #8116)
 - added setSavepoint() and releaseSavePoint()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)

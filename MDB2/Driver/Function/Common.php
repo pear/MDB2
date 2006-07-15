@@ -82,7 +82,7 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
         }
 
         $error =& $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'executeStoredProc: method not implemented');
+            'method not implemented', __FUNCTION__);
         return $error;
     }
 

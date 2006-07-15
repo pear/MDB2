@@ -6,6 +6,9 @@ $version = 'XXX';
 $notes = <<<EOT
 - added matchPattern() and patternEscapeString(), escapePattern()
 - added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

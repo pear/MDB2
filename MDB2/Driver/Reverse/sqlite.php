@@ -72,13 +72,13 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         $count = count($column_sql);
         if ($count == 0) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'unexpected empty table column definition list');
+                'unexpected empty table column definition list', __FUNCTION__);
         }
         $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|SMALLINT|INT|INTEGER|DECIMAL|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( ?\(([1-9][0-9]*)(:([1-9][0-9]*))?\))?( UNSIGNED)?( PRIMARY KEY)?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
         for ($i=0, $j=0; $i<$count; ++$i) {
             if (!preg_match($regexp, trim($column_sql[$i]), $matches)) {
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'unexpected table column SQL definition: "'.$column_sql[$i].'"');
+                    'unexpected table column SQL definition: "'.$column_sql[$i].'"', __FUNCTION__);
             }
             $columns[$j]['name'] = $matches[1];
             $columns[$j]['type'] = strtolower($matches[2]);
@@ -198,7 +198,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
 
         return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-            'getTableFieldDefinition: it was not specified an existing table column');
+            'it was not specified an existing table column', __FUNCTION__);
     }
 
     // }}}
@@ -235,7 +235,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
         if (!$sql) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableIndexDefinition: it was not specified an existing table index');
+                'it was not specified an existing table index', __FUNCTION__);
         }
 
         $sql = strtolower($sql);
@@ -246,7 +246,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         if (preg_match("/^create unique/", $sql)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableIndexDefinition: it was not specified an existing table index');
+                'it was not specified an existing table index', __FUNCTION__);
         }
 
         $definition = array();
@@ -263,7 +263,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableIndexDefinition: it was not specified an existing table index');
+                'it was not specified an existing table index', __FUNCTION__);
         }
         return $definition;
     }
@@ -302,7 +302,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
         if (!$sql) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table index');
+                'it was not specified an existing table index', __FUNCTION__);
         }
 
         $sql = strtolower($sql);
@@ -313,7 +313,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         if (!preg_match("/^create unique/", $sql)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table constraint');
+                'it was not specified an existing table constraint', __FUNCTION__);
         }
 
         $definition = array();
@@ -331,7 +331,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table constraint');
+                'it was not specified an existing table constraint', __FUNCTION__);
         }
         return $definition;
     }
@@ -360,7 +360,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         if (!is_string($result)) {
             return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
-                'This DBMS can not obtain tableInfo from result sets');
+                'This DBMS can not obtain tableInfo from result sets', __FUNCTION__);
         }
 
         /*

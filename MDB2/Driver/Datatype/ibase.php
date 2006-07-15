@@ -217,7 +217,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
                 }
 
                 return $db->raiseError(null, null, null,
-                    '_retrieveLOB: Could not open fetched large object field');
+                    'Could not open fetched large object field', __FUNCTION__);
             }
         }
         $lob['loaded'] = true;
@@ -248,7 +248,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             }
 
             return $db->raiseError(null, null, null,
-                    '_readLOB: Unable to read LOB');
+                    'Unable to read LOB', __FUNCTION__);
         }
         return $data;
     }
@@ -378,7 +378,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             }
 
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'mapNativeDatatype: unknown database attribute type: '.$db_type);
+                'unknown database attribute type: '.$db_type, __FUNCTION__);
         }
 
         return array($type, $length, $unsigned, $fixed);

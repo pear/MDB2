@@ -212,7 +212,8 @@ class MDB2_Extended extends MDB2_Module_Common
         switch ($mode) {
         case MDB2_AUTOQUERY_INSERT:
             if (empty($table_fields)) {
-                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'Insert requires table fields', __FUNCTION__);
             }
             $cols = implode(', ', $table_fields);
             $values = '?'.str_repeat(', ?', (count($table_fields) - 1));
@@ -220,7 +221,8 @@ class MDB2_Extended extends MDB2_Module_Common
             break;
         case MDB2_AUTOQUERY_UPDATE:
             if (empty($table_fields)) {
-                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+                return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'Update requires table fields', __FUNCTION__);
             }
             $set = implode(' = ?, ', $table_fields).' = ?';
             $sql = 'UPDATE '.$table.' SET '.$set.$where;
@@ -236,7 +238,8 @@ class MDB2_Extended extends MDB2_Module_Common
             return $sql;
             break;
         }
-        return $db->raiseError(MDB2_ERROR_SYNTAX);
+        return $db->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                'Non existant mode', __FUNCTION__);
     }
     // }}}
 

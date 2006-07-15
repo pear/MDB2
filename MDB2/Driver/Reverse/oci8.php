@@ -93,7 +93,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 
         if (empty($column)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableFieldDefinition: it was not specified an existing table column');
+                'it was not specified an existing table column', __FUNCTION__);
         }
 
         $column = array_change_key_case($column, CASE_LOWER);
@@ -206,7 +206,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableIndexDefinition: it was not specified an existing table index');
+                'it was not specified an existing table index', __FUNCTION__);
         }
         return $definition;
     }
@@ -274,7 +274,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table constraint');
+                'it was not specified an existing table constraint', __FUNCTION__);
         }
         return $definition;
     }

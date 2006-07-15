@@ -153,7 +153,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function beginTransaction()
     {
-        $this->debug('starting transaction', 'beginTransaction', false);
+        $this->debug('Starting transaction', __FUNCTION__, array('is_manip' => true));
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
@@ -181,10 +181,10 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function commit()
     {
-        $this->debug('commit transaction', 'commit', false);
+        $this->debug('Committing transaction', __FUNCTION__, array('is_manip' => true));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'commit: transaction changes are being auto commited');
+                'transaction changes are being auto commited', __FUNCTION__);
         }
         $result =& $this->_doQuery('COMMIT;', true);
         if (PEAR::isError($result)) {
@@ -210,10 +210,10 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function rollback()
     {
-        $this->debug('rolling back transaction', 'rollback', false);
+        $this->debug('Rolling back transaction', __FUNCTION__, array('is_manip' => true));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'rollback: transactions can not be rolled back when changes are auto committed');
+                'transactions can not be rolled back when changes are auto committed', __FUNCTION__);
         }
         $result =& $this->_doQuery('ROLLBACK;', true);
         if (PEAR::isError($result)) {
@@ -248,7 +248,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
 
         if (!PEAR::loadExtension($this->phptype)) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'connect: extension '.$this->phptype.' is not compiled into PHP');
+                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }
 
         $params = array(
@@ -264,7 +264,8 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $connection = @call_user_func_array($connect_function, $params);
         @ini_restore('track_errors');
         if ($connection <= 0) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+                'unable to establish a connection', __FUNCTION__);
         }
 
         if (!empty($this->dsn['charset'])) {
@@ -324,7 +325,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $result = $this->debug($query, 'query', $is_manip);
+        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -352,7 +353,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             if ($database_name != $this->connected_database_name) {
                 if (!@fbsql_select_db($database_name, $connection)) {
                     $err = $this->raiseError(null, null, null,
-                        '_doQuery: Could not select the database: '.$database_name);
+                        'Could not select the database: '.$database_name, __FUNCTION__);
                     return $err;
                 }
                 $this->connected_database_name = $database_name;
@@ -361,11 +362,12 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
 
         $result = @fbsql_query($query, $connection);
         if (!$result) {
-            $err = $this->raiseError(null, null, null,
-                '_doQuery: Could not execute statement');
+            $err =& $this->raiseError(null, null, null,
+                'Could not execute statement', __FUNCTION__);
             return $err;
         }
 
+        $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'post', 'result' => $result));
         return $result;
     }
 
@@ -450,7 +452,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
                 $result = $this->manager->createSequence($seq_name, 2);
                 if (PEAR::isError($result)) {
                     return $this->raiseError($result, null, null,
-                        'nextID: on demand sequence '.$seq_name.' could not be created');
+                        'on demand sequence '.$seq_name.' could not be created', __FUNCTION__);
                 } else {
                     // First ID of a newly created sequence is 1
                     return 1;
@@ -490,7 +492,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $value = @fbsql_insert_id($connection);
         if (!$value) {
             return $this->raiseError(null, null, null,
-                'lastInsertID: Could not get last insert ID');
+                'Could not get last insert ID', __FUNCTION__);
         }
         return $value;
     }
@@ -558,7 +560,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         if (!$row) {
             if ($this->result === false) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'fetchRow: resultset has already been freed');
+                    'resultset has already been freed', __FUNCTION__);
                 return $err;
             }
             $null = null;
@@ -630,12 +632,12 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
         if (is_null($cols)) {
             if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'numCols: resultset has already been freed');
+                    'resultset has already been freed', __FUNCTION__);
             } elseif (is_null($this->result)) {
                 return count($this->types);
             }
             return $this->db->raiseError(null, null, null,
-                'numCols: Could not get column count');
+                'Could not get column count', __FUNCTION__);
         }
         return $cols;
     }
@@ -653,7 +655,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'nextResult: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         } elseif (is_null($this->result)) {
             return false;
         }
@@ -675,7 +677,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
             $free = @fbsql_free_result($this->result);
             if ($free === false) {
                 return $this->db->raiseError(null, null, null,
-                    'free: Could not free result');
+                    'Could not free result', __FUNCTION__);
             }
         }
         $this->result = false;
@@ -708,12 +710,12 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
         if ($this->rownum != ($rownum - 1) && !@fbsql_data_seek($this->result, $rownum)) {
             if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'seek: resultset has already been freed');
+                    'resultset has already been freed', __FUNCTION__);
             } elseif (is_null($this->result)) {
                 return MDB2_OK;
             }
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
-                'seek: tried to seek to an invalid row number ('.$rownum.')');
+                'tried to seek to an invalid row number ('.$rownum.')', __FUNCTION__);
         }
         $this->rownum = $rownum - 1;
         return MDB2_OK;
@@ -752,12 +754,12 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
         if (is_null($rows)) {
             if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'numRows: resultset has already been freed');
+                    'resultset has already been freed', __FUNCTION__);
             } elseif (is_null($this->result)) {
                 return 0;
             }
             return $this->db->raiseError(null, null, null,
-                'numRows: Could not get row count');
+                'Could not get row count', __FUNCTION__);
         }
         return $rows;
     }

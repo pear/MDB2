@@ -286,14 +286,16 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         if ($this->database_name) {
             $file = $this->database_name;
             if (!file_exists($file)) {
-                return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null, 'file not found');
+                return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                    'file not found', __FUNCTION__);
             }
             if (!is_file($file)) {
-                return $this->raiseError(MDB2_ERROR_INVALID, null, null, 'not a file');
+                return $this->raiseError(MDB2_ERROR_INVALID, null, null,
+                    'not a file', __FUNCTION__);
             }
             if (!is_readable($file)) {
                 return $this->raiseError(MDB2_ERROR_ACCESS_VIOLATION, null, null,
-                    'could not open file - check permissions');
+                    'could not open file - check permissions', __FUNCTION__);
             }
             // ...and open if persistent
             if ($this->options['persistent']) {
@@ -356,7 +358,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             $query = $this->_readFile();
         }
         $this->last_query = $query;
-        $result = $this->debug($query, 'query', $is_manip);
+        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -365,7 +367,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         }
         if ($is_manip) {
             $err =& $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                '_doQuery: Manipulation statements are not supported');
+                'Manipulation statements are not supported', __FUNCTION__);
             return $err;
         }
         if ($this->options['disable_query']) {
@@ -380,6 +382,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         if ($this->next_limit > 0) {
             $result[1] = array_slice($result[1], $this->next_offset, $this->next_limit);
         }
+
+        $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'post', 'result' => $result));
         return $result;
     }
 
@@ -461,10 +465,10 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
 
         if ($columnDelim == $eolDelim) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'columnDelim and eolDelim must be different');
+                'columnDelim and eolDelim must be different', __FUNCTION__);
         } elseif ($dataDelim == $eolDelim){
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'dataDelim and eolDelim must be different');
+                'dataDelim and eolDelim must be different', __FUNCTION__);
         }
 
         $query = trim($query);
@@ -473,7 +477,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
 
         if (!strlen($query)) {
             return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                'empty querysim text');
+                'empty querysim text', __FUNCTION__);
         }
         $lineData = $this->_parseOnDelim($query, $eolDelim);
         //kill the empty last row created by final eol char if it exists
@@ -485,7 +489,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $columnNames = $this->_parseOnDelim($thisLine[1], $columnDelim);
         if ((in_array('', $columnNames)) || (in_array('NULL', $columnNames))) {
             return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                'all column names must be defined');
+                'all column names must be defined', __FUNCTION__);
         }
         //replace double-slash tokens with single-slash
         $columnNames = str_replace('[$double-slash$]', '\\', $columnNames);
@@ -499,7 +503,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
                 if ($thisDataCount != $columnCount) {
                     $fileLineNo = $rowNum + 2;
                     return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                        "number of data elements ($thisDataCount) in line $fileLineNo not equal to number of defined columns ($columnCount)");
+                        "number of data elements ($thisDataCount) in line $fileLineNo not equal to number of defined columns ($columnCount)", __FUNCTION__);
                 }
                 //loop through data elements in data line
                 foreach ($thisData as $thisElement) {
@@ -555,7 +559,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      */
     function exec($query)
     {
-        return $this->raiseError(MDB2_ERROR_UNSUPPORTED);
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'Querysim only supports reading data', __FUNCTION__);
     }
 
     // }}}
@@ -615,7 +620,7 @@ class MDB2_Result_querysim extends MDB2_Result_Common
     {
         if ($this->result === false) {
             $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'fetchRow: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
             return $err;
         } elseif (is_null($this->result)) {
             return null;
@@ -682,7 +687,7 @@ class MDB2_Result_querysim extends MDB2_Result_Common
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'getColumnNames: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         } elseif (is_null($this->result)) {
             return array();
         }
@@ -707,7 +712,7 @@ class MDB2_Result_querysim extends MDB2_Result_Common
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'numCols: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         } elseif (is_null($this->result)) {
             return count($this->types);
         }
@@ -739,7 +744,7 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'seek: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         }
         $this->rownum = $rownum - 1;
         return MDB2_OK;
@@ -776,7 +781,7 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'numRows: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         } elseif (is_null($this->result)) {
             return 0;
         }

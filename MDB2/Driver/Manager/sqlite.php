@@ -75,13 +75,13 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $database_file = $db->_getDatabaseFile($name);
         if (file_exists($database_file)) {
             return $db->raiseError(MDB2_ERROR_ALREADY_EXISTS, null, null,
-                'createDatabase: database already exists');
+                'database already exists', __FUNCTION__);
         }
         $php_errormsg = '';
         $handle = @sqlite_open($database_file, $db->dsn['mode'], $php_errormsg);
         if (!$handle) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createDatabase: '.(isset($php_errormsg) ? $php_errormsg : 'could not create the database file'));
+                (isset($php_errormsg) ? $php_errormsg : 'could not create the database file'), __FUNCTION__);
         }
         @sqlite_close($handle);
         return MDB2_OK;
@@ -107,12 +107,12 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $database_file = $db->_getDatabaseFile($name);
         if (!@file_exists($database_file)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_DROP, null, null,
-                'dropDatabase: database does not exist');
+                'database does not exist', __FUNCTION__);
         }
         $result = @unlink($database_file);
         if (!$result) {
             return $db->raiseError(MDB2_ERROR_CANNOT_DROP, null, null,
-                'dropDatabase: '.(isset($php_errormsg) ? $php_errormsg : 'could not remove the database file'));
+                (isset($php_errormsg) ? $php_errormsg : 'could not remove the database file'), __FUNCTION__);
         }
         return MDB2_OK;
     }
@@ -241,7 +241,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             case 'rename':
             default:
                 return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
-                    'alterTable: change type "'.$change_name.'" not yet supported');
+                    'change type "'.$change_name.'" not yet supported', __FUNCTION__);
             }
         }
 
@@ -290,7 +290,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listDatabases: list databases is not supported');
+            'list databases is not supported', __FUNCTION__);
     }
 
     // }}}
@@ -310,7 +310,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listDatabases: list databases is not supported');
+            'list databases is not supported', __FUNCTION__);
     }
 
     // }}}
@@ -540,7 +540,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         if (!empty($definition['primary'])) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'createConstraint: Creating Primary Constraints is not supported');
+                'Creating Primary Constraints is not supported', __FUNCTION__);
         }
 
         $table = $db->quoteIdentifier($table, true);
@@ -586,7 +586,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         if ($primary || $name == 'PRIMARY') {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'dropConstraints: Dropping Primary Constraints is not supported');
+                'Dropping Primary Constraints is not supported', __FUNCTION__);
         }
 
         $name = $db->getIndexName($name);
@@ -672,10 +672,10 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         $result = $db->exec("DROP TABLE $sequence_name");
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
-                'createSequence: could not drop inconsistent sequence table');
+                'could not drop inconsistent sequence table', __FUNCTION__);
         }
         return $db->raiseError($res, null, null,
-            'createSequence: could not create sequence table');
+            'could not create sequence table', __FUNCTION__);
     }
 
     // }}}

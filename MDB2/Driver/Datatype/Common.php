@@ -148,7 +148,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 }
                 if (empty($db->options['datatype_map'][$type])) {
                     return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                        'checkResultTypes: ' . $type . ' for '. $key .' is not a supported column type');
+                        $type.' for '.$key.' is not a supported column type', __FUNCTION__);
                 }
             }
         }
@@ -208,7 +208,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_INVALID, null, null,
-            'attempt to convert result value to an unknown type ' . $type);
+            'attempt to convert result value to an unknown type ' . $type, __FUNCTION__);
     }
 
     // }}}
@@ -313,7 +313,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
         if (!method_exists($this, "_get{$type}Declaration")) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'type not defined: '.$type);
+                'type not defined: '.$type, __FUNCTION__);
         }
         return $this->{"_get{$type}Declaration"}($name, $field);
     }
@@ -760,7 +760,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             }
 
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'type "'.$current['type'].'" is not yet supported');
+                'type "'.$current['type'].'" is not yet supported', __FUNCTION__);
         }
 
         if (empty($previous['type']) || $previous['type'] != $type) {
@@ -1043,7 +1043,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
         if (!method_exists($this, "_quote{$type}")) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'type not defined: '.$type);
+                'type not defined: '.$type, __FUNCTION__);
         }
         $value = $this->{"_quote{$type}"}($value, $quote, $escape_wildcards);
         if ($quote && $escape_wildcards && $db->escape_quotes !== $db->escape_pattern) {
@@ -1401,7 +1401,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if (@fwrite($fp, $result, $read) != $read) {
                 @fclose($fp);
                 return $db->raiseError(MDB2_ERROR, null, null,
-                    'writeLOBToFile: could not write to the output file');
+                    'could not write to the output file', __FUNCTION__);
             }
         }
         @fclose($fp);
@@ -1553,7 +1553,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             break;
             default:
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'matchPattern: not a supported operator type:'. $operator);
+                    'not a supported operator type:'. $operator, __FUNCTION__);
             }
         }
         $match.= "'";
@@ -1605,7 +1605,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'mapNativeDatatype: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}

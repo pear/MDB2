@@ -271,7 +271,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function beginTransaction()
     {
-        $this->debug('starting transaction', 'beginTransaction', false);
+        $this->debug('Starting transaction', __FUNCTION__, array('is_manip' => true));
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
@@ -282,7 +282,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $result = @ibase_trans(IBASE_DEFAULT, $connection);
         if (!$result) {
             return $this->raiseError(null, null, null,
-                'beginTransaction: could not start a transaction');
+                'could not start a transaction', __FUNCTION__);
         }
         $this->transaction_id = $result;
         $this->in_transaction = true;
@@ -301,14 +301,14 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function commit()
     {
-        $this->debug('commit transaction', 'commit', false);
+        $this->debug('Committing transaction', __FUNCTION__, array('is_manip' => true));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'commit: transaction changes are being auto committed');
+                'transaction changes are being auto committed', __FUNCTION__);
         }
         if (!@ibase_commit($this->transaction_id)) {
             return $this->raiseError(null, null, null,
-                'commit: could not commit a transaction');
+                'could not commit a transaction', __FUNCTION__);
         }
         $this->in_transaction = false;
         $this->transaction_id = 0;
@@ -328,10 +328,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function rollback($savepoint = true)
     {
-        $this->debug('rolling back transaction/savepoint', 'rollback', false);
+        $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'rollback: transactions can not be rolled back when changes are auto committed');
+                'transactions can not be rolled back when changes are auto committed', __FUNCTION__);
         }
         if ($savepoint && is_string($savepoint) && $savepoint !== '') {
             $query = 'ROLLBACK TO SAVEPOINT '.$savepoint;
@@ -342,7 +342,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         } else {
             if ($this->transaction_id && !@ibase_rollback($this->transaction_id)) {
                 return $this->raiseError(null, null, null,
-                    'rollback: Could not rollback a pending transaction: '.@ibase_errmsg());
+                    'Could not rollback a pending transaction: '.@ibase_errmsg(), __FUNCTION__);
             }
             $this->in_transaction = false;
             $this->transaction_id = 0;
@@ -371,7 +371,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function setTransactionIsolation($isolation, $options = array())
     {
-        $this->debug('setting transaction isolation level', 'setTransactionIsolation', false);
+        $this->debug('Setting transaction isolation level', __FUNCTION__, array('is_manip' => true));
         switch ($isolation) {
         case 'READ UNCOMMITTED':
             $ibase_isolation = 'READ COMMITTED RECORD_VERSION';
@@ -387,7 +387,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             break;
         default:
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'setTransactionIsolation: isolation level is not supported: '.$isolation);
+                'isolation level is not supported: '.$isolation, __FUNCTION__);
         }
 
         if (!empty($options['wait'])) {
@@ -398,7 +398,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 break;
             default:
                 return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'setTransactionIsolation: wait option is not supported: '.$options['wait']);
+                    'wait option is not supported: '.$options['wait'], __FUNCTION__);
             }
         }
 
@@ -410,7 +410,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 break;
             default:
                 return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'setTransactionIsolation: wait option is not supported: '.$options['rw']);
+                    'wait option is not supported: '.$options['rw'], __FUNCTION__);
             }
         }
 
@@ -432,10 +432,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function setSavepoint($name)
     {
-        $this->debug('setting savepoint', 'setSavepoint', false);
+        $this->debug('Setting savepoint', __FUNCTION__, array('is_manip' => true));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'setSavepoint: savepoint cannot be set when changes are auto committed');
+                'savepoint cannot be set when changes are auto committed', __FUNCTION__);
         }
         $query = 'SAVEPOINT '.$name;
         return $this->_doQuery($query, true);
@@ -455,10 +455,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function releaseSavepoint($name)
     {
-        $this->debug('release savepoint', 'releaseSavepoint', false);
+        $this->debug('Release savepoint', __FUNCTION__, array('is_manip' => true));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'releaseSavepoint: savepoint cannot be released when changes are auto committed');
+                'savepoint cannot be released when changes are auto committed', __FUNCTION__);
         }
         $query = 'RELEASE SAVEPOINT '.$name;
         return $this->_doQuery($query, true);
@@ -516,7 +516,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
         $connection = @call_user_func_array($connect_function, $params);
         if ($connection <= 0) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+                'unable to establish a connection', __FUNCTION__);
         }
 
         if (function_exists('ibase_timefmt')) {
@@ -555,7 +556,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
         if (!PEAR::loadExtension('interbase')) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'connect: extension '.$this->phptype.' is not compiled into PHP');
+                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }
 
         if (!empty($this->database_name)) {
@@ -597,7 +598,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $result = @ibase_query($connection, $query);
         if (!$result) {
             return $this->raiseError(null, null, null,
-                'setCharset: Unable to set client charset: '.$charset);
+                'Unable to set client charset: '.$charset, __FUNCTION__);
         }
 
         return MDB2_OK;
@@ -643,7 +644,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $result = $this->debug($query, 'query', $is_manip);
+        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -666,11 +667,12 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $result = @ibase_query($connection, $query);
 
         if ($result === false) {
-            $err = $this->raiseError(null, null, null,
-                '_doQuery: Could not execute statement');
+            $err =& $this->raiseError(null, null, null,
+                'Could not execute statement', __FUNCTION__);
             return $err;
         }
 
+        $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'post', 'result' => $result));
         return $result;
     }
 
@@ -742,7 +744,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
         if (!$server_info) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'getServerVersion: Requires either "server_version" or "DBA_username"/"DBA_password" option');
+                'Requires either "server_version" or "DBA_username"/"DBA_password" option', __FUNCTION__);
         }
         // cache server_info
         $this->connected_server_info = $server_info;
@@ -750,7 +752,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             //WI-V1.5.3.4854 Firebird 1.5
             if (!preg_match('/-V([\d\.]*)/', $server_info, $matches)) {
                 return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                    'getServerVersion: Could not parse version information:'.$server_info);
+                    'Could not parse version information:'.$server_info, __FUNCTION__);
             }
             $tmp = explode('.', $matches[1], 4);
             $server_info = array(
@@ -797,7 +799,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $offset = $this->offset;
         $limit  = $this->limit;
         $this->offset = $this->limit = 0;
-        $result = $this->debug($query, 'prepare', $is_manip);
+        $result = $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'time' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -827,7 +829,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
                 if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
                     $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                        'prepare: query with an unterminated text string specified');
+                        'query with an unterminated text string specified', __FUNCTION__);
                     return $err;
                 }
                 switch ($this->escape_quotes) {
@@ -856,7 +858,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
                     if ($parameter === '') {
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                            'prepare: named parameter with an empty name');
+                            'named parameter with an empty name', __FUNCTION__);
                         return $err;
                     }
                     $positions[$parameter] = $p_position;
@@ -876,12 +878,13 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $statement = @ibase_prepare($connection, $query);
         if (!$statement) {
             $err =& $this->raiseError(null, null, null,
-                'Could not create statement');
+                'Could not create statement', __FUNCTION__);
             return $err;
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
+        $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'time' => 'post', 'result' => $obj));
         return $obj;
     }
 
@@ -929,7 +932,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 $result = $this->manager->createSequence($seq_name, 2);
                 if (PEAR::isError($result)) {
                     return $this->raiseError($result, null, null,
-                        'nextID: on demand sequence could not be created');
+                        'on demand sequence could not be created', __FUNCTION__);
                 } else {
                     // First ID of a newly created sequence is 1
                     // return 1;
@@ -958,11 +961,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $value = $this->queryOne($query);
         if (PEAR::isError($value)) {
             return $this->raiseError($result, null, null,
-                'currID: Unable to select from ' . $seq_name) ;
+                'Unable to select from ' . $seq_name, __FUNCTION__);
         }
         if (!is_numeric($value)) {
             return $this->raiseError(MDB2_ERROR, null, null,
-                'currID: could not find value in sequence table');
+                'could not find value in sequence table', __FUNCTION__);
         }
         return $value;
     }
@@ -1054,7 +1057,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if (!$row) {
             if ($this->result === false) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'fetchRow: resultset has already been freed');
+                    'resultset has already been freed', __FUNCTION__);
                 return $err;
             }
             $null = null;
@@ -1131,18 +1134,18 @@ class MDB2_Result_ibase extends MDB2_Result_Common
 
         if (!is_resource($this->result)) {
             return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'numCols(): not a valid ibase resource');
+                'numCols(): not a valid ibase resource', __FUNCTION__);
         }
         $cols = @ibase_num_fields($this->result);
         if (is_null($cols)) {
             if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'numCols: resultset has already been freed');
+                    'resultset has already been freed', __FUNCTION__);
             } elseif (is_null($this->result)) {
                 return count($this->types);
             }
             return $this->db->raiseError(null, null, null,
-                'numCols: Could not get column count');
+                'Could not get column count', __FUNCTION__);
         }
         return $cols;
     }
@@ -1162,7 +1165,7 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             $free = @ibase_free_result($this->result);
             if ($free === false) {
                 return $this->db->raiseError(null, null, null,
-                    'free: Could not free result');
+                    'Could not free result', __FUNCTION__);
             }
         }
         $this->result = false;
@@ -1253,7 +1256,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
         }
         if ($this->result === false) {
             $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'fetchRow: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
             return $err;
         }
         if (!is_null($rownum)) {
@@ -1315,7 +1318,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'seek: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         }
         $this->rownum = $rownum - 1;
         return MDB2_OK;
@@ -1334,7 +1337,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'valid: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         } elseif (is_null($this->result)) {
             return true;
         }
@@ -1357,7 +1360,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'numRows: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         } elseif (is_null($this->result)) {
             return 0;
         }
@@ -1410,8 +1413,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             return $result;
         }
         $this->db->last_query = $this->query;
-        $this->db->debug($this->query, 'execute', $this->is_manip);
-        $this->db->debug($this->values, 'parameters', $this->is_manip);
+        $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'time' => 'pre', 'parameters' => $this->values));
         if ($this->db->getOption('disable_query')) {
             if ($this->is_manip) {
                 $return = 0;
@@ -1430,7 +1432,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         foreach ($this->positions as $parameter => $current_position) {
             if (!array_key_exists($parameter, $this->values)) {
                 return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                    '_execute: Unable to bind to missing placeholder: '.$parameter);
+                    'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);
             }
             $value = $this->values[$parameter];
             $type = !empty($this->types[$parameter]) ? $this->types[$parameter] : null;
@@ -1440,7 +1442,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         $result = @call_user_func_array('ibase_execute', $parameters);
         if ($result === false) {
             $err =& $this->db->raiseError(null, null, null,
-                '_execute: Could not execute statement');
+                'Could not execute statement', __FUNCTION__);
             return $err;
         }
 
@@ -1451,6 +1453,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
 
         $result =& $this->db->_wrapResult($result, $this->result_types,
             $result_class, $result_wrap_class, $this->limit, $this->offset);
+        $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'time' => 'post', 'result' => $result));
         return $result;
     }
 
@@ -1469,13 +1472,13 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
     {
         if (is_null($this->positions)) {
             return $this->db->raiseError(MDB2_ERROR, null, null,
-                'free: Prepared statement has already been freed');
+                'Prepared statement has already been freed', __FUNCTION__);
         }
         $result = MDB2_OK;
 
         if (!is_null($this->statement) && !@ibase_free_query($this->statement)) {
             $result = $this->db->raiseError(null, null, null,
-                'free: Could not free statement');
+                'Could not free statement', __FUNCTION__);
         }
 
         parent::free();

@@ -168,7 +168,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function beginTransaction()
     {
-        $this->debug('starting transaction', 'beginTransaction', false);
+        $this->debug('Starting transaction', __FUNCTION__, array('is_manip' => true));
         if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
@@ -196,7 +196,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->debug('commit transaction', 'commit');
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'commit: transaction changes are being auto committed');
+                'transaction changes are being auto committed', __FUNCTION__);
         }
         if ($this->uncommitedqueries) {
             $connection = $this->getConnection();
@@ -205,7 +205,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             if (!@OCICommit($connection)) {
                 return $this->raiseError(null, null, null,
-                'commit: Unable to commit transaction');
+                'Unable to commit transaction', __FUNCTION__);
             }
             $this->uncommitedqueries = 0;
         }
@@ -226,10 +226,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function rollback($savepoint = true)
     {
-        $this->debug('rolling back transaction', 'rollback', false);
+        $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'rollback: transactions can not be rolled back when changes are auto committed');
+                'transactions can not be rolled back when changes are auto committed', __FUNCTION__);
         }
         if ($savepoint && is_string($savepoint) && $savepoint !== '') {
             $query = 'ROLLBACK TO SAVEPOINT '.$savepoint;
@@ -244,7 +244,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
             if (!@OCIRollback($connection)) {
                 return $this->raiseError(null, null, null,
-                'rollback: Unable to rollback transaction');
+                'Unable to rollback transaction', __FUNCTION__);
             }
             $this->uncommitedqueries = 0;
             $this->in_transaction = false;
@@ -270,7 +270,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function setTransactionIsolation($isolation)
     {
-        $this->debug('setting transaction isolation level', 'setTransactionIsolation', false);
+        $this->debug('Setting transaction isolation level', __FUNCTION__, array('is_manip' => true));
         switch ($isolation) {
         case 'READ UNCOMMITTED':
             $isolation = 'READ COMMITTED';
@@ -281,7 +281,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             break;
         default:
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'setTransactionIsolation: isolation level is not supported: '.$isolation);
+                'isolation level is not supported: '.$isolation, __FUNCTION__);
         }
 
         $query = "ALTER SESSION ISOLATION LEVEL $isolation";
@@ -302,10 +302,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function setSavepoint($name)
     {
-        $this->debug('setting savepoint', 'setSavepoint', false);
+        $this->debug('Setting savepoint', __FUNCTION__, array('is_manip' => true));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'setSavepoint: savepoint cannot be set when changes are auto committed');
+                'savepoint cannot be set when changes are auto committed', __FUNCTION__);
         }
         $query = 'SAVEPOINT '.$name;
         return $this->_doQuery($query, true);
@@ -325,10 +325,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function releaseSavepoint($name)
     {
-        $this->debug('release savepoint', 'releaseSavepoint', false);
+        $this->debug('Release savepoint', __FUNCTION__, array('is_manip' => true));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'releaseSavepoint: savepoint cannot be released when changes are auto committed');
+                'savepoint cannot be released when changes are auto committed', __FUNCTION__);
         }
         return MDB2_OK;
     }
@@ -346,7 +346,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     {
         if (!PEAR::loadExtension($this->phptype)) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'extension '.$this->phptype.' is not compiled into PHP');
+                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }
 
         $sid = '';
@@ -371,7 +371,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         if (empty($sid)) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified a valid Oracle Service Identifier (SID)');
+                'it was not specified a valid Oracle Service Identifier (SID)', __FUNCTION__);
         }
 
         if (function_exists('oci_connect')) {
@@ -403,7 +403,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         if (!$connection) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED);
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+                'unable to establish a connection', __FUNCTION__);
         }
 
         $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
@@ -620,7 +621,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $result = $this->debug($query, 'query', $is_manip);
+        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -644,20 +645,22 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $result = @OCIParse($connection, $query);
         if (!$result) {
             $err = $this->raiseError(null, null, null,
-                '_doQuery: Could not create statement');
+                'Could not create statement', __FUNCTION__);
             return $err;
         }
 
         $mode = $this->in_transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
         if (!@OCIExecute($result, $mode)) {
             $err =& $this->raiseError($result, null, null,
-                '_doQuery: Could not execute statement');
+                'Could not execute statement', __FUNCTION__);
             return $err;
         }
 
         if (is_numeric($this->options['result_prefetching'])) {
             @ocisetprefetch($result, $this->options['result_prefetching']);
         }
+
+        $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'post', 'result' => $result));
         return $result;
     }
 
@@ -706,14 +709,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         if (!$server_info) {
             return $this->raiseError(null, null, null,
-                'getServerVersion: Could not get server information');
+                'Could not get server information', __FUNCTION__);
         }
         // cache server_info
         $this->connected_server_info = $server_info;
         if (!$native) {
             if (!preg_match('/ (\d+)\.(\d+)\.(\d+)\.([\d\.]+) /', $server_info, $tmp)) {
                 return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                    'Could not parse version information:'.$server_info);
+                    'Could not parse version information:'.$server_info, __FUNCTION__);
             }
             $server_info = array(
                 'major' => $tmp[1],
@@ -759,7 +762,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $offset = $this->offset;
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
-        $result = $this->debug($query, 'prepare', $is_manip);
+        $result = $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'time' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -791,7 +794,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
                 if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
                     $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                        'prepare: query with an unterminated text string specified');
+                        'query with an unterminated text string specified', __FUNCTION__);
                     return $err;
                 }
                 switch ($this->escape_quotes) {
@@ -831,7 +834,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
                     if ($parameter === '') {
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                            'prepare: named parameter with an empty name');
+                            'named parameter with an empty name', __FUNCTION__);
                         return $err;
                     }
                     // use parameter name in type array
@@ -878,12 +881,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $statement = @OCIParse($connection, $query);
         if (!$statement) {
             $err =& $this->raiseError(null, null, null,
-                'Could not create statement');
+                'Could not create statement', __FUNCTION__);
             return $err;
         }
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
+        $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'time' => 'post', 'result' => $obj));
         return $obj;
     }
 
@@ -981,7 +985,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         if (!$row) {
             if ($this->result === false) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'fetchRow: resultset has already been freed');
+                    'resultset has already been freed', __FUNCTION__);
                 return $err;
             }
             $null = null;
@@ -1057,12 +1061,12 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         if (is_null($cols)) {
             if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'numCols: resultset has already been freed');
+                    'resultset has already been freed', __FUNCTION__);
             } elseif (is_null($this->result)) {
                 return count($this->types);
             }
             return $this->db->raiseError(null, null, null,
-                'numCols: Could not get column count');
+                'Could not get column count', __FUNCTION__);
         }
         if ($this->offset > 0) {
             --$cols;
@@ -1085,7 +1089,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             $free = @OCIFreeCursor($this->result);
             if ($free === false) {
                 return $this->db->raiseError(null, null, null,
-                    'free: Could not free result');
+                    'Could not free result', __FUNCTION__);
             }
         }
         $this->result = false;
@@ -1163,7 +1167,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     {
         if ($this->result === false) {
             $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'fetchRow: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
             return $err;
         } elseif (is_null($this->result)) {
             return null;
@@ -1225,7 +1229,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'seek: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         }
         $this->rownum = $rownum - 1;
         return MDB2_OK;
@@ -1244,7 +1248,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'valid: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         } elseif (is_null($this->result)) {
             return true;
         }
@@ -1267,7 +1271,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     {
         if ($this->result === false) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'numRows: resultset has already been freed');
+                'resultset has already been freed', __FUNCTION__);
         } elseif (is_null($this->result)) {
             return 0;
         }
@@ -1319,8 +1323,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             return $result;
         }
         $this->db->last_query = $this->query;
-        $this->db->debug($this->query, 'execute', $this->is_manip);
-        $this->db->debug($this->values, 'parameters', $this->is_manip);
+        $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'time' => 'pre', 'parameters' => $this->values));
         if ($this->db->getOption('disable_query')) {
             if ($this->is_manip) {
                 $return = 0;
@@ -1341,7 +1344,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         foreach ($this->positions as $parameter => $current_position) {
             if (!array_key_exists($parameter, $this->values)) {
                 return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                    '_execute: Unable to bind to missing placeholder: '.$parameter);
+                    'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);
             }
             $value = $this->values[$parameter];
             $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
@@ -1363,12 +1366,13 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 $lobs[$i]['descriptor'] = @OCINewDescriptor($connection, OCI_D_LOB);
                 if (!is_object($lobs[$i]['descriptor'])) {
                     $result = $this->db->raiseError(null, null, null,
-                        '_execute: Unable to create descriptor for LOB in parameter: '.$parameter);
+                        'Unable to create descriptor for LOB in parameter: '.$parameter, __FUNCTION__);
                     break;
                 }
                 $lob_type = ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB);
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $lobs[$i]['descriptor'], -1, $lob_type)) {
-                    $result = $this->db->raiseError($this->statement);
+                    $result = $this->db->raiseError($this->statement, null, null,
+                        'could not bind LOB parameter', __FUNCTION__);
                     break;
                 }
             } else {
@@ -1377,7 +1381,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     return $quoted_values[$i];
                 }
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $quoted_values[$i])) {
-                    $result = $this->db->raiseError($this->statement);
+                    $result = $this->db->raiseError($this->statement, null, null
+                        'could not bind non LOB parameter', __FUNCTION__);
                     break;
                 }
             }
@@ -1388,7 +1393,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         if (!PEAR::isError($result)) {
             $mode = (!empty($lobs) || $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
             if (!@OCIExecute($this->statement, $mode)) {
-                $err =& $this->db->raiseError($this->statement);
+                $err =& $this->db->raiseError($this->statement, null, null,
+                    'could not execute statement', __FUNCTION__);
                 return $err;
             }
 
@@ -1402,7 +1408,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                         }
                         if (!$result) {
                             $result = $this->db->raiseError(null, null, null,
-                                '_execute: Unable to save descriptor contents');
+                                'Unable to save descriptor contents', __FUNCTION__);
                             break;
                         }
                     }
@@ -1412,7 +1418,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     if (!$this->db->in_transaction) {
                         if (!@OCICommit($connection)) {
                             $result = $this->db->raiseError(null, null, null,
-                                '_execute: Unable to commit transaction');
+                                'Unable to commit transaction', __FUNCTION__);
                         }
                     } else {
                         ++$this->db->uncommitedqueries;
@@ -1437,6 +1443,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
 
         $result =& $this->db->_wrapResult($this->statement, $this->result_types,
             $result_class, $result_wrap_class, $this->limit, $this->offset);
+        $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'time' => 'post', 'result' => $result));
         return $result;
     }
 
@@ -1453,13 +1460,13 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
     {
         if (is_null($this->positions)) {
             return $this->db->raiseError(MDB2_ERROR, null, null,
-                'free: Prepared statement has already been freed');
+                'Prepared statement has already been freed', __FUNCTION__);
         }
         $result = MDB2_OK;
 
         if (!is_null($this->statement) && !@OCIFreeStatement($this->statement)) {
             $result = $this->db->raiseError(null, null, null,
-                'free: Could not free statement');
+                'Could not free statement', __FUNCTION__);
         }
 
         parent::free();

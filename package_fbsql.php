@@ -22,6 +22,9 @@ $notes = <<<EOT
 - check if result/connection has not yet been freed/dicsonnected before
   attempting to free a result set(Bug #7790)
 - added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

@@ -356,7 +356,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             }
 
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'mapNativeDatatype: unknown database attribute type: '.$db_type);
+                'unknown database attribute type: '.$db_type, __FUNCTION__);
         }
 
         return array($type, $length, $unsigned, $fixed);

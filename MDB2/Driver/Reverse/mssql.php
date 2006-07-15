@@ -114,7 +114,8 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         }
 
         if (!is_resource($id)) {
-            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'Could not generate result ressource', __FUNCTION__);
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {

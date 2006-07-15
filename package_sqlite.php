@@ -13,6 +13,9 @@ open todo items:
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
 EOT;
 
 $package = new PEAR_PackageFileManager();

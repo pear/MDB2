@@ -9,6 +9,9 @@ $notes = <<<EOT
 - added setTransactionIsolation()
 - performance tweaks for pg_prepare() enabled installations
 - added setSavepoint() and releaseSavePoint()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

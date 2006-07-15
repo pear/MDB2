@@ -91,7 +91,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 
         if (!is_array($fields) || empty($fields)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'getFieldDeclarationList: missing any fields');
+                'missing any fields', __FUNCTION__);
         }
 
         foreach ($fields as $field_name => $field) {
@@ -176,7 +176,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'createDatabase: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -197,7 +197,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'dropDatabase: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -241,16 +241,15 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 
         if (!$name) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: no valid table name specified');
+                'no valid table name specified', __FUNCTION__);
         }
         if (empty($fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: no fields specified for table "'.$name.'"');
+                'no fields specified for table "'.$name.'"', __FUNCTION__);
         }
         $query_fields = $this->getFieldDeclarationList($fields);
         if (PEAR::isError($query_fields)) {
-            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: unkown error');
+            return $query_fields;
         }
 
         $name = $db->quoteIdentifier($name, true);
@@ -380,7 +379,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'alterTable: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -400,7 +399,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listDatabases: method not implementedd');
+            'method not implementedd', __FUNCTION__);
     }
 
     // }}}
@@ -420,7 +419,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listUsers: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -441,7 +440,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listViews: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -462,7 +461,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTableViews: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -484,7 +483,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTriggers: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
     // }}}
     // {{{ listFunctions()
@@ -503,7 +502,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listFunctions: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
     // }}}
     // {{{ listTables()
@@ -523,7 +522,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTables: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -544,7 +543,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTableFields: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -640,7 +639,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTableIndexes: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -732,7 +731,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listTableConstraints: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -754,7 +753,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'createSequence: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -775,7 +774,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'dropSequence: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
@@ -796,7 +795,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'listSequences: method not implemented');
+            'method not implemented', __FUNCTION__);
     }
 }
 

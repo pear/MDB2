@@ -74,7 +74,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         if (!$db->options['emulate_database']) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'createDatabase: database creation is only supported if the "emulate_database" option is enabled');
+                'database creation is only supported if the "emulate_database" option is enabled', __FUNCTION__);
         }
 
         $username = $db->options['database_name_prefix'].$name;
@@ -94,7 +94,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $result2 = $db->standaloneQuery($query, null, true);
             if (PEAR::isError($result2)) {
                 return $db->raiseError($result2, null, null,
-                    'createDatabase: could not setup the database user');
+                    'could not setup the database user', __FUNCTION__);
             }
             return $result;
         }
@@ -121,7 +121,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         if (!$db->options['emulate_database']) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'dropDatabase: database dropping is only supported if the "emulate_database" option is enabled');
+                'database dropping is only supported if the "emulate_database" option is enabled', __FUNCTION__);
         }
 
         $username = $db->options['database_name_prefix'].$name;
@@ -157,7 +157,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $result = $db->manager->createConstraint($table, $index_name, $definition);
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
-                '_makeAutoincrement: primary key for autoincrement PK could not be created');
+                'primary key for autoincrement PK could not be created', __FUNCTION__);
         }
 
         if (is_null($start)) {
@@ -175,7 +175,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         }
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
-                '_makeAutoincrement: sequence for autoincrement PK could not be created');
+                'sequence for autoincrement PK could not be created', __FUNCTION__);
         }
         $sequence_name = $db->getSequenceName($table);
         $trigger_name  = $db->quoteIdentifier($table . '_AI_PK', true);
@@ -239,20 +239,20 @@ END;
             $result = $db->exec($trigger_sql);
             if (PEAR::isError($result)) {
                 return $db->raiseError($result, null, null,
-                    '_dropAutoincrement: trigger for autoincrement PK could not be dropped');
+                    'trigger for autoincrement PK could not be dropped', __FUNCTION__);
             }
 
             $result = $db->manager->dropSequence($table);
             if (PEAR::isError($result)) {
                 return $db->raiseError($result, null, null,
-                    '_dropAutoincrement: sequence for autoincrement PK could not be dropped');
+                    'sequence for autoincrement PK could not be dropped', __FUNCTION__);
             }
 
             $index_name = $table . '_AI_PK';
             $result = $db->manager->dropConstraint($table, $index_name);
             if (PEAR::isError($result)) {
                 return $db->raiseError($result, null, null,
-                    '_dropAutoincrement: primary key for autoincrement PK could not be dropped');
+                    'primary key for autoincrement PK could not be dropped', __FUNCTION__);
             }
         }
 
@@ -434,7 +434,7 @@ END;
                 break;
             default:
                 return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
-                    'alterTable: change type "'.$change_name.'" not yet supported');
+                    'change type "'.$change_name.'" not yet supported', __FUNCTION__);
             }
         }
 
@@ -517,7 +517,7 @@ END;
 
         if (!$db->options['emulate_database']) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'listDatabases: database listing is only supported if the "emulate_database" option is enabled');
+                'database listing is only supported if the "emulate_database" option is enabled', __FUNCTION__);
         }
 
         if ($db->options['database_name_prefix']) {

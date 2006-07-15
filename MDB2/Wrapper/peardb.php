@@ -758,7 +758,7 @@ class MDB2_PEARProxy extends PEAR
         case 'databases':
             return $this->db_object->manager->listDatabases();
         default:
-            return $this->db_object->raiseError(MDB2_ERROR_UNSUPPORTED);
+            return $this->db_object->raiseError(MDB2_ERROR_UNSUPPORTED, null, null, 'Not supported', __FUNCTION__);
         }
     }
 }

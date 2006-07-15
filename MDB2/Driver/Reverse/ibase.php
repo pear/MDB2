@@ -159,7 +159,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
         if (empty($column)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableFieldDefinition: it was not specified an existing table column');
+                'it was not specified an existing table column', __FUNCTION__);
         }
         $column = array_change_key_case($column, CASE_LOWER);
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -245,7 +245,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $index = $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         if (empty($index)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableIndexDefinition: it was not specified an existing table index');
+                'it was not specified an existing table index', __FUNCTION__);
         }
 
         $fields = array();
@@ -311,7 +311,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $index = $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         if (empty($index)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table constraint');
+                'it was not specified an existing table constraint', __FUNCTION__);
         }
         $fields = array();
         do {
@@ -334,7 +334,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
         if (!$index['unique_flag'] && !$index['foreign_key']) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'getTableConstraintDefinition: it was not specified an existing table constraint');
+                'it was not specified an existing table constraint', __FUNCTION__);
         }
         foreach ($fields as $field) {
             $definition['fields'][$field] = array();
@@ -433,7 +433,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
 
         if (!is_resource($id)) {
-            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA);
+            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'Could not generate result ressource', __FUNCTION__);
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {

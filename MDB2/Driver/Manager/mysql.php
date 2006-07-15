@@ -82,7 +82,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $connection;
         }
 
-        if ($table_type === '' || $this->verified_table_types[$table_type] === $connection) {
+        if ($table_type === ''
+            || (!empty($this->verified_table_types[strtoupper($table_type)])
+                && $this->verified_table_types[strtoupper($table_type)] === $connection
+            )
+        ) {
             return MDB2_OK;
         }
 
@@ -107,7 +111,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 break;
             default:
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    $table_type.' is not a supported table type');
+                    $table_type.' is not a supported table type', __FUNCTION__);
             }
 
             for ($i = 0, $j = count($check); $i < $j; ++$i) {
@@ -129,6 +133,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             $has = $db->query($query);
             if (PEAR::isError($has)) {
                 return $has;
+            }
+            while ($row = $has->fetchRow(MDB2_FETCHMODE_ORDERED)) {
                 if (strtoupper($row[0]) === strtoupper($table_type)) {
                     $not_supported = true;
                     if ($row[1] !== 'NO') {
@@ -141,10 +147,10 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         if ($not_supported) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                $table_type.' is not a supported table type by this MySQL database server');
+                $table_type.' is not a supported table type by this MySQL database server', __FUNCTION__);
         }
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'could not tell if '.$table_type.' is a supported table type');
+            'could not tell if '.$table_type.' is a supported table type', __FUNCTION__);
     }
 
     // }}}
@@ -247,16 +253,15 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         if (!$name) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: no valid table name specified');
+                'no valid table name specified', __FUNCTION__);
         }
         if (empty($fields)) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: no fields specified for table "'.$name.'"');
+                'no fields specified for table "'.$name.'"', __FUNCTION__);
         }
         $query_fields = $this->getFieldDeclarationList($fields);
         if (PEAR::isError($query_fields)) {
-            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'createTable: '.$query_fields->getUserinfo());
+            return $query_fields;
         }
         $name = $db->quoteIdentifier($name, true);
         $query = "CREATE TABLE $name ($query_fields)";
@@ -404,7 +409,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 break;
             default:
                 return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
-                    'alterTable: change type "'.$change_name.'" not yet supported');
+                    'change type "'.$change_name.'" not yet supported', __FUNCTION__);
             }
         }
 
@@ -938,11 +943,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         $result = $db->exec("DROP TABLE $sequence_name");
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
-                'createSequence: could not drop inconsistent sequence table');
+                'could not drop inconsistent sequence table', __FUNCTION__);
         }
 
         return $db->raiseError($res, null, null,
-            'createSequence: could not create sequence table');
+            'could not create sequence table', __FUNCTION__);
     }
 
     // }}}
