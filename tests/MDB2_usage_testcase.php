@@ -535,6 +535,11 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      *
      */
     function testEscapePatternSequences() {
+        if (!$this->supported('pattern_escaping')) {
+            $this->assertTrue(false, '"pattern_escaping" is not supported');
+            return;
+        }
+
         $test_strings = array(
             "%",
             "_",
@@ -673,20 +678,21 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $sequence_name = "test_sequence_$start_value";
 
             $result = $this->db->manager->createSequence($sequence_name, $start_value);
-            $this->assertTrue(!PEAR::isError($result), "Error creating sequence $sequence_name with start value $start_value");
-
-            for ($sequence_value = $start_value; $sequence_value < ($start_value + 4); $sequence_value++) {
-                $value = $this->db->nextId($sequence_name, false);
-
-                $this->assertEquals($sequence_value, $value, "The returned sequence value is not expected with sequence start value with $start_value");
-            }
-
-            $result = $this->db->manager->dropSequence($sequence_name);
-
             if (PEAR::isError($result)) {
-                $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
-            }
+                $this->assertTrue(false, "Error creating sequence $sequence_name with start value $start_value: ".$result->getMessage());
+            } else {
+                for ($sequence_value = $start_value; $sequence_value < ($start_value + 4); $sequence_value++) {
+                    $value = $this->db->nextId($sequence_name, false);
 
+                    $this->assertEquals($sequence_value, $value, "The returned sequence value is not expected with sequence start value with $start_value");
+                }
+
+                $result = $this->db->manager->dropSequence($sequence_name);
+
+                if (PEAR::isError($result)) {
+                    $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
+                }
+            }
         }
 
         // Test ondemand creation of sequences
@@ -698,7 +704,11 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         for ($sequence_value = 1; $sequence_value < 4; $sequence_value++) {
             $value = $this->db->nextId($sequence_name);
 
-            $this->assertEquals($sequence_value, $value, "Error in ondemand sequences. The returned sequence value is not expected value");
+            if (PEAR::isError($result)) {
+                $this->assertTrue(false, "Error creating with ondemand sequence: ".$result->getMessage());
+            } else {
+                $this->assertEquals($sequence_value, $value, "Error in ondemand sequences. The returned sequence value is not expected value");
+            }
         }
 
         $result = $this->db->manager->dropSequence($sequence_name);
