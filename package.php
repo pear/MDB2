@@ -65,11 +65,11 @@ portability. Among other things MDB2 features:
 * Ability to make buffered and unbuffered queries
 * Ordered array and associative array for the fetched rows
 * Prepare/execute (bind) emulation
-* Sequence emulation
+* Sequence/autoincrement emulation
 * Replace emulation
 * Limited sub select emulation
 * Row limit support
-* Transactions support
+* Transactions/savepoint support
 * Large Object support
 * Index/Unique Key/Primary Key support
 * Autoincrement emulation
