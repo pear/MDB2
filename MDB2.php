@@ -1070,6 +1070,7 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['persistent'] -> boolean: persistent connection?</li>
      *  <li>$options['debug'] -> integer: numeric debug level</li>
      *  <li>$options['debug_handler'] -> string: function/method that captures debug messages</li>
+     *  <li>$options['debug_expanded_output'] -> bool: BC option to determine if more context information should be send to the debug handler</li>
      *  <li>$options['default_text_field_length'] -> integer: default text field length to use</li>
      *  <li>$options['lob_buffer_length'] -> integer: LOB buffer length</li>
      *  <li>$options['log_line_break'] -> string: line-break format</li>
@@ -1106,6 +1107,7 @@ class MDB2_Driver_Common extends PEAR
         'persistent' => false,
         'debug' => 0,
         'debug_handler' => 'MDB2_defaultDebugOutput',
+        'debug_expanded_output' => false,
         'default_text_field_length' => 4096,
         'lob_buffer_length' => 8192,
         'log_line_break' => "\n",
@@ -1540,6 +1542,12 @@ class MDB2_Driver_Common extends PEAR
     function debug($message, $scope = '', $context = array())
     {
         if ($this->options['debug'] && $this->options['debug_handler']) {
+            if (!$this->options['debug_expanded_output']) {
+                if (!empty($context['time']) && $context['time'] !== 'pre') {
+                    return null;
+                }
+                $context = empty($context['is_manip']) ? false : $context['is_manip'];
+            }
             return call_user_func_array($this->options['debug_handler'], array(&$this, $scope, $message, $context));
         }
         return null;
@@ -4131,11 +4139,8 @@ function MDB2_closeOpenTransactions()
  */
 function MDB2_defaultDebugOutput(&$db, $scope, $message, $context)
 {
-    // ignore "post" debug() calls
-    if (empty($context['time']) || $context['time'] === 'pre') {
-        $db->debug_output.= $scope.'('.$db->db_index.'): ';
-        $db->debug_output.= $message.$db->getOption('log_line_break');
-    }
+    $db->debug_output.= $scope.'('.$db->db_index.'): ';
+    $db->debug_output.= $message.$db->getOption('log_line_break');
     return $message;
 }
 

@@ -6,11 +6,11 @@ $version = 'XXX';
 $notes = <<<EOT
 - added MDB2_AUTOQUERY_SELECT (Request #7817)
 - added nested transaction support (inspired by ADODB's smart transactions) but
-  expanded to use native nested transactions or emulate using SAVEPOINTs
+  expanded to optionally use SAVEPOINTs
   beginNestedTransaction(), completeNestedTransaction(),
   failNestedTransaction(), getNestedTransactionError()
-- inTransaction() will not return an integer with the nested transaction depth
-  only if a nested transaction has been started
+- inTransaction() will now return an integer with the nested transaction depth
+  if a nested transaction has been started
 - added setTransactionIsolation()
 - added savepoint support to beginTransaction(), commit() and rollback()
 - added Native base class for consistency
@@ -32,6 +32,8 @@ $notes = <<<EOT
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
 - added context array parameter to debug() and make use of it whereever sensible
 - added optional method name parameter to raiseError() and use whereever possible
+- added a new option "debug_expanded_output" which needs to be set to true to
+  get additional context information and to get "post" callback calls
 
 open todo items:
 - handle autoincrement fields in alterTable()
