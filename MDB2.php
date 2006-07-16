@@ -1587,6 +1587,7 @@ class MDB2_Driver_Common extends PEAR
         if ($this->escape_quotes !== "'") {
             $text = str_replace($this->escape_quotes, $this->escape_quotes.$this->escape_quotes, $text);
         }
+
         if ($escape_wildcards) {
             $text = $this->escapePattern($text);
         }
@@ -2897,6 +2898,7 @@ class MDB2_Driver_Common extends PEAR
         if (PEAR::isError($result)) {
             return $result;
         }
+
         return $this->datatype->quote($value, $type, $quote, $escape_wildcards);
     }
 

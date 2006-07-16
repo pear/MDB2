@@ -578,12 +578,11 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
 
         $this->db->loadModule('Datatype', null, true);
-
         $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->datatype->matchPattern(array('foo%', '_', '23'));
         $value = $this->db->queryOne($query, 'text');
         $this->assertEquals('foo%123', $value, "the value retrieved for field \"user_name\" doesn't match what was stored");
 
-        $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->datatype->matchPattern(array('', '_', 'oo', '%'));
+        $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->datatype->matchPattern(array(1 => '_', 'oo', '%'));
         $value = $this->db->queryOne($query, 'text');
         $this->assertEquals('foo', substr($value, 0, 3), "the value retrieved for field \"user_name\" doesn't match what was stored");
     }

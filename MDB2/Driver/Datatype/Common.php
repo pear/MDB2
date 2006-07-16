@@ -1087,13 +1087,14 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteText($value, $quote, $escape_wildcards)
     {
-        if (!$quote) {
-            return $value;
-        }
-
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
+        }
+
+        if (!$quote) {
+            $value = $db->escapePattern($value);
+            return $value;
         }
 
         $value = $db->escape($value, $escape_wildcards);
@@ -1538,7 +1539,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @access public
      *
-     * @param array $pattern odd values are strings, even are patterns (% and _)
+     * @param array $pattern even keys are strings, odd are patterns (% and _)
      * @param string $operator optional pattern operator (LIKE, maybe others in the future)
      *
      * @return string SQL pattern
@@ -1557,14 +1558,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             }
         }
         $match.= "'";
-        $odd = true;
-        foreach ($pattern as $value) {
-            if ($odd) {
-                $match.= $this->quote($value, 'text', false, true);
-            } else {
+        foreach ($pattern as $key => $value) {
+            if ($key % 2) {
                 $match.= $value;
+            } else {
+                $match.= $this->quote($value, 'text', false, true);
             }
-            $odd = !$odd;
         }
         $match.= "'";
         $match.= $this->patternEscapeString();
