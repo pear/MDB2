@@ -72,7 +72,7 @@ portability. Among other things MDB2 features:
 * Transactions/savepoint support
 * Large Object support
 * Index/Unique Key/Primary Key support
-* Autoincrement emulation
+* Pattern matching abstraction
 * Module framework to load advanced functionality on demand
 * Ability to read the information schema
 * RDBMS management methods (creating, dropping, altering)
