@@ -1082,7 +1082,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
         }
 
-        $result = $this->db->setSavepoint($savepoint);
+        $result = $this->db->beginTransaction($savepoint);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error setting savepoint: '.$result->getMessage());
         }
@@ -1113,11 +1113,11 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         // test release savepoint
         $this->db->beginNestedTransaction();
-        $result = $this->db->setSavepoint($savepoint);
+        $result = $this->db->beginTransaction($savepoint);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error setting savepoint: '.$result->getMessage());
         }
-        $result = $this->db->releaseSavepoint($savepoint);
+        $result = $this->db->commit($savepoint);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error setting savepoint: '.$result->getMessage());
         }

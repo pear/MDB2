@@ -12,7 +12,7 @@ $notes = <<<EOT
 - inTransaction() will not return an integer with the nested transaction depth
   only if a nested transaction has been started
 - added setTransactionIsolation()
-- added setSavepoint() and releaseSavePoint()
+- added savepoint support to beginTransaction(), commit() and rollback()
 - added Native base class for consistency
 - added missing colnum parameter to queryOne() [used by getOne()]
 - added new tests for get*() Extended module methods

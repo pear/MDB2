@@ -11,7 +11,7 @@ $notes = <<<EOT
   There is still a problem when dropping the sequence, it gets inserted with a
   seemingly random string as a name
 - load datatype module in tableInfo() (Bug #8116)
-- added setSavepoint() and releaseSavePoint()
+- added savepoint support to beginTransaction(), commit() and rollback()
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
 - added context array parameter to debug() and make use of it whereever sensible
 - added optional method name parameter to raiseError() and use whereever possible

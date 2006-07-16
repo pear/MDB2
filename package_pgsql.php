@@ -8,7 +8,7 @@ $notes = <<<EOT
 - added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
 - performance tweaks for pg_prepare() enabled installations
-- added setSavepoint() and releaseSavePoint()
+- added savepoint support to beginTransaction(), commit() and rollback()
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
 - added context array parameter to debug() and make use of it whereever sensible
 - added optional method name parameter to raiseError() and use whereever possible

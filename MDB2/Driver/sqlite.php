@@ -174,15 +174,19 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     // {{{ beginTransaction()
 
     /**
-     * Start a transaction.
+     * Start a transaction or set a savepoint.
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   string  name of a savepoint to set
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
-    function beginTransaction()
+    function beginTransaction($savepoint = null)
     {
-        $this->debug('Starting transaction', __FUNCTION__, array('is_manip' => true));
-        if ($this->in_transaction) {
+        if ($savepoint) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'savepoints are not supported', __FUNCTION__);
+        } elseif ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
         if (!$this->destructor_registered && $this->opened_persistent) {
@@ -203,18 +207,27 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
     /**
      * Commit the database changes done during a transaction that is in
-     * progress.
+     * progress or release a savepoint. This function may only be called when
+     * auto-committing is disabled, otherwise it will fail. Therefore, a new
+     * transaction is implicitly started after committing the pending changes.
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   string  name of a savepoint to release
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
-    function commit()
+    function commit($savepoint = null)
     {
-        $this->debug('Committing transaction', __FUNCTION__, array('is_manip' => true));
+        $this->debug('Committing transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'transaction changes are being auto committed', __FUNCTION__);
+                'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
         }
+        if ($savepoint) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'savepoints are not supported', __FUNCTION__);
+        }
+
         $query = 'COMMIT TRANSACTION '.$this->options['base_transaction_name'];
         $result =& $this->_doQuery($query, true);
         if (PEAR::isError($result)) {
@@ -224,23 +237,33 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         return MDB2_OK;
     }
 
+
     // }}}
-    // {{{ rollback()
+    // {{{
 
     /**
-     * Cancel any database changes done during a transaction that is in
-     * progress.
+     * Cancel any database changes done during a transaction or since a specific
+     * savepoint that is in progress. This function may only be called when
+     * auto-committing is disabled, otherwise it will fail. Therefore, a new
+     * transaction is implicitly started after canceling the pending changes.
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   string  name of a savepoint to rollback to
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
-    function rollback()
+    function rollback($savepoint = null)
     {
-        $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true));
+        $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'transactions can not be rolled back when changes are auto committed', __FUNCTION__);
+                'rollback cannot be done changes are auto committed', __FUNCTION__);
         }
+        if ($savepoint) {
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'savepoints are not supported', __FUNCTION__);
+        }
+
         $query = 'ROLLBACK TRANSACTION '.$this->options['base_transaction_name'];
         $result =& $this->_doQuery($query, true);
         if (PEAR::isError($result)) {

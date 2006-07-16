@@ -62,6 +62,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
     var $escape_identifier = '`';
 
+    var $start_transaction = false;
+
     // }}}
     // {{{ constructor
 
@@ -190,38 +192,37 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ beginTransaction()
+    // {{{
 
     /**
-     * Start a transaction.
+     * Start a transaction or set a savepoint.
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   string  name of a savepoint to set
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
-    function beginTransaction()
+    function beginTransaction($savepoint = null)
     {
-        $this->debug('Starting transaction', __FUNCTION__, array('is_manip' => true));
-        if (!$this->supports('transactions')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'transactions are not supported', __FUNCTION__);
-        }
-        if ($this->in_transaction) {
+        if ($savepoint) {
+            if (!$this->supports('savepoints')) {
+                return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'savepoints are not supported', __FUNCTION__);
+            }
+            if (!$this->in_transaction) {
+                return $this->raiseError(MDB2_ERROR_INVALID, null, null,
+                    'savepoint cannot be released when changes are auto committed', __FUNCTION__);
+            }
+            $query = 'SAVEPOINT '.$savepoint;
+            return $this->_doQuery($query, true);
+        } elseif ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
         if (!$this->destructor_registered && $this->opened_persistent) {
             $this->destructor_registered = true;
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
-        $server_info = $this->getServerVersion();
-        if (is_array($server_info)
-            && ($server_info['major'] > 4
-                || ($server_info['major'] == 4 && ($server_info['minor'] > 0 || $server_info['patch'] >= 11))
-            )
-        ) {
-            $query = 'START TRANSACTION';
-        } else {
-            $query = 'SET AUTOCOMMIT = 1';
-        }
+        $query = $this->start_transaction ? 'START TRANSACTION' : 'SET AUTOCOMMIT = 1';
         $result =& $this->_doQuery($query, true);
         if (PEAR::isError($result)) {
             return $result;
@@ -235,31 +236,41 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
     /**
      * Commit the database changes done during a transaction that is in
-     * progress.
+     * progress or release a savepoint. This function may only be called when
+     * auto-committing is disabled, otherwise it will fail. Therefore, a new
+     * transaction is implicitly started after committing the pending changes.
      *
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
+     * @param   string  name of a savepoint to release
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
      */
-    function commit()
+    function commit($savepoint = null)
     {
-        $this->debug('Committing transaction', __FUNCTION__, array('is_manip' => true));
+        $this->debug('Committing transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
+        if (!$this->in_transaction) {
+            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
+                'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
+        }
+        if ($savepoint) {
+            if (!$this->supports('savepoints')) {
+                return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'savepoints are not supported', __FUNCTION__);
+            }
+            $query = 'RELEASE SAVEPOINT '.$savepoint;
+            return $this->_doQuery($query, true);
+        }
+
         if (!$this->supports('transactions')) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'transactions are not supported', __FUNCTION__);
         }
-        if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'transaction changes are being auto committed', __FUNCTION__);
-        }
+
         $result =& $this->_doQuery('COMMIT', true);
         if (PEAR::isError($result)) {
             return $result;
         }
-        $server_info = $this->getServerVersion();
-        if (!is_array($server_info)
-            || $server_info['major'] < 4
-            || ($server_info['major'] == 4 && $server_info['minor'] == 0 && $server_info['patch'] < 11)
-        ) {
+        if (!$this->start_transaction) {
             $query = 'SET AUTOCOMMIT = 0';
             $result =& $this->_doQuery($query, true);
             if (PEAR::isError($result)) {
@@ -271,58 +282,48 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{
+    // {{{ rollback()
 
     /**
-     * Cancel any database changes done during a transaction that is in
-     * progress. This function may only be called when auto-committing is
-     * disabled, otherwise it will fail. Therefore, a new transaction is
-     * implicitly started after canceling the pending changes.
+     * Cancel any database changes done during a transaction or since a specific
+     * savepoint that is in progress. This function may only be called when
+     * auto-committing is disabled, otherwise it will fail. Therefore, a new
+     * transaction is implicitly started after canceling the pending changes.
      *
      * @param   string  name of a savepoint to rollback to
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      */
-    function rollback($savepoint = true)
+    function rollback($savepoint = null)
     {
-        $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true));
-        if (!$this->supports('transactions')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'transactions are not supported', __FUNCTION__);
-        }
+        $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
         if (!$this->in_transaction) {
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'transactions can not be rolled back when changes are auto committed', __FUNCTION__);
+                'rollback cannot be done changes are auto committed', __FUNCTION__);
         }
-        $query = 'ROLLBACK';
-        if ($savepoint && is_string($savepoint) && $savepoint !== '') {
+        if ($savepoint) {
             if (!$this->supports('savepoints')) {
                 return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'savepoints are not supported', __FUNCTION__);
             }
-            $query.= ' TO SAVEPOINT '.$savepoint;
-        } else {
-            $savepoint = false;
+            $query = 'ROLLBACK TO SAVEPOINT '.$savepoint;
+            return $this->_doQuery($query, true);
         }
+
+        $query = 'ROLLBACK';
         $result =& $this->_doQuery($query, true);
         if (PEAR::isError($result)) {
             return $result;
         }
-        if (!$savepoint) {
-            $server_info = $this->getServerVersion();
-            if (!is_array($server_info)
-                || $server_info['major'] < 4
-                || ($server_info['major'] == 4 && $server_info['minor'] == 0 && $server_info['patch'] < 11)
-            ) {
-                $query = 'SET AUTOCOMMIT = 0';
-                $result =& $this->_doQuery($query, true);
-                if (PEAR::isError($result)) {
-                    return $result;
-                }
+        if (!$this->start_transaction) {
+            $query = 'SET AUTOCOMMIT = 0';
+            $result =& $this->_doQuery($query, true);
+            if (PEAR::isError($result)) {
+                return $result;
             }
-            $this->in_transaction = false;
         }
+        $this->in_transaction = false;
         return MDB2_OK;
     }
 
@@ -361,60 +362,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
 
         $query = "SET SESSION TRANSACTION ISOLATION LEVEL $isolation";
-        return $this->_doQuery($query, true);
-    }
-
-    // }}}
-    // {{{
-
-    /**
-     * Set a savepoint.
-     *
-     * @param   string  name of the savepoint
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access  public
-     * @since   2.1.1
-     */
-    function setSavepoint($name)
-    {
-        $this->debug('Setting savepoint', __FUNCTION__, array('is_manip' => true));
-        if (!$this->supports('savepoints')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'savepoints are not supported', __FUNCTION__);
-        }
-        if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'savepoint cannot be set when changes are auto committed', __FUNCTION__);
-        }
-        $query = 'SAVEPOINT '.$name;
-        return $this->_doQuery($query, true);
-    }
-
-    // }}}
-    // {{{
-
-    /**
-     * Release a savepoint.
-     *
-     * @param   string  name of the savepoint
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access  public
-     * @since   2.1.1
-     */
-    function releaseSavepoint($name)
-    {
-        $this->debug('Release savepoint', __FUNCTION__, array('is_manip' => true));
-        if (!$this->supports('savepoints')) {
-            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'savepoints are not supported', __FUNCTION__);
-        }
-        if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'savepoint cannot be released when changes are auto committed', __FUNCTION__);
-        }
-        $query = 'RELEASE SAVEPOINT '.$name;
         return $this->_doQuery($query, true);
     }
 
@@ -537,6 +484,15 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             )
         ) {
             $this->supported['savepoints'] = true;
+        }
+
+        $this->start_transaction = false;
+        if (is_array($server_info)
+            && ($server_info['major'] > 4
+                || ($server_info['major'] == 4 && ($server_info['minor'] > 0 || $server_info['patch'] >= 11))
+            )
+        ) {
+            $this->start_transaction = true;
         }
 
         return MDB2_OK;

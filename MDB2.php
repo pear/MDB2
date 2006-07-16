@@ -1873,59 +1873,61 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ function beginTransaction()
+    // {{{ function beginTransaction($savepoint = null)
 
     /**
-     * Start a transaction.
+     * Start a transaction or set a savepoint.
      *
+     * @param   string  name of a savepoint to set
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      */
-    function beginTransaction()
+    function beginTransaction($savepoint = null)
     {
-        $this->debug('Starting transaction', __FUNCTION__, array('is_manip' => true));
+        $this->debug('Starting transaction', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'transactions are not supported', __FUNCTION__);
     }
 
     // }}}
-    // {{{ function commit()
+    // {{{ function commit($savepoint = null)
 
     /**
      * Commit the database changes done during a transaction that is in
-     * progress. This function may only be called when auto-committing is
-     * disabled, otherwise it will fail. Therefore, a new transaction is
-     * implicitly started after committing the pending changes.
+     * progress or release a savepoint. This function may only be called when
+     * auto-committing is disabled, otherwise it will fail. Therefore, a new
+     * transaction is implicitly started after committing the pending changes.
      *
+     * @param   string  name of a savepoint to release
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      */
-    function commit()
+    function commit($savepoint = null)
     {
-        $this->debug('Committing transaction', __FUNCTION__, array('is_manip' => true));
+        $this->debug('Committing transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'commiting transactions is not supported', __FUNCTION__);
     }
 
     // }}}
-    // {{{ function rollback($savepoint = true)
+    // {{{ function rollback($savepoint = null)
 
     /**
-     * Cancel any database changes done during a transaction that is in
-     * progress. This function may only be called when auto-committing is
-     * disabled, otherwise it will fail. Therefore, a new transaction is
-     * implicitly started after canceling the pending changes.
+     * Cancel any database changes done during a transaction or since a specific
+     * savepoint that is in progress. This function may only be called when
+     * auto-committing is disabled, otherwise it will fail. Therefore, a new
+     * transaction is implicitly started after canceling the pending changes.
      *
      * @param   string  name of a savepoint to rollback to
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      */
-    function rollback($savepoint = true)
+    function rollback($savepoint = null)
     {
-        $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true));
+        $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'rolling back transactions is not supported', __FUNCTION__);
     }
@@ -1979,44 +1981,6 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ function setSavepoint($name)
-
-    /**
-     * Set a savepoint.
-     *
-     * @param   string  name of the savepoint
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access  public
-     * @since   2.1.1
-     */
-    function setSavepoint($name)
-    {
-        $this->debug('Setting savepoint', __FUNCTION__, array('is_manip' => true));
-        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'savepoint setting is not supported', __FUNCTION__);
-    }
-
-    // }}}
-    // {{{ function releaseSavepoint($name)
-
-    /**
-     * Release a savepoint.
-     *
-     * @param   string  name of the savepoint
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access  public
-     * @since   2.1.1
-     */
-    function releaseSavepoint($name)
-    {
-        $this->debug('Release savepoint', __FUNCTION__, array('is_manip' => true));
-        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'savepoint releasing is not supported', __FUNCTION__);
-    }
-
-    // }}}
     // {{{ function beginNestedTransaction($savepoint = false)
 
     /**
@@ -2033,7 +1997,7 @@ class MDB2_Driver_Common extends PEAR
             ++$this->nested_transaction_counter;
             $savepoint = sprintf($this->options['savepoint_format'], $this->nested_transaction_counter);
             if ($this->supports('savepoints') && $savepoint) {
-                return $this->setSavepoint($savepoint);
+                return $this->beginTransaction($savepoint);
             }
             return MDB2_OK;
         }
@@ -2070,7 +2034,7 @@ class MDB2_Driver_Common extends PEAR
                         $this->has_transaction_error = false;
                     }
                 } else {
-                    $result = $this->releaseSavepoint($savepoint);
+                    $result = $this->commit($savepoint);
                 }
             } else {
                 $result = MDB2_OK;
