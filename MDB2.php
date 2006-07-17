@@ -1601,6 +1601,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Quotes pattern (% and _) characters in a string)
      *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change signature at
+     * any time until labelled as non-experimental
+     *
      * @param   string  the input string to quote
      *
      * @return  string  quoted string
@@ -1995,6 +2000,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Start a nested transaction.
      *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change signature at
+     * any time until labelled as non-experimental
+     *
      * @return  mixed   MDB2_OK on success/savepoint name, a MDB2 error on failure
      *
      * @access  public
@@ -2022,6 +2032,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Finish a nested transaction by rolling back if an error occured or
      * committing otherwise.
+     *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change signature at
+     * any time until labelled as non-experimental
      *
      * @param   bool    if the transaction should be rolled back regardless
      *                  even if no error was set within the nested transaction
@@ -2076,6 +2091,11 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Force setting nested transaction to failed.
      *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change signature at
+     * any time until labelled as non-experimental
+     *
      * @param   mixed   value to return in getNestededTransactionError()
      * @param   bool    if the transaction should be rolled back immediately
      * @return  bool    MDB2_OK
@@ -2102,6 +2122,11 @@ class MDB2_Driver_Common extends PEAR
 
     /**
      * The first error that occured since the transaction start.
+     *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change signature at
+     * any time until labelled as non-experimental
      *
      * @return  MDB2_Error|bool     MDB2 error object if an error occured or false.
      *
