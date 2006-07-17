@@ -1023,16 +1023,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function lastInsertID($table = null, $field = null)
     {
-        $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-        $value = @mysql_insert_id($connection);
-        if (!$value) {
-            return $this->raiseError(null, null, null,
-                'Could not get last insert ID', __FUNCTION__);
-        }
-        return $value;
+        // not using mysql_insert_id() due to http://pear.php.net/bugs/bug.php?id=8051
+        return $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
     }
 
     // }}}
