@@ -79,40 +79,16 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
      */
     function tableInfo($result, $mode = null)
     {
+        if (is_string($result)) {
+           return parent::tableInfo($result, $mode);
+        }
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if (is_string($result)) {
-            /*
-             * Probably received a table name.
-             * Create a result resource identifier.
-             */
-            $query = 'SELECT TOP 0 * FROM '.$db->quoteIdentifier($result);
-            $id =& $db->_doQuery($query, false);
-            if (PEAR::isError($id)) {
-                return $id;
-            }
-
-            $got_string = true;
-        } elseif (MDB2::isResultCommon($result)) {
-            /*
-             * Probably received a result object.
-             * Extract the result resource identifier.
-             */
-            $id = $result->getResource();
-            $got_string = false;
-        } else {
-            /*
-             * Probably received a result resource identifier.
-             * Copy it.
-             * Deprecated.  Here for compatibility only.
-             */
-            $id = $result;
-            $got_string = false;
-        }
-
+        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
         if (!is_resource($id)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'Could not generate result ressource', __FUNCTION__);
@@ -138,13 +114,11 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
-                'table' => $got_string ? $case_func($result) : '',
+                'table' => '',
                 'name'  => $case_func(@mssql_field_name($id, $i)),
                 'type'  => @mssql_field_type($id, $i),
                 'length'   => @mssql_field_length($id, $i),
-                // We only support flags for table
-                'flags' => $got_string
-                           ? $this->_mssql_field_flags($result, @mssql_field_name($id, $i)) : '',
+                'flags' => '',
             );
             $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
             if (PEAR::isError($mdb2type_info)) {
@@ -159,10 +133,6 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             }
         }
 
-        // free the result only if we were called on a table
-        if ($got_string) {
-            @mssql_free_result($id);
-        }
         return $res;
     }
 

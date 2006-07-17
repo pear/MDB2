@@ -187,7 +187,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $default = ($types[0] == 'integer') ? 0 : '';
         }
 
-        $definition[0] = array('notnull' => $notnull);
+        $definition[0] = array('notnull' => $notnull, 'nativetype' => $column['type']);
         if ($length > 0) {
             $definition[0]['length'] = $length;
         }
@@ -400,38 +400,16 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      */
     function tableInfo($result, $mode = null)
     {
+        if (is_string($result)) {
+           return parent::tableInfo($result, $mode);
+        }
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if (is_string($result)) {
-            /*
-             * Probably received a table name.
-             * Create a result resource identifier.
-             */
-            $id =& $db->_doQuery('SELECT * FROM '.$db->quoteIdentifier($result).' WHERE 1=0', false);
-            if (PEAR::isError($id)) {
-                return $id;
-            }
-            $got_string = true;
-        } elseif (MDB2::isResultCommon($result)) {
-            /*
-             * Probably received a result object.
-             * Extract the result resource identifier.
-             */
-            $id = $result->getResource();
-            $got_string = false;
-        } else {
-            /*
-             * Probably received a result resource identifier.
-             * Copy it.
-             * Deprecated.  Here for compatibility only.
-             */
-            $id = $result;
-            $got_string = false;
-        }
-
+        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
         if (!is_resource($id)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'Could not generate result ressource', __FUNCTION__);
@@ -461,12 +439,11 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                 $info['type'] = substr($info['type'], 0, $pos);
             }
             $res[$i] = array(
-                'table'  => $got_string ? $case_func($result) : '',
+                'table'  => '',
                 'name'   => $case_func($info['name']),
                 'type'   => $info['type'],
                 'length' => $info['length'],
-                'flags'  => ($got_string)
-                            ? $this->_ibaseFieldFlags($info['name'], $result) : '',
+                'flags'  => '',
             );
             $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
             if (PEAR::isError($mdb2type_info)) {
@@ -481,89 +458,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             }
         }
 
-        // free the result only if we were called on a table
-        if ($got_string) {
-            @ibase_free_result($id);
-        }
         return $res;
-    }
-
-    // }}}
-    // {{{ _ibaseFieldFlags()
-
-    /**
-     * Get the column's flags
-     *
-     * Supports "primary_key", "unique_key", "not_null", "default",
-     * "computed" and "blob".
-     *
-     * @param string $field_name  the name of the field
-     * @param string $table_name  the name of the table
-     *
-     * @return string  the flags
-     *
-     * @access protected
-     */
-    function _ibaseFieldFlags($field_name, $table_name)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $query = 'SELECT R.RDB$CONSTRAINT_TYPE CTYPE'
-               .' FROM RDB$INDEX_SEGMENTS I'
-               .'  JOIN RDB$RELATION_CONSTRAINTS R ON I.RDB$INDEX_NAME=R.RDB$INDEX_NAME'
-               .' WHERE I.RDB$FIELD_NAME=\'' . $field_name . '\''
-               .'  AND UPPER(R.RDB$RELATION_NAME)=\'' . strtoupper($table_name) . '\'';
-
-        $result =& $db->_doQuery($query, false);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-
-        $flags = '';
-        if ($obj = @ibase_fetch_object($result)) {
-            @ibase_free_result($result);
-            if (isset($obj->CTYPE)  && trim($obj->CTYPE) == 'PRIMARY KEY') {
-                $flags.= 'primary_key ';
-            }
-            if (isset($obj->CTYPE)  && trim($obj->CTYPE) == 'UNIQUE') {
-                $flags.= 'unique_key ';
-            }
-        }
-
-        $query = 'SELECT R.RDB$NULL_FLAG AS NFLAG,'
-               .'  R.RDB$DEFAULT_SOURCE AS DSOURCE,'
-               .'  F.RDB$FIELD_TYPE AS FTYPE,'
-               .'  F.RDB$COMPUTED_SOURCE AS CSOURCE'
-               .' FROM RDB$RELATION_FIELDS R '
-               .'  JOIN RDB$FIELDS F ON R.RDB$FIELD_SOURCE=F.RDB$FIELD_NAME'
-               .' WHERE UPPER(R.RDB$RELATION_NAME)=\'' . strtoupper($table_name) . '\''
-               .'  AND R.RDB$FIELD_NAME=\'' . $field_name . '\'';
-
-        $result =& $db->_doQuery($query, false);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-
-        if ($obj = @ibase_fetch_object($result)) {
-            @ibase_free_result($result);
-            if (isset($obj->NFLAG)) {
-                $flags.= 'not_null ';
-            }
-            if (isset($obj->DSOURCE)) {
-                $flags.= 'default ';
-            }
-            if (isset($obj->CSOURCE)) {
-                $flags.= 'computed ';
-            }
-            if (isset($obj->FTYPE)  && $obj->FTYPE == 261) {
-                $flags.= 'blob ';
-            }
-        }
-
-        return trim($flags);
     }
 }
 ?>

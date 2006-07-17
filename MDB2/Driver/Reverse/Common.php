@@ -320,8 +320,40 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
             return $db;
         }
 
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'method not implemented', __FUNCTION__);
+        if (!is_string($result)) {
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'method not implemented', __FUNCTION__);
+        }
+
+        $db->loadModule('Manager');
+        $fields = $db->manager->listTableFields($result);
+        if (PEAR::isError($fields)) {
+            return $fields;
+        }
+
+        if ($mode) {
+            $res['num_fields'] = count($fields);
+        }
+
+        foreach ($fields as $i => $field) {
+            $definition = $this->getTableFieldDefinition($result, $field);
+            if (PEAR::isError($definition)) {
+                return $definition;
+            }
+            $res[$i] = $definition[0];
+            $res[$i]['name'] = $field;
+            $res[$i]['table'] = $result;
+            $res[$i]['type'] = $definition[0]['nativetype'];
+
+            if ($mode & MDB2_TABLEINFO_ORDER) {
+                $res['order'][$res[$i]['name']] = $i;
+            }
+            if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
+                $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
+            }
+        }
+
+        return $res;
     }
 }
 ?>

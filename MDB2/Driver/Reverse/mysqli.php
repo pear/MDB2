@@ -167,7 +167,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                     $autoincrement = true;
                 }
 
-                $definition[0] = array('notnull' => $notnull);
+                $definition[0] = array('notnull' => $notnull, 'nativetype' => $column['type']);
                 if ($length > 0) {
                     $definition[0]['length'] = $length;
                 }
@@ -186,6 +186,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 foreach ($types as $key => $type) {
                     $definition[$key] = $definition[0];
                     $definition[$key]['type'] = $type;
+                    $definition[$key]['mdb2type'] = $type;
                 }
                 return $definition;
             }
@@ -348,40 +349,17 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      */
     function tableInfo($result, $mode = null)
     {
+        if (is_string($result)) {
+           return parent::tableInfo($result, $mode);
+        }
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if (is_string($result)) {
-            /*
-             * Probably received a table name.
-             * Create a result resource identifier.
-             */
-            $query = 'SELECT * FROM '.$db->quoteIdentifier($result).' LIMIT 0';
-            $id =& $db->_doQuery($query, false);
-            if (PEAR::isError($id)) {
-                return $id;
-            }
-            $got_string = true;
-        } elseif (MDB2::isResultCommon($result)) {
-            /*
-             * Probably received a result object.
-             * Extract the result resource identifier.
-             */
-            $id = $result->getResource();
-            $got_string = false;
-        } else {
-            /*
-             * Probably received a result resource identifier.
-             * Copy it.
-             * Deprecated.  Here for compatibility only.
-             */
-            $id = $result;
-            $got_string = false;
-        }
-
-        if (!is_a($id, 'mysqli_result')) {
+        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
+        if (!is_resource($id)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'Could not generate result ressource', __FUNCTION__);
         }
@@ -440,10 +418,6 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             }
         }
 
-        // free the result only if we were called on a table
-        if ($got_string) {
-            @mysqli_free_result($id);
-        }
         return $res;
     }
 }

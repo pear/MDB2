@@ -173,7 +173,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     $autoincrement = true;
                 }
 
-                $definition[0] = array('notnull' => $notnull);
+                $definition[0] = array('notnull' => $notnull, 'nativetype' => $column['type']);
                 if ($length > 0) {
                     $definition[0]['length'] = $length;
                 }
@@ -192,6 +192,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 foreach ($types as $key => $type) {
                     $definition[$key] = $definition[0];
                     $definition[$key]['type'] = $type;
+                    $definition[$key]['mdb2type'] = $type;
                 }
                 return $definition;
             }
@@ -353,86 +354,17 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
      */
     function tableInfo($result, $mode = null)
     {
+        if (is_string($result)) {
+           return parent::tableInfo($result, $mode);
+        }
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if (!is_string($result)) {
-            return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
-                'This DBMS can not obtain tableInfo from result sets', __FUNCTION__);
-        }
-
-        /*
-         * Probably received a table name.
-         * Create a result resource identifier.
-         */
-        $id = $db->queryAll('PRAGMA table_info('.$db->quote($result, 'text').');', null, MDB2_FETCHMODE_ASSOC);
-        $got_string = true;
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            if ($db->options['field_case'] == CASE_LOWER) {
-                $case_func = 'strtolower';
-            } else {
-                $case_func = 'strtoupper';
-            }
-        } else {
-            $case_func = 'strval';
-        }
-
-        $count = count($id);
-        $res   = array();
-
-        if ($mode) {
-            $res['num_fields'] = $count;
-        }
-
-        $db->loadModule('Datatype', null, true);
-        for ($i = 0; $i < $count; $i++) {
-            $id[$i] = array_change_key_case($id[$i], CASE_LOWER);
-            if (strpos($id[$i]['type'], '(') !== false) {
-                $bits = explode('(', $id[$i]['type']);
-                $type = $bits[0];
-                $len  = rtrim($bits[1],')');
-            } else {
-                $type = $id[$i]['type'];
-                $len  = 0;
-            }
-
-            $flags = '';
-            if ($id[$i]['pk']) {
-                $flags.= 'primary_key ';
-            }
-            if ($id[$i]['notnull']) {
-                $flags.= 'not_null ';
-            }
-            if ($id[$i]['dflt_value'] !== null) {
-                $flags.= 'default_' . rawurlencode($id[$i]['dflt_value']);
-            }
-            $flags = trim($flags);
-
-            $res[$i] = array(
-                'table' => $case_func($result),
-                'name'  => $case_func($id[$i]['name']),
-                'type'  => $type,
-                'length'   => $len,
-                'flags' => $flags,
-            );
-            $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
-            if (PEAR::isError($mdb2type_info)) {
-               return $mdb2type_info;
-            }
-            $res[$i]['mdb2type'] = $mdb2type_info[0][0];
-
-            if ($mode & MDB2_TABLEINFO_ORDER) {
-                $res['order'][$res[$i]['name']] = $i;
-            }
-            if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
-            }
-        }
-
-        return $res;
+        return $db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+           'This DBMS can not obtain tableInfo from result sets', __FUNCTION__);
     }
 }
 

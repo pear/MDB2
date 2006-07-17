@@ -76,39 +76,16 @@ class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
      */
     function tableInfo($result, $mode = null)
     {
+        if (is_string($result)) {
+           return parent::tableInfo($result, $mode);
+        }
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if (is_string($result)) {
-            /*
-             * Probably received a table name.
-             * Create a result resource identifier.
-             */
-            $connection = $db->getConnection();
-            if (PEAR::isError($connection)) {
-                return $connection;
-            }
-            $id = @fbsql_list_fields($db->database_name, $result, $connection);
-            $got_string = true;
-        } elseif (MDB2::isResultCommon($result)) {
-            /*
-             * Probably received a result object.
-             * Extract the result resource identifier.
-             */
-            $id = $result->getResource();
-            $got_string = false;
-        } else {
-            /*
-             * Probably received a result resource identifier.
-             * Copy it.
-             * Deprecated.  Here for compatibility only.
-             */
-            $id = $result;
-            $got_string = false;
-        }
-
+        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
         if (!is_resource($id)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'Could not generate result ressource', __FUNCTION__);
@@ -149,10 +126,6 @@ class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
             }
         }
 
-        // free the result only if we were called on a table
-        if ($got_string) {
-            @fbsql_free_result($id);
-        }
         return $res;
     }
 }

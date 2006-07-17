@@ -120,7 +120,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             }
         }
 
-        $definition[0] = array('notnull' => $notnull);
+        $definition[0] = array('notnull' => $notnull, 'nativetype' => $column['type']);
         if ($length > 0) {
             $definition[0]['length'] = $length;
         }
@@ -136,6 +136,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         foreach ($types as $key => $type) {
             $definition[$key] = $definition[0];
             $definition[$key]['type'] = $type;
+            $definition[$key]['mdb2type'] = $type;
         }
         return $definition;
     }
@@ -339,9 +340,19 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
      */
     function tableInfo($result, $mode = null)
     {
+        if (is_string($result)) {
+           return parent::tableInfo($result, $mode);
+        }
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
+        }
+
+        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
+        if (!is_resource($id)) {
+            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'Could not generate result ressource', __FUNCTION__);
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -354,76 +365,29 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $case_func = 'strval';
         }
 
+        $count = $result->numCols();
         $res = array();
 
+        if ($mode) {
+            $res['num_fields'] = $count;
+        }
+
         $db->loadModule('Datatype', null, true);
-        if (is_string($result)) {
-            /*
-             * Probably received a table name.
-             * Create a result resource identifier.
-             */
-            $query = 'SELECT column_name, data_type, data_length, nullable';
-            $query.= ' FROM user_tab_columns';
-            $query.= ' WHERE table_name='.$db->quote(strtoupper($result), 'text');
-            $query.= ' OR table_name='.$db->quote($result, 'text');
-            $query.= ' ORDER BY column_id';
-
-            $stmt =& $db->_doQuery($query, false);
-            if (PEAR::isError($stmt)) {
-                return $stmt;
+        for ($i = 0; $i < $count; $i++) {
+            $column = array(
+                'table'  => '',
+                'name'   => $case_func(@OCIColumnName($resource, $i+1)),
+                'type'   => @OCIColumnType($resource, $i+1),
+                'length' => @OCIColumnSize($resource, $i+1),
+                'flags'  => '',
+            );
+            $res[$i] = $column;
+            $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
+            if ($mode & MDB2_TABLEINFO_ORDER) {
+                $res['order'][$res[$i]['name']] = $i;
             }
-
-            $i = 0;
-            while (@OCIFetch($stmt)) {
-                $res[$i] = array(
-                    'table'  => $case_func($result),
-                    'name'   => $case_func(@OCIResult($stmt, 1)),
-                    'type'   => @OCIResult($stmt, 2),
-                    'length' => @OCIResult($stmt, 3),
-                    'flags'  => (@OCIResult($stmt, 4) == 'N') ? 'not_null' : '',
-                );
-                $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
-                if ($mode & MDB2_TABLEINFO_ORDER) {
-                    $res['order'][$res[$i]['name']] = $i;
-                }
-                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
-                }
-                $i++;
-            }
-
-            if ($mode) {
-                $res['num_fields'] = $i;
-            }
-            @OCIFreeStatement($stmt);
-
-        } else {
-            if (MDB2::isResultCommon($result)) {
-                $resource = $result->getResource();
-            }
-
-            $res = array();
-
-            $count = $result->numCols();
-            if ($mode) {
-                $res['num_fields'] = $count;
-            }
-            for ($i = 0; $i < $count; $i++) {
-                $column = array(
-                    'table'  => '',
-                    'name'   => $case_func(@OCIColumnName($resource, $i+1)),
-                    'type'   => @OCIColumnType($resource, $i+1),
-                    'length' => @OCIColumnSize($resource, $i+1),
-                    'flags'  => '',
-                );
-                $res[$i] = $column;
-                $res[$i]['mdb2type'] = $db->datatype->mapNativeDatatype($res[$i]);
-                if ($mode & MDB2_TABLEINFO_ORDER) {
-                    $res['order'][$res[$i]['name']] = $i;
-                }
-                if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                    $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
-                }
+            if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
+                $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
             }
         }
         return $res;
