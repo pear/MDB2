@@ -6,7 +6,7 @@ $version = 'XXX';
 $notes = <<<EOT
 - added MDB2_AUTOQUERY_SELECT (Request #7817)
 - added nested transaction support (inspired by ADODB's smart transactions) but
-  expanded to optionally use SAVEPOINTs
+  expanded to optionally use SAVEPOINTs *EXPERIMENTAL*
   beginNestedTransaction(), completeNestedTransaction(),
   failNestedTransaction(), getNestedTransactionError()
 - inTransaction() will now return an integer with the nested transaction depth
@@ -27,7 +27,7 @@ $notes = <<<EOT
 - use data type callback in getValidTypes()
 - fixed identifier quoting in buildManipSQL() for SELECT statements (thx Kailoran)
 - phpdoc and cosmetic fixes in limitQuery()
-- added matchPattern() and patternEscapeString(), escapePattern()
+- added matchPattern() and patternEscapeString(), escapePattern() *EXPERIMENTAL*
 - added ability to escape wildcard characters in escape() and quote()
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
 - added context array parameter to debug() and make use of it whereever sensible

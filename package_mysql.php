@@ -11,6 +11,8 @@ $notes = <<<EOT
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
 - added context array parameter to debug() and make use of it whereever sensible
 - added optional method name parameter to raiseError() and use whereever possible
+- mysql_insert_id() breaks if the prepared statement that was executed to
+  generate the ID is deallocated before (Bug #8051)
 EOT;
 
 $package = new PEAR_PackageFileManager();
