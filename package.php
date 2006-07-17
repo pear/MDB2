@@ -34,6 +34,13 @@ $notes = <<<EOT
 - added optional method name parameter to raiseError() and use whereever possible
 - added a new option "debug_expanded_output" which needs to be set to true to
   get additional context information and to get "post" callback calls
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+  this is a slight *BC break*, but was necessary since tableInfo() provided
+  unreliable and not portable information. most noteably 'flags' is no longer
+  supported in tableInfo() when passing in a table name, which was not portable
+- added 'nativetype' output to tableInfo() and getTableFieldDefinition()
+- added 'mdb2type' output to getTableFieldDefinition()
 
 open todo items:
 - handle autoincrement fields in alterTable()
