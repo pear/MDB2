@@ -331,6 +331,40 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
             return $fields;
         }
 
+        $flags = array();
+
+        $indexes = $db->manager->listTableIndexes($result);
+        if (PEAR::isError($indexes)) {
+            return $indexes;
+        }
+
+        foreach ($indexes as $index) {
+            $definition = $this->getTableIndexDefinition($result, $index);
+            if (PEAR::isError($definition)) {
+                return $definition;
+            }
+            if (count($definition['fields']) > 1)) {
+                foreach ($definition['fields'] as $field => $sort) {
+                    $flags[$field] = 'multiple_key';
+                }
+            }
+        }
+
+        $constraints = $db->manager->listTableConstraints($result);
+        if (PEAR::isError($constraints)) {
+            return $constraints;
+            $flag = !empty($definition['primary'])
+                ? 'primary_key' : (!empty($definition['unique'])
+                    ? 'unique_key' : false);
+            if ($flag) {
+                foreach ($definition['fields'] as $field => $sort) {
+                    if (!empty($flags[$field]) || $flags[$field] != 'primary_key') {
+                        $flags[$field] = $flag;
+                    }
+                }
+            }
+        }
+
         if ($mode) {
             $res['num_fields'] = count($fields);
         }
@@ -344,6 +378,21 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
             $res[$i]['name'] = $field;
             $res[$i]['table'] = $result;
             $res[$i]['type'] = $definition[0]['nativetype'];
+            // 'primary_key', 'unique_key', 'multiple_key'
+            $res[$i]['flags'] = empty($flags[$field]) ? '' : $flags[$field];
+            // not_null', 'unsigned', 'auto_increment', 'default_[rawencodedvalue]'
+            if (!empty($res[$i]['notnull'])) {
+                $res[$i]['flags'].= ' not_null';
+            }
+            if (!empty($res[$i]['unsigned'])) {
+                $res[$i]['flags'].= ' unsigned';
+            }
+            if (!empty($res[$i]['auto_increment'])) {
+                $res[$i]['flags'].= ' autoincrement';
+            }
+            if (!empty($res[$i]['default'])) {
+                $res[$i]['flags'].= ' default_'.rawurlencode(rawurlencode($num));
+            }
 
             if ($mode & MDB2_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
