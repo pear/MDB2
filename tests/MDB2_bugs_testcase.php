@@ -55,7 +55,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
 
         $data['user_name'] = 'user_=';
-        $data['user_password'] = 'somepassword';
+        $data['user_password'] = 'somepass';
         $data['subscribed'] = true;
         $data['user_id'] = 0;
         $data['quota'] = sprintf("%.2f", strval(2/100));
@@ -113,7 +113,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
      */
     function testBug670() {
         $data['user_name'] = null;
-        $data['user_password'] = 'somepassword';
+        $data['user_password'] = 'somepass';
         $data['subscribed'] = true;
         $data['user_id'] = 1;
         $data['quota'] = sprintf("%.2f",strval(3/100));
@@ -157,7 +157,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $this->assertEquals(0, $numrows, "Numrows is not returning 0 for empty result sets");
 
         $data['user_name'] = "user_1";
-        $data['user_password'] = 'somepassword';
+        $data['user_password'] = 'somepass';
         $data['subscribed'] = true;
         $data['user_id'] = 1;
         $data['quota'] = sprintf("%.2f",strval(3/100));
@@ -181,7 +181,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
      */
     function testBug718() {
         $data['user_name'] = "user_1";
-        $data['user_password'] = 'somepassword';
+        $data['user_password'] = 'somepass';
         $data['subscribed'] = true;
         $data['user_id'] = 1;
         $data['quota'] = sprintf("%.2f",strval(3/100));
@@ -210,7 +210,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row]['user_name'] = "user_$row";
-            $data[$row]['user_password'] = 'somepassword';
+            $data[$row]['user_password'] = 'somepass';
             $data[$row]['subscribed'] = (boolean)($row % 2);
             $data[$row]['user_id'] = $row;
             $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
@@ -261,7 +261,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row]['user_name'] = "user_$row";
-            $data[$row]['user_password'] = 'somepassword';
+            $data[$row]['user_password'] = 'somepass';
             $data[$row]['subscribed'] = (boolean)($row % 2);
             $data[$row]['user_id'] = $row;
             $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));

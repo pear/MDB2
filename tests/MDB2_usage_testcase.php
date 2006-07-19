@@ -313,12 +313,12 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $data = array(
             array(
                 'user_name' => 'Sure!',
-                'user_password' => 'Does this work?',
+                'user_password' => 'Do work?',
                 'user_id' => 1,
             ),
             array(
                 'user_name' => 'For Sure!',
-                'user_password' => "Wouldn't it be great if this worked too?",
+                'user_password' => "Doesn't?",
                 'user_id' => 2,
             ),
         );
@@ -819,7 +819,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $row = 4321;
         $fields['user_name']['value']     = $data['user_name']     = 'user_'.$row;
-        $fields['user_password']['value'] = $data['user_password'] = 'somepassword';
+        $fields['user_password']['value'] = $data['user_password'] = 'somepass';
         $fields['subscribed']['value']    = $data['subscribed']    = $row % 2 ? true : false;
         $fields['quota']['value']         = $data['quota']         = strval($row/100);
         $fields['weight']['value']        = $data['weight']        = sqrt($row);
@@ -882,7 +882,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $stmt = $this->db->prepare($query, array('text', 'integer'), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $password = "another_password_$row";
+            $password = "pass_$row";
             if ($row == 0) {
                 $stmt->bindParam(0, $password);
                 $stmt->bindParam(1, $row);
@@ -1444,7 +1444,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         // MDB2_PORTABILITY_RTRIM
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_RTRIM);
-        $value = 'test_rtrim     ';
+        $value = 'rtrim   ';
         $query = 'INSERT INTO users (user_id, user_password) VALUES (1, ' . $this->db->quote($value, 'text') .')';
         $res = $this->db->exec($query);
         if (PEAR::isError($res)) {
@@ -1458,7 +1458,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $this->assertEquals(rtrim($value), $result, '"MDB2_PORTABILITY_RTRIM = on" not working');
 
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE);
-        $value = 'test_rtrim     ';
+        $value = 'rtrim   ';
         $query = 'INSERT INTO users (user_id, user_password) VALUES (2, ' . $this->db->quote($value, 'text') .')';
         $res = $this->db->exec($query);
         if (PEAR::isError($res)) {

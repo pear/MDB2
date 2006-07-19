@@ -135,7 +135,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
     function getSampleData($row = 1) {
         $data = array();
         $data['user_name']     = 'user_' . $row;
-        $data['user_password'] = 'somepassword';
+        $data['user_password'] = 'somepass';
         $data['subscribed']    = $row % 2 ? true : false;
         $data['user_id']       = $row;
         $data['quota']         = strval($row/100);

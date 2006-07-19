@@ -17,7 +17,7 @@ CREATE TABLE "files" (
 
 CREATE TABLE "users" (
   "user_name" varchar(12) default NULL,
-  "user_password" text,
+  "user_password" char(8) default NULL
   "subscribed" tinyint(1) default '1',
   "user_id" int(11) NOT NULL default '0',
   "quota" decimal(18,2) default '0.00',
