@@ -1018,7 +1018,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             return;
         }
 
-
         $data = array(
             1 => $this->getSampleData(1234),
             2 => $this->getSampleData(4321),
@@ -1369,6 +1368,108 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
 
         $this->assertEquals(count($this->fields), count($row), "The query result returned a number of columns unlike ".count($this->fields) .' as expected');
+    }
+
+    function testPortabilityOptions() {
+        // MDB2_PORTABILITY_DELETE_COUNT
+        $data = array();
+        $total_rows = 5;
+
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        for ($row = 0; $row < $total_rows; $row++) {
+            $data[$row] = $this->getSampleData($row);
+            $result = $stmt->execute(array_values($data[$row]));
+            if (PEAR::isError($result)) {
+                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+            }
+        }
+        $stmt->free();
+
+        $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_DELETE_COUNT);
+        $affected_rows = $this->db->exec('DELETE FROM users');
+        if (PEAR::isError($affected_rows)) {
+            $this->assertTrue(false, 'Error executing query'.$affected_rows->getMessage());
+        }
+        $this->assertEquals($total_rows, $affected_rows, 'MDB2_PORTABILITY_DELETE_COUNT not working');
+
+        // MDB2_PORTABILITY_FIX_CASE
+        $fields = array_keys($this->fields);
+        $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_FIX_CASE);
+        $this->db->setOption('field_case', CASE_UPPER);
+
+        $data = $this->getSampleData(1234);
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        $result = $stmt->execute(array_values($data));
+        $stmt->free();
+
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->queryRow($query, $this->fields, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+        }
+        $field = reset($fields);
+        foreach (array_keys($result) as $fieldname) {
+            $this->assertEquals(strtoupper($field), $fieldname, 'MDB2_PORTABILITY_FIX_CASE CASE_UPPER not working');
+            $field = next($fields);
+        }
+
+        $this->db->setOption('field_case', CASE_LOWER);
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $result =& $this->db->queryRow($query, $this->fields, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+        }
+        $field = reset($fields);
+        foreach (array_keys($result) as $fieldname) {
+            $this->assertEquals(strtolower($field), $fieldname, 'MDB2_PORTABILITY_FIX_CASE CASE_LOWER not working');
+            $field = next($fields);
+        }
+        /*
+        // leave the case as-is
+        $this->db->setOption('portability', MDB2_PORTABILITY_NONE);
+        $fields = array('User_Name', 'UseR_PassWord');
+        $query = 'SELECT '. implode(',', $fields).' FROM users';
+        $result =& $this->db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+        }
+        $field = reset($fields);
+        foreach (array_keys($result) as $fieldname) {
+            $this->assertEquals($field, $fieldname, '"MDB2_PORTABILITY_FIX_CASE = false" not working');
+            $field = next($fields);
+        }
+        */
+
+        // MDB2_PORTABILITY_RTRIM
+        $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_RTRIM);
+        $value = 'test_rtrim     ';
+        $query = 'INSERT INTO users (user_id, user_password) VALUES (1, ' . $this->db->quote($value, 'text') .')';
+        $res = $this->db->exec($query);
+        if (PEAR::isError($res)) {
+            $this->assertTrue(false, 'Error executing query'.$res->getMessage());
+        }
+        $query = 'SELECT user_password FROM users WHERE user_id = 1';
+        $result = $this->db->queryOne($query, array('text'));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+        }
+        $this->assertEquals(rtrim($value), $result, '"MDB2_PORTABILITY_RTRIM = on" not working');
+
+        $this->db->setOption('portability', MDB2_PORTABILITY_NONE);
+        $value = 'test_rtrim     ';
+        $query = 'INSERT INTO users (user_id, user_password) VALUES (2, ' . $this->db->quote($value, 'text') .')';
+        $res = $this->db->exec($query);
+        if (PEAR::isError($res)) {
+            $this->assertTrue(false, 'Error executing query'.$res->getMessage());
+        }
+        $query = 'SELECT user_password FROM users WHERE user_id = 2';
+        $result = $this->db->queryOne($query, array('text'));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+        }
+        $this->assertEquals($value, $result, '"MDB2_PORTABILITY_RTRIM = off" not working');
     }
 }
 
