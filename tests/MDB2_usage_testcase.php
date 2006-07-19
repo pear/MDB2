@@ -1071,7 +1071,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             2 => $this->getSampleData(4321),
         );
 
-        $this->db->beginNestedTransaction();
+        $this->db->beginTransaction();
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
@@ -1097,7 +1097,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue(false, 'Error rolling back to savepoint: '.$result->getMessage());
         }
 
-        $result = $this->db->completeNestedTransaction();
+        $result = $this->db->commit();
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Transaction not committed: '.$result->getMessage());
         }
@@ -1111,7 +1111,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $this->assertEquals(1, $rows_inserted, 'Error during transaction, invalid number of records inserted');
 
         // test release savepoint
-        $this->db->beginNestedTransaction();
+        $this->db->beginTransaction();
         $result = $this->db->beginTransaction($savepoint);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error setting savepoint: '.$result->getMessage());
@@ -1120,7 +1120,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error setting savepoint: '.$result->getMessage());
         }
-        $result = $this->db->completeNestedTransaction();
+        $result = $this->db->commit();
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Transaction not committed: '.$result->getMessage());
         }
