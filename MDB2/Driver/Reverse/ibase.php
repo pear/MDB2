@@ -400,21 +400,16 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      */
     function tableInfo($result, $mode = null)
     {
+        if (is_string($result)) {
+           return parent::tableInfo($result, $mode);
+        }
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
-        
-        if (is_string($result)) {
-            $got_string = true;
-            $id =& $db->_doQuery('SELECT * FROM '.$db->quoteIdentifier($result).' WHERE 1=0', false);
-            if (PEAR::isError($id)) {
-                return $id;
-            }
-        } else {
-            $got_string = false;
-            $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
-        }
+
+        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
         if (!is_resource($id)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'Could not generate result ressource', __FUNCTION__);
@@ -444,7 +439,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                 $info['type'] = substr($info['type'], 0, $pos);
             }
             $res[$i] = array(
-                'table'  => $got_string ? $case_func($result) : '',
+                'table'  => '',
                 'name'   => $case_func($info['name']),
                 'type'   => $info['type'],
                 'length' => $info['length'],
