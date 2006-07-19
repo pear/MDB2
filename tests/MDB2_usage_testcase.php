@@ -1426,7 +1426,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertEquals(strtolower($field), $fieldname, 'MDB2_PORTABILITY_FIX_CASE CASE_LOWER not working');
             $field = next($fields);
         }
-        /*
+
         // leave the case as-is
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE);
         $fields = array('User_Name', 'UseR_PassWord');
@@ -1437,10 +1437,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
         $field = reset($fields);
         foreach (array_keys($result) as $fieldname) {
-            $this->assertEquals($field, $fieldname, '"MDB2_PORTABILITY_FIX_CASE = false" not working');
+            $this->assertEquals($field, $fieldname, '"MDB2_PORTABILITY_FIX_CASE = off" not working');
             $field = next($fields);
         }
-        */
 
         // MDB2_PORTABILITY_RTRIM
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_RTRIM);
