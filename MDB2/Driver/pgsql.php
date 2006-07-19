@@ -986,8 +986,10 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
             $null = null;
             return $null;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL) {
-            $this->db->_fixResultArrayValues($row, MDB2_PORTABILITY_EMPTY_TO_NULL);
+        if (($mode = ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM)
+            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL))
+        ) {
+            $this->db->_fixResultArrayValues($row, $mode);
         }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
