@@ -343,7 +343,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
             if (PEAR::isError($definition)) {
                 return $definition;
             }
-            if (count($definition['fields']) > 1)) {
+            if (count($definition['fields']) > 1) {
                 foreach ($definition['fields'] as $field => $sort) {
                     $flags[$field] = 'multiple_key';
                 }
@@ -391,7 +391,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
                 $res[$i]['flags'].= ' autoincrement';
             }
             if (!empty($res[$i]['default'])) {
-                $res[$i]['flags'].= ' default_'.rawurlencode(rawurlencode($num));
+                $res[$i]['flags'].= ' default_'.rawurlencode($res[$i]['default']);
             }
 
             if ($mode & MDB2_TABLEINFO_ORDER) {
