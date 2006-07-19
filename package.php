@@ -23,7 +23,8 @@ $notes = <<<EOT
   before reading the result set (Bug #8068):
   * moved statement freeing after reading the result set in get*() methods
   * by pass prepared statement API for queries without parameters in autoExecute()
-  (this means you cannot use parameters with SELECT statements in autoExecute() on the above mentioned platforms)
+  (this means you cannot use parameters with SELECT statements in autoExecute()
+  on the above mentioned platforms)
 - use data type callback in getValidTypes()
 - fixed identifier quoting in buildManipSQL() for SELECT statements (thx Kailoran)
 - phpdoc and cosmetic fixes in limitQuery()
@@ -36,9 +37,6 @@ $notes = <<<EOT
   get additional context information and to get "post" callback calls
 - reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
   when a table name is passed (Bug #8124)
-  this is a slight *BC break*, but was necessary since tableInfo() provided
-  unreliable and not portable information. most noteably 'flags' is no longer
-  supported in tableInfo() when passing in a table name, which was not portable
 - added 'nativetype' output to tableInfo() and getTableFieldDefinition()
 - added 'mdb2type' output to getTableFieldDefinition()
 
