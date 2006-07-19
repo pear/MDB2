@@ -395,7 +395,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'pre'));
+        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -437,7 +437,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $err;
         }
 
-        $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'post', 'result' => $result));
+        $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'post', 'result' => $result));
         return $result;
     }
 

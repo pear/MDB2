@@ -1543,7 +1543,7 @@ class MDB2_Driver_Common extends PEAR
     {
         if ($this->options['debug'] && $this->options['debug_handler']) {
             if (!$this->options['debug_expanded_output']) {
-                if (!empty($context['time']) && $context['time'] !== 'pre') {
+                if (!empty($context['when']) && $context['when'] !== 'pre') {
                     return null;
                 }
                 $context = empty($context['is_manip']) ? false : $context['is_manip'];
@@ -2368,7 +2368,7 @@ class MDB2_Driver_Common extends PEAR
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'pre'));
+        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -2807,7 +2807,7 @@ class MDB2_Driver_Common extends PEAR
         $offset = $this->offset;
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
-        $result = $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'time' => 'pre'));
+        $result = $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -2897,7 +2897,7 @@ class MDB2_Driver_Common extends PEAR
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $statement = null;
         $obj =& new $class_name($this, $statement, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
-        $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'time' => 'post', 'result' => $obj));
+        $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'when' => 'post', 'result' => $obj));
         return $obj;
     }
 

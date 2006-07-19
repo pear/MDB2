@@ -358,7 +358,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             $query = $this->_readFile();
         }
         $this->last_query = $query;
-        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'pre'));
+        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -383,7 +383,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             $result[1] = array_slice($result[1], $this->next_offset, $this->next_limit);
         }
 
-        $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'post', 'result' => $result));
+        $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'post', 'result' => $result));
         return $result;
     }
 

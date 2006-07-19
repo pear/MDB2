@@ -583,7 +583,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
-        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'pre'));
+        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -618,7 +618,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
         }
 
-        $this->debug($query, 'query', array('is_manip' => $is_manip, 'time' => 'post', 'result' => $result));
+        $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'post', 'result' => $result));
         return $result;
     }
 
@@ -760,7 +760,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $offset = $this->offset;
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
-        $result = $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'time' => 'pre'));
+        $result = $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
             if (PEAR::isError($result)) {
                 return $result;
@@ -881,7 +881,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         $class_name = 'MDB2_Statement_'.$this->phptype;
         $obj =& new $class_name($this, $statement_name, $positions, $query, $types, $result_types, $is_manip, $limit, $offset);
-        $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'time' => 'post', 'result' => $obj));
+        $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'when' => 'post', 'result' => $obj));
         return $obj;
     }
 
@@ -1214,7 +1214,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
             return $result;
         }
         $this->db->last_query = $this->query;
-        $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'time' => 'pre', 'parameters' => $this->values));
+        $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'when' => 'pre', 'parameters' => $this->values));
         if ($this->db->getOption('disable_query')) {
             if ($this->is_manip) {
                 $return = 0;
@@ -1290,7 +1290,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
 
         $result =& $this->db->_wrapResult($result, $this->result_types,
             $result_class, $result_wrap_class, $this->limit, $this->offset);
-        $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'time' => 'post', 'result' => $result));
+        $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'when' => 'post', 'result' => $result));
         return $result;
     }
 
