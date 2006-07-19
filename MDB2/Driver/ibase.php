@@ -273,7 +273,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function beginTransaction($savepoint = null)
     {
-        if ($savepoint) {
+        if (!is_null($savepoint)) {
             if (!$this->in_transaction) {
                 return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                     'savepoint cannot be released when changes are auto committed', __FUNCTION__);
@@ -318,7 +318,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
         }
-        if ($savepoint) {
+        if (!is_null($savepoint)) {
             $query = 'RELEASE SAVEPOINT '.$savepoint;
             return $this->_doQuery($query, true);
         }
@@ -353,7 +353,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback cannot be done changes are auto committed', __FUNCTION__);
         }
-        if ($savepoint) {
+        if (!is_null($savepoint)) {
             $query = 'ROLLBACK TO SAVEPOINT '.$savepoint;
             return $this->_doQuery($query, true);
         }
