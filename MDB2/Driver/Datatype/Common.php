@@ -1546,6 +1546,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function matchPattern($pattern, $operator = null)
     {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
         $match = '';
         if (!is_null($operator)) {
             switch (strtoupper($operator)) {
