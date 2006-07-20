@@ -1092,11 +1092,6 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
 
-        if (!$quote) {
-            $value = $db->escapePattern($value);
-            return $value;
-        }
-
         $value = $db->escape($value, $escape_wildcards);
         return "'".$value."'";
     }
@@ -1567,7 +1562,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if ($key % 2) {
                 $match.= $value;
             } else {
-                $match.= $this->quote($value, 'text', false, true);
+                $match.= $db->escapePattern($db->escape($value));
             }
         }
         $match.= "'";
