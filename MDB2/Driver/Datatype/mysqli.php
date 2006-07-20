@@ -238,7 +238,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         case 'tinyint':
             $type[] = 'integer';
             $type[] = 'boolean';
-            if (preg_match('/^[is|has]/', $field['name'])) {
+            if (preg_match('/^(is|has)/', $field['name'])) {
                 $type = array_reverse($type);
             }
             $unsigned = preg_match('/ unsigned/i', $field['type']);
@@ -277,7 +277,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
             $type[] = 'text';
             if ($length == '1') {
                 $type[] = 'boolean';
-                if (preg_match('/^[is|has]/', $field['name'])) {
+                if (preg_match('/^(is|has)/', $field['name'])) {
                     $type = array_reverse($type);
                 }
             } elseif (strstr($db_type, 'text')) {
@@ -301,7 +301,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
                 }
                 if ($length == '1' && count($matches[0]) == 2) {
                     $type[] = 'boolean';
-                    if (preg_match('/^[is|has]/', $field['name'])) {
+                    if (preg_match('/^(is|has)/', $field['name'])) {
                         $type = array_reverse($type);
                     }
                 }

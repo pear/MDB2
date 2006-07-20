@@ -39,6 +39,7 @@ $notes = <<<EOT
   when a table name is passed (Bug #8124)
 - added 'nativetype' output to tableInfo() and getTableFieldDefinition()
 - added 'mdb2type' output to getTableFieldDefinition()
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
 
 open todo items:
 - handle autoincrement fields in alterTable()

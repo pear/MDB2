@@ -234,7 +234,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             $type[0] = 'text';
             if ($length == '1') {
                 $type[] = 'boolean';
-                if (preg_match('/^[is|has]/', $field['name'])) {
+                if (preg_match('/^(is|has)/', $field['name'])) {
                     $type = array_reverse($type);
                 }
             } elseif (strstr($db_type, 'text')) {
