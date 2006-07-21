@@ -454,8 +454,18 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     {
         if (is_resource($this->connection)) {
             if ($this->in_transaction) {
+                $dsn = $this->dsn;
+                $database_name = $this->database_name;
+                $persistent = $this->options['persistent'];
+                $this->dsn = $this->connected_dsn;
+                $this->database_name = $this->connected_database_name;
+                $this->options['persistent'] = $this->opened_persistent;
                 $this->rollback();
+                $this->dsn = $dsn;
+                $this->database_name = $database_name;
+                $this->options['persistent'] = $persistent;
             }
+
             if (!$this->opened_persistent || $force) {
                 if (function_exists('oci_close')) {
                     @oci_close($this->connection);

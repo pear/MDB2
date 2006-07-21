@@ -547,8 +547,18 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     {
         if (is_object($this->connection)) {
             if ($this->in_transaction) {
+                $dsn = $this->dsn;
+                $database_name = $this->database_name;
+                $persistent = $this->options['persistent'];
+                $this->dsn = $this->connected_dsn;
+                $this->database_name = $this->connected_database_name;
+                $this->options['persistent'] = $this->opened_persistent;
                 $this->rollback();
+                $this->dsn = $dsn;
+                $this->database_name = $database_name;
+                $this->options['persistent'] = $persistent;
             }
+
             if ($force) {
                 @mysqli_close($this->connection);
             }
