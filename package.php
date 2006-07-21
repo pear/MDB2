@@ -21,8 +21,8 @@ $notes = <<<EOT
 - added handling of empty result sets to result set verification in the test suite
 - oci8 and ibase (and possibly other rdbms) do not like freeing the statement
   before reading the result set (Bug #8068):
-  * moved statement freeing after reading the result set in get*() methods
-  * by pass prepared statement API for queries without parameters in autoExecute()
+  * moved statement freeing after reading the result set in get*() Extended methods
+  * bypass prepared statement API for queries without parameters in autoExecute()
   (this means you cannot use parameters with SELECT statements in autoExecute()
   on the above mentioned platforms)
 - use data type callback in getValidTypes()
@@ -35,11 +35,11 @@ $notes = <<<EOT
 - added optional method name parameter to raiseError() and use whereever possible
 - added a new option "debug_expanded_output" which needs to be set to true to
   get additional context information and to get "post" callback calls
+- added testPortabilityOptions()
+- set length of 8 and fixed for user_password in the test suite
 - reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
   when a table name is passed (Bug #8124)
-- added 'nativetype' output to tableInfo() and getTableFieldDefinition()
-- added 'mdb2type' output to getTableFieldDefinition()
-- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- disconnect after changing database/DSN (otherwise transactions may be left open)
 
 open todo items:
 - handle autoincrement fields in alterTable()

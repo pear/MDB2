@@ -4,20 +4,32 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
-- added matchPattern() and patternEscapeString(), escapePattern()
 - added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
-- fixed testcreateautoincrementtable for oci8
-  There is still a problem when dropping the sequence, it gets inserted with a
-  seemingly random string as a name
-- load datatype module in tableInfo() (Bug #8116)
 - added savepoint support to beginTransaction(), commit() and rollback()
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
 - added context array parameter to debug() and make use of it whereever sensible
 - added optional method name parameter to raiseError() and use whereever possible
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added 'nativetype' output to tableInfo() and getTableFieldDefinition()
+- added 'mdb2type' output to getTableFieldDefinition()
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- use old dsn when rolling back open transactions in disconnect()
+- fixed testcreateautoincrementtable for oci8
+  There is still a problem when dropping the sequence, it gets inserted with a
+  seemingly random string as a name
+- load datatype module in tableInfo() (Bug #8116)
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)
+
+note: that by default this driver emulates the database concept other RDBMS
+have by using the "database" instead of "username" in the DSN as the username
+name. this behaviour can be disabled by setting the "emulate_database" option
+to false.
 
 open todo items:
 - fix issues with testcreateautoincrementtable (error on sequence dropping)
