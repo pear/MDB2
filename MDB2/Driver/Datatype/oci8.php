@@ -362,7 +362,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        return " ESCAPE '".$this->quote($db->escape_pattern, 'text', false, true)."'";
+        return " ESCAPE '".$db->escape_pattern."'";
     }
 
     // }}}
