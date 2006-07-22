@@ -294,15 +294,21 @@ END;
      */
     function createTable($name, $fields)
     {
-        $result = parent::createTable($name, $fields);
-        if (PEAR::isError($result)) {
-            return $result;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
         }
-        foreach ($fields as $field_name => $field) {
-            if (!empty($field['autoincrement'])) {
-                return $this->_makeAutoincrement($field_name, $name);
+        $db->beginNestedTransaction();
+        $result = parent::createTable($name, $fields);
+        if (!PEAR::isError($result)) {
+            foreach ($fields as $field_name => $field) {
+                if (!empty($field['autoincrement'])) {
+                    $result = $this->_makeAutoincrement($field_name, $name);
+                }
             }
         }
+        $db->completeNestedTransaction();
+        return $result;
     }
 
     // }}}
@@ -317,11 +323,17 @@ END;
      */
     function dropTable($name)
     {
-        $result = $this->_dropAutoincrement($name);
-        if (PEAR::isError($result)) {
-            return $result;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
         }
-        return parent::dropTable($name);
+        $db->beginNestedTransaction();
+        $result = $this->_dropAutoincrement($name);
+        if (!PEAR::isError($result)) {
+            $result = parent::dropTable($name);
+        }
+        $db->completeNestedTransaction();
+        return $result;
     }
 
     // }}}
