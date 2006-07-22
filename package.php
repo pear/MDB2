@@ -56,6 +56,7 @@ open todo items:
 - add ActiveRecord implementation (probably as a separate package)
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
 - extended to support for case insensitive matching via ILIKE/collate in matchPattern()
+- generate STATUS file from test suite results and allow users to submit test results
 EOT;
 
 $description =<<<EOT
