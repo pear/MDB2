@@ -87,7 +87,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $query = 'GRANT CREATE SESSION, CREATE TABLE, UNLIMITED TABLESPACE, CREATE SEQUENCE TO '.$username;
+        $query = 'GRANT CREATE SESSION, CREATE TABLE, UNLIMITED TABLESPACE, CREATE SEQUENCE, CREATE TRIGGER TO '.$username;
         $result = $db->standaloneQuery($query, null, true);
         if (PEAR::isError($result)) {
             $query = 'DROP USER '.$username.' CASCADE';
@@ -226,15 +226,16 @@ END;
 
         $table = strtoupper($table);
         $trigger_name = $table . '_AI_PK';
-        $trigger_name = $db->quote($trigger_name, 'text');
+        $trigger_name_quoted = $db->quote($trigger_name, 'text');
         $query = 'SELECT trigger_name FROM user_triggers';
-        $query.= ' WHERE trigger_name='.$trigger_name.' OR trigger_name='.strtoupper($trigger_name);
+        $query.= ' WHERE trigger_name='.$trigger_name_quoted.' OR trigger_name='.strtoupper($trigger_name_quoted);
         $trigger = $db->queryOne($query);
         if (PEAR::isError($trigger)) {
             return $trigger;
         }
 
         if ($trigger) {
+            $trigger_name  = $db->quoteIdentifier($table . '_AI_PK', true);
             $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
             $result = $db->exec($trigger_sql);
             if (PEAR::isError($result)) {
