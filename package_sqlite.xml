@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.9">
+<package version="1.0" packagerversion="1.4.10">
  <name>MDB2_Driver_sqlite</name>
  <summary>sqlite MDB2 driver</summary>
  <description>This is the SQLite MDB2 driver.
@@ -14,32 +14,41 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.1.0</version>
-  <date>2006-06-15</date>
+  <version>1.2.0</version>
+  <date>2006-07-22</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- fixed unsigned handling in mapNativeDatatype()
-- use setCharset() in connect()/_doConnect()
-- generalized quoteIdentifier() with a property
-- fixed warning in replace() if type is not set (Bug #7740)
-- cosmetic performance tweak in getTableFieldDefinition()
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- revert change that would prefer &apos;clob&apos; over &apos;text&apos; for TEXT fields
-  (this was breaking runtime instrospection)
+  <notes>- added setTransactionIsolation()
+- MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
+- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
+- added &apos;mdb2type&apos; output to getTableFieldDefinition()
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- use old dsn when rolling back open transactions in disconnect()
 
 open todo items:
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
 - a number of the manager test cases fail because sqlite does not support adding
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.1.0" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.2.0" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">sqlite</dep>
   </deps>
   <filelist>
@@ -78,6 +87,39 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.2.0</version>
+    <date>2006-07-22</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- added setTransactionIsolation()
+- MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
+- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
+- added &apos;mdb2type&apos; output to getTableFieldDefinition()
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- use old dsn when rolling back open transactions in disconnect()
+
+open todo items:
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
+- a number of the manager test cases fail because sqlite does not support adding
+  primary keys to existing tables
+- the alter table tests fails because this is unsupported in sqlite2
+- the test replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+    </notes>
+   </release>
    <release>
     <version>1.1.0</version>
     <date>2006-06-15</date>

@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.2.0';
 $notes = <<<EOT
 - added setTransactionIsolation()
 - MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
@@ -69,7 +69,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.1.0', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.2.0', 'ge', 'pkg', false);
 $package->addDependency('sqlite', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

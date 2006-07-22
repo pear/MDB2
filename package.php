@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '2.2.0';
 $notes = <<<EOT
 - added MDB2_AUTOQUERY_SELECT (Request #7817)
 - added nested transaction support (inspired by ADODB's smart transactions) but

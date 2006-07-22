@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.9">
+<package version="1.0" packagerversion="1.4.10">
  <name>MDB2</name>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
@@ -17,14 +17,14 @@ portability. Among other things MDB2 features:
 * Ability to make buffered and unbuffered queries
 * Ordered array and associative array for the fetched rows
 * Prepare/execute (bind) emulation
-* Sequence emulation
+* Sequence/autoincrement emulation
 * Replace emulation
 * Limited sub select emulation
 * Row limit support
-* Transactions support
+* Transactions/savepoint support
 * Large Object support
 * Index/Unique Key/Primary Key support
-* Autoincrement emulation
+* Pattern matching abstraction
 * Module framework to load advanced functionality on demand
 * Ability to read the information schema
 * RDBMS management methods (creating, dropping, altering)
@@ -66,43 +66,63 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.1.0</version>
-  <date>2006-06-15</date>
+  <version>2.2.0</version>
+  <date>2006-07-22</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- removed bogus code from execute()
-- new test case for floats/decimals and locale
-- reworked fix for float/decimal handling
-- expanded scientific notation handling
-- fixed several minor issues with the datatype tests
-- removed use of &quot;*&quot; in all places in the test suite that are followed by a fetch
-- tweaked handling of free() for prepared statements
-- return error if a prepared statement is attempted to be free&apos;ed or executed again
-- added result_wrap_class param to limitQuery()
-- added parameter to not quote return value of getBeforeId()
-- added setCharset()
-- enable transactions by default
-- added decimal reverse engineering test
-- fixed parameter order in assertions in reverse engineering fields tests
-- generalized quoteIdentifier() with a property
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- added &apos;datatype_map&apos; option (Request #7797)
-- added reverse parameter to getColumnNames()
-- added &apos;datatype_map_callback&apos; option
-- added getValidTypes() method to handle additional types from the &apos;datatype_map&apos; option
-- set last_query in _execute() to prepared statement (Bug #7856)
-- adding random function emulation to generate a float between 0 and 1
-- explicitly fetch row id = 1 in LOB tests
-- cosmetic fix to prepare() (Bug #7883)
-- bumped PHP dependency to 4.3.2 because of LOB stream support
+  <notes>- added MDB2_AUTOQUERY_SELECT (Request #7817)
+- added nested transaction support (inspired by ADODB&apos;s smart transactions) but
+  expanded to optionally use SAVEPOINTs *EXPERIMENTAL*
+  beginNestedTransaction(), completeNestedTransaction(),
+  failNestedTransaction(), getNestedTransactionError()
+- inTransaction() will now return an integer with the nested transaction depth
+  if a nested transaction has been started
+- added setTransactionIsolation()
+- added savepoint support to beginTransaction(), commit() and rollback()
+- added Native base class for consistency
+- added missing colnum parameter to queryOne() [used by getOne()]
+- added new tests for get*() Extended module methods
+- fixed missing db variable from getValidTypes()
+- added testing of a prepared statement with no parameters
+- added handling of empty result sets to result set verification in the test suite
+- oci8 and ibase (and possibly other rdbms) do not like freeing the statement
+  before reading the result set (Bug #8068):
+  * moved statement freeing after reading the result set in get*() Extended methods
+  * bypass prepared statement API for queries without parameters in autoExecute()
+  (this means you cannot use parameters with SELECT statements in autoExecute()
+  on the above mentioned platforms)
+- use data type callback in getValidTypes()
+- fixed identifier quoting in buildManipSQL() for SELECT statements (thx Kailoran)
+- phpdoc and cosmetic fixes in limitQuery()
+- added matchPattern() and patternEscapeString(), escapePattern() *EXPERIMENTAL*
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added a new option &quot;debug_expanded_output&quot; which needs to be set to true to
+  get additional context information and to get &quot;post&quot; callback calls
+- added testPortabilityOptions()
+- set length of 8 and fixed for user_password in the test suite
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- disconnect after changing database/DSN (otherwise transactions may be left open)
 
 open todo items:
 - handle autoincrement fields in alterTable()
-- add support for ADODB style &quot;smart transactions&quot;:
-  http://phplens.com/lens/adodb/docs-adodb.htm#ex11
 - add length handling to LOB reverse engineering
+- expand charset support in schema management and result set handling (Request #4666)
+- add EXPLAIN abstraction
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- expand length/scale support for numeric types (Request #7170)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
+- add support to generating &quot;AS&quot; keyword if required
+- add support for database/table/row LOCKs
+- add ActiveRecord implementation (probably as a separate package)
+- add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
+- extended to support for case insensitive matching via ILIKE/collate in matchPattern()
+- generate STATUS file from test suite results and allow users to submit test results
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.2" optional="no"/>
@@ -158,6 +178,11 @@ open todo items:
         <replace type="package-info" from="@package_version@" to="version"/>
        </file>
       </dir> <!-- /MDB2/Driver/Manager -->
+      <dir name="Native">
+       <file role="php" name="Common.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Native -->
       <dir name="Reverse">
        <file role="php" name="Common.php">
         <replace type="package-info" from="@package_version@" to="version"/>
@@ -252,6 +277,66 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.2.0</version>
+    <date>2006-07-22</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- added MDB2_AUTOQUERY_SELECT (Request #7817)
+- added nested transaction support (inspired by ADODB&apos;s smart transactions) but
+  expanded to optionally use SAVEPOINTs *EXPERIMENTAL*
+  beginNestedTransaction(), completeNestedTransaction(),
+  failNestedTransaction(), getNestedTransactionError()
+- inTransaction() will now return an integer with the nested transaction depth
+  if a nested transaction has been started
+- added setTransactionIsolation()
+- added savepoint support to beginTransaction(), commit() and rollback()
+- added Native base class for consistency
+- added missing colnum parameter to queryOne() [used by getOne()]
+- added new tests for get*() Extended module methods
+- fixed missing db variable from getValidTypes()
+- added testing of a prepared statement with no parameters
+- added handling of empty result sets to result set verification in the test suite
+- oci8 and ibase (and possibly other rdbms) do not like freeing the statement
+  before reading the result set (Bug #8068):
+  * moved statement freeing after reading the result set in get*() Extended methods
+  * bypass prepared statement API for queries without parameters in autoExecute()
+  (this means you cannot use parameters with SELECT statements in autoExecute()
+  on the above mentioned platforms)
+- use data type callback in getValidTypes()
+- fixed identifier quoting in buildManipSQL() for SELECT statements (thx Kailoran)
+- phpdoc and cosmetic fixes in limitQuery()
+- added matchPattern() and patternEscapeString(), escapePattern() *EXPERIMENTAL*
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added a new option &quot;debug_expanded_output&quot; which needs to be set to true to
+  get additional context information and to get &quot;post&quot; callback calls
+- added testPortabilityOptions()
+- set length of 8 and fixed for user_password in the test suite
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- disconnect after changing database/DSN (otherwise transactions may be left open)
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add length handling to LOB reverse engineering
+- expand charset support in schema management and result set handling (Request #4666)
+- add EXPLAIN abstraction
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- expand length/scale support for numeric types (Request #7170)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
+- add support to generating &quot;AS&quot; keyword if required
+- add support for database/table/row LOCKs
+- add ActiveRecord implementation (probably as a separate package)
+- add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
+- extended to support for case insensitive matching via ILIKE/collate in matchPattern()
+- generate STATUS file from test suite results and allow users to submit test results
+    </notes>
+   </release>
    <release>
     <version>2.1.0</version>
     <date>2006-06-15</date>

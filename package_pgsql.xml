@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.9">
+<package version="1.0" packagerversion="1.4.10">
  <name>MDB2_Driver_pgsql</name>
  <summary>pgsql MDB2 driver</summary>
  <description>This is the PostGreSQL MDB2 driver.
@@ -12,35 +12,45 @@
    <email>smith@pooteeweet.org</email>
    <role>lead</role>
   </maintainer>
+  <maintainer>
+   <user>nrf</user>
+   <name>Nathan Fredrickson</name>
+   <email>nathan@silverorange.com</email>
+   <role>developer</role>
+  </maintainer>
   </maintainers>
  <release>
-  <version>1.1.0</version>
-  <date>2006-06-15</date>
+  <version>1.2.0</version>
+  <date>2006-07-22</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- added setCharset()
-- use setCharset() in connect()/_doConnect()
-- generalized quoteIdentifier() with a property
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- return error when changing datatypes in alterTable() on pgsql version lower than 8.x (Bug #7731)
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- fixed missing error handling in getTableFieldDefinition() (Bug #7791)
-- pass limit and offset to the result object constructor in _execute() for read statements
-- use pg_prepare() if available so that we do not need to define the types anymore (Request #7797)
-- added code to use pg_execute() but disabled due to issues with bytea fields
-- check if result/connection has not yet been freed/dicsonnected before
-  attempting to free a result set(Bug #7790)
-- revert change that would prefer &apos;clob&apos; over &apos;text&apos; for TEXT fields
-  (this was breaking runtime instrospection)
+  <notes>- performance tweaks for pg_prepare() enabled installations
+- MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
+- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
+- added savepoint support to beginTransaction(), commit() and rollback()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
+- added &apos;mdb2type&apos; output to getTableFieldDefinition()
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- disconnect after changing database/DSN (otherwise transactions may be left open)
+- use old dsn when rolling back open transactions in disconnect()
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
+- add schema support to _pgFieldFlags() in pgsql driver (Request #5796)
+- add optional use of pg_result_error_field()to handle localized error messages (Request #7059)
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.1.0" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.2.0" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">pgsql</dep>
   </deps>
   <filelist>
@@ -79,6 +89,35 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.2.0</version>
+    <date>2006-07-22</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- performance tweaks for pg_prepare() enabled installations
+- MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
+- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
+- added savepoint support to beginTransaction(), commit() and rollback()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
+- added &apos;mdb2type&apos; output to getTableFieldDefinition()
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- disconnect after changing database/DSN (otherwise transactions may be left open)
+- use old dsn when rolling back open transactions in disconnect()
+
+open todo items:
+- enable pg_execute() once issues with bytea column are resolved
+- add schema support to _pgFieldFlags() in pgsql driver (Request #5796)
+- add optional use of pg_result_error_field()to handle localized error messages (Request #7059)
+    </notes>
+   </release>
    <release>
     <version>1.1.0</version>
     <date>2006-06-15</date>

@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.2.0';
 $notes = <<<EOT
 - performance tweaks for pg_prepare() enabled installations
 - MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
@@ -66,7 +66,7 @@ $package->addMaintainer('nrf', 'developer', 'Nathan Fredrickson', 'nathan@silver
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.1.0', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.2.0', 'ge', 'pkg', false);
 $package->addDependency('pgsql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

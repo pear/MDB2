@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.9">
+<package version="1.0" packagerversion="1.4.10">
  <name>MDB2_Driver_oci8</name>
  <summary>oci8 MDB2 driver</summary>
  <description>This is the Oracle OCI8 MDB2 driver.
@@ -20,39 +20,47 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.3.0</version>
-  <date>2006-06-15</date>
+  <version>1.0.0</version>
+  <date>2006-07-22</date>
   <license>BSD License</license>
-  <state>beta</state>
-  <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
-- tweaked handling of free() for prepared statements
-- return error if a prepared statement is attempted to be freed twice
-- use setCharset() in connect()/_doConnect()
-- fixed number length handling when reverse engineering numeric types
-- generalized quoteIdentifier() with a property
-- cosmetic performance tweak in getTableFieldDefinition()
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- pass limit and offset to the result object constructor in _execute() for read statements
-- optmized limit queries without offset
-- make sure no additional fields are added due to using limit/offset
-- check if result/connection has not yet been freed/dicsonnected before
-  attempting to free a result set(Bug #7790)
-- fixed small typo with &apos;clob&apos; reverse engineering
+  <state>stable</state>
+  <notes>- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
+- added savepoint support to beginTransaction(), commit() and rollback()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
+- added &apos;mdb2type&apos; output to getTableFieldDefinition()
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- use old dsn when rolling back open transactions in disconnect()
+- fixed testcreateautoincrementtable for oci8
+  There is still a problem when dropping the sequence, it gets inserted with a
+  seemingly random string as a name
+- load datatype module in tableInfo() (Bug #8116)
+- surround _makeAutoincrement() and _dropAutoincrement() with a nested transaction
+- grant create trigger when creating an emulated database to fix autoincrement emulation
+- ensure proper quoting in _dropAutoincrement()
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)
 
+note: that by default this driver emulates the database concept other RDBMS
+have by using the &quot;database&quot; instead of &quot;username&quot; in the DSN as the username
+name. this behaviour can be disabled by setting the &quot;emulate_database&quot; option
+to false.
+
 open todo items:
-- fix issues with testcreateautoincrementtable (error on sequence creation)
-- ensure that all primary/unique/foreign key handling is only in the contraint methods
 - enable use of read() for LOBs to read a LOB in chunks
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.1.0" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.2.0" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">oci8</dep>
   </deps>
   <filelist>
@@ -91,6 +99,45 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.0</version>
+    <date>2006-07-22</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
+- added savepoint support to beginTransaction(), commit() and rollback()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
+- added &apos;mdb2type&apos; output to getTableFieldDefinition()
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- use old dsn when rolling back open transactions in disconnect()
+- fixed testcreateautoincrementtable for oci8
+  There is still a problem when dropping the sequence, it gets inserted with a
+  seemingly random string as a name
+- load datatype module in tableInfo() (Bug #8116)
+- surround _makeAutoincrement() and _dropAutoincrement() with a nested transaction
+- grant create trigger when creating an emulated database to fix autoincrement emulation
+- ensure proper quoting in _dropAutoincrement()
+
+note: please use the latest ext/oci8 version from pecl.php.net/oci8
+(binaries are available from snaps.php.net and pecl4win.php.net)
+
+note: that by default this driver emulates the database concept other RDBMS
+have by using the &quot;database&quot; instead of &quot;username&quot; in the DSN as the username
+name. this behaviour can be disabled by setting the &quot;emulate_database&quot; option
+to false.
+
+open todo items:
+- enable use of read() for LOBs to read a LOB in chunks
+    </notes>
+   </release>
    <release>
     <version>0.3.0</version>
     <date>2006-06-15</date>
