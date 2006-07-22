@@ -170,6 +170,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function beginTransaction($savepoint = null)
     {
+        $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
         if (!is_null($savepoint)) {
             if (!$this->in_transaction) {
                 return $this->raiseError(MDB2_ERROR_INVALID, null, null,

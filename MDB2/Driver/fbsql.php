@@ -155,6 +155,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function beginTransaction($savepoint = null)
     {
+        $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
         if (!is_null($savepoint)) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'savepoints are not supported', __FUNCTION__);

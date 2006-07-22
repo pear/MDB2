@@ -205,6 +205,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function beginTransaction($savepoint = null)
     {
+        $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
         if (!is_null($savepoint)) {
             if (!$this->supports('savepoints')) {
                 return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
