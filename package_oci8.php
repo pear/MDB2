@@ -22,6 +22,9 @@ $notes = <<<EOT
   There is still a problem when dropping the sequence, it gets inserted with a
   seemingly random string as a name
 - load datatype module in tableInfo() (Bug #8116)
+- surround _makeAutoincrement() and _dropAutoincrement() with a nested transaction
+- grant create trigger when creating an emulated database to fix autoincrement emulation
+- ensure proper quoting in _dropAutoincrement()
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)
@@ -32,9 +35,6 @@ name. this behaviour can be disabled by setting the "emulate_database" option
 to false.
 
 open todo items:
-- fix issues with testcreateautoincrementtable (error on sequence dropping)
-  maybe this: http://halisway.blogspot.com/2005/10/auto-incremental-primary-keys-in.html
-- ensure that all primary/unique/foreign key handling is only in the contraint methods
 - enable use of read() for LOBs to read a LOB in chunks
 EOT;
 
@@ -47,7 +47,7 @@ $result = $package->setOptions(
         'summary'           => 'oci8 MDB2 driver',
         'description'       => 'This is the Oracle OCI8 MDB2 driver.',
         'version'           => $version,
-        'state'             => 'beta',
+        'state'             => 'stable',
         'license'           => 'BSD License',
         'filelistgenerator' => 'cvs',
         'include'           => array('*oci8*'),
