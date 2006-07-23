@@ -15,7 +15,7 @@
   </maintainers>
  <release>
   <version>1.2.0</version>
-  <date>2006-07-22</date>
+  <date>2006-07-23</date>
   <license>BSD License</license>
   <state>stable</state>
   <notes>- added ability to escape wildcard characters in escape() and quote()
@@ -31,7 +31,6 @@
 - reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
   when a table name is passed (Bug #8124)
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-
 - use old dsn when rolling back open transactions in disconnect()
   </notes>
   <deps>
@@ -78,7 +77,7 @@
  <changelog>
    <release>
     <version>1.2.0</version>
-    <date>2006-07-22</date>
+    <date>2006-07-23</date>
     <license>BSD License</license>
     <state>stable</state>
     <notes>- added ability to escape wildcard characters in escape() and quote()
@@ -94,7 +93,6 @@
 - reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
   when a table name is passed (Bug #8124)
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-
 - use old dsn when rolling back open transactions in disconnect()
     </notes>
    </release>

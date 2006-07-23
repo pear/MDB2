@@ -67,7 +67,7 @@ portability. Among other things MDB2 features:
   </maintainers>
  <release>
   <version>2.2.0</version>
-  <date>2006-07-22</date>
+  <date>2006-07-23</date>
   <license>BSD License</license>
   <state>stable</state>
   <notes>- added MDB2_AUTOQUERY_SELECT (Request #7817)
@@ -279,7 +279,7 @@ open todo items:
  <changelog>
    <release>
     <version>2.2.0</version>
-    <date>2006-07-22</date>
+    <date>2006-07-23</date>
     <license>BSD License</license>
     <state>stable</state>
     <notes>- added MDB2_AUTOQUERY_SELECT (Request #7817)

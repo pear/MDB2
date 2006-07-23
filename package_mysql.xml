@@ -15,7 +15,7 @@
   </maintainers>
  <release>
   <version>1.2.0</version>
-  <date>2006-07-22</date>
+  <date>2006-07-23</date>
   <license>BSD License</license>
   <state>stable</state>
   <notes>- added ability to escape wildcard characters in escape() and quote()
@@ -79,7 +79,7 @@
  <changelog>
    <release>
     <version>1.2.0</version>
-    <date>2006-07-22</date>
+    <date>2006-07-23</date>
     <license>BSD License</license>
     <state>stable</state>
     <notes>- added ability to escape wildcard characters in escape() and quote()

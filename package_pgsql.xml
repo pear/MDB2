@@ -21,7 +21,7 @@
   </maintainers>
  <release>
   <version>1.2.0</version>
-  <date>2006-07-22</date>
+  <date>2006-07-23</date>
   <license>BSD License</license>
   <state>stable</state>
   <notes>- performance tweaks for pg_prepare() enabled installations
@@ -44,8 +44,7 @@
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
-- add schema support to _pgFieldFlags() in pgsql driver (Request #5796)
-- add optional use of pg_result_error_field()to handle localized error messages (Request #7059)
+- use pg_result_error_field() to handle localized error messages (Request #7059)
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -91,7 +90,7 @@ open todo items:
  <changelog>
    <release>
     <version>1.2.0</version>
-    <date>2006-07-22</date>
+    <date>2006-07-23</date>
     <license>BSD License</license>
     <state>stable</state>
     <notes>- performance tweaks for pg_prepare() enabled installations
@@ -114,8 +113,7 @@ open todo items:
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
-- add schema support to _pgFieldFlags() in pgsql driver (Request #5796)
-- add optional use of pg_result_error_field()to handle localized error messages (Request #7059)
+- use pg_result_error_field() to handle localized error messages (Request #7059)
     </notes>
    </release>
    <release>

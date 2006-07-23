@@ -31,7 +31,6 @@ $notes = <<<EOT
 - reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
   when a table name is passed (Bug #8124)
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-
 - use old dsn when rolling back open transactions in disconnect()
 
 open todo items:

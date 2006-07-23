@@ -24,8 +24,7 @@ $notes = <<<EOT
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
-- add schema support to _pgFieldFlags() in pgsql driver (Request #5796)
-- add optional use of pg_result_error_field()to handle localized error messages (Request #7059)
+- use pg_result_error_field() to handle localized error messages (Request #7059)
 EOT;
 
 $package = new PEAR_PackageFileManager();

@@ -15,7 +15,7 @@
   </maintainers>
  <release>
   <version>1.2.0</version>
-  <date>2006-07-22</date>
+  <date>2006-07-23</date>
   <license>BSD License</license>
   <state>stable</state>
   <notes>- added setTransactionIsolation()
@@ -34,6 +34,8 @@
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
 - use old dsn when rolling back open transactions in disconnect()
 
+note: this driver only supports SQLite version 2.x databases
+
 open todo items:
 - fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
 - a number of the manager test cases fail because sqlite does not support adding
@@ -41,9 +43,6 @@ open todo items:
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -89,7 +88,7 @@ open todo items:
  <changelog>
    <release>
     <version>1.2.0</version>
-    <date>2006-07-22</date>
+    <date>2006-07-23</date>
     <license>BSD License</license>
     <state>stable</state>
     <notes>- added setTransactionIsolation()
@@ -108,6 +107,8 @@ open todo items:
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
 - use old dsn when rolling back open transactions in disconnect()
 
+note: this driver only supports SQLite version 2.x databases
+
 open todo items:
 - fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
 - a number of the manager test cases fail because sqlite does not support adding
@@ -115,9 +116,6 @@ open todo items:
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
     </notes>
    </release>
    <release>
