@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '0.4.0';
 $notes = <<<EOT
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
 - added context array parameter to debug() and make use of it whereever sensible
