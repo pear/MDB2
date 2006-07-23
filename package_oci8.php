@@ -2,29 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.0';
+$version = 'XXX';
 $notes = <<<EOT
-- added ability to escape wildcard characters in escape() and quote()
-- added setTransactionIsolation()
-- added savepoint support to beginTransaction(), commit() and rollback()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
-- added ability to escape wildcard characters in escape() and quote()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added 'nativetype' output to tableInfo() and getTableFieldDefinition()
-- added 'mdb2type' output to getTableFieldDefinition()
-- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
-  when a table name is passed (Bug #8124)
-- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-- use old dsn when rolling back open transactions in disconnect()
-- fixed testcreateautoincrementtable for oci8
-  There is still a problem when dropping the sequence, it gets inserted with a
-  seemingly random string as a name
-- load datatype module in tableInfo() (Bug #8116)
-- surround _makeAutoincrement() and _dropAutoincrement() with a nested transaction
-- grant create trigger when creating an emulated database to fix autoincrement emulation
-- ensure proper quoting in _dropAutoincrement()
+
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)

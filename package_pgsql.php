@@ -2,25 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.2.0';
+$version = 'XXX';
 $notes = <<<EOT
-- performance tweaks for pg_prepare() enabled installations
-- MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
-- added ability to escape wildcard characters in escape() and quote()
-- added setTransactionIsolation()
-- added savepoint support to beginTransaction(), commit() and rollback()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
-- added ability to escape wildcard characters in escape() and quote()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added 'nativetype' output to tableInfo() and getTableFieldDefinition()
-- added 'mdb2type' output to getTableFieldDefinition()
-- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
-  when a table name is passed (Bug #8124)
-- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-- disconnect after changing database/DSN (otherwise transactions may be left open)
-- use old dsn when rolling back open transactions in disconnect()
+
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

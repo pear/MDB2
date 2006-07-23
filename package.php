@@ -2,44 +2,9 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.2.0';
+$version = 'XXX';
 $notes = <<<EOT
-- added MDB2_AUTOQUERY_SELECT (Request #7817)
-- added nested transaction support (inspired by ADODB's smart transactions) but
-  expanded to optionally use SAVEPOINTs *EXPERIMENTAL*
-  beginNestedTransaction(), completeNestedTransaction(),
-  failNestedTransaction(), getNestedTransactionError()
-- inTransaction() will now return an integer with the nested transaction depth
-  if a nested transaction has been started
-- added setTransactionIsolation()
-- added savepoint support to beginTransaction(), commit() and rollback()
-- added Native base class for consistency
-- added missing colnum parameter to queryOne() [used by getOne()]
-- added new tests for get*() Extended module methods
-- fixed missing db variable from getValidTypes()
-- added testing of a prepared statement with no parameters
-- added handling of empty result sets to result set verification in the test suite
-- oci8 and ibase (and possibly other rdbms) do not like freeing the statement
-  before reading the result set (Bug #8068):
-  * moved statement freeing after reading the result set in get*() Extended methods
-  * bypass prepared statement API for queries without parameters in autoExecute()
-  (this means you cannot use parameters with SELECT statements in autoExecute()
-  on the above mentioned platforms)
-- use data type callback in getValidTypes()
-- fixed identifier quoting in buildManipSQL() for SELECT statements (thx Kailoran)
-- phpdoc and cosmetic fixes in limitQuery()
-- added matchPattern() and patternEscapeString(), escapePattern() *EXPERIMENTAL*
-- added ability to escape wildcard characters in escape() and quote()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
-- added a new option "debug_expanded_output" which needs to be set to true to
-  get additional context information and to get "post" callback calls
-- added testPortabilityOptions()
-- set length of 8 and fixed for user_password in the test suite
-- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
-  when a table name is passed (Bug #8124)
-- disconnect after changing database/DSN (otherwise transactions may be left open)
+
 
 open todo items:
 - handle autoincrement fields in alterTable()
