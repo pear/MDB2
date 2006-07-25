@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '1.2.0';
 $notes = <<<EOT
 - added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
