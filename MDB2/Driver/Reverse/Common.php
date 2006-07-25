@@ -353,12 +353,19 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         $constraints = $db->manager->listTableConstraints($result);
         if (PEAR::isError($constraints)) {
             return $constraints;
+        }
+
+        foreach ($constraints as $constraint) {
+            $definition = $this->getTableConstraintDefinition($result, $constraint);
+            if (PEAR::isError($definition)) {
+                return $definition;
+            }
             $flag = !empty($definition['primary'])
                 ? 'primary_key' : (!empty($definition['unique'])
                     ? 'unique_key' : false);
             if ($flag) {
                 foreach ($definition['fields'] as $field => $sort) {
-                    if (!empty($flags[$field]) || $flags[$field] != 'primary_key') {
+                    if (empty($flags[$field]) || $flags[$field] != 'primary_key') {
                         $flags[$field] = $flag;
                     }
                 }
