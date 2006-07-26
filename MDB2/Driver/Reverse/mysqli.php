@@ -167,7 +167,10 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                     $autoincrement = true;
                 }
 
-                $definition[0] = array('notnull' => $notnull, 'nativetype' => $column['type']);
+                $definition[0] = array(
+                    'notnull' => $notnull,
+                    'nativetype' => preg_replace('/^([a-z]+)[^a-z].*/i', '\\1', $column['type'])
+                );
                 if ($length > 0) {
                     $definition[0]['length'] = $length;
                 }
