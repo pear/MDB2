@@ -820,6 +820,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter with an empty name', __FUNCTION__);
                         return $err;
+                    } elseif (isset($positions[$parameter])) {
+                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                            'named parameter names can only be used once per statement', __FUNCTION__);
+                        return $err;
                     }
                     // use parameter name in type array
                     if (isset($count) && isset($types_tmp[++$count])) {

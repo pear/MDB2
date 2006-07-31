@@ -852,6 +852,10 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter with an empty name', __FUNCTION__);
                         return $err;
+                    } elseif (isset($positions[$parameter])) {
+                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                            'named parameter names can only be used once per statement', __FUNCTION__);
+                        return $err;
                     }
                     $positions[$parameter] = $p_position;
                     $query = substr_replace($query, '?', $position, strlen($parameter)+1);
