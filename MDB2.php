@@ -1401,7 +1401,8 @@ class MDB2_Driver_Common extends PEAR
         }
 
         $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
-        if (isset($this->nested_transaction_counter) && !$this->has_transaction_error) {
+        if ($err->getMode() !== PEAR_ERROR_RETURN
+            && isset($this->nested_transaction_counter) && !$this->has_transaction_error) {
             $this->has_transaction_error =& $err;
         }
         return $err;
