@@ -96,8 +96,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         if (PEAR::isError($server_info)) {
             return $server_info;
         }
-        $old_query = ($server_info['major'] < 4 && $server_info['minor'] < 1 && $server_info['patch'] < 2);
-        if ($old_query) {
+        if (version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.2', '<')) {
             switch (strtoupper($table_type)) {
             case 'BERKELEYDB':
             case 'BDB':

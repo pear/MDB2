@@ -468,32 +468,24 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
         $this->supported['sub_selects'] = 'emulated';
         $this->supported['prepared_statements'] = 'emulated';
-        $server_info = $this->getServerVersion();
-        if (is_array($server_info)
-            && ($server_info['major'] > 4
-                || ($server_info['major'] == 4 && $server_info['minor'] >= 1)
-            )
-        ) {
-            $this->supported['sub_selects'] = true;
-            $this->supported['prepared_statements'] = true;
-        }
-
-        if (is_array($server_info)
-            && ($server_info['major'] > 4
-                || ($server_info['major'] == 4 && $server_info['patch'] >= 14)
-                || ($server_info['major'] == 4 && $server_info['minor'] >= 1 && $server_info['patch'] >= 1)
-            )
-        ) {
-            $this->supported['savepoints'] = true;
-        }
-
         $this->start_transaction = false;
-        if (is_array($server_info)
-            && ($server_info['major'] > 4
-                || ($server_info['major'] == 4 && ($server_info['minor'] > 0 || $server_info['patch'] >= 11))
-            )
-        ) {
-            $this->start_transaction = true;
+
+        $server_info = $this->getServerVersion();
+        if (is_array($server_info)) {
+            if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.0', '<')) {
+                $this->supported['sub_selects'] = true;
+                $this->supported['prepared_statements'] = true;
+            }
+
+            if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.0.14', '<')
+                || !version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.1', '<')
+            ) {
+                $this->supported['savepoints'] = true;
+            }
+
+            if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.0.11', '<')) {
+                $this->start_transaction = true;
+            }
         }
 
         return MDB2_OK;
