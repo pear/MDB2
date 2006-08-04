@@ -634,12 +634,12 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function lastInsertID($table = null, $field = null)
     {
         $server_info = $this->getServerVersion();
-        if (is_array($server_info)
-            && !is_null($server_info['major'])
-                && $server_info['major'] >= 8) {
-                    $query = "SELECT SCOPE_IDENTITY()";
+        if (is_array($server_info) && !is_null($server_info['major'])
+           && $server_info['major'] >= 8
+        ) {
+            $query = "SELECT SCOPE_IDENTITY()";
         } else {
-                    $query = "SELECT @@IDENTITY";
+            $query = "SELECT @@IDENTITY";
         }
 
         return $this->queryOne($query, 'integer');
