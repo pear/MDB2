@@ -203,7 +203,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
         }
 
         $unsigned = (!empty($field['unsigned'])) ? ' UNSIGNED' : '';
-        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : '';
+        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' NULL';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$unsigned.$default.$notnull.$autoinc;
     }

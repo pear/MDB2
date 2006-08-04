@@ -197,7 +197,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 }
                 $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
             }
-            $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : '';
+            $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' NULL';
         }
 
         $unsigned = (!empty($field['unsigned'])) ? ' UNSIGNED' : '';

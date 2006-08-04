@@ -217,7 +217,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
         }
 
-        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : '';
+        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' NULL';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
