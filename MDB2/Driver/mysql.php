@@ -432,18 +432,18 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             }
         }
 
+        $this->connection = $connection;
+        $this->connected_dsn = $this->dsn;
+        $this->connected_database_name = '';
+        $this->opened_persistent = $this->options['persistent'];
+        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
+
         if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
             if (PEAR::isError($result)) {
                 return $result;
             }
         }
-
-        $this->connection = $connection;
-        $this->connected_dsn = $this->dsn;
-        $this->connected_database_name = '';
-        $this->opened_persistent = $this->options['persistent'];
-        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
         $this->supported['transactions'] = $this->options['use_transactions'];
         if ($this->options['default_table_type']) {
