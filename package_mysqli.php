@@ -4,7 +4,15 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
-
+- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
+  led to returning incorrect type values (Bug #8291)
+- quote identifiers in the reverse module when 'quote_identifiers' is enabled (Bug #8309)
+- return an error if a name placeholder name is used twice inside a single statement
+- use version_compare() to fix complex version comparisons (Bug #8355)
+- some RDBMS default to NOT NULL (noteably MSSQL) and therefore we need to
+  explictly default to NULL (Bug #8359)
+- do not use quote() in setCharset() since it is supposed to set the charset in
+  the connection that was passed to it
 EOT;
 
 $package = new PEAR_PackageFileManager();

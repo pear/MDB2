@@ -4,8 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
-
-
+- return an error if a name placeholder name is used twice inside a single statement
 EOT;
 
 $package = new PEAR_PackageFileManager();

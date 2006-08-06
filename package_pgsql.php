@@ -4,7 +4,9 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
-
+- return an error if a name placeholder name is used twice inside a single statement
+- some RDBMS default to NOT NULL (noteably MSSQL) and therefore we need to
+  explictly default to NULL (Bug #8359)
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

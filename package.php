@@ -4,7 +4,10 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
-
+- fixed missing code in tableInfoI() (Bug #8289)
+- do not set nested transaction error if error is expected
+- some RDBMS default to NOT NULL (noteably MSSQL) and therefore we need to
+  explictly default to NULL (Bug #8359)
 
 open todo items:
 - handle autoincrement fields in alterTable()
