@@ -74,7 +74,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'unexpected empty table column definition list', __FUNCTION__);
         }
-        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|SMALLINT|INT|INTEGER|DECIMAL|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( ?\(([1-9][0-9]*)(:([1-9][0-9]*))?\))?( UNSIGNED)?( PRIMARY KEY)?( DEFAULT (\'[^\']*\'|[^ ]+))?( NOT NULL)?$/i';
+        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|SMALLINT|INT|INTEGER|DECIMAL|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( ?\(([1-9][0-9]*)(:([1-9][0-9]*))?\))?( UNSIGNED)?( PRIMARY KEY)?( DEFAULT (\'[^\']*\'|[^ ]+))?( NULL| NOT NULL)?$/i';
         for ($i=0, $j=0; $i<$count; ++$i) {
             if (!preg_match($regexp, trim($column_sql[$i]), $matches)) {
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
@@ -105,7 +105,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 $columns[$j]['default'] = $default;
             }
             if (isset($matches[11]) && strlen($matches[11])) {
-                $columns[$j]['notnull'] = true;
+                $columns[$j]['notnull'] = ($matches[11] === ' NOT NULL');
             }
             ++$j;
         }
@@ -133,7 +133,6 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-        $table = $db->quote($table, 'text');
         $query = "SELECT sql FROM sqlite_master WHERE type='table' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $query.= 'LOWER(name)='.$db->quote(strtolower($table), 'text');
@@ -225,7 +224,6 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         $index_name = $db->getIndexName($index_name);
         $index_name = $db->quote($index_name, 'text');
-        $table = $db->quote($table, 'text');
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $query.= "LOWER(name)=".$db->quote(strtolower($index_name), 'text')." AND LOWER(tbl_name)=".$db->quote(strtolower($table), 'text');
@@ -291,7 +289,6 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
 
         $index_name = $db->getIndexName($index_name);
-        $table = $db->quote($table, 'text');
         $index_name = $db->quote($index_name, 'text');
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
