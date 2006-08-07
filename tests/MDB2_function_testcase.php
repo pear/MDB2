@@ -180,9 +180,49 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$rand_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'float');
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting random value');
+            $this->assertFalse(true, 'Error getting random value:'. $result->getMessage());
         } else {
             $this->assertTrue(($result >= 0 && $result <= 1), 'Error: could not get random value between 0 and 1: '.$result);
+        }
+    }
+
+    /**
+     * Test lower()
+     */
+    function testLower()
+    {
+        if (!$this->methodExists($this->db->function, 'lower')) {
+            return;
+        }
+        $string = $this->db->quote('FoO');
+        $lower_clause = $this->db->function->lower($string);
+        $functionTable_clause = $this->db->function->functionTable();
+        $query = 'SELECT '.$lower_clause . $functionTable_clause;
+        $result = $this->db->queryOne($query, 'text');
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting lower case value:'. $result->getMessage());
+        } else {
+            $this->assertTrue(($result === 'foo'), 'Error: could not lower case "FoO": '.$result);
+        }
+    }
+
+    /**
+     * Test upper()
+     */
+    function testUpper()
+    {
+        if (!$this->methodExists($this->db->function, 'upper')) {
+            return;
+        }
+        $string = $this->db->quote('FoO');
+        $upper_clause = $this->db->function->upper($string);
+        $functionTable_clause = $this->db->function->functionTable();
+        $query = 'SELECT '.$upper_clause . $functionTable_clause;
+        $result = $this->db->queryOne($query, 'text');
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting upper case value:'. $result->getMessage());
+        } else {
+            $this->assertTrue(($result === 'FOO'), 'Error: could not upper case "FoO": '.$result);
         }
     }
 }
