@@ -1544,11 +1544,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * @access public
      *
      * @param array $pattern even keys are strings, odd are patterns (% and _)
-     * @param string $operator optional pattern operator (LIKE, maybe others in the future)
+     * @param string $operator optional pattern operator (LIKE, ILIKE and maybe others in the future)
+     * @param string $field optional field name that is being matched against
+     *                  (might be required when emulating ILIKE)
      *
      * @return string SQL pattern
      */
-    function matchPattern($pattern, $operator = null)
+    function matchPattern($pattern, $operator = null, $field = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -1557,10 +1559,21 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
         $match = '';
         if (!is_null($operator)) {
-            switch (strtoupper($operator)) {
+            $operator = strtoupper($operator);
+            switch ($operator) {
+            // case insensitive
+            case 'ILIKE':
+                if (is_null($field)) {
+                    return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                        'case insensitive LIKE matching requires passing the field name', __FUNCTION__);
+                }
+                $db->loadModule('Function');
+                $match = $db->function->lower($field).' '.'LIKE ';
+                break;
+            // case sensitive
             case 'LIKE':
-                $match = 'LIKE ';
-            break;
+                $match = is_null($field) ? 'LIKE ' : $field.' LIKE ';
+                break;
             default:
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'not a supported operator type:'. $operator, __FUNCTION__);
@@ -1571,6 +1584,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if ($key % 2) {
                 $match.= $value;
             } else {
+                if ($operator === 'ILIKE') {
+                    $value = strtolower($value);
+                }
                 $match.= $db->escapePattern($db->escape($value));
             }
         }
