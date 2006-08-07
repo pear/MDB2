@@ -5,7 +5,6 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'XXX';
 $notes = <<<EOT
 - quote identifiers in the reverse module when 'quote_identifiers' is enabled (Bug #8309)
-- return an error if a name placeholder name is used twice inside a single statement
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)
@@ -57,7 +56,7 @@ $package->addMaintainer('justinpatrin', 'developer', 'Justin Patrin', 'justinpat
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.2.0', 'ge', 'pkg', false);
+$package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
 $package->addDependency('oci8', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

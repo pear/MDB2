@@ -6,9 +6,7 @@ $version = 'XXX';
 $notes = <<<EOT
 - fixed issue in tableInfo() that originates in getTableFieldDefinition() which
   led to returning incorrect type values (Bug #8291)
-- quote identifiers in the reverse module when 'quote_identifiers' is enabled (Bug #8309)
-- some RDBMS default to NOT NULL (noteably MSSQL) and therefore we need to
-  explictly default to NULL (Bug #8359)
+- added support for NULL columns in getTableFieldDefinition()
 
 note: this driver only supports SQLite version 2.x databases
 
@@ -58,7 +56,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.2.0', 'ge', 'pkg', false);
+$package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
 $package->addDependency('sqlite', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

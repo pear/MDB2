@@ -8,6 +8,7 @@ $notes = <<<EOT
 - do not set nested transaction error if error is expected
 - some RDBMS default to NOT NULL (noteably MSSQL) and therefore we need to
   explictly default to NULL (Bug #8359)
+- added support for case insensitive matching via ILIKE in matchPattern()
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -23,8 +24,8 @@ open todo items:
 - add support for database/table/row LOCKs
 - add ActiveRecord implementation (probably as a separate package)
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
-- extended to support for case insensitive matching via ILIKE/collate in matchPattern()
 - generate STATUS file from test suite results and allow users to submit test results
+- return an error if a name placeholder name is used twice inside a single statement
 EOT;
 
 $description =<<<EOT
