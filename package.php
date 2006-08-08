@@ -10,6 +10,7 @@ $notes = <<<EOT
   explictly default to NULL (Bug #8359)
 - added support for case insensitive matching via ILIKE in matchPattern()
 - added getAsKeyword() for generating "AS" keyword as required by the RDBMS
+- return an error if a name placeholder name is used twice inside a single statement
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -25,7 +26,6 @@ open todo items:
 - add ActiveRecord implementation (probably as a separate package)
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
 - generate STATUS file from test suite results and allow users to submit test results
-- return an error if a name placeholder name is used twice inside a single statement
 EOT;
 
 $description =<<<EOT
