@@ -643,7 +643,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
     }
 
-
     /**
      * Test replace query
      *
@@ -1373,6 +1372,29 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
         }
         $this->assertEquals($value, $result, '"MDB2_PORTABILITY_RTRIM = off" not working');
+    }
+
+    /**
+     * Test getAsKeyword()
+     */
+    function testgetAsKeyword()
+    {
+        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        $data = $this->getSampleData(1);
+        $result = $stmt->execute(array_values($data));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+        }
+        $stmt->free();
+
+        $query = 'SELECT user_id'.$this->db->getAsKeyword().'foo FROM users';
+        $result = $this->db->queryRow($query, array('integer'), MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting alias column:'. $result->getMessage());
+        } else {
+            $this->assertTrue((array_key_exists('foo', $result)), 'Error: could not alias "user_id" with "foo" :'.var_export($result, true));
+        }
     }
 }
 

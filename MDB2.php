@@ -1161,6 +1161,13 @@ class MDB2_Driver_Common extends PEAR
     var $escape_identifier = '"';
 
     /**
+     * column alias keyword
+     * @var     string
+     * @access  protected
+     */
+    var $as_keyword = ' AS ';
+
+    /**
      * warnings
      * @var     array
      * @access  protected
@@ -1668,6 +1675,19 @@ class MDB2_Driver_Common extends PEAR
         }
         $str = str_replace($this->escape_identifier, $this->escape_identifier.$this->escape_identifier, $str);
         return $this->escape_identifier . $str . $this->escape_identifier;
+    }
+
+    // }}}
+    // {{{ function getAsKeyword()
+
+    /**
+     * Gets the string to alias column
+     *
+     * @return string to use when aliasing a column
+     */
+    function getAsKeyword()
+    {
+        return $this->as_keyword;
     }
 
     // }}}

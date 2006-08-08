@@ -9,6 +9,7 @@ $notes = <<<EOT
 - some RDBMS default to NOT NULL (noteably MSSQL) and therefore we need to
   explictly default to NULL (Bug #8359)
 - added support for case insensitive matching via ILIKE in matchPattern()
+- added getAsKeyword() for generating "AS" keyword as required by the RDBMS
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -20,7 +21,6 @@ open todo items:
 - add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
 - add support to export/import in CSV format
 - add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
-- add support to generating "AS" keyword if required
 - add support for database/table/row LOCKs
 - add ActiveRecord implementation (probably as a separate package)
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints

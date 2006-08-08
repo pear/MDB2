@@ -436,6 +436,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->opened_persistent = $this->options['persistent'];
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
+        $this->as_keyword = ' ';
+        $server_info = $this->getServerVersion();
+        if (is_array($server_info)) {
+            if ($server_info['major'] >= '10') {
+                $this->as_keyword = ' AS ';
+            }
+        }
         return MDB2_OK;
     }
 
