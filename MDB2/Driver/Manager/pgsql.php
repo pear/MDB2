@@ -552,7 +552,10 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($indexes as $index) {
-            $result[$this->_fixIndexName($index)] = true;
+            $index = $this->_fixIndexName($index);
+            if (!empty($index)) {
+                $result[$index] = true;
+            }
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -589,7 +592,10 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($constraints as $constraint) {
-            $result[$this->_fixIndexName($constraint)] = true;
+            $constraint = $this->_fixIndexName($constraint);
+            if (!empty($constraint)) {
+                $result[$constraint] = true;
+            }
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
