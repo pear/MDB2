@@ -78,8 +78,6 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $result;
         }
 
-        $table = $db->quote($table, 'text');
-        $field_name = $db->quote($field_name, 'text');
         $query = 'SELECT column_name name, data_type "type", nullable, data_default "default"';
         $query.= ', COALESCE(data_precision, data_length) "length", data_scale "scale"';
         $query.= ' FROM user_tab_columns';
@@ -160,8 +158,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $table = $db->quote($table, 'text');
-        $index_name = $db->quote($db->getIndexName($index_name), 'text');
+        $index_name = $db->getIndexName($index_name);
         $query = 'SELECT * FROM user_indexes';
         $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
         $query.= ' AND (index_name='.$db->quote($index_name, 'text').' OR index_name='.$db->quote(strtoupper($index_name), 'text').')';
@@ -181,8 +178,8 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 }
             }
             $query = 'SELECT * FROM user_ind_columns';
-            $query.= ' WHERE (table_name='.$table.' OR table_name='.strtoupper($table).')';
-            $query.= ' AND (index_name='.$index_name.' OR index_name='.strtoupper($index_name).')';
+            $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
+            $query.= ' AND (index_name='.$db->quote($index_name, 'text').' OR index_name='.$db->quote(strtoupper($index_name), 'text').')';
             $result = $db->query($query);
             if (PEAR::isError($result)) {
                 return $result;
@@ -234,12 +231,10 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $index_name = $db->getIndexName($index_name);
         }
 
-        $database_name = $db->quote(strtoupper($db->dsn['username']), 'text');
-        $index_name = $db->quote($index_name, 'text');
-        $table = $db->quote($table, 'text');
-        $query = "SELECT * FROM all_constraints WHERE owner = $database_name";
+        $query = 'SELECT * FROM all_constraints';
         $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
         $query.= ' AND (index_name='.$db->quote($index_name, 'text').' OR index_name='.$db->quote(strtoupper($index_name), 'text').')';
+        $query.= ' AND owner = '.$db->quote(strtoupper($db->dsn['username']), 'text');
         $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -297,9 +292,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $sequence_name = $db->quote($db->getSequenceName($sequence), 'text');
+        $sequence_name = $db->getSequenceName($sequence);
         $query = 'SELECT last_number FROM user_sequences';
-        $query.= ' WHERE sequence_name='.$db->quote($sequence_name, 'text')
+        $query.= ' WHERE sequence_name='.$db->quote($sequence_name, 'text');
         $query.= ' OR sequence_name='.$db->quote(strtoupper($sequence_name), 'text');
         $start = $db->queryOne($query);
         if (PEAR::isError($start)) {
