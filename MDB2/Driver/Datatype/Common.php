@@ -428,8 +428,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             $default = ' DEFAULT '.$this->quote($field['default'], $field['type']);
         }
 
-        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' :
-                   (empty($default) ? ' DEFAULT NULL' : ' NULL');
+        $notnull = (!empty($field['notnull']) || !empty($default)) ? ' NOT NULL' : ' DEFAULT NULL';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
     }
