@@ -187,20 +187,20 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
-        $default = $autoinc = $notnull = '';
+        $default = $autoinc = '';
         if (!empty($field['autoincrement'])) {
             $autoinc = ' PRIMARY KEY';
-        } else {
-            if (array_key_exists('default', $field)) {
-                if ($field['default'] === '') {
-                    $field['default'] = (!empty($field['notnull'])) ? 0 : null;
-                }
-                $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
+        } elseif (array_key_exists('default', $field)) {
+            if ($field['default'] === '') {
+                $field['default'] = empty($field['notnull']) ? null : 0;
             }
-            $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' NULL';
+            $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
+        } elseif (empty($field['notnull'])) {
+            $default = ' DEFAULT NULL';
         }
 
-        $unsigned = (!empty($field['unsigned'])) ? ' UNSIGNED' : '';
+        $notnull = empty($field['notnull']) ? '' : ' NOT NULL';
+        $unsigned = empty($field['unsigned']) ? '' : ' UNSIGNED';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$unsigned.$default.$notnull.$autoinc;
     }

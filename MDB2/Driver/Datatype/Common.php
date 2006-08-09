@@ -416,8 +416,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $default = '';
         if (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
-                $field['default'] = empty($field['notnull']) ? null :
-                    $this->valid_types[$field['type']];
+                $field['default'] = empty($field['notnull'])
+                    ? null : $this->valid_types[$field['type']];
                 if ($field['default'] === ''
                     && ($db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)
                 ) {
@@ -536,7 +536,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' NULL';
+        $notnull = empty($field['notnull']) ? '' : ' NOT NULL';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }
@@ -572,7 +572,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db;
         }
 
-        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' NULL';
+        $notnull = empty($field['notnull']) ? '' : ' NOT NULL';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }

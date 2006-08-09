@@ -166,6 +166,78 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
+    // {{{ _getCLOBDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare an character
+     * large object type field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name name the field to be declared.
+     * @param array $field associative array with the name of the properties
+     *        of the field being declared as array indexes. Currently, the types
+     *        of supported field properties are as follows:
+     *
+     *        length
+     *            Integer value that determines the maximum length of the large
+     *            object field. If this argument is missing the field should be
+     *            declared to have the longest length allowed by the DBMS.
+     *
+     *        notnull
+     *            Boolean flag that indicates whether this field is constrained
+     *            to not be set to null.
+     * @return string DBMS specific SQL code portion that should be used to
+     *        declare the specified field.
+     * @access public
+     */
+    function _getCLOBDeclaration($name, $field)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' DEFAULT NULL';
+        $name = $db->quoteIdentifier($name, true);
+        return $name.' '.$this->getTypeDeclaration($field).$notnull;
+    }
+
+    // }}}
+    // {{{ _getBLOBDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare an binary large
+     * object type field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name name the field to be declared.
+     * @param array $field associative array with the name of the properties
+     *        of the field being declared as array indexes. Currently, the types
+     *        of supported field properties are as follows:
+     *
+     *        length
+     *            Integer value that determines the maximum length of the large
+     *            object field. If this argument is missing the field should be
+     *            declared to have the longest length allowed by the DBMS.
+     *
+     *        notnull
+     *            Boolean flag that indicates whether this field is constrained
+     *            to not be set to null.
+     * @return string DBMS specific SQL code portion that should be used to
+     *        declare the specified field.
+     * @access protected
+     */
+    function _getBLOBDeclaration($name, $field)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' DEFAULT NULL';
+        $name = $db->quoteIdentifier($name, true);
+        return $name.' '.$this->getTypeDeclaration($field).$notnull;
+    }
+
+    // }}}
     // {{{ _quoteBLOB()
 
     /**
