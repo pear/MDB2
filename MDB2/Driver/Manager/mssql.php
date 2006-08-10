@@ -227,8 +227,10 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             foreach ($changes['add'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
+                } else {
+                    $query.= 'ADD ';
                 }
-                $query.= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
+                $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
 
