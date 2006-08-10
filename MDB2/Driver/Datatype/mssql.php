@@ -165,6 +165,117 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         return '';
     }
 
+     // }}}
+    // {{{ _getDeclaration()
+
+    /**
++     * Obtain DBMS specific SQL code portion needed to declare a generic type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string $name   name the field to be declared.
+     * @param array  $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      length
+     *          Integer value that determines the maximum length of the text
+     *          field. If this argument is missing the field should be
+     *          declared to have the longest length allowed by the DBMS.
+     *
+     *      default
+     *          Text value to be used as default for this field.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
+     * @access protected
+     */
+    function _getDeclaration($name, $field)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $default = '';
+        if (array_key_exists('default', $field)) {
+            if ($field['default'] === '') {
+                $field['default'] = empty($field['notnull'])
+                    ? null : $this->valid_types[$field['type']];
+                if ($field['default'] === ''
+                    && ($db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)
+                ) {
+                    $field['default'] = ' ';
+                }
+            }
+            $default = ' DEFAULT '.$this->quote($field['default'], $field['type']);
+        } elseif (empty($field['notnull'])) {
+            $default = ' DEFAULT NULL';
+        }
+
+        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $name = $db->quoteIdentifier($name, true);
+        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
+    }
+
+    // }}}
+    // {{{ _getIntegerDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare an integer type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string  $name   name the field to be declared.
+     * @param string  $field  associative array with the name of the properties
+     *                        of the field being declared as array indexes.
+     *                        Currently, the types of supported field
+     *                        properties are as follows:
+     *
+     *                       unsigned
+     *                        Boolean flag that indicates whether the field
+     *                        should be declared as unsigned integer if
+     *                        possible.
+     *
+     *                       default
+     *                        Integer value to be used as default for this
+     *                        field.
+     *
+     *                       notnull
+     *                        Boolean flag that indicates whether this field is
+     *                        constrained to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *                 declare the specified field.
+     * @access protected
+     */
+    function _getIntegerDeclaration($name, $field)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $default = $autoinc = '';;
+        if (!empty($field['autoincrement'])) {
+            $autoinc = ' IDENTITY PRIMARY KEY';
+        } elseif (array_key_exists('default', $field)) {
+            if ($field['default'] === '') {
+                $field['default'] = empty($field['notnull']) ? null : 0;
+            }
+            $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
+        } elseif (empty($field['notnull'])) {
+            $default = ' DEFAULT NULL';
+        }
+
+        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        if (!empty($field['unsigned'])) {
+            $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
+        }
+        $name = $db->quoteIdentifier($name, true);
+        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull.$autoinc;
+    }
+
     // }}}
     // {{{ _getCLOBDeclaration()
 
@@ -196,7 +307,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
-        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' DEFAULT NULL';
+        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }
@@ -232,7 +343,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
-        $notnull = (!empty($field['notnull'])) ? ' NOT NULL' : ' DEFAULT NULL';
+        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$notnull;
     }
