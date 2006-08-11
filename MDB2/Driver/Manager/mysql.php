@@ -244,6 +244,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      * @access public
      */
     function createTable($name, $fields, $options = array())
+    {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
