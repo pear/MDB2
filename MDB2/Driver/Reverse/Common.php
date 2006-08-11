@@ -333,14 +333,19 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
 
         $flags = array();
 
+        $idxname_format = $db->getOption('idxname_format');
+        $db->setOption('idxname_format', '%s');
+
         $indexes = $db->manager->listTableIndexes($result);
         if (PEAR::isError($indexes)) {
+            $db->setOption('idxname_format', $idxname_format);
             return $indexes;
         }
 
         foreach ($indexes as $index) {
             $definition = $this->getTableIndexDefinition($result, $index);
             if (PEAR::isError($definition)) {
+                $db->setOption('idxname_format', $idxname_format);
                 return $definition;
             }
             if (count($definition['fields']) > 1) {
@@ -358,6 +363,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         foreach ($constraints as $constraint) {
             $definition = $this->getTableConstraintDefinition($result, $constraint);
             if (PEAR::isError($definition)) {
+                $db->setOption('idxname_format', $idxname_format);
                 return $definition;
             }
             $flag = !empty($definition['primary'])
@@ -379,6 +385,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         foreach ($fields as $i => $field) {
             $definition = $this->getTableFieldDefinition($result, $field);
             if (PEAR::isError($definition)) {
+                $db->setOption('idxname_format', $idxname_format);
                 return $definition;
             }
             $res[$i] = $definition[0];
@@ -409,6 +416,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
             }
         }
 
+        $db->setOption('idxname_format', $idxname_format);
         return $res;
     }
 }
