@@ -325,7 +325,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
                 'method not implemented', __FUNCTION__);
         }
 
-        $db->loadModule('Manager');
+        $db->loadModule('Manager', null, true);
         $fields = $db->manager->listTableFields($result);
         if (PEAR::isError($fields)) {
             return $fields;
