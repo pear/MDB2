@@ -210,7 +210,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      *
       * @return mixed MDB2_OK on success, a MDB2 error on failure
      */
-    function alterTable($name, $changes, $check)
+    function alterTable($name, $changes, $check, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -273,11 +273,17 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $constraints = array_flip($constraints);
         foreach ($constraints as $constraint => $value) {
-            $definition = $db->reverse->getTableConstraintDefinition($name, $constraint);
-            if (PEAR::isError($definition)) {
-                return $definition;
+            if (!empty($definition['primary'])) {
+                if (!array_key_exists('primary', $options)) {
+                    $options['primary'] = $definition['fields'];
+                }
+            } else {
+                $definition = $db->reverse->getTableConstraintDefinition($name, $constraint);
+                if (PEAR::isError($definition)) {
+                    return $definition;
+                }
+                $constraints[$constraint] = $definition;
             }
-            $constraints[$constraint] = $definition;
         }
 
         $name_new = $name;
@@ -329,7 +335,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $result;
         }
 
-        $result = $this->createTable($name_new, $fields);
+        $result = $this->createTable($name_new, $fields, $options);
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -643,8 +649,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         if (!empty($definition['primary'])) {
-            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'Creating Primary Constraints is not supported', __FUNCTION__);
+            return $db->alterTable($table, array(), false, array('primary' => $definition['fields']));
         }
 
         $table = $db->quoteIdentifier($table, true);
@@ -689,8 +694,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         if ($primary || $name == 'PRIMARY') {
-            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'Dropping Primary Constraints is not supported', __FUNCTION__);
+            return $db->alterTable($table, array(), false, array('primary' => null));
         }
 
         $name = $db->getIndexName($name);
