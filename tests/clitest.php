@@ -124,7 +124,10 @@ foreach ($dbarray as $db) {
     $result->addListener(new Console_TestListener);
 
     $suite->run($result);
+    $count = $result->runCount();
+    $failed = $result->failureCount();
 
+    echo "=== Summary: $failed failed of $count tests ===\n\n";
     echo "=== End test of $display_dsn ===\n\n";
 }
 

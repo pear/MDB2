@@ -120,6 +120,10 @@ foreach ($dbarray as $db) {
     $result = new PHPUnit_TestResult;
     $result->addListener(new HTML_TestListener);
     $suite->run($result);
+    $count = $result->runCount();
+    $failed = $result->failureCount();
+
+    echo "<div class=\"title\">Summary: $failed failed of $count tests</div>\n";
     echo "\n</div>\n";
 }
 ?>
