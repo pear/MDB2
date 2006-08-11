@@ -99,7 +99,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             if ($field_name == $column['name']) {
                 list($types, $length, $unsigned, $fixed) = $db->datatype->mapNativeDatatype($column);
                 $notnull = false;
-                if (!empty($column['null']) && $column['null'] != 'YES') {
+                if (empty($column['null']) || $column['null'] !== 'YES') {
                     $notnull = true;
                 }
                 $default = false;
