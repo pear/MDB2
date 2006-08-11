@@ -251,6 +251,9 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if (PEAR::isError($query_fields)) {
             return $query_fields;
         }
+        if (!empty($options['primary'])) {
+            $query_fields.= ', PRIMARY KEY ('.implode(', ', array_keys($options['primary'])).')';
+        }
 
         $name = $db->quoteIdentifier($name, true);
         $query = "CREATE TABLE $name ($query_fields)";

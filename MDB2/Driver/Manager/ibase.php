@@ -231,12 +231,14 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *                                'length' => 12,
      *                            )
      *                        );
+     * @param array $options  An associative array of table options:
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createTable($name, $fields)
+    function createTable($name, $fields, $options = array())
     {
-        $result = parent::createTable($name, $fields);
+        $result = parent::createTable($name, $fields, $options);
         if (PEAR::isError($result)) {
             return $result;
         }

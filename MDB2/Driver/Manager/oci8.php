@@ -290,17 +290,19 @@ END;
      *                                'length' => 12
      *                            )
      *                        );
+     * @param array $options  An associative array of table options:
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createTable($name, $fields)
+    function createTable($name, $fields, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
         $db->beginNestedTransaction();
-        $result = parent::createTable($name, $fields);
+        $result = parent::createTable($name, $fields, $options);
         if (!PEAR::isError($result)) {
             foreach ($fields as $field_name => $field) {
                 if (!empty($field['autoincrement'])) {

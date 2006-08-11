@@ -244,7 +244,6 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      * @access public
      */
     function createTable($name, $fields, $options = array())
-    {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
@@ -261,6 +260,9 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         $query_fields = $this->getFieldDeclarationList($fields);
         if (PEAR::isError($query_fields)) {
             return $query_fields;
+        }
+        if (!empty($options['primary'])) {
+            $query_fields.= ', PRIMARY KEY ('.implode(', ', array_keys($options['primary'])).')';
         }
         $name = $db->quoteIdentifier($name, true);
         $query = "CREATE TABLE $name ($query_fields)";
