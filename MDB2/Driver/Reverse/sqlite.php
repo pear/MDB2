@@ -197,6 +197,11 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 }
                 foreach ($types as $key => $type) {
                     $definition[$key] = $definition[0];
+                    if (($length <= 0 && $type == 'text')
+                        || $type == 'clob' || $type == 'blob'
+                    ) {
+                        unset($definition[$key]['default']);
+                    }
                     $definition[$key]['type'] = $type;
                     $definition[$key]['mdb2type'] = $type;
                 }
