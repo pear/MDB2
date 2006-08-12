@@ -64,6 +64,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
     var $start_transaction = false;
 
+    var $varchar_max_length = 255;
+
     // }}}
     // {{{ constructor
 
@@ -469,6 +471,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->supported['sub_selects'] = 'emulated';
         $this->supported['prepared_statements'] = 'emulated';
         $this->start_transaction = false;
+        $this->varchar_max_length = 255;
 
         $server_info = $this->getServerVersion();
         if (is_array($server_info)) {
@@ -485,6 +488,10 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
             if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.0.11', '<')) {
                 $this->start_transaction = true;
+            }
+
+            if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '5.0.3', '<')) {
+                $this->varchar_max_length = 65535;
             }
         }
 
