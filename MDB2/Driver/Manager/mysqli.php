@@ -56,101 +56,6 @@ require_once 'MDB2/Driver/Manager/Common.php';
  */
 class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
 {
-    // {{{ properties
-    var $verified_table_types = array();#
-    // }}}
-
-    // }}}
-    // {{{ _verifyTableType()
-
-    /**
-     * verify that chosen transactional table hanlder is available in the database
-     *
-     * @param string $table_type name of the table handler
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access protected
-     */
-    function _verifyTableType($table_type)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $connection = $db->getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-
-        if ($table_type === ''
-            || (!empty($this->verified_table_types[strtoupper($table_type)])
-                && $this->verified_table_types[strtoupper($table_type)] === ((string)$connection)
-            )
-        ) {
-            return MDB2_OK;
-        }
-
-        $not_supported = false;
-
-        $server_info = $db->getServerVersion();
-        if (PEAR::isError($server_info)) {
-            return $server_info;
-        }
-        if (version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.2', '<')) {
-            switch (strtoupper($table_type)) {
-            case 'BERKELEYDB':
-            case 'BDB':
-                $check = array('have_bdb');
-                break;
-            case 'INNODB':
-                $check = array('have_innobase', 'have_innodb');
-                break;
-            case 'GEMINI':
-                $check = array('have_gemini');
-                break;
-            default:
-                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    $table_type.' is not a supported table type', __FUNCTION__);
-            }
-
-            for ($i = 0, $j = count($check); $i < $j; ++$i) {
-                $query = 'SHOW VARIABLES LIKE '.$db->quote($check[$i], 'text');
-                $has = $db->queryRow($query, null, MDB2_FETCHMODE_ORDERED);
-                if (PEAR::isError($has)) {
-                    return $has;
-                }
-                if (is_array($has)) {
-                    $not_supported = true;
-                    if ($has[1] !== 'NO') {
-                        $this->verified_table_types[$table_type] = ((string)$connection);
-                        return MDB2_OK;
-                    }
-                }
-            }
-        } else {
-            $query = 'SHOW STORAGE ENGINES';
-            $has = $db->query($query);
-            if (PEAR::isError($has)) {
-                return $has;
-            }
-            while ($row = $has->fetchRow(MDB2_FETCHMODE_ORDERED)) {
-                if (strtoupper($row[0]) === strtoupper($table_type)) {
-                    $not_supported = true;
-                    if ($row[1] !== 'NO') {
-                        $this->verified_table_types[$table_type] = ((string)$connection);
-                        return MDB2_OK;
-                    }
-                }
-            }
-        }
-
-        if ($not_supported) {
-            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                $table_type.' is not a supported table type by this MySQL database server', __FUNCTION__);
-        }
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'could not tell if '.$table_type.' is a supported table type', __FUNCTION__);
-    }
 
     // }}}
     // {{{ createDatabase()
@@ -288,10 +193,6 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             $type = $db->options['default_table_type'];
         }
         if ($type) {
-            $verify_type = $this->_verifyTableType($type);
-            if (PEAR::isError($verify_type)) {
-                return $verify_type;
-            }
             $options_strings[] = "ENGINE = $type";
         }
 
@@ -918,10 +819,6 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name'], true);
-        $result = $this->_verifyTableType($db->options['default_table_type']);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
 
         $query = "CREATE TABLE $sequence_name ($seqcol_name INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ($seqcol_name))";
         $query.= strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : '';
