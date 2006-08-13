@@ -4190,7 +4190,7 @@ function MDB2_closeOpenTransactions()
  *
  * @access  public
  */
-function MDB2_defaultDebugOutput(&$db, $scope, $message, $context)
+function MDB2_defaultDebugOutput(&$db, $scope, $message, $context = array())
 {
     $db->debug_output.= $scope.'('.$db->db_index.'): ';
     $db->debug_output.= $message.$db->getOption('log_line_break');
