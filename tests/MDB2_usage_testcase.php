@@ -475,8 +475,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
                 $this->assertTrue(false, 'Error executing select query'.$result->getMessage());
             }
 
-            $this->assertTrue($result->valid(), 'The query result seems to have reached the end of result earlier than expected');
-
             if ($is_null) {
                 $error_message = 'A query result column is not NULL unlike what was expected';
             } else {
@@ -488,6 +486,56 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue((is_null($row[1]) == $is_null), $error_message);
 
             $result->free();
+        }
+
+        $methods = array('fetchOne', 'fetchRow');
+
+        foreach ($methods as $method) {
+            $result =& $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            $value = $result->$method();
+            if (PEAR::isError($value)) {
+                $this->assertTrue(false, 'Error fetching non existant row');
+            } else {
+                $this->assertNull($value, 'selecting non existant row with "'.$method.'()" did not return NULL');
+                $result->free();
+            }
+        }
+
+        $methods = array('fetchCol', 'fetchAll');
+
+        foreach ($methods as $method) {
+            $result =& $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            $value = $result->$method();
+            if (PEAR::isError($value)) {
+                $this->assertTrue(false, 'Error fetching non existant row');
+            } else {
+                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existant row with "'.$method.'()" did not return empty array');
+                $result->free();
+            }
+        }
+
+        $methods = array('queryOne', 'queryRow');
+
+        foreach ($methods as $method) {
+            $value = $this->db->$method('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            if (PEAR::isError($value)) {
+                $this->assertTrue(false, 'Error fetching non existant row');
+            } else {
+                $this->assertNull($value, 'selecting non existant row with "'.$method.'()" did not return NULL');
+                $result->free();
+            }
+        }
+
+        $methods = array('queryCol', 'queryAll');
+
+        foreach ($methods as $method) {
+            $value = $this->db->$method('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            if (PEAR::isError($value)) {
+                $this->assertTrue(false, 'Error fetching non existant row');
+            } else {
+                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existant row with "'.$method.'()" did not return empty array');
+                $result->free();
+            }
         }
     }
 
