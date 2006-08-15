@@ -391,7 +391,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
             $res[$i] = $definition[0];
             $res[$i]['name'] = $field;
             $res[$i]['table'] = $result;
-            $res[$i]['type'] = $definition[0]['nativetype'];
+            $res[$i]['type'] = preg_replace('/^([a-z]+).*$/i', '\\1', trim($definition[0]['nativetype']));
             // 'primary_key', 'unique_key', 'multiple_key'
             $res[$i]['flags'] = empty($flags[$field]) ? '' : $flags[$field];
             // not_null', 'unsigned', 'auto_increment', 'default_[rawencodedvalue]'
