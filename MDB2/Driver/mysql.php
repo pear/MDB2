@@ -585,10 +585,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             $query = $result;
         }
         if ($this->options['disable_query']) {
-            if ($is_manip) {
-                return 0;
-            }
-            return null;
+            $result = $is_manip ? 0 : null;
+            return $result;
         }
 
         if (is_null($connection)) {
@@ -1317,12 +1315,8 @@ class MDB2_Statement_mysql extends MDB2_Statement_Common
         $this->db->last_query = $this->query;
         $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'when' => 'pre', 'parameters' => $this->values));
         if ($this->db->getOption('disable_query')) {
-            if ($this->is_manip) {
-                $return = 0;
-                return $return;
-            }
-            $null = null;
-            return $null;
+            $result = $this->is_manip ? 0 : null;
+            return $result;
         }
 
         $connection = $this->db->getConnection();

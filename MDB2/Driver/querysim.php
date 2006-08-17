@@ -371,7 +371,8 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
             return $err;
         }
         if ($this->options['disable_query']) {
-            return null;
+            $result = $is_manip ? 0 : null;
+            return $result;
         }
 
         $result = $this->_buildResult($query);
