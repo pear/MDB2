@@ -275,6 +275,46 @@ class MDB2_Extended extends MDB2_Module_Common
     }
     // }}}
 
+    // {{{ execParam()
+
+    /**
+     * Execute a parameterized DML statement.
+     *
+     * @param string the SQL query
+     * @param array if supplied, prepare/execute will be used
+     *       with this array as execute parameters
+     * @param array that contains the types of the values defined in $params
+     *
+     * @return int|MDB2_Error affected rows on success, a MDB2 error on failure
+     * @access public
+     */
+    function execParam($query, $params = array(), $param_types = null)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        settype($params, 'array');
+        if (empty($params)) {
+            return $db->exec($query);
+        }
+
+        $stmt = $db->prepare($query, $param_types, MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
+        }
+
+        $result = $stmt->execute($params);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        $stmt->free();
+        return $result;
+    }
+    // }}}
+
     // {{{ getOne()
 
     /**
@@ -301,7 +341,7 @@ class MDB2_Extended extends MDB2_Module_Common
 
         settype($params, 'array');
         settype($type, 'array');
-        if (count($params) == 0) {
+        if (empty($params)) {
             return $db->queryOne($query, $type, $colnum);
         }
 
@@ -310,8 +350,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $stmt;
         }
 
-        $stmt->bindValueArray($params);
-        $result = $stmt->execute();
+        $result = $stmt->execute($params);
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
@@ -348,7 +387,7 @@ class MDB2_Extended extends MDB2_Module_Common
         }
 
         settype($params, 'array');
-        if (count($params) == 0) {
+        if (empty($params)) {
             return $db->queryRow($query, $types, $fetchmode);
         }
 
@@ -357,8 +396,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $stmt;
         }
 
-        $stmt->bindValueArray($params);
-        $result = $stmt->execute();
+        $result = $stmt->execute($params);
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
@@ -396,7 +434,7 @@ class MDB2_Extended extends MDB2_Module_Common
 
         settype($params, 'array');
         settype($type, 'array');
-        if (count($params) == 0) {
+        if (empty($params)) {
             return $db->queryCol($query, $type, $colnum);
         }
 
@@ -405,8 +443,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $stmt;
         }
 
-        $stmt->bindValueArray($params);
-        $result = $stmt->execute();
+        $result = $stmt->execute($params);
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
@@ -452,7 +489,7 @@ class MDB2_Extended extends MDB2_Module_Common
         }
 
         settype($params, 'array');
-        if (count($params) == 0) {
+        if (empty($params)) {
             return $db->queryAll($query, $types, $fetchmode, $rekey, $force_array, $group);
         }
 
@@ -461,8 +498,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $stmt;
         }
 
-        $stmt->bindValueArray($params);
-        $result = $stmt->execute();
+        $result = $stmt->execute($params);
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
@@ -554,7 +590,7 @@ class MDB2_Extended extends MDB2_Module_Common
         }
 
         settype($params, 'array');
-        if (count($params) == 0) {
+        if (empty($params)) {
             return $db->queryAll($query, $types, $fetchmode, true, $force_array, $group);
         }
 
@@ -563,8 +599,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $stmt;
         }
 
-        $stmt->bindValueArray($params);
-        $result = $stmt->execute();
+        $result = $stmt->execute($params);
         if (!MDB2::isResultCommon($result)) {
             return $result;
         }
@@ -596,8 +631,7 @@ class MDB2_Extended extends MDB2_Module_Common
     function executeMultiple(&$stmt, $params = null)
     {
         for ($i = 0, $j = count($params); $i < $j; $i++) {
-            $stmt->bindValueArray($params[$i]);
-            $result = $stmt->execute();
+            $result = $stmt->execute($params[$i]);
             if (PEAR::isError($result)) {
                 return $result;
             }
