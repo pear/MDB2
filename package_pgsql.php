@@ -4,6 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+- return an error if a named placeholder name is used twice inside a single statement
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

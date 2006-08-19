@@ -7,16 +7,18 @@ $notes = <<<EOT
 - fixed issue in tableInfo() that originates in getTableFieldDefinition() which
   led to returning incorrect type values (Bug #8291)
 - added support for NULL columns in getTableFieldDefinition()
+- added full support for alterTable() via emulation
+- added support for primary key creation and dropping
 
-note: this driver only supports SQLite version 2.x databases
+note:
+- this driver only supports SQLite version 2.x databases
+- the replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+- the multi_query test failes because this is not supported by ext/sqlite
+- the savepoint test failes because this is not supported by sqlite
 
 open todo items:
 - fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
-- a number of the manager test cases fail because sqlite does not support adding
-  primary keys to existing tables
-- the alter table tests fails because this is unsupported in sqlite2
-- the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
 EOT;
 
 $package = new PEAR_PackageFileManager();

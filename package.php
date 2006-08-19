@@ -4,13 +4,17 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
-- fixed missing code in tableInfoI() (Bug #8289)
+- fixed missing code in tableInfo() (Bug #8289)
+- fixed handling of indexes and constraints in tableInfo() (fixes BC break)
 - do not set nested transaction error if error is expected
-- some RDBMS default to NOT NULL (noteably MSSQL) and therefore we need to
-  explictly default to NULL (Bug #8359)
+- explictly default to NULL when the column is NULLable and no default is set
+  (related to Bug #8359)
 - added support for case insensitive matching via ILIKE in matchPattern()
 - added getAsKeyword() for generating "AS" keyword as required by the RDBMS
-- return an error if a name placeholder name is used twice inside a single statement
+- return an error if a named placeholder name is used twice inside a single statement
+- add support for multi column PRIMARY KEYs in createTable()
+- added lower() and upper() to the function module
+- moved escaping tests to datatype tests
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -23,9 +27,10 @@ open todo items:
 - add support to export/import in CSV format
 - add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
 - add support for database/table/row LOCKs
-- add ActiveRecord implementation (probably as a separate package)
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
 - generate STATUS file from test suite results and allow users to submit test results
+- add a package2.xml and explore use of install groups (pear install MDB2#mysql)
+- add support for full text index creation and querying
 EOT;
 
 $description =<<<EOT
@@ -92,7 +97,7 @@ if (PEAR::isError($result)) {
 
 $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
 $package->addMaintainer('pgc', 'contributor', 'Paul Cooper', 'pgc@ucecom.com');
-$package->addMaintainer('quipo', 'contributor', 'Lorenzo Alberton', 'l.alberton@quipo.it');
+$package->addMaintainer('quipo', 'developer', 'Lorenzo Alberton', 'l.alberton@quipo.it');
 $package->addMaintainer('danielc', 'helper', 'Daniel Convissor', 'danielc@php.net');
 $package->addMaintainer('davidc', 'helper', 'David Coallier', 'david@jaws.com.mx');
 

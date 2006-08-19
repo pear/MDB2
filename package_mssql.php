@@ -18,6 +18,7 @@ $notes = <<<EOT
   when a table name is passed (Bug #8124)
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
 - use old dsn when rolling back open transactions in disconnect()
+- MSSQL requires making columns exlicitly NULLable (Bug #8359)
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
@@ -60,7 +61,7 @@ $package->addMaintainer('davidc', 'lead', 'David Coallier', 'david@jaws.com.mx')
 $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
 $package->addMaintainer('nrf', 'lead', 'Nathan Fredrickson', 'nathan@silverorange.com');
 
-$package->addDependency('php', '4.3.0', 'ge', 'php', false);
+$package->addDependency('php', '4.3.11', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
 $package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
 $package->addDependency('mssql', null, 'has', 'ext', false);

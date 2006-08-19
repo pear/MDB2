@@ -10,6 +10,11 @@ $notes = <<<EOT
 - use version_compare() to fix complex version comparisons (Bug #8355)
 - do not use quote() in setCharset() since it is supposed to set the charset in
   the connection that was passed to it
+- return an error if a named placeholder name is used twice inside a single statement
+
+note:
+- the multi_query test failes because this is not supported by ext/sqlite
+- use a trigger to emulate setting default now()
 EOT;
 
 $package = new PEAR_PackageFileManager();
