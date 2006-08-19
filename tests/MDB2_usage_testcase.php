@@ -1290,6 +1290,103 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $result->free();
     }
 
+    function testLOBUpdate() {
+        if (!$this->supported('LOBs')) {
+            $this->assertTrue(false, '"LOBs" is not supported');
+            return;
+        }
+
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, ?, ?)';
+        $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
+
+        $character_lob = '';
+        $binary_lob = '';
+
+        for ($i = 0; $i < 1000; $i++) {
+            for ($code = 32; $code <= 127; ++$code) {
+                $character_lob .= chr($code);
+            }
+            for ($code = 0; $code <= 255; ++$code) {
+                $binary_lob .= chr($code);
+            }
+        }
+
+        $stmt->bindParam(0, $character_lob);
+        $stmt->bindParam(1, $binary_lob);
+
+        $result = $stmt->execute();
+
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query: '.$result->getUserInfo());
+        }
+
+        $stmt->free();
+
+        $query = 'UPDATE files SET document = ?, picture = ? WHERE ID = 1';
+        $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
+
+        $character_lob = '';
+        $binary_lob = '';
+
+        for ($i = 0; $i < 999; $i++) {
+            for ($code = 127; $code >= 32; --$code) {
+                $character_lob .= chr($code);
+            }
+            for ($code = 255; $code >= 0; --$code) {
+                $binary_lob .= chr($code);
+            }
+        }
+
+        $stmt->bindParam(0, $character_lob);
+        $stmt->bindParam(1, $binary_lob);
+
+        $result = $stmt->execute();
+
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing prepared query: '.$result->getUserInfo());
+        }
+
+        $stmt->free();
+
+        $result =& $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
+        }
+
+        $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
+
+        $row = $result->fetchRow();
+        $clob = $row[0];
+        if (!PEAR::isError($clob) && is_resource($clob)) {
+            $value = '';
+            while (!feof($clob)) {
+                $data = fread($clob, 8192);
+                $this->assertTrue(strlen($data) >= 0, 'Could not read CLOB');
+                $value.= $data;
+            }
+            $this->db->datatype->destroyLOB($clob);
+            $this->assertEquals($character_lob, $value, 'Retrieved character LOB value is different from what was stored');
+        } else {
+            $this->assertTrue(false, 'Error retrieving CLOB result');
+        }
+
+        $blob = $row[1];
+        if (!PEAR::isError($blob) && is_resource($blob)) {
+            $value = '';
+            while (!feof($blob)) {
+                $data = fread($blob, 8192);
+                $this->assertTrue(strlen($data) >= 0, 'Could not read BLOB');
+                $value.= $data;
+            }
+
+            $this->db->datatype->destroyLOB($blob);
+            $this->assertEquals($binary_lob, $value, 'Retrieved binary LOB value is different from what was stored');
+        } else {
+            $this->assertTrue(false, 'Error retrieving BLOB result');
+        }
+        $result->free();
+    }
+
     /**
      * Test retrieval of result metadata
      *
@@ -1378,7 +1475,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $field = next($fields);
         }
 
-        // leave the case as-is
+        // leave the case as-is        
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE);
         $fields = array('User_Name', 'UseR_PassWord');
         $query = 'SELECT '. implode(',', $fields).' FROM users';
