@@ -5,7 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'XXX';
 $notes = <<<EOT
 - fixed missing code in tableInfo() (Bug #8289)
-- fixed handling of indexes and constraints in tableInfo() (fixes BC break)
+- fixed handling of indexes and constraints and types in tableInfo() (fixes BC break)
 - do not set nested transaction error if error is expected
 - explictly default to NULL when the column is NULLable and no default is set
   (related to Bug #8359)
@@ -15,6 +15,11 @@ $notes = <<<EOT
 - add support for multi column PRIMARY KEYs in createTable()
 - added lower() and upper() to the function module
 - moved escaping tests to datatype tests
+- added summary at the end of a test run for each RDBMS
+- explicitly pass the php_type var in all internal loadModule() calls
+- added support for 'primary' option in createTable()
+- expanded NULL tests
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
 
 open todo items:
 - handle autoincrement fields in alterTable()

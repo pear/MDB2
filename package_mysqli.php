@@ -11,6 +11,14 @@ $notes = <<<EOT
 - do not use quote() in setCharset() since it is supposed to set the charset in
   the connection that was passed to it
 - return an error if a named placeholder name is used twice inside a single statement
+- do not list empty contraints and indexes
+- added support for 'primary' option in createTable()
+- fixed notnull reverse engineering on mysql 4.x (Bug #8415)
+- do not set a default if type is a LOB (Request #8074)
+- if a default value is set, then we need to use VARCHAR instead of TEXT
+- removed _verifyTableType() since it just adds overhead, is hard to do reliably
+  and you will get an error if the table type is not supported anyways
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
 EOT;
 
 $package = new PEAR_PackageFileManager();

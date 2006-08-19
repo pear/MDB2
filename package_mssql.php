@@ -19,6 +19,10 @@ $notes = <<<EOT
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
 - use old dsn when rolling back open transactions in disconnect()
 - MSSQL requires making columns exlicitly NULLable (Bug #8359)
+- do not list empty contraints and indexes
+- added support for autoincrement via IDENTITY in getDeclaration()
+- ALTER TABLE bug when adding more than 1 column (Bug #8373)
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

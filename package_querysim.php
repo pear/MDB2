@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
-
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
 
 open todo items:
 - add ability to reference multiple results set files for different queries

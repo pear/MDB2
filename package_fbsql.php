@@ -32,6 +32,8 @@ $notes = <<<EOT
   when a table name is passed (Bug #8124)
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
 - use old dsn when rolling back open transactions in disconnect()
+- do not list empty contraints and indexes
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

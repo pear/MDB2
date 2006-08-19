@@ -9,6 +9,13 @@ $notes = <<<EOT
 - added support for NULL columns in getTableFieldDefinition()
 - added full support for alterTable() via emulation
 - added support for primary key creation and dropping
+- do not list empty contraints and indexes
+- use information_schema in listTableFields() instead of selecting from the
+  table since that does not work if the table is empty
+- fixed handling of contraints in _getTableColumns()
+- fixed primary key handling in alterTable(), createConstraint() and dropConstraint()
+- do not set a default if type is a LOB (Request #8074)
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
 
 note:
 - this driver only supports SQLite version 2.x databases
