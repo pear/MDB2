@@ -605,8 +605,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($indexes as $sql) {
-            if (preg_match("/^create index ([^ ]*) on /i", $sql, $tmp)) {
-                $result[$this->_fixIndexName($tmp[1])] = true;
+            if (preg_match("/^create index ([^ ]+) on /i", $sql, $tmp)) {
+                $index = $this->_fixIndexName($tmp[1]);
+                if (!empty($index)) {
+                    $result[$index] = true;
+                }
             }
         }
 
@@ -733,8 +736,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($indexes as $sql) {
-            if (preg_match("/^create unique index ([^ ]*) on /i", $sql, $tmp)) {
-                $result[$this->_fixIndexName($tmp[1])] = true;
+            if (preg_match("/^create unique index ([^ ]+) on /i", $sql, $tmp)) {
+                $index = $this->_fixIndexName($tmp[1]);
+                if (!empty($index)) {
+                    $result[$index] = true;
+                }
             }
         }
 

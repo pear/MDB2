@@ -654,8 +654,8 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($indexes as $index_data) {
-            if ($index_data[$non_unique]) {
-                $result[$this->_fixIndexName($index_data[$key_name])] = true;
+            if ($index_data[$non_unique] && ($index = $this->_fixIndexName($index_data[$key_name]))) {
+                $result[$index] = true;
             }
         }
 
@@ -789,7 +789,9 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
                 } else {
                     $index = 'PRIMARY';
                 }
-                $result[$index] = true;
+                if (!empty($index)) {
+                    $result[$index] = true;
+                }
             }
         }
 

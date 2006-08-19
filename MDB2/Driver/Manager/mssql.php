@@ -351,8 +351,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $pk_all = $db->queryCol($query, 'text', $pk_name);
         $result = array();
         foreach ($indexes as $index) {
-            if (!in_array($index, $pk_all) && $index != null) {
-                $result[$this->_fixIndexName($index)] = true;
+            if (!in_array($index, $pk_all) && ($index = $this->_fixIndexName($index))) {
+                $result[$index] = true;
             }
         }
 

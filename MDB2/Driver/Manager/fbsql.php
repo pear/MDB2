@@ -468,7 +468,7 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
 
         $result = array();
         foreach ($indexes as $index) {
-            if ($index != 'PRIMARY' && $index = $this->_fixIndexName($index)) {
+            if ($index != 'PRIMARY' && ($index = $this->_fixIndexName($index))) {
                 $result[$index] = true;
             }
         }
