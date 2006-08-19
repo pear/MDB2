@@ -1475,7 +1475,10 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $field = next($fields);
         }
 
-        // leave the case as-is        
+        /*
+        This is not a valid test case. Turning off portability means that the underlying
+         extension will choose the case of the responses, not the query.
+        // leave the case as-is
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE);
         $fields = array('User_Name', 'UseR_PassWord');
         $query = 'SELECT '. implode(',', $fields).' FROM users';
@@ -1488,6 +1491,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertEquals($field, $fieldname, '"MDB2_PORTABILITY_FIX_CASE = off" not working');
             $field = next($fields);
         }
+        */
 
         // MDB2_PORTABILITY_RTRIM
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_RTRIM);
