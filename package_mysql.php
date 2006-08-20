@@ -19,6 +19,7 @@ $notes = <<<EOT
 - removed _verifyTableType() since it just adds overhead, is hard to do reliably
   and you will get an error if the table type is not supported anyways
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
+- only call RELEASE SAVEPOINT if the server version if 5.0.3 or higher
 - increased MDB2 dependency too XXX
 
 note:
