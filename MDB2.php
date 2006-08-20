@@ -393,7 +393,6 @@ class MDB2
         if (PEAR::isError($err)) {
             return $err;
         }
-        $db->loadModule('Datatype', null, true);
 
         return $db;
     }
