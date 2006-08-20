@@ -1574,7 +1574,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
                 $value.= $data;
             }
             $this->db->datatype->destroyLOB($clob);
-            $this->assertEquals(rtrim($character_lob), $value, '"MDB2_PORTABILITY_RTRIM = on" Retrieved character LOB value is different from what was stored');
+            $this->assertEquals($character_lob, $value, '"MDB2_PORTABILITY_RTRIM = on" Retrieved character LOB value is different from what was stored');
         } else {
             $this->assertTrue(false, 'Error retrieving CLOB result');
         }
@@ -1589,7 +1589,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             }
 
             $this->db->datatype->destroyLOB($blob);
-            $this->assertEquals(rtrim($binary_lob), $value, '"MDB2_PORTABILITY_RTRIM = on" Retrieved binary LOB value is different from what was stored');
+            $this->assertEquals($binary_lob, $value, '"MDB2_PORTABILITY_RTRIM = on" Retrieved binary LOB value is different from what was stored');
         } else {
             $this->assertTrue(false, 'Error retrieving BLOB result');
         }
