@@ -260,6 +260,10 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'savepoints are not supported', __FUNCTION__);
             }
+            $server_info = $this->getServerVersion();
+            if (version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '5.0.3', '<')) {
+                return MDB2_OK;
+            }
             $query = 'RELEASE SAVEPOINT '.$savepoint;
             return $this->_doQuery($query, true);
         }
