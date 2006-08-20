@@ -1423,6 +1423,14 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     {
         if (is_null($lob['value'])) {
             $lob['value'] = $lob['resource'];
+
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            if ($db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+                $lob['value'] = rtrim($lob['value']);
+            }
         }
         $lob['loaded'] = true;
         return MDB2_OK;
