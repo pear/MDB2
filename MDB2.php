@@ -1721,6 +1721,87 @@ class MDB2_Driver_Common extends PEAR
         return $this->connection;
     }
 
+     // }}}
+    // {{{ function _fixResultArrayValues(&$row, $mode)
+
+    /**
+     * Do all necessary conversions on result arrays to fix DBMS quirks
+     *
+     * @param   array   the array to be fixed (passed by reference)
+     * @param   array   bit-wise addition of the required portability modes
+     *
+     * @return  void
+     *
+     * @access  protected
+     */
+    function _fixResultArrayValues(&$row, $mode)
+    {
+        switch ($mode) {
+        case MDB2_PORTABILITY_EMPTY_TO_NULL:
+            foreach ($row as $key => $value) {
+                if ($value === '') {
+                    $row[$key] = null;
+                }
+            }
+            break;
+        case MDB2_PORTABILITY_RTRIM:
+            foreach ($row as $key => $value) {
+                if (is_string($value)) {
+                    $row[$key] = rtrim($value);
+                }
+            }
+            break;
+        case MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES:
+            $tmp_row = array();
+            foreach ($row as $key => $value) {
+                $tmp_row[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
+            }
+            $row = $tmp_row;
+            break;
+        case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_EMPTY_TO_NULL):
+            foreach ($row as $key => $value) {
+                if ($value === '') {
+                    $row[$key] = null;
+                } elseif (is_string($value)) {
+                    $row[$key] = rtrim($value);
+                }
+            }
+            break;
+        case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
+            $tmp_row = array();
+            foreach ($row as $key => $value) {
+                if (is_string($value)) {
+                    $value = rtrim($value);
+                }
+                $tmp_row[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
+            }
+            $row = $tmp_row;
+            break;
+        case (MDB2_PORTABILITY_EMPTY_TO_NULL + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
+            $tmp_row = array();
+            foreach ($row as $key => $value) {
+                if ($value === '') {
+                    $value = null;
+                }
+                $tmp_row[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
+            }
+            $row = $tmp_row;
+            break;
+        case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_EMPTY_TO_NULL + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
+            $tmp_row = array();
+            foreach ($row as $key => $value) {
+                if ($value === '') {
+                    $value = null;
+                } elseif (is_string($value)) {
+                    $value = rtrim($value);
+                }
+                $tmp_row[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
+            }
+            $row = $tmp_row;
+            break;
+        }
+    }
+
     // }}}
     // {{{ function &loadModule($module, $property = null, $phptype_specific = null)
 

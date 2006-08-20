@@ -990,8 +990,21 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         if ($this->offset > 0) {
             array_pop($row);
         }
-        $mode = $this->db->options['portability'] & MDB2_PORTABILITY_RTRIM;
-        $row = $this->db->datatype->convertResultRow($this->types, $row);
+        $mode = 0;
+        $rtrim = false;
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            if (empty($this->types)) {
+                $mode += MDB2_PORTABILITY_RTRIM;
+            } else {
+                $rtrim = true;
+            }
+        }
+        if ($mode) {
+            $this->db->_fixResultArrayValues($row, $mode);
+        }
+        if (!empty($this->types)) {
+            $row = $this->db->datatype->convertResultRow($this->types, $row, $rtrim);
+        }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
         }
@@ -1185,8 +1198,21 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             }
             $row = $column_names;
         }
-        $mode = $this->db->options['portability'] & MDB2_PORTABILITY_RTRIM;
-        $row = $this->db->datatype->convertResultRow($this->types, $row);
+        $mode = 0;
+        $rtrim = false;
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            if (empty($this->types)) {
+                $mode += MDB2_PORTABILITY_RTRIM;
+            } else {
+                $rtrim = true;
+            }
+        }
+        if ($mode) {
+            $this->db->_fixResultArrayValues($row, $mode);
+        }
+        if (!empty($this->types)) {
+            $row = $this->db->datatype->convertResultRow($this->types, $row, $rtrim);
+        }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
         }

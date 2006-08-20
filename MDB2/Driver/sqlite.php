@@ -878,9 +878,21 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
             $null = null;
             return $null;
         }
-        $mode = $mode = ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM)
-            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL);
-        $row = $this->db->datatype->convertResultRow($this->types, $row);
+        $mode = $this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL;
+        $rtrim = false;
+        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
+            if (empty($this->types)) {
+                $mode += MDB2_PORTABILITY_RTRIM;
+            } else {
+                $rtrim = true;
+            }
+        }
+        if ($mode) {
+            $this->db->_fixResultArrayValues($row, $mode);
+        }
+        if (!empty($this->types)) {
+            $row = $this->db->datatype->convertResultRow($this->types, $row, $rtrim);
+        }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
         }

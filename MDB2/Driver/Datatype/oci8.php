@@ -61,12 +61,12 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      * convert a value to a RDBMS indepdenant MDB2 type
      *
      * @param mixed $value value to be converted
-     * @param int $type constant that specifies which type to convert to
-     * @param int    $mode    bit-wise addition of the required portability modes
+     * @param string $type specifies which type to convert to
+     * @param bool   $rtrim   if to rtrim text values or not
      * @return mixed converted value
      * @access public
      */
-    function convertResult($value, $type, $mode = MDB2_PORTABILITY_ALL)
+    function convertResult($value, $type, $rtrim = true)
     {
         if (is_null($value)) {
             return null;
@@ -77,7 +77,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'time':
             return substr($value, strlen('YYYY-MM-DD '), strlen('HH:MI:SS'));
         }
-        return $this->_baseConvertResult($value, $type, $mode);
+        return $this->_baseConvertResult($value, $type, $rtrim);
     }
 
     // }}}

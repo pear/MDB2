@@ -162,15 +162,15 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * general type conversion method
      *
      * @param mixed $value refernce to a value to be converted
-     * @param int $type constant that specifies which type to convert to
+     * @param string $type specifies which type to convert to
      * @return object a MDB2 error on failure
      * @access protected
      */
-    function _baseConvertResult($value, $type, $mode = MDB2_PORTABILITY_ALL)
+    function _baseConvertResult($value, $type, $rtrim = true)
     {
         switch ($type) {
         case 'text':
-            if ($mode & MDB2_PORTABILITY_RTRIM) {
+            if ($rtrim) {
                 $value = rtrim($value);
             }
             return $value;
@@ -205,20 +205,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return fopen('MDB2LOB://'.$lob_index.'@'.$this->db_index, 'r+');
         }
 
-        if (is_null($type)) {
-            if ($mode & MDB2_PORTABILITY_RTRIM) {
-                $value = rtrim($value);
-            }
-            return $value;
-        }
-
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
         return $db->raiseError(MDB2_ERROR_INVALID, null, null,
-            'attempt to convert result value to an unknown type ' . $type, __FUNCTION__);
+            'attempt to convert result value to an unknown type :' . $type, __FUNCTION__);
     }
 
     // }}}
@@ -228,12 +221,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * convert a value to a RDBMS indepdenant MDB2 type
      *
      * @param mixed $value value to be converted
-     * @param int $type constant that specifies which type to convert to
-     * @param int    $mode    bit-wise addition of the required portability modes
+     * @param string $type specifies which type to convert to
+     * @param bool   $rtrim   if to rtrim text values or not
      * @return mixed converted value
      * @access public
      */
-    function convertResult($value, $type, $mode = MDB2_PORTABILITY_ALL)
+    function convertResult($value, $type, $rtrim = true)
     {
         if (is_null($value)) {
             return null;
@@ -245,11 +238,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
-                $parameter = array('type' => $type, 'value' => $value, 'mode' => $mode);
+                $parameter = array('type' => $type, 'value' => $value, 'rtrim' => $rtrim);
                 return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
             }
         }
-        return $this->_baseConvertResult($value, $type, $mode);
+        return $this->_baseConvertResult($value, $type, $rtrim);
     }
 
     // }}}
@@ -258,30 +251,17 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     /**
      * convert a result row
      *
-     * @param resource $result result identifier
-     * @param array $row array with data
-     * @param int    $mode    bit-wise addition of the required portability modes
+     * @param array $types 
+     * @param array $row specifies the types to convert to
+     * @param bool   $rtrim   if to rtrim text values or not
      * @return mixed MDB2_OK on success,  a MDB2 error on failure
      * @access public
      */
-    function convertResultRow($types, $row, $mode = MDB2_PORTABILITY_ALL)
+    function convertResultRow($types, $row, $rtrim = true)
     {
-        if ($mode & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES) {
-            $tmp_row = array();
-            foreach ($row as $key => $value) {
-                $tmp_row[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
-            }
-            $row = $tmp_row;
-        }
-        if (!is_array($types)) {
-            $types = array();
-        }
         reset($types);
         $current_column = -1;
         foreach ($row as $key => $value) {
-            if (($mode & MDB2_PORTABILITY_EMPTY_TO_NULL) && $value === '') {
-                $row[$key] = null;
-            }
             ++$current_column;
             if (!isset($value)) {
                 continue;
@@ -294,9 +274,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 $type = current($types);
                 next($types);
             } else {
-                $type = null;
+                continue;
             }
-            $value = $this->convertResult($row[$key], $type, $mode);
+            $value = $this->convertResult($row[$key], $type, $rtrim);
             if (PEAR::isError($value)) {
                 return $value;
             }
