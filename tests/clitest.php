@@ -127,7 +127,7 @@ foreach ($dbarray as $db) {
     $count = $result->runCount();
     $failed = $result->failureCount();
 
-    echo "=== Summary: $failed failed of $count tests ===\n\n";
+    echo "=== Summary: $failed failed assertions in $count tests ===\n\n";
     echo "=== End test of $display_dsn ===\n\n";
 }
 

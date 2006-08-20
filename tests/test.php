@@ -123,7 +123,7 @@ foreach ($dbarray as $db) {
     $count = $result->runCount();
     $failed = $result->failureCount();
 
-    echo "<div class=\"title\">Summary: $failed failed of $count tests</div>\n";
+    echo "<div class=\"title\">Summary: $failed failed assertions in $count tests</div>\n";
     echo "\n</div>\n";
 }
 ?>
