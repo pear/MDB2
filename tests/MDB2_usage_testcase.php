@@ -1336,9 +1336,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
                 $binary_lob .= chr($code);
             }
         }
-        // need to add a non WS char at the end to not trigger any RTRIMming
-        $character_lob .= 'f';
-        $binary_lob .= 'f';
 
         $stmt->bindParam(0, $character_lob);
         $stmt->bindParam(1, $binary_lob);
