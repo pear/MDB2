@@ -27,6 +27,9 @@ $notes = <<<EOT
   it will mean that for some drivers LOB's would get rtrimmed)
 - phpdoc fixes to the convertResult*() methods
 - added execParam() method and code tweaks for get*() methods in the Extended module
+- removed redundant assertions when testing if a given feature is unsupported
+- removed tests of portability off (users should just set the given portability
+  setting they want to test in their test_setup.php)
 
 open todo items:
 - handle autoincrement fields in alterTable()
