@@ -479,7 +479,6 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
      */
     function testEscapePatternSequences() {
         if (!$this->supported('pattern_escaping')) {
-            $this->assertTrue(false, '"pattern_escaping" is not supported');
             return;
         }
 

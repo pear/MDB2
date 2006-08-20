@@ -546,7 +546,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testRanges() {
         if (!$this->supported('limit_queries')) {
-            $this->assertTrue(false, '"limit_queries" is not supported');
             return;
         }
 
@@ -619,8 +618,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testSequences() {
         if (!$this->supported('sequences')) {
-            $this->assertTrue(false, '"sequences" is not supported');
-            return;
+           return;
         }
 
         $this->db->loadModule('Manager', null, true);
@@ -698,7 +696,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testReplace() {
         if (!$this->supported('replace')) {
-            $this->assertTrue(false, '"replace" is not supported');
             return;
         }
 
@@ -806,7 +803,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testAffectedRows() {
         if (!$this->supported('affected_rows')) {
-            $this->assertTrue(false, '"affected_rows" is not supported');
             return;
         }
 
@@ -876,7 +872,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testTransactionsRollback() {
         if (!$this->supported('transactions')) {
-            $this->assertTrue(false, '"transactions" is not supported');
             return;
         }
 
@@ -905,7 +900,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testTransactionsCommit() {
         if (!$this->supported('transactions')) {
-            $this->assertTrue(false, '"transactions" is not supported');
             return;
         }
 
@@ -935,7 +929,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     function testTransactionsBoth()
     {
         if (!$this->supported('transactions')) {
-            $this->assertTrue(false, '"transactions" is not supported');
             return;
         }
 
@@ -965,7 +958,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testNestedTransactions() {
         if (!$this->supported('transactions')) {
-            $this->assertTrue(false, '"transactions" is not supported');
             return;
         }
 
@@ -1010,7 +1002,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testSavepoint() {
         if (!$this->supported('savepoints')) {
-            $this->assertTrue(false, '"savepoints" is not supported');
             return;
         }
 
@@ -1081,7 +1072,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testLOBStorage() {
         if (!$this->supported('LOBs')) {
-            $this->assertTrue(false, '"LOBs" is not supported');
             return;
         }
 
@@ -1155,7 +1145,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testLOBFiles() {
         if (!$this->supported('LOBs')) {
-            $this->assertTrue(false, '"LOBs" is not supported');
             return;
         }
 
@@ -1260,7 +1249,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
      */
     function testLOBNulls() {
         if (!$this->supported('LOBs')) {
-            $this->assertTrue(false, '"LOBs" is not supported');
             return;
         }
 
@@ -1292,7 +1280,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
     function testLOBUpdate() {
         if (!$this->supported('LOBs')) {
-            $this->assertTrue(false, '"LOBs" is not supported');
             return;
         }
 
@@ -1475,24 +1462,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $field = next($fields);
         }
 
-        /*
-        This is not a valid test case. Turning off portability means that the underlying
-         extension will choose the case of the responses, not the query.
-        // leave the case as-is
-        $this->db->setOption('portability', MDB2_PORTABILITY_NONE);
-        $fields = array('User_Name', 'UseR_PassWord');
-        $query = 'SELECT '. implode(',', $fields).' FROM users';
-        $result =& $this->db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
-        if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
-        }
-        $field = reset($fields);
-        foreach (array_keys($result) as $fieldname) {
-            $this->assertEquals($field, $fieldname, '"MDB2_PORTABILITY_FIX_CASE = off" not working');
-            $field = next($fields);
-        }
-        */
-
         // MDB2_PORTABILITY_RTRIM
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_RTRIM);
         $value = 'rtrim   ';
@@ -1508,22 +1477,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
         $this->assertEquals(rtrim($value), $result, '"MDB2_PORTABILITY_RTRIM = on" not working');
 
-        $this->db->setOption('portability', MDB2_PORTABILITY_NONE);
-        $value = 'rtrim   ';
-        $query = 'INSERT INTO users (user_id, user_password) VALUES (2, ' . $this->db->quote($value, 'text') .')';
-        $res = $this->db->exec($query);
-        if (PEAR::isError($res)) {
-            $this->assertTrue(false, 'Error executing query'.$res->getMessage());
-        }
-        $query = 'SELECT user_password FROM users WHERE user_id = 2';
-        $result = $this->db->queryOne($query, array('text'));
-        if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
-        }
-        $this->assertEquals($value, $result, '"MDB2_PORTABILITY_RTRIM = off" not working');
-
         if (!$this->supported('LOBs')) {
-            $this->assertTrue(false, '"LOBs" is not supported');
             return;
         }
 
@@ -1553,7 +1507,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $stmt->free();
 
-        $this->db->setOption('portability', MDB2_PORTABILITY_ALL);
         $result =& $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
@@ -1587,45 +1540,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
             $this->db->datatype->destroyLOB($blob);
             $this->assertEquals($binary_lob, $value, '"MDB2_PORTABILITY_RTRIM = on" Retrieved binary LOB value is different from what was stored');
-        } else {
-            $this->assertTrue(false, 'Error retrieving BLOB result');
-        }
-        $result->free();
-
-        $this->db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_RTRIM);
-        $result =& $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
-        if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
-        }
-
-        $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
-
-        $row = $result->fetchRow();
-        $clob = $row[0];
-        if (!PEAR::isError($clob) && is_resource($clob)) {
-            $value = '';
-            while (!feof($clob)) {
-                $data = fread($clob, 8192);
-                $this->assertTrue(strlen($data) >= 0, 'Could not read CLOB');
-                $value.= $data;
-            }
-            $this->db->datatype->destroyLOB($clob);
-            $this->assertEquals($character_lob, $value, '"MDB2_PORTABILITY_RTRIM = off" Retrieved character LOB value is different from what was stored');
-        } else {
-            $this->assertTrue(false, 'Error retrieving CLOB result');
-        }
-
-        $blob = $row[1];
-        if (!PEAR::isError($blob) && is_resource($blob)) {
-            $value = '';
-            while (!feof($blob)) {
-                $data = fread($blob, 8192);
-                $this->assertTrue(strlen($data) >= 0, 'Could not read BLOB');
-                $value.= $data;
-            }
-
-            $this->db->datatype->destroyLOB($blob);
-            $this->assertEquals($binary_lob, $value, '"MDB2_PORTABILITY_RTRIM = off" Retrieved binary LOB value is different from what was stored');
         } else {
             $this->assertTrue(false, 'Error retrieving BLOB result');
         }
