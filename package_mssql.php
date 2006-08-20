@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = 'YYY';
 $notes = <<<EOT
 - added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
@@ -23,6 +23,7 @@ $notes = <<<EOT
 - added support for autoincrement via IDENTITY in getDeclaration()
 - ALTER TABLE bug when adding more than 1 column (Bug #8373)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
+- increased MDB2 dependency too XXX
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

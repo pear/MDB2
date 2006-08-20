@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = 'YYY';
 $notes = <<<EOT
 - fixed issue in tableInfo() that originates in getTableFieldDefinition() which
   led to returning incorrect type values (Bug #8291)
@@ -19,6 +19,7 @@ $notes = <<<EOT
 - removed _verifyTableType() since it just adds overhead, is hard to do reliably
   and you will get an error if the table type is not supported anyways
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
+- increased MDB2 dependency too XXX
 EOT;
 
 $package = new PEAR_PackageFileManager();

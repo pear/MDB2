@@ -20,6 +20,13 @@ $notes = <<<EOT
 - added support for 'primary' option in createTable()
 - expanded NULL tests
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
+- check if safe_mode is enabled in fileExists() to determine what algo to use (Bug #8296)
+- added a test case for updating LOBs
+- added rtrim test case for LOBs
+- if result types are specified only rtrim() type 'text' fields (otherwise
+  it will mean that for some drivers LOB's would get rtrimmed)
+- phpdoc fixes to the convertResult*() methods
+- added execParam() method and code tweaks for get*() methods in the Extended module
 
 open todo items:
 - handle autoincrement fields in alterTable()

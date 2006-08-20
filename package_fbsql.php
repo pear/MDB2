@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = 'YYY';
 $notes = <<<EOT
 - explicitly set is_manip parameter to false for transaction debug calls
 - various minor tweaks to error messages, phpdoc and adding stub methods to the
@@ -34,6 +34,7 @@ $notes = <<<EOT
 - use old dsn when rolling back open transactions in disconnect()
 - do not list empty contraints and indexes
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
+- increased MDB2 dependency too XXX
 
 open todo items:
 - this driver needs a serious update as it's currently unmaintained/untested

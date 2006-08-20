@@ -2,13 +2,14 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = 'YYY';
 $notes = <<<EOT
 - return an error if a named placeholder name is used twice inside a single statement
 - do not list empty contraints and indexes
 - added support for 'primary' option in createTable()
 - do not set a default if type is a LOB (Request #8074)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
+- increased MDB2 dependency too XXX
 
 note: please use the latest ext/oci8 version from pecl.php.net/oci8
 (binaries are available from snaps.php.net and pecl4win.php.net)
