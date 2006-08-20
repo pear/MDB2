@@ -166,7 +166,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * @return object a MDB2 error on failure
      * @access protected
      */
-    function _baseConvertResult($value, $type, $mode)
+    function _baseConvertResult($value, $type, $mode = MDB2_PORTABILITY_ALL)
     {
         switch ($type) {
         case 'text':
@@ -229,7 +229,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param mixed $value value to be converted
      * @param int $type constant that specifies which type to convert to
-     * @return mixed converted value or a MDB2 error on failure
+     * @param int    $mode    bit-wise addition of the required portability modes
+     * @return mixed converted value
      * @access public
      */
     function convertResult($value, $type, $mode = MDB2_PORTABILITY_ALL)
@@ -259,6 +260,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *
      * @param resource $result result identifier
      * @param array $row array with data
+     * @param int    $mode    bit-wise addition of the required portability modes
      * @return mixed MDB2_OK on success,  a MDB2 error on failure
      * @access public
      */

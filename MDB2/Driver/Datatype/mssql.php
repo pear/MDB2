@@ -65,10 +65,11 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *
      * @param mixed  $value   value to be converted
      * @param int    $type    constant that specifies which type to convert to
+     * @param int    $mode    bit-wise addition of the required portability modes
      * @return mixed converted value
      * @access public
      */
-    function convertResult($value, $type)
+    function convertResult($value, $type, $mode = MDB2_PORTABILITY_ALL)
     {
         if (is_null($value)) {
             return null;
@@ -86,9 +87,8 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
                 $value = substr($value,11,8);
             }
             return $value;
-        default:
-            return $this->_baseConvertResult($value,$type);
         }
+        return $this->_baseConvertResult($value, $type, $mode);
     }
     // }}}
     // {{{ getTypeDeclaration()

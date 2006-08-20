@@ -62,10 +62,11 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      *
      * @param mixed $value value to be converted
      * @param int $type constant that specifies which type to convert to
+     * @param int    $mode    bit-wise addition of the required portability modes
      * @return mixed converted value
      * @access public
      */
-    function convertResult($value, $type)
+    function convertResult($value, $type, $mode = MDB2_PORTABILITY_ALL)
     {
         if (is_null($value)) {
             return null;
@@ -75,9 +76,8 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             return substr($value, 0, strlen('YYYY-MM-DD'));
         case 'time':
             return substr($value, strlen('YYYY-MM-DD '), strlen('HH:MI:SS'));
-        default:
-            return $this->_baseConvertResult($value, $type);
         }
+        return $this->_baseConvertResult($value, $type, $mode);
     }
 
     // }}}
