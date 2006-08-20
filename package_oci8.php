@@ -11,13 +11,14 @@ $notes = <<<EOT
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - increased MDB2 dependency too XXX
 
-note: please use the latest ext/oci8 version from pecl.php.net/oci8
-(binaries are available from snaps.php.net and pecl4win.php.net)
-
-note: that by default this driver emulates the database concept other RDBMS
-have by using the "database" instead of "username" in the DSN as the username
-name. this behaviour can be disabled by setting the "emulate_database" option
-to false.
+note:
+- please use the latest ext/oci8 version from pecl.php.net/oci8
+ (binaries are available from snaps.php.net and pecl4win.php.net)
+- by default this driver emulates the database concept other RDBMS have by this
+  using the "database" instead of "username" in the DSN as the username name.
+  behaviour can be disabled by setting the "emulate_database" option to false.
+- the multi_query test failes because this is not supported by ext/oci8
+- the null LOB test failes because this is not supported by Oracle
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks

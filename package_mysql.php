@@ -22,7 +22,7 @@ $notes = <<<EOT
 - increased MDB2 dependency too XXX
 
 note:
-- the multi_query test failes because this is not supported by ext/sqlite
+- the multi_query test failes because this is not supported by ext/mysql
 - use a trigger to emulate setting default now()
 EOT;
 

@@ -24,6 +24,8 @@ note:
   value when no existing data was replaced
 - the multi_query test failes because this is not supported by ext/sqlite
 - the savepoint test failes because this is not supported by sqlite
+- the case sensitive search test fails because this is not supported by SQLite
+- the pattern escaping test fails because this is not supported by SQLite
 
 open todo items:
 - fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE

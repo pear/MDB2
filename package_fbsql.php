@@ -36,8 +36,10 @@ $notes = <<<EOT
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - increased MDB2 dependency too XXX
 
-open todo items:
+note:
 - this driver needs a serious update as it's currently unmaintained/untested
+
+open todo items:
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
 EOT;
 
