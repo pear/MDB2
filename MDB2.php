@@ -393,6 +393,7 @@ class MDB2
         if (PEAR::isError($err)) {
             return $err;
         }
+        $db->loadModule('Datatype', null, true);
 
         return $db;
     }
@@ -1718,87 +1719,6 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
         return $this->connection;
-    }
-
-    // }}}
-    // {{{ function _fixResultArrayValues(&$array, $mode)
-
-    /**
-     * Do all necessary conversions on result arrays to fix DBMS quirks
-     *
-     * @param   array   the array to be fixed (passed by reference)
-     * @param   array   bit-wise addition of the required portability modes
-     *
-     * @return  void
-     *
-     * @access  protected
-     */
-    function _fixResultArrayValues(&$array, $mode)
-    {
-        switch ($mode) {
-        case MDB2_PORTABILITY_RTRIM:
-            foreach ($array as $key => $value) {
-                if (is_string($value)) {
-                    $array[$key] = rtrim($value);
-                }
-            }
-            break;
-        case MDB2_PORTABILITY_EMPTY_TO_NULL:
-            foreach ($array as $key => $value) {
-                if ($value === '') {
-                    $array[$key] = null;
-                }
-            }
-            break;
-        case MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES:
-            $tmp_array = array();
-            foreach ($array as $key => $value) {
-                $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
-            }
-            $array = $tmp_array;
-            break;
-        case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_EMPTY_TO_NULL):
-            foreach ($array as $key => $value) {
-                if ($value === '') {
-                    $array[$key] = null;
-                } elseif (is_string($value)) {
-                    $array[$key] = rtrim($value);
-                }
-            }
-            break;
-        case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
-            $tmp_array = array();
-            foreach ($array as $key => $value) {
-                if (is_string($value)) {
-                    $value = rtrim($value);
-                }
-                $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
-            }
-            $array = $tmp_array;
-            break;
-        case (MDB2_PORTABILITY_EMPTY_TO_NULL + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
-            $tmp_array = array();
-            foreach ($array as $key => $value) {
-                if ($value === '') {
-                    $value = null;
-                }
-                $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
-            }
-            $array = $tmp_array;
-            break;
-        case (MDB2_PORTABILITY_RTRIM + MDB2_PORTABILITY_EMPTY_TO_NULL + MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES):
-            $tmp_array = array();
-            foreach ($array as $key => $value) {
-                if ($value === '') {
-                    $value = null;
-                } elseif (is_string($value)) {
-                    $value = rtrim($value);
-                }
-                $tmp_array[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
-            }
-            $array = $tmp_array;
-            break;
-        }
     }
 
     // }}}

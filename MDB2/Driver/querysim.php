@@ -649,16 +649,11 @@ class MDB2_Result_querysim extends MDB2_Result_Common
             }
             $row = $column_names;
         }
-        if (($mode = ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM)
-            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL))
-        ) {
-            $this->db->_fixResultArrayValues($row, $mode);
-        }
+        $mode = $mode = ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM)
+            + ($this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL);
+        $row = $this->db->datatype->convertResultRow($this->types, $row);
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
-        }
-        if (!empty($this->types)) {
-            $row = $this->db->datatype->convertResultRow($this->types, $row);
         }
         if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
             $object_class = $this->db->options['fetch_class'];

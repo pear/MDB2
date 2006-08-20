@@ -166,10 +166,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * @return object a MDB2 error on failure
      * @access protected
      */
-    function _baseConvertResult($value, $type)
+    function _baseConvertResult($value, $type, $mode)
     {
         switch ($type) {
         case 'text':
+            if ($mode & MDB2_PORTABILITY_RTRIM) {
+                $value = rtrim($value);
+            }
             return $value;
         case 'integer':
             return intval($value);
@@ -202,6 +205,13 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return fopen('MDB2LOB://'.$lob_index.'@'.$this->db_index, 'r+');
         }
 
+        if (is_null($type)) {
+            if ($mode & MDB2_PORTABILITY_RTRIM) {
+                $value = rtrim($value);
+            }
+            return $value;
+        }
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
@@ -222,7 +232,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * @return mixed converted value or a MDB2 error on failure
      * @access public
      */
-    function convertResult($value, $type)
+    function convertResult($value, $type, $mode = MDB2_PORTABILITY_ALL)
     {
         if (is_null($value)) {
             return null;
@@ -234,11 +244,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (!empty($db->options['datatype_map'][$type])) {
             $type = $db->options['datatype_map'][$type];
             if (!empty($db->options['datatype_map_callback'][$type])) {
-                $parameter = array('type' => $type, 'value' => $value);
+                $parameter = array('type' => $type, 'value' => $value, 'mode' => $mode);
                 return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
             }
         }
-        return $this->_baseConvertResult($value, $type);
+        return $this->_baseConvertResult($value, $type, $mode);
     }
 
     // }}}
@@ -252,32 +262,43 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * @return mixed MDB2_OK on success,  a MDB2 error on failure
      * @access public
      */
-    function convertResultRow($types, $row)
+    function convertResultRow($types, $row, $mode = MDB2_PORTABILITY_ALL)
     {
-        if (is_array($types)) {
-            reset($types);
-            $current_column = -1;
-            foreach ($row as $key => $column) {
-                ++$current_column;
-                if (!isset($column)) {
-                    continue;
-                }
-                if (isset($types[$current_column])) {
-                    $type = $types[$current_column];
-                } elseif (isset($types[$key])) {
-                    $type = $types[$key];
-                } elseif (current($types)) {
-                    $type = current($types);
-                    next($types);
-                } else {
-                    continue;
-                }
-                $value = $this->convertResult($row[$key], $type);
-                if (PEAR::isError($value)) {
-                    return $value;
-                }
-                $row[$key] = $value;
+        if ($mode & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES) {
+            $tmp_row = array();
+            foreach ($row as $key => $value) {
+                $tmp_row[preg_replace('/^(?:.*\.)?([^.]+)$/', '\\1', $key)] = $value;
             }
+            $row = $tmp_row;
+        }
+        if (!is_array($types)) {
+            $types = array();
+        }
+        reset($types);
+        $current_column = -1;
+        foreach ($row as $key => $value) {
+            if (($mode & MDB2_PORTABILITY_EMPTY_TO_NULL) && $value === '') {
+                $row[$key] = null;
+            }
+            ++$current_column;
+            if (!isset($value)) {
+                continue;
+            }
+            if (isset($types[$current_column])) {
+                $type = $types[$current_column];
+            } elseif (isset($types[$key])) {
+                $type = $types[$key];
+            } elseif (current($types)) {
+                $type = current($types);
+                next($types);
+            } else {
+                $type = null;
+            }
+            $value = $this->convertResult($row[$key], $type, $mode);
+            if (PEAR::isError($value)) {
+                return $value;
+            }
+            $row[$key] = $value;
         }
         return $row;
     }
@@ -1423,14 +1444,6 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     {
         if (is_null($lob['value'])) {
             $lob['value'] = $lob['resource'];
-
-            $db =& $this->getDBInstance();
-            if (PEAR::isError($db)) {
-                return $db;
-            }
-            if ($db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-                $lob['value'] = rtrim($lob['value']);
-            }
         }
         $lob['loaded'] = true;
         return MDB2_OK;
