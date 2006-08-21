@@ -865,7 +865,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     // {{{ listTableConstraints()
 
     /**
-     * list all sonstraints in a table
+     * list all constraints in a table
      *
      * @param string    $table      name of table that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
