@@ -470,7 +470,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
 
         $query = 'SELECT user_name FROM users WHERE '.$this->db->datatype->matchPattern(array('foo'), 'ILIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
-        $this->assertTrue((count($values) == 3), "case insensitive search was expected to return 2 rows but returned: ".count($values));
+        $this->assertTrue((count($values) == 3), "case insensitive search was expected to return 3 rows but returned: ".count($values));
     }
 
     /**
