@@ -440,6 +440,29 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         return $result;
     }
     // }}}
+    // {{{ dropIndex()
+
+    /**
+     * drop existing index
+     *
+     * @param string    $table         name of table that should be used in method
+     * @param string    $name         name of the index to be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropIndex($table, $name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($db->getIndexName($name), true);
+        return $db->exec("DROP INDEX $table.$name");
+    }
+
+    // }}}
     // {{{ createSequence()
     /**
      * create sequence
