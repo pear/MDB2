@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.10">
+<package version="1.0" packagerversion="1.4.11">
  <name>MDB2_Driver_sqlite</name>
  <summary>sqlite MDB2 driver</summary>
  <description>This is the SQLite MDB2 driver.
@@ -14,40 +14,40 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.2.0</version>
-  <date>2006-07-23</date>
+  <version>1.2.1</version>
+  <date>2006-08-21</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- added setTransactionIsolation()
-- MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
-- added ability to escape wildcard characters in escape() and quote()
-- added setTransactionIsolation()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
-- added ability to escape wildcard characters in escape() and quote()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
-- added &apos;mdb2type&apos; output to getTableFieldDefinition()
-- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
-  when a table name is passed (Bug #8124)
-- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-- use old dsn when rolling back open transactions in disconnect()
+  <notes>- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
+  led to returning incorrect type values (Bug #8291)
+- added support for NULL columns in getTableFieldDefinition()
+- added full support for alterTable() via emulation
+- added support for primary key creation and dropping
+- do not list empty contraints and indexes
+- use information_schema in listTableFields() instead of selecting from the
+  table since that does not work if the table is empty
+- fixed handling of contraints in _getTableColumns()
+- fixed primary key handling in alterTable(), createConstraint() and dropConstraint()
+- do not set a default if type is a LOB (Request #8074)
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- increased MDB2 dependency too 2.2.1
 
-note: this driver only supports SQLite version 2.x databases
+note:
+- this driver only supports SQLite version 2.x databases
+- the replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+- the multi_query test failes because this is not supported by ext/sqlite
+- the savepoint test failes because this is not supported by sqlite
+- the case sensitive search test fails because this is not supported by SQLite
+- the pattern escaping test fails because this is not supported by SQLite
 
 open todo items:
 - fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
-- a number of the manager test cases fail because sqlite does not support adding
-  primary keys to existing tables
-- the alter table tests fails because this is unsupported in sqlite2
-- the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.2.0" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.2.1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">sqlite</dep>
   </deps>
   <filelist>
@@ -86,6 +86,38 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.2.1</version>
+    <date>2006-08-21</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
+  led to returning incorrect type values (Bug #8291)
+- added support for NULL columns in getTableFieldDefinition()
+- added full support for alterTable() via emulation
+- added support for primary key creation and dropping
+- do not list empty contraints and indexes
+- use information_schema in listTableFields() instead of selecting from the
+  table since that does not work if the table is empty
+- fixed handling of contraints in _getTableColumns()
+- fixed primary key handling in alterTable(), createConstraint() and dropConstraint()
+- do not set a default if type is a LOB (Request #8074)
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- increased MDB2 dependency too 2.2.1
+
+note:
+- this driver only supports SQLite version 2.x databases
+- the replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+- the multi_query test failes because this is not supported by ext/sqlite
+- the savepoint test failes because this is not supported by sqlite
+- the case sensitive search test fails because this is not supported by SQLite
+- the pattern escaping test fails because this is not supported by SQLite
+
+open todo items:
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
+    </notes>
+   </release>
    <release>
     <version>1.2.0</version>
     <date>2006-07-23</date>

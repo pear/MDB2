@@ -2,13 +2,13 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'YYY';
+$version = '1.2.1';
 $notes = <<<EOT
 - return an error if a named placeholder name is used twice inside a single statement
 - do not list empty contraints and indexes
 - do not set a default if type is a LOB (Request #8074)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too XXX
+- increased MDB2 dependency too 2.2.1
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
@@ -53,7 +53,7 @@ $package->addMaintainer('nrf', 'developer', 'Nathan Fredrickson', 'nathan@silver
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.2.1', 'ge', 'pkg', false);
 $package->addDependency('pgsql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

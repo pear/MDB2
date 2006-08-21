@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.10">
+<package version="1.0" packagerversion="1.4.11">
  <name>MDB2_Driver_mysql</name>
  <summary>mysql MDB2 driver</summary>
  <description>This is the MySQL MDB2 driver.
@@ -14,31 +14,36 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.2.0</version>
-  <date>2006-07-23</date>
+  <version>1.2.1</version>
+  <date>2006-08-21</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- added ability to escape wildcard characters in escape() and quote()
-- added setTransactionIsolation()
-- added savepoint support to beginTransaction(), commit() and rollback()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
-- added ability to escape wildcard characters in escape() and quote()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
-- added &apos;mdb2type&apos; output to getTableFieldDefinition()
-- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
-  when a table name is passed (Bug #8124)
-- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-- use old dsn when rolling back open transactions in disconnect()
-- mysql_insert_id() breaks if the prepared statement that was executed to
-  generate the ID is deallocated before (Bug #8051)
+  <notes>- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
+  led to returning incorrect type values (Bug #8291)
+- quote identifiers in the reverse module when &apos;quote_identifiers&apos; is enabled (Bug #8309)
+- use version_compare() to fix complex version comparisons (Bug #8355)
+- do not use quote() in setCharset() since it is supposed to set the charset in
+  the connection that was passed to it
+- return an error if a named placeholder name is used twice inside a single statement
+- do not list empty contraints and indexes
+- added support for &apos;primary&apos; option in createTable()
+- fixed notnull reverse engineering on mysql 4.x (Bug #8415)
+- do not set a default if type is a LOB (Request #8074)
+- if a default value is set, then we need to use VARCHAR instead of TEXT
+- removed _verifyTableType() since it just adds overhead, is hard to do reliably
+  and you will get an error if the table type is not supported anyways
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- only call RELEASE SAVEPOINT if the server version if 5.0.3 or higher
+- increased MDB2 dependency too 2.2.1
+
+note:
+- the multi_query test failes because this is not supported by ext/mysql
+- use a trigger to emulate setting default now()
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.2.0" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.2.1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">mysql</dep>
   </deps>
   <filelist>
@@ -77,6 +82,34 @@
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.2.1</version>
+    <date>2006-08-21</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
+  led to returning incorrect type values (Bug #8291)
+- quote identifiers in the reverse module when &apos;quote_identifiers&apos; is enabled (Bug #8309)
+- use version_compare() to fix complex version comparisons (Bug #8355)
+- do not use quote() in setCharset() since it is supposed to set the charset in
+  the connection that was passed to it
+- return an error if a named placeholder name is used twice inside a single statement
+- do not list empty contraints and indexes
+- added support for &apos;primary&apos; option in createTable()
+- fixed notnull reverse engineering on mysql 4.x (Bug #8415)
+- do not set a default if type is a LOB (Request #8074)
+- if a default value is set, then we need to use VARCHAR instead of TEXT
+- removed _verifyTableType() since it just adds overhead, is hard to do reliably
+  and you will get an error if the table type is not supported anyways
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- only call RELEASE SAVEPOINT if the server version if 5.0.3 or higher
+- increased MDB2 dependency too 2.2.1
+
+note:
+- the multi_query test failes because this is not supported by ext/mysql
+- use a trigger to emulate setting default now()
+    </notes>
+   </release>
    <release>
     <version>1.2.0</version>
     <date>2006-07-23</date>

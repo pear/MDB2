@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'YYY';
+$version = '1.2.1';
 $notes = <<<EOT
 - fixed issue in tableInfo() that originates in getTableFieldDefinition() which
   led to returning incorrect type values (Bug #8291)
@@ -20,7 +20,7 @@ $notes = <<<EOT
   and you will get an error if the table type is not supported anyways
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - only call RELEASE SAVEPOINT if the server version if 5.0.3 or higher
-- increased MDB2 dependency too XXX
+- increased MDB2 dependency too 2.2.1
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
@@ -64,7 +64,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.2.1', 'ge', 'pkg', false);
 $package->addDependency('mysql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

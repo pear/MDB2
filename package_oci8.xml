@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.10">
+<package version="1.0" packagerversion="1.4.11">
  <name>MDB2_Driver_oci8</name>
  <summary>oci8 MDB2 driver</summary>
  <description>This is the Oracle OCI8 MDB2 driver.
@@ -20,39 +20,25 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.0.0</version>
-  <date>2006-07-23</date>
+  <version>1.0.1</version>
+  <date>2006-08-21</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- added ability to escape wildcard characters in escape() and quote()
-- added setTransactionIsolation()
-- added savepoint support to beginTransaction(), commit() and rollback()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
-- added ability to escape wildcard characters in escape() and quote()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
-- added &apos;mdb2type&apos; output to getTableFieldDefinition()
-- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
-  when a table name is passed (Bug #8124)
-- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-- use old dsn when rolling back open transactions in disconnect()
-- fixed testcreateautoincrementtable for oci8
-  There is still a problem when dropping the sequence, it gets inserted with a
-  seemingly random string as a name
-- load datatype module in tableInfo() (Bug #8116)
-- surround _makeAutoincrement() and _dropAutoincrement() with a nested transaction
-- grant create trigger when creating an emulated database to fix autoincrement emulation
-- ensure proper quoting in _dropAutoincrement()
+  <notes>- return an error if a named placeholder name is used twice inside a single statement
+- do not list empty contraints and indexes
+- added support for &apos;primary&apos; option in createTable()
+- do not set a default if type is a LOB (Request #8074)
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- increased MDB2 dependency too 2.2.1
 
-note: please use the latest ext/oci8 version from pecl.php.net/oci8
-(binaries are available from snaps.php.net and pecl4win.php.net)
-
-note: that by default this driver emulates the database concept other RDBMS
-have by using the &quot;database&quot; instead of &quot;username&quot; in the DSN as the username
-name. this behaviour can be disabled by setting the &quot;emulate_database&quot; option
-to false.
+note:
+- please use the latest ext/oci8 version from pecl.php.net/oci8
+ (binaries are available from snaps.php.net and pecl4win.php.net)
+- by default this driver emulates the database concept other RDBMS have by this
+  using the &quot;database&quot; instead of &quot;username&quot; in the DSN as the username name.
+  behaviour can be disabled by setting the &quot;emulate_database&quot; option to false.
+- the multi_query test failes because this is not supported by ext/oci8
+- the null LOB test failes because this is not supported by Oracle
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
@@ -60,7 +46,7 @@ open todo items:
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
    <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.2.0" optional="no">MDB2</dep>
+   <dep type="pkg" rel="ge" version="2.2.1" optional="no">MDB2</dep>
    <dep type="ext" rel="has" optional="no">oci8</dep>
   </deps>
   <filelist>
@@ -99,6 +85,31 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.1</version>
+    <date>2006-08-21</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- return an error if a named placeholder name is used twice inside a single statement
+- do not list empty contraints and indexes
+- added support for &apos;primary&apos; option in createTable()
+- do not set a default if type is a LOB (Request #8074)
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- increased MDB2 dependency too 2.2.1
+
+note:
+- please use the latest ext/oci8 version from pecl.php.net/oci8
+ (binaries are available from snaps.php.net and pecl4win.php.net)
+- by default this driver emulates the database concept other RDBMS have by this
+  using the &quot;database&quot; instead of &quot;username&quot; in the DSN as the username name.
+  behaviour can be disabled by setting the &quot;emulate_database&quot; option to false.
+- the multi_query test failes because this is not supported by ext/oci8
+- the null LOB test failes because this is not supported by Oracle
+
+open todo items:
+- enable use of read() for LOBs to read a LOB in chunks
+    </notes>
+   </release>
    <release>
     <version>1.0.0</version>
     <date>2006-07-23</date>

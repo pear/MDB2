@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.10">
+<package version="1.0" packagerversion="1.4.11">
  <name>MDB2_Driver_querysim</name>
  <summary>querysim MDB2 driver</summary>
  <description>This is the Querysim MDB2 driver.
@@ -14,14 +14,13 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>0.4.0</version>
-  <date>2006-07-23</date>
+  <version>0.5.0</version>
+  <date>2006-08-21</date>
   <license>BSD License</license>
   <state>beta</state>
-  <notes>- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+  <notes>- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- added Datatype module
+- increased MDB2 dependency too 2.2.1
 
 open todo items:
 - add ability to reference multiple results set files for different queries
@@ -40,6 +39,11 @@ open todo items:
     </dir> <!-- /docs -->
     <dir name="MDB2">
      <dir name="Driver">
+      <dir name="Datatype">
+       <file role="php" name="querysim.php">
+        <replace type="package-info" from="@package_version@" to="version"/>
+       </file>
+      </dir> <!-- /MDB2/Driver/Datatype -->
       <file role="php" name="querysim.php">
        <replace type="package-info" from="@package_version@" to="version"/>
       </file>
@@ -57,6 +61,19 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>0.5.0</version>
+    <date>2006-08-21</date>
+    <license>BSD License</license>
+    <state>beta</state>
+    <notes>- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- added Datatype module
+- increased MDB2 dependency too 2.2.1
+
+open todo items:
+- add ability to reference multiple results set files for different queries
+    </notes>
+   </release>
    <release>
     <version>0.4.0</version>
     <date>2006-07-23</date>

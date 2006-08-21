@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.10">
+<package version="1.0" packagerversion="1.4.11">
  <name>MDB2</name>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
@@ -50,7 +50,7 @@ portability. Among other things MDB2 features:
    <user>quipo</user>
    <name>Lorenzo Alberton</name>
    <email>l.alberton@quipo.it</email>
-   <role>contributor</role>
+   <role>developer</role>
   </maintainer>
   <maintainer>
    <user>danielc</user>
@@ -66,46 +66,36 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.2.0</version>
-  <date>2006-07-23</date>
+  <version>2.2.1</version>
+  <date>2006-08-21</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- added MDB2_AUTOQUERY_SELECT (Request #7817)
-- added nested transaction support (inspired by ADODB&apos;s smart transactions) but
-  expanded to optionally use SAVEPOINTs *EXPERIMENTAL*
-  beginNestedTransaction(), completeNestedTransaction(),
-  failNestedTransaction(), getNestedTransactionError()
-- inTransaction() will now return an integer with the nested transaction depth
-  if a nested transaction has been started
-- added setTransactionIsolation()
-- added savepoint support to beginTransaction(), commit() and rollback()
-- added Native base class for consistency
-- added missing colnum parameter to queryOne() [used by getOne()]
-- added new tests for get*() Extended module methods
-- fixed missing db variable from getValidTypes()
-- added testing of a prepared statement with no parameters
-- added handling of empty result sets to result set verification in the test suite
-- oci8 and ibase (and possibly other rdbms) do not like freeing the statement
-  before reading the result set (Bug #8068):
-  * moved statement freeing after reading the result set in get*() Extended methods
-  * bypass prepared statement API for queries without parameters in autoExecute()
-  (this means you cannot use parameters with SELECT statements in autoExecute()
-  on the above mentioned platforms)
-- use data type callback in getValidTypes()
-- fixed identifier quoting in buildManipSQL() for SELECT statements (thx Kailoran)
-- phpdoc and cosmetic fixes in limitQuery()
-- added matchPattern() and patternEscapeString(), escapePattern() *EXPERIMENTAL*
-- added ability to escape wildcard characters in escape() and quote()
-- added debug() call at the end of a query/prepare/execute calling (Request #7933)
-- added context array parameter to debug() and make use of it whereever sensible
-- added optional method name parameter to raiseError() and use whereever possible
-- added a new option &quot;debug_expanded_output&quot; which needs to be set to true to
-  get additional context information and to get &quot;post&quot; callback calls
-- added testPortabilityOptions()
-- set length of 8 and fixed for user_password in the test suite
-- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
-  when a table name is passed (Bug #8124)
-- disconnect after changing database/DSN (otherwise transactions may be left open)
+  <notes>- fixed missing code in tableInfo() (Bug #8289)
+- fixed handling of indexes and constraints and types in tableInfo() (fixes BC break)
+- do not set nested transaction error if error is expected
+- explictly default to NULL when the column is NULLable and no default is set
+  (related to Bug #8359)
+- added support for case insensitive matching via ILIKE in matchPattern()
+- added getAsKeyword() for generating &quot;AS&quot; keyword as required by the RDBMS
+- return an error if a named placeholder name is used twice inside a single statement
+- add support for multi column PRIMARY KEYs in createTable()
+- added lower() and upper() to the function module
+- moved escaping tests to datatype tests
+- added summary at the end of a test run for each RDBMS
+- explicitly pass the php_type var in all internal loadModule() calls
+- added support for &apos;primary&apos; option in createTable()
+- expanded NULL tests
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- check if safe_mode is enabled in fileExists() to determine what algo to use (Bug #8296)
+- added a test case for updating LOBs
+- added rtrim test case for LOBs
+- if result types are specified only rtrim() type &apos;text&apos; fields (otherwise
+  it will mean that for some drivers LOB&apos;s would get rtrimmed)
+- phpdoc fixes to the convertResult*() methods
+- added execParam() method and code tweaks for get*() methods in the Extended module
+- removed redundant assertions when testing if a given feature is unsupported
+- removed tests of portability off (users should just set the given portability
+  setting they want to test in their test_setup.php)
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -117,12 +107,13 @@ open todo items:
 - add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
 - add support to export/import in CSV format
 - add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
-- add support to generating &quot;AS&quot; keyword if required
 - add support for database/table/row LOCKs
-- add ActiveRecord implementation (probably as a separate package)
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
-- extended to support for case insensitive matching via ILIKE/collate in matchPattern()
 - generate STATUS file from test suite results and allow users to submit test results
+- add a package2.xml and explore use of install groups (pear install MDB2#mysql)
+- add support for full text index creation and querying
+- add tests to check if the RDBMS specific handling with portability options
+  disabled behaves as expected
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.2" optional="no"/>
@@ -277,6 +268,57 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.2.1</version>
+    <date>2006-08-21</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- fixed missing code in tableInfo() (Bug #8289)
+- fixed handling of indexes and constraints and types in tableInfo() (fixes BC break)
+- do not set nested transaction error if error is expected
+- explictly default to NULL when the column is NULLable and no default is set
+  (related to Bug #8359)
+- added support for case insensitive matching via ILIKE in matchPattern()
+- added getAsKeyword() for generating &quot;AS&quot; keyword as required by the RDBMS
+- return an error if a named placeholder name is used twice inside a single statement
+- add support for multi column PRIMARY KEYs in createTable()
+- added lower() and upper() to the function module
+- moved escaping tests to datatype tests
+- added summary at the end of a test run for each RDBMS
+- explicitly pass the php_type var in all internal loadModule() calls
+- added support for &apos;primary&apos; option in createTable()
+- expanded NULL tests
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- check if safe_mode is enabled in fileExists() to determine what algo to use (Bug #8296)
+- added a test case for updating LOBs
+- added rtrim test case for LOBs
+- if result types are specified only rtrim() type &apos;text&apos; fields (otherwise
+  it will mean that for some drivers LOB&apos;s would get rtrimmed)
+- phpdoc fixes to the convertResult*() methods
+- added execParam() method and code tweaks for get*() methods in the Extended module
+- removed redundant assertions when testing if a given feature is unsupported
+- removed tests of portability off (users should just set the given portability
+  setting they want to test in their test_setup.php)
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add length handling to LOB reverse engineering
+- expand charset support in schema management and result set handling (Request #4666)
+- add EXPLAIN abstraction
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- expand length/scale support for numeric types (Request #7170)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
+- add support for database/table/row LOCKs
+- add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
+- generate STATUS file from test suite results and allow users to submit test results
+- add a package2.xml and explore use of install groups (pear install MDB2#mysql)
+- add support for full text index creation and querying
+- add tests to check if the RDBMS specific handling with portability options
+  disabled behaves as expected
+    </notes>
+   </release>
    <release>
     <version>2.2.0</version>
     <date>2006-07-23</date>

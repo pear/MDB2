@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'YYY';
+$version = '1.2.1';
 $notes = <<<EOT
 - fixed issue in tableInfo() that originates in getTableFieldDefinition() which
   led to returning incorrect type values (Bug #8291)
@@ -16,7 +16,7 @@ $notes = <<<EOT
 - fixed primary key handling in alterTable(), createConstraint() and dropConstraint()
 - do not set a default if type is a LOB (Request #8074)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too XXX
+- increased MDB2 dependency too 2.2.1
 
 note:
 - this driver only supports SQLite version 2.x databases
@@ -68,7 +68,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.2.1', 'ge', 'pkg', false);
 $package->addDependency('sqlite', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

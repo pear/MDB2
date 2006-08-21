@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '2.2.1';
 $notes = <<<EOT
 - fixed missing code in tableInfo() (Bug #8289)
 - fixed handling of indexes and constraints and types in tableInfo() (fixes BC break)
