@@ -2,25 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.2.1';
+$version = 'YYY';
 $notes = <<<EOT
-- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
-  led to returning incorrect type values (Bug #8291)
-- quote identifiers in the reverse module when 'quote_identifiers' is enabled (Bug #8309)
-- use version_compare() to fix complex version comparisons (Bug #8355)
-- do not use quote() in setCharset() since it is supposed to set the charset in
-  the connection that was passed to it
-- return an error if a named placeholder name is used twice inside a single statement
-- do not list empty contraints and indexes
-- added support for 'primary' option in createTable()
-- fixed notnull reverse engineering on mysql 4.x (Bug #8415)
-- do not set a default if type is a LOB (Request #8074)
-- if a default value is set, then we need to use VARCHAR instead of TEXT
-- removed _verifyTableType() since it just adds overhead, is hard to do reliably
-  and you will get an error if the table type is not supported anyways
-- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- only call RELEASE SAVEPOINT if the server version if 5.0.3 or higher
-- increased MDB2 dependency too 2.2.1
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

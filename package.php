@@ -2,35 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.2.1';
+$version = 'XXX';
 $notes = <<<EOT
-- fixed missing code in tableInfo() (Bug #8289)
-- fixed handling of indexes and constraints and types in tableInfo() (fixes BC break)
-- do not set nested transaction error if error is expected
-- explictly default to NULL when the column is NULLable and no default is set
-  (related to Bug #8359)
-- added support for case insensitive matching via ILIKE in matchPattern()
-- added getAsKeyword() for generating "AS" keyword as required by the RDBMS
-- return an error if a named placeholder name is used twice inside a single statement
-- add support for multi column PRIMARY KEYs in createTable()
-- added lower() and upper() to the function module
-- moved escaping tests to datatype tests
-- added summary at the end of a test run for each RDBMS
-- explicitly pass the php_type var in all internal loadModule() calls
-- added support for 'primary' option in createTable()
-- expanded NULL tests
-- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- check if safe_mode is enabled in fileExists() to determine what algo to use (Bug #8296)
-- added a test case for updating LOBs
-- added rtrim test case for LOBs
-- if result types are specified only rtrim() type 'text' fields (otherwise
-  it will mean that for some drivers LOB's would get rtrimmed)
-- phpdoc fixes to the convertResult*() methods
-- added execParam() method and code tweaks for get*() methods in the Extended module
-- removed redundant assertions when testing if a given feature is unsupported
-- removed tests of portability off (users should just set the given portability
-  setting they want to test in their test_setup.php)
-
 open todo items:
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering

@@ -2,12 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.5.0';
+$version = 'YYY';
 $notes = <<<EOT
-- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- added Datatype module
-- increased MDB2 dependency too 2.2.1
-
 open todo items:
 - add ability to reference multiple results set files for different queries
 EOT;

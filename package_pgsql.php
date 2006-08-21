@@ -2,14 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.2.1';
+$version = 'YYY';
 $notes = <<<EOT
-- return an error if a named placeholder name is used twice inside a single statement
-- do not list empty contraints and indexes
-- do not set a default if type is a LOB (Request #8074)
-- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too 2.2.1
-
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
