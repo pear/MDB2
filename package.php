@@ -46,6 +46,8 @@ open todo items:
 - generate STATUS file from test suite results and allow users to submit test results
 - add a package2.xml and explore use of install groups (pear install MDB2#mysql)
 - add support for full text index creation and querying
+- add tests to check if the RDBMS specific handling with portability options
+  disabled behaves as expected
 EOT;
 
 $description =<<<EOT
