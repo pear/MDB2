@@ -23,7 +23,8 @@ $notes = <<<EOT
 - added support for autoincrement via IDENTITY in getDeclaration()
 - ALTER TABLE bug when adding more than 1 column (Bug #8373)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too XXX
+- added dropIndex() to the manager module
+- increased MDB2 dependency too 2.2.1
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
@@ -68,7 +69,7 @@ $package->addMaintainer('nrf', 'lead', 'Nathan Fredrickson', 'nathan@silverorang
 
 $package->addDependency('php', '4.3.11', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.2.1', 'ge', 'pkg', false);
 $package->addDependency('mssql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

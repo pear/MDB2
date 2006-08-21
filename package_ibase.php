@@ -10,7 +10,7 @@ $notes = <<<EOT
 - added missing 'mdb2type' to getTableFieldDefinition()
 - do not set a default if type is a LOB (Request #8074)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too XXX
+- increased MDB2 dependency too 2.2.1
 EOT;
 
 $package = new PEAR_PackageFileManager();
@@ -51,7 +51,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '5.0.4', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.2.1', 'ge', 'pkg', false);
 $package->addDependency('interbase', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

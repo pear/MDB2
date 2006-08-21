@@ -34,7 +34,7 @@ $notes = <<<EOT
 - use old dsn when rolling back open transactions in disconnect()
 - do not list empty contraints and indexes
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too XXX
+- increased MDB2 dependency too 2.2.1
 
 note:
 - this driver needs a serious update as it's currently unmaintained/untested
@@ -81,7 +81,7 @@ $package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet
 
 $package->addDependency('php', '4.3.0', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.2.1', 'ge', 'pkg', false);
 $package->addDependency('fbsql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
