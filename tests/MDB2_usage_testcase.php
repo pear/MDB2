@@ -379,7 +379,24 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $stmt = $this->db->prepare($query, null, array('text', 'text', 'integer'));
         $result =& $stmt->execute(array());
         if (PEAR::isError($result)) {
-            $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared. Error: '.$result->getUserinfo());
+            $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared statement with no placeholders. Error: '.$result->getUserinfo());
+            break;
+        }
+        $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+        if (!is_array($row)) {
+            $this->assertTrue(false, 'Prepared SELECT failed');
+        } else {
+            $diff = (array)array_diff($row, $row_data);
+            $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
+        }
+        $stmt->free();
+
+        $row_data = reset($data);
+        $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_name='.$this->db->quote($row_data['user_name'], 'text').' AND user_id = ? AND user_password='.$this->db->quote($row_data['user_password'], 'text');
+        $stmt = $this->db->prepare($query, array('integer'), array('text', 'text', 'integer'));
+        $result =& $stmt->execute(array($row_data['user_id']));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared with quoted text fields around a placeholder. Error: '.$result->getUserinfo());
             break;
         }
         $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
