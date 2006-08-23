@@ -21,6 +21,9 @@ open todo items:
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
+- expand internal data structures for named parameters to make it possible to
+  optionally use the same placeholder in multiple places in side a prepare
+  statement as this is supported in Oracle and PostgreSQL
 EOT;
 
 $description =<<<EOT
