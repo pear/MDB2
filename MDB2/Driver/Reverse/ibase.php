@@ -266,7 +266,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $definition = array();
         foreach ($fields as $field) {
             $definition['fields'][$field] = array();
-            //collation?!?
+            // todo: collation?!?
             /*
             if (!empty($row['collation'])) {
                 $definition['fields'][$field]['sorting'] = ($row['collation'] == 'A'

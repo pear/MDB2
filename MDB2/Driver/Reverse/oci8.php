@@ -170,6 +170,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $row;
         }
         $definition = array();
+        // todo: turn this into a join
         if (!empty($row)) {
             $row = array_change_key_case($row, CASE_LOWER);
             $key_name = $row['index_name'];
