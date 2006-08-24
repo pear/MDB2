@@ -842,15 +842,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter with an empty name', __FUNCTION__);
                         return $err;
-                    } elseif (isset($positions[$parameter])) {
-                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                            'named parameter names can only be used once per statement', __FUNCTION__);
-                        return $err;
                     }
-                    $positions[$parameter] = $p_position;
+                    $positions[] = $parameter;
                     $query = substr_replace($query, '?', $position, strlen($parameter)+1);
                 } else {
-                    $positions[] = $p_position;
+                    $positions[] = count($positions);
                 }
                 $position = $p_position + 1;
             } else {
@@ -1425,7 +1421,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
         }
 
         $parameters = array(0 => $this->statement);
-        foreach ($this->positions as $parameter => $current_position) {
+        foreach ($this->positions as $parameter) {
             if (!array_key_exists($parameter, $this->values)) {
                 return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);

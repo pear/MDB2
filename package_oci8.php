@@ -4,6 +4,10 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'YYY';
 $notes = <<<EOT
+- flip positions property array in prepared statement objects to make it
+  possible to optionally use the same named placeholder in multiple places
+  inside a single prepared statement
+
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
  (binaries are available from snaps.php.net and pecl4win.php.net)

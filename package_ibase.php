@@ -4,7 +4,9 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'YYY';
 $notes = <<<EOT
-- return an error if a named placeholder name is used twice inside a single statement
+- flip positions property array in prepared statement objects to make it
+  possible to optionally use the same named placeholder in multiple places
+  inside a single prepared statement
 - do not list empty contraints and indexes
 - added support for 'primary' option in createTable()
 - added missing 'mdb2type' to getTableFieldDefinition()

@@ -827,10 +827,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter with an empty name', __FUNCTION__);
                         return $err;
-                    } elseif (isset($positions[$parameter])) {
-                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                            'named parameter names can only be used once per statement', __FUNCTION__);
-                        return $err;
                     }
                     // use parameter name in type array
                     if (isset($count) && isset($types_tmp[++$count])) {
@@ -841,7 +837,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     ++$parameter;
                     $length = strlen($parameter);
                 }
-                $positions[$parameter] = $p_position;
+                if (!in_array($parameter, $positions)) {
+                    $positions[] = $parameter;
+                }
                 if (isset($types[$parameter])
                     && ($types[$parameter] == 'clob' || $types[$parameter] == 'blob')
                 ) {
@@ -1350,7 +1348,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         $result = MDB2_OK;
         $lobs = $quoted_values = array();
         $i = 0;
-        foreach ($this->positions as $parameter => $current_position) {
+        foreach ($this->positions as $parameter) {
             if (!array_key_exists($parameter, $this->values)) {
                 return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);

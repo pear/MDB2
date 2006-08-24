@@ -853,15 +853,11 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter with an empty name', __FUNCTION__);
                         return $err;
-                    } elseif (isset($positions[$parameter])) {
-                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                            'named parameter names can only be used once per statement', __FUNCTION__);
-                        return $err;
                     }
-                    $positions[$parameter] = $p_position;
+                    $positions[$p_position] = $parameter;
                     $query = substr_replace($query, '?', $position, strlen($parameter)+1);
                 } else {
-                    $positions[] = $p_position;
+                    $positions[$p_position] = count($positions);
                 }
                 $position = $p_position + 1;
             } else {
@@ -1436,7 +1432,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             $parameters = array(0 => $this->statement, 1 => '');
             $lobs = array();
             $i = 0;
-            foreach ($this->positions as $parameter => $foo) {
+            foreach ($this->positions as $parameter) {
                 if (!array_key_exists($parameter, $this->values)) {
                     return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                         'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);
@@ -1482,7 +1478,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
             }
 
             if (!is_object($this->statement)) {
-                $query.= ' USING @'.implode(', @', array_keys($this->positions));
+                $query.= ' USING @'.implode(', @', array_values($this->positions));
             } else {
                 $result = @call_user_func_array('mysqli_stmt_bind_param', $parameters);
                 if ($result === false) {

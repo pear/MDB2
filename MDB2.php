@@ -2911,19 +2911,15 @@ class MDB2_Driver_Common extends PEAR
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter with an empty name', __FUNCTION__);
                         return $err;
-                    } elseif (isset($positions[$parameter])) {
-                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                            'named parameter names can only be used once per statement', __FUNCTION__);
-                        return $err;
                     }
-                    $positions[$parameter] = $p_position;
+                    $positions[$p_position] = $parameter;
                     $query = substr_replace($query, '?', $position, strlen($parameter)+1);
                     // use parameter name in type array
                     if (isset($count) && isset($types_tmp[++$count])) {
                         $types[$parameter] = $types_tmp[$count];
                     }
                 } else {
-                    $positions[] = $p_position;
+                    $positions[$p_position] = count($positions);
                 }
                 $position = $p_position + 1;
             } else {
@@ -3880,7 +3876,7 @@ class MDB2_Statement_Common
         if (!is_numeric($parameter)) {
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
         }
-        if (!array_key_exists($parameter, $this->positions)) {
+        if (!in_array($parameter, $this->positions)) {
             return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);
         }
@@ -3938,7 +3934,7 @@ class MDB2_Statement_Common
         if (!is_numeric($parameter)) {
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
         }
-        if (!array_key_exists($parameter, $this->positions)) {
+        if (!in_array($parameter, $this->positions)) {
             return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);
         }
@@ -4024,7 +4020,7 @@ class MDB2_Statement_Common
         $this->last_query = $this->query;
         $query = '';
         $last_position = 0;
-        foreach ($this->positions as $parameter => $current_position) {
+        foreach ($this->positions as $current_position => $parameter) {
             if (!array_key_exists($parameter, $this->values)) {
                 return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);

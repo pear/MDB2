@@ -844,10 +844,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter with an empty name', __FUNCTION__);
                         return $err;
-                    } elseif (isset($positions[$parameter])) {
-                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                            'named parameter names can only be used once per statement', __FUNCTION__);
-                        return $err;
                     }
                     $length = strlen($name) + 1;
                 }
@@ -860,8 +856,20 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                         $pgtypes[] = 'text';
                     }
                 }
-                $positions[$name] = $p_position;
-                $query = substr_replace($query, '$'.++$parameter, $position, $length);
+                if (($key_parameter = array_search($name, $positions))) {
+                    $next_parameter = 1;
+                    foreach ($positions as $key => $value) {
+                        if ($key_parameter == $key) {
+                            break;
+                        }
+                        ++$next_parameter;
+                    }
+                } else {
+                    ++$parameter;
+                    $next_parameter = $parameter;
+                    $positions[] = $name;
+                }
+                $query = substr_replace($query, '$'.$parameter, $position, $length);
                 $position = $p_position + strlen($parameter);
             } else {
                 $position = $p_position;
@@ -1252,7 +1260,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
             $query = 'EXECUTE '.$this->statement;
         }
         if (!empty($this->positions)) {
-            foreach ($this->positions as $parameter => $current_position) {
+            foreach ($this->positions as $parameter) {
                 if (!array_key_exists($parameter, $this->values)) {
                     return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                         'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);

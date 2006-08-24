@@ -4,6 +4,11 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+- flip positions property array in prepared statement objects to make it
+  possible to optionally use the same named placeholder in multiple places
+  inside a single prepared statement
+- expanded prepare tests to cover more edge cases
+
 open todo items:
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering
@@ -21,9 +26,6 @@ open todo items:
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
-- flip positions property array in prepared statement objects to make it
-  possible to optionally use the same placeholder in multiple places in side a
-  prepare statement as this is supported in Oracle and PostgreSQL
 EOT;
 
 $description =<<<EOT
