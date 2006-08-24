@@ -326,35 +326,55 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (?, ?, ?)";
         $stmt = $this->db->prepare($query, array('text', 'text', 'integer'), MDB2_PREPARE_MANIP);
 
-        $stmt->bindParam(0, $data[0]['user_name']);
-        $stmt->bindParam(2, $data[0]['user_id']);
-        $stmt->bindParam(1, $data[0]['user_password']);
+        $text = $data[0]['user_name'];
+        $question = $data[0]['user_password'];
+        $userid = $data[0]['user_id'];
+
+        // bind out of order
+        $stmt->bindParam(0, $text);
+        $stmt->bindParam(2, $userid);
+        $stmt->bindParam(1, $question);
 
         $result = $stmt->execute();
-
-        $stmt->free();
-
         if (PEAR::isError($result)) {
-            $error = $result->getMessage();
+            $this->assertTrue(true, 'Could not execute prepared query with question mark placeholders. Error: '.$error);
         }
 
-        $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared query with a text value with a question mark. Error: ');
-
-        $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (:text, :question, ".$data[1]['user_id'].")";
-        $stmt = $this->db->prepare($query, array('text', 'text'), MDB2_PREPARE_MANIP);
-
-        $stmt->bindParam('question', $data[1]['user_password']);
-        $stmt->bindParam('text', $data[1]['user_name']);
+        $text = $data[1]['user_name'];
+        $question = $data[1]['user_password'];
+        $userid = $data[1]['user_id'];
 
         $result = $stmt->execute();
+        if (PEAR::isError($result)) {
+            $this->assertTrue(true, 'Could not execute prepared query with bound parameters. Error: '.$error);
+        }
+        $stmt->free();
+        $this->clearTables();
 
+        $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (:text, :question, :userid)";
+        $stmt = $this->db->prepare($query, array('text', 'text', 'integer'), MDB2_PREPARE_MANIP);
+
+        $stmt->bindValue('text', $data[0]['user_name']);
+        $stmt->bindValue('question', $data[0]['user_password']);
+        $stmt->bindValue('userid', $data[0]['user_id']);
+
+        $result = $stmt->execute();
+        if (PEAR::isError($result)) {
+            $this->assertTrue(true, 'Could not execute prepared query with named placeholders. Error: '.$error);
+        }
         $stmt->free();
 
-        if (PEAR::isError($result)) {
-            $error = $result->getMessage();
-        }
+        $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (".$this->db->quote($data[1]['user_name'], 'text').", :question, :userid)";
+        $stmt = $this->db->prepare($query, array('text', 'integer'), MDB2_PREPARE_MANIP);
 
-        $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared query with a text value with a quote character before a question mark. Error: ');
+        $stmt->bindValue('question', $data[1]['user_password']);
+        $stmt->bindValue('userid', $data[1]['user_id']);
+
+        $result = $stmt->execute();
+        if (PEAR::isError($result)) {
+            $this->assertTrue(true, 'Could not execute prepared query with named placeholders and a quoted text value in front. Error: '.$error);
+        }
+        $stmt->free();
 
         $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_id=:user_id';
         $stmt = $this->db->prepare($query, array('integer'), array('text', 'text', 'integer'));
@@ -397,6 +417,23 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $result =& $stmt->execute(array($row_data['user_id']));
         if (PEAR::isError($result)) {
             $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared with quoted text fields around a placeholder. Error: '.$result->getUserinfo());
+            break;
+        }
+        $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+        if (!is_array($row)) {
+            $this->assertTrue(false, 'Prepared SELECT failed');
+        } else {
+            $diff = (array)array_diff($row, $row_data);
+            $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
+        }
+        $stmt->free();
+
+        $row_data = reset($data);
+        $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_name=:username OR user_password=:username';
+        $stmt = $this->db->prepare($query, array('text'), array('text', 'text', 'integer'));
+        $result =& $stmt->execute(array('username' => $row_data['user_name']));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared where the same named parameter is used twice. Error: '.$result->getUserinfo());
             break;
         }
         $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
