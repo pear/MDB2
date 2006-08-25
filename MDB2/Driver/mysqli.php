@@ -494,7 +494,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
 
             if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '5.0.3', '<')) {
-                $this->varchar_max_length = 65535;
+                $this->varchar_max_length = 65532;
             }
         }
 

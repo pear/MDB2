@@ -102,7 +102,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 $length = $field['length'];
                 if ($length <= 255) {
                     return 'TINYTEXT';
-                } elseif ($length <= 65535) {
+                } elseif ($length <= 65532) {
                     return 'TEXT';
                 } elseif ($length <= 16777215) {
                     return 'MEDIUMTEXT';
@@ -114,7 +114,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 $length = $field['length'];
                 if ($length <= 255) {
                     return 'TINYBLOB';
-                } elseif ($length <= 65535) {
+                } elseif ($length <= 65532) {
                     return 'BLOB';
                 } elseif ($length <= 16777215) {
                     return 'MEDIUMBLOB';
