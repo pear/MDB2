@@ -413,11 +413,9 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             }
             $query = $result;
         }
-        if ($this->getOption('disable_query')) {
-            if ($is_manip) {
-                return 0;
-            }
-            return null;
+        if ($this->options['disable_query']) {
+            $result = $is_manip ? 0 : null;
+            return $result;
         }
 
         if (is_null($connection)) {
