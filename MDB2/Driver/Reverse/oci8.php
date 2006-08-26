@@ -162,50 +162,32 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
 
         $index_name = $db->getIndexName($index_name);
-        $query = 'SELECT * FROM user_indexes';
+        $definition = array();
+
+        $query = 'SELECT * FROM user_ind_columns';
         $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
         $query.= ' AND (index_name='.$db->quote($index_name, 'text').' OR index_name='.$db->quote(strtoupper($index_name), 'text').')';
-        $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
-        if (PEAR::isError($row)) {
-            return $row;
+        $result = $db->query($query);
+        if (PEAR::isError($result)) {
+            return $result;
         }
-        $definition = array();
-        // todo: turn this into a join
-        if (!empty($row)) {
+        while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
             $row = array_change_key_case($row, CASE_LOWER);
-            $key_name = $row['index_name'];
+            $column_name = $row['column_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 if ($db->options['field_case'] == CASE_LOWER) {
-                    $key_name = strtolower($key_name);
+                    $column_name = strtolower($column_name);
                 } else {
-                    $key_name = strtoupper($key_name);
+                    $column_name = strtoupper($column_name);
                 }
             }
-            $query = 'SELECT * FROM user_ind_columns';
-            $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
-            $query.= ' AND (index_name='.$db->quote($index_name, 'text').' OR index_name='.$db->quote(strtoupper($index_name), 'text').')';
-            $result = $db->query($query);
-            if (PEAR::isError($result)) {
-                return $result;
+            $definition['fields'][$column_name] = array();
+            if (!empty($row['descend'])) {
+                $definition['fields'][$column_name]['sorting'] =
+                    ($row['descend'] == 'ASC' ? 'ascending' : 'descending');
             }
-            while ($colrow = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
-                $colrow = array_change_key_case($colrow, CASE_LOWER);
-                $column_name = $colrow['column_name'];
-                if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                    if ($db->options['field_case'] == CASE_LOWER) {
-                        $column_name = strtolower($column_name);
-                    } else {
-                        $column_name = strtoupper($column_name);
-                    }
-                }
-                $definition['fields'][$column_name] = array();
-                if (!empty($colrow['descend'])) {
-                    $definition['fields'][$column_name]['sorting'] =
-                        ($colrow['descend'] == 'ASC' ? 'ascending' : 'descending');
-                }
-            }
-            $result->free();
         }
+        $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'it was not specified an existing table index', __FUNCTION__);
@@ -235,10 +217,12 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $index_name = $db->getIndexName($index_name);
         }
 
-        $query = 'SELECT * FROM all_constraints';
-        $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
-        $query.= ' AND (index_name='.$db->quote($index_name, 'text').' OR index_name='.$db->quote(strtoupper($index_name), 'text').')';
-        $query.= ' AND owner = '.$db->quote(strtoupper($db->dsn['username']), 'text');
+        $query = 'SELECT all.constraint_type, cols.column_name';
+        $query.= ' FROM all_constraints AS all, all_cons_columns AS cols';
+        $query.= ' WHERE (all.table_name='.$db->quote($table, 'text').' OR all.table_name='.$db->quote(strtoupper($table), 'text').')';
+        $query.= ' AND (all.index_name='.$db->quote($index_name, 'text').' OR all.index_name='.$db->quote(strtoupper($index_name), 'text').')';
+        $query.= ' AND all.constraint_name = cols.constraint_name';
+        $query.= ' AND all.owner = '.$db->quote(strtoupper($db->dsn['username']), 'text');
         $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -246,35 +230,25 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
             $row = array_change_key_case($row, CASE_LOWER);
-            $key_name = $row['constraint_name'];
-            if ($row) {
-                $definition['primary'] = $row['constraint_type'] == 'P';
-                $definition['unique'] = $row['constraint_type'] == 'U';
-
-                $query = 'SELECT * FROM all_cons_columns WHERE constraint_name='.$db->quote($key_name, 'text');
-                $query.= ' AND (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
-                $colres = $db->query($query);
-                if (PEAR::isError($colres)) {
-                    return $colres;
-                }
-                while ($colrow = $colres->fetchRow(MDB2_FETCHMODE_ASSOC)) {
-                    $colrow = array_change_key_case($colrow, CASE_LOWER);
-                    $column_name = $colrow['column_name'];
-                    if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                        if ($db->options['field_case'] == CASE_LOWER) {
-                            $column_name = strtolower($column_name);
-                        } else {
-                            $column_name = strtoupper($column_name);
-                        }
-                    }
-                    $definition['fields'][$column_name] = array();
+            $column_name = $row['column_name'];
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $column_name = strtolower($column_name);
+                } else {
+                    $column_name = strtoupper($column_name);
                 }
             }
+            $definition['fields'][$column_name] = array();
         }
         $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'it was not specified an existing table constraint', __FUNCTION__);
+        }
+        if ($row['constraint_type'] === 'P') {
+            $definition['primary'] = true;
+        } elseif ($row['constraint_type'] === 'U') {
+            $definition['unique'] = true;
         }
         return $definition;
     }
