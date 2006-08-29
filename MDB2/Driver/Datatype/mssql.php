@@ -203,7 +203,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         if (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
                 $field['default'] = empty($field['notnull'])
-                    ? null : $this->valid_types[$field['type']];
+                    ? null : $this->valid_default_values[$field['type']];
                 if ($field['default'] === ''
                     && ($db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)
                 ) {

@@ -61,7 +61,7 @@ require_once 'MDB2/LOB.php';
  */
 class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 {
-    var $valid_types = array(
+    var $valid_default_values = array(
         'text'      => '',
         'boolean'   => true,
         'integer'   => 0,
@@ -96,7 +96,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function getValidTypes()
     {
-        $types = $this->valid_types;
+        $types = $this->valid_default_values;
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
@@ -141,7 +141,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     {
         $types = is_array($types) ? $types : array($types);
         foreach ($types as $key => $type) {
-            if (!isset($this->valid_types[$type])) {
+            if (!isset($this->valid_default_values[$type])) {
                 $db =& $this->getDBInstance();
                 if (PEAR::isError($db)) {
                     return $db;
@@ -420,7 +420,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
                 $field['default'] = empty($field['notnull'])
-                    ? null : $this->valid_types[$field['type']];
+                    ? null : $this->valid_default_values[$field['type']];
                 if ($field['default'] === ''
                     && ($db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)
                 ) {
