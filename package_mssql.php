@@ -26,6 +26,7 @@ $notes = <<<EOT
 - added dropIndex() to the manager module
 - increased MDB2 dependency too XXX
 - renamed valid_types property to valid_default_values in the Datatype module
+- increased PHP dependency due to http://bugs.php.net/bug.php?id=31195
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
