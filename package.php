@@ -27,6 +27,7 @@ open todo items:
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
+- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
 EOT;
 
 $description =<<<EOT
