@@ -101,6 +101,43 @@ $dbarray = array();
 #$dbarray[] = $fbsql;
 #$dbarray[] = $ibase;
 
+//if uncommented, the following will drop and recreate the test database when running the test
+// the paths assumes that MDB2_Schema is checked out in the same parent directory as MDB2
+/*
+require_once('MDB2/Schema.php');
+function pe($e) {
+    die($e->getMessage().' '.$e->getUserInfo());
+}
+PEAR::pushErrorHandling(PEAR_ERROR_CALLBACK, 'pe');
+foreach ($dbarray as $dbtype) {
+    $dsn = $dbtype['dsn'];
+    if ($dbtype['dsn']['phptype'] == 'oci8') {
+        $dsn['username'] = $dbtype['options']['DBA_username'];
+        $dsn['password'] = $dbtype['options']['DBA_password'];
+        $dsn['database'] = $dbtype['options']['DBA_username'];
+    }
+    $db =& MDB2::connect($dsn, $dbtype['options']);
+    $db->loadModule('Manager');
+    $db->manager->dropDatabase('driver_test');
+    if ($dbtype['dsn']['phptype'] == 'oci8') {
+        $db->query('CREATE USER '.$dbtype['dsn']['username'].' IDENTIFIED BY '.$dbtype['dsn']['password'].' DEFAULT TABLESPACE USERS QUOTA UNLIMITED ON USERS');
+        $db->query('GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE TRIGGER to '.$dbtype['dsn']['username']);
+    }
+    $schema =& MDB2_Schema::factory($dbtype['dsn'], $dbtype['options']);
+    $schema->updateDatabase(
+                            '../../MDB2_Schema/tests/driver_test.schema',
+                            false,
+                            array('create' => '1', 'name' => 'driver_test')
+                            );
+    $schema->updateDatabase(
+                            '../../MDB2_Schema/tests/lob_test.schema',
+                            false,
+                            array('create' => '1', 'name' => 'driver_test')
+                            );
+}
+PEAR::popErrorHandling();
+*/
+
 // you may need to uncomment the line and modify the multiplier as you see fit
 #set_time_limit(60*count($dbarray));
 ?>
