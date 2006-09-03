@@ -2,17 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.2.1';
+$version = 'YYY';
 $notes = <<<EOT
-- flip positions property array in prepared statement objects to make it
-  possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement
-- do not list empty contraints and indexes
-- added support for 'primary' option in createTable()
-- added missing 'mdb2type' to getTableFieldDefinition()
-- do not set a default if type is a LOB (Request #8074)
-- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too 2.2.1
 EOT;
 
 $package = new PEAR_PackageFileManager();

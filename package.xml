@@ -7,8 +7,9 @@
 
 It provides a common API for all supported RDBMS. The main difference to most
 other DB abstraction packages is that MDB2 goes much further to ensure
-portability. Among other things MDB2 features:
-* An OO-style query API
+portability. MDB2 provides most of its many features optionally that
+can be used to construct portable SQL statements:
+* Object-Oriented API
 * A DSN (data source name) or array format for specifying database servers
 * Datatype abstraction and on demand datatype conversion
 * Various optional fetch modes to fix portability issues
@@ -16,11 +17,11 @@ portability. Among other things MDB2 features:
 * Sequential and non sequential row fetching as well as bulk fetching
 * Ability to make buffered and unbuffered queries
 * Ordered array and associative array for the fetched rows
-* Prepare/execute (bind) emulation
+* Prepare/execute (bind) named and unnamed placeholder emulation
 * Sequence/autoincrement emulation
 * Replace emulation
 * Limited sub select emulation
-* Row limit support
+* Row limit emulation
 * Transactions/savepoint support
 * Large Object support
 * Index/Unique Key/Primary Key support
@@ -28,7 +29,7 @@ portability. Among other things MDB2 features:
 * Module framework to load advanced functionality on demand
 * Ability to read the information schema
 * RDBMS management methods (creating, dropping, altering)
-* Reverse engineering schemas from an existing DB
+* Reverse engineering schemas from an existing database
 * SQL function call abstraction
 * Full integration into the PEAR Framework
 * PHPDoc API documentation
@@ -66,36 +67,15 @@ portability. Among other things MDB2 features:
   </maintainer>
   </maintainers>
  <release>
-  <version>2.2.1</version>
-  <date>2006-08-21</date>
+  <version>2.2.2</version>
+  <date>2006-09-03</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- fixed missing code in tableInfo() (Bug #8289)
-- fixed handling of indexes and constraints and types in tableInfo() (fixes BC break)
-- do not set nested transaction error if error is expected
-- explictly default to NULL when the column is NULLable and no default is set
-  (related to Bug #8359)
-- added support for case insensitive matching via ILIKE in matchPattern()
-- added getAsKeyword() for generating &quot;AS&quot; keyword as required by the RDBMS
-- return an error if a named placeholder name is used twice inside a single statement
-- add support for multi column PRIMARY KEYs in createTable()
-- added lower() and upper() to the function module
-- moved escaping tests to datatype tests
-- added summary at the end of a test run for each RDBMS
-- explicitly pass the php_type var in all internal loadModule() calls
-- added support for &apos;primary&apos; option in createTable()
-- expanded NULL tests
-- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- check if safe_mode is enabled in fileExists() to determine what algo to use (Bug #8296)
-- added a test case for updating LOBs
-- added rtrim test case for LOBs
-- if result types are specified only rtrim() type &apos;text&apos; fields (otherwise
-  it will mean that for some drivers LOB&apos;s would get rtrimmed)
-- phpdoc fixes to the convertResult*() methods
-- added execParam() method and code tweaks for get*() methods in the Extended module
-- removed redundant assertions when testing if a given feature is unsupported
-- removed tests of portability off (users should just set the given portability
-  setting they want to test in their test_setup.php)
+  <notes>- flip positions property array in prepared statement objects to make it
+  possible to optionally use the same named placeholder in multiple places
+  inside a single prepared statement
+- expanded prepare tests to cover more edge cases
+- renamed valid_types property to valid_default_values in the Datatype module
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -114,6 +94,7 @@ open todo items:
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
+- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.2" optional="no"/>
@@ -268,6 +249,37 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>2.2.2</version>
+    <date>2006-09-03</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- flip positions property array in prepared statement objects to make it
+  possible to optionally use the same named placeholder in multiple places
+  inside a single prepared statement
+- expanded prepare tests to cover more edge cases
+- renamed valid_types property to valid_default_values in the Datatype module
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add length handling to LOB reverse engineering
+- expand charset support in schema management and result set handling (Request #4666)
+- add EXPLAIN abstraction
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- expand length/scale support for numeric types (Request #7170)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
+- add support for database/table/row LOCKs
+- add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
+- generate STATUS file from test suite results and allow users to submit test results
+- add a package2.xml and explore use of install groups (pear install MDB2#mysql)
+- add support for full text index creation and querying
+- add tests to check if the RDBMS specific handling with portability options
+  disabled behaves as expected
+- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
+    </notes>
+   </release>
    <release>
     <version>2.2.1</version>
     <date>2006-08-21</date>

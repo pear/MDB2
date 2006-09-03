@@ -20,16 +20,13 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.0.1</version>
-  <date>2006-08-21</date>
+  <version>1.0.2</version>
+  <date>2006-09-03</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- return an error if a named placeholder name is used twice inside a single statement
-- do not list empty contraints and indexes
-- added support for &apos;primary&apos; option in createTable()
-- do not set a default if type is a LOB (Request #8074)
-- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too 2.2.1
+  <notes>- flip positions property array in prepared statement objects to make it
+  possible to optionally use the same named placeholder in multiple places
+  inside a single prepared statement
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -85,6 +82,28 @@ open todo items:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.0.2</version>
+    <date>2006-09-03</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- flip positions property array in prepared statement objects to make it
+  possible to optionally use the same named placeholder in multiple places
+  inside a single prepared statement
+
+note:
+- please use the latest ext/oci8 version from pecl.php.net/oci8
+ (binaries are available from snaps.php.net and pecl4win.php.net)
+- by default this driver emulates the database concept other RDBMS have by this
+  using the &quot;database&quot; instead of &quot;username&quot; in the DSN as the username name.
+  behaviour can be disabled by setting the &quot;emulate_database&quot; option to false.
+- the multi_query test failes because this is not supported by ext/oci8
+- the null LOB test failes because this is not supported by Oracle
+
+open todo items:
+- enable use of read() for LOBs to read a LOB in chunks
+    </notes>
+   </release>
    <release>
     <version>1.0.1</version>
     <date>2006-08-21</date>

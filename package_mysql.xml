@@ -14,27 +14,13 @@
   </maintainer>
   </maintainers>
  <release>
-  <version>1.2.1</version>
-  <date>2006-08-21</date>
+  <version>1.2.2</version>
+  <date>2006-09-03</date>
   <license>BSD License</license>
   <state>stable</state>
-  <notes>- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
-  led to returning incorrect type values (Bug #8291)
-- quote identifiers in the reverse module when &apos;quote_identifiers&apos; is enabled (Bug #8309)
-- use version_compare() to fix complex version comparisons (Bug #8355)
-- do not use quote() in setCharset() since it is supposed to set the charset in
-  the connection that was passed to it
-- return an error if a named placeholder name is used twice inside a single statement
-- do not list empty contraints and indexes
-- added support for &apos;primary&apos; option in createTable()
-- fixed notnull reverse engineering on mysql 4.x (Bug #8415)
-- do not set a default if type is a LOB (Request #8074)
-- if a default value is set, then we need to use VARCHAR instead of TEXT
-- removed _verifyTableType() since it just adds overhead, is hard to do reliably
-  and you will get an error if the table type is not supported anyways
-- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- only call RELEASE SAVEPOINT if the server version if 5.0.3 or higher
-- increased MDB2 dependency too 2.2.1
+  <notes>- flip positions property array in prepared statement objects to make it
+  possible to optionally use the same named placeholder in multiple places
+  inside a single prepared statement
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
@@ -82,6 +68,20 @@ note:
   </filelist>
  </release>
  <changelog>
+   <release>
+    <version>1.2.2</version>
+    <date>2006-09-03</date>
+    <license>BSD License</license>
+    <state>stable</state>
+    <notes>- flip positions property array in prepared statement objects to make it
+  possible to optionally use the same named placeholder in multiple places
+  inside a single prepared statement
+
+note:
+- the multi_query test failes because this is not supported by ext/mysql
+- use a trigger to emulate setting default now()
+    </notes>
+   </release>
    <release>
     <version>1.2.1</version>
     <date>2006-08-21</date>

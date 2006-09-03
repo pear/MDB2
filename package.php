@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'XXX';
+$version = '2.2.2';
 $notes = <<<EOT
 - flip positions property array in prepared statement objects to make it
   possible to optionally use the same named placeholder in multiple places
@@ -35,8 +35,9 @@ PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers
 
 It provides a common API for all supported RDBMS. The main difference to most
 other DB abstraction packages is that MDB2 goes much further to ensure
-portability. Among other things MDB2 features:
-* An OO-style query API
+portability. MDB2 provides most of its many features optionally that
+can be used to construct portable SQL statements:
+* Object-Oriented API
 * A DSN (data source name) or array format for specifying database servers
 * Datatype abstraction and on demand datatype conversion
 * Various optional fetch modes to fix portability issues
@@ -44,11 +45,11 @@ portability. Among other things MDB2 features:
 * Sequential and non sequential row fetching as well as bulk fetching
 * Ability to make buffered and unbuffered queries
 * Ordered array and associative array for the fetched rows
-* Prepare/execute (bind) emulation
+* Prepare/execute (bind) named and unnamed placeholder emulation
 * Sequence/autoincrement emulation
 * Replace emulation
 * Limited sub select emulation
-* Row limit support
+* Row limit emulation
 * Transactions/savepoint support
 * Large Object support
 * Index/Unique Key/Primary Key support
@@ -56,7 +57,7 @@ portability. Among other things MDB2 features:
 * Module framework to load advanced functionality on demand
 * Ability to read the information schema
 * RDBMS management methods (creating, dropping, altering)
-* Reverse engineering schemas from an existing DB
+* Reverse engineering schemas from an existing database
 * SQL function call abstraction
 * Full integration into the PEAR Framework
 * PHPDoc API documentation

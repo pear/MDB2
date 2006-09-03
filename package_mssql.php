@@ -24,7 +24,7 @@ $notes = <<<EOT
 - ALTER TABLE bug when adding more than 1 column (Bug #8373)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - added dropIndex() to the manager module
-- increased MDB2 dependency too XXX
+- increased MDB2 dependency too 2.2.2
 - renamed valid_types property to valid_default_values in the Datatype module
 - increased PHP dependency due to http://bugs.php.net/bug.php?id=31195
 
@@ -71,7 +71,7 @@ $package->addMaintainer('nrf', 'lead', 'Nathan Fredrickson', 'nathan@silverorang
 
 $package->addDependency('php', '4.3.11', 'ge', 'php', false);
 $package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', 'XXX', 'ge', 'pkg', false);
+$package->addDependency('MDB2', '2.2.2', 'ge', 'pkg', false);
 $package->addDependency('mssql', null, 'has', 'ext', false);
 
 $package->addglobalreplacement('package-info', '@package_version@', 'version');

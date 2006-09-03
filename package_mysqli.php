@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = 'YYY';
+$version = '1.2.2';
 $notes = <<<EOT
 - fixed single quote handling inside non emulated prepared statements (Bug #8538)
 - flip positions property array in prepared statement objects to make it
