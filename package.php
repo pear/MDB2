@@ -2,13 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '2.2.2';
+$version = 'XXX';
 $notes = <<<EOT
-- flip positions property array in prepared statement objects to make it
-  possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement
-- expanded prepare tests to cover more edge cases
-- renamed valid_types property to valid_default_values in the Datatype module
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -68,7 +63,7 @@ $package = new PEAR_PackageFileManager();
 $result = $package->setOptions(
     array(
         'package'           => 'MDB2',
-        'summary'           => 'database abstraction layer',
+        'summary'           => 'A database abstraction layer',
         'description'       => $description,
         'version'           => $version,
         'state'             => 'stable',

@@ -2,11 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.2.2';
+$version = 'YYY';
 $notes = <<<EOT
-- flip positions property array in prepared statement objects to make it
-  possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

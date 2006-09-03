@@ -2,11 +2,8 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '1.0.2';
+$version = 'YYY';
 $notes = <<<EOT
-- flip positions property array in prepared statement objects to make it
-  possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
