@@ -8,6 +8,8 @@ $notes = <<<EOT
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
+- add option to use unnamed prepared statements
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html "Extended Query")
 EOT;
 
 $package = new PEAR_PackageFileManager();
