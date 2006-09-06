@@ -1087,6 +1087,7 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['idxname_format'] -> string: pattern for index name</li>
      *  <li>$options['seqname_format'] -> string: pattern for sequence name</li>
      *  <li>$options['savepoint_format'] -> string: pattern for auto generated savepoint names</li>
+     *  <li>$options['statement_format'] -> string: pattern for prepared statement names</li>
      *  <li>$options['seqcol_name'] -> string: sequence column name</li>
      *  <li>$options['quote_identifier'] -> boolean: if identifier quoting should be done when check_option is used</li>
      *  <li>$options['use_transactions'] -> boolean: if transaction use should be enabled</li>
@@ -1124,6 +1125,7 @@ class MDB2_Driver_Common extends PEAR
         'idxname_format' => '%s_idx',
         'seqname_format' => '%s_seq',
         'savepoint_format' => 'MDB2_SAVEPOINT_%s',
+        'statement_format' => 'MDB2_STATEMENT_%1$s_%2$s',
         'seqcol_name' => 'sequence',
         'quote_identifier' => false,
         'use_transactions' => true,
