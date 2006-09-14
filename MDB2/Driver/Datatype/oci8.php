@@ -55,18 +55,18 @@ require_once 'MDB2/Driver/Datatype/Common.php';
  */
 class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
 {
-    // {{{ convertResult()
+    // {{{ _baseConvertResult()
 
     /**
-     * convert a value to a RDBMS indepdenant MDB2 type
+     * general type conversion method
      *
-     * @param mixed $value value to be converted
+     * @param mixed $value refernce to a value to be converted
      * @param string $type specifies which type to convert to
-     * @param bool   $rtrim   if to rtrim text values or not
-     * @return mixed converted value
-     * @access public
+     * @param string $rtrim if text should be rtrimmed
+     * @return object a MDB2 error on failure
+     * @access protected
      */
-    function convertResult($value, $type, $rtrim = true)
+    function _baseConvertResult($value, $type, $rtrim = true)
     {
         if (is_null($value)) {
             return null;
@@ -77,7 +77,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'time':
             return substr($value, strlen('YYYY-MM-DD '), strlen('HH:MI:SS'));
         }
-        return $this->_baseConvertResult($value, $type, $rtrim);
+        return parent::_baseConvertResult($value, $type, $rtrim);
     }
 
     // }}}
