@@ -360,7 +360,7 @@ END;
      *                                 indexes of the array. The value of each entry of the array
      *                                 should be set to another associative array with the properties
      *                                 of the fields to be added. The properties of the fields should
-     *                                 be the same as defined by the Metabase parser.
+     *                                 be the same as defined by the MDB2 parser.
      *
      *
      *                            remove
@@ -389,7 +389,7 @@ END;
      *                                 array with the properties of the fields to that are meant to be changed as
      *                                 array entries. These entries should be assigned to the new values of the
      *                                 respective properties. The properties of the fields should be the same
-     *                                 as defined by the Metabase parser.
+     *                                 as defined by the MDB2 parser.
      *
      *                            Example
      *                                array(

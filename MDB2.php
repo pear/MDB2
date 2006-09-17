@@ -2684,7 +2684,7 @@ class MDB2_Driver_Common extends PEAR
      * inserting a new row.
      *
      * The REPLACE type of query does not make part of the SQL standards. Since
-     * practically only MySQL and SQLIte implement it natively, this type of
+     * practically only MySQL and SQLite implement it natively, this type of
      * query isemulated through this method for other DBMS using standard types
      * of queries inside a transaction to assure the atomicity of the operation.
      *
@@ -2707,7 +2707,7 @@ class MDB2_Driver_Common extends PEAR
      *           set to 1.
      *
      *       type
-     *           Name of the type of the field. Currently, all types Metabase
+     *           Name of the type of the field. Currently, all types MDB2
      *           are supported except for clob and blob.
      *
      *           Default: no type conversion
