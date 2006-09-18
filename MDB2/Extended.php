@@ -136,7 +136,7 @@ class MDB2_Extended extends MDB2_Module_Common
             if (is_array($result_types)) {
                 $keys = array_keys($result_types);
             } else {
-                $keys = $result_types = array();
+                $keys = array();
             }
         } else {
             $keys = array_keys($fields_values);
@@ -233,7 +233,7 @@ class MDB2_Extended extends MDB2_Module_Common
             return $sql;
             break;
         case MDB2_AUTOQUERY_SELECT:
-            $cols = is_array($table_fields) ? implode(', ', $table_fields) : '*';
+            $cols = !empty($table_fields) ? implode(', ', $table_fields) : '*';
             $sql = 'SELECT '.$cols.' FROM '.$table.$where;
             return $sql;
             break;

@@ -70,19 +70,29 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $result =& $this->db->query($select_query, $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+        } else {
+            $this->verifyFetchedValues($result, null, $data);
+            $result->free();
         }
-
-        $this->verifyFetchedValues($result, null, $data);
-        $result->free();
 
         $where = 'user_id = '.$this->db->quote($data['user_id'], 'integer');
         $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_SELECT, $where, null, true, $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error auto executing select: '.$result->getMessage());
+        } else {
+            $this->verifyFetchedValues($result, null, $data);
+            $result->free();
         }
 
-        $this->verifyFetchedValues($result, null, $data);
-        $result->free();
+        $where = 'user_id = '.$this->db->quote($data['user_id'], 'integer');
+        $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_SELECT, $where, null, true, MDB2_PREPARE_RESULT);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error auto executing select: '.$result->getMessage());
+        } else {
+            $result->setResultTypes($this->fields);
+            $this->verifyFetchedValues($result, null, $data);
+            $result->free();
+        }
 
         $update_data = array();
         $data['user_name'] = $update_data['user_name'] = 'foo';
@@ -97,10 +107,10 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $result =& $this->db->query($select_query, $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+        } else {
+            $this->verifyFetchedValues($result, null, $data);
+            $result->free();
         }
-
-        $this->verifyFetchedValues($result, null, $data);
-        $result->free();
 
         $where = array($where, 'user_name = '.$this->db->quote($data['user_name'], 'text'));
         $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_DELETE, $where, null);
@@ -112,12 +122,12 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $result =& $this->db->query($select_query, $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+        } else {
+            $this->assertEquals(0, $result->numRows(), 'No rows were expected to be returned');
+            $result->free();
         }
-
-        $this->assertEquals(0, $result->numRows(), 'No rows were expected to be returned');
-        $result->free();
     }
-    
+
     /**
      * Test getAssoc()
      *
