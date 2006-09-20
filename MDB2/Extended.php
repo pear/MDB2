@@ -152,7 +152,7 @@ class MDB2_Extended extends MDB2_Module_Common
             if ($mode == MDB2_AUTOQUERY_SELECT) {
                 $result =& $db->query($query, $result_types, $result_class);
             } else {
-                $result =& $db->exec($query);
+                $result = $db->exec($query);
             }
         } else {
             $stmt = $this->autoPrepare($table, $keys, $mode, $where, $types, $result_types);
