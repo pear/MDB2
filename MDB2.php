@@ -1350,7 +1350,7 @@ class MDB2_Driver_Common extends PEAR
     /**
      * This method is used to collect information about an error
      *
-     * @param   mixed   error codeor ressource
+     * @param   mixed   error code or resource
      *
      * @return  array   with MDB2 errorcode, native error code, native message
      *
