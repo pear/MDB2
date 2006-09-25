@@ -339,7 +339,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $case_func = 'strval';
         }
 
-        $count = $result->numCols();
+        $count = @OCINumCols($resource);
         $res = array();
 
         if ($mode) {
