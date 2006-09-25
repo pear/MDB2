@@ -413,10 +413,10 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
-        if (!is_resource($id)) {
+        $resource = MDB2::isResultCommon($result) ? $result->getResource() : $result;
+        if (!is_resource($resource)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'Could not generate result ressource', __FUNCTION__);
+                'Could not generate result resource', __FUNCTION__);
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -429,7 +429,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $case_func = 'strval';
         }
 
-        $count = @ibase_num_fields($id);
+        $count = @ibase_num_fields($resource);
         $res   = array();
 
         if ($mode) {
@@ -438,7 +438,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
 
         $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
-            $info = @ibase_field_info($id, $i);
+            $info = @ibase_field_info($resource, $i);
             if (($pos = strpos($info['type'], '(')) !== false) {
                 $info['type'] = substr($info['type'], 0, $pos);
             }

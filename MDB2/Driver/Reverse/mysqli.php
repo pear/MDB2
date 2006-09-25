@@ -367,10 +367,10 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
-        if (!is_resource($id)) {
+        $resource = MDB2::isResultCommon($result) ? $result->getResource() : $result;
+        if (!is_resource($resource)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'Could not generate result ressource', __FUNCTION__);
+                'Could not generate result resource', __FUNCTION__);
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -383,7 +383,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             $case_func = 'strval';
         }
 
-        $count = @mysqli_num_fields($id);
+        $count = @mysqli_num_fields($resource);
         $res   = array();
 
         if ($mode) {
@@ -392,7 +392,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
 
         $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
-            $tmp = @mysqli_fetch_field($id);
+            $tmp = @mysqli_fetch_field($resource);
 
             $flags = '';
             foreach ($this->flags as $const => $means) {

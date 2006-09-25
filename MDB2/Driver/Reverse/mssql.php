@@ -88,10 +88,10 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
-        if (!is_resource($id)) {
+        $resource = MDB2::isResultCommon($result) ? $result->getResource() : $result;
+        if (!is_resource($resource)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'Could not generate result ressource', __FUNCTION__);
+                'Could not generate result resource', __FUNCTION__);
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -104,7 +104,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             $case_func = 'strval';
         }
 
-        $count = @mssql_num_fields($id);
+        $count = @mssql_num_fields($resource);
         $res   = array();
 
         if ($mode) {
@@ -115,9 +115,9 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
                 'table' => '',
-                'name'  => $case_func(@mssql_field_name($id, $i)),
-                'type'  => @mssql_field_type($id, $i),
-                'length'   => @mssql_field_length($id, $i),
+                'name'  => $case_func(@mssql_field_name($resource, $i)),
+                'type'  => @mssql_field_type($resource, $i),
+                'length'   => @mssql_field_length($resource, $i),
                 'flags' => '',
             );
             $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);

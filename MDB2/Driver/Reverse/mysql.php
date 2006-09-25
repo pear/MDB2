@@ -313,10 +313,10 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        $id = MDB2::isResultCommon($result) ? $result->getResource() : $result;
-        if (!is_resource($id)) {
+        $resource = MDB2::isResultCommon($result) ? $result->getResource() : $result;
+        if (!is_resource($resource)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'Could not generate result ressource', __FUNCTION__);
+                'Could not generate result resource', __FUNCTION__);
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -329,7 +329,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             $case_func = 'strval';
         }
 
-        $count = @mysql_num_fields($id);
+        $count = @mysql_num_fields($resource);
         $res   = array();
 
         if ($mode) {
@@ -339,11 +339,11 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
-                'table' => $case_func(@mysql_field_table($id, $i)),
-                'name'  => $case_func(@mysql_field_name($id, $i)),
-                'type'  => @mysql_field_type($id, $i),
-                'length'   => @mysql_field_len($id, $i),
-                'flags' => @mysql_field_flags($id, $i),
+                'table' => $case_func(@mysql_field_table($resource, $i)),
+                'name'  => $case_func(@mysql_field_name($resource, $i)),
+                'type'  => @mysql_field_type($resource, $i),
+                'length'   => @mysql_field_len($resource, $i),
+                'flags' => @mysql_field_flags($resource, $i),
             );
             if ($res[$i]['type'] == 'string') {
                 $res[$i]['type'] = 'char';
