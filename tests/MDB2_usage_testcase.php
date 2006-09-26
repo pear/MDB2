@@ -1121,6 +1121,46 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
     }
 
+    function testLOBRead() {
+        if (!$this->supported('LOBs')) {
+            return;
+        }
+
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (?, ?, ?)';
+        $stmt = $this->db->prepare($query, array('integer', 'clob', 'blob'), MDB2_PREPARE_MANIP, array(1 => 'document', 2 => 'picture'));
+
+        for ($i = 20; $i < 30; ++$i) {
+            $character_lob = $binary_lob = $i;
+            $stmt->bindParam(1, $character_lob);
+            $stmt->bindParam(2, $binary_lob);
+
+            $result = $stmt->execute(array($i));
+
+            if (PEAR::isError($result)) {
+                $this->assertTrue(false, 'Error executing prepared query: '.$result->getUserInfo());
+            }
+        }
+        $stmt->free();
+        $result =& $this->db->query('SELECT id, document, picture FROM files WHERE id >= 20 and id <= 30 order by id asc', array('integer', 'clob', 'blob'));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from files'.$result->getMessage());
+        }
+
+        $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
+        while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+            foreach (array('document' => 'clob', 'picture' => 'blob') as $field => $type) {
+                $lob = $row[$field];
+                if (is_a($lob, 'oci-lob')) {
+                    $lob = $lob->load();
+                } else if (is_resource($lob)) {
+                    $lob = fread($lob, 1000);
+                }
+                $this->assertEquals($lob, $row['id'], 'LOB ('.$type.') field ('.$field.') not equal to expected value ('.$row['id'].')');
+            }
+        }
+        $result->free();
+    }
+
     /**
      * Testing LOB storage
      */
