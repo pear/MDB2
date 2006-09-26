@@ -232,13 +232,34 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      *                            )
      *                        );
      * @param array $options  An associative array of table options:
-     *
+     *                          array(
+     *                              'comment' => 'Foo',
+     *                          );
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
     function createTable($name, $fields, $options = array())
     {
-        $result = parent::createTable($name, $fields, $options);
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $query = $this->_getCreateTableQuery($name, $fields, $options);
+        if (PEAR::isError($query)) {
+            return $query;
+        }
+
+        $options_strings = array();
+
+        if (!empty($options['comment'])) {
+            $options_strings['comment'] = '/* '.$db->quote($options['comment'], 'text'). ' */';
+        }
+
+        if (!empty($options_strings)) {
+            $query.= ' '.implode(' ', $options_strings);
+        }
+        
+        $result = $db->exec($query);
         if (PEAR::isError($result)) {
             return $result;
         }

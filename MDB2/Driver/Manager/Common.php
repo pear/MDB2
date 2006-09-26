@@ -201,6 +201,44 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     }
 
     // }}}
+    // {{{
+
+    /**
+     * Create a basic SQL query for a new table creation
+     * @param string $name   Name of the database that should be created
+     * @param array $fields  Associative array that contains the definition of each field of the new table
+     * @param array $options  An associative array of table options
+     * @return mixed string (the SQL query) on success, a MDB2 error on failure
+     * @see createTable()
+     */
+    function _getCreateTableQuery($name, $fields, $options = array())
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (!$name) {
+            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
+                'no valid table name specified', __FUNCTION__);
+        }
+        if (empty($fields)) {
+            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
+                'no fields specified for table "'.$name.'"', __FUNCTION__);
+        }
+        $query_fields = $this->getFieldDeclarationList($fields);
+        if (PEAR::isError($query_fields)) {
+            return $query_fields;
+        }
+        if (!empty($options['primary'])) {
+            $query_fields.= ', PRIMARY KEY ('.implode(', ', array_keys($options['primary'])).')';
+        }
+
+        $name = $db->quoteIdentifier($name, true);
+        return "CREATE TABLE $name ($query_fields)";
+    }
+
+    // }}}
     // {{{ createTable()
 
     /**
@@ -234,29 +272,14 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
      */
     function createTable($name, $fields, $options = array())
     {
+        $query = $this->_getCreateTableQuery($name, $fields, $options);
+        if (PEAR::isError($query)) {
+            return $query;
+        }
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
-
-        if (!$name) {
-            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'no valid table name specified', __FUNCTION__);
-        }
-        if (empty($fields)) {
-            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
-                'no fields specified for table "'.$name.'"', __FUNCTION__);
-        }
-        $query_fields = $this->getFieldDeclarationList($fields);
-        if (PEAR::isError($query_fields)) {
-            return $query_fields;
-        }
-        if (!empty($options['primary'])) {
-            $query_fields.= ', PRIMARY KEY ('.implode(', ', array_keys($options['primary'])).')';
-        }
-
-        $name = $db->quoteIdentifier($name, true);
-        $query = "CREATE TABLE $name ($query_fields)";
         return $db->exec($query);
     }
 
