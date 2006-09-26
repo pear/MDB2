@@ -1145,11 +1145,13 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             if ($this->offset > 0) {
                 array_pop($buffer);
             }
+            /*
             foreach (array_keys($buffer) as $key) {
                 if (is_a($buffer[$key], 'oci-lob')) {
                     $buffer[$key] = $buffer[$key]->load();
                 }
             }
+            */
             $this->buffer[$this->buffer_rownum] = $buffer;
         }
 
