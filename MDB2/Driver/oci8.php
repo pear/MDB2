@@ -381,12 +381,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 'unable to establish a connection', __FUNCTION__);
         }
 
-        $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-        $err =& $this->_doQuery($query, true, $connection);
-        if (PEAR::isError($err)) {
-            $this->disconnect(false);
-            return $err;
-        }
+       if (empty($this->dsn['disable_iso_date'])) {
+            $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
+            $err =& $this->_doQuery($query, true, $connection);
+            if (PEAR::isError($err)) {
+                $this->disconnect(false);
+                return $err;
+            }
+       }
 
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
         $err =& $this->_doQuery($query, true, $connection);

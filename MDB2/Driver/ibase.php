@@ -492,14 +492,16 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 'unable to establish a connection', __FUNCTION__);
         }
 
-        if (function_exists('ibase_timefmt')) {
-            @ibase_timefmt("%Y-%m-%d %H:%M:%S", IBASE_TIMESTAMP);
-            @ibase_timefmt("%Y-%m-%d", IBASE_DATE);
-        } else {
-            @ini_set("ibase.timestampformat", "%Y-%m-%d %H:%M:%S");
-            //@ini_set("ibase.timeformat", "%H:%M:%S");
-            @ini_set("ibase.dateformat", "%Y-%m-%d");
-        }
+       if (empty($this->dsn['disable_iso_date'])) {
+            if (function_exists('ibase_timefmt')) {
+                @ibase_timefmt("%Y-%m-%d %H:%M:%S", IBASE_TIMESTAMP);
+                @ibase_timefmt("%Y-%m-%d", IBASE_DATE);
+            } else {
+                @ini_set("ibase.timestampformat", "%Y-%m-%d %H:%M:%S");
+                //@ini_set("ibase.timeformat", "%H:%M:%S");
+                @ini_set("ibase.dateformat", "%Y-%m-%d");
+            }
+       }
 
         return $connection;
     }

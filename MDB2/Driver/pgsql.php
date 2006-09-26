@@ -420,10 +420,12 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 null, null, strip_tags($php_errormsg), __FUNCTION__);
         }
 
-        if (!@pg_query($connection, "SET SESSION DATESTYLE = 'ISO'")) {
-            return $this->raiseError(null, null, null,
-                'Unable to set connection charset: '.$this->dsn['charset'], __FUNCTION__);
-        }
+       if (empty($this->dsn['disable_iso_date'])) {
+            if (!@pg_query($connection, "SET SESSION DATESTYLE = 'ISO'")) {
+                return $this->raiseError(null, null, null,
+                    'Unable to set date style to iso', __FUNCTION__);
+            }
+       }
 
         if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);

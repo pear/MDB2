@@ -342,16 +342,19 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             }
         }
 
+       if ((bool)ini_get('mssql.datetimeconvert')) {
+           @ini_set('mssql.datetimeconvert', '0');
+       }
+
+       if (empty($this->dsn['disable_iso_date'])) {
+           @mssql_query('SET DATEFORMAT ymd', $connection);
+       }
+
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
-
-       if ((bool) ini_get('mssql.datetimeconvert')) {
-           @ini_set('mssql.datetimeconvert', '0');
-       }
-       @mssql_query('SET DATEFORMAT ymd', $connection);
 
         return MDB2_OK;
     }
