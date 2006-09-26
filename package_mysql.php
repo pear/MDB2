@@ -4,6 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'YYY';
 $notes = <<<EOT
+- added charset and collation support to field declaration
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

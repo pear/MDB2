@@ -4,6 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'XXX';
 $notes = <<<EOT
+- added charset and collation support to field declaration
 
 open todo items:
 - handle autoincrement fields in alterTable()

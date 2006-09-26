@@ -405,6 +405,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *      notnull
      *          Boolean flag that indicates whether this field is constrained
      *          to not be set to null.
+     *      charset
+     *          Text value with the default CHARACTER SET for this field.
+     *      collation
+     *          Text value with the default COLLATION for this field.
      * @return string  DBMS specific SQL code portion that should be used to
      *      declare the specified field.
      * @access protected
@@ -432,9 +436,47 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             $default = ' DEFAULT NULL';
         }
 
+        $charset = empty($field['charset']) ? '' :
+            ' '.$this->_getCharsetFieldDeclaration($field['charset']);
+        
+        $collation = empty($field['collation']) ? '' :
+            ' '.$this->_getCollationFieldDeclaration($field['collation']);
+        
         $notnull = empty($field['notnull']) ? '' : ' NOT NULL';
         $name = $db->quoteIdentifier($name, true);
-        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
+        return $name.' '.$this->getTypeDeclaration($field).$charset.$default.$notnull.$collation;
+    }
+
+    // }}}
+    // {{{ _getCharsetFieldDeclaration()
+    
+    /**
+     * Obtain DBMS specific SQL code portion needed to set the CHARACTER SET
+     * of a field declaration to be used in statements like CREATE TABLE.
+     *
+     * @param string $charset   name of the charset
+     * @return string  DBMS specific SQL code portion needed to set the CHARACTER SET
+     *                 of a field declaration.
+     */
+    function _getCharsetFieldDeclaration($charset)
+    {
+        return '';
+    }
+
+    // }}}
+    // {{{ _getCollationFieldDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to set the COLLATION
+     * of a field declaration to be used in statements like CREATE TABLE.
+     *
+     * @param string $collation   name of the collation
+     * @return string  DBMS specific SQL code portion needed to set the COLLATION
+     *                 of a field declaration.
+     */
+    function _getCollationFieldDeclaration($collation)
+    {
+        return '';
     }
 
     // }}}
