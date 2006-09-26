@@ -1121,6 +1121,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
     }
 
+    /**
+     * Test LOB reading of multiple records both buffered and unbuffered. See bug #8793 for why this must be tested.
+     */
     function testLOBRead() {
         if (!$this->supported('LOBs')) {
             return;
