@@ -1129,10 +1129,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             return;
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (?, ?, ?)';
-        $stmt = $this->db->prepare($query, array('integer', 'clob', 'blob'), MDB2_PREPARE_MANIP, array(1 => 'document', 2 => 'picture'));
-
         for ($i = 20; $i < 30; ++$i) {
+            $query = 'INSERT INTO files (ID, document, picture) VALUES (?, ?, ?)';
+            $stmt = $this->db->prepare($query, array('integer', 'clob', 'blob'), MDB2_PREPARE_MANIP, array(1 => 'document', 2 => 'picture'));
             $character_lob = $binary_lob = $i;
             $stmt->bindParam(1, $character_lob);
             $stmt->bindParam(2, $binary_lob);
@@ -1142,8 +1141,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error executing prepared query: '.$result->getUserInfo());
             }
+            $stmt->free();
         }
-        $stmt->free();
 
         foreach (array(true, false) as $buffered) {
             $oldBuffered = $this->db->getOption('result_buffering');
