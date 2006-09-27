@@ -1144,8 +1144,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $stmt->free();
         }
 
+        $oldBuffered = $this->db->getOption('result_buffering');
         foreach (array(true, false) as $buffered) {
-            $oldBuffered = $this->db->getOption('result_buffering');
             $this->db->setOption('result_buffering', $buffered);
             $msgPost = ' with result_buffering = '.($buffered ? 'true' : 'false');
             
@@ -1162,15 +1162,15 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
                     $lob = $row[$field];
                     if (is_a($lob, 'oci-lob')) {
                         $lob = $lob->load();
-                    } else if (is_resource($lob)) {
+                    } elseif (is_resource($lob)) {
                         $lob = fread($lob, 1000);
                     }
                     $this->assertEquals($lob, $row['id'], 'LOB ('.$type.') field ('.$field.') not equal to expected value ('.$row['id'].')'.$msgPost);
                 }
             }
             $result->free();
-            $this->db->setOption('result_buffering', $oldBuffered);
         }
+        $this->db->setOption('result_buffering', $oldBuffered);
     }
 
     /**
