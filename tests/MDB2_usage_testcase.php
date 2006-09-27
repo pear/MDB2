@@ -1122,60 +1122,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
     }
 
     /**
-     * Test LOB reading of multiple records both buffered and unbuffered. See bug #8793 for why this must be tested.
-     */
-    function testLOBRead() {
-        if (!$this->supported('LOBs')) {
-            return;
-        }
-
-        for ($i = 20; $i < 30; ++$i) {
-            $query = 'INSERT INTO files (ID, document, picture) VALUES (?, ?, ?)';
-            $stmt = $this->db->prepare($query, array('integer', 'clob', 'blob'), MDB2_PREPARE_MANIP, array(1 => 'document', 2 => 'picture'));
-            $character_lob = $binary_lob = $i;
-            $stmt->bindParam(1, $character_lob);
-            $stmt->bindParam(2, $binary_lob);
-
-            $result = $stmt->execute(array($i));
-
-            if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Error executing prepared query: '.$result->getUserInfo());
-            }
-            $stmt->free();
-        }
-
-        $oldBuffered = $this->db->getOption('result_buffering');
-        foreach (array(true, false) as $buffered) {
-            $this->db->setOption('result_buffering', $buffered);
-            $msgPost = ' with result_buffering = '.($buffered ? 'true' : 'false');
-            $result =& $this->db->query('SELECT id, document, picture FROM files WHERE id >= 20 and id <= 30 order by id asc', array('integer', 'clob', 'blob'));
-            if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Error selecting from files'.$msgPost.$result->getMessage());
-            } else {
-                if ($buffered) {
-                    $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon'.$msgPost);
-                }
-                for ($i = 1; $i <= ($buffered ? 2 : 1); ++$i) {
-                    $result->seek(0);
-                    while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
-                        foreach (array('document' => 'clob', 'picture' => 'blob') as $field => $type) {
-                            $lob = $row[$field];
-                            if (is_a($lob, 'oci-lob')) {
-                                $lob = $lob->load();
-                            } elseif (is_resource($lob)) {
-                                $lob = fread($lob, 1000);
-                            }
-                            $this->assertEquals($lob, $row['id'], 'LOB ('.$type.') field ('.$field.') not equal to expected value ('.$row['id'].')'.$msgPost.' on run-through '.$i);
-                        }
-                    }
-                }
-                $result->free();
-            }
-        }
-        $this->db->setOption('result_buffering', $oldBuffered);
-    }
-
-    /**
      * Testing LOB storage
      */
     function testLOBStorage() {
@@ -1246,6 +1192,60 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue(false, 'Error retrieving BLOB result');
         }
         $result->free();
+    }
+
+    /**
+     * Test LOB reading of multiple records both buffered and unbuffered. See bug #8793 for why this must be tested.
+     */
+    function testLOBRead() {
+        if (!$this->supported('LOBs')) {
+            return;
+        }
+
+        for ($i = 20; $i < 30; ++$i) {
+            $query = 'INSERT INTO files (ID, document, picture) VALUES (?, ?, ?)';
+            $stmt = $this->db->prepare($query, array('integer', 'clob', 'blob'), MDB2_PREPARE_MANIP, array(1 => 'document', 2 => 'picture'));
+            $character_lob = $binary_lob = $i;
+            $stmt->bindParam(1, $character_lob);
+            $stmt->bindParam(2, $binary_lob);
+
+            $result = $stmt->execute(array($i));
+
+            if (PEAR::isError($result)) {
+                $this->assertTrue(false, 'Error executing prepared query: '.$result->getUserInfo());
+            }
+            $stmt->free();
+        }
+
+        $oldBuffered = $this->db->getOption('result_buffering');
+        foreach (array(true, false) as $buffered) {
+            $this->db->setOption('result_buffering', $buffered);
+            $msgPost = ' with result_buffering = '.($buffered ? 'true' : 'false');
+            $result =& $this->db->query('SELECT id, document, picture FROM files WHERE id >= 20 and id <= 30 order by id asc', array('integer', 'clob', 'blob'));
+            if (PEAR::isError($result)) {
+                $this->assertTrue(false, 'Error selecting from files'.$msgPost.$result->getMessage());
+            } else {
+                if ($buffered) {
+                    $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon'.$msgPost);
+                }
+                for ($i = 1; $i <= ($buffered ? 2 : 1); ++$i) {
+                    $result->seek(0);
+                    while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+                        foreach (array('document' => 'clob', 'picture' => 'blob') as $field => $type) {
+                            $lob = $row[$field];
+                            if (is_a($lob, 'oci-lob')) {
+                                $lob = $lob->load();
+                            } elseif (is_resource($lob)) {
+                                $lob = fread($lob, 1000);
+                            }
+                            $this->assertEquals($lob, $row['id'], 'LOB ('.$type.') field ('.$field.') not equal to expected value ('.$row['id'].')'.$msgPost.' on run-through '.$i);
+                        }
+                    }
+                }
+                $result->free();
+            }
+        }
+        $this->db->setOption('result_buffering', $oldBuffered);
     }
 
     /**
