@@ -474,7 +474,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 }
-                $query.= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field, $name);
+                $query.= 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
             }
         }
 

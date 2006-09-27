@@ -462,7 +462,7 @@ END;
         if (!empty($changes['add']) && is_array($changes['add'])) {
             $fields = array();
             foreach ($changes['add'] as $field_name => $field) {
-                $fields[] = $db->getDeclaration($field['type'], $field_name, $field, $name);
+                $fields[] = $db->getDeclaration($field['type'], $field_name, $field);
             }
             $result = $db->exec("ALTER TABLE $name ADD (". implode(', ', $fields).')');
             if (PEAR::isError($result)) {
