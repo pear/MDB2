@@ -1148,27 +1148,29 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         foreach (array(true, false) as $buffered) {
             $this->db->setOption('result_buffering', $buffered);
             $msgPost = ' with result_buffering = '.($buffered ? 'true' : 'false');
-            
             $result =& $this->db->query('SELECT id, document, picture FROM files WHERE id >= 20 and id <= 30 order by id asc', array('integer', 'clob', 'blob'));
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, 'Error selecting from files'.$msgPost.$result->getMessage());
-            }
-
-            if ($buffered) {
-                $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon'.$msgPost);
-            }
-            while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
-                foreach (array('document' => 'clob', 'picture' => 'blob') as $field => $type) {
-                    $lob = $row[$field];
-                    if (is_a($lob, 'oci-lob')) {
-                        $lob = $lob->load();
-                    } elseif (is_resource($lob)) {
-                        $lob = fread($lob, 1000);
-                    }
-                    $this->assertEquals($lob, $row['id'], 'LOB ('.$type.') field ('.$field.') not equal to expected value ('.$row['id'].')'.$msgPost);
+            } else {
+                if ($buffered) {
+                    $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon'.$msgPost);
                 }
+                for ($i = 1; $i <= ($buffered ? 2 : 1); ++$i) {
+                    $result->seek(0);
+                    while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+                        foreach (array('document' => 'clob', 'picture' => 'blob') as $field => $type) {
+                            $lob = $row[$field];
+                            if (is_a($lob, 'oci-lob')) {
+                                $lob = $lob->load();
+                            } elseif (is_resource($lob)) {
+                                $lob = fread($lob, 1000);
+                            }
+                            $this->assertEquals($lob, $row['id'], 'LOB ('.$type.') field ('.$field.') not equal to expected value ('.$row['id'].')'.$msgPost.' on run-through '.$i);
+                        }
+                    }
+                }
+                $result->free();
             }
-            $result->free();
         }
         $this->db->setOption('result_buffering', $oldBuffered);
     }
