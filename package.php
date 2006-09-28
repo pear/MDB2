@@ -24,6 +24,7 @@ open todo items:
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
 - handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
+- handle SQL comments inside prepared statement parser
 EOT;
 
 $description =<<<EOT
