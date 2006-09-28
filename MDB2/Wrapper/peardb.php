@@ -140,6 +140,9 @@ define('DB_PORTABILITY_ALL', MDB2_PORTABILITY_ALL);
  */
 class DB
 {
+    /**
+     * DB::factory()
+     */
     function &factory($type)
     {
         $db =& MDB2::factory($type);
@@ -150,6 +153,9 @@ class DB
         return $obj;
     }
 
+    /**
+     * DB::connect()
+     */
     function &connect($dsn, $options = false)
     {
         if (!is_array($options) && $options) {
@@ -163,18 +169,31 @@ class DB
         return $obj;
     }
 
+    /**
+     * DB::apiVersion()
+     */
     function apiVersion()
     {
         return 2;
     }
 
+    /**
+     * DB::isError()
+     */
     function isError($value)
     {
         return PEAR::isError($value);
     }
 
+    /**
+     * DB::isManip()
+     */
     function isManip($query)
     {
+        if (!is_string($query)) {
+            return false;
+        }
+
         $manips = 'INSERT|UPDATE|DELETE|REPLACE|'
                . 'CREATE|DROP|'
                . 'LOAD DATA|SELECT .* INTO|COPY|'
@@ -186,16 +205,25 @@ class DB
         return false;
     }
 
+    /**
+     * DB::errorMessage()
+     */
     function errorMessage($value)
     {
         return MDB2::errorMessage($value);
     }
 
+    /**
+     * DB::parseDSN()
+     */
     function parseDSN($dsn)
     {
         return MDB2::parseDSN($dsn);
     }
 
+    /**
+     * DB::assertExtension()
+     */
     function assertExtension($name)
     {
         if (!extension_loaded($name)) {
@@ -217,7 +245,7 @@ class DB
 class DB_Error extends PEAR_Error
 {
     function DB_Error($code = DB_ERROR, $mode = PEAR_ERROR_RETURN,
-              $level = E_USER_NOTICE, $debuginfo = null)
+        $level = E_USER_NOTICE, $debuginfo = null)
     {
         if (is_int($code)) {
             $this->PEAR_Error('DB Error: ' . DB::errorMessage($code), $code, $mode, $level, $debuginfo);
@@ -238,16 +266,20 @@ class DB_result extends MDB2_Result_Common
 {
     var $result;
     var $row_counter = null;
-
     var $limit_from  = null;
-
     var $limit_count = null;
 
+    /** 
+     * Constructor
+     */
     function DB_result($result)
     {
         $this->result = $result;
     }
 
+    /** 
+     * DB_result::fetchRow()
+     */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         $arr = $this->result->fetchRow($fetchmode, $rownum);
@@ -257,6 +289,9 @@ class DB_result extends MDB2_Result_Common
         return $arr;
     }
 
+    /** 
+     * DB_result::fetchInto()
+     */
     function fetchInto(&$arr, $fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         $arr = $this->fetchRow($fetchmode, $rownum);
@@ -266,6 +301,9 @@ class DB_result extends MDB2_Result_Common
         return DB_OK;
     }
 
+    /** 
+     * DB_result::_convertNullArrayValuesToEmpty()
+     */
     function _convertNullArrayValuesToEmpty(&$array)
     {
         if (is_array($array)) {
@@ -277,21 +315,33 @@ class DB_result extends MDB2_Result_Common
         }
     }
 
+    /** 
+     * DB_result::numCols()
+     */
     function numCols()
     {
         return $this->result->numCols();
     }
 
+    /** 
+     * DB_result::numRows()
+     */
     function numRows()
     {
         return $this->result->numRows();
     }
 
+    /** 
+     * DB_result::nextResult()
+     */
     function nextResult()
     {
         return $this->result->nextResult();
     }
 
+    /** 
+     * DB_result::free()
+     */
     function free()
     {
         $err = $this->result->free();
@@ -302,12 +352,18 @@ class DB_result extends MDB2_Result_Common
         return true;
     }
 
+    /** 
+     * DB_result::free()
+     */
     function tableInfo($mode = null)
     {
         $this->result->db->loadModule('Reverse', null, true);
         return $this->result->db->reverse->tableInfo($this->result, $mode);
     }
 
+    /** 
+     * DB_result::getRowCounter()
+     */
     function getRowCounter()
     {
         return $this->result->rowCount()+1+$this->result->offset;
@@ -324,13 +380,17 @@ class DB_row
     }
 }
 
-class MDB2_PEARProxy extends PEAR
+class MDB2_PEARProxy extends PEAR 
 {
     var $db_object;
     var $phptype;
     var $connection;
     var $dsn;
+    var $autocommit = true;
 
+    /** 
+     * Constructor
+     */
     function MDB2_PEARProxy(&$db_object)
     {
         $this->db_object =& $db_object;
@@ -342,22 +402,34 @@ class MDB2_PEARProxy extends PEAR
         $this->dsn = $this->db_object->getDSN();
     }
 
+    /** 
+     * MDB2_PEARProxy::connect()
+     */
     function connect($dsninfo, $persistent = false)
     {
         $this->options['persistent'] = $presistent;
         return $this->db_object->connect();
     }
 
+    /** 
+     * MDB2_PEARProxy::disconnect()
+     */
     function disconnect()
     {
         return $this->db_object->disconnect();
     }
 
+    /** 
+     * MDB2_PEARProxy::toString()
+     */
     function toString()
     {
         return $this->db_object->__toString();
     }
 
+    /** 
+     * MDB2_PEARProxy::quoteString()
+     */
     function quoteString($string)
     {
         $string = $this->quote($string);
@@ -367,6 +439,9 @@ class MDB2_PEARProxy extends PEAR
         return $string;
     }
 
+    /** 
+     * MDB2_PEARProxy::quote()
+     */
     function quote($string)
     {
         if (is_null($string)) {
@@ -375,11 +450,17 @@ class MDB2_PEARProxy extends PEAR
         return $this->db_object->quote($string);
     }
 
+    /** 
+     * MDB2_PEARProxy::quote()
+     */
     function escapeSimple($str)
     {
         return $this->db_object->escape($str);
     }
 
+    /** 
+     * MDB2_PEARProxy::quoteSmart()
+     */
     function quoteSmart($in)
     {
         if (is_int($in) || is_double($in)) {
@@ -393,51 +474,75 @@ class MDB2_PEARProxy extends PEAR
         }
     }
 
+    /** 
+     * MDB2_PEARProxy::quoteIdentifier()
+     */
     function quoteIdentifier($string)
     {
         return $this->db_object->quoteIdentifier($string, false);
     }
 
-    // map?
+    /** 
+     * MDB2_PEARProxy::provides()
+     */
+    // todo: map?
     function provides($feature)
     {
         return $this->db_object->support($feature);
     }
 
-    // remove?
+    /** 
+     * MDB2_PEARProxy::errorCode()
+     */
     function errorCode($nativecode)
     {
         return $this->db_object->errorCode($nativecode);
     }
 
-    // remove?
+    /** 
+     * MDB2_PEARProxy::errorMessage()
+     */
     function errorMessage($dbcode)
     {
         return $this->db_object->errorMessage($dbcode);
     }
 
-    // remove?
+    /** 
+     * MDB2_PEARProxy::raiseError()
+     */
     function &raiseError($code = MDB2_ERROR, $mode = null, $options = null,
         $userinfo = null, $nativecode = null)
     {
         return $this->db_object->raiseError($code, $mode, $options, $userinfo, $nativecode);
     }
 
+    /** 
+     * MDB2_PEARProxy::setFetchMode()
+     */
     function setFetchMode($fetchmode, $object_class = 'stdClass')
     {
         return $this->db_object->setFetchMode($fetchmode, $object_class);
     }
 
+    /** 
+     * MDB2_PEARProxy::setOption()
+     */
     function setOption($option, $value)
     {
         return $this->db_object->setOption($option, $value);
     }
 
+    /** 
+     * MDB2_PEARProxy::getOption()
+     */
     function getOption($option)
     {
         return $this->db_object->getOption($option);
     }
 
+    /** 
+     * MDB2_PEARProxy::prepare()
+     */
     function prepare($query)
     {
         // parse for ! and &
@@ -446,39 +551,56 @@ class MDB2_PEARProxy extends PEAR
         return $this->db_object->prepare($query, $types, $result_types);
     }
 
-    function autoPrepare($table, $table_fields, $mode = MDB2_AUTOQUERY_INSERT, $where = false)
+    /** 
+     * MDB2_PEARProxy::autoPrepare()
+     */
+    function autoPrepare($table, $table_fields, $mode = MDB2_AUTOQUERY_INSERT, $where = false, $types = array())
     {
         $this->db_object->loadModule('Extended', null, false);
-        // types
-        return $this->db_object->extended->autoPrepare($table, $table_fields, $mode, $where);
+        return $this->db_object->extended->autoPrepare($table, $table_fields, $mode, $where, $types);
     }
 
-    function &autoExecute($table, $fields_values, $mode, $where)
+    /** 
+     * MDB2_PEARProxy::autoExecute()
+     */
+    function &autoExecute($table, $fields_values, $mode, $where = '', $types = array())
     {
         $this->db_object->loadModule('Extended', null, false);
-        // types
-        return $this->db_object->extended->autoExecute($table, $fields_values, $mode, $where);
+        return $this->db_object->extended->autoExecute($table, $fields_values, $mode, $where, $types);
     }
 
+    /** 
+     * MDB2_PEARProxy::buildManipSQL()
+     */
     function buildManipSQL($table, $table_fields, $mode, $where = false)
     {
         $this->db_object->loadModule('Extended', null, false);
         return $this->db_object->extended->buildManipSQL($table, $table_fields, $mode, $where);
     }
 
+    /** 
+     * MDB2_PEARProxy::execute()
+     */
     function &execute($stmt, $data = false)
     {
         $stmt->bindValueArray($data);
         return $stmt->execute();
     }
 
+    /** 
+     * MDB2_PEARProxy::executeMultiple()
+     */
     function executeMultiple($stmt, $data)
     {
         $this->db_object->loadModule('Extended', null, false);
         return $this->db_object->extended->executeMultiple($stmt, null, $data);
     }
 
-    function &query($query, $params = array()) {
+    /** 
+     * MDB2_PEARProxy::query()
+     */
+    function &query($query, $params = array())
+    {
         if (sizeof($params) > 0) {
             $sth = $this->db_object->prepare($query);
             if (PEAR::isError($sth)) {
@@ -487,16 +609,25 @@ class MDB2_PEARProxy extends PEAR
             if (!is_array($params)) {
                 $params = array($params);
             }
-            $stmt->bindValueArray($params);
-            return $stmt->execute();
+            $sth->bindValueArray($params);
+            return $sth->execute();
         }
         if (DB::isManip($query)) {
-            return $this->db_object->exec($query);
+            // PEAR::DB return DB_OK on success or DB_Error object on failure
+            $result =& $this->db_object->exec($query);
+            if (PEAR::isError($result)) {
+                return $result;
+           }
+            return DB_OK;
         }
         return $this->db_object->query($query);
     }
 
-    function simpleQuery($query) {
+    /** 
+     * MDB2_PEARProxy::simpleQuery()
+     */
+    function simpleQuery($query)
+    {
         if (DB::isManip($query)) {
             return $this->db_object->exec($query);
         }
@@ -504,13 +635,27 @@ class MDB2_PEARProxy extends PEAR
         if (PEAR::isError($result) || $result === MDB2_OK) {
             return $result;
         } else {
-            return $result->result->getResource();
+            return $result->getResource();
         }
     }
+    
 
+    /** 
+     * MDB2_PEARProxy::modifyLimitQuery()
+     */
+    function modifyLimitQuery($query, $from, $count, $params = array())
+    {
+        $is_manip = DB::isManip($query);
+        $query = $this->db_object->_modifyQuery($query, $is_manip, $count, $from); 
+        return $query;
+    }
+
+    /** 
+     * MDB2_PEARProxy::limitQuery()
+     */
     function limitQuery($query, $from, $count, $params = array())
     {
-        $result = $this->db_object->setLimit($count, $from);
+        $result = $this->db_object->setLimit($count, $from); 
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -518,6 +663,9 @@ class MDB2_PEARProxy extends PEAR
         return $result;
     }
 
+    /** 
+     * MDB2_PEARProxy::_convertNullArrayValuesToEmpty()
+     */
     function _convertNullArrayValuesToEmpty(&$array)
     {
         if (is_array($array)) {
@@ -529,19 +677,26 @@ class MDB2_PEARProxy extends PEAR
         }
     }
 
+    /** 
+     * MDB2_PEARProxy::getOne()
+     */
     function &getOne($query, $params = array())
     {
         $result = $this->query($query, $params);
-        $one = $result->result->fetchOne();
+        if (DB::isError($result)) {
+            return $result;
+        }
+        $one = $result->fetchOne();
         if (is_null($one)) {
             $one = '';
         }
         return $one;
     }
 
-    function &getRow($query,
-                     $params = array(),
-                     $fetchmode = MDB2_FETCHMODE_DEFAULT)
+    /** 
+     * MDB2_PEARProxy::getRow()
+     */
+    function &getRow($query, $params = array(), $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if (!is_array($params)) {
             if (is_array($fetchmode)) {
@@ -558,22 +713,33 @@ class MDB2_PEARProxy extends PEAR
             }
         }
         $result =& $this->query($query, $params);
-        return $result->result->fetchRow($fetchmode);
+        if (DB::isError($result)) {
+            return $result;
+        }
+        return $result->fetchRow($fetchmode);
     }
 
+    /** 
+     * MDB2_PEARProxy::getCol()
+     */
     function &getCol($query, $col = 0, $params = array())
     {
         $result =& $this->query($query, $params);
-        $col = $result->result->fetchCol($col);
+        if (DB::isError($result)) {
+            return $result;
+        }
+        $col = $result->fetchCol($col);
         $this->_convertNullArrayValuesToEmpty($col);
         return $col;
     }
 
-    function &getAssoc($query, $force_array = false, $params = array(),
-                       $fetchmode = MDB2_FETCHMODE_ORDERED, $group = false)
+    /** 
+     * MDB2_PEARProxy::getAssoc()
+     */
+    function &getAssoc($query, $force_array = false, $params = array(), $fetchmode = MDB2_FETCHMODE_ORDERED, $group = false)
     {
         $result =& $this->query($query, $params);
-        $all = $result->result->fetchAll($fetchmode, true, $force_array, $group);
+        $all = $result->fetchAll($fetchmode, true, $force_array, $group);
         $first = reset($all);
         if (isset($first) && $this->db_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
             if (is_array($first)) {
@@ -595,9 +761,25 @@ class MDB2_PEARProxy extends PEAR
         return $all;
     }
 
-    function &getAll($query,
-                     $params = null,
-                     $fetchmode = MDB2_FETCHMODE_DEFAULT)
+    /** 
+     * MDB2_PEARProxy::_readLobData()
+     */
+    function _readLobData(&$row)
+    {
+        if (is_array($row)) {
+            foreach ($row as $k => $v) {
+                if (is_object($v) && get_class($v) == 'OCI-Lob') {
+                    $v->rewind();
+                    $row[$k] = $v->read($v->size());
+                }
+            }
+        }
+    }
+
+    /** 
+     * MDB2_PEARProxy::getAll()
+     */
+    function &getAll($query, $params = null, $fetchmode = MDB2_FETCHMODE_DEFAULT)
     {
         if (!is_array($params)) {
             if (is_array($fetchmode)) {
@@ -614,7 +796,10 @@ class MDB2_PEARProxy extends PEAR
             }
         }
         $result =& $this->query($query, $params);
-        $all = $result->result->fetchAll($fetchmode);
+        if (DB::isError($result)) {
+            return $result;
+        }
+        $all = $result->fetchAll($fetchmode);
         $first = reset($all);
         if (isset($first) && $this->db_object->options['portability'] & DB_PORTABILITY_NULL_TO_EMPTY) {
             if (is_array($first)) {
@@ -636,49 +821,93 @@ class MDB2_PEARProxy extends PEAR
         return $all;
     }
 
+    /** 
+     * MDB2_PEARProxy::autoCommit()
+     */
     function autoCommit($onoff = false)
     {
-        return $this->db_object->autoCommit($onoff);
+        $this->autocommit = $onoff;
+        $in_transaction = $this->db_object->inTransaction();
+        if ($onoff) {
+            if ($in_transaction) {
+                return $this->db_object->commit();
+            }
+        } elseif (!$in_transaction) {
+            return $this->db_object->beginTransaction();
+        }
+        return DB_OK;
     }
 
+    /** 
+     * MDB2_PEARProxy::commit()
+     */
     function commit()
     {
-        return $this->db_object->commit();
+        $result = $this->db_object->commit();
+        if (!PEAR::isError($result) && !$this->autocommit) {
+            $result = $this->db_object->beginTransaction();
+        }
+        return $result;
     }
 
+    /** 
+     * MDB2_PEARProxy::rollback()
+     */
     function rollback()
     {
-        return $this->db_object->rollback();
+        $result = $this->db_object->rollback();
+        if (!PEAR::isError($result) && !$this->autocommit) {
+            $result = $this->db_object->beginTransaction();
+        }
+        return $result;
     }
 
+    /** 
+     * MDB2_PEARProxy::affectedRows()
+     */
     function affectedRows()
     {
-        return $this->db_object->affectedRows();
+        return $this->db_object->_affectedRows();
     }
 
+    /** 
+     * MDB2_PEARProxy::errorNative()
+     */
     function errorNative()
     {
         $infos = $this->db_object->errorInfo();
         return $infos[2];
     }
 
+    /** 
+     * MDB2_PEARProxy::nextId()
+     */
     function nextId($seq_name, $ondemand = true)
     {
         return $this->db_object->nextID($seq_name, $ondemand);
     }
 
+    /** 
+     * MDB2_PEARProxy::createSequence()
+     */
     function createSequence($seq_name)
     {
         $this->db_object->loadModule('Manager', null, true);
         return $this->db_object->manager->createSequence($seq_name, 1);
     }
 
+    /** 
+     * MDB2_PEARProxy::dropSequence()
+     */
     function dropSequence($seq_name)
     {
         $this->db_object->loadModule('Manager', null, true);
         return $this->db_object->manager->dropSequence($seq_name);
     }
 
+    /** 
+     * MDB2_PEARProxy::_wrapResource()
+     */
     function &_wrapResource($result)
     {
         if (is_resource($result)) {
@@ -690,44 +919,65 @@ class MDB2_PEARProxy extends PEAR
         return $result;
     }
 
+    /** 
+     * MDB2_PEARProxy::fetchInto()
+     */
     function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         $result = $this->_wrapResource($result);
         if (!is_null($rownum)) {
-            $result->result->seek($rownum);
+            $result->seek($rownum);
         }
         $arr = $result->fetchRow($fetchmode);
     }
 
+    /** 
+     * MDB2_PEARProxy::freePrepared()
+     */
     function freePrepared($prepared)
     {
         return $this->db_object->freePrepared($prepared);
     }
 
+    /** 
+     * MDB2_PEARProxy::freeResult()
+     */
     function freeResult($result)
     {
         $result = $this->_wrapResource($result);
         return $result->free();
     }
 
+    /** 
+     * MDB2_PEARProxy::numCols()
+     */
     function numCols($result)
     {
         $result = $this->_wrapResource($result);
         return $result->numCols();
     }
 
+    /** 
+     * MDB2_PEARProxy::numRows()
+     */
     function numRows($result)
     {
         $result = $this->_wrapResource($result);
         return $result->numRows();
     }
 
+    /** 
+     * MDB2_PEARProxy::nextResult()
+     */
     function nextResult($result)
     {
         $result = $this->_wrapResource($result);
         return $result->nextResult();
     }
 
+    /** 
+     * MDB2_PEARProxy::tableInfo()
+     */
     function tableInfo($result, $mode = null)
     {
         $result = $this->_wrapResource($result);
@@ -738,11 +988,17 @@ class MDB2_PEARProxy extends PEAR
         return $result->tableInfo($mode);
     }
 
+    /** 
+     * MDB2_PEARProxy::getTables()
+     */
     function getTables()
     {
         return $this->getListOf('tables');
     }
 
+    /** 
+     * MDB2_PEARProxy::getListOf()
+     */
     function getListOf($type)
     {
         $this->db_object->loadModule('Manager', null, true);
