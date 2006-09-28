@@ -543,10 +543,9 @@ class MDB2_PEARProxy extends PEAR
     /** 
      * MDB2_PEARProxy::prepare()
      */
-    function prepare($query)
+    function prepare($query, $types = array())
     {
         // parse for ! and &
-        $types = array();
         $result_types = DB::isManip($query) ? MDB2_PREPARE_MANIP : MDB2_PREPARE_RESULT;
         return $this->db_object->prepare($query, $types, $result_types);
     }
@@ -759,21 +758,6 @@ class MDB2_PEARProxy extends PEAR
             }
         }
         return $all;
-    }
-
-    /** 
-     * MDB2_PEARProxy::_readLobData()
-     */
-    function _readLobData(&$row)
-    {
-        if (is_array($row)) {
-            foreach ($row as $k => $v) {
-                if (is_object($v) && get_class($v) == 'OCI-Lob') {
-                    $v->rewind();
-                    $row[$k] = $v->read($v->size());
-                }
-            }
-        }
     }
 
     /** 
