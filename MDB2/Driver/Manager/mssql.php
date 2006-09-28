@@ -228,7 +228,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 } else {
-                    $query.= 'ADD ';
+                    $query.= 'ADD COLUMN ';
                 }
                 $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
