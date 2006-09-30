@@ -524,8 +524,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         if (function_exists('mysqli_set_charset')) {
             $result = @mysqli_set_charset($connection, $charset);
         } else {
-            $query = "SET character_set_client = '".mysqli_real_escape_string($charset, $connection)."'";
-            $result = @mysqli_query($query, $connection);
+            $query = "SET character_set_client = '".mysqli_real_escape_string($connection, $charset)."'";
+            $result = @mysqli_query($connection, $query);
         }
 
         if (!$result) {
