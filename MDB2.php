@@ -3619,7 +3619,7 @@ class MDB2_Result_Common extends MDB2_Result
      *
      * @access  public
      */
-    function getColumnNames($reverse = false)
+    function getColumnNames($flip = false)
     {
         if (!isset($this->column_names)) {
             $result = $this->_getColumnNames();
@@ -3628,8 +3628,8 @@ class MDB2_Result_Common extends MDB2_Result
             }
             $this->column_names = $result;
         }
-        if ($reverse) {
-            return array_reverse($this->column_names);
+        if ($flip) {
+            return array_flip($this->column_names);
         }
         return $this->column_names;
     }
