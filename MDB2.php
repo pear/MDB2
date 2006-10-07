@@ -3438,7 +3438,7 @@ class MDB2_Result_Common extends MDB2_Result
     // {{{ function fetchCol($colnum = 0)
 
     /**
-     * Fetch and return a column of data (it uses current for that)
+     * Fetch and return a column from the current row pointer position
      *
      * @param   int     the column number to fetch
      *
@@ -3470,7 +3470,7 @@ class MDB2_Result_Common extends MDB2_Result
     // {{{ function fetchAll($fetchmode = MDB2_FETCHMODE_DEFAULT, $rekey = false, $force_array = false, $group = false)
 
     /**
-     * Fetch and return a column of data (it uses fetchRow for that)
+     * Fetch and return all rows from the current row pointer position
      *
      * @param   int     $fetchmode  the fetch mode to use:
      *                            + MDB2_FETCHMODE_ORDERED
