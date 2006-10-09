@@ -136,8 +136,8 @@ class MDB2_Extended extends MDB2_Module_Common
             if (is_array($result_types)) {
                 $keys = array_keys($result_types);
             } elseif (!empty($fields_values)) {
-				$keys = $fields_values;
-			} else {
+              $keys = $fields_values;
+            } else {
                 $keys = array();
             }
         } else {
