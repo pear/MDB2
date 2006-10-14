@@ -5,6 +5,7 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'YYY';
 $notes = <<<EOT
 - added charset and collation support to field declaration
+- fixed bug #9024: typo in error checking
 EOT;
 
 $package = new PEAR_PackageFileManager();

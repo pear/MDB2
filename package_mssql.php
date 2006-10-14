@@ -28,6 +28,7 @@ $notes = <<<EOT
 - renamed valid_types property to valid_default_values in the Datatype module
 - increased PHP dependency due to http://bugs.php.net/bug.php?id=31195
 - using 'ADD COLUMN' syntax instead of just 'ADD' in alterTable()
+- fixed bug #9024: typo in error checking
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
