@@ -5,6 +5,8 @@ require_once 'PEAR/PackageFileManager.php';
 $version = 'XXX';
 $notes = <<<EOT
 - added charset and collation support to field declaration
+- added SQL comments and quoted identifier handling inside prepared statement parser
+- expanded length/scale support for numeric types (Request #7170)
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -12,7 +14,6 @@ open todo items:
 - expand charset support in schema management and result set handling (Request #4666)
 - add EXPLAIN abstraction
 - add cursor support along the lines of PDO (Request #3660 etc.)
-- expand length/scale support for numeric types (Request #7170)
 - add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
 - add support to export/import in CSV format
 - add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
@@ -24,7 +25,6 @@ open todo items:
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
 - handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
-- handle SQL comments inside prepared statement parser
 EOT;
 
 $description =<<<EOT
