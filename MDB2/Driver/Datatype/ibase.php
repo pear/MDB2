@@ -175,7 +175,8 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             return 'DOUBLE PRECISION';
         case 'decimal':
             $length = !empty($field['length']) ? $field['length'] : 18;
-            return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
+            $scale = !empty($field['scale']) ? $field['scale'] : $db->options['decimal_places'];
+            return 'DECIMAL('.$length.','.$scale.')';
         }
         return '';
     }
@@ -319,7 +320,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        return " ESCAPE '". $db->escape_pattern ."'";
+        return " ESCAPE '". $db->string_quoting['escape_pattern'] ."'";
     }
 
     // }}}

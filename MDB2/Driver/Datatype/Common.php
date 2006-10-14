@@ -1092,7 +1092,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 'type not defined: '.$type, __FUNCTION__);
         }
         $value = $this->{"_quote{$type}"}($value, $quote, $escape_wildcards);
-        if ($quote && $escape_wildcards && $db->escape_quotes !== $db->escape_pattern) {
+        if ($quote && $escape_wildcards && $db->string_quoting['escape_pattern']
+            && $db->string_quoting['escape'] !== $db->string_quoting['escape_pattern']
+        ) {
             $value.= $this->patternEscapeString();
         }
         return $value;

@@ -182,7 +182,8 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             return 'DOUBLE';
         case 'decimal':
             $length = !empty($field['length']) ? $field['length'] : 18;
-            return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
+            $scale = !empty($field['scale']) ? $field['scale'] : $db->options['decimal_places'];
+            return 'DECIMAL('.$length.','.$scale.')';
         }
         return '';
     }

@@ -166,7 +166,8 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             return 'FLOAT8';
         case 'decimal':
             $length = !empty($field['length']) ? $field['length'] : 18;
-            return 'NUMERIC('.$length.','.$db->options['decimal_places'].')';
+            $scale = !empty($field['scale']) ? $field['scale'] : $db->options['decimal_places'];
+            return 'NUMERIC('.$length.','.$scale.')';
         }
     }
 
@@ -365,7 +366,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        return ' ESCAPE '.$this->quote($db->escape_pattern);
+        return ' ESCAPE '.$this->quote($db->string_quoting['escape_pattern']);
     }
 
     // }}}

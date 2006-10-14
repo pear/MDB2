@@ -56,10 +56,9 @@
 class MDB2_Driver_mssql extends MDB2_Driver_Common
 {
     // {{{ properties
-    var $escape_quotes = "'";
+    var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => "'", 'escape_pattern' => false);
 
-    var $escape_identifier = '';
-
+    var $identifier_quoting = array('start' => '[', 'end' => ']', 'escape' => ']');
     // }}}
     // {{{ constructor
 
@@ -166,29 +165,6 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             $text = str_replace($wildcard, '[' . $wildcard . ']', $text);
         }
         return $text;
-    }
-
-    // }}}
-    // {{{ quoteIdentifier()
-
-    /**
-     * Quote a string so it can be safely used as a table / column name
-     *
-     * Quoting style depends on which database driver is being used.
-     *
-     * @param string $str  identifier name to be quoted
-     * @param bool   $check_option  check the 'quote_identifier' option
-     *
-     * @return string  quoted identifier string
-     *
-     * @access public
-     */
-    function quoteIdentifier($str, $check_option = false)
-    {
-        if ($check_option && !$this->options['quote_identifier']) {
-            return $str;
-        }
-        return '[' . str_replace(']', ']]', $str) . ']';
     }
 
     // }}}

@@ -215,10 +215,6 @@
  */
 class MDB2_Driver_querysim extends MDB2_Driver_Common
 {
-    var $escape_quotes = "\\";
-
-    var $escape_identifier = '';
-
     // }}}
     // {{{ constructor
 
@@ -233,22 +229,22 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $this->dbsyntax = 'querysim';
 
         // Most of these are dummies to simulate availability if checked
-        $this->supported['sequences'] = 'emulated';
-        $this->supported['indexes'] = true;
+        $this->supported['sequences'] = false;
+        $this->supported['indexes'] = false;
         $this->supported['affected_rows'] = false;
         $this->supported['summary_functions'] = false;
         $this->supported['order_by_text'] = false;
-        $this->supported['current_id'] = 'emulated';
+        $this->supported['current_id'] = false;
         $this->supported['limit_queries'] = true;// this one is real
         $this->supported['LOBs'] = true;
-        $this->supported['replace'] = 'emulated';
-        $this->supported['sub_selects'] = 'emulated';
+        $this->supported['replace'] = false;
+        $this->supported['sub_selects'] = false;
         $this->supported['transactions'] = false;
         $this->supported['savepoints'] = false;
         $this->supported['auto_increment'] = false;
         $this->supported['primary_key'] = false;
         $this->supported['result_introspection'] = false; // not implemented
-        $this->supported['prepared_statements'] = 'emulated';
+        $this->supported['prepared_statements'] = false;
         $this->supported['identifier_quoting'] = false;
         $this->supported['pattern_escaping'] = false;
 

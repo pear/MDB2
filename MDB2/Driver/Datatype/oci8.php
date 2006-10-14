@@ -137,7 +137,8 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'float':
             return 'NUMBER';
         case 'decimal':
-            return 'NUMBER(*,'.$db->options['decimal_places'].')';
+            $scale = !empty($field['scale']) ? $field['scale'] : $db->options['decimal_places'];
+            return 'NUMBER(*,'.$scale.')';
         }
     }
 
@@ -362,7 +363,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        return " ESCAPE '".$db->escape_pattern."'";
+        return " ESCAPE '". $db->string_quoting['escape_pattern'] ."'";
     }
 
     // }}}

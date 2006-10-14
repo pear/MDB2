@@ -55,12 +55,9 @@
 class MDB2_Driver_pgsql extends MDB2_Driver_Common
 {
     // {{{ properties
-    var $escape_quotes = "'";
+    var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => "'", 'escape_pattern' => '\\');
 
-    var $escape_pattern = "\\";
-
-    var $escape_identifier = '"';
-
+    var $identifier_quoting = array('start' => '"', 'end' => '"', 'escape' => '"');
     // }}}
     // {{{ constructor
 
@@ -788,6 +785,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $colon = ':';
         $positions = array();
         $position = $parameter = 0;
+        $ignores = array(
+            $this->string_quoting,
+            $this->identifier_quoting,
+            array('start' => '/*', 'end' => '*/', 'escape' => false),
+        );
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
             $c_position = strpos($query, $colon, $position);
@@ -803,30 +805,22 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             if (is_null($placeholder_type)) {
                 $placeholder_type_guess = $query[$p_position];
             }
-            if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
-                if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
-                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                        'query with an unterminated text string specified', __FUNCTION__);
-                    return $err;
-                }
-                switch ($this->escape_quotes) {
-                case '':
-                case "'":
-                    $position = $end_quote + 1;
-                    break;
-                default:
-                    if ($end_quote == $quote + 1) {
-                        $position = $end_quote + 1;
-                    } else {
-                        if ($query[$end_quote-1] == $this->escape_quotes) {
-                            $position = $end_quote;
-                        } else {
-                            $position = $end_quote + 1;
+            // skip any delimited strings
+            foreach ($ignores as $ignore) {
+                if (is_int($start_quote = strpos($query, $ignore['start'], $position)) && $start_quote < $p_position) {
+                    $end_quote = $start_quote;
+                    do {
+                        if (!is_int($end_quote = strpos($query, $ignore['end'], $end_quote + 1))) {
+                            $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                                'query with an unterminated text string specified', __FUNCTION__);
+                            return $err;
                         }
-                    }
-                    break;
+                    } while ($ignore['escape'] && $query[($end_quote - 1)] == $ignore['escape']);
+                    $position = $end_quote + 1;
+                    continue(2);
                 }
-            } elseif ($query[$position] == $placeholder_type_guess) {
+            }
+            if ($query[$position] == $placeholder_type_guess) {
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;

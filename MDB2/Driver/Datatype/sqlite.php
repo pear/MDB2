@@ -146,7 +146,8 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 ($db->options['fixed_float']+2).','.$db->options['fixed_float'].')' : '');
         case 'decimal':
             $length = !empty($field['length']) ? $field['length'] : 18;
-            return 'DECIMAL('.$length.','.$db->options['decimal_places'].')';
+            $scale = !empty($field['scale']) ? $field['scale'] : $db->options['decimal_places'];
+            return 'DECIMAL('.$length.','.$scale.')';
         }
         return '';
     }
