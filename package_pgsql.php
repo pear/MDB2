@@ -4,6 +4,7 @@ require_once 'PEAR/PackageFileManager.php';
 
 $version = 'YYY';
 $notes = <<<EOT
+- fixed _modifyQuery() for manipulation queries
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

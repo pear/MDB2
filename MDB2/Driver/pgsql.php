@@ -683,17 +683,42 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 $query = substr($query, 0, -1);
             }
             if ($is_manip) {
-/*
-todo: add missing preg_match() all to build $match
-                $manip = preg_replace('/^(DELETE FROM|UPDATE).*$/', '\\1', $query);
-                $from = $match[2];
-                $where = $match[3];
-                $query = $manip.' '.$from.' WHERE ctid=(SELECT ctid FROM '.$from.' '.$where.' LIMIT '.$limit.')';
-*/
+                $query = $this->_modifyManipQuery($query, $limit);
             } else {
                 $query.= " LIMIT $limit OFFSET $offset";
             }
         }
+        return $query;
+    }
+    
+    // }}}
+    // {{{ _modifyManipQuery()
+    
+    /**
+     * Changes a manip query string for various DBMS specific reasons
+     *
+     * @param string $query  query to modify
+     * @param integer $limit  limit the number of rows
+     * @return string modified query
+     * @access protected
+     */
+    function _modifyManipQuery($query, $limit)
+    {
+        $pos = strpos(strtolower($query), 'where');
+        $where = $pos ? substr($query, $pos) : '';
+
+        $manip_clause = '(\bDELETE\b\s+(?:\*\s+)?\bFROM\b|\bUPDATE\b)';
+        $from_clause  = '([\w\.]+)';
+        $where_clause = '(?:(.*)\bWHERE\b\s+(.*))|(.*)';
+        $pattern = '/^'. $manip_clause . '\s+' . $from_clause .'(?:\s)*(?:'. $where_clause .')?$/i';
+        $matches = preg_match($pattern, $query, $match);
+        if ($matches) {
+            $manip = $match[1];
+            $from  = $match[2];
+            $what  = (count($matches) == 6) ? $match[5] : $match[3];
+            return $manip.' '.$from.' '.$what.' WHERE ctid=(SELECT ctid FROM '.$from.' '.$where.' LIMIT '.$limit.')';
+        }
+        //return error?
         return $query;
     }
 
