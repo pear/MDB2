@@ -913,7 +913,6 @@ class MDB2
     {
         // safe_mode does notwork with is_readable()
         if (!@ini_get('safe_mode')) {
-            $fp = @fopen($file, 'r', true);
              $dirs = explode(PATH_SEPARATOR, ini_get('include_path'));
              foreach ($dirs as $dir) {
                  if (is_readable($dir . DIRECTORY_SEPARATOR . $file)) {
@@ -921,6 +920,7 @@ class MDB2
                  }
             }
         } else {
+            $fp = @fopen($file, 'r', true);
             if (is_resource($fp)) {
                 @fclose($fp);
                 return true;
@@ -1145,18 +1145,26 @@ class MDB2_Driver_Common extends PEAR
     );
 
     /**
-     * escape character
+     * string array
      * @var     string
      * @access  protected
      */
-    var $escape_quotes = "'";
+    var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => false, 'escape_pattern' => false);
 
     /**
-     * escape character for pattern
-     * @var     string
+     * identifier quoting
+     * @var     array
      * @access  protected
      */
-    var $escape_pattern = '';
+    var $identifier_quoting = array('start' => '"', 'end' => '"', 'escape' => '"');
+
+
+    /**
+     * sql comments
+     * @var     array
+     * @access  protected
+     */
+    var $sql_comments = array('start' => '/*', 'end' => '*/', 'escape' => false);
 
     /**
      * comparision wildcards
@@ -1164,13 +1172,6 @@ class MDB2_Driver_Common extends PEAR
      * @access  protected
      */
     var $wildcards = array('%', '_');
-
-    /**
-     * escape character
-     * @var     string
-     * @access  protected
-     */
-    var $escape_identifier = '"';
 
     /**
      * column alias keyword
@@ -1604,14 +1605,11 @@ class MDB2_Driver_Common extends PEAR
      */
     function escape($text, $escape_wildcards = false)
     {
-        if ($this->escape_quotes !== "'") {
-            $text = str_replace($this->escape_quotes, $this->escape_quotes.$this->escape_quotes, $text);
-        }
-
         if ($escape_wildcards) {
             $text = $this->escapePattern($text);
         }
-        $text = str_replace("'", $this->escape_quotes . "'", $text);
+
+        $text = str_replace($this->string_quoting['end'], $this->string_quoting['escape'] . $this->string_quoting['end'], $text);
         return $text;
     }
 
@@ -1634,10 +1632,10 @@ class MDB2_Driver_Common extends PEAR
      */
     function escapePattern($text)
     {
-        if ($this->escape_pattern) {
-            $text = str_replace($this->escape_pattern, $this->escape_pattern . $this->escape_pattern, $text);
+        if ($this->string_quoting['escape_pattern']) {
+            $text = str_replace($this->string_quoting['escape_pattern'], $this->string_quoting['escape_pattern'] . $this->string_quoting['escape_pattern'], $text);
             foreach ($this->wildcards as $wildcard) {
-                $text = str_replace($wildcard, $this->escape_pattern . $wildcard, $text);
+                $text = str_replace($wildcard, $this->string_quoting['escape_pattern'] . $wildcard, $text);
             }
         }
         return $text;
@@ -1685,8 +1683,8 @@ class MDB2_Driver_Common extends PEAR
         if ($check_option && !$this->options['quote_identifier']) {
             return $str;
         }
-        $str = str_replace($this->escape_identifier, $this->escape_identifier.$this->escape_identifier, $str);
-        return $this->escape_identifier . $str . $this->escape_identifier;
+        $str = str_replace($this->identifier_quoting['end'], $this->identifier_quoting['escape'] . $this->identifier_quoting['end'], $str);
+        return $this->identifier_quoting['start'] . $str . $this->identifier_quoting['end'];
     }
 
     // }}}
@@ -2853,6 +2851,11 @@ class MDB2_Driver_Common extends PEAR
         $colon = ':';
         $positions = array();
         $position = 0;
+        $ignores = array(
+            $this->string_quoting,
+            $this->identifier_quoting,
+            $this->sql_comments,
+        );
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
             $c_position = strpos($query, $colon, $position);
@@ -2868,30 +2871,22 @@ class MDB2_Driver_Common extends PEAR
             if (is_null($placeholder_type)) {
                 $placeholder_type_guess = $query[$p_position];
             }
-            if (is_int($quote = strpos($query, "'", $position)) && $quote < $p_position) {
-                if (!is_int($end_quote = strpos($query, "'", $quote + 1))) {
-                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                        'query with an unterminated text string specified', __FUNCTION__);
-                    return $err;
-                }
-                switch ($this->escape_quotes) {
-                case '':
-                case "'":
-                    $position = $end_quote + 1;
-                    break;
-                default:
-                    if ($end_quote == $quote + 1) {
-                        $position = $end_quote + 1;
-                    } else {
-                        if ($query[$end_quote-1] == $this->escape_quotes) {
-                            $position = $end_quote;
-                        } else {
-                            $position = $end_quote + 1;
+            // skip any delimited strings
+            foreach ($ignores as $ignore) {
+                if (is_int($start_quote = strpos($query, $ignore['start'], $position)) && $start_quote < $p_position) {
+                    $end_quote = $start_quote;
+                    do {
+                        if (!is_int($end_quote = strpos($query, $ignore['end'], $end_quote + 1))) {
+                            $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                                'query with an unterminated text string specified', __FUNCTION__);
+                            return $err;
                         }
-                    }
-                    break;
+                    } while ($ignore['escape'] && $query[($end_quote - 1)] == $ignore['escape']);
+                    $position = $end_quote + 1;
+                    continue(2);
                 }
-            } elseif ($query[$position] == $placeholder_type_guess) {
+            }
+            if ($query[$position] == $placeholder_type_guess) {
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
