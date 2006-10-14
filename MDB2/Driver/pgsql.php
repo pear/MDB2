@@ -196,7 +196,15 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if ($escape_wildcards) {
             $text = $this->escapePattern($text);
         }
-        $text = @pg_escape_string($text);
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        if (version_compare(PHP_VERSION, '5.2.0RC5', '>=')) {
+            $text = @pg_escape_string($connection, $text);
+        } else {
+            $text = @pg_escape_string($text);
+        }
         return $text;
     }
 
@@ -675,10 +683,13 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 $query = substr($query, 0, -1);
             }
             if ($is_manip) {
+/*
+todo: add missing preg_match() all to build $match
                 $manip = preg_replace('/^(DELETE FROM|UPDATE).*$/', '\\1', $query);
                 $from = $match[2];
                 $where = $match[3];
                 $query = $manip.' '.$from.' WHERE ctid=(SELECT ctid FROM '.$from.' '.$where.' LIMIT '.$limit.')';
+*/
             } else {
                 $query.= " LIMIT $limit OFFSET $offset";
             }
