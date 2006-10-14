@@ -393,7 +393,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $result = $db->queryCol($query);
-        if (PEAR::isError($results)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
 
@@ -427,7 +427,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                     WHERE xtype = 'V'";
 
         $result = $db->queryCol($query);
-        if (PEAR::isError($results)) {
+        if (PEAR::isError($result)) {
             return $result;
         }
 

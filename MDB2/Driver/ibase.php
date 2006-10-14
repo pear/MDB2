@@ -485,7 +485,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $params[] = isset($this->dsn['role'])    ? $this->dsn['role'] : null;
 
         $connect_function = $persistent ? 'ibase_pconnect' : 'ibase_connect';
-
         $connection = @call_user_func_array($connect_function, $params);
         if ($connection <= 0) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
@@ -944,7 +943,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $query = 'SELECT GEN_ID('.$sequence_name.', 0) as the_value FROM RDB$DATABASE';
         $value = $this->queryOne($query);
         if (PEAR::isError($value)) {
-            return $this->raiseError($result, null, null,
+            return $this->raiseError($value, null, null,
                 'Unable to select from ' . $seq_name, __FUNCTION__);
         }
         if (!is_numeric($value)) {

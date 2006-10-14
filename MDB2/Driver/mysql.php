@@ -466,7 +466,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             case 'MRG_MYISAM':
             case 'MYISAM':
                 $this->supported['transactions'] = false;
-                $this->warnings[] = $default_table_type.
+                $this->warnings[] = $this->options['default_table_type'] .
                     ' is not a supported default table type';
                 break;
             }
