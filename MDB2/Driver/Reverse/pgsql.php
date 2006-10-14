@@ -304,7 +304,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
-                'table' => '',
+                'table' => function_exists('pg_field_table') ? @pg_field_table($resource, $i) : '',
                 'name'  => $case_func(@pg_field_name($resource, $i)),
                 'type'  => @pg_field_type($resource, $i),
                 'length' => @pg_field_size($resource, $i),
