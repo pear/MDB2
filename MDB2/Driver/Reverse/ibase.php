@@ -443,7 +443,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                 $info['type'] = substr($info['type'], 0, $pos);
             }
             $res[$i] = array(
-                'table'  => '',
+                'table'  => $case_func($info['relation']),
                 'name'   => $case_func($info['name']),
                 'type'   => $info['type'],
                 'length' => $info['length'],
