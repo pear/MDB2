@@ -264,8 +264,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (!$quote) {
             return $value;
         }
-        // todo: check why LOB tests fail
-        if (false && version_compare(PHP_VERSION, '5.2.0RC5', '>=')) {
+        if (version_compare(PHP_VERSION, '5.2.0RC6', '>=')) {
             $db =& $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
