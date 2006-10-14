@@ -429,6 +429,23 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $stmt->free();
 
         $row_data = reset($data);
+        $query = 'SELECT user_name, user_password, user_id FROM users WHERE /* maps to class::foo() */ user_name=:username';
+        $stmt = $this->db->prepare($query, array('text'), array('text', 'text', 'integer'));
+        $result =& $stmt->execute(array('username' => $row_data['user_name']));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared where a name parameter is contained in an SQL comment. Error: '.$result->getUserinfo());
+            break;
+        }
+        $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+        if (!is_array($row)) {
+            $this->assertTrue(false, 'Prepared SELECT failed');
+        } else {
+            $diff = (array)array_diff($row, $row_data);
+            $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
+        }
+        $stmt->free();
+
+        $row_data = reset($data);
         $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_name=:username OR user_password=:username';
         $stmt = $this->db->prepare($query, array('text'), array('text', 'text', 'integer'));
         $result =& $stmt->execute(array('username' => $row_data['user_name']));
