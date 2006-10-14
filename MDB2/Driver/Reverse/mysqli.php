@@ -368,7 +368,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         }
 
         $resource = MDB2::isResultCommon($result) ? $result->getResource() : $result;
-        if (!is_resource($resource)) {
+        if (!is_object($resource)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'Could not generate result resource', __FUNCTION__);
         }
@@ -384,8 +384,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         }
 
         $count = @mysqli_num_fields($resource);
-        $res   = array();
-
+        $res = array();
         if ($mode) {
             $res['num_fields'] = $count;
         }
