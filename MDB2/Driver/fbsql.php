@@ -339,7 +339,6 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             }
         }
         return parent::disconnect($force);
-        return MDB2_OK;
     }
 
     // }}}
