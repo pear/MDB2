@@ -407,7 +407,7 @@ class MDB2_PEARProxy extends PEAR
      */
     function connect($dsninfo, $persistent = false)
     {
-        $this->options['persistent'] = $presistent;
+        $this->options['persistent'] = $persistent;
         return $this->db_object->connect();
     }
 
