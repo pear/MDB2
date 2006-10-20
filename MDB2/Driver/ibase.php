@@ -937,7 +937,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     function lastInsertID($table = null, $field = null)
     {
         $seq = $table.(empty($field) ? '' : '_'.$field);
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq), true);
+        $sequence_name = $this->getSequenceName($seq);
         $query = "SELECT RDB\$GENERATOR_ID
                     FROM RDB\$GENERATORS
                    WHERE RDB\$GENERATOR_NAME='$sequence_name'";

@@ -988,7 +988,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function lastInsertID($table = null, $field = null)
     {
         $seq = $table.(empty($field) ? '' : '_'.$field);
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq), true);
+        $sequence_name = $this->getSequenceName($seq);
         return $this->queryOne("SELECT currval('$sequence_name')", 'integer');
     }
 
