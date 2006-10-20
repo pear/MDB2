@@ -914,6 +914,25 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ lastInsertID()
+
+    /**
+     * Returns the autoincrement ID if supported or $id or fetches the current
+     * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
+     *
+     * @param string $table name of the table into which a new row was inserted
+     * @param string $field name of the field into which a new row was inserted
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function lastInsertID($table = null, $field = null)
+    {
+        $seq = $table.(empty($field) ? '' : '_'.$field);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq), true);
+        return $this->queryOne("SELECT $sequence_name.currval", 'integer');
+    }
+
+    // }}}
     // {{{ currId()
 
     /**
@@ -925,8 +944,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function currId($seq_name)
     {
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
-        return $this->queryOne("SELECT $sequence_name.currval FROM DUAL");
+        $sequence_name = $db->getSequenceName($seq_name);
+        return $this->queryOne("SELECT last_number FROM user_sequences WHERE sequence_name='$sequence_name", 'integer');
     }
 }
 
