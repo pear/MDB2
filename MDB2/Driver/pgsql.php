@@ -974,6 +974,25 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ lastInsertID()
+
+    /**
+     * Returns the autoincrement ID if supported or $id or fetches the current
+     * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
+     *
+     * @param string $table name of the table into which a new row was inserted
+     * @param string $field name of the field into which a new row was inserted
+     * @return mixed MDB2 Error Object or id
+     * @access public
+     */
+    function lastInsertID($table = null, $field = null)
+    {
+        $seq = $table.(empty($field) ? '' : '_'.$field);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq), true);
+        return $this->queryOne("SELECT currval('$sequence_name')", 'integer');
+    }
+
+    // }}}
     // {{{ currID()
 
     /**

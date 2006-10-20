@@ -3098,8 +3098,8 @@ class MDB2_Driver_Common extends PEAR
      */
     function lastInsertID($table = null, $field = null)
     {
-        $seq = $table.(empty($field) ? '' : '_'.$field);
-        return $this->currID($seq);
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'method not implemented', __FUNCTION__);
     }
 
     // }}}
