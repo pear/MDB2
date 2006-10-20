@@ -247,6 +247,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $this->supported['prepared_statements'] = false;
         $this->supported['identifier_quoting'] = false;
         $this->supported['pattern_escaping'] = false;
+        $this->supported['new_link'] = false;
 
         $this->options['columnDelim'] = ',';
         $this->options['dataDelim'] = '|';

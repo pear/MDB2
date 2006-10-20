@@ -95,6 +95,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->supported['prepared_statements'] = 'emulated';
         $this->supported['identifier_quoting'] = true;
         $this->supported['pattern_escaping'] = false;
+        $this->supported['new_link'] = false;
 
         $this->options['base_transaction_name'] = '___php_MDB2_sqlite_auto_commit_off';
         $this->options['fixed_float'] = 0;

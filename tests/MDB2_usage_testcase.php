@@ -759,6 +759,10 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
 
         // Test lastInsertid()
+        if (!$this->supported('new_link')) {
+           return;
+        }
+
         $sequence_name = 'test_lastinsertid';
 
         $dsn = MDB2::parseDSN($this->dsn);
@@ -767,7 +771,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $db =& MDB2::connect($dsn, $this->options);
 
         $next = $this->db->nextId($sequence_name);
-        $db->nextId($sequence_name);
+        $next2 = $db->nextId($sequence_name);
         $last = $this->db->lastInsertId($sequence_name);
 
         if (PEAR::isError($last)) {

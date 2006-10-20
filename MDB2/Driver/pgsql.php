@@ -89,6 +89,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['prepared_statements'] = true;
         $this->supported['identifier_quoting'] = true;
         $this->supported['pattern_escaping'] = true;
+        $this->supported['new_link'] = true;
 
         $this->options['multi_query'] = false;
     }

@@ -95,6 +95,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['prepared_statements'] = true;
         $this->supported['identifier_quoting'] = false;
         $this->supported['pattern_escaping'] = true;
+        $this->supported['new_link'] = false;
 
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;

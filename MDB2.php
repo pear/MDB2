@@ -1058,6 +1058,7 @@ class MDB2_Driver_Common extends PEAR
         'prepared_statements' => false,
         'identifier_quoting' => false,
         'pattern_escaping' => false,
+        'new_link' => false,
     );
 
     /**
