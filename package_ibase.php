@@ -7,6 +7,7 @@ $notes = <<<EOT
 - added charset and collation support to field declaration
 - now tableInfo() also returns the table name
 - fixed bug #9024: typo in currID() error checking
+- added lastInsertID() method
 EOT;
 
 $package = new PEAR_PackageFileManager();
