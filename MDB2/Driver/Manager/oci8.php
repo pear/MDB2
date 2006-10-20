@@ -808,7 +808,7 @@ END;
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
-        $query = "CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1";
+        $query = "CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1 NOCACHE";
         $query.= ($start < 1 ? " MINVALUE $start" : '');
         return $db->exec($query);
     }
