@@ -962,7 +962,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('Manager', null, true);
-                $result = $this->manager->createSequence($seq_name, 1);
+                $result = $this->manager->createSequence($seq_name);
                 if (PEAR::isError($result)) {
                     return $this->raiseError($result, null, null,
                         'on demand sequence could not be created', __FUNCTION__);
