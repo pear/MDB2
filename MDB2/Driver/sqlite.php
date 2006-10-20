@@ -389,9 +389,13 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
             $connect_function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
             $php_errormsg = '';
-            @ini_set('track_errors', true);
-            $connection = @$connect_function($database_file);
-            @ini_restore('track_errors');
+            if (version_compare('5.1.0', PHP_VERSION, '>')) {
+                @ini_set('track_errors', true);
+                $connection = @$connect_function($database_file);
+                @ini_restore('track_errors');
+            } else {
+                $connection = @$connect_function($database_file, 0666, $php_errormsg);
+            }
             $this->_lasterror = $php_errormsg;
             if (!$connection) {
                 return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
@@ -509,9 +513,13 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $function = $this->options['result_buffering']
             ? 'sqlite_query' : 'sqlite_unbuffered_query';
         $php_errormsg = '';
-        @ini_set('track_errors', true);
-        $result = @$function($query.';', $connection);
-        @ini_restore('track_errors');
+        if (version_compare('5.1.0', PHP_VERSION, '>')) {
+            @ini_set('track_errors', true);
+            $result = @$function($query.';', $connection);
+            @ini_restore('track_errors');
+        } else {
+            $result = @$function($query.';', $connection, SQLITE_BOTH, $php_errormsg);
+        }
         $this->_lasterror = $php_errormsg;
 
         if (!$result) {
