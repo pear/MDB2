@@ -732,7 +732,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
 
         $result = $this->db->manager->dropSequence($sequence_name);
-
         if (PEAR::isError($result)) {
             $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
         }
@@ -761,6 +760,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         // Test lastInsertid()
         $sequence_name = 'test_lastinsertid';
+
         $dsn = MDB2::parseDSN($this->dsn);
         $dsn['new_link'] = true;
         $dsn['database'] = $this->database;
