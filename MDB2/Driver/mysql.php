@@ -418,7 +418,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             $params[] = isset($this->dsn['client_flags'])
                 ? $this->dsn['client_flags'] : null;
         }
-
         $connect_function = $this->options['persistent'] ? 'mysql_pconnect' : 'mysql_connect';
 
         @ini_set('track_errors', true);
@@ -447,6 +446,17 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
+
+        if ($this->database_name) {
+            if ($this->database_name != $this->connected_database_name) {
+                if (!@mysql_select_db($this->database_name, $connection)) {
+                    $err = $this->raiseError(null, null, null,
+                        'Could not select the database: '.$this->database_name, __FUNCTION__);
+                    return $err;
+                }
+                $this->connected_database_name = $this->database_name;
+            }
+        }
 
         $this->supported['transactions'] = $this->options['use_transactions'];
         if ($this->options['default_table_type']) {
@@ -993,13 +1003,12 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 // Since we are creating the sequence on demand
                 // we know the first id = 1 so initialize the
                 // sequence at 2
-                $result = $this->manager->createSequence($seq_name, 2);
+                $result = $this->manager->createSequence($seq_name);
                 if (PEAR::isError($result)) {
                     return $this->raiseError($result, null, null,
                         'on demand sequence '.$seq_name.' could not be created', __FUNCTION__);
                 } else {
-                    // First ID of a newly created sequence is 1
-                    return 1;
+                    return $this->nextID($seq_name, false);
                 }
             }
             return $result;

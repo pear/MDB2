@@ -332,6 +332,17 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->opened_persistent = $this->options['persistent'];
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
+        if ($this->database_name) {
+            if ($this->database_name != $this->connected_database_name) {
+                if (!@mysql_select_db($this->database_name, $connection)) {
+                    $err = $this->raiseError(null, null, null,
+                        'Could not select the database: '.$this->database_name, __FUNCTION__);
+                    return $err;
+                }
+                $this->connected_database_name = $this->database_name;
+            }
+        }
+
         return MDB2_OK;
     }
 
@@ -581,8 +592,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                     return $this->raiseError($result, null, null,
                         'on demand sequence '.$seq_name.' could not be created', __FUNCTION__);
                 } else {
-                    // First ID of a newly created sequence is 1
-                    return 1;
+                    return $this->nextID($seq_name, false);
                 }
             }
             return $result;

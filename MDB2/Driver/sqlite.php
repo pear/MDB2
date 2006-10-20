@@ -766,8 +766,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                     return $this->raiseError($result, null, null,
                         'on demand sequence '.$seq_name.' could not be created', __FUNCTION__);
                 } else {
-                    // First ID of a newly created sequence is 1
-                    return 1;
+                    return $this->nextID($seq_name, false);
                 }
             }
             return $result;
