@@ -923,28 +923,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ lastInsertID()
-
-    /**
-     * Returns the autoincrement ID if supported or $id or fetches the current
-     * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
-     *
-     * @param string $table name of the table into which a new row was inserted
-     * @param string $field name of the field into which a new row was inserted
-     * @return mixed MDB2 Error Object or id
-     * @access public
-     */
-    function lastInsertID($table = null, $field = null)
-    {
-        $seq = $table.(empty($field) ? '' : '_'.$field);
-        $sequence_name = $this->getSequenceName($seq);
-        $query = "SELECT RDB\$GENERATOR_ID
-                    FROM RDB\$GENERATORS
-                   WHERE RDB\$GENERATOR_NAME='$sequence_name'";
-        return $this->queryOne($query, 'integer');
-    }
-
-    // }}}
     // {{{ currID()
 
     /**
