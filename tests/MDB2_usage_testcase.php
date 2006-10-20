@@ -758,6 +758,27 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         if (PEAR::isError($result)) {
             $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
         }
+
+        // Test lastInsertid()
+        $sequence_name = 'test_lastinsertid';
+        $dsn = MDB2::parseDSN($this->dsn);
+        $dsn['new_link'] = true;
+        $dsn['database'] = $this->database;
+        $db =& MDB2::connect($dsn, $this->options);
+
+        $next = $this->db->nextId($sequence_name);
+        $db->nextId($sequence_name);
+        $last = $this->db->lastInsertId($sequence_name);
+
+        if (PEAR::isError($last)) {
+            $this->assertTrue(false, "Error getting the last value of sequence $sequence_name : ".$last->getMessage());
+        } else {
+            $this->assertEquals($next, $last, "return value if lastInsertId() does not match the previous call to nextId()");
+        }
+        $result = $this->db->manager->dropSequence($sequence_name);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, "Error dropping sequence $sequence_name : ".$result->getMessage());
+        }
     }
 
     /**
