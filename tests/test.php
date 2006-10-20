@@ -104,7 +104,7 @@ foreach ($dbarray as $db) {
 
     $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":XXX@" . $dsn['hostspec'] . "/" . $database;
     echo "<div class=\"test\">\n";
-    echo "<div class=\"title\">Testing $display_dsn</div>\n";
+    echo "<div class=\"title\">Testing $display_dsn on ".PHP_VERSION."</div>\n";
 
     $suite = new PHPUnit_TestSuite();
 

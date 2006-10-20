@@ -107,7 +107,7 @@ foreach ($dbarray as $db) {
     $GLOBALS['_show_silenced'] = !empty($options['debug']) ? $options['debug'] : false;
 
     $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":XXX@" . $dsn['hostspec'] . "/" . $database;
-    echo "=== Start test of $display_dsn ===\n";
+    echo "=== Start test of $display_dsn on ".PHP_VERSION." ===\n";
 
     $suite = new PHPUnit_TestSuite();
 
