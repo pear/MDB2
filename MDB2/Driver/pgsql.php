@@ -417,13 +417,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         $connect_function = $persistent ? 'pg_pconnect' : 'pg_connect';
 
-        @ini_set('track_errors', true);
-        $php_errormsg = '';
         $connection = @call_user_func_array($connect_function, $params);
-        @ini_restore('track_errors');
         if (!$connection) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED,
-                null, null, strip_tags($php_errormsg), __FUNCTION__);
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+                'unable to establish a connection', __FUNCTION__);
         }
 
        if (empty($this->dsn['disable_iso_date'])) {

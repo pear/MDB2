@@ -389,9 +389,6 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }
 
-        @ini_set('track_errors', true);
-        $php_errormsg = '';
-
         if ($this->options['ssl']) {
             $init = @mysqli_init();
             @mysqli_ssl_set(
@@ -424,15 +421,13 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             );
         }
 
-        @ini_restore('track_errors');
-
         if (!$connection) {
             if (($err = @mysqli_connect_error()) != '') {
                 return $this->raiseError(MDB2_ERROR_CONNECT_FAILED,
                     null, null, $err, __FUNCTION__);
             } else {
-                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED,
-                    null, null, $php_errormsg, __FUNCTION__);
+                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+                    'unable to establish a connection', __FUNCTION__);
             }
         }
 

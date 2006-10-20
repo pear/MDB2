@@ -421,17 +421,14 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
         $connect_function = $this->options['persistent'] ? 'mysql_pconnect' : 'mysql_connect';
 
-        @ini_set('track_errors', true);
-        $php_errormsg = '';
         $connection = @call_user_func_array($connect_function, $params);
-        @ini_restore('track_errors');
         if (!$connection) {
             if (($err = @mysql_error()) != '') {
                 return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
                     $err, __FUNCTION__);
             } else {
                 return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-                    $php_errormsg, __FUNCTION__);
+                    'unable to establish a connection', __FUNCTION__);
             }
         }
 
