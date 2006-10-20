@@ -587,7 +587,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                 // Since we are creating the sequence on demand
                 // we know the first id = 1 so initialize the
                 // sequence at 2
-                $result = $this->manager->createSequence($seq_name, 2);
+                $result = $this->manager->createSequence($seq_name);
                 if (PEAR::isError($result)) {
                     return $this->raiseError($result, null, null,
                         'on demand sequence '.$seq_name.' could not be created', __FUNCTION__);

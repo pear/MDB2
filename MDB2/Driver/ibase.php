@@ -907,15 +907,12 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 // Since we are creating the sequence on demand
                 // we know the first id = 1 so initialize the
                 // sequence at 2
-                $result = $this->manager->createSequence($seq_name, 2);
+                $result = $this->manager->createSequence($seq_name);
                 if (PEAR::isError($result)) {
                     return $this->raiseError($result, null, null,
                         'on demand sequence could not be created', __FUNCTION__);
                 } else {
-                    // First ID of a newly created sequence is 1
-                    // return 1;
-                    // BUT generators are not always reset, so return the actual value
-                    return $this->currID($seq_name);
+                    return $this->nextID($seq_name, false);
                 }
             }
         }
