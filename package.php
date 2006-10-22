@@ -26,6 +26,8 @@ open todo items:
   disabled behaves as expected
 - handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
 - add a getTableFieldsDefinitions() method to be used in tableInfo()
+- drop ILIKE from matchPattern() and instead add a second parameter to
+  handle case sensitivity with arbitrary operators
 EOT;
 
 $description =<<<EOT
