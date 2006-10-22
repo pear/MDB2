@@ -1159,14 +1159,13 @@ class MDB2_Driver_Common extends PEAR
      */
     var $identifier_quoting = array('start' => '"', 'end' => '"', 'escape' => '"');
 
-
     /**
      * sql comments
      * @var     array
      * @access  protected
      */
     var $sql_comments = array(
-        array('start' => '-- ', 'end' => "\n", 'escape' => false),
+        array('start' => '--', 'end' => "\n", 'escape' => false),
         array('start' => '/*', 'end' => '*/', 'escape' => false),
     );
 
