@@ -428,19 +428,13 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
         $stmt->free();
 
-        $queries = array();
-        $queries[] = 'SELECT user_name, user_password, user_id FROM users WHERE /* maps to class::foo() */ user_name=:username';
-        $queries[] = 'SELECT user_name, user_password, user_id FROM users WHERE -- maps to class::foo()
-                            user_name=:username';
-        $queries[] = 'SELECT user_name, user_password, user_id FROM users WHERE # maps to class::foo()
-                            user_name=:username';
-
-        foreach ($queries as $query) {
+        foreach ($this->db->sql_comments as $comment) {
+            $query = 'SELECT user_name, user_password, user_id FROM users WHERE '.$comment['start'].' maps to class::foo() '.$comment['end'].' user_name=:username';
             $row_data = reset($data);
             $stmt = $this->db->prepare($query, array('text'), array('text', 'text', 'integer'));
             $result =& $stmt->execute(array('username' => $row_data['user_name']));
             if (PEAR::isError($result)) {
-                $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared where a name parameter is contained in an SQL comment. Error: '.$result->getUserinfo());
+                $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared where a name parameter is contained in an SQL comment ('.$comment['start'].'). Error: '.$result->getUserinfo());
                 break;
             }
             $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
