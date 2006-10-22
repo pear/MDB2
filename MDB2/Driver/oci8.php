@@ -767,11 +767,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $positions = array();
         $position = 0;
         $parameter = -1;
-        $ignores = array(
-            $this->string_quoting,
-            $this->identifier_quoting,
-            array('start' => '/*', 'end' => '*/', 'escape' => false),
-        );
+        $ignores = $this->sql_comments;
+        $ignores[] = $this->string_quoting;
+        $ignores[] = $this->identifier_quoting;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
             $c_position = strpos($query, $colon, $position);

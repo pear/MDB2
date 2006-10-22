@@ -1165,7 +1165,11 @@ class MDB2_Driver_Common extends PEAR
      * @var     array
      * @access  protected
      */
-    var $sql_comments = array('start' => '/*', 'end' => '*/', 'escape' => false);
+    var $sql_comments = array(
+        array('start' => '--', 'end' => "\n", 'escape' => false),
+        array('start' => '#', 'end' => "\n", 'escape' => false),
+        array('start' => '/*', 'end' => '*/', 'escape' => false),
+    );
 
     /**
      * comparision wildcards
@@ -2852,11 +2856,9 @@ class MDB2_Driver_Common extends PEAR
         $colon = ':';
         $positions = array();
         $position = 0;
-        $ignores = array(
-            $this->string_quoting,
-            $this->identifier_quoting,
-            $this->sql_comments,
-        );
+        $ignores = $this->sql_comments;
+        $ignores[] = $this->string_quoting;
+        $ignores[] = $this->identifier_quoting;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
             $c_position = strpos($query, $colon, $position);
