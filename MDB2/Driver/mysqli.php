@@ -60,6 +60,12 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
 
     var $identifier_quoting = array('start' => '`', 'end' => '`', 'escape' => '`');
 
+    var $sql_comments = array(
+        array('start' => '-- ', 'end' => "\n", 'escape' => false),
+        array('start' => '#', 'end' => "\n", 'escape' => false),
+        array('start' => '/*', 'end' => '*/', 'escape' => false),
+    );
+
     var $start_transaction = false;
 
     var $varchar_max_length = 255;
