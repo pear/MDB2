@@ -3873,7 +3873,7 @@ class MDB2_Statement_Common
      *
      * @access  public
      */
-    function bindValue($parameter, &$value, $type = null)
+    function bindValue($parameter, $value, $type = null)
     {
         if (!is_numeric($parameter)) {
             $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
@@ -3905,7 +3905,7 @@ class MDB2_Statement_Common
      * @access  public
      * @see     bindParam()
      */
-    function bindValueArray(&$values, $types = null)
+    function bindValueArray($values, $types = null)
     {
         $types = is_array($types) ? array_values($types) : array_fill(0, count($values), null);
         $parameters = array_keys($values);
