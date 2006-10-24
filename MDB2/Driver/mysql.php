@@ -817,9 +817,13 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                     $end_quote = $start_quote;
                     do {
                         if (!is_int($end_quote = strpos($query, $ignore['end'], $end_quote + 1))) {
-                            $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                                'query with an unterminated text string specified', __FUNCTION__);
-                            return $err;
+                            if ($ignore['end'] === "\n") {
+                                $end_quote = strlen($query) - 1;
+                            } else {
+                                $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                                    'query with an unterminated text string specified', __FUNCTION__);
+                                return $err;
+                            }
                         }
                     } while ($ignore['escape'] && $query[($end_quote - 1)] == $ignore['escape']);
                     $position = $end_quote + 1;

@@ -1408,7 +1408,7 @@ class MDB2_Driver_Common extends PEAR
             $code = $code->getCode();
         } elseif (isset($this->connection)) {
             if (!empty($this->last_query)) {
-                $userinfo.= "[Last query: {$this->last_query}]\n";
+                $userinfo.= "[Last executed query: {$this->last_query}]\n";
             }
             $native_errno = $native_msg = null;
             list($code, $native_errno, $native_msg) = $this->errorInfo($code);
@@ -2878,9 +2878,13 @@ class MDB2_Driver_Common extends PEAR
                     $end_quote = $start_quote;
                     do {
                         if (!is_int($end_quote = strpos($query, $ignore['end'], $end_quote + 1))) {
-                            $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                                'query with an unterminated text string specified', __FUNCTION__);
-                            return $err;
+                            if ($ignore['end'] === "\n") {
+                                $end_quote = strlen($query) - 1;
+                            } else {
+                                $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                                    'query with an unterminated text string specified', __FUNCTION__);
+                                return $err;
+                            }
                         }
                     } while ($ignore['escape'] && $query[($end_quote - 1)] == $ignore['escape']);
                     $position = $end_quote + 1;
