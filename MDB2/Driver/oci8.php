@@ -767,9 +767,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $positions = array();
         $position = 0;
         $parameter = -1;
-        $ignores = $this->sql_comments;
-        $ignores[] = $this->string_quoting;
-        $ignores[] = $this->identifier_quoting;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
             $c_position = strpos($query, $colon, $position);
@@ -785,25 +782,16 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             if (is_null($placeholder_type)) {
                 $placeholder_type_guess = $query[$p_position];
             }
-            // skip any delimited strings
-            foreach ($ignores as $ignore) {
-                if (is_int($start_quote = strpos($query, $ignore['start'], $position)) && $start_quote < $p_position) {
-                    $end_quote = $start_quote;
-                    do {
-                        if (!is_int($end_quote = strpos($query, $ignore['end'], $end_quote + 1))) {
-                            if ($ignore['end'] === "\n") {
-                                $end_quote = strlen($query) - 1;
-                            } else {
-                                $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                                    'query with an unterminated text string specified', __FUNCTION__);
-                                return $err;
-                            }
-                        }
-                    } while ($ignore['escape'] && $query[($end_quote - 1)] == $ignore['escape']);
-                    $position = $end_quote + 1;
-                    continue(2);
-                }
+            
+            $new_pos = $this->_skipDelimitedStrings($query, $position, $p_position);
+            if (PEAR::isError($new_pos)) {
+                return $new_pos;
             }
+            if ($new_pos != $position) {
+                $position = $new_pos;
+                continue; //evaluate again starting from the new position
+            }
+
             if ($query[$position] == $placeholder_type_guess) {
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];

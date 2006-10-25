@@ -2936,6 +2936,53 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ function _skipDelimitedStrings($value, $type = null, $quote = true)
+    
+    /**
+     * Utility method, used by prepare() to avoid replacing placeholders within delimited strings.
+     * Check if the placeholder is contained within a delimited string.
+     * If so, skip it and advance the position, otherwise return the current position,
+     * which is valid
+     *
+     * @param $query
+     * @param $position current string cursor position
+     * @param $p_position placeholder position
+     *
+     * @return mixed integer $new_position on success
+     *               MDB2_Error on failure
+     *
+     * @access  protected
+     */
+    function _skipDelimitedStrings($query, $position, $p_position)
+    {
+        $ignores = $this->sql_comments;
+        $ignores[] = $this->string_quoting;
+        $ignores[] = $this->identifier_quoting;
+        
+        foreach ($ignores as $ignore) {
+            if (!empty($ignore['start'])) {
+                if (is_int($start_quote = strpos($query, $ignore['start'], $position)) && $start_quote < $p_position) {
+                    $end_quote = $start_quote;
+                    do {
+                        if (!is_int($end_quote = strpos($query, $ignore['end'], $end_quote + 1))) {
+                            if ($ignore['end'] === "\n") {
+                                $end_quote = strlen($query) - 1;
+                            } else {
+                                $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                                    'query with an unterminated text string specified', __FUNCTION__);
+                                return $err;
+                            }
+                        }
+                    } while ($ignore['escape'] && $query[($end_quote - 1)] == $ignore['escape']);
+                    $position = $end_quote + 1;
+                    return $position;
+                }
+            }
+        }
+        return $position;
+    }
+    
+    // }}}
     // {{{ function quote($value, $type = null, $quote = true)
 
     /**
