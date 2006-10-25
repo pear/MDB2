@@ -4002,8 +4002,8 @@ class MDB2_Statement_Common
                 'Prepared statement has already been freed', __FUNCTION__);
         }
 
+        $values = (array)$values;
         if (!empty($values)) {
-            $values = (array)$values;
             $this->bindValueArray($values);
         }
         $result =& $this->_execute($result_class, $result_wrap_class);
