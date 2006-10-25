@@ -445,7 +445,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
                 $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
             }
             $stmt->free();
-}
+        }
 
         $row_data = reset($data);
         $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_name=:username OR user_password=:username';
@@ -463,6 +463,38 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
         }
         $stmt->free();
+    }
+
+    /**
+     * Test _skipDelimitedStrings(), used by prepare()
+     *
+     * If the placeholder is contained within a delimited string, it must be skipped,
+     * and the cursor position must be advanced
+     */
+    function testSkipDelimitedStrings() {
+        //test correct placeholder
+        $query = 'SELECT what FROM tbl WHERE x = ?';
+        $position = 0;
+        $p_position = strpos($query, '?');
+        $this->assertEquals($position, $this->db->_skipDelimitedStrings($query, $position, $p_position), 'Error: the cursor position has changed');
+
+        //test placeholder within a quoted string
+        $query = 'SELECT what FROM tbl WHERE x = '. $this->db->string_quoting['start'] .'blah?blah'. $this->db->string_quoting['end'] .' AND y = ?';
+        $position = 0;
+        $p_position = strpos($query, '?');
+        $new_pos = $this->db->_skipDelimitedStrings($query, $position, $p_position);
+        $this->assertTrue($position != $new_pos, 'Error: the cursor position was not advanced');
+
+        //test placeholder within a comment
+        foreach ($this->db->sql_comments as $comment) {
+            $query = 'SELECT what FROM tbl WHERE x = '. $comment['start'] .'blah?blah'. $comment['end'] .' AND y = ?';
+            $position = 0;
+            $p_position = strpos($query, '?');
+            $new_pos = $this->db->_skipDelimitedStrings($query, $position, $p_position);
+            $this->assertTrue($position != $new_pos, 'Error: the cursor position was not advanced');
+        }
+
+        //add some tests for named placeholders and for identifier_quoting
     }
 
     /**
