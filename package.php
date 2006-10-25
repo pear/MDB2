@@ -1,8 +1,11 @@
 <?php
 
-require_once 'PEAR/PackageFileManager.php';
+require_once 'PEAR/PackageFileManager2.php';
+PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'XXX';
+$version_api = '2.3.0';
+$version_release = '2.3.0';
+$state = 'stable';
 $notes = <<<EOT
 - added charset and collation support to field declaration
 - added SQL comments and quoted identifier handling inside prepared statement parser
@@ -63,54 +66,37 @@ can be used to construct portable SQL statements:
 * PHPDoc API documentation
 EOT;
 
-$package = new PEAR_PackageFileManager();
+$packagefile = './package.xml';
 
-$result = $package->setOptions(
-    array(
-        'package'           => 'MDB2',
-        'summary'           => 'A database abstraction layer',
-        'description'       => $description,
-        'version'           => $version,
-        'state'             => 'stable',
-        'license'           => 'BSD License',
-        'filelistgenerator' => 'cvs',
-        'ignore'            => array('package*.php', 'package*.xml', 'sqlite*', 'mssql*', 'oci8*', 'pgsql*', 'mysqli*', 'mysql*', 'fbsql*', 'querysim*', 'ibase*', 'peardb*'),
-        'notes'             => $notes,
-        'changelogoldtonew' => false,
-        'simpleoutput'      => true,
-        'baseinstalldir'    => '/',
-        'packagedirectory'  => './',
-        'dir_roles'         => array(
-            'docs' => 'doc',
-             'examples' => 'doc',
-             'tests' => 'test',
-        ),
-    )
+$options = array(
+    'filelistgenerator' => 'cvs',
+    'changelogoldtonew' => false,
+    'simpleoutput'      => true,
+    'baseinstalldir'    => '/',
+    'packagedirectory'  => './',
+    'clearcontents'     => false,
+    'ignore'            => array('package*.php', 'package*.xml', 'sqlite*', 'mssql*', 'oci8*', 'pgsql*', 'mysqli*', 'mysql*', 'fbsql*', 'querysim*', 'ibase*', 'peardb*'),
+    'dir_roles'         => array(
+        'docs'      => 'doc',
+         'examples' => 'doc',
+         'tests'    => 'test',
+    ),
 );
 
-if (PEAR::isError($result)) {
-    echo $result->getMessage();
-    die();
-}
-
-$package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
-$package->addMaintainer('pgc', 'contributor', 'Paul Cooper', 'pgc@ucecom.com');
-$package->addMaintainer('quipo', 'developer', 'Lorenzo Alberton', 'l.alberton@quipo.it');
-$package->addMaintainer('danielc', 'helper', 'Daniel Convissor', 'danielc@php.net');
-$package->addMaintainer('davidc', 'helper', 'David Coallier', 'david@jaws.com.mx');
-
-$package->addDependency('php', '4.3.2', 'ge', 'php', false);
-$package->addDependency('PEAR', '1.3.6', 'ge', 'pkg', false);
-
+$package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
+$package->setPackageType('php');
+$package->addRelease();
+$package->generateContents();
+$package->setReleaseVersion($version_release);
+$package->setAPIVersion($version_api);
+$package->setReleaseStability($state);
+$package->setAPIStability($state);
+$package->setNotes($notes);
+$package->setDescription($description);
 $package->addglobalreplacement('package-info', '@package_version@', 'version');
 
-if (array_key_exists('make', $_GET) || (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'make')) {
-    $result = $package->writePackageFile();
+if (isset($_GET['make']) || (isset($_SERVER['argv']) && @$_SERVER['argv'][1] == 'make')) {
+    $package->writePackageFile();
 } else {
-    $result = $package->debugPackageFile();
-}
-
-if (PEAR::isError($result)) {
-    echo $result->getMessage();
-    die();
+    $package->debugPackageFile();
 }

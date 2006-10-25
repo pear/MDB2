@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.11">
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2</name>
+ <channel>pear.php.net</channel>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
 
@@ -32,50 +32,51 @@ can be used to construct portable SQL statements:
 * Reverse engineering schemas from an existing database
 * SQL function call abstraction
 * Full integration into the PEAR Framework
-* PHPDoc API documentation
- </description>
- <maintainers>
-  <maintainer>
-   <user>lsmith</user>
-   <name>Lukas Kahwe Smith</name>
-   <email>smith@pooteeweet.org</email>
-   <role>lead</role>
-  </maintainer>
-  <maintainer>
-   <user>pgc</user>
-   <name>Paul Cooper</name>
-   <email>pgc@ucecom.com</email>
-   <role>contributor</role>
-  </maintainer>
-  <maintainer>
-   <user>quipo</user>
-   <name>Lorenzo Alberton</name>
-   <email>l.alberton@quipo.it</email>
-   <role>developer</role>
-  </maintainer>
-  <maintainer>
-   <user>danielc</user>
-   <name>Daniel Convissor</name>
-   <email>danielc@php.net</email>
-   <role>helper</role>
-  </maintainer>
-  <maintainer>
-   <user>davidc</user>
-   <name>David Coallier</name>
-   <email>david@jaws.com.mx</email>
-   <role>helper</role>
-  </maintainer>
-  </maintainers>
- <release>
-  <version>2.2.2</version>
-  <date>2006-09-03</date>
-  <license>BSD License</license>
-  <state>stable</state>
-  <notes>- flip positions property array in prepared statement objects to make it
-  possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement
-- expanded prepare tests to cover more edge cases
-- renamed valid_types property to valid_default_values in the Datatype module
+* PHPDoc API documentation</description>
+ <lead>
+  <name>Lukas Kahwe Smith</name>
+  <user>lsmith</user>
+  <email>smith@pooteeweet.org</email>
+  <active>yes</active>
+ </lead>
+ <developer>
+  <name>Lorenzo Alberton</name>
+  <user>quipo</user>
+  <email>l.alberton@quipo.it</email>
+  <active>yes</active>
+ </developer>
+ <contributor>
+  <name>Paul Cooper</name>
+  <user>pgc</user>
+  <email>pgc@ucecom.com</email>
+  <active>yes</active>
+ </contributor>
+ <helper>
+  <name>Daniel Convissor</name>
+  <user>danielc</user>
+  <email>danielc@php.net</email>
+  <active>yes</active>
+ </helper>
+ <helper>
+  <name>David Coallier</name>
+  <user>davidc</user>
+  <email>david@jaws.com.mx</email>
+  <active>yes</active>
+ </helper>
+ <date>2006-10-25</date>
+ <time>14:52:45</time>
+ <version>
+  <release>2.3.0</release>
+  <api>2.3.0</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license>BSD License</license>
+ <notes>- added charset and collation support to field declaration
+- added SQL comments and quoted identifier handling inside prepared statement parser
+- expanded length/scale support for numeric types (Request #7170)
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -83,7 +84,6 @@ open todo items:
 - expand charset support in schema management and result set handling (Request #4666)
 - add EXPLAIN abstraction
 - add cursor support along the lines of PDO (Request #3660 etc.)
-- expand length/scale support for numeric types (Request #7170)
 - add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
 - add support to export/import in CSV format
 - add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
@@ -95,166 +95,222 @@ open todo items:
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
 - handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
-  </notes>
-  <deps>
-   <dep type="php" rel="ge" version="4.3.2" optional="no"/>
-   <dep type="pkg" rel="ge" version="1.3.6" optional="no">PEAR</dep>
-  </deps>
-  <filelist>
-   <dir name="/" baseinstalldir="/">
-    <dir name="docs">
-     <dir name="examples">
-      <file role="doc" name="example.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
-      </file>
-      <file role="doc" name="example_php5.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
-      </file>
-      <file role="doc" name="metapear_test_db.schema">
-       <replace type="package-info" from="@package_version@" to="version"/>
-      </file>
-     </dir> <!-- /docs/examples -->
-     <file role="doc" name="CONTRIBUTORS">
-      <replace type="package-info" from="@package_version@" to="version"/>
+- add a getTableFieldsDefinitions() method to be used in tableInfo()
+- drop ILIKE from matchPattern() and instead add a second parameter to
+  handle case sensitivity with arbitrary operators</notes>
+ <contents>
+  <dir baseinstalldir="/" name="/">
+   <dir name="docs">
+    <dir name="examples">
+     <file name="example.php" role="doc">
+      <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-     <file role="doc" name="datatypes.html">
-      <replace type="package-info" from="@package_version@" to="version"/>
+     <file name="example_php5.php" role="doc">
+      <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-     <file role="doc" name="MAINTAINERS">
-      <replace type="package-info" from="@package_version@" to="version"/>
+     <file name="metapear_test_db.schema" role="doc">
+      <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-     <file role="doc" name="README">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="doc" name="STATUS">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="doc" name="TODO">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-    </dir> <!-- /docs -->
-    <dir name="MDB2">
-     <dir name="Driver">
-      <dir name="Datatype">
-       <file role="php" name="Common.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Datatype -->
-      <dir name="Function">
-       <file role="php" name="Common.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Function -->
-      <dir name="Manager">
-       <file role="php" name="Common.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Manager -->
-      <dir name="Native">
-       <file role="php" name="Common.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Native -->
-      <dir name="Reverse">
-       <file role="php" name="Common.php">
-        <replace type="package-info" from="@package_version@" to="version"/>
-       </file>
-      </dir> <!-- /MDB2/Driver/Reverse -->
-     </dir> <!-- /MDB2/Driver -->
-     <file role="php" name="Date.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="php" name="Extended.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="php" name="Iterator.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="php" name="LOB.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-    </dir> <!-- /MDB2 -->
-    <dir name="tests">
-     <file role="test" name="basic.phpt">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="clitest.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="config.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="Console_TestListener.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="HTML_TestListener.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_api_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_bugs_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_Connect_Test.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_datatype_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_extended_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_function_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_manager_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_native_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_reverse_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="MDB2_usage_testcase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="README">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="test.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="testchoose.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="tests.css">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="testUtils.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-     <file role="test" name="test_setup.php.dist">
-      <replace type="package-info" from="@package_version@" to="version"/>
-     </file>
-    </dir> <!-- /tests -->
-    <file role="php" name="MDB2.php">
-     <replace type="package-info" from="@package_version@" to="version"/>
+    </dir> <!-- /docs/examples -->
+    <file name="CONTRIBUTORS" role="doc">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
     </file>
-   </dir> <!-- / -->
-  </filelist>
- </release>
+    <file name="datatypes.html" role="doc">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MAINTAINERS" role="doc">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="README" role="doc">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="STATUS" role="doc">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="TODO" role="doc">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+   </dir> <!-- /docs -->
+   <dir name="MDB2">
+    <dir name="Driver">
+     <dir name="Datatype">
+      <file name="Common.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Datatype -->
+     <dir name="Function">
+      <file name="Common.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Function -->
+     <dir name="Manager">
+      <file name="Common.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Manager -->
+     <dir name="Native">
+      <file name="Common.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Native -->
+     <dir name="Reverse">
+      <file name="Common.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Reverse -->
+    </dir> <!-- /MDB2/Driver -->
+    <file name="Date.php" role="php">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="Extended.php" role="php">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="Iterator.php" role="php">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="LOB.php" role="php">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+   </dir> <!-- /MDB2 -->
+   <dir name="tests">
+    <file name="basic.phpt" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="clitest.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="config.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="Console_TestListener.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="HTML_TestListener.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_api_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_bugs_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_Connect_Test.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_datatype_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_extended_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_function_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_manager_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_native_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_reverse_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="MDB2_usage_testcase.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="README" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="test.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="testchoose.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="tests.css" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="testUtils.php" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+    <file name="test_setup.php.dist" role="test">
+     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    </file>
+   </dir> <!-- /tests -->
+   <file name="LICENSE" role="data" />
+   <file name="MDB2.php" role="php">
+    <tasks:replace from="@package_version@" to="version" type="package-info" />
+   </file>
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>4.3.2</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+   <package>
+    <name>PEAR</name>
+    <channel>pear.php.net</channel>
+    <min>1.3.6</min>
+   </package>
+  </required>
+ </dependencies>
+ <phprelease />
  <changelog>
-   <release>
-    <version>2.2.2</version>
-    <date>2006-09-03</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- flip positions property array in prepared statement objects to make it
+  <release>
+   <version>
+    <release>2.3.0</release>
+    <api>2.3.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-10-25</date>
+   <license>BSD License</license>
+   <notes>- added charset and collation support to field declaration
+- added SQL comments and quoted identifier handling inside prepared statement parser
+- expanded length/scale support for numeric types (Request #7170)
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add length handling to LOB reverse engineering
+- expand charset support in schema management and result set handling (Request #4666)
+- add EXPLAIN abstraction
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
+- add support for database/table/row LOCKs
+- add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
+- generate STATUS file from test suite results and allow users to submit test results
+- add a package2.xml and explore use of install groups (pear install MDB2#mysql)
+- add support for full text index creation and querying
+- add tests to check if the RDBMS specific handling with portability options
+  disabled behaves as expected
+- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
+- add a getTableFieldsDefinitions() method to be used in tableInfo()
+- drop ILIKE from matchPattern() and instead add a second parameter to
+  handle case sensitivity with arbitrary operators</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.2.2</release>
+    <api>2.2.2</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-09-03</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- flip positions property array in prepared statement objects to make it
   possible to optionally use the same named placeholder in multiple places
   inside a single prepared statement
 - expanded prepare tests to cover more edge cases
@@ -277,15 +333,20 @@ open todo items:
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
-- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
-    </notes>
-   </release>
-   <release>
-    <version>2.2.1</version>
-    <date>2006-08-21</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- fixed missing code in tableInfo() (Bug #8289)
+- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.2.1</release>
+    <api>2.2.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-08-21</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- fixed missing code in tableInfo() (Bug #8289)
 - fixed handling of indexes and constraints and types in tableInfo() (fixes BC break)
 - do not set nested transaction error if error is expected
 - explictly default to NULL when the column is NULLable and no default is set
@@ -328,15 +389,20 @@ open todo items:
 - add a package2.xml and explore use of install groups (pear install MDB2#mysql)
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
-  disabled behaves as expected
-    </notes>
-   </release>
-   <release>
-    <version>2.2.0</version>
-    <date>2006-07-23</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- added MDB2_AUTOQUERY_SELECT (Request #7817)
+  disabled behaves as expected</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.2.0</release>
+    <api>2.2.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-07-23</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- added MDB2_AUTOQUERY_SELECT (Request #7817)
 - added nested transaction support (inspired by ADODB&apos;s smart transactions) but
   expanded to optionally use SAVEPOINTs *EXPERIMENTAL*
   beginNestedTransaction(), completeNestedTransaction(),
@@ -388,15 +454,20 @@ open todo items:
 - add ActiveRecord implementation (probably as a separate package)
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
 - extended to support for case insensitive matching via ILIKE/collate in matchPattern()
-- generate STATUS file from test suite results and allow users to submit test results
-    </notes>
-   </release>
-   <release>
-    <version>2.1.0</version>
-    <date>2006-06-15</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- removed bogus code from execute()
+- generate STATUS file from test suite results and allow users to submit test results</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.1.0</release>
+    <api>2.1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-06-15</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- removed bogus code from execute()
 - new test case for floats/decimals and locale
 - reworked fix for float/decimal handling
 - expanded scientific notation handling
@@ -428,15 +499,20 @@ open todo items:
 - handle autoincrement fields in alterTable()
 - add support for ADODB style &quot;smart transactions&quot;:
   http://phplens.com/lens/adodb/docs-adodb.htm#ex11
-- add length handling to LOB reverse engineering
-    </notes>
-   </release>
-   <release>
-    <version>2.0.3</version>
-    <date>2006-05-22</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- fix float/decimal handling (Request #3021)
+- add length handling to LOB reverse engineering</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.3</release>
+    <api>2.0.3</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-05-22</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- fix float/decimal handling (Request #3021)
 - default to decimal for double (instead of float)
 - serialize arrays when no type is explicitly given
 - phpdoc fixes
@@ -450,15 +526,20 @@ open todo items:
 - handle autoincrement fields in alterTable()
 - add support for ADODB style &quot;smart transactions&quot;:
   http://phplens.com/lens/adodb/docs-adodb.htm#ex11
-- add length handling to LOB reverse engineering
-    </notes>
-   </release>
-   <release>
-    <version>2.0.2</version>
-    <date>2006-05-14</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- phpdoc and folding mark fixes (thx Laurent and Stoyan)
+- add length handling to LOB reverse engineering</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.2</release>
+    <api>2.0.2</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-05-14</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- phpdoc and folding mark fixes (thx Laurent and Stoyan)
 - added getTriggerDefinition() in the Reverse module
 - added listTableViews() in the Manager module
 - explicitly set is_manip parameter to false for transaction debug calls
@@ -500,15 +581,20 @@ installation using the CVS version or a release greater than 0.5.0)
 open todo items:
 - handle autoincrement fields in alterTable()
 - add support for ADODB style &quot;smart transactions&quot;:
-  http://phplens.com/lens/adodb/docs-adodb.htm#ex11
-    </notes>
-   </release>
-   <release>
-    <version>2.0.1</version>
-    <date>2006-04-16</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- added new comprehensive tests for the Reverse module
+  http://phplens.com/lens/adodb/docs-adodb.htm#ex11</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.1</release>
+    <api>2.0.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-04-16</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- added new comprehensive tests for the Reverse module
 - fixed testcases to pass for mysql[i] (needs pk&apos;s to be called &quot;primary&quot;) ..
   sqlite is probably severely broken for these tests
 - added ability to specify port number when using unix sockets in
@@ -538,23 +624,33 @@ open todo items:
 - improve test suite documentation
 
 open todo items:
-- handle autoincremement fields in alterTable()
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0</version>
-    <date>2006-02-09</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- handle null as resource when disable_query option is enabled in result object
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0RC5</version>
-    <date>2006-02-05</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>- expanded testing of prepared queries (out of order binding, escape characters
+- handle autoincremement fields in alterTable()</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0</release>
+    <api>2.0.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-02-09</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- handle null as resource when disable_query option is enabled in result object</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0RC5</release>
+    <api>2.0.0RC5</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2006-02-05</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- expanded testing of prepared queries (out of order binding, escape characters
   inside the string, lobs without named parameters that match the field name)
 - removed ugly hack for quote parameter in quote() since it was insufficient
   (escaping also needs to be prevented)
@@ -567,15 +663,20 @@ open todo items:
   (BC BREAK!)
 - added MDB2_datatype_testcase to test suite
 - support an arbitrary number of arguments in concat()
-- add property phpdoc comments to LOB.php
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0RC4</version>
-    <date>2006-01-13</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+- add property phpdoc comments to LOB.php</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0RC4</release>
+    <api>2.0.0RC4</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2006-01-13</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 - some cleanups in loadModule()
 - eliminate possible warnings in execute() and _assignBindColumns()
 - do not silence includes when debug option is enabled
@@ -587,15 +688,20 @@ open todo items:
 - _fixIndexName() now just attempts to remove possible formatting
 - renamed _isSequenceName() to _fixSequenceName()
 - _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0RC3</version>
-    <date>2005-12-30</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>- added error handling when result set introspection is not supported in _wrapResult()
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0RC3</release>
+    <api>2.0.0RC3</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-12-30</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- added error handling when result set introspection is not supported in _wrapResult()
 - fixed example
 - removed peardb wrapper (its broken, unmaintained and probably unused)
 - added new example using php5 only features
@@ -603,15 +709,20 @@ open todo items:
 - types can now always be keyed by name or by order
 - renamed setResultTypes() in the datatype module to checkResultTypes()
   and modified the signature accordingly
-- removed no longer used MDB2::isManip()
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0RC2</version>
-    <date>2005-12-28</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>- fixed testNow() to use the datatype abstraction
+- removed no longer used MDB2::isManip()</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0RC2</release>
+    <api>2.0.0RC2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-12-28</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- fixed testNow() to use the datatype abstraction
 - fixed testGetTableFieldDefinition() to use a blob column instead of a clob
   since we default to blob when we cannot differntiate between blob and clob
 - split up alterTable() testing into two separate test methods
@@ -619,15 +730,20 @@ open todo items:
 - fixed major bug in _fixResultArrayValues() that would lead to performance or
   incorrect application of portability features
 - phpdoc fixes in LOB.php, Iterator.php, Date.php and Extended.php
-- removed not required prev() and hasPrev() from the SeekableIterator implementation
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0RC1</version>
-    <date>2005-12-21</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>- added numerous testcases in the manager and reverse module
+- removed not required prev() and hasPrev() from the SeekableIterator implementation</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0RC1</release>
+    <api>2.0.0RC1</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-12-21</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- added numerous testcases in the manager and reverse module
 - unified case fixing in the list*() methods
 - case-insensitive comparison in _isSequenceName()
 - added getConnection() to fetch a native connection resource
@@ -653,15 +769,20 @@ open todo items:
 - no need to return by reference in getConnection() (it even seems to work for
   mysqli that has objects and not resource connections)
 - added &quot;idxname_format&quot; as option similar to &quot;seqname_format&quot;
-- fixed bug in API calls inside autoExecute() (bug #6286)
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0beta6</version>
-    <date>2005-10-16</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>Warning: this release features numerous BC breaks!
+- fixed bug in API calls inside autoExecute() (bug #6286)</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0beta6</release>
+    <api>2.0.0beta6</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-10-16</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>Warning: this release features numerous BC breaks!
 
 There have been considerable improvements to the datatype, manager and reverse
 modules. Furthermore preliminary support for auto increment and primary keys
@@ -710,15 +831,20 @@ column primary key on this field.
 
 open todo items:
 - add test cases for the various module methods
-- add getServerVersion()
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0beta5</version>
-    <date>2005-06-08</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
+- add getServerVersion()</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0beta5</release>
+    <api>2.0.0beta5</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-06-08</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
 similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
@@ -736,15 +862,20 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - fixed bug in _assignBindColumns() when using associative fetches
 - support numeric and string keys in types array for prepared queries
 - call trigger error if __call() is unable to find a method in any of the modules
-- work around php5 bugs in the test suite
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0beta4</version>
-    <date>2005-04-29</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
+- work around php5 bugs in the test suite</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0beta4</release>
+    <api>2.0.0beta4</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-04-29</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
 similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
@@ -790,15 +921,20 @@ BC for the same reason. Check php.net/pdo for information on the pdo API.
 - added bindColumn() support
 - use MDB2_Schema::factory()
 - phpdoc fixes in regards to flipped fetchmode
-- remove renegate mysql code in sqlite driver
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0beta3</version>
-    <date>2005-03-06</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
+- remove renegate mysql code in sqlite driver</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0beta3</release>
+    <api>2.0.0beta3</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-03-06</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>Warning: this release features numerous BC breaks to make the MDB2 API be as
 similar as possible as the ext/pdo API! The next release is likely to also break
 BC for the same reason. Check php.net/pdo for information on the pdo API.
 
@@ -950,15 +1086,20 @@ MDB_Tools_Manager
   incorrect handling of integer values (this needs to be explored in more detail)
 - several typo fixes and minor logic errors (among others a fix for bug #2057)
 - moved xml dumping in MDB2_Tools_Manager into separate Writer class
-- fixed bugs in start value handling in create sequence (bug #3077)
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0beta2</version>
-    <date>2004-04-25</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>The core of MDB2 is now fairly stable API-wise. The modules, especially the
+- fixed bugs in start value handling in create sequence (bug #3077)</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0beta2</release>
+    <api>2.0.0beta2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2004-04-25</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>The core of MDB2 is now fairly stable API-wise. The modules, especially the
 manager and reverse module, might see some API refinement before the first
 stable release.
 - added listTables() and listTableFields() methods to MDB2_Driver_Manager_mssql
@@ -1001,15 +1142,20 @@ stable release.
 - added $result_class param to all drivers where it was missing from the
   query() and _executePrepared() methods
 - applied several fixes to the PEAR::DB wrapper
-- fixed a typo in MDB2_Driver_Reverse_pgsql::tableInfo()
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0beta1</version>
-    <date>2004-03-12</date>
-    <license>BSD License</license>
-    <state>alpha</state>
-    <notes>- fixed bug in MDB2::singleton
+- fixed a typo in MDB2_Driver_Reverse_pgsql::tableInfo()</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0beta1</release>
+    <api>2.0.0beta1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2004-03-12</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- fixed bug in MDB2::singleton
 - fixed minor bugs in prepare/execute
 - added PEAR::DB wrapper (not working yet)
 - fixed several bugs in the ibase driver
@@ -1029,15 +1175,20 @@ stable release.
   doing assoc fetches based on portability flag setting
 - updated reverse engineering script to the new MDB2 API
 - removed broken implementations of currId() in the mssql and fbsql driver
-- fixed a few instances of MDB_Common to the new class name of MDB_Driver_Common
-    </notes>
-   </release>
-   <release>
-    <version>2.0.0alpha1</version>
-    <date>2004-01-05</date>
-    <license>BSD License</license>
-    <state>alpha</state>
-    <notes>This is the first alpha release of MDB2 2.0.
+- fixed a few instances of MDB_Common to the new class name of MDB_Driver_Common</notes>
+  </release>
+  <release>
+   <version>
+    <release>2.0.0alpha1</release>
+    <api>2.0.0alpha1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2004-01-05</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>This is the first alpha release of MDB2 2.0.
 
 MDB2 2.x breaks backwards compatibility in many ways in order to simplify
 the API for both users and drivers developers.
@@ -1069,8 +1220,7 @@ Here follows a short list of the most important changes:
 - results are now wrapped inside objects and all methods which operate
   on resultsets have been moved into respecitive classes
 - there are two types of result object: buffered (default) and unbuffered
-- totally rewrote buffering and limit emulation
-    </notes>
-   </release>
+- totally rewrote buffering and limit emulation</notes>
+  </release>
  </changelog>
 </package>
