@@ -813,21 +813,23 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             }
             // skip any delimited strings
             foreach ($ignores as $ignore) {
-                if (is_int($start_quote = strpos($query, $ignore['start'], $position)) && $start_quote < $p_position) {
-                    $end_quote = $start_quote;
-                    do {
-                        if (!is_int($end_quote = strpos($query, $ignore['end'], $end_quote + 1))) {
-                            if ($ignore['end'] === "\n") {
-                                $end_quote = strlen($query) - 1;
-                            } else {
-                                $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
-                                    'query with an unterminated text string specified', __FUNCTION__);
-                                return $err;
+                if (!empty($ignore['start'])) {
+                    if (is_int($start_quote = strpos($query, $ignore['start'], $position)) && $start_quote < $p_position) {
+                        $end_quote = $start_quote;
+                        do {
+                            if (!is_int($end_quote = strpos($query, $ignore['end'], $end_quote + 1))) {
+                                if ($ignore['end'] === "\n") {
+                                    $end_quote = strlen($query) - 1;
+                                } else {
+                                    $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                                        'query with an unterminated text string specified', __FUNCTION__);
+                                    return $err;
+                                }
                             }
-                        }
-                    } while ($ignore['escape'] && $query[($end_quote - 1)] == $ignore['escape']);
-                    $position = $end_quote + 1;
-                    continue(2);
+                        } while ($ignore['escape'] && $query[($end_quote - 1)] == $ignore['escape']);
+                        $position = $end_quote + 1;
+                        continue(2);
+                    }
                 }
             }
             if ($query[$position] == $placeholder_type_guess) {
