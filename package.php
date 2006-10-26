@@ -85,6 +85,7 @@ $options = array(
 
 $package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
 $package->setPackageType('php');
+$package->setExtends('MDB');
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version_release);
@@ -93,7 +94,7 @@ $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);
 $package->setDescription($description);
-$package->addglobalreplacement('package-info', '@package_version@', 'version');
+$package->addGlobalReplacement('package-info', '@package_version@', 'version');
 
 if (isset($_GET['make']) || (isset($_SERVER['argv']) && @$_SERVER['argv'][1] == 'make')) {
     $package->writePackageFile();
