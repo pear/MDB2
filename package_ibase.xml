@@ -1,30 +1,38 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.6">
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+http://pear.php.net/dtd/tasks-1.0.xsd
+http://pear.php.net/dtd/package-2.0
+http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_ibase</name>
+ <channel>pear.php.net</channel>
  <summary>ibase MDB2 driver</summary>
  <description>This is the Firebird/Interbase MDB2 driver.
+ 
  </description>
- <maintainers>
-  <maintainer>
-   <user>quipo</user>
-   <name>Lorenzo Alberton</name>
-   <email>l.alberton@quipo.it</email>
-   <role>lead</role>
-  </maintainer>
-  <maintainer>
-   <user>lsmith</user>
-   <name>Lukas Kahwe Smith</name>
-   <email>smith@pooteeweet.org</email>
-   <role>lead</role>
-  </maintainer>
-  </maintainers>
- <release>
-  <version>1.2.1</version>
-  <date>2006-08-29</date>
-  <license>BSD License</license>
-  <state>stable</state>
-  <notes>- flip positions property array in prepared statement objects to make it
+ <lead>
+  <name>Lorenzo Alberton</name>
+  <user>quipo</user>
+  <email>l.alberton@quipo.it</email>
+  <active>yes</active>
+ </lead>
+ <lead>
+  <name>Lukas Kahwe Smith</name>
+  <user>lsmith</user>
+  <email>smith@pooteeweet.org</email>
+  <active>yes</active>
+ </lead>
+ <date>2006-10-27</date>
+ <time>15:29:30</time>
+ <version>
+  <release>1.2.1</release>
+  <api>1.2.1</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license>BSD License</license>
+ <notes>- flip positions property array in prepared statement objects to make it
   possible to optionally use the same named placeholder in multiple places
   inside a single prepared statement
 - do not list empty contraints and indexes
@@ -33,55 +41,81 @@
 - do not set a default if type is a LOB (Request #8074)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - increased MDB2 dependency too 2.2.1
-  </notes>
-  <deps>
-   <dep type="php" rel="ge" version="5.0.4" optional="no"/>
-   <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.2.1" optional="no">MDB2</dep>
-   <dep type="ext" rel="has" optional="no">interbase</dep>
-  </deps>
-  <filelist>
-   <dir name="MDB2" baseinstalldir="/">
+  
+ </notes>
+ <contents>
+  <dir name="/">
+   <dir name="MDB2">
     <dir name="Driver">
      <dir name="Datatype">
-      <file role="php" name="ibase.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Datatype -->
+     </dir> <!-- //MDB2/Driver/Datatype -->
      <dir name="Function">
-      <file role="php" name="ibase.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Function -->
+     </dir> <!-- //MDB2/Driver/Function -->
      <dir name="Manager">
-      <file role="php" name="ibase.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Manager -->
+     </dir> <!-- //MDB2/Driver/Manager -->
      <dir name="Native">
-      <file role="php" name="ibase.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Native -->
+     </dir> <!-- //MDB2/Driver/Native -->
      <dir name="Reverse">
-      <file role="php" name="ibase.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Reverse -->
-     <file role="php" name="ibase.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
+     </dir> <!-- //MDB2/Driver/Reverse -->
+     <file baseinstalldir="/" name="ibase.php" role="php">
+      <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-    </dir> <!-- /MDB2/Driver -->
-   </dir> <!-- /MDB2 -->
-  </filelist>
- </release>
+    </dir> <!-- //MDB2/Driver -->
+   </dir> <!-- //MDB2 -->
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.0.4</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+   <package>
+    <name>PEAR</name>
+    <channel>pear.php.net</channel>
+    <min>1.0b1</min>
+   </package>
+   <package>
+    <name>MDB2</name>
+    <channel>pear.php.net</channel>
+    <min>2.2.1</min>
+   </package>
+   <extension>
+    <name>interbase</name>
+   </extension>
+  </required>
+ </dependencies>
+ <phprelease />
  <changelog>
-   <release>
-    <version>1.2.1</version>
-    <date>2006-08-29</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- flip positions property array in prepared statement objects to make it
+  <release>
+   <version>
+    <release>1.2.1</release>
+    <api>1.2.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-08-29</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- flip positions property array in prepared statement objects to make it
   possible to optionally use the same named placeholder in multiple places
   inside a single prepared statement
 - do not list empty contraints and indexes
@@ -90,14 +124,21 @@
 - do not set a default if type is a LOB (Request #8074)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - increased MDB2 dependency too 2.2.1
-    </notes>
-   </release>
-   <release>
-    <version>1.2.0</version>
-    <date>2006-07-25</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- added ability to escape wildcard characters in escape() and quote()
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>1.2.0</release>
+    <api>1.2.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-07-25</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
 - added savepoint support to beginTransaction(), commit() and rollback()
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
@@ -111,14 +152,21 @@
   when a table name is passed (Bug #8124)
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
 - use old dsn when rolling back open transactions in disconnect()
-    </notes>
-   </release>
-   <release>
-    <version>1.1.0</version>
-    <date>2006-06-15</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>1.1.0</release>
+    <api>1.1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-06-15</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
 - added setCharset()
@@ -132,14 +180,21 @@
   attempting to free a result set(Bug #7790)
 - fixed control flow in MDB2_Driver_Datatype_ibase::mapNativeDatatype()
   for &apos;numeric&apos; or &apos;decimal&apos; types
-    </notes>
-   </release>
-   <release>
-    <version>1.0.2</version>
-    <date>2006-05-14</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- implemented listTableTriggers(), listTableViews() and listFunctions()
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>1.0.2</release>
+    <api>1.0.2</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-05-14</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- implemented listTableTriggers(), listTableViews() and listFunctions()
   in the Manager module
 - implemented getTriggerDefinition() in the Reverse module
 - explicitly set is_manip parameter to false for transaction debug calls
@@ -157,14 +212,21 @@
 - fixed phpdoc comments of all private LOB methods
 - added missing supported parameter to prepare() signature
 - fix default field value in getTableFieldDefinition() [Reverse module]
-    </notes>
-   </release>
-   <release>
-    <version>1.0.1</version>
-    <date>2006-04-16</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- discard all constraints in MDB2_Driver_Reverse::getTableIndexDefinition(),
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>1.0.1</release>
+    <api>1.0.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-04-16</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- discard all constraints in MDB2_Driver_Reverse::getTableIndexDefinition(),
   leave them to MDB2_Driver_Reverse::getTableConstraintDefinition().
 - return the constraint type in MDB2_Driver_Reverse::getTableConstraintDefinition().
 - aligned _modifyQuery() signature and phpdoc
@@ -179,25 +241,39 @@
 - don&apos;t return views in listTables()
 - fixed query in listViews()
 - protect against sql injection in the reverse and manager module
-    </notes>
-   </release>
-   <release>
-    <version>1.0.0</version>
-    <date>2006-02-09</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- handle null as resource when disable_query option is enabled in result object
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>1.0.0</release>
+    <api>1.0.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-02-09</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - handle autoincremement fields in alterTable()
-    </notes>
-   </release>
-   <release>
-    <version>0.2.2</version>
-    <date>2006-02-05</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>- native DECIMAL datatype is now used instead of converting it to a string
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.2</release>
+    <api>0.2.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2006-02-05</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- native DECIMAL datatype is now used instead of converting it to a string
 - added support for length in decimal columns
 - removed ugly hack for quote parameter in quote() since it was insufficient
   (escaping also needs to be prevented)
@@ -212,14 +288,21 @@ open todo items:
 
 open todo items:
 - handle autoincremement fields in alterTable()
-    </notes>
-   </release>
-   <release>
-    <version>0.2.1</version>
-    <date>2006-01-14</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>- removed unnecessary if statement in getTableFieldDefinition()
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.1</release>
+    <api>0.2.1</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2006-01-14</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- removed unnecessary if statement in getTableFieldDefinition()
 - no need to register a shutdown function since te ibase driver is php5 only
   and therefore always uses the destructor
 - fixed typo in _execute() that would lead to using the wrong types inside the result object
@@ -241,14 +324,21 @@ open todo items:
 
 open todo items:
 - handle autoincremement fields in alterTable()
-    </notes>
-   </release>
-   <release>
-    <version>0.2.0</version>
-    <date>2005-12-22</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>- fixed _dropAutoincrement()
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.0</release>
+    <api>0.2.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-12-22</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- fixed _dropAutoincrement()
 - use _dropAutoincrement() in dropTable()
 - fixed mapNativeDatatype()
 - implemented getTableFieldDefinition() and getTableIndexDefinition() in the Reverse module
@@ -281,14 +371,21 @@ open todo items:
 
 open todo items:
 - handle autoincremement fields in alterTable()
-    </notes>
-   </release>
-   <release>
-    <version>0.1.2</version>
-    <date>2005-10-10</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>Warning: this release features numerous BC breaks!
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.1.2</release>
+    <api>0.1.2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-10-10</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>Warning: this release features numerous BC breaks!
 
 There have been considerable improvements to the datatype, manager and reverse
 modules. Furthermore preliminary support for auto increment and primary keys
@@ -320,23 +417,37 @@ column primary key on this field.
 open todo items:
 - code to be able to list primary contraints inside listTableIndexes()/dropIndex()
 - handle autoincremement fields in alterTable() and dropTable()
-    </notes>
-   </release>
-   <release>
-    <version>0.1.1</version>
-    <date>2005-06-08</date>
-    <license>BSD License</license>
-    <state>beta</state>
-    <notes>- fixed LOB management and package dependencies
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.1.1</release>
+    <api>0.1.1</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2005-06-08</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- fixed LOB management and package dependencies
 - fully tested
-    </notes>
-   </release>
-   <release>
-    <version>0.1.0</version>
-    <date>2005-06-08</date>
-    <license>BSD License</license>
-    <state>alpha</state>
-    <notes>first unbundled release from MDB2 core
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.1.0</release>
+    <api>0.1.0</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2005-06-08</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>first unbundled release from MDB2 core
 
 - cosmetic fixes to _getDatabaseFile()
 - removed redundant code from datatype module
@@ -351,7 +462,8 @@ open todo items:
 - typo fixes in result class
 - support numeric and string keys in types array for prepared queries
 - Warning: this release is untested
-    </notes>
-   </release>
+    
+   </notes>
+  </release>
  </changelog>
 </package>

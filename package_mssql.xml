@@ -1,36 +1,44 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.4.9">
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+http://pear.php.net/dtd/tasks-1.0.xsd
+http://pear.php.net/dtd/package-2.0
+http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mssql</name>
+ <channel>pear.php.net</channel>
  <summary>mssql MDB2 driver</summary>
  <description>This is the Microsoft SQL Server MDB2 driver.
+ 
  </description>
- <maintainers>
-  <maintainer>
-   <user>davidc</user>
-   <name>David Coallier</name>
-   <email>david@jaws.com.mx</email>
-   <role>lead</role>
-  </maintainer>
-  <maintainer>
-   <user>lsmith</user>
-   <name>Lukas Kahwe Smith</name>
-   <email>smith@pooteeweet.org</email>
-   <role>lead</role>
-  </maintainer>
-  <maintainer>
-   <user>nrf</user>
-   <name>Nathan Fredrickson</name>
-   <email>nathan@silverorange.com</email>
-   <role>lead</role>
-  </maintainer>
-  </maintainers>
- <release>
-  <version>1.1.0</version>
-  <date>2006-06-15</date>
-  <license>BSD License</license>
-  <state>stable</state>
-  <notes>- added the listTableTriggers() method to the Manager.
+ <lead>
+  <name>David Coallier</name>
+  <user>davidc</user>
+  <email>david@jaws.com.mx</email>
+  <active>yes</active>
+ </lead>
+ <lead>
+  <name>Lukas Kahwe Smith</name>
+  <user>lsmith</user>
+  <email>smith@pooteeweet.org</email>
+  <active>yes</active>
+ </lead>
+ <lead>
+  <name>Nathan Fredrickson</name>
+  <user>nrf</user>
+  <email>nathan@silverorange.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2006-10-27</date>
+ <time>15:29:54</time>
+ <version>
+  <release>1.1.0</release>
+  <api>1.1.0</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license>BSD License</license>
+ <notes>- added the listTableTriggers() method to the Manager.
 - added the listViews() method to the Manager.
 - aligned _modifyQuery() signature and phpdoc
 - added the map datatype patch for (bug #6863)
@@ -69,55 +77,81 @@
   @@IDENTITY to retrieve last inserted value (bug #7291)
 - implement getServerVersion()
 - removed bogus but unharmful code from mapNativeDatatype()
-  </notes>
-  <deps>
-   <dep type="php" rel="ge" version="4.3.0" optional="no"/>
-   <dep type="pkg" rel="ge" version="1.0b1" optional="no">PEAR</dep>
-   <dep type="pkg" rel="ge" version="2.1.0" optional="no">MDB2</dep>
-   <dep type="ext" rel="has" optional="no">mssql</dep>
-  </deps>
-  <filelist>
-   <dir name="MDB2" baseinstalldir="/">
+  
+ </notes>
+ <contents>
+  <dir name="/">
+   <dir name="MDB2">
     <dir name="Driver">
      <dir name="Datatype">
-      <file role="php" name="mssql.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="mssql.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Datatype -->
+     </dir> <!-- //MDB2/Driver/Datatype -->
      <dir name="Function">
-      <file role="php" name="mssql.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="mssql.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Function -->
+     </dir> <!-- //MDB2/Driver/Function -->
      <dir name="Manager">
-      <file role="php" name="mssql.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="mssql.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Manager -->
+     </dir> <!-- //MDB2/Driver/Manager -->
      <dir name="Native">
-      <file role="php" name="mssql.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="mssql.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Native -->
+     </dir> <!-- //MDB2/Driver/Native -->
      <dir name="Reverse">
-      <file role="php" name="mssql.php">
-       <replace type="package-info" from="@package_version@" to="version"/>
+      <file baseinstalldir="/" name="mssql.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- /MDB2/Driver/Reverse -->
-     <file role="php" name="mssql.php">
-      <replace type="package-info" from="@package_version@" to="version"/>
+     </dir> <!-- //MDB2/Driver/Reverse -->
+     <file baseinstalldir="/" name="mssql.php" role="php">
+      <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-    </dir> <!-- /MDB2/Driver -->
-   </dir> <!-- /MDB2 -->
-  </filelist>
- </release>
+    </dir> <!-- //MDB2/Driver -->
+   </dir> <!-- //MDB2 -->
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>4.3.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+   <package>
+    <name>PEAR</name>
+    <channel>pear.php.net</channel>
+    <min>1.0b1</min>
+   </package>
+   <package>
+    <name>MDB2</name>
+    <channel>pear.php.net</channel>
+    <min>2.1.0</min>
+   </package>
+   <extension>
+    <name>mssql</name>
+   </extension>
+  </required>
+ </dependencies>
+ <phprelease />
  <changelog>
-   <release>
-    <version>1.1.0</version>
-    <date>2006-06-15</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- added the listTableTriggers() method to the Manager.
+  <release>
+   <version>
+    <release>1.1.0</release>
+    <api>1.1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-06-15</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- added the listTableTriggers() method to the Manager.
 - added the listViews() method to the Manager.
 - aligned _modifyQuery() signature and phpdoc
 - added the map datatype patch for (bug #6863)
@@ -156,14 +190,21 @@
   @@IDENTITY to retrieve last inserted value (bug #7291)
 - implement getServerVersion()
 - removed bogus but unharmful code from mapNativeDatatype()
-    </notes>
-   </release>
-   <release>
-    <version>1.0.1</version>
-    <date>2006-04-16</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- added the listTableTriggers() method to the Manager.
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>1.0.1</release>
+    <api>1.0.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-04-16</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- added the listTableTriggers() method to the Manager.
 - added the listViews() method to the Manager.
 - aligned _modifyQuery() signature and phpdoc
 - added the map datatype patch for (bug #6863)
@@ -176,14 +217,21 @@
 - added support for length in integer reverse engineering
 - some fixes regarding boolean reverse engineering
 - protect against sql injection in the reverse and manager module
-    </notes>
-   </release>
-   <release>
-    <version>1.0.0</version>
-    <date>2006-02-09</date>
-    <license>BSD License</license>
-    <state>stable</state>
-    <notes>- unified case fixing in the list*() methods
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>1.0.0</release>
+    <api>1.0.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-02-09</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- unified case fixing in the list*() methods
 - use getConnection() to access connection property
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
@@ -218,14 +266,21 @@ open todo items:
 - add missing index/contraint methods to the manager and reverse module methods
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
 - fix alterTable()
-    </notes>
-   </release>
-   <release>
-    <version>0.2.0</version>
-    <date>2005-12-18</date>
-    <license>BSD License</license>
-    <state>alpha</state>
-    <notes>- unified case fixing in the list*() methods
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.2.0</release>
+    <api>0.2.0</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2005-12-18</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>- unified case fixing in the list*() methods
 - use getConnection() to access connection property
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
@@ -246,14 +301,21 @@ open todo items:
 open todo items:
 - added missing index/contraint methods to the manager and reverse module methods
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
-    </notes>
-   </release>
-   <release>
-    <version>0.1.1</version>
-    <date>2005-10-10</date>
-    <license>BSD License</license>
-    <state>alpha</state>
-    <notes>Warning: this release features numerous BC breaks!
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.1.1</release>
+    <api>0.1.1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2005-10-10</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>Warning: this release features numerous BC breaks!
 
 There have been considerable improvements to the datatype, manager and reverse
 modules. Furthermore preliminary support for auto increment and primary keys
@@ -283,14 +345,21 @@ column primary key on this field.
 
 open todo items:
 - added missing createIndex() method
-    </notes>
-   </release>
-   <release>
-    <version>0.1.0</version>
-    <date>2005-04-29</date>
-    <license>BSD License</license>
-    <state>alpha</state>
-    <notes>first unbundled release from MDB2 core
+    
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.1.0</release>
+    <api>0.1.0</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2005-04-29</date>
+   <license uri="http://www.example.com">BSD License</license>
+   <notes>first unbundled release from MDB2 core
 
 - dont just check for isset() for boolean values in order to support
   setting them false as well (bug #4373)
@@ -298,7 +367,8 @@ open todo items:
   some decimal, float, time, date and timestamp implementations)
 - typo fixes in constructor
 - Warning: this release is untested
-    </notes>
-   </release>
+    
+   </notes>
+  </release>
  </changelog>
 </package>
