@@ -31,6 +31,11 @@ $notes = <<<EOT
 - increased PHP dependency due to http://bugs.php.net/bug.php?id=31195
 - using 'ADD COLUMN' syntax instead of just 'ADD' in alterTable()
 - fixed bug #9024: typo in error checking
+- fixed inheritance structure of convertResult()
+- added support for new 'disable_iso_date' date DSN option (Request #8739)
+- fix typos in error handling in a few places (bug #9024)
+- do not skip id generation in nextId() when creating a sequence on demand
+  becazse this prevents lastInsertID() from working
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
@@ -56,7 +61,7 @@ $package->setPackageType('php');
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion($version);
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

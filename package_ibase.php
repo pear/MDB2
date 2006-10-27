@@ -7,9 +7,13 @@ $version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
 - added charset and collation support to field declaration
-- now tableInfo() also returns the table name
 - fixed bug #9024: typo in currID() error checking
-- added lastInsertID() method
+- added lastInsertID() method (reads global current value instead of connection level)
+- fixed inheritance structure of convertResult()
+- added support for new 'disable_iso_date' date DSN option (Request #8739)
+- removed spurious 4th parameter of getDeclaration()
+- fix typos in error handling in a few places (bug #9024)
+- added support for getting the table name in tableInfo()
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
@@ -32,7 +36,7 @@ $package->setPackageType('php');
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion($version);
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

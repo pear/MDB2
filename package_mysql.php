@@ -8,6 +8,9 @@ $state = 'stable';
 $notes = <<<EOT
 - added charset and collation support to field declaration
 - fixed bug #9024: typo in error checking
+- fix typos in error handling in a few places (bug #9024)
+- do not skip id generation in nextId() when creating a sequence on demand
+  becazse this prevents lastInsertID() from working
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
@@ -34,7 +37,7 @@ $package->setPackageType('php');
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion($version);
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

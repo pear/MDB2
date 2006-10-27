@@ -37,6 +37,8 @@ $notes = <<<EOT
 - do not list empty contraints and indexes
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - increased MDB2 dependency too 2.2.1
+- do not skip id generation in nextId() when creating a sequence on demand
+  becazse this prevents lastInsertID() from working
 
 note:
 - this driver needs a serious update as it's currently unmaintained/untested
@@ -65,7 +67,7 @@ $package->setPackageType('php');
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion($version);
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

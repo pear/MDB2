@@ -7,6 +7,12 @@ $version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
 - fixed _modifyQuery() for manipulation queries
+- fixed inheritance structure of convertResult()
+- added support for new 'disable_iso_date' date DSN option (Request #8739)
+- added support for getting the table name in tableInfo()
+- added connection to pg_escape_*() calls
+- fixed _modifyQuery() for manipulation queries
+- enable detection of proper size of integers in mapNativeDatatype
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
@@ -35,7 +41,7 @@ $package->setPackageType('php');
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion($version);
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

@@ -6,6 +6,11 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
+- fixed inheritance structure of convertResult()
+- fixed several critical typos in tableInfo()
+- added support for new 'disable_iso_date' date DSN option (Request #8739)
+- removed spurious 4th parameter of getDeclaration()
+- fixed handling of last_number in currID() and getSequenceDefinition()
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -40,7 +45,7 @@ $package->setPackageType('php');
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion($version);
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

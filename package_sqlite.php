@@ -14,6 +14,8 @@ note:
 - the savepoint test failes because this is not supported by sqlite
 - the case sensitive search test fails because this is not supported by SQLite
 - the pattern escaping test fails because this is not supported by SQLite
+- do not skip id generation in nextId() when creating a sequence on demand
+  becazse this prevents lastInsertID() from working
 
 open todo items:
 - fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
@@ -39,7 +41,7 @@ $package->setPackageType('php');
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion($version);
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);
