@@ -384,7 +384,8 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $db_type = preg_replace('/\d/','', strtolower($field['type']) );
+        // todo: handle length of various int variations
+        $db_type = preg_replace('/\d/','', strtolower($field['type']));
         $length = $field['length'];
         if ((int)$length <= 0) {
             $length = null;

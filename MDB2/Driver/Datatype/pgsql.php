@@ -393,7 +393,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function mapNativeDatatype($field)
     {
-        $db_type = preg_replace('/\d/','', strtolower($field['type']) );
+        $db_type = strtolower($field['type']);
         $length = $field['length'];
         if ($length == '-1' && !empty($field['atttypmod'])) {
             $length = $field['atttypmod'] - 4;
