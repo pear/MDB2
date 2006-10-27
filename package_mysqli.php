@@ -1,62 +1,44 @@
 <?php
 
-require_once 'PEAR/PackageFileManager.php';
+require_once 'PEAR/PackageFileManager2.php';
+PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
 $version = 'YYY';
+$state = 'stable';
 $notes = <<<EOT
 - added charset and collation support to field declaration
 - fixed bug #9024: typo in error checking
 EOT;
 
-$package = new PEAR_PackageFileManager();
+$description = 'This is the MySQLi MDB2 driver.';
+$packagefile = './package_mysqli.xml';
 
-$result = $package->setOptions(
-    array(
-        'packagefile'       => 'package_mysqli.xml',
-        'package'           => 'MDB2_Driver_mysqli',
-        'summary'           => 'mysqli MDB2 driver',
-        'description'       => 'This is the MySQLi MDB2 driver.',
-        'version'           => $version,
-        'state'             => 'stable',
-        'license'           => 'BSD License',
-        'filelistgenerator' => 'cvs',
-        'include'           => array('*mysqli*'),
-        'ignore'            => array('package_mysqli.php'),
-        'notes'             => $notes,
-        'changelogoldtonew' => false,
-        'simpleoutput'      => true,
-        'baseinstalldir'    => '/',
-        'packagedirectory'  => './',
-        'dir_roles'         => array(
-            'docs' => 'doc',
-             'examples' => 'doc',
-             'tests' => 'test',
-             'tests/templates' => 'test',
-        ),
-    )
+$options = array(
+    'filelistgenerator' => 'cvs',
+    'changelogoldtonew' => false,
+    'simpleoutput'      => true,
+    'baseinstalldir'    => '/',
+    'packagedirectory'  => './',
+    'packagefile'       => $packagefile,
+    'clearcontents'     => false,
+    'include'           => array('*mysqli*'),
+    'ignore'            => array('package_mysqli.php'),
 );
 
-if (PEAR::isError($result)) {
-    echo $result->getMessage();
-    die();
-}
+$package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
+$package->setPackageType('php');
+$package->addRelease();
+$package->generateContents();
+$package->setReleaseVersion($version);
+$package->setAPIVersion($version);
+$package->setReleaseStability($state);
+$package->setAPIStability($state);
+$package->setNotes($notes);
+$package->setDescription($description);
+$package->addGlobalReplacement('package-info', '@package_version@', 'version');
 
-$package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
-
-$package->addDependency('php', '5.0.0', 'ge', 'php', false);
-$package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.2.1', 'ge', 'pkg', false);
-$package->addDependency('mysqli', null, 'has', 'ext', false);
-
-$package->addglobalreplacement('package-info', '@package_version@', 'version');
-
-if (array_key_exists('make', $_GET) || (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'make')) {
-    $result = $package->writePackageFile();
+if (isset($_GET['make']) || (isset($_SERVER['argv']) && @$_SERVER['argv'][1] == 'make')) {
+    $package->writePackageFile();
 } else {
-    $result = $package->debugPackageFile();
-}
-
-if (PEAR::isError($result)) {
-    echo $result->getMessage();
-    die();
+    $package->debugPackageFile();
 }

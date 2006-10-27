@@ -1,8 +1,10 @@
 <?php
 
-require_once 'PEAR/PackageFileManager.php';
+require_once 'PEAR/PackageFileManager2.php';
+PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
 $version = 'YYY';
+$state = 'stable';
 $notes = <<<EOT
 
 note:
@@ -18,56 +20,35 @@ open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
 EOT;
 
-$package = new PEAR_PackageFileManager();
+$description = 'This is the Oracle OCI8 MDB2 driver.';
+$packagefile = './package_oci8.xml';
 
-$result = $package->setOptions(
-    array(
-        'packagefile'       => 'package_oci8.xml',
-        'package'           => 'MDB2_Driver_oci8',
-        'summary'           => 'oci8 MDB2 driver',
-        'description'       => 'This is the Oracle OCI8 MDB2 driver.',
-        'version'           => $version,
-        'state'             => 'stable',
-        'license'           => 'BSD License',
-        'filelistgenerator' => 'cvs',
-        'include'           => array('*oci8*'),
-        'ignore'            => array('package_oci8.php'),
-        'notes'             => $notes,
-        'changelogoldtonew' => false,
-        'simpleoutput'      => true,
-        'baseinstalldir'    => '/',
-        'packagedirectory'  => './',
-        'dir_roles'         => array(
-            'docs' => 'doc',
-             'examples' => 'doc',
-             'tests' => 'test',
-             'tests/templates' => 'test',
-        ),
-    )
+$options = array(
+    'filelistgenerator' => 'cvs',
+    'changelogoldtonew' => false,
+    'simpleoutput'      => true,
+    'baseinstalldir'    => '/',
+    'packagedirectory'  => './',
+    'packagefile'       => $packagefile,
+    'clearcontents'     => false,
+    'include'           => array('*oci8*'),
+    'ignore'            => array('package_oci8.php'),
 );
 
-if (PEAR::isError($result)) {
-    echo $result->getMessage();
-    die();
-}
+$package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
+$package->setPackageType('php');
+$package->addRelease();
+$package->generateContents();
+$package->setReleaseVersion($version);
+$package->setAPIVersion($version);
+$package->setReleaseStability($state);
+$package->setAPIStability($state);
+$package->setNotes($notes);
+$package->setDescription($description);
+$package->addGlobalReplacement('package-info', '@package_version@', 'version');
 
-$package->addMaintainer('lsmith', 'lead', 'Lukas Kahwe Smith', 'smith@pooteeweet.org');
-$package->addMaintainer('justinpatrin', 'developer', 'Justin Patrin', 'justinpatrin@php.net');
-
-$package->addDependency('php', '4.3.0', 'ge', 'php', false);
-$package->addDependency('PEAR', '1.0b1', 'ge', 'pkg', false);
-$package->addDependency('MDB2', '2.2.1', 'ge', 'pkg', false);
-$package->addDependency('oci8', null, 'has', 'ext', false);
-
-$package->addglobalreplacement('package-info', '@package_version@', 'version');
-
-if (array_key_exists('make', $_GET) || (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'make')) {
-    $result = $package->writePackageFile();
+if (isset($_GET['make']) || (isset($_SERVER['argv']) && @$_SERVER['argv'][1] == 'make')) {
+    $package->writePackageFile();
 } else {
-    $result = $package->debugPackageFile();
-}
-
-if (PEAR::isError($result)) {
-    echo $result->getMessage();
-    die();
+    $package->debugPackageFile();
 }

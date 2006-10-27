@@ -74,6 +74,7 @@ $options = array(
     'simpleoutput'      => true,
     'baseinstalldir'    => '/',
     'packagedirectory'  => './',
+    'packagefile'       => $packagefile,
     'clearcontents'     => false,
     'ignore'            => array('package*.php', 'package*.xml', 'sqlite*', 'mssql*', 'oci8*', 'pgsql*', 'mysqli*', 'mysql*', 'fbsql*', 'querysim*', 'ibase*', 'peardb*'),
     'dir_roles'         => array(
