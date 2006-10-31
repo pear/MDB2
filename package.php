@@ -3,8 +3,8 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version_api = 'XXX';
 $version_release = 'XXX';
+$version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
 - added charset and collation support to field declaration
@@ -115,6 +115,12 @@ $options = array(
 $package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
 $package->setPackageType('php');
 $package->setExtends('MDB');
+
+$package->clearDeps();
+$package->setPhpDep('4.3.2');
+$package->setPearInstallerDep('1.4.0b1');
+$package->addPackageDepWithChannel('required', 'PEAR', 'pear.php.net', '1.3.6');
+
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version_release);

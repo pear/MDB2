@@ -38,6 +38,13 @@ $options = array(
 
 $package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
 $package->setPackageType('php');
+
+$package->clearDeps();
+$package->setPhpDep('4.3.0');
+$package->setPearInstallerDep('1.4.0b1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->addExtensionDep('required', 'pgsql');
+
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
