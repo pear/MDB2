@@ -14,6 +14,7 @@ $notes = <<<EOT
 - removed spurious 4th parameter of getDeclaration()
 - fix typos in error handling in a few places (bug #9024)
 - added support for getting the table name in tableInfo()
+- migrated to package.xml version 2
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

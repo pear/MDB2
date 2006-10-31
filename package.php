@@ -37,6 +37,7 @@ $notes = <<<EOT
 - better deal with non scalar arguments in test helper function as 5.2.0 explodes otherwise
 - extracted _skipDelimitedStrings() method from prepare()
 - added test for _skipDelimitedStrings() method
+- migrated to package.xml version 2
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -50,7 +51,7 @@ open todo items:
 - add support for database/table/row LOCKs
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
 - generate STATUS file from test suite results and allow users to submit test results
-- add a package2.xml and explore use of install groups (pear install MDB2#mysql)
+- explore use of install groups (pear install MDB2#mysql)
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected

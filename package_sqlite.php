@@ -16,6 +16,7 @@ note:
 - the pattern escaping test fails because this is not supported by SQLite
 - do not skip id generation in nextId() when creating a sequence on demand
   becazse this prevents lastInsertID() from working
+- migrated to package.xml version 2
 
 open todo items:
 - fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE

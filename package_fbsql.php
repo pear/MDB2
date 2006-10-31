@@ -36,9 +36,10 @@ $notes = <<<EOT
 - use old dsn when rolling back open transactions in disconnect()
 - do not list empty contraints and indexes
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too 2.2.1
+- increased MDB2 dependency to XXX
 - do not skip id generation in nextId() when creating a sequence on demand
-  becazse this prevents lastInsertID() from working
+  because this prevents lastInsertID() from working
+- migrated to package.xml version 2
 
 note:
 - this driver needs a serious update as it's currently unmaintained/untested

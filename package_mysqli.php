@@ -12,7 +12,8 @@ $notes = <<<EOT
 - fix typos in error handling in a few places (bug #9024)
 - typo fix in tableInfo (Bug #8925)
 - do not skip id generation in nextId() when creating a sequence on demand
-  becazse this prevents lastInsertID() from working
+  because this prevents lastInsertID() from working
+- migrated to package.xml version 2
 EOT;
 
 $description = 'This is the MySQLi MDB2 driver.';

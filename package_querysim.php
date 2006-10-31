@@ -6,6 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'YYY';
 $state = 'beta';
 $notes = <<<EOT
+- migrated to package.xml version 2
+
 open todo items:
 - add ability to reference multiple results set files for different queries
 EOT;

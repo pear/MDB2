@@ -26,7 +26,7 @@ $notes = <<<EOT
 - ALTER TABLE bug when adding more than 1 column (Bug #8373)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - added dropIndex() to the manager module
-- increased MDB2 dependency too 2.2.2
+- increased MDB2 dependency to XXX
 - renamed valid_types property to valid_default_values in the Datatype module
 - increased PHP dependency due to http://bugs.php.net/bug.php?id=31195
 - using 'ADD COLUMN' syntax instead of just 'ADD' in alterTable()
@@ -35,7 +35,8 @@ $notes = <<<EOT
 - added support for new 'disable_iso_date' date DSN option (Request #8739)
 - fix typos in error handling in a few places (bug #9024)
 - do not skip id generation in nextId() when creating a sequence on demand
-  becazse this prevents lastInsertID() from working
+  because this prevents lastInsertID() from working
+- migrated to package.xml version 2
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

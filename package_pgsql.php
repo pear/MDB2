@@ -13,6 +13,7 @@ $notes = <<<EOT
 - added connection to pg_escape_*() calls
 - fixed _modifyQuery() for manipulation queries
 - enable detection of proper size of integers in mapNativeDatatype
+- migrated to package.xml version 2
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

@@ -11,6 +11,7 @@ $notes = <<<EOT
 - added support for new 'disable_iso_date' date DSN option (Request #8739)
 - removed spurious 4th parameter of getDeclaration()
 - fixed handling of last_number in currID() and getSequenceDefinition()
+- migrated to package.xml version 2
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
