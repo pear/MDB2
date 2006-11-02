@@ -1814,8 +1814,9 @@ class MDB2_Driver_Common extends PEAR
      *      (only used for error messages)
      * @param   string  name of the property into which the class will be loaded
      * @param   bool    if the class to load for the module
-                                        is specific to the phptype
-     * @param   object  on success a reference to the given module is returned
+     *                                  is specific to the phptype
+     *
+     * @return  object  on success a reference to the given module is returned
      *                and on failure a PEAR error
      *
      * @access  public
