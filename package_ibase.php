@@ -3,18 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.3.0';
+$version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- added charset and collation support to field declaration
-- fixed bug #9024: typo in currID() error checking
-- added lastInsertID() method (reads global current value instead of connection level)
-- fixed inheritance structure of convertResult()
-- added support for new 'disable_iso_date' date DSN option (Request #8739)
-- removed spurious 4th parameter of getDeclaration()
-- fix typos in error handling in a few places (bug #9024)
-- added support for getting the table name in tableInfo()
-- migrated to package.xml version 2
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
@@ -38,13 +29,13 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.4');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.3.0');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'YYY');
 $package->addExtensionDep('required', 'ibase');
 
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion('2.3.0');
+$package->setAPIVersion('YYY');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);
