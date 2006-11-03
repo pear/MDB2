@@ -3,42 +3,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version_release = '2.3.0';
+$version_release = 'XXX';
 $version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
-- added charset and collation support to field declaration
-- added SQL comments and quoted identifier handling inside prepared statement parser
-- expanded length/scale support for numeric types (Request #7170)
-- added statement_format option to make it possible to define the name used for
-  native statements if supported
-- fixed bug when setting MDB2_PREPARE_RESULT in autoExecute()
-- fixed notice in exec() call in autoExecute()
-- reversed if logic in MDB2::fileExists checking to be more fool proof with
-  safe_mode restrictions (Bug #8296)
-- moved CREATE TABLE query generation in a separate method for reuse in the drivers
-- added testLOBRead to test multiple LOB reads
-- fixed getColumnNames() optional parameter handling (Bug #8857)
-- phpdoc fix for fetchCol/fetchAll
-- added an extra if in the autoExecute method of the Extended driver (Bug #8878)
-- expanded tableInfo() tests
-- expanded prepare() tests
-- fix the incorrect use of currID() for lastInsertID() emulation (Bug #9107)
-- add test for lastInsertID()
-- also output php version in test results
-- added supported 'new_link'
-- dropped use of track_errors because 5.2.0 causes php_errormsg to not get
-  populated if a custom error handler is set and it was causing issues for
-  safe_mode users anyways
-- added some error handling into the bindValues()/bindParams() methods (Bug #9133)
-- bindValue() does not need values by reference
-- fix issue in execute() when parameter is a scalar integer of 0 (Bug #9158)
-- implemented stream_stat() method (Bug #9092)
-- better deal with non scalar arguments in test helper function as 5.2.0 explodes otherwise
-- extracted _skipDelimitedStrings() method from prepare()
-- added test for _skipDelimitedStrings() method
-- migrated to package.xml version 2
-
 open todo items:
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering

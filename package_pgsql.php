@@ -3,18 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.3.0';
+$version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
-- fixed _modifyQuery() for manipulation queries
-- fixed inheritance structure of convertResult()
-- added support for new 'disable_iso_date' date DSN option (Request #8739)
-- added support for getting the table name in tableInfo()
-- added connection to pg_escape_*() calls
-- fixed _modifyQuery() for manipulation queries
-- enable detection of proper size of integers in mapNativeDatatype
-- migrated to package.xml version 2
-
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
@@ -43,13 +34,13 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.3.0');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'pgsql');
 
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion('2.3.0');
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

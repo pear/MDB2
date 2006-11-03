@@ -3,17 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.3.0';
+$version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
-- fixed inheritance structure of convertResult()
-- fixed several critical typos in tableInfo()
-- added support for new 'disable_iso_date' date DSN option (Request #8739)
-- removed spurious 4th parameter of getDeclaration()
-- fixed handling of last_number in currID() and getSequenceDefinition()
-- skipping 1.1.x and 1.2.x to show that the driver is inline with the other drivers
-- migrated to package.xml version 2
-
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
  (binaries are available from snaps.php.net and pecl4win.php.net)
@@ -49,13 +41,13 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.3.0');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'oci8');
 
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion('2.3.0');
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

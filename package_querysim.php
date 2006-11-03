@@ -3,12 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '0.6.0';
+$version = 'YYY';
 $state = 'beta';
 $notes = <<<EOT
-- added optional line to run tests directly within the CVS checkout
-- migrated to package.xml version 2
-
 open todo items:
 - add ability to reference multiple results set files for different queries
 EOT;
@@ -34,12 +31,12 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.3.0');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion('2.3.0');
+$package->setAPIVersion('XXX');
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

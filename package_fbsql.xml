@@ -13,13 +13,13 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <name>Frank M. Kromann</name>
   <user>fmk</user>
   <email>frank@kromann.info</email>
-  <active>yes</active>
+  <active>no</active>
  </lead>
  <lead>
   <name>Lukas Kahwe Smith</name>
   <user>lsmith</user>
   <email>smith@pooteeweet.org</email>
-  <active>yes</active>
+  <active>no</active>
  </lead>
  <date>2006-10-27</date>
  <time>15:28:43</time>

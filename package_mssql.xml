@@ -19,7 +19,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <name>Lukas Kahwe Smith</name>
   <user>lsmith</user>
   <email>smith@pooteeweet.org</email>
-  <active>yes</active>
+  <active>no</active>
  </lead>
  <lead>
   <name>Nathan Fredrickson</name>

@@ -38,7 +38,7 @@ can be used to construct portable SQL statements:
   <name>Lukas Kahwe Smith</name>
   <user>lsmith</user>
   <email>smith@pooteeweet.org</email>
-  <active>yes</active>
+  <active>no</active>
  </lead>
  <developer>
   <name>Lorenzo Alberton</name>
@@ -50,7 +50,7 @@ can be used to construct portable SQL statements:
   <name>Paul Cooper</name>
   <user>pgc</user>
   <email>pgc@ucecom.com</email>
-  <active>yes</active>
+  <active>no</active>
  </contributor>
  <helper>
   <name>Daniel Convissor</name>
