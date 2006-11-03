@@ -1,5 +1,8 @@
 <?php
 
+// uncomment this line if you want to run both MDB2 from a CVS checkout
+#ini_set('include_path', '..'.PATH_SEPARATOR.ini_get('include_path'));
+
 require_once 'MDB2.php';
 
 $dsn = 'querysim';
