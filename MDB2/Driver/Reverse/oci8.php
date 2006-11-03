@@ -271,10 +271,10 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
 
         $sequence_name = $db->getSequenceName($sequence);
-        $query = 'SELECT (last_number-1) FROM user_sequences';
+        $query = 'SELECT last_number FROM user_sequences';
         $query.= ' WHERE sequence_name='.$db->quote($sequence_name, 'text');
         $query.= ' OR sequence_name='.$db->quote(strtoupper($sequence_name), 'text');
-        $start = $db->queryOne($query);
+        $start = $db->queryOne($query, 'integer');
         if (PEAR::isError($start)) {
             return $start;
         }
