@@ -2,6 +2,7 @@
 <package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2</name>
  <channel>pear.php.net</channel>
+ <extends>MDB</extends>
  <summary>database abstraction layer</summary>
  <description>PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.
 
@@ -63,8 +64,8 @@ can be used to construct portable SQL statements:
   <email>david@jaws.com.mx</email>
   <active>yes</active>
  </helper>
- <date>2006-10-25</date>
- <time>14:52:45</time>
+ <date>2006-11-03</date>
+ <time>14:02:02</time>
  <version>
   <release>2.3.0</release>
   <api>2.3.0</api>
@@ -77,6 +78,34 @@ can be used to construct portable SQL statements:
  <notes>- added charset and collation support to field declaration
 - added SQL comments and quoted identifier handling inside prepared statement parser
 - expanded length/scale support for numeric types (Request #7170)
+- added statement_format option to make it possible to define the name used for
+  native statements if supported
+- fixed bug when setting MDB2_PREPARE_RESULT in autoExecute()
+- fixed notice in exec() call in autoExecute()
+- reversed if logic in MDB2::fileExists checking to be more fool proof with
+  safe_mode restrictions (Bug #8296)
+- moved CREATE TABLE query generation in a separate method for reuse in the drivers
+- added testLOBRead to test multiple LOB reads
+- fixed getColumnNames() optional parameter handling (Bug #8857)
+- phpdoc fix for fetchCol/fetchAll
+- added an extra if in the autoExecute method of the Extended driver (Bug #8878)
+- expanded tableInfo() tests
+- expanded prepare() tests
+- fix the incorrect use of currID() for lastInsertID() emulation (Bug #9107)
+- add test for lastInsertID()
+- also output php version in test results
+- added supported &apos;new_link&apos;
+- dropped use of track_errors because 5.2.0 causes php_errormsg to not get
+  populated if a custom error handler is set and it was causing issues for
+  safe_mode users anyways
+- added some error handling into the bindValues()/bindParams() methods (Bug #9133)
+- bindValue() does not need values by reference
+- fix issue in execute() when parameter is a scalar integer of 0 (Bug #9158)
+- implemented stream_stat() method (Bug #9092)
+- better deal with non scalar arguments in test helper function as 5.2.0 explodes otherwise
+- extracted _skipDelimitedStrings() method from prepare()
+- added test for _skipDelimitedStrings() method
+- migrated to package.xml version 2
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -90,14 +119,16 @@ open todo items:
 - add support for database/table/row LOCKs
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
 - generate STATUS file from test suite results and allow users to submit test results
-- add a package2.xml and explore use of install groups (pear install MDB2#mysql)
+- explore use of install groups (pear install MDB2#mysql)
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
 - handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
 - add a getTableFieldsDefinitions() method to be used in tableInfo()
 - drop ILIKE from matchPattern() and instead add a second parameter to
-  handle case sensitivity with arbitrary operators</notes>
+  handle case sensitivity with arbitrary operators
+- add charset and collation support to field declaration in all drivers
+- handle LOBs in buffered result sets (Request #8793)</notes>
  <contents>
   <dir baseinstalldir="/" name="/">
    <dir name="docs">
@@ -272,11 +303,39 @@ open todo items:
     <release>stable</release>
     <api>stable</api>
    </stability>
-   <date>2006-10-25</date>
+   <date>2006-11-03</date>
    <license>BSD License</license>
    <notes>- added charset and collation support to field declaration
 - added SQL comments and quoted identifier handling inside prepared statement parser
 - expanded length/scale support for numeric types (Request #7170)
+- added statement_format option to make it possible to define the name used for
+  native statements if supported
+- fixed bug when setting MDB2_PREPARE_RESULT in autoExecute()
+- fixed notice in exec() call in autoExecute()
+- reversed if logic in MDB2::fileExists checking to be more fool proof with
+  safe_mode restrictions (Bug #8296)
+- moved CREATE TABLE query generation in a separate method for reuse in the drivers
+- added testLOBRead to test multiple LOB reads
+- fixed getColumnNames() optional parameter handling (Bug #8857)
+- phpdoc fix for fetchCol/fetchAll
+- added an extra if in the autoExecute method of the Extended driver (Bug #8878)
+- expanded tableInfo() tests
+- expanded prepare() tests
+- fix the incorrect use of currID() for lastInsertID() emulation (Bug #9107)
+- add test for lastInsertID()
+- also output php version in test results
+- added supported &apos;new_link&apos;
+- dropped use of track_errors because 5.2.0 causes php_errormsg to not get
+  populated if a custom error handler is set and it was causing issues for
+  safe_mode users anyways
+- added some error handling into the bindValues()/bindParams() methods (Bug #9133)
+- bindValue() does not need values by reference
+- fix issue in execute() when parameter is a scalar integer of 0 (Bug #9158)
+- implemented stream_stat() method (Bug #9092)
+- better deal with non scalar arguments in test helper function as 5.2.0 explodes otherwise
+- extracted _skipDelimitedStrings() method from prepare()
+- added test for _skipDelimitedStrings() method
+- migrated to package.xml version 2
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -290,14 +349,16 @@ open todo items:
 - add support for database/table/row LOCKs
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
 - generate STATUS file from test suite results and allow users to submit test results
-- add a package2.xml and explore use of install groups (pear install MDB2#mysql)
+- explore use of install groups (pear install MDB2#mysql)
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
 - handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
 - add a getTableFieldsDefinitions() method to be used in tableInfo()
 - drop ILIKE from matchPattern() and instead add a second parameter to
-  handle case sensitivity with arbitrary operators</notes>
+  handle case sensitivity with arbitrary operators
+- add charset and collation support to field declaration in all drivers
+- handle LOBs in buffered result sets (Request #8793)</notes>
   </release>
   <release>
    <version>

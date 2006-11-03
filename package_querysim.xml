@@ -1,66 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
-http://pear.php.net/dtd/tasks-1.0.xsd
-http://pear.php.net/dtd/package-2.0
-http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_querysim</name>
  <channel>pear.php.net</channel>
  <summary>querysim MDB2 driver</summary>
- <description>This is the Querysim MDB2 driver.
- 
- </description>
+ <description>This is the Querysim MDB2 driver.</description>
  <lead>
   <name>Lukas Kahwe Smith</name>
   <user>lsmith</user>
   <email>smith@pooteeweet.org</email>
   <active>yes</active>
  </lead>
- <date>2006-10-27</date>
- <time>15:30:07</time>
+ <date>2006-11-03</date>
+ <time>14:02:25</time>
  <version>
-  <release>0.5.0</release>
-  <api>0.5.0</api>
+  <release>0.6.0</release>
+  <api>2.3.0</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- added Datatype module
-- increased MDB2 dependency too 2.2.1
+ <notes>- added optional line to run tests directly within the CVS checkout
+- migrated to package.xml version 2
 
 open todo items:
-- add ability to reference multiple results set files for different queries
-  
- </notes>
+- add ability to reference multiple results set files for different queries</notes>
  <contents>
-  <dir name="/">
+  <dir baseinstalldir="/" name="/">
    <dir name="docs">
-    <file baseinstalldir="/" name="querysim_readme.txt" role="doc">
+    <file name="querysim_readme.txt" role="doc">
      <tasks:replace from="@package_version@" to="version" type="package-info" />
     </file>
    </dir> <!-- /docs -->
    <dir name="MDB2">
     <dir name="Driver">
      <dir name="Datatype">
-      <file baseinstalldir="/" name="querysim.php" role="php">
+      <file name="querysim.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- /MDB2/Driver/Datatype -->
-     <file baseinstalldir="/" name="querysim.php" role="php">
+     <file name="querysim.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
     </dir> <!-- /MDB2/Driver -->
    </dir> <!-- /MDB2 -->
    <dir name="tests">
-    <file baseinstalldir="/" name="querysim.csv" role="test">
+    <file name="querysim.csv" role="test">
      <tasks:replace from="@package_version@" to="version" type="package-info" />
     </file>
-    <file baseinstalldir="/" name="querysim_test.php" role="test">
+    <file name="querysim_test.php" role="test">
      <tasks:replace from="@package_version@" to="version" type="package-info" />
     </file>
    </dir> <!-- /tests -->
+   <file name="package_querysim.xml" role="data" />
   </dir> <!-- / -->
  </contents>
  <dependencies>
@@ -72,19 +65,31 @@ open todo items:
     <min>1.4.0b1</min>
    </pearinstaller>
    <package>
-    <name>PEAR</name>
-    <channel>pear.php.net</channel>
-    <min>1.0b1</min>
-   </package>
-   <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.2.0</min>
+    <min>2.3.0</min>
    </package>
   </required>
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>0.6.0</release>
+    <api>2.3.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2006-11-03</date>
+   <license>BSD License</license>
+   <notes>- added optional line to run tests directly within the CVS checkout
+- migrated to package.xml version 2
+
+open todo items:
+- add ability to reference multiple results set files for different queries</notes>
+  </release>
   <release>
    <version>
     <release>0.5.0</release>
@@ -101,9 +106,7 @@ open todo items:
 - increased MDB2 dependency too 2.2.1
 
 open todo items:
-- add ability to reference multiple results set files for different queries
-    
-   </notes>
+- add ability to reference multiple results set files for different queries</notes>
   </release>
   <release>
    <version>
@@ -122,9 +125,7 @@ open todo items:
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
 
 open todo items:
-- add ability to reference multiple results set files for different queries
-    
-   </notes>
+- add ability to reference multiple results set files for different queries</notes>
   </release>
   <release>
    <version>
@@ -144,9 +145,7 @@ open todo items:
 - added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
 
 open todo items:
-- add ability to reference multiple results set files for different queries
-    
-   </notes>
+- add ability to reference multiple results set files for different queries</notes>
   </release>
   <release>
    <version>
@@ -165,9 +164,7 @@ open todo items:
 - added &apos;prepared_statements&apos; supported meta data setting
 
 open todo items:
-- add ability to reference multiple results set files for different queries
-    
-   </notes>
+- add ability to reference multiple results set files for different queries</notes>
   </release>
   <release>
    <version>
@@ -185,9 +182,7 @@ open todo items:
 - aligned _modifyQuery() signature and phpdoc
 
 open todo items:
-- add ability to reference multiple results set files for different queries
-    
-   </notes>
+- add ability to reference multiple results set files for different queries</notes>
   </release>
   <release>
    <version>
@@ -203,9 +198,7 @@ open todo items:
    <notes>- improved parsing in getServerInfo() (bug #6550)
 
 open todo items:
-- add ability to reference multiple results set files for different queries
-    
-   </notes>
+- add ability to reference multiple results set files for different queries</notes>
   </release>
   <release>
    <version>
@@ -226,9 +219,7 @@ open todo items:
 
 open todo items:
 - this driver is currently unmaintained/untested
-- add ability to reference multiple results set files for different queries
-    
-   </notes>
+- add ability to reference multiple results set files for different queries</notes>
   </release>
   <release>
    <version>
@@ -247,9 +238,7 @@ open todo items:
 - moved all private fetch mode fix methods into _fixResultArrayValues() for performance reasons
 - renamed MDB2_PORTABILITY_LOWERCASE to MDB2_PORTABILITY_FIX_CASE and use &apos;field_case&apos; option to determine if to upper- or lowercase (CASE_LOWER/CASE_UPPER)
 - use array_key_exists() instead of isset() where possible
-- return 0 for manipulation queries when disable_query is enabled
-    
-   </notes>
+- return 0 for manipulation queries when disable_query is enabled</notes>
   </release>
   <release>
    <version>
@@ -264,9 +253,7 @@ open todo items:
    <license uri="http://www.example.com">BSD License</license>
    <notes>first unbundled release from MDB2 core
 
--
-    
-   </notes>
+-</notes>
   </release>
  </changelog>
 </package>

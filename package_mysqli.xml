@@ -1,71 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
-http://pear.php.net/dtd/tasks-1.0.xsd
-http://pear.php.net/dtd/package-2.0
-http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mysqli</name>
  <channel>pear.php.net</channel>
  <summary>mysqli MDB2 driver</summary>
- <description>This is the MySQLi MDB2 driver.
- 
- </description>
+ <description>This is the MySQLi MDB2 driver.</description>
  <lead>
   <name>Lukas Kahwe Smith</name>
   <user>lsmith</user>
   <email>smith@pooteeweet.org</email>
   <active>yes</active>
  </lead>
- <date>2006-10-27</date>
- <time>15:28:56</time>
+ <date>2006-11-03</date>
+ <time>14:02:11</time>
  <version>
-  <release>1.2.2</release>
-  <api>1.2.2</api>
+  <release>1.3.0</release>
+  <api>2.3.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed single quote handling inside non emulated prepared statements (Bug #8538)
-- flip positions property array in prepared statement objects to make it
-  possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement
-  
- </notes>
+ <notes>- added charset and collation support to field declaration
+- fixed bug #9024: typo in error checking
+- fixed parameter order in charset setting fallback (Bug #8807)
+- fix typos in error handling in a few places (bug #9024)
+- typo fix in tableInfo (Bug #8925)
+- do not skip id generation in nextId() when creating a sequence on demand
+  because this prevents lastInsertID() from working
+- migrated to package.xml version 2</notes>
  <contents>
-  <dir name="/">
+  <dir baseinstalldir="/" name="/">
    <dir name="MDB2">
     <dir name="Driver">
      <dir name="Datatype">
-      <file baseinstalldir="/" name="mysqli.php" role="php">
+      <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Datatype -->
      <dir name="Function">
-      <file baseinstalldir="/" name="mysqli.php" role="php">
+      <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Function -->
      <dir name="Manager">
-      <file baseinstalldir="/" name="mysqli.php" role="php">
+      <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Manager -->
      <dir name="Native">
-      <file baseinstalldir="/" name="mysqli.php" role="php">
+      <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Native -->
      <dir name="Reverse">
-      <file baseinstalldir="/" name="mysqli.php" role="php">
+      <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Reverse -->
-     <file baseinstalldir="/" name="mysqli.php" role="php">
+     <file name="mysqli.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
     </dir> <!-- //MDB2/Driver -->
    </dir> <!-- //MDB2 -->
+   <file name="package_mysqli.xml" role="data" />
   </dir> <!-- / -->
  </contents>
  <dependencies>
@@ -77,14 +75,9 @@ http://pear.php.net/dtd/package-2.0.xsd">
     <min>1.4.0b1</min>
    </pearinstaller>
    <package>
-    <name>PEAR</name>
-    <channel>pear.php.net</channel>
-    <min>1.0b1</min>
-   </package>
-   <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.2.1</min>
+    <min>2.3.0</min>
    </package>
    <extension>
     <name>mysqli</name>
@@ -93,6 +86,26 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.3.0</release>
+    <api>2.3.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-11-03</date>
+   <license>BSD License</license>
+   <notes>- added charset and collation support to field declaration
+- fixed bug #9024: typo in error checking
+- fixed parameter order in charset setting fallback (Bug #8807)
+- fix typos in error handling in a few places (bug #9024)
+- typo fix in tableInfo (Bug #8925)
+- do not skip id generation in nextId() when creating a sequence on demand
+  because this prevents lastInsertID() from working
+- migrated to package.xml version 2</notes>
+  </release>
   <release>
    <version>
     <release>1.2.2</release>
@@ -107,9 +120,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
    <notes>- fixed single quote handling inside non emulated prepared statements (Bug #8538)
 - flip positions property array in prepared statement objects to make it
   possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement
-    
-   </notes>
+  inside a single prepared statement</notes>
   </release>
   <release>
    <version>
@@ -138,9 +149,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   and you will get an error if the table type is not supported anyways
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - only call RELEASE SAVEPOINT if the server version if 5.0.3 or higher
-- increased MDB2 dependency too 2.2.1
-    
-   </notes>
+- increased MDB2 dependency too 2.2.1</notes>
   </release>
   <release>
    <version>
@@ -166,9 +175,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
 - reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
   when a table name is passed (Bug #8124)
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-- use old dsn when rolling back open transactions in disconnect()
-    
-   </notes>
+- use old dsn when rolling back open transactions in disconnect()</notes>
   </release>
   <release>
    <version>
@@ -200,9 +207,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
   attempting to free a result set(Bug #7790)
 - fixed unbuffered query support
 - revert change that would prefer &apos;clob&apos; over &apos;text&apos; for TEXT fields
-  (this was breaking runtime instrospection)
-    
-   </notes>
+  (this was breaking runtime instrospection)</notes>
   </release>
   <release>
    <version>
@@ -217,9 +222,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
    <license uri="http://www.example.com">BSD License</license>
    <notes>- fixed unsigned handling and minor tweaks to type mapping in mapNativeDatatype()
 - use emulated prepared statements on mysql 4.0 or lower
-- added &quot;emulate_prepared&quot; option to force prepared statement emulation
-    
-   </notes>
+- added &quot;emulate_prepared&quot; option to force prepared statement emulation</notes>
   </release>
   <release>
    <version>
@@ -249,9 +252,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
 - only use native prepared queries of mysql 4.1 or higher
 - added &apos;prepared_statements&apos; supported meta data setting
 - fixed issue with free() returning void
-- added missing supported parameter to prepare() signature
-    
-   </notes>
+- added missing supported parameter to prepare() signature</notes>
   </release>
   <release>
    <version>
@@ -277,9 +278,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
 - added listViews() and hide views in listTables()
 
 open todo item:
-- use native prepared queries for prepared SELECT statements
-    
-   </notes>
+- use native prepared queries for prepared SELECT statements</notes>
   </release>
   <release>
    <version>
@@ -295,9 +294,7 @@ open todo item:
    <notes>- handle null as resource when disable_query option is enabled in result object
 
 open todo item:
-- use native prepared queries for prepared SELECT statements
-    
-   </notes>
+- use native prepared queries for prepared SELECT statements</notes>
   </release>
   <release>
    <version>
@@ -324,9 +321,7 @@ open todo item:
 - support an arbitrary number of arguments in concat()
 
 open todo item:
-- use native prepared queries for prepared SELECT statements
-    
-   </notes>
+- use native prepared queries for prepared SELECT statements</notes>
   </release>
   <release>
    <version>
@@ -355,9 +350,7 @@ open todo item:
   returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
 
 open todo item:
-- use native prepared queries for prepared SELECT statements
-    
-   </notes>
+- use native prepared queries for prepared SELECT statements</notes>
   </release>
   <release>
    <version>
@@ -374,9 +367,7 @@ open todo item:
 - fixed typo in sub select detection
 
 open todo item:
-- use native prepared queries for prepared SELECT statements
-    
-   </notes>
+- use native prepared queries for prepared SELECT statements</notes>
   </release>
   <release>
    <version>
@@ -393,9 +384,7 @@ open todo item:
 - proper quote new table name in alterTable()
 
 open todo item:
-- use native prepared queries for prepared SELECT statements
-    
-   </notes>
+- use native prepared queries for prepared SELECT statements</notes>
   </release>
   <release>
    <version>
@@ -437,9 +426,7 @@ open todo item:
 - added getServerVersion() and use it to determine sub select support
 - unified array structure in mapNativeDatatype() *BC BREAK*
 - added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
-- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
-    
-   </notes>
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*</notes>
   </release>
   <release>
    <version>
@@ -483,9 +470,7 @@ column primary key on this field.
 - tweaked getTableFieldDefinition() in reverse module
 
 open todo items:
-- fixed LOB support
-    
-   </notes>
+- fixed LOB support</notes>
   </release>
  </changelog>
 </package>

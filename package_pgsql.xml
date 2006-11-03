@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
-http://pear.php.net/dtd/tasks-1.0.xsd
-http://pear.php.net/dtd/package-2.0
-http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_pgsql</name>
  <channel>pear.php.net</channel>
  <summary>pgsql MDB2 driver</summary>
- <description>This is the PostGreSQL MDB2 driver.
- 
- </description>
+ <description>This is the PostgreSQL MDB2 driver.</description>
  <lead>
   <name>Lukas Kahwe Smith</name>
   <user>lsmith</user>
@@ -21,60 +16,66 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>nathan@silverorange.com</email>
   <active>yes</active>
  </developer>
- <date>2006-10-27</date>
- <time>15:29:05</time>
+ <date>2006-11-03</date>
+ <time>14:02:15</time>
  <version>
-  <release>1.2.2</release>
-  <api>1.2.2</api>
+  <release>1.3.0</release>
+  <api>2.3.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- flip positions property array in prepared statement objects to make it
-  possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement
+ <notes>- fixed _modifyQuery() for manipulation queries
+- fixed inheritance structure of convertResult()
+- added support for new &apos;disable_iso_date&apos; date DSN option (Request #8739)
+- added support for getting the table name in tableInfo()
+- added connection to pg_escape_*() calls
+- fixed _modifyQuery() for manipulation queries
+- enable detection of proper size of integers in mapNativeDatatype
+- migrated to package.xml version 2
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
-  
- </notes>
+- add option to use unnamed prepared statements
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
  <contents>
-  <dir name="/">
+  <dir baseinstalldir="/" name="/">
    <dir name="MDB2">
     <dir name="Driver">
      <dir name="Datatype">
-      <file baseinstalldir="/" name="pgsql.php" role="php">
+      <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Datatype -->
      <dir name="Function">
-      <file baseinstalldir="/" name="pgsql.php" role="php">
+      <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Function -->
      <dir name="Manager">
-      <file baseinstalldir="/" name="pgsql.php" role="php">
+      <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Manager -->
      <dir name="Native">
-      <file baseinstalldir="/" name="pgsql.php" role="php">
+      <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Native -->
      <dir name="Reverse">
-      <file baseinstalldir="/" name="pgsql.php" role="php">
+      <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Reverse -->
-     <file baseinstalldir="/" name="pgsql.php" role="php">
+     <file name="pgsql.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
     </dir> <!-- //MDB2/Driver -->
    </dir> <!-- //MDB2 -->
+   <file name="package_pgsql.xml" role="data" />
   </dir> <!-- / -->
  </contents>
  <dependencies>
@@ -86,14 +87,9 @@ open todo items:
     <min>1.4.0b1</min>
    </pearinstaller>
    <package>
-    <name>PEAR</name>
-    <channel>pear.php.net</channel>
-    <min>1.0b1</min>
-   </package>
-   <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.2.1</min>
+    <min>2.3.0</min>
    </package>
    <extension>
     <name>pgsql</name>
@@ -102,6 +98,32 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.3.0</release>
+    <api>2.3.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-11-03</date>
+   <license>BSD License</license>
+   <notes>- fixed _modifyQuery() for manipulation queries
+- fixed inheritance structure of convertResult()
+- added support for new &apos;disable_iso_date&apos; date DSN option (Request #8739)
+- added support for getting the table name in tableInfo()
+- added connection to pg_escape_*() calls
+- fixed _modifyQuery() for manipulation queries
+- enable detection of proper size of integers in mapNativeDatatype
+- migrated to package.xml version 2
+
+open todo items:
+- enable pg_execute() once issues with bytea column are resolved
+- use pg_result_error_field() to handle localized error messages (Request #7059)
+- add option to use unnamed prepared statements
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
+  </release>
   <release>
    <version>
     <release>1.2.2</release>
@@ -119,9 +141,7 @@ open todo items:
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
-- use pg_result_error_field() to handle localized error messages (Request #7059)
-    
-   </notes>
+- use pg_result_error_field() to handle localized error messages (Request #7059)</notes>
   </release>
   <release>
    <version>
@@ -142,9 +162,7 @@ open todo items:
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
-- use pg_result_error_field() to handle localized error messages (Request #7059)
-    
-   </notes>
+- use pg_result_error_field() to handle localized error messages (Request #7059)</notes>
   </release>
   <release>
    <version>
@@ -177,9 +195,7 @@ open todo items:
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
-- use pg_result_error_field() to handle localized error messages (Request #7059)
-    
-   </notes>
+- use pg_result_error_field() to handle localized error messages (Request #7059)</notes>
   </release>
   <release>
    <version>
@@ -209,9 +225,7 @@ open todo items:
   (this was breaking runtime instrospection)
 
 open todo items:
-- enable pg_execute() once issues with bytea column are resolved
-    
-   </notes>
+- enable pg_execute() once issues with bytea column are resolved</notes>
   </release>
   <release>
    <version>
@@ -227,9 +241,7 @@ open todo items:
    <notes>SECURITY FIX (http://www.postgresql.org/docs/techdocs.50)
 - use pg_escape_string()
 - use &quot;&apos;&quot; as the escape character 
-- limit fetch to 1 row in listTableFields()
-    
-   </notes>
+- limit fetch to 1 row in listTableFields()</notes>
   </release>
   <release>
    <version>
@@ -245,9 +257,7 @@ open todo items:
    <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
-- fixed notice when using prepare() without placeholders
-    
-   </notes>
+- fixed notice when using prepare() without placeholders</notes>
   </release>
   <release>
    <version>
@@ -275,9 +285,7 @@ open todo items:
 - typo fix ressource/resource in LOB array
 - added missing supported parameter to prepare() signature
 - properly handle explicit error codes in errorInfo()
-- moved from OID to TEXT and BYTEA (OID handling was broken, its also deprecated)
-    
-   </notes>
+- moved from OID to TEXT and BYTEA (OID handling was broken, its also deprecated)</notes>
   </release>
   <release>
    <version>
@@ -295,9 +303,7 @@ open todo items:
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes
-    
-   </notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
   </release>
   <release>
    <version>
@@ -321,9 +327,7 @@ open todo items:
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes
-    
-   </notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
   </release>
   <release>
    <version>
@@ -348,9 +352,7 @@ open todo items:
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes
-    
-   </notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
   </release>
   <release>
    <version>
@@ -368,9 +370,7 @@ open todo items:
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes
-    
-   </notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
   </release>
   <release>
    <version>
@@ -396,9 +396,7 @@ open todo items:
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes
-    
-   </notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
   </release>
   <release>
    <version>
@@ -440,9 +438,7 @@ open todo items:
 - implement native prepared queries
 - migrate away from OID&apos;s to bytea, since this is encourage since version 8
   and is also what PDO expects
-- testgettablefielddefinition and testnow test cases fail
-    
-   </notes>
+- testgettablefielddefinition and testnow test cases fail</notes>
   </release>
   <release>
    <version>
@@ -484,9 +480,7 @@ column primary key on this field.
 - fixed alterTable() signature
 
 open todo items:
-- implement native prepared queries
-    
-   </notes>
+- implement native prepared queries</notes>
   </release>
  </changelog>
 </package>

@@ -1,74 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
-http://pear.php.net/dtd/tasks-1.0.xsd
-http://pear.php.net/dtd/package-2.0
-http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mysql</name>
  <channel>pear.php.net</channel>
  <summary>mysql MDB2 driver</summary>
- <description>This is the MySQL MDB2 driver.
- 
- </description>
+ <description>This is the MySQL MDB2 driver.</description>
  <lead>
   <name>Lukas Kahwe Smith</name>
   <user>lsmith</user>
   <email>smith@pooteeweet.org</email>
   <active>yes</active>
  </lead>
- <date>2006-10-27</date>
- <time>15:28:51</time>
+ <date>2006-11-03</date>
+ <time>14:10:31</time>
  <version>
-  <release>1.2.2</release>
-  <api>1.2.2</api>
+  <release>1.3.0</release>
+  <api>2.3.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- flip positions property array in prepared statement objects to make it
-  possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement
+ <notes>- added charset and collation support to field declaration
+- fixed bug #9024: typo in error checking
+- fix typos in error handling in a few places (bug #9024)
+- do not skip id generation in nextId() when creating a sequence on demand
+  because this prevents lastInsertID() from working
+- migrated to package.xml version 2
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
-- use a trigger to emulate setting default now()
-  
- </notes>
+- use a trigger to emulate setting default now()</notes>
  <contents>
-  <dir name="/">
+  <dir baseinstalldir="/" name="/">
    <dir name="MDB2">
     <dir name="Driver">
      <dir name="Datatype">
-      <file baseinstalldir="/" name="mysql.php" role="php">
+      <file name="mysql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Datatype -->
      <dir name="Function">
-      <file baseinstalldir="/" name="mysql.php" role="php">
+      <file name="mysql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Function -->
      <dir name="Manager">
-      <file baseinstalldir="/" name="mysql.php" role="php">
+      <file name="mysql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Manager -->
      <dir name="Native">
-      <file baseinstalldir="/" name="mysql.php" role="php">
+      <file name="mysql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Native -->
      <dir name="Reverse">
-      <file baseinstalldir="/" name="mysql.php" role="php">
+      <file name="mysql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Reverse -->
-     <file baseinstalldir="/" name="mysql.php" role="php">
+     <file name="mysql.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
     </dir> <!-- //MDB2/Driver -->
    </dir> <!-- //MDB2 -->
+   <file name="package_mysql.xml" role="data" />
   </dir> <!-- / -->
  </contents>
  <dependencies>
@@ -80,14 +77,9 @@ note:
     <min>1.4.0b1</min>
    </pearinstaller>
    <package>
-    <name>PEAR</name>
-    <channel>pear.php.net</channel>
-    <min>1.0b1</min>
-   </package>
-   <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.2.1</min>
+    <min>2.3.0</min>
    </package>
    <extension>
     <name>mysql</name>
@@ -96,6 +88,28 @@ note:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.3.0</release>
+    <api>2.3.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-11-03</date>
+   <license>BSD License</license>
+   <notes>- added charset and collation support to field declaration
+- fixed bug #9024: typo in error checking
+- fix typos in error handling in a few places (bug #9024)
+- do not skip id generation in nextId() when creating a sequence on demand
+  because this prevents lastInsertID() from working
+- migrated to package.xml version 2
+
+note:
+- the multi_query test failes because this is not supported by ext/mysql
+- use a trigger to emulate setting default now()</notes>
+  </release>
   <release>
    <version>
     <release>1.2.2</release>
@@ -113,9 +127,7 @@ note:
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
-- use a trigger to emulate setting default now()
-    
-   </notes>
+- use a trigger to emulate setting default now()</notes>
   </release>
   <release>
    <version>
@@ -148,9 +160,7 @@ note:
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
-- use a trigger to emulate setting default now()
-    
-   </notes>
+- use a trigger to emulate setting default now()</notes>
   </release>
   <release>
    <version>
@@ -178,9 +188,7 @@ note:
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
 - use old dsn when rolling back open transactions in disconnect()
 - mysql_insert_id() breaks if the prepared statement that was executed to
-  generate the ID is deallocated before (Bug #8051)
-    
-   </notes>
+  generate the ID is deallocated before (Bug #8051)</notes>
   </release>
   <release>
    <version>
@@ -209,9 +217,7 @@ note:
 - check if result/connection has not yet been freed/dicsonnected before
   attempting to free a result set(Bug #7790)
 - revert change that would prefer &apos;clob&apos; over &apos;text&apos; for TEXT fields
-  (this was breaking runtime instrospection)
-    
-   </notes>
+  (this was breaking runtime instrospection)</notes>
   </release>
   <release>
    <version>
@@ -227,9 +233,7 @@ note:
    <notes>- fixed unsigned handling and minor tweaks to type mapping in mapNativeDatatype()
 - use emulated prepared statements on mysql 4.0 or lower
 - properly quote query to prepare
-- added &quot;emulate_prepared&quot; option to force prepared statement emulation
-    
-   </notes>
+- added &quot;emulate_prepared&quot; option to force prepared statement emulation</notes>
   </release>
   <release>
    <version>
@@ -254,9 +258,7 @@ note:
 - added userinfo&apos;s to all raiseError calls that previously had none
 - use native prepared queries of mysql 4.1 or higher
 - added &apos;prepared_statements&apos; supported meta data setting
-- added missing supported parameter to prepare() signature
-    
-   </notes>
+- added missing supported parameter to prepare() signature</notes>
   </release>
   <release>
    <version>
@@ -279,9 +281,7 @@ note:
 - use parent::disconnect() in disconnect()
 - added support for length in integer reverse engineering
 - some fixes regarding boolean reverse engineering
-- added listViews() and hide views in listTables()
-    
-   </notes>
+- added listViews() and hide views in listTables()</notes>
   </release>
   <release>
    <version>
@@ -294,9 +294,7 @@ note:
    </stability>
    <date>2006-02-09</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- handle null as resource when disable_query option is enabled in result object
-    
-   </notes>
+   <notes>- handle null as resource when disable_query option is enabled in result object</notes>
   </release>
   <release>
    <version>
@@ -316,9 +314,7 @@ note:
 - typo fix in error message in createTable()
 - improved parsing in getServerInfo() (bug #6550)
 - fixed subselect emulation
-- support an arbitrary number of arguments in concat()
-    
-   </notes>
+- support an arbitrary number of arguments in concat()</notes>
   </release>
   <release>
    <version>
@@ -340,9 +336,7 @@ note:
 - _fixIndexName() now just attempts to remove possible formatting
 - renamed _isSequenceName() to _fixSequenceName()
 - _fixSequenceName() now just attempts to remove possible formatting, and only
-  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
-    
-   </notes>
+  returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true</notes>
   </release>
   <release>
    <version>
@@ -355,9 +349,7 @@ note:
    </stability>
    <date>2005-12-30</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed typo in sub select detection
-    
-   </notes>
+   <notes>- fixed typo in sub select detection</notes>
   </release>
   <release>
    <version>
@@ -370,9 +362,7 @@ note:
    </stability>
    <date>2005-12-28</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- proper quote new table name in alterTable()
-    
-   </notes>
+   <notes>- proper quote new table name in alterTable()</notes>
   </release>
   <release>
    <version>
@@ -415,9 +405,7 @@ note:
 - added getServerVersion() and use it to determine sub select support
 - unified array structure in mapNativeDatatype() *BC BREAK*
 - added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
-- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
-    
-   </notes>
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*</notes>
   </release>
   <release>
    <version>
@@ -457,9 +445,7 @@ column primary key on this field.
 - removed subSelect() implementation (now in already included in common)
 - return 0 for manipulation queries when disable_query is enabled
 - tweaked handling of notnull and default in field reverse engineering
-- tweaked getTableFieldDefinition() in reverse module
-    
-   </notes>
+- tweaked getTableFieldDefinition() in reverse module</notes>
   </release>
   <release>
    <version>
@@ -479,9 +465,7 @@ column primary key on this field.
   setting them false as well (bug #4373)
 - ensure SQL injection protection in all _quote() methods (was missing in
   some decimal, float, time, date and timestamp implementations)
-- dont inherite from the mysqli driver anymore to prevent indirect dependency on mysqli
-    
-   </notes>
+- dont inherite from the mysqli driver anymore to prevent indirect dependency on mysqli</notes>
   </release>
  </changelog>
 </package>

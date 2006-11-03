@@ -3,7 +3,7 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version_release = 'XXX';
+$version_release = '2.3.0';
 $version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
@@ -60,6 +60,7 @@ open todo items:
 - drop ILIKE from matchPattern() and instead add a second parameter to
   handle case sensitivity with arbitrary operators
 - add charset and collation support to field declaration in all drivers
+- handle LOBs in buffered result sets (Request #8793)
 EOT;
 
 $description =<<<EOT

@@ -1,46 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
-http://pear.php.net/dtd/tasks-1.0.xsd
-http://pear.php.net/dtd/package-2.0
-http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_sqlite</name>
  <channel>pear.php.net</channel>
  <summary>sqlite MDB2 driver</summary>
- <description>This is the SQLite MDB2 driver.
- 
- </description>
+ <description>This is the SQLite MDB2 driver.</description>
  <lead>
   <name>Lukas Kahwe Smith</name>
   <user>lsmith</user>
   <email>smith@pooteeweet.org</email>
   <active>yes</active>
  </lead>
- <date>2006-10-27</date>
- <time>15:29:19</time>
+ <date>2006-11-03</date>
+ <time>14:02:20</time>
  <version>
-  <release>1.2.1</release>
-  <api>1.2.1</api>
+  <release>1.3.0</release>
+  <api>2.3.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
-  led to returning incorrect type values (Bug #8291)
-- added support for NULL columns in getTableFieldDefinition()
-- added full support for alterTable() via emulation
-- added support for primary key creation and dropping
-- do not list empty contraints and indexes
-- use information_schema in listTableFields() instead of selecting from the
-  table since that does not work if the table is empty
-- fixed handling of contraints in _getTableColumns()
-- fixed primary key handling in alterTable(), createConstraint() and dropConstraint()
-- do not set a default if type is a LOB (Request #8074)
-- fixed handling return values when disable_query is set in _doQuery() and _execute()
-- increased MDB2 dependency too 2.2.1
-
-note:
+ <notes>note:
 - this driver only supports SQLite version 2.x databases
 - the replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
@@ -48,45 +29,47 @@ note:
 - the savepoint test failes because this is not supported by sqlite
 - the case sensitive search test fails because this is not supported by SQLite
 - the pattern escaping test fails because this is not supported by SQLite
+- do not skip id generation in nextId() when creating a sequence on demand
+  becazse this prevents lastInsertID() from working
+- migrated to package.xml version 2
 
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
-  
- </notes>
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
  <contents>
-  <dir name="/">
+  <dir baseinstalldir="/" name="/">
    <dir name="MDB2">
     <dir name="Driver">
      <dir name="Datatype">
-      <file baseinstalldir="/" name="sqlite.php" role="php">
+      <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Datatype -->
      <dir name="Function">
-      <file baseinstalldir="/" name="sqlite.php" role="php">
+      <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Function -->
      <dir name="Manager">
-      <file baseinstalldir="/" name="sqlite.php" role="php">
+      <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Manager -->
      <dir name="Native">
-      <file baseinstalldir="/" name="sqlite.php" role="php">
+      <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Native -->
      <dir name="Reverse">
-      <file baseinstalldir="/" name="sqlite.php" role="php">
+      <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
      </dir> <!-- //MDB2/Driver/Reverse -->
-     <file baseinstalldir="/" name="sqlite.php" role="php">
+     <file name="sqlite.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
     </dir> <!-- //MDB2/Driver -->
    </dir> <!-- //MDB2 -->
+   <file name="package_sqlite.xml" role="data" />
   </dir> <!-- / -->
  </contents>
  <dependencies>
@@ -98,14 +81,9 @@ open todo items:
     <min>1.4.0b1</min>
    </pearinstaller>
    <package>
-    <name>PEAR</name>
-    <channel>pear.php.net</channel>
-    <min>1.0b1</min>
-   </package>
-   <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.2.1</min>
+    <min>2.3.0</min>
    </package>
    <extension>
     <name>sqlite</name>
@@ -114,6 +92,32 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.3.0</release>
+    <api>2.3.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2006-11-03</date>
+   <license>BSD License</license>
+   <notes>note:
+- this driver only supports SQLite version 2.x databases
+- the replace test fails because sqlite reports an incorrect affected rows
+  value when no existing data was replaced
+- the multi_query test failes because this is not supported by ext/sqlite
+- the savepoint test failes because this is not supported by sqlite
+- the case sensitive search test fails because this is not supported by SQLite
+- the pattern escaping test fails because this is not supported by SQLite
+- do not skip id generation in nextId() when creating a sequence on demand
+  becazse this prevents lastInsertID() from working
+- migrated to package.xml version 2
+
+open todo items:
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+  </release>
   <release>
    <version>
     <release>1.2.1</release>
@@ -149,9 +153,7 @@ note:
 - the pattern escaping test fails because this is not supported by SQLite
 
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
-    
-   </notes>
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
   </release>
   <release>
    <version>
@@ -188,9 +190,7 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-    
-   </notes>
+  value when no existing data was replaced</notes>
   </release>
   <release>
    <version>
@@ -219,9 +219,7 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-    
-   </notes>
+  value when no existing data was replaced</notes>
   </release>
   <release>
    <version>
@@ -248,9 +246,7 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-    
-   </notes>
+  value when no existing data was replaced</notes>
   </release>
   <release>
    <version>
@@ -280,9 +276,7 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-    
-   </notes>
+  value when no existing data was replaced</notes>
   </release>
   <release>
    <version>
@@ -303,9 +297,7 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-    
-   </notes>
+  value when no existing data was replaced</notes>
   </release>
   <release>
    <version>
@@ -334,9 +326,7 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-    
-   </notes>
+  value when no existing data was replaced</notes>
   </release>
   <release>
    <version>
@@ -364,9 +354,7 @@ open todo items:
   primary keys to existing tables
 - the alter table test fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-    
-   </notes>
+  value when no existing data was replaced</notes>
   </release>
   <release>
    <version>
@@ -386,9 +374,7 @@ open todo items:
   primary keys to existing tables
 - the alter table test fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-    
-   </notes>
+  value when no existing data was replaced</notes>
   </release>
   <release>
    <version>
@@ -412,9 +398,7 @@ open todo items:
   primary keys to existing tables
 - the alter table test fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-    
-   </notes>
+  value when no existing data was replaced</notes>
   </release>
   <release>
    <version>
@@ -460,9 +444,7 @@ open todo items:
 - the alter table test fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
-- the testnow and testsubstring tests fail
-    
-   </notes>
+- the testnow and testsubstring tests fail</notes>
   </release>
   <release>
    <version>
@@ -475,9 +457,7 @@ open todo items:
    </stability>
    <date>2005-06-10</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
-    
-   </notes>
+   <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5</notes>
   </release>
   <release>
    <version>
@@ -498,9 +478,7 @@ open todo items:
 - ensure SQL injection protection in all _quote() methods (was missing in
   some decimal, float, time, date and timestamp implementations)
 - check if database_name is empty to determine if to connect in connect()
-- Warning: there are some serious issues on php5 HEAD on windows
-    
-   </notes>
+- Warning: there are some serious issues on php5 HEAD on windows</notes>
   </release>
  </changelog>
 </package>
