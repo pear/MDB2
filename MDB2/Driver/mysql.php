@@ -531,15 +531,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 return $connection;
             }
         }
-
-        $query = "SET character_set_client = '".mysql_real_escape_string($charset, $connection)."'";
-        $result = @mysql_query($query, $connection);
-        if (!$result) {
-            return $this->raiseError(null, null, null,
-                'Unable to set client charset: '.$charset, __FUNCTION__);
-        }
-
-        return MDB2_OK;
+        $query = "SET NAMES '".mysql_real_escape_string($charset, $connection)."'";
+        return $this->_doQuery($query, true, $connection);
     }
 
     // }}}

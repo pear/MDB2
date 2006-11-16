@@ -519,19 +519,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 return $connection;
             }
         }
-
-        if (function_exists('mysqli_set_charset')) {
-            $result = @mysqli_set_charset($connection, $charset);
-        } else {
-            $query = "SET character_set_client = '".mysqli_real_escape_string($connection, $charset)."'";
-            $result = @mysqli_query($connection, $query);
-        }
-
-        if (!$result) {
-            return $this->raiseError(null, null, null,
-                'Unable to set client charset: '.$charset, __FUNCTION__);
-        }
-        return MDB2_OK;
+        $query = "SET NAMES '".mysql_real_escape_string($charset, $connection)."'";
+        return $this->_doQuery($query, true, $connection);
     }
 
     // }}}

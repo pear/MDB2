@@ -8,6 +8,7 @@ $state = 'stable';
 $notes = <<<EOT
 - fixed bug #9283: missing support for BINARY/VARBINARY data types (thanks to Tom Hendrikx)
 - propagate errors in getTableFieldDefinition() in the Reverse module
+- setCharset() now uses "SET NAMES" instead of "SET character_set_client"
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
