@@ -6,6 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
+- propagate errors in getTableFieldDefinition() in the Reverse module
+
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
  (binaries are available from snaps.php.net and pecl4win.php.net)

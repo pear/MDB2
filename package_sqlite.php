@@ -6,6 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
+- propagate errors in getTableFieldDefinition() in the Reverse module
+
 note:
 open todo items:
 - fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE

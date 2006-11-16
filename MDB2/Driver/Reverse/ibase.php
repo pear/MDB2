@@ -180,7 +180,11 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         } else {
             $column['field_sub_type'] = null;
         }
-        list($types, $length, $unsigned, $fixed) = $db->datatype->mapNativeDatatype($column);
+        $mapped_datatype = $db->datatype->mapNativeDatatype($column);
+        if (PEAR::IsError($mapped_datatype)) {
+            return $mapped_datatype;
+        }
+        list($types, $length, $unsigned, $fixed) = $mapped_datatype;
         $notnull = !empty($column['null_flag']);
         $default = $column['default_source'];
         if (is_null($default) && $notnull) {

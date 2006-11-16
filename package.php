@@ -7,6 +7,8 @@ $version_release = 'XXX';
 $version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
+- propagate errors in getTableFieldDefinition() in the Reverse module
+
 open todo items:
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering

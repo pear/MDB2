@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
+- propagate errors in getTableFieldDefinition() in the Reverse module
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

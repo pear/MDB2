@@ -6,6 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
+- propagate errors in getTableFieldDefinition() in the Reverse module
+
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
