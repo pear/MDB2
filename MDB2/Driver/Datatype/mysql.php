@@ -436,6 +436,10 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             $type[] = 'blob';
             $length = null;
             break;
+        case 'binary':
+        case 'varbinary':
+            $type[] = 'blob';
+            break;
         case 'year':
             $type[] = 'integer';
             $type[] = 'date';
