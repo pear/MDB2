@@ -1,4 +1,5 @@
 <?php
+// vim: set et ts=4 sw=4 fdm=marker:
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
@@ -45,392 +46,453 @@
 // $Id$
 //
 
-require_once 'MDB2/Driver/Reverse/Common.php';
+require_once 'MDB2/Driver/Datatype/Common.php';
 
 /**
- * MDB2 MySQLi driver for the schema reverse engineering module
+ * MDB2 MySQLi driver
  *
  * @package MDB2
  * @category Database
  * @author  Lukas Smith <smith@pooteeweet.org>
  */
-class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
+class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
 {
-    /**
-     * Array for converting MYSQLI_*_FLAG constants to text values
-     * @var    array
-     * @access public
-     */
-    var $flags = array(
-        MYSQLI_NOT_NULL_FLAG        => 'not_null',
-        MYSQLI_PRI_KEY_FLAG         => 'primary_key',
-        MYSQLI_UNIQUE_KEY_FLAG      => 'unique_key',
-        MYSQLI_MULTIPLE_KEY_FLAG    => 'multiple_key',
-        MYSQLI_BLOB_FLAG            => 'blob',
-        MYSQLI_UNSIGNED_FLAG        => 'unsigned',
-        MYSQLI_ZEROFILL_FLAG        => 'zerofill',
-        MYSQLI_AUTO_INCREMENT_FLAG  => 'auto_increment',
-        MYSQLI_TIMESTAMP_FLAG       => 'timestamp',
-        MYSQLI_SET_FLAG             => 'set',
-        // MYSQLI_NUM_FLAG             => 'numeric',  // unnecessary
-        // MYSQLI_PART_KEY_FLAG        => 'multiple_key',  // duplicatvie
-        MYSQLI_GROUP_FLAG           => 'group_by'
-    );
+    // {{{ _getCharsetFieldDeclaration()
 
     /**
-     * Array for converting MYSQLI_TYPE_* constants to text values
-     * @var    array
-     * @access public
-     */
-    var $types = array(
-        MYSQLI_TYPE_DECIMAL     => 'decimal',
-        246                     => 'decimal',
-        MYSQLI_TYPE_TINY        => 'tinyint',
-        MYSQLI_TYPE_SHORT       => 'int',
-        MYSQLI_TYPE_LONG        => 'int',
-        MYSQLI_TYPE_FLOAT       => 'float',
-        MYSQLI_TYPE_DOUBLE      => 'double',
-        // MYSQLI_TYPE_NULL        => 'DEFAULT NULL',  // let flags handle it
-        MYSQLI_TYPE_TIMESTAMP   => 'timestamp',
-        MYSQLI_TYPE_LONGLONG    => 'bigint',
-        MYSQLI_TYPE_INT24       => 'mediumint',
-        MYSQLI_TYPE_DATE        => 'date',
-        MYSQLI_TYPE_TIME        => 'time',
-        MYSQLI_TYPE_DATETIME    => 'datetime',
-        MYSQLI_TYPE_YEAR        => 'year',
-        MYSQLI_TYPE_NEWDATE     => 'date',
-        MYSQLI_TYPE_ENUM        => 'enum',
-        MYSQLI_TYPE_SET         => 'set',
-        MYSQLI_TYPE_TINY_BLOB   => 'tinyblob',
-        MYSQLI_TYPE_MEDIUM_BLOB => 'mediumblob',
-        MYSQLI_TYPE_LONG_BLOB   => 'longblob',
-        MYSQLI_TYPE_BLOB        => 'blob',
-        MYSQLI_TYPE_VAR_STRING  => 'varchar',
-        MYSQLI_TYPE_STRING      => 'char',
-        MYSQLI_TYPE_GEOMETRY    => 'geometry',
-    );
-
-    // {{{ getTableFieldDefinition()
-
-    /**
-     * Get the stucture of a field into an array
+     * Obtain DBMS specific SQL code portion needed to set the CHARACTER SET
+     * of a field declaration to be used in statements like CREATE TABLE.
      *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $field_name     name of field that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string $charset   name of the charset
+     * @return string  DBMS specific SQL code portion needed to set the CHARACTER SET
+     *                 of a field declaration.
+     */
+    function _getCharsetFieldDeclaration($charset)
+    {
+        return 'CHARACTER SET '.$charset;
+    }
+
+    // }}}
+    // {{{ _getCollationFieldDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to set the COLLATION
+     * of a field declaration to be used in statements like CREATE TABLE.
+     *
+     * @param string $collation   name of the collation
+     * @return string  DBMS specific SQL code portion needed to set the COLLATION
+     *                 of a field declaration.
+     */
+    function _getCollationFieldDeclaration($collation)
+    {
+        return 'COLLATE '.$collation;
+    }
+
+    // }}}
+    // {{{ getTypeDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare an text type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param array $field  associative array with the name of the properties
+     *      of the field being declared as array indexes. Currently, the types
+     *      of supported field properties are as follows:
+     *
+     *      length
+     *          Integer value that determines the maximum length of the text
+     *          field. If this argument is missing the field should be
+     *          declared to have the longest length allowed by the DBMS.
+     *
+     *      default
+     *          Text value to be used as default for this field.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *      declare the specified field.
      * @access public
      */
-    function getTableFieldDefinition($table, $field_name)
+    function getTypeDeclaration($field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $result = $db->loadModule('Datatype', null, true);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        $table = $db->quoteIdentifier($table, true);
-        $query = "SHOW COLUMNS FROM $table LIKE ".$db->quote($field_name);
-        $columns = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
-        if (PEAR::isError($columns)) {
-            return $columns;
-        }
-        foreach ($columns as $column) {
-            $column = array_change_key_case($column, CASE_LOWER);
-            $column['name'] = $column['field'];
-            unset($column['field']);
-            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                if ($db->options['field_case'] == CASE_LOWER) {
-                    $column['name'] = strtolower($column['name']);
-                } else {
-                    $column['name'] = strtoupper($column['name']);
+        switch ($field['type']) {
+        case 'text':
+            if (empty($field['length']) && array_key_exists('default', $field)) {
+                $field['length'] = $db->varchar_max_length;
+            }
+            $length = !empty($field['length']) ? $field['length'] : false;
+            $fixed = !empty($field['fixed']) ? $field['fixed'] : false;
+            return $fixed ? ($length ? 'CHAR('.$length.')' : 'CHAR(255)')
+                : ($length ? 'VARCHAR('.$length.')' : 'TEXT');
+        case 'clob':
+            if (!empty($field['length'])) {
+                $length = $field['length'];
+                if ($length <= 255) {
+                    return 'TINYTEXT';
+                } elseif ($length <= 65532) {
+                    return 'TEXT';
+                } elseif ($length <= 16777215) {
+                    return 'MEDIUMTEXT';
                 }
+            }
+            return 'LONGTEXT';
+        case 'blob':
+            if (!empty($field['length'])) {
+                $length = $field['length'];
+                if ($length <= 255) {
+                    return 'TINYBLOB';
+                } elseif ($length <= 65532) {
+                    return 'BLOB';
+                } elseif ($length <= 16777215) {
+                    return 'MEDIUMBLOB';
+                }
+            }
+            return 'LONGBLOB';
+        case 'integer':
+            if (!empty($field['length'])) {
+                $length = $field['length'];
+                if ($length <= 1) {
+                    return 'TINYINT';
+                } elseif ($length == 2) {
+                    return 'SMALLINT';
+                } elseif ($length == 3) {
+                    return 'MEDIUMINT';
+                } elseif ($length == 4) {
+                    return 'INT';
+                } elseif ($length > 4) {
+                    return 'BIGINT';
+                }
+            }
+            return 'INT';
+        case 'boolean':
+            return 'TINYINT(1)';
+        case 'date':
+            return 'DATE';
+        case 'time':
+            return 'TIME';
+        case 'timestamp':
+            return 'DATETIME';
+        case 'float':
+            return 'DOUBLE';
+        case 'decimal':
+            $length = !empty($field['length']) ? $field['length'] : 18;
+            $scale = !empty($field['scale']) ? $field['scale'] : $db->options['decimal_places'];
+            return 'DECIMAL('.$length.','.$scale.')';
+        }
+        return '';
+    }
+
+    // }}}
+    // {{{ _getIntegerDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare an integer type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string  $name   name the field to be declared.
+     * @param string  $field  associative array with the name of the properties
+     *                        of the field being declared as array indexes.
+     *                        Currently, the types of supported field
+     *                        properties are as follows:
+     *
+     *                       unsigned
+     *                        Boolean flag that indicates whether the field
+     *                        should be declared as unsigned integer if
+     *                        possible.
+     *
+     *                       default
+     *                        Integer value to be used as default for this
+     *                        field.
+     *
+     *                       notnull
+     *                        Boolean flag that indicates whether this field is
+     *                        constrained to not be set to null.
+     * @return string  DBMS specific SQL code portion that should be used to
+     *                 declare the specified field.
+     * @access protected
+     */
+    function _getIntegerDeclaration($name, $field)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $default = $autoinc = '';;
+        if (!empty($field['autoincrement'])) {
+            $autoinc = ' AUTO_INCREMENT PRIMARY KEY';
+        } elseif (array_key_exists('default', $field)) {
+            if ($field['default'] === '') {
+                $field['default'] = empty($field['notnull']) ? null : 0;
+            }
+            $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
+        } elseif (empty($field['notnull'])) {
+            $default = ' DEFAULT NULL';
+        }
+
+        $notnull = empty($field['notnull']) ? '' : ' NOT NULL';
+        $unsigned = empty($field['unsigned']) ? '' : ' UNSIGNED';
+        $name = $db->quoteIdentifier($name, true);
+        return $name.' '.$this->getTypeDeclaration($field).$unsigned.$default.$notnull.$autoinc;
+    }
+
+    // }}}
+    // {{{ matchPattern()
+
+    /**
+     * build a pattern matching string
+     *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change signature at
+     * any time until labelled as non-experimental
+     *
+     * @access public
+     *
+     * @param array $pattern even keys are strings, odd are patterns (% and _)
+     * @param string $operator optional pattern operator (LIKE, ILIKE and maybe others in the future)
+     * @param string $field optional field name that is being matched against
+     *                  (might be required when emulating ILIKE)
+     *
+     * @return string SQL pattern
+     */
+    function matchPattern($pattern, $operator = null, $field = null)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $match = '';
+        if (!is_null($operator)) {
+            $field = is_null($field) ? '' : $field.' ';
+            $operator = strtoupper($operator);
+            switch ($operator) {
+            // case insensitive
+            case 'ILIKE':
+                $match = $field.'LIKE ';
+                break;
+            // case sensitive
+            case 'LIKE':
+                $match = $field.'LIKE BINARY ';
+                break;
+            default:
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'not a supported operator type:'. $operator, __FUNCTION__);
+            }
+        }
+        $match.= "'";
+        foreach ($pattern as $key => $value) {
+            if ($key % 2) {
+                $match.= $value;
             } else {
-                $column = array_change_key_case($column, $db->options['field_case']);
-            }
-            if ($field_name == $column['name']) {
-                $mapped_datatype = $db->datatype->mapNativeDatatype($column);
-                if (PEAR::IsError($mapped_datatype)) {
-                    return $mapped_datatype;
-                }
-                list($types, $length, $unsigned, $fixed) = $mapped_datatype;
-                $notnull = false;
-                if (empty($column['null']) || $column['null'] !== 'YES') {
-                    $notnull = true;
-                }
-                $default = false;
-                if (array_key_exists('default', $column)) {
-                    $default = $column['default'];
-                    if (is_null($default) && $notnull) {
-                        $default = '';
-                    }
-                }
-                $autoincrement = false;
-                if (!empty($column['extra']) && $column['extra'] == 'auto_increment') {
-                    $autoincrement = true;
-                }
-
-                $definition[0] = array(
-                    'notnull' => $notnull,
-                    'nativetype' => preg_replace('/^([a-z]+)[^a-z].*/i', '\\1', $column['type'])
-                );
-                if ($length > 0) {
-                    $definition[0]['length'] = $length;
-                }
-                if (!is_null($unsigned)) {
-                    $definition[0]['unsigned'] = $unsigned;
-                }
-                if (!is_null($fixed)) {
-                    $definition[0]['fixed'] = $fixed;
-                }
-                if ($default !== false) {
-                    $definition[0]['default'] = $default;
-                }
-                if ($autoincrement !== false) {
-                    $definition[0]['autoincrement'] = $autoincrement;
-                }
-                foreach ($types as $key => $type) {
-                    $definition[$key] = $definition[0];
-                    if ($type == 'clob' || $type == 'blob') {
-                        unset($definition[$key]['default']);
-                    }
-                    $definition[$key]['type'] = $type;
-                    $definition[$key]['mdb2type'] = $type;
-                }
-                return $definition;
+                $match.= $db->escapePattern($db->escape($value));
             }
         }
-
-        return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-            'it was not specified an existing table column', __FUNCTION__);
+        $match.= "'";
+        $match.= $this->patternEscapeString();
+        return $match;
     }
 
     // }}}
-    // {{{ getTableIndexDefinition()
+    // {{{ mapNativeDatatype()
 
     /**
-     * Get the stucture of an index into an array
+     * Maps a native array description of a field to a MDB2 datatype and length
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param array  $field native field description
+     * @return array containing the various possible types, length, sign, fixed
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function mapNativeDatatype($field)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
+        $db_type = strtolower($field['type']);
+        $db_type = strtok($db_type, '(), ');
+        if ($db_type == 'national') {
+            $db_type = strtok('(), ');
         }
-
-        $index_name = $db->getIndexName($index_name);
-        $table = $db->quoteIdentifier($table, true);
-        $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = ".$db->quote($index_name)." */";
-        $result = $db->query($query);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        $definition = array();
-        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
-            $row = array_change_key_case($row, CASE_LOWER);
-            $key_name = $row['key_name'];
-            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                if ($db->options['field_case'] == CASE_LOWER) {
-                    $key_name = strtolower($key_name);
-                } else {
-                    $key_name = strtoupper($key_name);
-                }
-            }
-            if ($index_name == $key_name) {
-                if (!$row['non_unique']) {
-                    return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                        'it was not specified an existing table index', __FUNCTION__);
-                }
-                $column_name = $row['column_name'];
-                if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                    if ($db->options['field_case'] == CASE_LOWER) {
-                        $column_name = strtolower($column_name);
-                    } else {
-                        $column_name = strtoupper($column_name);
-                    }
-                }
-                $definition['fields'][$column_name] = array();
-                if (!empty($row['collation'])) {
-                    $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
-                        ? 'ascending' : 'descending');
-                }
-            }
-        }
-        $result->free();
-        if (empty($definition['fields'])) {
-            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table index', __FUNCTION__);
-        }
-        return $definition;
-    }
-
-    // }}}
-    // {{{ getTableConstraintDefinition()
-
-    /**
-     * Get the stucture of a constraint into an array
-     *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
-     * @access public
-     */
-    function getTableConstraintDefinition($table, $index_name)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        if (strtolower($index_name) != 'primary') {
-            $index_name = $db->getIndexName($index_name);
-        }
-        $table = $db->quoteIdentifier($table, true);
-        $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = ".$db->quote($index_name)." */";
-        $result = $db->query($query);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        $definition = array();
-        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
-            $row = array_change_key_case($row, CASE_LOWER);
-            $key_name = $row['key_name'];
-            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                if ($db->options['field_case'] == CASE_LOWER) {
-                    $key_name = strtolower($key_name);
-                } else {
-                    $key_name = strtoupper($key_name);
-                }
-            }
-            if ($index_name == $key_name) {
-                if ($row['non_unique']) {
-                    return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                        'it was not specified an existing table constraint', __FUNCTION__);
-                }
-                if ($row['key_name'] == 'PRIMARY') {
-                    $definition['primary'] = true;
-                } else {
-                    $definition['unique'] = true;
-                }
-                $column_name = $row['column_name'];
-                if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                    if ($db->options['field_case'] == CASE_LOWER) {
-                        $column_name = strtolower($column_name);
-                    } else {
-                        $column_name = strtoupper($column_name);
-                    }
-                }
-                $definition['fields'][$column_name] = array();
-                if (!empty($row['collation'])) {
-                    $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
-                        ? 'ascending' : 'descending');
-                }
-            }
-        }
-        $result->free();
-        if (empty($definition['fields'])) {
-            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table constraint', __FUNCTION__);
-        }
-        return $definition;
-    }
-
-    // }}}
-    // {{{ tableInfo()
-
-    /**
-     * Returns information about a table or a result set
-     *
-     * @param object|string  $result  MDB2_result object from a query or a
-     *                                 string containing the name of a table.
-     *                                 While this also accepts a query result
-     *                                 resource identifier, this behavior is
-     *                                 deprecated.
-     * @param int            $mode    a valid tableInfo mode
-     *
-     * @return array  an associative array with the information requested.
-     *                 A MDB2_Error object on failure.
-     *
-     * @see MDB2_Driver_Common::setOption()
-     */
-    function tableInfo($result, $mode = null)
-    {
-        if (is_string($result)) {
-           return parent::tableInfo($result, $mode);
-        }
-
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $resource = MDB2::isResultCommon($result) ? $result->getResource() : $result;
-        if (!is_object($resource)) {
-            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'Could not generate result resource', __FUNCTION__);
-        }
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            if ($db->options['field_case'] == CASE_LOWER) {
-                $case_func = 'strtolower';
-            } else {
-                $case_func = 'strtoupper';
-            }
+        if (!empty($field['length'])) {
+            $length = $field['length'];
+            $decimal = '';
         } else {
-            $case_func = 'strval';
+            $length = strtok('(), ');
+            $decimal = strtok('(), ');
         }
-
-        $count = @mysqli_num_fields($resource);
-        $res = array();
-        if ($mode) {
-            $res['num_fields'] = $count;
-        }
-
-        $db->loadModule('Datatype', null, true);
-        for ($i = 0; $i < $count; $i++) {
-            $tmp = @mysqli_fetch_field($resource);
-
-            $flags = '';
-            foreach ($this->flags as $const => $means) {
-                if ($tmp->flags & $const) {
-                    $flags.= $means . ' ';
+        $type = array();
+        $unsigned = $fixed = null;
+        switch ($db_type) {
+        case 'tinyint':
+            $type[] = 'integer';
+            $type[] = 'boolean';
+            if (preg_match('/^(is|has)/', $field['name'])) {
+                $type = array_reverse($type);
+            }
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
+            $length = 1;
+            break;
+        case 'smallint':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
+            $length = 2;
+            break;
+        case 'mediumint':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
+            $length = 3;
+            break;
+        case 'int':
+        case 'integer':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
+            $length = 4;
+            break;
+        case 'bigint':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
+            $length = 8;
+            break;
+        case 'tinytext':
+        case 'mediumtext':
+        case 'longtext':
+        case 'text':
+        case 'text':
+        case 'varchar':
+            $fixed = false;
+        case 'string':
+        case 'char':
+            $type[] = 'text';
+            if ($length == '1') {
+                $type[] = 'boolean';
+                if (preg_match('/^(is|has)/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            } elseif (strstr($db_type, 'text')) {
+                $type[] = 'clob';
+                if ($decimal == 'binary') {
+                    $type[] = 'blob';
                 }
             }
-            if ($tmp->def) {
-                $flags.= 'default_' . rawurlencode($tmp->def);
+            if ($fixed !== false) {
+                $fixed = true;
             }
-            $flags = trim($flags);
+            break;
+        case 'enum':
+            $type[] = 'text';
+            preg_match_all('/\'.+\'/U', $field['type'], $matches);
+            $length = 0;
+            $fixed = false;
+            if (is_array($matches)) {
+                foreach ($matches[0] as $value) {
+                    $length = max($length, strlen($value)-2);
+                }
+                if ($length == '1' && count($matches[0]) == 2) {
+                    $type[] = 'boolean';
+                    if (preg_match('/^(is|has)/', $field['name'])) {
+                        $type = array_reverse($type);
+                    }
+                }
+            }
+            $type[] = 'integer';
+        case 'set':
+            $fixed = false;
+            $type[] = 'text';
+            $type[] = 'integer';
+            break;
+        case 'date':
+            $type[] = 'date';
+            $length = null;
+            break;
+        case 'datetime':
+        case 'timestamp':
+            $type[] = 'timestamp';
+            $length = null;
+            break;
+        case 'time':
+            $type[] = 'time';
+            $length = null;
+            break;
+        case 'float':
+        case 'double':
+        case 'real':
+            $type[] = 'float';
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
+            break;
+        case 'unknown':
+        case 'decimal':
+        case 'numeric':
+            $type[] = 'decimal';
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
+            break;
+        case 'tinyblob':
+        case 'mediumblob':
+        case 'longblob':
+        case 'blob':
+            $type[] = 'blob';
+            $length = null;
+            break;
+        case 'year':
+            $type[] = 'integer';
+            $type[] = 'date';
+            $length = null;
+            break;
+        default:
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
 
-            $res[$i] = array(
-                'table'  => $case_func($tmp->table),
-                'name'   => $case_func($tmp->name),
-                'type'   => isset($this->types[$tmp->type])
-                    ? $this->types[$tmp->type] : 'unknown',
-                // http://bugs.php.net/?id=36579
-                'length' => $tmp->length,
-                'flags'  => $flags,
-            );
-            $mdb2type_info = $db->datatype->mapNativeDatatype($res[$i]);
-            if (PEAR::isError($mdb2type_info)) {
-               return $mdb2type_info;
-            }
-            $res[$i]['mdb2type'] = $mdb2type_info[0][0];
-            if ($mode & MDB2_TABLEINFO_ORDER) {
-                $res['order'][$res[$i]['name']] = $i;
-            }
-            if ($mode & MDB2_TABLEINFO_ORDERTABLE) {
-                $res['ordertable'][$res[$i]['table']][$res[$i]['name']] = $i;
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'unknown database attribute type: '.$db_type, __FUNCTION__);
+        }
+
+        return array($type, $length, $unsigned, $fixed);
+    }
+
+    // }}}
+    // {{{ mapPrepareDatatype()
+
+    /**
+     * Maps an mdb2 datatype to native prepare type
+     *
+     * @param string $type
+     * @return string
+     * @access public
+     */
+    function mapPrepareDatatype($type)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (!empty($db->options['datatype_map'][$type])) {
+            $type = $db->options['datatype_map'][$type];
+            if (!empty($db->options['datatype_map_callback'][$type])) {
+                $parameter = array('type' => $type);
+                return call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
             }
         }
 
-        return $res;
+        switch ($type) {
+            case 'integer':
+                return 'i';
+            case 'float':
+                return 'd';
+            case 'blob':
+                return 'b';
+            default:
+                break;
+        }
+        return 's';
     }
+    
+    // }}}
 }
+
 ?>
