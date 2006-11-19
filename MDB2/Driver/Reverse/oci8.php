@@ -221,12 +221,12 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $index_name = $db->getIndexName($index_name);
         }
 
-        $query = 'SELECT all.constraint_type, cols.column_name';
-        $query.= ' FROM all_constraints AS all, all_cons_columns AS cols';
-        $query.= ' WHERE (all.table_name='.$db->quote($table, 'text').' OR all.table_name='.$db->quote(strtoupper($table), 'text').')';
-        $query.= ' AND (all.index_name='.$db->quote($index_name, 'text').' OR all.index_name='.$db->quote(strtoupper($index_name), 'text').')';
-        $query.= ' AND all.constraint_name = cols.constraint_name';
-        $query.= ' AND all.owner = '.$db->quote(strtoupper($db->dsn['username']), 'text');
+        $query = 'SELECT "all".constraint_type, cols.column_name';
+        $query.= ' FROM all_constraints "all", all_cons_columns cols';
+        $query.= ' WHERE ("all".table_name='.$db->quote($table, 'text').' OR "all".table_name='.$db->quote(strtoupper($table), 'text').')';
+        $query.= ' AND ("all".index_name='.$db->quote($index_name, 'text').' OR "all".index_name='.$db->quote(strtoupper($index_name), 'text').')';
+        $query.= ' AND "all".constraint_name = cols.constraint_name';
+        $query.= ' AND "all".owner = '.$db->quote(strtoupper($db->dsn['username']), 'text');
         $result = $db->query($query);
         if (PEAR::isError($result)) {
             return $result;
