@@ -8,6 +8,7 @@ $version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
+- internally use MDB2::classExists() wrapper instead of directly calling class_exists()
 
 open todo items:
 - handle autoincrement fields in alterTable()

@@ -298,7 +298,7 @@ class MDB2
      * @param   string  classname
      *
      * @return  bool    true success and false on error
-     *
+     * @static
      * @access  public
      */
     function classExists($classname)
@@ -1862,7 +1862,7 @@ class MDB2_Driver_Common extends PEAR
                 }
             }
 
-            if (!class_exists($class_name)) {
+            if (!MDB2::classExists($class_name)) {
                 $err =& $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                     "unable to load module '$module' into property '$property'", __FUNCTION__);
                 return $err;
@@ -2549,7 +2549,7 @@ class MDB2_Driver_Common extends PEAR
 
         if ($result_class) {
             $class_name = sprintf($result_class, $this->phptype);
-            if (!class_exists($class_name)) {
+            if (!MDB2::classExists($class_name)) {
                 $err =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     'result class does not exist '.$class_name, __FUNCTION__);
                 return $err;
@@ -2572,7 +2572,7 @@ class MDB2_Driver_Common extends PEAR
             $result_wrap_class = $this->options['result_wrap_class'];
         }
         if ($result_wrap_class) {
-            if (!class_exists($result_wrap_class)) {
+            if (!MDB2::classExists($result_wrap_class)) {
                 $err =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     'result wrap class does not exist '.$result_wrap_class, __FUNCTION__);
                 return $err;
