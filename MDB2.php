@@ -2439,11 +2439,11 @@ class MDB2_Driver_Common extends PEAR
     // {{{ function exec($query)
 
     /**
-     * Execute a manipulation query to the database and return any the affected rows
+     * Execute a manipulation query to the database and return the number of affected rows
      *
      * @param   string  the SQL query
      *
-     * @return  mixed   affected rows on success, a MDB2 error on failure
+     * @return  mixed   number of affected rows on success, a MDB2 error on failure
      *
      * @access  public
      */
