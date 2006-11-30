@@ -2983,6 +2983,7 @@ class MDB2_Driver_Common extends PEAR
      *
      * @param   string  text string value that is intended to be converted.
      * @param   string  type to which the value should be converted to
+     * @param   bool    quote
      * @param   bool    escape wildcards
      *
      * @return  string  text string that represents the given argument value in
