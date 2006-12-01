@@ -67,7 +67,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $result = $stmt->execute(array_values($data));
 
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+            $this->assertTrue(false, 'Error executing prepared query '.$result->getMessage());
         }
 
         $stmt->free();
@@ -76,27 +76,27 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $result =& $this->db->query($query);
 
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+            $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
         }
 
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
 
         $firstRow = $result->fetchRow();
-        $this->assertEquals($firstRow['user_name'], $data['user_name'], "The data returned does not match that expected");
+        $this->assertEquals($firstRow['user_name'], $data['user_name'], 'The data returned does not match that expected');
 
         $result =& $this->db->query('SELECT user_name, user_id, quota FROM users ORDER BY user_name');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from users'.$result->getMessage());
+            $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
         }
         $this->db->setFetchMode(MDB2_FETCHMODE_ORDERED);
 
         $value = $result->fetchOne();
-        $this->assertEquals($data['user_name'], $value, "The data returned does not match that expected");
+        $this->assertEquals($data['user_name'], $value, 'The data returned does not match that expected');
         $result->free();
     }
 
     /**
-     * http://bugs.php.net/bug.php?id=22328
+     * @see http://bugs.php.net/bug.php?id=22328
      */
     function testBug22328() {
         $result =& $this->db->query('SELECT * FROM users');
@@ -105,11 +105,11 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
 
         $data = $result->fetchRow();
         $this->db->popErrorHandling();
-        $this->assertFalse(PEAR::isError($data), "Error messages for a query affect result reading of other queries");
+        $this->assertFalse(PEAR::isError($data), 'Error messages for a query affect result reading of other queries');
     }
 
     /**
-     * http://pear.php.net/bugs/bug.php?id=670
+     * @see http://pear.php.net/bugs/bug.php?id=670
      */
     function testBug670() {
         $data['user_name'] = null;
@@ -128,7 +128,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $result =& $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
         if (PEAR::isError($col)) {
-            $this->assertTrue(false, "Error when fetching column first first row as NULL: ".$col->getMessage());
+            $this->assertTrue(false, 'Error when fetching column first first row as NULL: '.$col->getMessage());
         }
 
         $data['user_name'] = "user_1";
@@ -139,7 +139,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $result =& $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
         if (PEAR::isError($col)) {
-            $this->assertTrue(false, "Error when fetching column: ".$col->getMessage());
+            $this->assertTrue(false, 'Error when fetching column: '.$col->getMessage());
         }
 
         $data['user_name'] = null;
@@ -148,47 +148,31 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
     }
 
     /**
-     * http://pear.php.net/bugs/bug.php?id=681
+     * @see http://pear.php.net/bugs/bug.php?id=681
      */
     function testBug681() {
         $result =& $this->db->query('SELECT * FROM users WHERE 1=0');
 
         $numrows = $result->numRows();
-        $this->assertEquals(0, $numrows, "Numrows is not returning 0 for empty result sets");
+        $this->assertEquals(0, $numrows, 'Numrows is not returning 0 for empty result sets');
 
-        $data['user_name'] = "user_1";
-        $data['user_password'] = 'somepass';
-        $data['subscribed'] = true;
-        $data['user_id'] = 1;
-        $data['quota'] = sprintf("%.2f",strval(3/100));
-        $data['weight'] = sqrt(1);
-        $data['access_date'] = MDB2_Date::mdbToday();
-        $data['access_time'] = MDB2_Date::mdbTime();
-        $data['approved'] = MDB2_Date::mdbNow();
+        $data = $this->getSampleData(1);
 
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
 
         $result =& $this->db->query('SELECT * FROM users');
         $numrows = $result->numRows();
-        $this->assertEquals(1, $numrows, "Numrows is not returning proper value");
+        $this->assertEquals(1, $numrows, 'Numrows is not returning proper value');
 
         $stmt->free();
     }
 
     /**
-     * http://pear.php.net/bugs/bug.php?id=718
+     * @see http://pear.php.net/bugs/bug.php?id=718
      */
     function testBug718() {
-        $data['user_name'] = "user_1";
-        $data['user_password'] = 'somepass';
-        $data['subscribed'] = true;
-        $data['user_id'] = 1;
-        $data['quota'] = sprintf("%.2f",strval(3/100));
-        $data['weight'] = sqrt(1);
-        $data['access_date'] = MDB2_Date::mdbToday();
-        $data['access_time'] = MDB2_Date::mdbTime();
-        $data['approved'] = MDB2_Date::mdbNow();
+        $data = $this->getSampleData(1);
 
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
@@ -200,7 +184,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
     }
 
     /**
-     * http://pear.php.net/bugs/bug.php?id=946
+     * @see http://pear.php.net/bugs/bug.php?id=946
      */
     function testBug946() {
         $data = array();
@@ -209,20 +193,12 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $data[$row]['user_name'] = "user_$row";
-            $data[$row]['user_password'] = 'somepass';
-            $data[$row]['subscribed'] = (boolean)($row % 2);
-            $data[$row]['user_id'] = $row;
-            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
-            $data[$row]['weight'] = sqrt($row);
-            $data[$row]['access_date'] = MDB2_Date::mdbToday();
-            $data[$row]['access_time'] = MDB2_Date::mdbTime();
-            $data[$row]['approved'] = MDB2_Date::mdbNow();
+            $data[$row] = $this->getSampleData($row);
 
             $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+                $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
             }
         }
         $stmt->free();
@@ -234,7 +210,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
             if (PEAR::isError($row)) {
-                $this->assertTrue(false, 'Error fetching a row'.$row->getMessage());
+                $this->assertTrue(false, 'Error fetching a row: '.$row->getMessage());
             }
         }
         $result->free();
@@ -243,14 +219,14 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
             if (PEAR::isError($row)) {
-                $this->assertTrue(false, 'Error fetching a row'.$row->getMessage());
+                $this->assertTrue(false, 'Error fetching a row: '.$row->getMessage());
             }
         }
         $result->free();
     }
 
     /**
-     * http://pear.php.net/bugs/bug.php?id=3146
+     * @see http://pear.php.net/bugs/bug.php?id=3146
      */
     function testBug3146() {
         $data = array();
@@ -260,19 +236,11 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
-            $data[$row]['user_name'] = "user_$row";
-            $data[$row]['user_password'] = 'somepass';
-            $data[$row]['subscribed'] = (boolean)($row % 2);
-            $data[$row]['user_id'] = $row;
-            $data[$row]['quota'] = sprintf("%.2f",strval(1+($row+1)/100));
-            $data[$row]['weight'] = sqrt($row);
-            $data[$row]['access_date'] = MDB2_Date::mdbToday();
-            $data[$row]['access_time'] = MDB2_Date::mdbTime();
-            $data[$row]['approved'] = MDB2_Date::mdbNow();
+            $data[$row] = $this->getSampleData($row);
 
             $result = $stmt->execute(array_values($data[$row]));
             if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+                $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
             }
         }
         $stmt->free();
@@ -288,6 +256,35 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $this->verifyFetchedValues($result, 1, $data[1]);
 
         $result->free();
+    }
+
+    /**
+     * Strong typing query result misbehaves when $n_columns > $n_types
+     * @see http://pear.php.net/bugs/bug.php?id=9502
+     */
+    function testBug9502() {
+        $row = 5;
+        $data = $this->getSampleData($row);
+        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $result = $stmt->execute(array_values($data));
+        $stmt->free();
+
+        //provide an incomplete and scrambled types array
+        $types = array();
+        $types['subscribed'] = $this->fields['subscribed'];
+        $types['user_name']  = $this->fields['user_name'];
+        $types['weight']     = $this->fields['weight'];
+        
+        $query = 'SELECT weight, user_name, user_id, quota, subscribed FROM users WHERE user_id = '.$row;
+        $result =& $this->db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error executing query: '.$result->getMessage() .' - '. $result->getUserInfo());
+        } else {
+            $this->assertTrue(is_bool($result['subscribed']));
+            $this->assertTrue(is_int($result['user_id']));
+            $this->assertTrue(is_float($result['weight']));
+            $this->assertFalse(is_bool($result['user_name']));
+        }
     }
 }
 
