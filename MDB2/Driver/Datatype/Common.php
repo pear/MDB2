@@ -290,7 +290,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $n_cols = count($columns);
         $n_types = count($types);
         if ($n_cols > $n_types) {
-            for ($i= $n_cols - $n_types + 1; $i >= 0; $i--) {
+            for ($i= $n_cols - $n_types; $i >= 0; $i--) {
                 $types[] = null;
             }
         }
@@ -310,8 +310,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             reset($types);
             foreach (array_keys($sorted_types) as $k) {
                 if (is_null($sorted_types[$k])) {
-                    $sorted_types[$k] = current($types);
-                    next($types);
+                    $sorted_types[$k] = next($types);
                 }
             }
         }
