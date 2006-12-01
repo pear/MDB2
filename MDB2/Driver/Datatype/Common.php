@@ -259,30 +259,63 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function convertResultRow($types, $row, $rtrim = true)
     {
-        reset($types);
-        $current_column = -1;
+        $types = $this->_sortResultFieldTypes(array_keys($row), $types);
         foreach ($row as $key => $value) {
-            ++$current_column;
-            if (!isset($value)) {
+            if (empty($types[$key])) {
                 continue;
             }
-            if (isset($types[$current_column])) {
-                $type = $types[$current_column];
-            } elseif (isset($types[$key])) {
-                $type = $types[$key];
-            } elseif (current($types)) {
-                $type = current($types);
-                next($types);
-            } else {
-                continue;
-            }
-            $value = $this->convertResult($row[$key], $type, $rtrim);
+            $value = $this->convertResult($row[$key], $types[$key], $rtrim);
             if (PEAR::isError($value)) {
                 return $value;
             }
             $row[$key] = $value;
         }
         return $row;
+    }
+
+    // }}}
+    // {{{ _sortResultFieldTypes()
+
+    /**
+     * convert a result row
+     *
+     * @param array $types
+     * @param array $row specifies the types to convert to
+     * @param bool   $rtrim   if to rtrim text values or not
+     * @return mixed MDB2_OK on success,  a MDB2 error on failure
+     * @access public
+     */
+    function _sortResultFieldTypes($columns, $types)
+    {
+        $n_cols = count($columns);
+        $n_types = count($types);
+        if ($n_cols > $n_types) {
+            for ($i= $n_cols - $n_types + 1; $i >= 0; $i--) {
+                $types[] = null;
+            }
+        }
+        $sorted_types = array();
+        foreach ($columns as $col) {
+            $sorted_types[$col] = null;
+        }
+        foreach ($types as $name => $type) {
+            if (array_key_exists($name, $sorted_types)) {
+                $sorted_types[$name] = $type;
+                unset($types[$name]);
+            }
+        }
+        // if there are left types in the array, fill the null values of the
+        // sorted array with them, in order.
+        if (count($types)) {
+            reset($types);
+            foreach (array_keys($sorted_types) as $k) {
+                if (is_null($sorted_types[$k])) {
+                    $sorted_types[$k] = current($types);
+                    next($types);
+                }
+            }
+        }
+        return $sorted_types;
     }
 
     // }}}
