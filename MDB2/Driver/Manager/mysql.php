@@ -379,7 +379,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     /**
      * list all databases
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of database names on success, a MDB2 error on failure
      * @access public
      */
     function listDatabases()
@@ -405,7 +405,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     /**
      * list all users
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of user names on success, a MDB2 error on failure
      * @access public
      */
     function listUsers()
@@ -425,7 +425,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      * list all tables in the current database
      *
      * @param string database, the current is default
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of table names on success, a MDB2 error on failure
      * @access public
      */
     function listTables($database = null)
@@ -462,12 +462,12 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     // {{{ listViews()
 
     /**
-     * list the views in the database
+     * list all views in the current database
      *
      * @param string database, the current is default
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @return mixed array of view names on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function listViews($database = null)
     {
         $db =& $this->getDBInstance();
@@ -496,10 +496,10 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     // {{{ listTableFields()
 
     /**
-     * list all fields in a tables in the current database
+     * list all fields in a table in the current database
      *
      * @param string $table name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of field names on success, a MDB2 error on failure
      * @access public
      */
     function listTableFields($table)
@@ -608,8 +608,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     /**
      * list all indexes in a table
      *
-     * @param string    $table      name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string $table name of table that should be used in method
+     * @return mixed array of index names on success, a MDB2 error on failure
      * @access public
      */
     function listTableIndexes($table)
@@ -737,8 +737,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     /**
      * list all constraints in a table
      *
-     * @param string    $table      name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string $table name of table that should be used in method
+     * @return mixed array of constraint names on success, a MDB2 error on failure
      * @access public
      */
     function listTableConstraints($table)
@@ -865,7 +865,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      * list all sequences in the current database
      *
      * @param string database, the current is default
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of sequence names on success, a MDB2 error on failure
      * @access public
      */
     function listSequences($database = null)

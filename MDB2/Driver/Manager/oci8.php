@@ -430,7 +430,7 @@ END;
      *                             actually perform them otherwise.
      * @access public
      *
-      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
      */
     function alterTable($name, $changes, $check)
     {
@@ -520,7 +520,7 @@ END;
     /**
      * list all databases
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of database names on success, a MDB2 error on failure
      * @access public
      */
     function listDatabases()
@@ -560,13 +560,13 @@ END;
         return $result;
     }
 
-        // }}}
+    // }}}
     // {{{ listUsers()
 
     /**
-     * list all users in the current database
+     * list all users
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of user names on success, a MDB2 error on failure
      * @access public
      */
     function listUsers()
@@ -586,13 +586,14 @@ END;
         }
         return $db->queryCol($query);
     }
+
     // }}}
     // {{{ listViews()
 
     /**
      * list all views in the current database
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of view names on success, a MDB2 error on failure
      * @access public
      */
     function listViews()
@@ -621,7 +622,7 @@ END;
     /**
      * list all functions in the current database
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of function names on success, a MDB2 error on failure
      * @access public
      */
     function listFunctions()
@@ -650,9 +651,9 @@ END;
     /**
      * list all tables in the current database
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of table names on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function listTables()
     {
         $db =& $this->getDBInstance();
@@ -677,10 +678,10 @@ END;
     // {{{ listTableFields()
 
     /**
-     * list all fields in a tables in the current database
+     * list all fields in a table in the current database
      *
      * @param string $table name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of field names on success, a MDB2 error on failure
      * @access public
      */
     function listTableFields($table)
@@ -712,7 +713,7 @@ END;
      * list all indexes in a table
      *
      * @param string $table name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of index names on success, a MDB2 error on failure
      * @access public
      */
     function listTableIndexes($table)
@@ -753,8 +754,8 @@ END;
     /**
      * list all constraints in a table
      *
-     * @param string    $table      name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string $table name of table that should be used in method
+     * @return mixed array of constraint names on success, a MDB2 error on failure
      * @access public
      */
     function listTableConstraints($table)
@@ -841,7 +842,7 @@ END;
     /**
      * list all sequences in the current database
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of sequence names on success, a MDB2 error on failure
      * @access public
      */
     function listSequences()

@@ -60,7 +60,6 @@
  */
 class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 {
-    // }}}
     // {{{ getFieldDeclarationList()
 
     /**
@@ -414,7 +413,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * list all databases
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of database names on success, a MDB2 error on failure
      * @access public
      */
     function listDatabases()
@@ -434,7 +433,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * list all users
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of user names on success, a MDB2 error on failure
      * @access public
      */
     function listUsers()
@@ -455,7 +454,9 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
      * list all views in the current database
      *
      * @param string database, the current is default
-     * @return mixed data array on success, a MDB2 error on failure
+     *               NB: not all the drivers can get the view names from
+     *               a database other than the current one
+     * @return mixed array of view names on success, a MDB2 error on failure
      * @access public
      */
     function listViews($database = null)
@@ -475,10 +476,10 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * list the views in the database that reference a given table
      *
-     * @param string table for which all references views should be found
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @param string table for which all referenced views should be found
+     * @return mixed array of view names on success, a MDB2 error on failure
      * @access public
-     **/
+     */
     function listTableViews($table)
     {
         $db =& $this->getDBInstance();
@@ -492,14 +493,13 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 
     // }}}
     // {{{ listTableTriggers()
+
     /**
-     * This function will be called to get all triggers of the
-     * current database ($db->getDatabase())
+     * list all triggers in the database that reference a given table
      *
+     * @param string table for which all referenced triggers should be found
+     * @return mixed array of trigger names on success, a MDB2 error on failure
      * @access public
-     * @param  string $table      The name of the table from the
-     *                            previous database to query against.
-     * @return mixed Array on success or MDB2 error on failure
      */
     function listTableTriggers($table = null)
     {
@@ -511,13 +511,14 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'method not implemented', __FUNCTION__);
     }
+
     // }}}
     // {{{ listFunctions()
 
     /**
      * list all functions in the current database
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of function names on success, a MDB2 error on failure
      * @access public
      */
     function listFunctions()
@@ -530,14 +531,17 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'method not implemented', __FUNCTION__);
     }
+
     // }}}
     // {{{ listTables()
 
     /**
      * list all tables in the current database
      *
-     * @param string database, the current is default
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string database, the current is default.
+     *               NB: not all the drivers can get the table names from
+     *               a database other than the current one
+     * @return mixed array of table names on success, a MDB2 error on failure
      * @access public
      */
     function listTables($database = null)
@@ -555,10 +559,10 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     // {{{ listTableFields()
 
     /**
-     * list all fields in a tables in the current database
+     * list all fields in a table in the current database
      *
      * @param string $table name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of field names on success, a MDB2 error on failure
      * @access public
      */
     function listTableFields($table)
@@ -653,8 +657,8 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * list all indexes in a table
      *
-     * @param string    $table      name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string $table name of table that should be used in method
+     * @return mixed array of index names on success, a MDB2 error on failure
      * @access public
      */
     function listTableIndexes($table)
@@ -745,8 +749,8 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * list all constraints in a table
      *
-     * @param string    $table      name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string $table name of table that should be used in method
+     * @return mixed array of constraint names on success, a MDB2 error on failure
      * @access public
      */
     function listTableConstraints($table)
@@ -810,7 +814,9 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
      * list all sequences in the current database
      *
      * @param string database, the current is default
-     * @return mixed data array on success, a MDB2 error on failure
+     *               NB: not all the drivers can get the sequence names from
+     *               a database other than the current one
+     * @return mixed array of sequence names on success, a MDB2 error on failure
      * @access public
      */
     function listSequences($database = null)
@@ -823,6 +829,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'method not implemented', __FUNCTION__);
     }
-}
 
+    // }}}
+}
 ?>

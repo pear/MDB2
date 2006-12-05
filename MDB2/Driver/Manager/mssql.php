@@ -48,6 +48,7 @@
 require_once 'MDB2/Driver/Manager/Common.php';
 
 // {{{ class MDB2_Driver_Manager_mssql
+
 /**
  * MDB2 MSSQL driver for the management modules
  *
@@ -82,6 +83,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return $db->standaloneQuery($query, null, true);
     }
+
     // }}}
     // {{{ dropDatabase()
 
@@ -251,12 +253,14 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $name = $db->quoteIdentifier($name, true);
         return $db->exec("ALTER TABLE $name $query");
     }
+
     // }}}
     // {{{ listTables()
+
     /**
      * list all tables in the current database
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of table names on success, a MDB2 error on failure
      * @access public
      */
     function listTables()
@@ -284,13 +288,15 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return $result;
     }
+
     // }}}
     // {{{ listTableFields()
+
     /**
-     * list all fields in a tables in the current database
+     * list all fields in a table in the current database
      *
      * @param string $table name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of field names on success, a MDB2 error on failure
      * @access public
      */
     function listTableFields($table)
@@ -313,14 +319,15 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return array_flip($result);
     }
+
     // }}}
     // {{{ listTableIndexes()
 
     /**
      * list all indexes in a table
      *
-     * @param string    $table     name of table that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string $table name of table that should be used in method
+     * @return mixed array of index names on success, a MDB2 error on failure
      * @access public
      */
     function listTableIndexes($table)
@@ -364,20 +371,16 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
     // }}}
     // {{{ listTableTriggers()
+
     /**
-     * This function will be called to
-     * display all the triggers from the current
-     * database ($db->getDatabase()).
+     * list all triggers in the database that reference a given table
      *
+     * @param string table for which all referenced triggers should be found
+     * @return mixed array of trigger names on success,  otherwise, false which
+     *               could be a db error if the db is not instantiated or could
+     *               be the results of the error that occured during the
+     *               querying of the sysobject module.
      * @access public
-     * @param  string $table      The name of the table from the
-     *                            previous database to query against.
-     * @return mixed Array of the triggers if the query
-     *               is successful, otherwise, false which
-     *               could be a db error if the db is not
-     *               instantiated or could be the results
-     *               of the error that occured during the
-     *               query'ing of the sysobject module.
      */
     function listTableTriggers($table = null)
     {
@@ -405,15 +408,16 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return $result;
     }
+
     // }}}
     // {{{ listViews()
+
     /**
-     * This function is a simple method that lists
-     * all the views that are set on a db instance
-     * (The db connected to it)
+     * list all views in the current database
      *
+     * @param string database, the current is default
+     * @return mixed array of view names on success, a MDB2 error on failure
      * @access public
-     * @return mixed Error on failure or array of views for a database.
      */
     function listViews()
     {
@@ -439,6 +443,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return $result;
     }
+
     // }}}
     // {{{ dropIndex()
 
@@ -464,6 +469,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
     // }}}
     // {{{ createSequence()
+
     /**
      * create sequence
      *
@@ -511,8 +517,10 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         return $db->raiseError($res, null, null,
             'could not create sequence table', __FUNCTION__);
     }
+
     // }}}
     // {{{ dropSequence()
+
     /**
      * This function drops an existing sequence
      *
@@ -530,12 +538,14 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         return $db->exec("DROP TABLE $sequence_name");
     }
+
     // }}}
     // {{{ listSequences()
+
     /**
      * list all sequences in the current database
      *
-     * @return mixed data array on success, a MDB2 error on failure
+     * @return mixed array of sequence names on success, a MDB2 error on failure
      * @access public
      */
     function listSequences()
@@ -562,7 +572,9 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         return $result;
     }
+
     // }}}
 }
+
 // }}}
 ?>
