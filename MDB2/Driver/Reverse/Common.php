@@ -75,9 +75,12 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     /**
      * Get the stucture of a field into an array
      *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $fields     name of field that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string    $table     name of table that should be used in method
+     * @param string    $field     name of field that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure.
+     *          The returned array contains an array for each field definition,
+     *          with (some of) these indices:
+     *          [notnull] [nativetype] [length] [fixed] [default] [type] [mdb2type]
      * @access public
      */
     function getTableFieldDefinition($table, $field)
@@ -100,6 +103,18 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      * @param string    $table      name of table that should be used in method
      * @param string    $index      name of index that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
+     *          The returned array has this structure:
+     *          </pre>
+     *          array (
+     *              [fields] => array (
+     *                  [field1name] => array() // one entry per each field covered
+     *                  [field2name] => array() // by the index
+     *                  [field3name] => array(
+     *                      [sorting] => ascending
+     *                  )
+     *              )
+     *          );
+     *          </pre>
      * @access public
      */
     function getTableIndexDefinition($table, $index)
@@ -122,6 +137,19 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      * @param string    $table      name of table that should be used in method
      * @param string    $index      name of index that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
+     *          The returned array has this structure:
+     *          <pre>
+     *          array (
+     *              [primary] => 1
+     *              [fields] => array (
+     *                  [field1name] => array() // one entry per each field covered
+     *                  [field2name] => array() // by the index
+     *                  [field3name] => array(
+     *                      [sorting] => ascending
+     *                  )
+     *              )
+     *          );
+     *          </pre>
      * @access public
      */
     function getTableConstraintDefinition($table, $index)
@@ -143,6 +171,12 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *
      * @param string    $sequence   name of sequence that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
+     *          The returned array has this structure:
+     *          <pre>
+     *          array (
+     *              [start] => n
+     *          );
+     *          </pre>
      * @access public
      */
     function getSequenceDefinition($sequence)
