@@ -468,14 +468,14 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 BEGIN
                     NEW.somedescription = OLD.somename;
                 END;',
-            'mysql' => 'CREATE TRIGGER '. $trigger_name .' BEFORE INSERT ON '. $this->table .'
+            'mysql' => 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $this->table .'
                 FOR EACH ROW
                 BEGIN
                     UPDATE '. $this->table .' SET somedescription = OLD.somename WHERE id = NEW.id;
                 END;',
             'pgsql' => 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $this->table .'
                 FOR EACH ROW EXECUTE PROCEDURE "RI_FKey_noaction_upd"();',
-            'oci8'  => 'CREATE TRIGGER '. $trigger_name .' AFTER INSERT ON '. $this->table .'
+            'oci8'  => 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $this->table .'
                 REFERENCING NEW AS newRow
                 FOR EACH ROW WHEN (newRow.id > 0)
                 BEGIN
@@ -501,9 +501,12 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             //test
             $def = $this->db->reverse->getTriggerDefinition($trigger_name);
             $this->assertEquals(strtoupper($trigger_name), strtoupper($def['trigger_name']), 'Error getting trigger definition (name)');
-            $this->assertEquals(strtoupper($this->table), strtoupper($def['table_name']), 'Error getting trigger definition (table)');
+            $this->assertEquals(strtoupper($this->table),  strtoupper($def['table_name']),   'Error getting trigger definition (table)');
+            $this->assertEquals('AFTER',  $def['trigger_type'], 'Error getting trigger definition (type)');
+            $this->assertEquals('UPDATE', $def['trigger_event'], 'Error getting trigger definition (event)');
             $this->assertTrue(is_string($def['trigger_body']), 'Error getting trigger definition (body)');
-            $this->assertTrue(empty($def['comment']), 'Error getting trigger definition (comment)');
+            $this->assertTrue($def['trigger_enabled'], 'Error getting trigger definition (enabled)');
+            $this->assertTrue(empty($def['comment']),  'Error getting trigger definition (comment)');
         }
 
 
