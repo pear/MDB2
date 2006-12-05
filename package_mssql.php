@@ -37,6 +37,7 @@ $notes = <<<EOT
 - do not skip id generation in nextId() when creating a sequence on demand
   because this prevents lastInsertID() from working
 - migrated to package.xml version 2
+- phpdoc fixes
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

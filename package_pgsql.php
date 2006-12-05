@@ -7,6 +7,7 @@ $version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
+- phpdoc fixes
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

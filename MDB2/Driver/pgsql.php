@@ -726,7 +726,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     /**
      * return version information about the server
      *
-     * @param string     $native  determines if the raw version string should be returned
+     * @param bool   $native  determines if the raw version string should be returned
      * @return mixed array/string with version information or MDB2 error object
      * @access public
      */
@@ -1138,7 +1138,6 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
     /**
      * Move the internal result pointer to the next available result
      *
-     * @param a valid result resource
      * @return true on success, false if there is no more result set or an error object on failure
      * @access public
      */

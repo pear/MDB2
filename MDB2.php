@@ -318,7 +318,7 @@ class MDB2
      * @param   string  classname to load
      * @param   bool    if errors should be suppressed
      *
-     * @return  bool    true success or false on failure
+     * @return  mixed   true success or PEAR_Error on failure
      *
      * @access  public
      */
@@ -548,21 +548,19 @@ class MDB2
      * callbacks etc.  Basically a wrapper for PEAR::raiseError
      * without the message string.
      *
-     * @param   mixed   int error code
+     * @param   mixed  int error code
      *
-     * @param   int     error mode, see PEAR_Error docs
+     * @param   int    error mode, see PEAR_Error docs
      *
-     * @param   mixed   If error mode is PEAR_ERROR_TRIGGER, this is the
+     * @param   mixed  If error mode is PEAR_ERROR_TRIGGER, this is the
      *                 error level (E_USER_NOTICE etc).  If error mode is
      *                 PEAR_ERROR_CALLBACK, this is the callback function,
      *                 either as a function name, or as an array of an
      *                 object and method name.  For other error modes this
      *                 parameter is ignored.
      *
-     * @param   string  Extra debug information.  Defaults to the last
+     * @param   string Extra debug information.  Defaults to the last
      *                 query and native error code.
-     *
-     * @param   object  a PEAR error object
      *
      * @return PEAR_Error instance of a PEAR Error object
      *
@@ -1811,17 +1809,16 @@ class MDB2_Driver_Common extends PEAR
      * loads a module
      *
      * @param   string  name of the module that should be loaded
-     *      (only used for error messages)
+     *                  (only used for error messages)
      * @param   string  name of the property into which the class will be loaded
-     * @param   bool    if the class to load for the module
-     *                                  is specific to the phptype
+     * @param   bool    if the class to load for the module is specific to the
+     *                  phptype
      *
      * @return  object  on success a reference to the given module is returned
-     *                and on failure a PEAR error
+     *                  and on failure a PEAR error
      *
      * @access  public
      */
-
     function &loadModule($module, $property = null, $phptype_specific = null)
     {
         if (!$property) {
@@ -2211,10 +2208,10 @@ class MDB2_Driver_Common extends PEAR
      * Log out and disconnect from the database.
      *
      * @param   bool    if the disconnect should be forced even if the
-     *                        connection is opened persistently
+     *                  connection is opened persistently
      *
      * @return  mixed   true on success, false if not connected and error
-     *                object on error
+     *                  object on error
      *
      * @access  public
      */
@@ -2478,9 +2475,8 @@ class MDB2_Driver_Common extends PEAR
      *                        the result set
      * @param   mixed   string which specifies which result class to use
      * @param   mixed   string which specifies which class to wrap results in
-     * @param   object  a result handle on success, a MDB2 error on failure
      *
-     * @return mixed   an MDB2_Result, a MDB2 error on failure
+     * @return mixed   an MDB2_Result handle on success, a MDB2 error on failure
      *
      * @access  public
      */
@@ -2588,7 +2584,7 @@ class MDB2_Driver_Common extends PEAR
     /**
      * return version information about the server
      *
-     * @param   string  determines if the raw version string should be returned
+     * @param   bool    determines if the raw version string should be returned
      *
      * @return  mixed   array with version information or row string
      *
@@ -2831,8 +2827,8 @@ class MDB2_Driver_Common extends PEAR
      *                        MDB2_PREPARE_MANIP the query is handled as a manipulation query
      * @param   mixed   key (field) value (parameter) pair for all lob placeholders
      *
-     * @return  mixed   resource handle for the prepared query on success, a MDB2
-     *        error on failure
+     * @return  mixed   resource handle for the prepared query on success, 
+     *                  a MDB2 error on failure
      *
      * @access  public
      * @see     bindParam, execute
@@ -3630,13 +3626,10 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Move the internal result pointer to the next available result
      *
-     * @param   a valid result resource
-     *
      * @return  true on success, false if there is no more result set or an error object on failure
      *
      * @access  public
      */
-
     function nextResult()
     {
         return $this->db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,

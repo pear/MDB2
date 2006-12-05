@@ -8,6 +8,7 @@ $state = 'beta';
 $notes = <<<EOT
 open todo items:
 - add ability to reference multiple results set files for different queries
+- phpdoc fixes
 EOT;
 
 $description = 'This is the Querysim MDB2 driver.';

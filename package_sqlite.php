@@ -7,6 +7,7 @@ $version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
+- phpdoc fixes
 
 note:
 open todo items:

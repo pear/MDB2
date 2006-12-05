@@ -16,6 +16,7 @@ note:
   behaviour can be disabled by setting the "emulate_database" option to false.
 - the multi_query test failes because this is not supported by ext/oci8
 - the null LOB test failes because this is not supported by Oracle
+- phpdoc fixes
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks

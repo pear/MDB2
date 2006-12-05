@@ -11,6 +11,7 @@ $notes = <<<EOT
 - internally use MDB2::classExists() wrapper instead of directly calling class_exists()
 - fixed bug #9502: query result misbehaves when the number of returned columns
   is greater than the number of passed types
+- phpdoc fixes
 
 open todo items:
 - handle autoincrement fields in alterTable()

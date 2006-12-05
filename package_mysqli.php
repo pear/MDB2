@@ -9,6 +9,7 @@ $notes = <<<EOT
 - fixed bug #9283: missing support for BINARY/VARBINARY data types (thanks to Tom Hendrikx)
 - propagate errors in getTableFieldDefinition() in the Reverse module
 - setCharset() now uses "SET NAMES" instead of "SET character_set_client"
+- phpdoc fixes
 
 open todo items:
 - use a trigger to emulate setting default now()

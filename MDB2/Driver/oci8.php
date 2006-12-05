@@ -683,7 +683,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     /**
      * return version information about the server
      *
-     * @param string     $native  determines if the raw version string should be returned
+     * @param bool   $native  determines if the raw version string should be returned
      * @return mixed array/string with version information or MDB2 error object
      * @access public
      */

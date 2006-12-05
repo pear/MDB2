@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
+- phpdoc fixes
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
