@@ -39,7 +39,8 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Paul Cooper <pgc@ucecom.com>                                 |
+// | Authors: Paul Cooper <pgc@ucecom.com>                                |
+// |          Lorenzo Alberton <l.alberton@quipo.it>                      |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -60,8 +61,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
     /**
      * Get the stucture of a field into an array
      *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $field_name     name of field that should be used in method
+     * @param string    $table       name of table that should be used in method
+     * @param string    $field_name  name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
@@ -250,6 +251,64 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         return $definition;
     }
 
+    // }}}
+    // {{{ getTriggerDefinition()
+
+    /**
+     * Get the stucture of an trigger into an array
+     *
+     * @param string    $trigger    name of trigger that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     *
+     * @TODO: add support for plsql functions and functions with args
+     */
+    function getTriggerDefinition($trigger)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT trg.tgname AS trigger_name,
+                         tbl.relname AS table_name,
+                         CASE
+                            WHEN p.proname IS NOT NULL THEN 'EXECUTE PROCEDURE ' || p.proname || '();'
+                            ELSE ''
+                         END AS trigger_body,
+                         CASE trg.tgtype & cast(2 as int2)
+                            WHEN 0 THEN 'AFTER'
+                            ELSE 'BEFORE'
+                         END AS trigger_type,
+                         CASE trg.tgtype & cast(28 as int2)
+                            WHEN 16 THEN 'UPDATE'
+                            WHEN 8 THEN 'DELETE'
+                            WHEN 4 THEN 'INSERT'
+                            WHEN 20 THEN 'INSERT, UPDATE'
+                            WHEN 28 THEN 'INSERT, UPDATE, DELETE'
+                            WHEN 24 THEN 'UPDATE, DELETE'
+                            WHEN 12 THEN 'INSERT, DELETE'
+                         END AS trigger_event,
+                         trg.tgenabled AS trigger_enabled,
+                         obj_description(trg.oid, 'pg_trigger') AS trigger_comment
+                    FROM pg_trigger trg,
+                         pg_class tbl,
+                         pg_proc p
+                   WHERE trg.tgrelid = tbl.oid
+                     AND trg.tgfoid = p.oid
+                     AND trg.tgname = ". $db->quote($trigger, 'text');
+        $types = array(
+            'trigger_name'    => 'text',
+            'table_name'      => 'text',
+            'trigger_body'    => 'text',
+            'trigger_type'    => 'text',
+            'trigger_event'   => 'text',
+            'trigger_comment' => 'text',
+            'trigger_enabled' => 'boolean',
+        );
+        return $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
+    }
+    
     // }}}
     // {{{ tableInfo()
 
