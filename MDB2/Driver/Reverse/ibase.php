@@ -124,8 +124,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     /**
      * Get the stucture of a field into an array
      *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $field_name     name of field that should be used in method
+     * @param string    $table       name of table that should be used in method
+     * @param string    $field_name  name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
@@ -382,7 +382,31 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                          RDB\$DESCRIPTION AS comment
                     FROM RDB\$TRIGGERS
                    WHERE UPPER(RDB\$TRIGGER_NAME)=$trigger";
-        return $db->queryRow();
+        $types = array(
+            'trigger_name' => 'text',
+            'table_name'   => 'text',
+            'trigger_body' => 'clob',
+            'trigger_type' => 'text',
+            'comment'      => 'text',
+        );
+
+        $def = $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($def)) {
+            return $def;
+        }
+
+        $clob = $def['trigger_body'];
+        if (!PEAR::isError($clob) && is_resource($clob)) {
+            $value = '';
+            while (!feof($clob)) {
+                $data = fread($clob, 8192);
+                $value.= $data;
+            }
+            $db->datatype->destroyLOB($clob);
+            $def['trigger_body'] = $value;
+        }
+
+        return $def;
     }
 
     // }}}
