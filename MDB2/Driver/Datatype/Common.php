@@ -128,7 +128,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      * function is not called, the type of all result set columns is assumed
      * to be text, thus leading to not perform any conversions.
      *
-     * @param string $types array variable that lists the
+     * @param array $types array variable that lists the
      *       data types to be expected in the result set columns. If this array
      *       contains less types than the number of columns that are returned
      *       in the result set, the remaining columns are assumed to be of the
@@ -218,7 +218,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     // {{{ convertResult()
 
     /**
-     * convert a value to a RDBMS indepdenant MDB2 type
+     * convert a value to a RDBMS indipendent MDB2 type
      *
      * @param mixed $value value to be converted
      * @param string $type specifies which type to convert to
@@ -1744,5 +1744,4 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         return $type;
     }
 }
-
 ?>
