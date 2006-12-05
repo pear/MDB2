@@ -115,8 +115,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
     /**
      * Get the stucture of a field into an array
      *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $field_name     name of field that should be used in method
+     * @param string    $table       name of table that should be used in method
+     * @param string    $field_name  name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
@@ -340,6 +340,46 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 'it was not specified an existing table constraint', __FUNCTION__);
         }
         return $definition;
+    }
+
+    // }}}
+    // {{{ getTriggerDefinition()
+
+    /**
+     * Get the stucture of an trigger into an array
+     *
+     * @param string    $trigger    name of trigger that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTriggerDefinition($trigger)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = 'SELECT trigger_name,
+                         event_object_table AS table_name,
+                         action_statement AS trigger_body,
+                         action_timing AS trigger_type,
+                         event_manipulation AS trigger_event
+                    FROM information_schema.triggers
+                   WHERE trigger_name = '. $db->quote($trigger, 'text');
+        $types = array(
+            'trigger_name'    => 'text',
+            'table_name'      => 'text',
+            'trigger_body'    => 'text',
+            'trigger_type'    => 'text',
+            'trigger_event'   => 'text',
+        );
+        $def = $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($def)) {
+            return $def;
+        }
+        $def['trigger_comment'] = '';
+        $def['trigger_enabled'] = true;
+        return $def;
     }
 
     // }}}
