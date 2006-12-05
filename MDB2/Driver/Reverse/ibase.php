@@ -378,16 +378,36 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $query = "SELECT RDB\$TRIGGER_NAME AS trigger_name,
                          RDB\$RELATION_NAME AS table_name,
                          RDB\$TRIGGER_SOURCE AS trigger_body,
-                         RDB\$TRIGGER_TYPE AS trigger_type,
-                         RDB\$DESCRIPTION AS comment
+                         CASE RDB\$TRIGGER_TYPE
+                            WHEN 1 THEN 'BEFORE'
+                            WHEN 2 THEN 'AFTER'
+                            WHEN 3 THEN 'BEFORE'
+                            WHEN 4 THEN 'AFTER'
+                            WHEN 5 THEN 'BEFORE'
+                            WHEN 6 THEN 'AFTER'
+                         END AS trigger_type,
+                         CASE RDB\$TRIGGER_TYPE
+                            WHEN 1 THEN 'INSERT'
+                            WHEN 2 THEN 'INSERT'
+                            WHEN 3 THEN 'UPDATE'
+                            WHEN 4 THEN 'UPDATE'
+                            WHEN 5 THEN 'DELETE'
+                            WHEN 6 THEN 'DELETE'
+                         END AS trigger_event,
+                         CASE RDB\$TRIGGER_INACTIVE
+                            WHEN 1 THEN 0 ELSE 1
+                         END AS trigger_enabled,
+                         RDB\$DESCRIPTION AS trigger_comment
                     FROM RDB\$TRIGGERS
                    WHERE UPPER(RDB\$TRIGGER_NAME)=$trigger";
         $types = array(
-            'trigger_name' => 'text',
-            'table_name'   => 'text',
-            'trigger_body' => 'clob',
-            'trigger_type' => 'text',
-            'comment'      => 'text',
+            'trigger_name'    => 'text',
+            'table_name'      => 'text',
+            'trigger_body'    => 'clob',
+            'trigger_type'    => 'text',
+            'trigger_event'   => 'text',
+            'trigger_comment' => 'text',
+            'trigger_enabled' => 'boolean',
         );
 
         $def = $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
