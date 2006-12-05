@@ -12,6 +12,7 @@ $notes = <<<EOT
 - fixed bug #9502: query result misbehaves when the number of returned columns
   is greater than the number of passed types
 - phpdoc fixes
+- added tests
 
 open todo items:
 - handle autoincrement fields in alterTable()

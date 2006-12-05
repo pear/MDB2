@@ -345,6 +345,9 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $result = $this->db->reverse->getTableIndexDefinition($this->table, $constraint_name);
             $this->assertTrue(PEAR::isError($result), 'Error listing index definition, this is a CONSTRAINT');
         }
+
+        //test index created WITHOUT using MDB2 (i.e. without the "_idx" suffix)
+        //@TODO (MDB2 should provide a fallback mechanism)
     }
 
     /**
@@ -451,6 +454,62 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         //cleanup
         $result = $this->db->manager->dropSequence($sequence);
         $this->assertFalse(PEAR::isError($result), 'Error dropping a sequence');
+    }
+
+    /**
+     * Test testGetTriggerDefinition($trigger)
+     */
+    function testGetTriggerDefinition() {
+        //setup
+        $trigger_name = 'test_trigger';
+        $trigger_stmts = array(
+            'ibase' => 'CREATE OR ALTER TRIGGER '. $trigger_name .' FOR '. $this->table .'
+                AFTER UPDATE AS
+                BEGIN
+                    NEW.somedescription = OLD.somename;
+                END;',
+            'mysql' => 'CREATE TRIGGER '. $trigger_name .' BEFORE INSERT ON '. $this->table .'
+                FOR EACH ROW
+                BEGIN
+                    UPDATE '. $this->table .' SET somedescription = OLD.somename WHERE id = NEW.id;
+                END;',
+            'pgsql' => 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $this->table .'
+                FOR EACH ROW EXECUTE PROCEDURE "RI_FKey_noaction_upd"();',
+            'oci8'  => 'CREATE TRIGGER '. $trigger_name .' AFTER INSERT ON '. $this->table .'
+                REFERENCING NEW AS newRow
+                FOR EACH ROW WHEN (newRow.id > 0)
+                BEGIN
+                    UPDATE '. $this->table .' SET (:newRow.somedescription = :newRow.somename);
+                END '. $trigger_name .';
+                .
+                run;',
+            'sqlite' => 'CREATE TRIGGER '. $trigger_name .' IF NOT EXISTS test_trigger UPDATE ON '. $this->table .'
+                BEGIN
+                    UPDATE '. $this->table .' SET somedescription = new.somename WHERE id = old.id;
+                END;',
+        );
+
+        if (!array_key_exists($this->db->phptype, $trigger_stmts)) {
+            //not implemented or not supported
+            return;
+        }
+
+        $result = $this->db->standaloneQuery($trigger_stmts[$this->db->phptype]);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Cannot create trigger: '.$result->getMessage());
+        } else {
+            //test
+            $def = $this->db->reverse->getTriggerDefinition($trigger_name);
+            $this->assertEquals(strtoupper($trigger_name), strtoupper($def['trigger_name']), 'Error getting trigger definition (name)');
+            $this->assertEquals(strtoupper($this->table), strtoupper($def['table_name']), 'Error getting trigger definition (table)');
+            $this->assertTrue(is_string($def['trigger_body']), 'Error getting trigger definition (body)');
+            $this->assertTrue(empty($def['comment']), 'Error getting trigger definition (comment)');
+        }
+
+
+        //cleanup
+        $result = $this->db->standaloneQuery('DROP TRIGGER test_trigger');
+        $this->assertFalse(PEAR::isError($result), 'Error dropping the trigger');
     }
 }
 ?>
