@@ -79,7 +79,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      * @param string    $field     name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure.
      *          The returned array contains an array for each field definition,
-     *          with (some of) these indices:
+     *          with all or some of these indices, depending on the field data type:
      *          [notnull] [nativetype] [length] [fixed] [default] [type] [mdb2type]
      * @access public
      */
@@ -211,6 +211,20 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *
      * @param string    $trigger    name of trigger that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
+     *          The returned array has this structure:
+     *          <pre>
+     *          array (
+     *              [trigger_name]    => 'trigger name',
+     *              [table_name]      => 'table name',
+     *              [trigger_body]    => 'trigger body definition',
+     *              [trigger_type]    => 'BEFORE' | 'AFTER',
+     *              [trigger_event]   => 'INSERT' | 'UPDATE' | 'DELETE'
+     *                  //or comma separated list of multiple events, when supported
+     *              [trigger_enabled] => true|false
+     *              [trigger_comment] => 'trigger comment',
+     *          );
+     *          </pre>
+     *
      * @access public
      */
     function getTriggerDefinition($trigger)
