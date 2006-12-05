@@ -61,8 +61,8 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
     /**
      * Get the stucture of a field into an array
      *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $field_name     name of field that should be used in method
+     * @param string    $table       name of table that should be used in method
+     * @param string    $field_name  name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
@@ -287,6 +287,56 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $definition = array('start' => $start);
         }
         return $definition;
+    }
+
+    // }}}
+    // {{{ getTriggerDefinition()
+
+    /**
+     * Get the stucture of an trigger into an array
+     *
+     * @param string    $trigger    name of trigger that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     *
+     * @TODO: test and fix me!
+     */
+    function getTriggerDefinition($trigger)
+    {
+        //disable the method until it's properly implemented and tested
+        return parent::getTriggerDefinition($trigger);
+
+
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = 'SELECT trigger_name,
+                         table_name,
+                         trigger_body,
+
+                         // which one of these two returns "UPDATE"|"INSERT"|"DELETE"
+                         // and which "BEFORE"|"AFTER" ???
+                         trigger_type, 
+                         triggering_event trigger_event,
+
+                         // this field should be combined with the body (?)
+                         when_clause,
+                         
+                         description trigger_comment
+                    FROM user_triggers
+                   WHERE trigger_name = '. $db->quote($trigger, 'text');
+        $types = array(
+            'trigger_name'    => 'text',
+            'table_name'      => 'text',
+            'trigger_body'    => 'text',
+            'trigger_type'    => 'text',
+            'trigger_event'   => 'text',
+            'trigger_comment' => 'text',
+            'trigger_enabled' => 'boolean',
+        );
+        return $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
     }
 
     // }}}
