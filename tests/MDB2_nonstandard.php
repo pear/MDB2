@@ -50,6 +50,9 @@ class MDB2_nonstandard {
     //contains the PHPUnit_TestCase object
     var $test;
     
+    /**
+     * Returns a driver-specific object
+     */
     function factory($db, $test) {
         $classname = 'MDB2_nonstandard_'.$db->phptype;
         include_once $classname.'.php';
@@ -63,11 +66,17 @@ class MDB2_nonstandard {
             'not capable', __FUNCTION__);
     }
     
+    /**
+     * Create a TRIGGER
+     */
     function createTrigger($trigger_name, $table_name) {
         return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
             'not capable', __FUNCTION__);
     }
 
+    /**
+     * Check if getTriggerDefinition() returns the correct definition for the trigger
+     */
     function checkTrigger($trigger_name, $table_name, $def) {
         $this->test->assertEquals(strtoupper($trigger_name), strtoupper($def['trigger_name']), 'Error getting trigger definition (name)');
         $this->test->assertEquals(strtoupper($table_name),  strtoupper($def['table_name']),   'Error getting trigger definition (table)');
@@ -78,10 +87,29 @@ class MDB2_nonstandard {
         $this->test->assertTrue(empty($def['comment']),  'Error getting trigger definition (comment)');
     }
 
+    /**
+     * Drop a TRIGGER
+     */
     function dropTrigger($trigger_name, $table_name) {
         return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
             'not capable', __FUNCTION__);
     }
-}
+    
+    /**
+     * Create a VIEW
+     */
+    function createView($view_name, $table_name) {
+        $query = 'CREATE VIEW '. $this->db->quoteIdentifier($view_name)
+                .' (id) AS SELECT id FROM '
+                . $this->db->quoteIdentifier($table_name) .' WHERE id > 1';
+        return $this->db->exec($query);
+    }
 
+    /**
+     * Drop a VIEW
+     */
+    function dropView($view_name) {
+        return $this->db->exec('DROP VIEW '.$view_name);
+    }
+}
 ?>
