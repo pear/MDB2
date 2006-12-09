@@ -53,7 +53,7 @@ class MDB2_nonstandard_sqlite extends MDB2_nonstandard {
         $query = 'CREATE TRIGGER '. $trigger_name .' IF NOT EXISTS test_trigger UPDATE ON '. $table_name .'
                   BEGIN
                     '. $this->trigger_body .'
-                  END;',
+                  END;';
         return $this->db->standaloneQuery($query);
     }
 
@@ -62,7 +62,7 @@ class MDB2_nonstandard_sqlite extends MDB2_nonstandard {
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
     }
 
-    function dropTrigger($trigger_name) {
+    function dropTrigger($trigger_name, $table_name) {
         return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name);
     }
 }

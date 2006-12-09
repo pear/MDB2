@@ -549,7 +549,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
      */
     function testListTableTriggers() {
         //setup
-        $trigger_name = 'test_trigger';
+        $trigger_name = 'test_newtrigger';
 
         include_once 'MDB2_nonstandard.php';
         $nonstd =& MDB2_nonstandard::factory($this->db, $this);
@@ -569,7 +569,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $this->assertTrue(in_array($trigger_name, $triggers), 'Error: trigger not found');
 
         //cleanup
-        $result = $nonstd->dropTrigger($trigger_name);
+        $result = $nonstd->dropTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error dropping the trigger: '.$result->getMessage());
             return;

@@ -61,7 +61,7 @@ END';
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
     }
 
-    function dropTrigger($trigger_name) {
+    function dropTrigger($trigger_name, $table_name) {
         return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name);
     }
 }

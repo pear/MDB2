@@ -481,7 +481,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $nonstd->checkTrigger($trigger_name, $this->table, $def);
 
         //cleanup
-        $result = $nonstd->dropTrigger($trigger_name);
+        $result = $nonstd->dropTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error dropping the trigger: '.$result->getMessage());
             return;

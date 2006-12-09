@@ -76,11 +76,9 @@ class MDB2_nonstandard {
         $this->test->assertTrue(is_string($def['trigger_body']), 'Error getting trigger definition (body)');
         $this->test->assertTrue($def['trigger_enabled'], 'Error getting trigger definition (enabled)');
         $this->test->assertTrue(empty($def['comment']),  'Error getting trigger definition (comment)');
-        
-        //echo '<pre>';print_r($def);echo '</pre>';
     }
 
-    function dropTrigger($name) {
+    function dropTrigger($trigger_name, $table_name) {
         return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
             'not capable', __FUNCTION__);
     }
