@@ -8,6 +8,7 @@ $state = 'stable';
 $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module
+- implemented listTableTriggers() in the Manager module
 - phpdoc fixes
 
 open todo items:
