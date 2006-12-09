@@ -415,7 +415,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->queryCol('SELECT DISTINCT USER FROM USER');
+        return $db->queryCol('SELECT DISTINCT USER FROM mysql.USER');
     }
 
     // }}}
