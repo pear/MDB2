@@ -640,7 +640,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
         $query = 'SELECT DISTINCT RDB$VIEW_NAME FROM RDB$VIEW_RELATIONS';
         $table = $db->quote(strtoupper($table), 'text');
-        $query .= "WHERE UPPER(RDB\$RELATION_NAME)=$table";
+        $query .= " WHERE UPPER(RDB\$RELATION_NAME)=$table";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -701,9 +701,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                       OR RDB$SYSTEM_FLAG = 0';
         if (!is_null($table)) {
             $table = $db->quote(strtoupper($table), 'text');
-            $query .= "WHERE UPPER(RDB\$RELATION_NAME)=$table";
+            $query .= " AND UPPER(RDB\$RELATION_NAME)=$table";
         }
-        $result = $db->queryCol();
+        $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
         }

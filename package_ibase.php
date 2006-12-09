@@ -8,6 +8,7 @@ $state = 'stable';
 $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
 - fixed getTriggerDefinition() in the Reverse module
+- fixed listTableTriggers() in the Manager module
 - phpdoc fixes
 EOT;
 
