@@ -45,11 +45,12 @@
 
 class MDB2_nonstandard_pgsql extends MDB2_nonstandard {
 
-    var $trigger_body = 'EXECUTE PROCEDURE test_trigger_func();';
+    var $trigger_body = '';
 
     function createTrigger($trigger_name, $table_name) {
+        $this->trigger_body = 'EXECUTE PROCEDURE '.$trigger_name.'_func();';
         $table_name = $this->db->quoteIdentifier($table_name);
-        $sql = 'CREATE OR REPLACE FUNCTION test_trigger_func() RETURNS opaque AS \'
+        $sql = 'CREATE OR REPLACE FUNCTION '.$trigger_name.'_func() RETURNS trigger AS \'
                 DECLARE
                     id_number INTEGER;
                 BEGIN
@@ -57,14 +58,14 @@ class MDB2_nonstandard_pgsql extends MDB2_nonstandard {
                     RETURN NEW;
                 END;
                 \' LANGUAGE \'plpgsql\';';
-        $res = $this->db->standaloneQuery($sql);
+        $res = $this->db->exec($sql);
         if (PEAR::isError($res)) {
             return $res;
         }
     
         $query = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
                   FOR EACH ROW ' .$this->trigger_body;
-        return $this->db->standaloneQuery($query);
+        return $this->db->exec($query);
     }
 
     function checkTrigger($trigger_name, $table_name, $def) {
@@ -72,8 +73,8 @@ class MDB2_nonstandard_pgsql extends MDB2_nonstandard {
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
     }
 
-    function dropTrigger($trigger_name) {
-        return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name);
+    function dropTrigger($trigger_name, $table_name) {
+        return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name .' ON '. $table_name);
     }
 }
 
