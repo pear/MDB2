@@ -545,16 +545,17 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
     }
 
     /**
-     * Test listTableTriggers($trigger)
+     * Test listTableTriggers($table)
      */
     function testListTableTriggers() {
         //setup
         $trigger_name = 'test_newtrigger';
+        //var_dump($this->db->manager->listTables());
 
         include_once 'MDB2_nonstandard.php';
         $nonstd =& MDB2_nonstandard::factory($this->db, $this);
         if (PEAR::isError($nonstd)) {
-            $this->assertTrue(false, 'Cannot create trigger: '.$nonstd->getMessage());
+            $this->assertTrue(false, 'Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
             return;
         }
 
@@ -566,13 +567,60 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
 
         //test
         $triggers = $this->db->manager->listTableTriggers($this->table);
-        $this->assertTrue(in_array($trigger_name, $triggers), 'Error: trigger not found');
+        if (PEAR::isError($triggers)) {
+            $this->assertTrue(false, 'Error listing the table triggers: '.$triggers->getMessage());
+        } else {
+            $this->assertTrue(in_array($trigger_name, $triggers), 'Error: trigger not found');
+            //check that only the triggers referencing the given table are returned
+            $triggers = $this->db->manager->listTableTriggers('fake_table');
+            $this->assertFalse(in_array($trigger_name, $triggers), 'Error: trigger found');
+        }
+
 
         //cleanup
         $result = $nonstd->dropTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error dropping the trigger: '.$result->getMessage());
+        }
+    }
+
+    /**
+     * Test listTableViews($table)
+     */
+    function testListTableViews() {
+        //setup
+        $view_name = 'test_newview';
+        //var_dump($this->db->manager->listTables());
+
+        include_once 'MDB2_nonstandard.php';
+        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
+        if (PEAR::isError($nonstd)) {
+            $this->assertTrue(false, 'Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
             return;
+        }
+
+        $result = $nonstd->createView($view_name, $this->table);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Cannot create view: '.$result->getMessage());
+            return;
+        }
+
+        //test
+        $views = $this->db->manager->listTableViews($this->table);
+        if (PEAR::isError($views)) {
+            $this->assertTrue(false, 'Error listing the table views: '.$views->getMessage());
+        } else {
+            $this->assertTrue(in_array($view_name, $views), 'Error: view not found');
+            //check that only the views referencing the given table are returned
+            $views = $this->db->manager->listTableViews('fake_table');
+            $this->assertFalse(in_array($view_name, $views), 'Error: view found');
+        }
+
+
+        //cleanup
+        $result = $nonstd->dropView($view_name);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error dropping the view: '.$result->getMessage());
         }
     }
 }
