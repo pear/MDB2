@@ -53,7 +53,7 @@ END';
     function createTrigger($trigger_name, $table_name) {
         $query = 'CREATE OR ALTER TRIGGER '. $trigger_name .' FOR '. $table_name .'
                   AFTER UPDATE '. $this->trigger_body .';';
-        return $this->db->standaloneQuery($query);
+        return $this->db->exec($query);
     }
 
     function checkTrigger($trigger_name, $table_name, $def) {
@@ -62,7 +62,7 @@ END';
     }
 
     function dropTrigger($trigger_name, $table_name) {
-        return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name);
+        return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
 }
 

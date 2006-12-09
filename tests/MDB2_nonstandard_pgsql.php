@@ -74,7 +74,7 @@ class MDB2_nonstandard_pgsql extends MDB2_nonstandard {
     }
 
     function dropTrigger($trigger_name, $table_name) {
-        return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name .' ON '. $table_name);
+        return $this->db->exec('DROP TRIGGER '.$trigger_name .' ON '. $table_name);
     }
 }
 

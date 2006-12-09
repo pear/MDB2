@@ -53,7 +53,7 @@ class MDB2_nonstandard_mysql extends MDB2_nonstandard {
 END';
         $query = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
                   FOR EACH ROW '. $this->trigger_body .';';
-        return $this->db->standaloneQuery($query);
+        return $this->db->exec($query);
     }
 
     function checkTrigger($trigger_name, $table_name, $def) {
@@ -62,7 +62,7 @@ END';
     }
 
     function dropTrigger($trigger_name, $table_name) {
-        return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name);
+        return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
 }
 

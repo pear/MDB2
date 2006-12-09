@@ -58,7 +58,7 @@ class MDB2_nonstandard_oci8 extends MDB2_nonstandard {
                   END '. $trigger_name .';
                   .
                   run;';
-        return $this->db->standaloneQuery($query);
+        return $this->db->exec($query);
     }
 
     function checkTrigger($trigger_name, $table_name, $def) {
@@ -67,7 +67,7 @@ class MDB2_nonstandard_oci8 extends MDB2_nonstandard {
     }
 
     function dropTrigger($trigger_name, $table_name) {
-        return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name);
+        return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
 }
 
