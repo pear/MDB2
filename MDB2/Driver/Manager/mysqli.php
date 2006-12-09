@@ -441,7 +441,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             $table = $db->quote($table, 'text');
             $query .= " LIKE $table";
         }
-        $result = $db->queryCol();
+        $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
         }
