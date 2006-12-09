@@ -543,5 +543,37 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $this->assertFalse(PEAR::isError($result), 'Error dropping a sequence');
         $this->assertFalse(in_array($seq_name, $this->db->manager->listSequences()), 'Error listing sequences');
     }
+
+    /**
+     * Test listTableTriggers($trigger)
+     */
+    function testListTableTriggers() {
+        //setup
+        $trigger_name = 'test_trigger';
+
+        include_once 'MDB2_nonstandard.php';
+        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
+        if (PEAR::isError($nonstd)) {
+            $this->assertTrue(false, 'Cannot create trigger: '.$nonstd->getMessage());
+            return;
+        }
+
+        $result = $nonstd->createTrigger($trigger_name, $this->table);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Cannot create trigger: '.$result->getMessage());
+            return;
+        }
+
+        //test
+        $triggers = $this->db->manager->listTableTriggers($this->table);
+        $this->assertTrue(in_array($trigger_name, $triggers), 'Error: trigger not found');
+
+        //cleanup
+        $result = $nonstd->dropTrigger($trigger_name);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error dropping the trigger: '.$result->getMessage());
+            return;
+        }
+    }
 }
 ?>
