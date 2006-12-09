@@ -281,7 +281,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
             $this->assertTrue(false, 'Error executing query: '.$result->getMessage() .' - '. $result->getUserInfo());
         } else {
             $this->assertTrue(is_bool($result['subscribed']));
-            $this->assertTrue(is_int($result['user_id']));
+            $this->assertTrue(is_numeric($result['user_id']));
             $this->assertTrue(is_float($result['weight']));
             $this->assertFalse(is_bool($result['user_name']));
         }
