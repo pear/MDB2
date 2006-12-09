@@ -45,9 +45,23 @@
 
 class MDB2_nonstandard_pgsql extends MDB2_nonstandard {
 
-    $trigger_body = 'EXECUTE PROCEDURE RI_FKey_noaction_upd();';
+    var $trigger_body = 'EXECUTE PROCEDURE test_trigger_func();';
 
     function createTrigger($trigger_name, $table_name) {
+        $table_name = $this->db->quoteIdentifier($table_name);
+        $sql = 'CREATE OR REPLACE FUNCTION test_trigger_func() RETURNS opaque AS \'
+                DECLARE
+                    id_number INTEGER;
+                BEGIN
+                    SELECT INTO id_number id FROM '. $table_name .' WHERE id = NEW.id;
+                    RETURN NEW;
+                END;
+                \' LANGUAGE \'plpgsql\';';
+        $res = $this->db->standaloneQuery($sql);
+        if (PEAR::isError($res)) {
+            return $res;
+        }
+    
         $query = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
                   FOR EACH ROW ' .$this->trigger_body;
         return $this->db->standaloneQuery($query);
