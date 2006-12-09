@@ -457,62 +457,35 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
     }
 
     /**
-     * Test testGetTriggerDefinition($trigger)
+     * Test getTriggerDefinition($trigger)
      */
     function testGetTriggerDefinition() {
         //setup
         $trigger_name = 'test_trigger';
-        $trigger_stmts = array(
-            'ibase' => 'CREATE OR ALTER TRIGGER '. $trigger_name .' FOR '. $this->table .'
-                AFTER UPDATE AS
-                BEGIN
-                    NEW.somedescription = OLD.somename;
-                END;',
-            'mysql' => 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $this->table .'
-                FOR EACH ROW
-                BEGIN
-                    UPDATE '. $this->table .' SET somedescription = OLD.somename WHERE id = NEW.id;
-                END;',
-            'pgsql' => 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $this->table .'
-                FOR EACH ROW EXECUTE PROCEDURE "RI_FKey_noaction_upd"();',
-            'oci8'  => 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $this->table .'
-                REFERENCING NEW AS newRow
-                FOR EACH ROW WHEN (newRow.id > 0)
-                BEGIN
-                    UPDATE '. $this->table .' SET (:newRow.somedescription = :newRow.somename);
-                END '. $trigger_name .';
-                .
-                run;',
-            'sqlite' => 'CREATE TRIGGER '. $trigger_name .' IF NOT EXISTS test_trigger UPDATE ON '. $this->table .'
-                BEGIN
-                    UPDATE '. $this->table .' SET somedescription = new.somename WHERE id = old.id;
-                END;',
-        );
 
-        if (!array_key_exists($this->db->phptype, $trigger_stmts)) {
-            //not implemented or not supported
+        include_once 'MDB2_nonstandard.php';
+        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
+        if (PEAR::isError($nonstd)) {
+            $this->assertTrue(false, 'Cannot create trigger: '.$nonstd->getMessage());
             return;
         }
 
-        $result = $this->db->standaloneQuery($trigger_stmts[$this->db->phptype]);
+        $result = $nonstd->createTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Cannot create trigger: '.$result->getMessage());
-        } else {
-            //test
-            $def = $this->db->reverse->getTriggerDefinition($trigger_name);
-            $this->assertEquals(strtoupper($trigger_name), strtoupper($def['trigger_name']), 'Error getting trigger definition (name)');
-            $this->assertEquals(strtoupper($this->table),  strtoupper($def['table_name']),   'Error getting trigger definition (table)');
-            $this->assertEquals('AFTER',  $def['trigger_type'], 'Error getting trigger definition (type)');
-            $this->assertEquals('UPDATE', $def['trigger_event'], 'Error getting trigger definition (event)');
-            $this->assertTrue(is_string($def['trigger_body']), 'Error getting trigger definition (body)');
-            $this->assertTrue($def['trigger_enabled'], 'Error getting trigger definition (enabled)');
-            $this->assertTrue(empty($def['comment']),  'Error getting trigger definition (comment)');
+            return;
         }
 
+        //test
+        $def = $this->db->reverse->getTriggerDefinition($trigger_name);
+        $nonstd->checkTrigger($trigger_name, $this->table, $def);
 
         //cleanup
-        $result = $this->db->standaloneQuery('DROP TRIGGER test_trigger');
-        $this->assertFalse(PEAR::isError($result), 'Error dropping the trigger');
+        $result = $nonstd->dropTrigger($trigger_name);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error dropping the trigger: '.$result->getMessage());
+            return;
+        }
     }
 }
 ?>
