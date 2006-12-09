@@ -310,7 +310,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             reset($types);
             foreach (array_keys($sorted_types) as $k) {
                 if (is_null($sorted_types[$k])) {
-                    $sorted_types[$k] = next($types);
+                    $sorted_types[$k] = current($types);
+                    next($types);
                 }
             }
         }
