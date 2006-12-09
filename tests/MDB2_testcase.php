@@ -113,22 +113,24 @@ class MDB2_TestCase extends PHPUnit_TestCase {
     }
 
     function verifyFetchedValues(&$result, $rownum, $data) {
-        $row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
+        //$row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
+        $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC, $rownum);
         if (!is_array($row)) {
             $this->assertTrue(false, 'Error result row is not an array');
             return;
         }
-        reset($row);
+        //reset($row);
         foreach ($this->fields as $field => $type) {
-            $value = current($row);
+            //$value = current($row);
+            $value = $row[$field];
             if ($type == 'float') {
                 $delta = 0.0000000001;
             } else {
                 $delta = 0;
             }
 
-            $this->assertEquals($value, $data[$field], "the value retrieved for field \"$field\" doesn't match what was stored into the rownum $rownum", $delta);
-            next($row);
+            $this->assertEquals($data[$field], $value, "the value retrieved for field \"$field\" doesn't match what was stored into the rownum $rownum", $delta);
+            //next($row);
         }
     }
 
