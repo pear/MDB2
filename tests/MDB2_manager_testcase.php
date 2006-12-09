@@ -550,7 +550,6 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
     function testListTableTriggers() {
         //setup
         $trigger_name = 'test_newtrigger';
-        //var_dump($this->db->manager->listTables());
 
         include_once 'MDB2_nonstandard.php';
         $nonstd =& MDB2_nonstandard::factory($this->db, $this);
@@ -590,7 +589,6 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
     function testListTableViews() {
         //setup
         $view_name = 'test_newview';
-        //var_dump($this->db->manager->listTables());
 
         include_once 'MDB2_nonstandard.php';
         $nonstd =& MDB2_nonstandard::factory($this->db, $this);
@@ -621,6 +619,53 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $result = $nonstd->dropView($view_name);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error dropping the view: '.$result->getMessage());
+        }
+    }
+
+    /**
+     * Test listViews()
+     */
+    function testListViews() {
+        //setup
+        $view_name = 'test_brandnewview';
+
+        include_once 'MDB2_nonstandard.php';
+        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
+        if (PEAR::isError($nonstd)) {
+            $this->assertTrue(false, 'Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
+            return;
+        }
+
+        $result = $nonstd->createView($view_name, $this->table);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Cannot create view: '.$result->getMessage());
+            return;
+        }
+
+        //test
+        $views = $this->db->manager->listViews();
+        if (PEAR::isError($views)) {
+            $this->assertTrue(false, 'Error listing the views: '.$views->getMessage());
+        } else {
+            $this->assertTrue(in_array($view_name, $views), 'Error: view not found');
+        }
+
+        //cleanup
+        $result = $nonstd->dropView($view_name);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error dropping the view: '.$result->getMessage());
+        }
+    }
+
+    /**
+     * Test listUsers()
+     */
+    function testListUsers() {
+        $users = $this->db->manager->listUsers();
+        if (PEAR::isError($users)) {
+            $this->assertTrue(false, 'Error listing the users: '.$users->getMessage());
+        } else {
+            $this->assertTrue(in_array($this->db->dsn['username'], $users), 'Error: user not found');
         }
     }
 }
