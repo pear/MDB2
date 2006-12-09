@@ -369,7 +369,10 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'SELECT viewname FROM pg_views';
+        $query = "SELECT viewname
+                    FROM pg_views
+                   WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
+                     AND viewname !~ '^pg_'";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;

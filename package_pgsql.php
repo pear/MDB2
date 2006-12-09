@@ -9,6 +9,7 @@ $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module
 - implemented listTableTriggers() in the Manager module
+- don't show catalog views in listViews() in the Manager module
 - phpdoc fixes
 
 open todo items:
