@@ -419,6 +419,38 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ listTableTriggers()
+
+    /**
+     * list all triggers in the database that reference a given table
+     *
+     * @param string table for which all referenced triggers should be found
+     * @return mixed array of trigger names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableTriggers($table = null)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = 'SHOW TRIGGERS';
+        if (!is_null($table)) {
+            $table = $db->quote($table, 'text');
+            $query .= " LIKE $table";
+        }
+        $result = $db->queryCol();
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
     // {{{ listTables()
 
     /**
