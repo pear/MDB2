@@ -79,11 +79,55 @@ class MDB2_TestCase extends PHPUnit_TestCase {
             'access_time' => 'time',
             'approved' => 'timestamp',
         );
+        $this->field_declarations = array(
+            'user_name' => array(
+                'type'   => 'text',
+                'length' => 12,
+                'fixed'  => false,
+            ),
+            'user_password' => array(
+                'type'   => 'text',
+                'length' => 8,
+                'fixed'  => true,
+            ),
+            'subscribed' => array(
+                'type' => 'boolean',
+            ),
+            'user_id' => array(
+                'type'     => 'integer',
+                'unsigned' => true,
+                'notnull'  => true,
+                'default'  => 0,
+            ),
+            'quota' => array(
+                'type' => 'decimal',
+            ),
+            'weight' => array(
+                'type' => 'float',
+            ),
+            'access_date' => array(
+                'type' => 'date',
+            ),
+            'access_time' => array(
+                'type' => 'time',
+            ),
+            'approved' => array(
+                'type' => 'timestamp',
+            ),
+        );
         $this->clearTables();
+        if (!$this->tableExists('users')) {
+            $this->db->loadModule('Manager', null, true);
+            $this->db->manager->createTable('users', $this->field_declarations);
+        }
     }
 
     function tearDown() {
         $this->clearTables();
+        if ($this->tableExists('users')) {
+            $this->db->loadModule('Manager', null, true);
+            $this->db->manager->dropTable('users');
+        }
         $this->db->popExpect();
         unset($this->dsn);
         if (!PEAR::isError($this->db)) {
