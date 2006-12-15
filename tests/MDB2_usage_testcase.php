@@ -214,6 +214,76 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             }
         }
         $result->free();
+
+        //test $rekey=true
+        $result =& $this->db->query('SELECT user_id, user_name FROM users', $this->fields);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error during query');
+        }
+        $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC, true);
+        if (PEAR::isError($values)) {
+            $this->assertTrue(false, 'Error fetching the result set');
+        } else {
+            for ($i=0; $i<$total_rows; $i++) {
+                list($id, $name) = each($values);
+                $this->assertEquals($id,   $data[$i]['user_id'],   'Row #'.$i.' ["user_id"]');
+                $this->assertEquals($name, $data[$i]['user_name'], 'Row #'.$i.' ["user_name"]');
+            }
+        }
+        $result->free();
+
+
+        //test $rekey=true, $force_array=true
+        $result =& $this->db->query('SELECT user_id, user_name FROM users', $this->fields);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error during query');
+        }
+        $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC, true, true);
+        if (PEAR::isError($values)) {
+            $this->assertTrue(false, 'Error fetching the result set');
+        } else {
+            for ($i=0; $i<$total_rows; $i++) {
+                list($id, $value) = each($values);
+                $this->assertEquals($id,                 $data[$i]['user_id'],   'Row #'.$i.' ["user_id"]');
+                $this->assertEquals($value['user_name'], $data[$i]['user_name'], 'Row #'.$i.' ["user_name"]');
+            }
+        }
+        $result->free();
+
+        //test $rekey=true, $force_array=true, $group=true
+        $result =& $this->db->query('SELECT user_password, user_name FROM users', $this->fields);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error during query');
+        }
+        $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC, true, true, true);
+        if (PEAR::isError($values)) {
+            $this->assertTrue(false, 'Error fetching the result set');
+        } else {
+            //all the records have the same user_password value
+            $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
+            $values = $values[$data[0]['user_password']];
+            for ($i=0; $i<$total_rows; $i++) {
+                $this->assertEquals($values[$i]['user_name'], $data[$i]['user_name'], 'Row #'.$i.' ["user_name"]');
+            }
+        }
+        $result->free();
+
+        //test $rekey=true, $force_array=true, $group=false (with non unique key)
+        $result =& $this->db->query('SELECT user_password, user_name FROM users', $this->fields);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error during query');
+        }
+        $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC, true, true, false);
+        if (PEAR::isError($values)) {
+            $this->assertTrue(false, 'Error fetching the result set');
+        } else {
+            //all the records have the same user_password value, they are overwritten
+            $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
+            $key = $data[0]['user_password'];
+            $this->assertEquals(1, count($values[$key]), 'Error: incorrect number of returned rows');
+            $this->assertEquals($values[$key]['user_name'], $data[4]['user_name']);
+        }
+        $result->free();
     }
 
     /**
