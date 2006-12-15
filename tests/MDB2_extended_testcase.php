@@ -164,34 +164,81 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $result = $this->db->getAssoc($query, array('integer', 'text'));
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getAssoc(): '.$result->getMessage());
+        } else {
+            $this->assertTrue(array_key_exists($data['user_id'], $result), 'Unexpected returned key');
+            $this->assertEquals($data['user_name'], $result[$data['user_id']], 'Unexpected returned value');
         }
-        $this->assertTrue(array_key_exists($data['user_id'], $result), 'Unexpected returned key');
-        $this->assertEquals($data['user_name'], $result[$data['user_id']], 'Unexpected returned value');
-
-        //test getAssoc() with $force_array=true
+        
+        //add another record to the db
         $data2 = $this->getSampleData(4321);
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data2));
         $stmt->free();
-        
+
+        //test getAssoc() with $force_array=true
         $query = 'SELECT user_id, user_name FROM users ORDER BY user_id';
-        $values = $this->db->getAssoc($query, array('integer', 'text'), null, MDB2_FETCHMODE_ASSOC, true);
+        $values = $this->db->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, true);
         if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
         } else {
             $this->assertEquals(2, count($values), 'Error: incorrect number of returned rows');
-            list($id, $name) = each($values);
-            $this->assertEquals($data['user_id'],   $id,   'Unexpected returned value');
-            $this->assertEquals($data['user_name'], $name, 'Unexpected returned value');
-            list($id, $name) = each($values);
-            $this->assertEquals($data2['user_id'],   $id,   'Unexpected returned value');
-            $this->assertEquals($data2['user_name'], $name, 'Unexpected returned value');
+            list($id, $value) = each($values);
+            $this->assertEquals($data['user_id'],   $id,                 'Unexpected returned value');
+            $this->assertEquals($data['user_name'], $value['user_name'], 'Unexpected returned value');
+            list($id, $value) = each($values);
+            $this->assertEquals($data2['user_id'],   $id,                 'Unexpected returned value');
+            $this->assertEquals($data2['user_name'], $value['user_name'], 'Unexpected returned value');
+        }
+
+
+        //test getAssoc() with $force_array=false and $group=true
+        $query = 'SELECT user_id, user_name FROM users ORDER BY user_id';
+        $values = $this->db->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
+        if (PEAR::isError($values)) {
+            $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
+        } else {
+            //@todo: check if MDB2_FETCHMODE_ASSOC is behaving correctly in this case
+            $this->assertEquals(2, count($values), 'Error: incorrect number of returned rows');
+            list($id, $value) = each($values);
+            $this->assertEquals($data['user_id'],   $id,       'Unexpected returned value');
+            $this->assertEquals($data['user_name'], $value[0], 'Unexpected returned value');
+            list($id, $value) = each($values);
+            $this->assertEquals($data2['user_id'],   $id,       'Unexpected returned value');
+            $this->assertEquals($data2['user_name'], $value[0], 'Unexpected returned value');
 
         }
-        
-        //test $group parameter
-        //...
+
+        //test $group=true with 3 fields
+        $query = 'SELECT user_password, user_id, user_name FROM users ORDER BY user_id';
+        $values = $this->db->getAssoc($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
+        if (PEAR::isError($values)) {
+            $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
+        } else {
+            //the 2 values for user_password are equals, so they are collapsed in the same array
+            $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
+            $values = $values[0];
+            //there are 2 records
+            $this->assertEquals(2, count($values), 'Error: incorrect number of returned rows');
+            $value = array_shift($values);
+            $this->assertEquals($data['user_id'],   $value['user_id'], 'Unexpected returned value');
+            $this->assertEquals($data['user_name'], $value['user_name'], 'Unexpected returned value');
+            $value = array_shift($values);
+            $this->assertEquals($data2['user_id'],   $value['user_id'], 'Unexpected returned value');
+            $this->assertEquals($data2['user_name'], $value['user_name'], 'Unexpected returned value');
+        }
+
+        //test $group=false with 3 fields
+        $values = $this->db->getAssoc($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, false);
+        if (PEAR::isError($values)) {
+            $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
+        } else {
+            //the 2 values for user_password are equals, so the first record is overwritten
+            $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
+            $values = $values[0];
+            $this->assertEquals($data2['user_id'],   $value['user_id'], 'Unexpected returned value');
+            $this->assertEquals($data2['user_name'], $value['user_name'], 'Unexpected returned value');
+        }
     }
 
     /**
@@ -453,7 +500,6 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
             $this->assertTrue(false, 'Error fetching the result set');
         } else {
             $this->assertEquals(3, count($values), 'Error: incorrect number of returned rows');
-            //echo '<pre>'; print_r($values); echo '<hr>'; print_r($data); return;
             for ($i=0; $i<3; $i++) {
                 $this->assertEquals($data[$i+2]['user_id'],       $values[$i]['user_id'],       'Unexpected returned value');
                 $this->assertEquals($data[$i+2]['user_name'],     $values[$i]['user_name'],     'Unexpected returned value');
