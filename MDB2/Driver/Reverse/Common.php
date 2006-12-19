@@ -207,7 +207,12 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     // {{{ getTriggerDefinition()
 
     /**
-     * Get the stucture of an trigger into an array
+     * Get the stucture of a trigger into an array
+     *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change the returned value
+     * at any time until labelled as non-experimental
      *
      * @param string    $trigger    name of trigger that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
@@ -224,7 +229,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *              [trigger_comment] => 'trigger comment',
      *          );
      *          </pre>
-     *
+     *          The oci8 driver also returns a [when_clause] index.
      * @access public
      */
     function getTriggerDefinition($trigger)

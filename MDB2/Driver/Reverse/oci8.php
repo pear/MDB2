@@ -295,18 +295,17 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
     /**
      * Get the stucture of an trigger into an array
      *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change the returned value
+     * at any time until labelled as non-experimental
+     *
      * @param string    $trigger    name of trigger that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
-     *
-     * @TODO: test and fix me!
      */
     function getTriggerDefinition($trigger)
     {
-        //disable the method until it's properly implemented and tested
-        return parent::getTriggerDefinition($trigger);
-
-
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
@@ -315,18 +314,13 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         $query = 'SELECT trigger_name,
                          table_name,
                          trigger_body,
-
-                         // which one of these two returns "UPDATE"|"INSERT"|"DELETE"
-                         // and which "BEFORE"|"AFTER" ???
-                         trigger_type, 
+                         trigger_type,
                          triggering_event trigger_event,
-
-                         // this field should be combined with the body (?)
-                         when_clause,
-                         
-                         description trigger_comment
+                         description trigger_comment,
+                         1 trigger_enabled,
+                         when_clause
                     FROM user_triggers
-                   WHERE trigger_name = '. $db->quote($trigger, 'text');
+                   WHERE trigger_name = \''. strtoupper($trigger).'\'';
         $types = array(
             'trigger_name'    => 'text',
             'table_name'      => 'text',
@@ -335,8 +329,17 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             'trigger_event'   => 'text',
             'trigger_comment' => 'text',
             'trigger_enabled' => 'boolean',
+            'when_clause'     => 'text',
         );
-        return $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
+        $result = $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if (!empty($result['trigger_type'])) {
+            //$result['trigger_type'] = array_shift(explode(' ', $result['trigger_type']));
+            $result['trigger_type'] = preg_replace('/(\S+).*/', '\\1', $result['trigger_type']);
+        }
+        return $result;
     }
 
     // }}}

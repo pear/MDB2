@@ -46,24 +46,23 @@
 class MDB2_nonstandard_oci8 extends MDB2_nonstandard {
 
     var $trigger_body = '';
+    var $when_clause = 'new.id > 0';
 
     function createTrigger($trigger_name, $table_name) {
-        $this->trigger_body = 'UPDATE '. $table_name .' SET (:newRow.somedescription = :newRow.somename);';
-    
-        $query = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
-                  REFERENCING NEW AS newRow
-                  FOR EACH ROW WHEN (newRow.id > 0)
-                  BEGIN
-                    '. $this->trigger_body .'
-                  END '. $trigger_name .';
-                  .
-                  run;';
+        $this->trigger_body = 'BEGIN INSERT INTO '.$table_name
+            .' (id, somename, somedescription) VALUES'
+            .' (:new.id+1, :new.somename, :new.somedescription); END '. $trigger_name .';';
+        $query = 'CREATE OR REPLACE TRIGGER '. $trigger_name
+                .' AFTER UPDATE ON '. $table_name
+                .' FOR EACH ROW WHEN ('.$this->when_clause.') '
+                . $this->trigger_body;
         return $this->db->exec($query);
     }
 
     function checkTrigger($trigger_name, $table_name, $def) {
         parent::checkTrigger($trigger_name, $table_name, $def);
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
+        $this->test->assertEquals($this->when_clause, $def['when_clause']);
     }
 
     function dropTrigger($trigger_name, $table_name) {
