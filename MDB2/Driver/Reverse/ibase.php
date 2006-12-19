@@ -122,7 +122,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     // {{{ getTableFieldDefinition()
 
     /**
-     * Get the stucture of a field into an array
+     * Get the structure of a field into an array
      *
      * @param string    $table       name of table that should be used in method
      * @param string    $field_name  name of field that should be used in method
@@ -219,7 +219,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     // {{{ getTableIndexDefinition()
 
     /**
-     * Get the stucture of an index into an array
+     * Get the structure of an index into an array
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
@@ -285,7 +285,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     // {{{ getTableConstraintDefinition()
 
     /**
-     * Get the stucture of a constraint into an array
+     * Get the structure of a constraint into an array
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
@@ -361,7 +361,12 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     // {{{ getTriggerDefinition()
 
     /**
-     * Get the stucture of an trigger into an array
+     * Get the structure of a trigger into an array
+     *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change the returned value
+     * at any time until labelled as non-experimental
      *
      * @param string    $trigger    name of trigger that should be used in method
      * @return mixed data array on success, a MDB2 error on failure

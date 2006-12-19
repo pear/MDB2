@@ -73,7 +73,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     // {{{ getTableFieldDefinition()
 
     /**
-     * Get the stucture of a field into an array
+     * Get the structure of a field into an array
      *
      * @param string    $table     name of table that should be used in method
      * @param string    $field     name of field that should be used in method
@@ -98,7 +98,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     // {{{ getTableIndexDefinition()
 
     /**
-     * Get the stucture of an index into an array
+     * Get the structure of an index into an array
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index      name of index that should be used in method
@@ -132,7 +132,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     // {{{ getTableConstraintDefinition()
 
     /**
-     * Get the stucture of an constraints into an array
+     * Get the structure of an constraints into an array
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index      name of index that should be used in method
@@ -167,7 +167,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     // {{{ getSequenceDefinition()
 
     /**
-     * Get the stucture of a sequence into an array
+     * Get the structure of a sequence into an array
      *
      * @param string    $sequence   name of sequence that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
@@ -207,7 +207,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     // {{{ getTriggerDefinition()
 
     /**
-     * Get the stucture of a trigger into an array
+     * Get the structure of a trigger into an array
      *
      * EXPERIMENTAL
      *
