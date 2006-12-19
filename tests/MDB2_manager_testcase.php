@@ -665,7 +665,8 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         if (PEAR::isError($users)) {
             $this->assertTrue(false, 'Error listing the users: '.$users->getMessage());
         } else {
-            $this->assertTrue(in_array($this->db->dsn['username'], $users), 'Error: user not found');
+            $users = array_map('strtolower', $users);
+            $this->assertTrue(in_array(strtolower($this->db->dsn['username']), $users), 'Error: user not found');
         }
     }
 }
