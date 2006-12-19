@@ -209,7 +209,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         } else {
             for ($i=0; $i<$total_rows; $i++) {
                 foreach ($data[$i] as $key => $val) {
-                    $this->assertEquals(strval($values[$i][$key]), strval($val), 'Row #'.$i.' ['.$key.']');
+                    $this->assertEquals(strval($val), strval($values[$i][$key]), 'Row #'.$i.' ['.$key.']');
                 }
             }
         }
@@ -226,8 +226,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         } else {
             for ($i=0; $i<$total_rows; $i++) {
                 list($id, $name) = each($values);
-                $this->assertEquals($id,   $data[$i]['user_id'],   'Row #'.$i.' ["user_id"]');
-                $this->assertEquals($name, $data[$i]['user_name'], 'Row #'.$i.' ["user_name"]');
+                $this->assertEquals($data[$i]['user_id'],   $id,   'Row #'.$i.' ["user_id"]');
+                $this->assertEquals($data[$i]['user_name'], $name, 'Row #'.$i.' ["user_name"]');
             }
         }
         $result->free();
@@ -244,8 +244,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         } else {
             for ($i=0; $i<$total_rows; $i++) {
                 list($id, $value) = each($values);
-                $this->assertEquals($id,                 $data[$i]['user_id'],   'Row #'.$i.' ["user_id"]');
-                $this->assertEquals($value['user_name'], $data[$i]['user_name'], 'Row #'.$i.' ["user_name"]');
+                $this->assertEquals($data[$i]['user_id'],   $id,                 'Row #'.$i.' ["user_id"]');
+                $this->assertEquals($data[$i]['user_name'], $value['user_name'], 'Row #'.$i.' ["user_name"]');
             }
         }
         $result->free();
@@ -263,7 +263,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
             $values = $values[$data[0]['user_password']];
             for ($i=0; $i<$total_rows; $i++) {
-                $this->assertEquals($values[$i]['user_name'], $data[$i]['user_name'], 'Row #'.$i.' ["user_name"]');
+                $this->assertEquals($data[$i]['user_name'], $values[$i]['user_name'], 'Row #'.$i.' ["user_name"]');
             }
         }
         $result->free();
@@ -281,7 +281,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
             $key = $data[0]['user_password'];
             $this->assertEquals(1, count($values[$key]), 'Error: incorrect number of returned rows');
-            $this->assertEquals($values[$key]['user_name'], $data[4]['user_name']);
+            $this->assertEquals($data[4]['user_name'], $values[$key]['user_name']);
         }
         $result->free();
     }
