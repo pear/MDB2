@@ -4,8 +4,9 @@ should give better feedback as to where or what caused when error are encountere
 
 Usage:
 In order for the tests to work they need to access a database called
-"driver_test". This database is created using the MDB2_Schema test. If you have
-problems running these test or the driver you are using does not yet
+"driver_test". This database is created using the MDB2_Schema test or
+running the import.schema.php script (edit the db DSN information).
+If you have problems running these test or the driver you are using does not yet
 provide the necessary methods you may create the "driver_test" database manually:
 
 CREATE TABLE "files" (
