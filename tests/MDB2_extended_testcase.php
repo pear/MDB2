@@ -415,7 +415,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $stmt->free();
 
         //test getAll() with query parameters
-        $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id > ?';
+        $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id > ? ORDER BY user_id';
         $values = $this->db->getAll($query, array('integer', 'text', 'text'), array(2), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error fetching the result set: '.$values->getMessage());
@@ -429,7 +429,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         }
 
         //test getAll() without query parameters
-        $query = 'SELECT user_id, user_name, user_password FROM users';
+        $query = 'SELECT user_id, user_name, user_password FROM users ORDER BY user_id';
         $values = $this->db->getAll($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error fetching the result set: '.$values->getMessage());
@@ -469,7 +469,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         }
         $stmt->free();
         
-        $query = 'SELECT user_id, user_name, user_password FROM users';
+        $query = 'SELECT user_id, user_name, user_password FROM users ORDER BY user_id';
         $types = array('integer', 'text', 'text');
 
         //test limitQuery() with offset = 0

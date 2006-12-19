@@ -216,7 +216,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $result->free();
 
         //test $rekey=true
-        $result =& $this->db->query('SELECT user_id, user_name FROM users', $this->fields);
+        $result =& $this->db->query('SELECT user_id, user_name FROM users ORDER BY user_id', $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
@@ -234,7 +234,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
 
         //test $rekey=true, $force_array=true
-        $result =& $this->db->query('SELECT user_id, user_name FROM users', $this->fields);
+        $result =& $this->db->query('SELECT user_id, user_name FROM users ORDER BY user_id', $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
@@ -251,7 +251,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $result->free();
 
         //test $rekey=true, $force_array=true, $group=true
-        $result =& $this->db->query('SELECT user_password, user_name FROM users', $this->fields);
+        $result =& $this->db->query('SELECT user_password, user_name FROM users ORDER BY user_name', $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
@@ -269,7 +269,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $result->free();
 
         //test $rekey=true, $force_array=true, $group=false (with non unique key)
-        $result =& $this->db->query('SELECT user_password, user_name FROM users', $this->fields);
+        $result =& $this->db->query('SELECT user_password, user_name FROM users ORDER BY user_name', $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error during query');
         }
