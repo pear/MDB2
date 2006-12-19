@@ -84,7 +84,7 @@ class MDB2_nonstandard {
         $this->test->assertEquals('UPDATE', $def['trigger_event'], 'Error getting trigger definition (event)');
         $this->test->assertTrue(is_string($def['trigger_body']), 'Error getting trigger definition (body)');
         $this->test->assertTrue($def['trigger_enabled'], 'Error getting trigger definition (enabled)');
-        $this->test->assertTrue(empty($def['comment']),  'Error getting trigger definition (comment)');
+        //$this->test->assertTrue(empty($def['trigger_comment']),  'Error getting trigger definition (comment)');
     }
 
     /**
@@ -99,9 +99,9 @@ class MDB2_nonstandard {
      * Create a VIEW
      */
     function createView($view_name, $table_name) {
-        $query = 'CREATE VIEW '. $this->db->quoteIdentifier($view_name)
+        $query = 'CREATE VIEW '. $this->db->quoteIdentifier($view_name, true)
                 .' (id) AS SELECT id FROM '
-                . $this->db->quoteIdentifier($table_name) .' WHERE id > 1';
+                . $this->db->quoteIdentifier($table_name, true) .' WHERE id > 1';
         return $this->db->exec($query);
     }
 
