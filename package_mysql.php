@@ -8,7 +8,7 @@ $state = 'stable';
 $notes = <<<EOT
 - fixed bug #9283: missing support for BINARY/VARBINARY data types (thanks to Tom Hendrikx)
 - propagate errors in getTableFieldDefinition() in the Reverse module
-- implemented getTriggerDefinition() in the Reverse module (mysql > 5.0.2)
+- implemented getTriggerDefinition() in the Reverse module (mysql > 5.0.2) [experimental]
 - implemented listTableTriggers() in the Manager module (mysql > 5.0.2)
 - setCharset() now uses "SET NAMES" instead of "SET character_set_client"
 - select the mysql database in listUsers() in the Manager module
