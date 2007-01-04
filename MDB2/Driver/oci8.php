@@ -513,12 +513,14 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $query = $this->_modifyQuery($query, false, $limit, $offset);
 
         $result =& $this->_doQuery($query, false, $connection, false);
-        @OCILogOff($connection);
         if (PEAR::isError($result)) {
+            @OCILogOff($connection);
             return $result;
         }
 
-        return $this->_affectedRows($connection, $result);
+        $ret = $this->_affectedRows($connection, $result);
+        @OCILogOff($connection);
+        return $ret;
     }
 
     // }}}
