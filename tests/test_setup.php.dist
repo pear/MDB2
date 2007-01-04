@@ -115,18 +115,34 @@ function pe($e) {
 }
 PEAR::pushErrorHandling(PEAR_ERROR_CALLBACK, 'pe');
 foreach ($dbarray as $dbtype) {
+    // Work around oci8 problems with dropping the connected user
+    $dsn = $dbtype['dsn'];
+    if ($dbtype['dsn']['phptype'] == 'oci8') {
+        $dsn['username'] = $dbtype['options']['DBA_username'];
+        $dsn['password'] = $dbtype['options']['DBA_password'];
+        $dsn['database'] = $dbtype['options']['DBA_username'];
+    }
+    $db =& MDB2::connect($dsn, $dbtype['options']);
+    $db->loadModule('Manager');
+    if (in_array('driver_test', $db->manager->listDatabases())) {
+        $db->manager->dropDatabase('driver_test');
+    }
+    // Work around oci8 problems with dropping the connected user
+    if ($dbtype['dsn']['phptype'] == 'oci8') {
+        $db->query('CREATE USER '.$dbtype['dsn']['username'].' IDENTIFIED BY '.$dbtype['dsn']['password'].' DEFAULT TABLESPACE USERS QUOTA UNLIMITED ON USERS');
+        $db->query('GRANT CREATE SESSION, CREATE TABLE, CREATE SEQUENCE, CREATE TRIGGER to '.$dbtype['dsn']['username']);
+    }
     $schema =& MDB2_Schema::factory($dbtype['dsn'], $dbtype['options']);
-    $schema->db->manager->dropDatabase('driver_test');
     $schema->updateDatabase(
-        $schema_path.'driver_test.schema',
-        false,
-        array('create' => '1', 'name' => 'driver_test')
-    );
+                            '../../MDB2_Schema/tests/driver_test.schema',
+                            false,
+                            array('create' => '1', 'name' => 'driver_test')
+                            );
     $schema->updateDatabase(
-        $schema_path.'lob_test.schema',
-        false,
-        array('create' => '1', 'name' => 'driver_test')
-    );
+                            '../../MDB2_Schema/tests/lob_test.schema',
+                            false,
+                            array('create' => '1', 'name' => 'driver_test')
+                            );
 }
 PEAR::popErrorHandling();
 */
