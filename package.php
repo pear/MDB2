@@ -11,6 +11,7 @@ $notes = <<<EOT
 - internally use MDB2::classExists() wrapper instead of directly calling class_exists()
 - fixed bug #9502: query result misbehaves when the number of returned columns
   is greater than the number of passed types
+- fixed bug #9748: Table name is not quoted in Extended.php buildManipSQL()
 - phpdoc fixes
 - added tests
 

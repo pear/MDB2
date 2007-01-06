@@ -12,6 +12,7 @@ $notes = <<<EOT
 - implemented listTableTriggers() in the Manager module (mysql > 5.0.2)
 - setCharset() now uses "SET NAMES" instead of "SET character_set_client"
 - select the mysql database in listUsers() in the Manager module
+- added error codes for MySQL 5 (patch by Adam Harvey)
 - phpdoc fixes
 
 note:

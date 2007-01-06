@@ -36,6 +36,7 @@ $notes = <<<EOT
 - fix typos in error handling in a few places (bug #9024)
 - do not skip id generation in nextId() when creating a sequence on demand
   because this prevents lastInsertID() from working
+- added support for more error codes (patch by Adam Harvey)
 - migrated to package.xml version 2
 - phpdoc fixes
 
