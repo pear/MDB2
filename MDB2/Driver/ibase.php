@@ -168,6 +168,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                             -625 => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                             -803 => MDB2_ERROR_CONSTRAINT,
                             -804 => MDB2_ERROR_VALUE_COUNT_ON_ROW,
+                            // -902 =>  // Covers too many errors, need to use regex on msg
                             -904 => MDB2_ERROR_CONNECT_FAILED,
                             -922 => MDB2_ERROR_NOSUCHDB,
                             -923 => MDB2_ERROR_CONNECT_FAILED,
@@ -203,6 +204,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                             => MDB2_ERROR_ACCESS_VIOLATION,
                         '/arithmetic exception, numeric overflow, or string truncation/i'
                             => MDB2_ERROR_INVALID,
+                        '/feature is not supported/i'
+                            => MDB2_ERROR_NOT_CAPABLE,
                     );
                 }
                 foreach ($error_regexps as $regexp => $code) {
