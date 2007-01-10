@@ -355,7 +355,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
         if ($this->database_name) {
             if ($this->database_name != $this->connected_database_name) {
-                if (!@mysql_select_db($this->database_name, $connection)) {
+                if (!@mssql_select_db($this->database_name, $connection)) {
                     $err = $this->raiseError(null, null, null,
                         'Could not select the database: '.$this->database_name, __FUNCTION__);
                     return $err;
