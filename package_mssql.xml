@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
-http://pear.php.net/dtd/tasks-1.0.xsd
-http://pear.php.net/dtd/package-2.0
-http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.4.6" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mssql</name>
  <channel>pear.php.net</channel>
  <summary>mssql MDB2 driver</summary>
- <description>This is the Microsoft SQL Server MDB2 driver.
- 
- </description>
+ <description>This is the MS SQL Server MDB2 driver.</description>
  <lead>
   <name>David Coallier</name>
   <user>davidc</user>
-  <email>david@jaws.com.mx</email>
+  <email>davidc@agoraproduction.com</email>
   <active>yes</active>
  </lead>
  <lead>
@@ -27,92 +22,60 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>nathan@silverorange.com</email>
   <active>yes</active>
  </lead>
- <date>2006-10-27</date>
- <time>15:29:54</time>
+ <date>2007-01-10</date>
+ <time>14:22:20</time>
  <version>
-  <release>1.1.0</release>
-  <api>1.1.0</api>
+  <release>1.1.2</release>
+  <api>1.1.2</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- added the listTableTriggers() method to the Manager.
-- added the listViews() method to the Manager.
-- aligned _modifyQuery() signature and phpdoc
-- added the map datatype patch for (bug #6863)
-- added support for length in reverse engineering of integer fields
-- added &apos;result_introspection&apos; supported metadata support
-- fixed alterTable() when adding/dropping multiple columns
-- properly quote table names in tableInfo() (related to bug #6573)
-- use connected_server_info in getServerVersion() as a cache cache
-- use parent::disconnect() in disconnect()
-- added support for length in integer reverse engineering
-- some fixes regarding boolean reverse engineering
-- protect against sql injection in the reverse and manager module
-- explicitly set is_manip parameter to false for transaction debug calls
-- various minor tweaks to error messages, phpdoc and adding stub methods to the
-  common driver
-- typo fixes in phpdoc (thx Stoyan)
-- added support for fixed and variable types for &apos;text&apos; in declarations,
-  as well as in reverse engineering (Request #1523)
-- made _doQuery() return a reference
-- added userinfo&apos;s to all raiseError calls that previously had none
-- added &apos;prepared_statements&apos; supported meta data setting
-- limit fetch to 1 row in listTableFields()
-- use setCharset() in connect()/_doConnect()
-- generalized quoteIdentifier() with a property
-- drop parentheses from executeStoredProc() syntax (bug #7855)
-- switched most array_key_exists() calls to !empty() to improve readability and performance
-- fixed a few edge cases and potential warnings
-- added ability to rewrite queries for query(), exec() and prepare() using a debug handler callback
-- added implementation for now() and substring() (Request #7774)
-- check if result/connection has not yet been freed/dicsonnected before
-  attempting to free a result set(Bug #7790)
-- fix range offsets (bug #7448)
-- revert change that would prefer &apos;clob&apos; over &apos;text&apos; for TEXT fields
-  (this was breaking runtime instrospection)
-- use SCOPE_IDENTITY() when version &gt;= 8 (SQL Server 2000) otherwise fallback to
-  @@IDENTITY to retrieve last inserted value (bug #7291)
-- implement getServerVersion()
-- removed bogus but unharmful code from mapNativeDatatype()
-  
- </notes>
+ <notes>- removed mysql_select_db and used mssql_select_db
+
+
+open todo items:
+- explore fast limit/offset emulation (Request #4544)</notes>
  <contents>
-  <dir name="/">
+  <dir baseinstalldir="/" name="/">
    <dir name="MDB2">
     <dir name="Driver">
      <dir name="Datatype">
-      <file baseinstalldir="/" name="mssql.php" role="php">
+      <file name="mssql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Datatype -->
+     </dir> <!-- /MDB2/Driver/Datatype -->
      <dir name="Function">
-      <file baseinstalldir="/" name="mssql.php" role="php">
+      <file name="mssql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Function -->
+     </dir> <!-- /MDB2/Driver/Function -->
      <dir name="Manager">
-      <file baseinstalldir="/" name="mssql.php" role="php">
+      <file name="mssql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Manager -->
+     </dir> <!-- /MDB2/Driver/Manager -->
      <dir name="Native">
-      <file baseinstalldir="/" name="mssql.php" role="php">
+      <file name="mssql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Native -->
+     </dir> <!-- /MDB2/Driver/Native -->
      <dir name="Reverse">
-      <file baseinstalldir="/" name="mssql.php" role="php">
+      <file name="mssql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Reverse -->
-     <file baseinstalldir="/" name="mssql.php" role="php">
+     </dir> <!-- /MDB2/Driver/Reverse -->
+     <file name="mssql.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-    </dir> <!-- //MDB2/Driver -->
-   </dir> <!-- //MDB2 -->
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
+   <dir name="tests">
+    <file name="MDB2_nonstandard_mssql.php" role="test" />
+   </dir> <!-- /tests -->
+   <file name="package_mssql.xml" role="data" />
   </dir> <!-- / -->
  </contents>
  <dependencies>
@@ -124,14 +87,9 @@ http://pear.php.net/dtd/package-2.0.xsd">
     <min>1.4.0b1</min>
    </pearinstaller>
    <package>
-    <name>PEAR</name>
-    <channel>pear.php.net</channel>
-    <min>1.0b1</min>
-   </package>
-   <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.1.0</min>
+    <min>2.3.0</min>
    </package>
    <extension>
     <name>mssql</name>
@@ -140,6 +98,23 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.1.2</release>
+    <api>1.1.2</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-01-10</date>
+   <license>BSD License</license>
+   <notes>- removed mysql_select_db and used mssql_select_db
+
+
+open todo items:
+- explore fast limit/offset emulation (Request #4544)</notes>
+  </release>
   <release>
    <version>
     <release>1.1.0</release>
@@ -189,9 +164,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
 - use SCOPE_IDENTITY() when version &gt;= 8 (SQL Server 2000) otherwise fallback to
   @@IDENTITY to retrieve last inserted value (bug #7291)
 - implement getServerVersion()
-- removed bogus but unharmful code from mapNativeDatatype()
-    
-   </notes>
+- removed bogus but unharmful code from mapNativeDatatype()</notes>
   </release>
   <release>
    <version>
@@ -216,9 +189,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
 - use parent::disconnect() in disconnect()
 - added support for length in integer reverse engineering
 - some fixes regarding boolean reverse engineering
-- protect against sql injection in the reverse and manager module
-    
-   </notes>
+- protect against sql injection in the reverse and manager module</notes>
   </release>
   <release>
    <version>
@@ -265,9 +236,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
 open todo items:
 - add missing index/contraint methods to the manager and reverse module methods
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
-- fix alterTable()
-    
-   </notes>
+- fix alterTable()</notes>
   </release>
   <release>
    <version>
@@ -300,9 +269,7 @@ open todo items:
 
 open todo items:
 - added missing index/contraint methods to the manager and reverse module methods
-- ensure that all primary/unique/foreign key handling is only in the contraint methods
-    
-   </notes>
+- ensure that all primary/unique/foreign key handling is only in the contraint methods</notes>
   </release>
   <release>
    <version>
@@ -344,9 +311,7 @@ column primary key on this field.
 - return 0 for manipulation queries when disable_query is enabled
 
 open todo items:
-- added missing createIndex() method
-    
-   </notes>
+- added missing createIndex() method</notes>
   </release>
   <release>
    <version>
@@ -366,9 +331,7 @@ open todo items:
 - ensure SQL injection protection in all _quote() methods (was missing in
   some decimal, float, time, date and timestamp implementations)
 - typo fixes in constructor
-- Warning: this release is untested
-    
-   </notes>
+- Warning: this release is untested</notes>
   </release>
  </changelog>
 </package>
