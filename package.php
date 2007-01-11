@@ -12,6 +12,9 @@ $notes = <<<EOT
 - fixed bug #9502: query result misbehaves when the number of returned columns
   is greater than the number of passed types
 - fixed bug #9748: Table name is not quoted in Extended.php buildManipSQL()
+- fixed bug #9800: when the php extension for the driver fails to load, the
+  error is not propagated correctly and the script dies
+- propagate errors in the Datatype module
 - phpdoc fixes
 - added tests
 

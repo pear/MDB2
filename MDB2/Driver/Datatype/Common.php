@@ -1178,6 +1178,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         }
 
         $value = $db->escape($value, $escape_wildcards);
+        if (PEAR::isError($value)) {
+            return $value;
+        }
         return "'".$value."'";
     }
 
@@ -1240,6 +1243,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     function _quoteLOB($value, $quote, $escape_wildcards)
     {
         $value = $this->_readFile($value);
+        if (PEAR::isError($value)) {
+            return $value;
+        }
         return $this->_quoteText($value, $quote, $escape_wildcards);
     }
 
@@ -1668,7 +1674,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 if ($operator === 'ILIKE') {
                     $value = strtolower($value);
                 }
-                $match.= $db->escapePattern($db->escape($value));
+                $escaped = $db->escape($value);
+                if (PEAR::isError($escaped)) {
+                    return $escaped;
+                }
+                $match.= $db->escapePattern($escaped);
             }
         }
         $match.= "'";

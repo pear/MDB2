@@ -1404,6 +1404,9 @@ class MDB2_Driver_Common extends PEAR
                 $userinfo = $code->getUserinfo();
             }
             $code = $code->getCode();
+        } elseif ($code == MDB2_ERROR_NOT_FOUND) {
+            // extension not loaded: don't call $this->errorInfo() or the script
+            // will die
         } elseif (isset($this->connection)) {
             if (!empty($this->last_query)) {
                 $userinfo.= "[Last executed query: {$this->last_query}]\n";
