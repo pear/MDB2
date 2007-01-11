@@ -56,6 +56,123 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  */
 class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
 {
+    // {{{ getTableFieldDefinition()
+
+    /**
+     * Get the structure of a field into an array
+     *
+     * @param string    $table       name of table that should be used in method
+     * @param string    $field_name  name of field that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableFieldDefinition($table, $field_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $result = $db->loadModule('Datatype', null, true);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        $table = $db->quoteIdentifier($table, true);
+        $fldname = $db->quoteIdentifier($field_name, true);
+
+        $query = "SELECT c.name name,
+                         c.length,
+                         c.prec precision,
+                         c.scale,
+                         c.isnullable,
+                         s.text 'default',
+                         t.name type,
+                         t.variable,
+                         o.name tablename
+                    FROM syscolumns c,
+                         systypes t,
+                         sysobjects o,
+                         syscomments s
+                   WHERE o.name = '$table'
+                     AND c.name = '$fldname'
+                     AND o.id = c.id
+                     AND c.xtype = t.xtype
+                     AND c.cdefault = s.id";
+
+        $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($column)) {
+            return $column;
+        }
+        if (empty($column)) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'it was not specified an existing table column', __FUNCTION__);
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $column['name'] = strtolower($column['name']);
+            } else {
+                $column['name'] = strtoupper($column['name']);
+            }
+        } else {
+            $column = array_change_key_case($column, $db->options['field_case']);
+        }
+
+        $mapped_datatype = $db->datatype->mapNativeDatatype($column);
+        if (PEAR::IsError($mapped_datatype)) {
+            return $mapped_datatype;
+        }
+        list($types, $length, $unsigned, $fixed) = $mapped_datatype;
+        $notnull = true;
+        if ($column['isnullable']) {
+            $notnull = false;
+        }
+        $default = false;
+        if (array_key_exists('default', $column)) {
+            $default = $column['default'];
+            if (is_null($default) && $notnull) {
+                $default = '';
+            } elseif (strlen($default) > 4
+                   && substr($default, 0, 1) == '('
+                   &&  substr($default, -1, 1) == ')'
+            ) {
+                //mssql wraps the default value in parentheses: "((1234))", "(NULL)"
+                $default = trim($default, '()');
+                if ($default == 'NULL') {
+                    $default = null;
+                }
+            }
+        }
+        $definition[0] = array(
+            'notnull' => $notnull,
+            'nativetype' => preg_replace('/^([a-z]+)[^a-z].*/i', '\\1', $column['type'])
+        );
+        if ($length > 0) {
+            $definition[0]['length'] = $length;
+        }
+        if (!is_null($unsigned)) {
+            $definition[0]['unsigned'] = $unsigned;
+        }
+        /*
+        if (!is_null($fixed)) {
+            $definition[0]['fixed'] = $fixed;
+        }
+        */
+        $definition[0]['fixed'] = !$column['variable'];
+        if ($default !== false) {
+            $definition[0]['default'] = $default;
+        }
+        foreach ($types as $key => $type) {
+            $definition[$key] = $definition[0];
+            if ($type == 'clob' || $type == 'blob') {
+                unset($definition[$key]['default']);
+            }
+            $definition[$key]['type'] = $type;
+            $definition[$key]['mdb2type'] = $type;
+        }
+        return $definition;
+    }
+
     // }}}
     // {{{ tableInfo()
 
@@ -244,5 +361,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             array_push($array, $value);
         }
     }
+
+    // }}}
 }
 ?>

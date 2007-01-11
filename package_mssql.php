@@ -38,6 +38,7 @@ $notes = <<<EOT
   because this prevents lastInsertID() from working
 - added support for more error codes (patch by Adam Harvey)
 - migrated to package.xml version 2
+- implemented getTableFieldDefinition() in the Reverse module
 - phpdoc fixes
 
 open todo items:
