@@ -174,6 +174,75 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
     }
 
     // }}}
+    // {{{ getTableIndexDefinition()
+
+    /**
+     * Get the structure of an index into an array
+     *
+     * @param string    $table      name of table that should be used in method
+     * @param string    $index_name name of index that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableIndexDefinition($table, $index_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $index_name = $db->getIndexName($index_name);
+        $table = $db->quoteIdentifier($table, true);
+        //$idxname = $db->quoteIdentifier($index_name, true);
+
+        $query = "SELECT OBJECT_NAME(i.id) tablename,
+                         i.name indexname,
+                         c.name field_name,
+                         CASE INDEXKEY_PROPERTY(i.id, i.indid, ik.keyno, 'IsDescending')
+                           WHEN 1 THEN 'DESC' ELSE 'ASC'
+                         END 'collation',
+                         CASE o.xtype
+                            WHEN 'UQ' THEN 1 ELSE 0
+                         END 'unique'
+                    FROM sysindexes i
+                    JOIN sysobjects o ON o.id = i.id
+                    JOIN sysindexkeys ik ON ik.id = i.id AND ik.indid = i.indid
+                    JOIN syscolumns c ON c.id = ik.id AND c.colid = ik.colid
+                   WHERE OBJECT_NAME(i.id) = '$table'
+                     AND i.name = '$index_name'
+                ORDER BY tablename, indexname, ik.keyno";
+
+        $result = $db->query($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        $definition = array();
+        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+            $column_name = $row['field_name'];
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $column_name = strtolower($column_name);
+                } else {
+                    $column_name = strtoupper($column_name);
+                }
+            }
+            $definition['fields'][$column_name] = array();
+            if (!empty($row['collation'])) {
+                $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'ASC'
+                    ? 'ascending' : 'descending');
+            }
+            $definition['unique'] = $row['unique'];
+        }
+        $result->free();
+        if (empty($definition['fields'])) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'it was not specified an existing table index', __FUNCTION__);
+        }
+        return $definition;
+    }
+
+    // }}}
     // {{{ tableInfo()
 
     /**
