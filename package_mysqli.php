@@ -13,6 +13,7 @@ $notes = <<<EOT
 - setCharset() now uses "SET NAMES" instead of "SET character_set_client"
 - select the mysql database in listUsers() in the Manager module
 - added error codes for MySQL 5 (patch by Adam Harvey)
+- implemented guid() in the Function module [globally unique identifier]
 - phpdoc fixes
 
 open todo items:

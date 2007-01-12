@@ -15,6 +15,8 @@ $notes = <<<EOT
 - fixed bug #9800: when the php extension for the driver fails to load, the
   error is not propagated correctly and the script dies
 - propagate errors in the Datatype module
+- implemented guid() in the Function module [globally unique identifier]
+  (thanks to mario dot adam at schaeffler dot com)
 - phpdoc fixes
 - added tests
 

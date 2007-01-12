@@ -8,6 +8,7 @@ $state = 'stable';
 $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module [experimental]
+- implemented guid() in the Function module [globally unique identifier]
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8

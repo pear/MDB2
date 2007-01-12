@@ -144,6 +144,20 @@ class MDB2_Driver_Function_mssql extends MDB2_Driver_Function_Common
     }
 
     // }}}
+    // {{{ guid()
+
+    /**
+     * Returns global unique identifier
+     *
+     * @return string to get global unique identifier
+     * @access public
+     */
+    function guid()
+    {
+        return 'NEWID()';
+    }
+
+    // }}}
 }
 // }}}
 ?>

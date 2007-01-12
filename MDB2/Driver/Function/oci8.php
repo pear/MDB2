@@ -151,5 +151,19 @@ class MDB2_Driver_Function_oci8 extends MDB2_Driver_Function_Common
     }
 
     // }}}}
+    // {{{ guid()
+
+    /**
+     * Returns global unique identifier
+     *
+     * @return string to get global unique identifier
+     * @access public
+     */
+    function guid()
+    {
+        return 'SYS_GUID()';
+    }
+
+    // }}}}
 }
 ?>
