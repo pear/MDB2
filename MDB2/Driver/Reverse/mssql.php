@@ -243,6 +243,77 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
     }
 
     // }}}
+    // {{{ getTriggerDefinition()
+
+    /**
+     * Get the structure of a trigger into an array
+     *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change the returned value
+     * at any time until labelled as non-experimental
+     *
+     * WARNING: only the first 4000 characters of the Trigger definition are returned
+     *
+     * @param string    $trigger    name of trigger that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTriggerDefinition($trigger)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        /*
+             CASE
+               WHEN sys1.instrig > 0 THEN 'INSERT'
+               WHEN sys1.updtrig > 0 THEN 'UPDATE'
+               WHEN sys1.deltrig > 0 THEN 'DELETE'
+             END trigger_event
+        */
+        $query = "SELECT sys1.name trigger_name,
+                         sys2.name table_name,
+                         c.text trigger_body,
+                         c.encrypted is_encripted,
+                         1 trigger_enabled,
+                         '' trigger_event,
+                         '' trigger_type,
+                         '' trigger_comment
+                    FROM sysobjects sys1
+                    JOIN sysobjects sys2 ON sys1.parent_obj = sys2.id
+                    JOIN syscomments c ON sys1.id = c.id
+                   WHERE sys1.xtype = 'TR'
+                     AND sys1.name = ". $db->quote($trigger, 'text');
+
+        $types = array(
+            'trigger_name'    => 'text',
+            'table_name'      => 'text',
+            'trigger_body'    => 'text',
+            'trigger_type'    => 'text',
+            'trigger_event'   => 'text',
+            'trigger_comment' => 'text',
+            'trigger_enabled' => 'boolean',
+            'is_encripted'    => 'boolean',
+        );
+
+        $def = $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($def)) {
+            return $def;
+        }
+        if (!$def['is_encripted']) {
+            if (preg_match('/\bFOR\b\s+([\w,]+)\s+\bAS\b/Uis', $def['trigger_body'], $matches)) {
+                $def['trigger_type'] = 'AFTER';
+                $def['trigger_event'] = $matches[1];
+            } elseif (preg_match('/\bINSTEAD\b\s+\bOF\b\s+(INSERT|UPDATE|DELETE)/Uis', $def['trigger_body'])) {
+                $def['trigger_type'] = 'INSTEAD OF';
+            }
+        }
+        return $def;
+    }
+
+    // }}}
     // {{{ tableInfo()
 
     /**
