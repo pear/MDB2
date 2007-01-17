@@ -495,11 +495,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $res;
         }
 
-        if ($start == 1) {
-            return MDB2_OK;
-        }
-
-
         $query = "SET IDENTITY_INSERT $sequence_name ON ".
                  "INSERT INTO $sequence_name ($seqcol_name) VALUES ($start)";
         $res = $db->exec($query);
