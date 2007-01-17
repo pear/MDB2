@@ -572,7 +572,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             //return $tableExists;
             return false;
         }
-        return true;
+        return mssql_result($tableExists, 0, 0);
     }
 
     // }}}
@@ -594,9 +594,15 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
         $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        if ($this->_checkSequence($sequence_name)) {
+        
+        $seq_val = $this->_checkSequence($sequence_name);
+
+        if ($seq_val) {
             $query = "SET IDENTITY_INSERT $sequence_name ON ".
-                     "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
+                     "INSERT INTO $sequence_name ($seqcol_name) VALUES ("
+                     .
+                      ($seq_val + 1)
+                     .")";
         } else {
             $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
         }
