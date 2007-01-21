@@ -7,6 +7,7 @@ $version = 'YYY';
 $state = 'stable';
 $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
+- fixed bug #9895: Error mapping broken since 5.2.0
 - phpdoc fixes
 
 note:
