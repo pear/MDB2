@@ -11,6 +11,8 @@ $notes = <<<EOT
 - fixed listTableTriggers() in the Manager module
 - added support for the -902 (feature is not supported) error code
   (thanks to Adam Harvey)
+- fixed bug #9943: MDB2_Driver_ibase install failing because wrong
+  extension name (ibase instead of interbase)
 - phpdoc fixes
 EOT;
 
@@ -36,7 +38,7 @@ $package->clearDeps();
 $package->setPhpDep('5.0.4');
 $package->setPearInstallerDep('1.4.0b1');
 $package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'YYY');
-$package->addExtensionDep('required', 'ibase');
+$package->addExtensionDep('required', 'interbase');
 
 $package->addRelease();
 $package->generateContents();
