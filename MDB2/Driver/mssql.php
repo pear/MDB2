@@ -598,11 +598,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $seq_val = $this->_checkSequence($sequence_name);
 
         if ($seq_val) {
-            $query = "SET IDENTITY_INSERT $sequence_name ON ".
-                     "INSERT INTO $sequence_name ($seqcol_name) VALUES ("
-                     .
-                      ($seq_val + 1)
-                     .")";
+            $query = "SET IDENTITY_INSERT $sequence_name OFF ".
+                     "INSERT INTO $sequence_name ($seqcol_name) DEFAULT VALUES";
         } else {
             $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
         }
