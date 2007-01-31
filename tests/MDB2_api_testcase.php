@@ -132,6 +132,24 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
             'mode'     => false,
         );
         $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        //ibase dbname+path on windows
+        $original = 'ibase://user:pwd@localhost/C:\\PATH_TO_DB\\TEST.FDB';
+        $expected = array (
+            'phptype'  => 'ibase',
+            'dbsyntax' => 'ibase',
+            'username' => 'user',
+            'password' => 'pwd',
+            'protocol' => 'tcp',
+            'hostspec' => 'localhost',
+            'port'     => false,
+            'socket'   => false,
+            'database' => 'C:\\PATH_TO_DB\\TEST.FDB',
+            'mode'     => false,
+        );
+        $this->assertEquals($expected, MDB2::parseDSN($original));
     }
 
     //test stuff in common.php
