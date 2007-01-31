@@ -18,6 +18,7 @@ note:
   behaviour can be disabled by setting the "emulate_database" option to false.
 - the multi_query test failes because this is not supported by ext/oci8
 - the null LOB test failes because this is not supported by Oracle
+- fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
 - phpdoc fixes
 
 open todo items:

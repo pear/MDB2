@@ -17,6 +17,7 @@ $notes = <<<EOT
 - propagate errors in the Datatype module
 - implemented guid() in the Function module [globally unique identifier]
   (thanks to mario dot adam at schaeffler dot com)
+- fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
 - phpdoc fixes
 - added tests
 

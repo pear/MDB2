@@ -48,6 +48,92 @@ require_once 'MDB2_testcase.php';
 class MDB2_Api_TestCase extends MDB2_TestCase {
     var $clear_tables = false;
 
+    function testParseDSN() {
+        $expected = array (
+            'phptype'  => 'phptype',
+            'dbsyntax' => 'phptype',
+            'username' => 'username',
+            'password' => 'password',
+            'protocol' => 'protocol',
+            'hostspec' => false,
+            'port'     => '110',
+            'socket'   => false,
+            'database' => '/usr/db_file.db',
+            'mode'     => false,
+        );
+        $original = 'phptype://username:password@protocol+hostspec:110//usr/db_file.db?mode=0644';
+        $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        $original = 'phptype(dbsyntax)://username:password@hostspec/database_name';
+        $expected = array (
+            'phptype'  => 'phptype',
+            'dbsyntax' => 'dbsyntax',
+            'username' => 'username',
+            'password' => 'password',
+            'protocol' => 'tcp',
+            'hostspec' => 'hostspec',
+            'port'     => false,
+            'socket'   => false,
+            'database' => 'database_name',
+            'mode'     => false,
+        );
+        $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        $original = 'phptype://username:password@hostspec/database_name';
+        $expected['dbsyntax'] = 'phptype';
+        $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        $original = 'phptype://username:password@hostspec';
+        $expected['database'] = false;
+        $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        $original = 'phptype://username@hostspec';
+        $expected['password'] = false;
+        $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        $original = 'phptype://hostspec/database';
+        $expected['username'] = false;
+        $expected['database'] = 'database';
+        $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        $original = 'phptype(dbsyntax)';
+        $expected['database'] = false;
+        $expected['hostspec'] = false;
+        $expected['protocol'] = false;
+        $expected['dbsyntax'] = 'dbsyntax';
+        $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        //oracle's "Easy Connect" syntax (Oracle 10g, @see Bug #4854)
+        $original = 'oci8://scott:tiger@//localhost/XE';
+        $expected = array (
+            'phptype'  => 'oci8',
+            'dbsyntax' => 'oci8',
+            'username' => 'scott',
+            'password' => 'tiger',
+            'protocol' => 'tcp',
+            'hostspec' => '//localhost/XE',
+            'port'     => false,
+            'socket'   => false,
+            'database' => false,
+            'mode'     => false,
+        );
+        $this->assertEquals($expected, MDB2::parseDSN($original));
+    }
+
     //test stuff in common.php
     function testConnect() {
         $db =& MDB2::factory($this->dsn, $this->options);

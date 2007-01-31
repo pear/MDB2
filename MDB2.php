@@ -847,7 +847,13 @@ class MDB2
             if (strpos($dsn, '+') !== false) {
                 list($proto, $dsn) = explode('+', $dsn, 2);
             }
-            if (strpos($dsn, '/') !== false) {
+            if (strpos($dsn, '//') === 0 && strpos($dsn, '/', 2) !== false) {
+                //oracle's "Easy Connect" syntax:
+                //"username/password@[//]host[:port][/service_name]"
+                //e.g. "scott/tiger@//mymachine:1521/oracle"
+                $proto_opts = $dsn;
+                $dsn = null;
+            } elseif (strpos($dsn, '/') !== false) {
                 list($proto_opts, $dsn) = explode('/', $dsn, 2);
             } else {
                 $proto_opts = $dsn;
