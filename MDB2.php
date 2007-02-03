@@ -847,7 +847,10 @@ class MDB2
             if (strpos($dsn, '+') !== false) {
                 list($proto, $dsn) = explode('+', $dsn, 2);
             }
-            if (strpos($dsn, '//') === 0 && strpos($dsn, '/', 2) !== false) {
+            if (   strpos($dsn, '//') === 0
+                && strpos($dsn, '/', 2) !== false
+                && $parsed['phptype'] == 'oci8'
+            ) {
                 //oracle's "Easy Connect" syntax:
                 //"username/password@[//]host[:port][/service_name]"
                 //e.g. "scott/tiger@//mymachine:1521/oracle"

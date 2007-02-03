@@ -150,6 +150,24 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
             'mode'     => false,
         );
         $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        //sqlite dbname+path on unix
+        $original = 'sqlite:////full/unix/path/to/file.db?mode=0666';
+        $expected = array (
+            'phptype'  => 'sqlite',
+            'dbsyntax' => 'sqlite',
+            'username' => false,
+            'password' => false,
+            'protocol' => 'tcp',
+            'hostspec' => '',
+            'port'     => false,
+            'socket'   => false,
+            'database' => '/full/unix/path/to/file.db',
+            'mode'     => false,
+        );
+        $this->assertEquals($expected, MDB2::parseDSN($original));
     }
 
     //test stuff in common.php
