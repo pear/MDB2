@@ -131,6 +131,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     1    => MDB2_ERROR_CONSTRAINT,
                     900  => MDB2_ERROR_SYNTAX,
                     904  => MDB2_ERROR_NOSUCHFIELD,
+                    911  => MDB2_ERROR_SYNTAX, //invalid character
                     913  => MDB2_ERROR_VALUE_COUNT_ON_ROW,
                     921  => MDB2_ERROR_SYNTAX,
                     923  => MDB2_ERROR_SYNTAX,
