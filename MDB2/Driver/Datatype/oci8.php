@@ -125,7 +125,18 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             return 'BLOB';
         case 'integer':
             if (!empty($field['length'])) {
-                return 'NUMBER('.$field['length'].')';
+                switch((int)$field['length']) {
+                    case 1:  $digit = 3;  break;
+                    case 2:  $digit = 5;  break;
+                    case 3:  $digit = 8;  break;
+                    case 4:  $digit = 10; break;
+                    case 5:  $digit = 13; break;
+                    case 6:  $digit = 15; break;
+                    case 7:  $digit = 17; break;
+                    case 8:  $digit = 20; break;
+                    default: $digit = 10;
+                }
+                return 'NUMBER('.$digit.')';
             }
             return 'INT';
         case 'boolean':

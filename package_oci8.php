@@ -10,6 +10,9 @@ $notes = <<<EOT
 - implemented getTriggerDefinition() in the Reverse module [experimental]
 - implemented guid() in the Function module [globally unique identifier]
 - added missing error code (bug #9780)
+- fixed bug #10003: integer length problem in getTypeDeclaration() in the Datatype
+  module (thanks to priyadi at priyadi dot net)
+
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
  (binaries are available from snaps.php.net and pecl4win.php.net)
