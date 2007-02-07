@@ -323,6 +323,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         $sid = '';
+        /*
         if ($this->dsn['hostspec']) {
             $sid = $this->dsn['hostspec'];
             if (!$this->options['emulate_database'] && $this->database_name) {
@@ -345,6 +346,37 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (empty($sid)) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'it was not specified a valid Oracle Service Identifier (SID)', __FUNCTION__);
+        }
+        */
+        if (!empty($this->dsn['service']) && $this->dsn['hostspec']) {
+            //oci8://username:password@foo.example.com[:port]/?service=service
+            // service name is given, it is assumed that hostspec is really a
+            // hostname, we try to construct an oracle connection string from this
+            $port = $this->dsn['port'] ? $this->dsn['port'] : 1521;
+            $sid = sprintf("(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)
+                            (HOST=%s) (PORT=%s)))
+                            (CONNECT_DATA=(SERVICE_NAME=%s)))",
+                $this->dsn['hostspec'],
+                $port,
+                $this->dsn['service']
+            );
+        } elseif ($this->dsn['hostspec']) {
+            // we are given something like 'oci8://username:password@foo/'
+            // we have hostspec but not a service name, now we assume that
+            // hostspec is a tnsname defined in tnsnames.ora
+            $sid = $this->dsn['hostspec'];
+        } else {
+            // oci://username:password@
+            // if everything fails, we have to rely on environment variables
+            if (getenv('ORACLE_SID')) {
+                $sid = getenv('ORACLE_SID');
+            } elseif ($sid = getenv('TWO_TASK')) {
+                $sid = getenv('TWO_TASK');
+            } else {
+                return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                    'not a valid connection string or environment variable [ORACLE_SID|TWO_TASK] not set',
+                    __FUNCTION__);
+            }
         }
 
         if (function_exists('oci_connect')) {
