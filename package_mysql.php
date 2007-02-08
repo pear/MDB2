@@ -14,6 +14,7 @@ $notes = <<<EOT
 - select the mysql database in listUsers() in the Manager module
 - added error codes for MySQL 5 (patch by Adam Harvey)
 - implemented guid() in the Function module [globally unique identifier]
+- fixed bug #10033: beginTransaction() does not know server capabilities
 - phpdoc fixes
 
 note:
