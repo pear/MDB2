@@ -214,6 +214,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     function beginTransaction($savepoint = null)
     {
         $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
+        $this->_getServerCapabilities();
         if (!is_null($savepoint)) {
             if (!$this->supports('savepoints')) {
                 return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
@@ -490,28 +491,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->supported['prepared_statements'] = 'emulated';
         $this->start_transaction = false;
         $this->varchar_max_length = 255;
-
-        $server_info = $this->getServerVersion();
-        if (is_array($server_info)) {
-            if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.0', '<')) {
-                $this->supported['sub_selects'] = true;
-                $this->supported['prepared_statements'] = true;
-            }
-
-            if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.0.14', '<')
-                || !version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.1', '<')
-            ) {
-                $this->supported['savepoints'] = true;
-            }
-
-            if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.0.11', '<')) {
-                $this->start_transaction = true;
-            }
-
-            if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '5.0.3', '<')) {
-                $this->varchar_max_length = 65532;
-            }
-        }
+        
+        $this->_getServerCapabilities();
 
         return MDB2_OK;
     }
@@ -739,6 +720,44 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             );
         }
         return $server_info;
+    }
+
+    // }}}
+    // {{{ _getServerCapabilities()
+
+    /**
+     * Fetch some information about the server capabilities
+     * (transactions, subselects, prepared statements, etc).
+     *
+     * @access private
+     */
+    function _getServerCapabilities()
+    {
+        static $already_checked = false;
+        if (!$already_checked) {
+            $already_checked = true;
+            $server_info = $this->getServerVersion();
+            if (is_array($server_info)) {
+                if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.0', '<')) {
+                    $this->supported['sub_selects'] = true;
+                    $this->supported['prepared_statements'] = true;
+                }
+
+                if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.0.14', '<')
+                    || !version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.1', '<')
+                ) {
+                    $this->supported['savepoints'] = true;
+                }
+
+                if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.0.11', '<')) {
+                    $this->start_transaction = true;
+                }
+
+                if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '5.0.3', '<')) {
+                    $this->varchar_max_length = 65532;
+                }
+            }
+        }
     }
 
     // }}}
