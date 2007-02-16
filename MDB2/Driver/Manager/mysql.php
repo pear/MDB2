@@ -154,6 +154,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
+
         $query = $this->_getCreateTableQuery($name, $fields, $options);
         if (PEAR::isError($query)) {
             return $query;
@@ -689,22 +690,22 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     /**
      * create a constraint on a table
      *
-     * @param string    $table         name of the table on which the constraint is to be created
+     * @param string    $table        name of the table on which the constraint is to be created
      * @param string    $name         name of the constraint to be created
-     * @param array     $definition        associative array that defines properties of the constraint to be created.
-     *                                 Currently, only one property named FIELDS is supported. This property
-     *                                 is also an associative with the names of the constraint fields as array
-     *                                 constraints. Each entry of this array is set to another type of associative
-     *                                 array that specifies properties of the constraint that are specific to
-     *                                 each field.
+     * @param array     $definition   associative array that defines properties of the constraint to be created.
+     *                                Currently, only one property named FIELDS is supported. This property
+     *                                is also an associative with the names of the constraint fields as array
+     *                                constraints. Each entry of this array is set to another type of associative
+     *                                array that specifies properties of the constraint that are specific to
+     *                                each field.
      *
-     *                                 Example
-     *                                    array(
-     *                                        'fields' => array(
-     *                                            'user_name' => array(),
-     *                                            'last_login' => array()
-     *                                        )
-     *                                    )
+     *                                Example
+     *                                   array(
+     *                                       'fields' => array(
+     *                                           'user_name' => array(),
+     *                                           'last_login' => array()
+     *                                       )
+     *                                   )
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -722,6 +723,10 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             $name = 'KEY';
         } elseif (!empty($definition['unique'])) {
             $type = 'UNIQUE';
+        }
+        if (empty($type)) {
+            return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                'invalid definition, could not create constraint', __FUNCTION__);
         }
 
         $table = $db->quoteIdentifier($table, true);

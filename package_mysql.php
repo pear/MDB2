@@ -15,6 +15,7 @@ $notes = <<<EOT
 - added error codes for MySQL 5 (patch by Adam Harvey)
 - implemented guid() in the Function module [globally unique identifier]
 - fixed bug #10033: beginTransaction() does not know server capabilities
+- fixed bug #10057: createConstraint() returns an error when the definition is incomplete
 - phpdoc fixes
 
 note:
