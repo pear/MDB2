@@ -2235,7 +2235,7 @@ class MDB2_Driver_Common extends PEAR
         $this->opened_persistent = null;
         $this->connected_server_info = '';
         $this->in_transaction = null;
-        $this->nested_transaction_counter = 0;
+        $this->nested_transaction_counter = null;
         return MDB2_OK;
     }
 

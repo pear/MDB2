@@ -18,6 +18,8 @@ $notes = <<<EOT
 - implemented guid() in the Function module [globally unique identifier]
   (thanks to mario dot adam at schaeffler dot com)
 - fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
+- fixed bug #10105: inTransaction() was returning an incorrect value after a call
+  to disconnect() or __destruct()
 - phpdoc fixes
 - added tests
 
