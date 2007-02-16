@@ -139,8 +139,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      * @param array $options  An associative array of table options:
      *                          array(
      *                              'comment' => 'Foo',
-     *                              'character_set' => 'utf8',
-     *                              'collate' => 'utf8_unicode_ci',
+     *                              'charset' => 'utf8',
      *                              'collate' => 'utf8_unicode_ci',
      *                              'type'    => 'innodb',
      *                          );
