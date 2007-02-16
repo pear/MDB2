@@ -183,7 +183,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         if (!empty($options_strings)) {
-            $query.= ' '.implode(' ', $options_strings);
+            $query .= ' '.implode(' ', $options_strings);
         }
         return $db->exec($query);
     }
@@ -829,12 +829,19 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     /**
      * create sequence
      *
-     * @param string    $seq_name     name of the sequence to be created
-     * @param string    $start         start value of the sequence; default is 1
+     * @param string    $seq_name name of the sequence to be created
+     * @param string    $start    start value of the sequence; default is 1
+     * @param array     $options  An associative array of table options:
+     *                          array(
+     *                              'comment' => 'Foo',
+     *                              'charset' => 'utf8',
+     *                              'collate' => 'utf8_unicode_ci',
+     *                              'type'    => 'innodb',
+     *                          );
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createSequence($seq_name, $start = 1)
+    function createSequence($seq_name, $start = 1, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -843,9 +850,34 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name'], true);
+        
+        $options_strings = array();
+
+        if (!empty($options['comment'])) {
+            $options_strings['comment'] = 'COMMENT = '.$db->quote($options['comment'], 'text');
+        }
+
+        if (!empty($options['charset'])) {
+            $options_strings['charset'] = 'DEFAULT CHARACTER SET '.$options['charset'];
+            if (!empty($options['collate'])) {
+                $options_strings['charset'].= ' COLLATE '.$options['collate'];
+            }
+        }
+
+        $type = false;
+        if (!empty($options['type'])) {
+            $type = $options['type'];
+        } elseif ($db->options['default_table_type']) {
+            $type = $db->options['default_table_type'];
+        }
+        if ($type) {
+            $options_strings[] = "ENGINE = $type";
+        }
 
         $query = "CREATE TABLE $sequence_name ($seqcol_name INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ($seqcol_name))";
-        $query.= strlen($db->options['default_table_type']) ? ' TYPE='.$db->options['default_table_type'] : '';
+        if (!empty($options_strings)) {
+            $query .= ' '.implode(' ', $options_strings);
+        }
         $res = $db->exec($query);
 
         if (PEAR::isError($res)) {

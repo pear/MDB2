@@ -16,6 +16,7 @@ $notes = <<<EOT
 - implemented guid() in the Function module [globally unique identifier]
 - fixed bug #10033: beginTransaction() does not know server capabilities
 - fixed bug #10057: createConstraint() returns an error when the definition is incomplete
+- request #9451: you can set charset, collation, engine and comments in createSequence()
 - phpdoc fixes
 
 note:
