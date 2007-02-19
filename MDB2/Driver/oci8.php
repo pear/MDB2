@@ -323,31 +323,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         $sid = '';
-        /*
-        if ($this->dsn['hostspec']) {
-            $sid = $this->dsn['hostspec'];
-            if (!$this->options['emulate_database'] && $this->database_name) {
-                $port = $service = '';
-                if ($this->dsn['port']) {
-                    $port = ':'.$this->dsn['port'];
-                }
-                $service = $this->database_name;
-                if (substr($service, 0, 1) !== '/') {
-                    $service = '/'.$service;
-                }
-                $sid = '//'.$sid.$port.$service;
-            }
-        } elseif (!$this->options['emulate_database'] && $this->database_name) {
-            $sid = $this->database_name;
-        } else {
-            $sid = getenv('ORACLE_SID');
-        }
 
-        if (empty($sid)) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified a valid Oracle Service Identifier (SID)', __FUNCTION__);
-        }
-        */
         if (!empty($this->dsn['service']) && $this->dsn['hostspec']) {
             //oci8://username:password@foo.example.com[:port]/?service=service
             // service name is given, it is assumed that hostspec is really a
@@ -368,7 +344,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         } else {
             // oci://username:password@
             // if everything fails, we have to rely on environment variables
-            if (getenv('ORACLE_SID')) {
+            // not before a check to 'emulate_database'
+            if (!$this->options['emulate_database'] && $this->database_name) {
+                $sid = $this->database_name;
+            } elseif (getenv('ORACLE_SID')) {
                 $sid = getenv('ORACLE_SID');
             } elseif ($sid = getenv('TWO_TASK')) {
                 $sid = getenv('TWO_TASK');
