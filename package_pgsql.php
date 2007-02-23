@@ -10,6 +10,9 @@ $notes = <<<EOT
 - implemented getTriggerDefinition() in the Reverse module [experimental]
 - implemented listTableTriggers() in the Manager module
 - don't show catalog views in listViews() in the Manager module
+- added a new boolean parameter to getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to disable the 'idxname_format'
+  option and use the index name as provided
 - phpdoc fixes
 
 open todo items:

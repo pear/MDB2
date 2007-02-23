@@ -155,17 +155,21 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $index_name = $db->getIndexName($index_name);
+        if ($format_index_name) {
+            $index_name = $db->getIndexName($index_name);
+        }
         $definition = array();
 
         $query = 'SELECT * FROM user_ind_columns';
@@ -207,20 +211,21 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name)
+    function getTableConstraintDefinition($table, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if (strtolower($index_name) != 'primary') {
+        if (strtolower($index_name) != 'primary' && $format_index_name) {
             $index_name = $db->getIndexName($index_name);
         }
-
         $query = 'SELECT "all".constraint_type, cols.column_name';
         $query.= ' FROM all_constraints "all", all_cons_columns cols';
         $query.= ' WHERE ("all".table_name='.$db->quote($table, 'text').' OR "all".table_name='.$db->quote(strtoupper($table), 'text').')';

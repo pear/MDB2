@@ -159,17 +159,21 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $index_name = $db->getIndexName($index_name);
+        if ($format_index_name) {
+            $index_name = $db->getIndexName($index_name);
+        }
         $query = 'SELECT relname, indkey FROM pg_index, pg_class';
         $query.= ' WHERE pg_class.oid = pg_index.indexrelid';
         $query.= " AND indisunique != 't' AND indisprimary != 't'";
@@ -206,17 +210,21 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name)
+    function getTableConstraintDefinition($table, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $index_name = $db->getIndexName($index_name);
+        if ($format_index_name) {
+            $index_name = $db->getIndexName($index_name);
+        }
         $query = 'SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class';
         $query.= ' WHERE pg_class.oid = pg_index.indexrelid';
         $query.= " AND (indisunique = 't' OR indisprimary = 't')";

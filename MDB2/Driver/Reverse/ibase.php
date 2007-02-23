@@ -223,17 +223,22 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
         $table = $db->quote(strtoupper($table), 'text');
-        $index_name = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
+        if ($format_index_name) {
+            $index_name = $db->getIndexName($index_name);
+        }
+        $index_name = $db->quote(strtoupper($index_name), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
@@ -289,17 +294,22 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name)
+    function getTableConstraintDefinition($table, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
         $table = $db->quote(strtoupper($table), 'text');
-        $index_name = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
+        if ($format_index_name) {
+            $index_name = $db->getIndexName($index_name);
+        }
+        $index_name = $db->quote(strtoupper($index_name), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,

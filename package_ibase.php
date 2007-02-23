@@ -13,6 +13,9 @@ $notes = <<<EOT
   (thanks to Adam Harvey)
 - fixed bug #9943: MDB2_Driver_ibase install failing because wrong
   extension name (ibase instead of interbase)
+- added a new boolean parameter to getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to disable the 'idxname_format'
+  option and use the index name as provided
 - phpdoc fixes
 EOT;
 

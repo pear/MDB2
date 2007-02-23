@@ -102,6 +102,8 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index      name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      *          The returned array has this structure:
      *          </pre>
@@ -117,7 +119,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *          </pre>
      * @access public
      */
-    function getTableIndexDefinition($table, $index)
+    function getTableIndexDefinition($table, $index, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -136,6 +138,8 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index      name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      *          The returned array has this structure:
      *          <pre>
@@ -152,7 +156,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *          </pre>
      * @access public
      */
-    function getTableConstraintDefinition($table, $index)
+    function getTableConstraintDefinition($table, $index, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -211,7 +215,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *
      * EXPERIMENTAL
      *
-     * WARNING: this function is experimental and may change the returned value
+     * WARNING: this function is experimental and may change the returned value 
      * at any time until labelled as non-experimental
      *
      * @param string    $trigger    name of trigger that should be used in method
@@ -242,6 +246,36 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'method not implemented', __FUNCTION__);
     }
+
+    // }}}
+    // {{{ getViewDefinition()
+
+    /**
+     * Get the structure of a view into an array
+     *
+     * @param string    $view    name of view that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     *          The returned array has this structure:
+     *          <pre>
+     *          array (
+     *              [view_name]    => 'view name',
+     *              [fields]       => array([field names]),
+     *              [view_def]     => 'view definition',
+     *          );
+     *          </pre>
+     *
+     * @access public
+    function getViewDefinition($view)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'method not implemented', __FUNCTION__);
+    }
+    */
 
     // }}}
     // {{{ tableInfo()

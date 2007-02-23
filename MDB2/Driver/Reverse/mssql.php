@@ -39,7 +39,8 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Lukas Smith <smith@pooteeweet.org>                           |
+// | Authors: Lukas Smith <smith@pooteeweet.org>                          |
+// |          Lorenzo Alberton <l.alberton@quipo.it>                      |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -53,6 +54,7 @@ require_once 'MDB2/Driver/Reverse/Common.php';
  * @package MDB2
  * @category Database
  * @author  Lukas Smith <smith@dybnet.de>
+ * @author  Lorenzo Alberton <l.alberton@quipo.it>
  */
 class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
 {
@@ -181,17 +183,21 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $index_name = $db->getIndexName($index_name);
+        if ($format_index_name) {
+            $index_name = $db->getIndexName($index_name);
+        }
         $table = $db->quoteIdentifier($table, true);
         //$idxname = $db->quoteIdentifier($index_name, true);
 

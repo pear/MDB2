@@ -121,9 +121,12 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
     /**
      * Get the stucture of a field into an array
      *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $field_name     name of field that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
+     * @param string    $table       name of table that should be used in method
+     * @param string    $field_name  name of field that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure.
+     *          The returned array contains an array for each field definition,
+     *          with (some of) these indices:
+     *          [notnull] [nativetype] [length] [fixed] [default] [type] [mdb2type]
      * @access public
      */
     function getTableFieldDefinition($table, $field_name)
@@ -223,17 +226,21 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $index_name = $db->getIndexName($index_name);
+        if ($format_index_name) {
+            $index_name = $db->getIndexName($index_name);
+        }
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $query.= "LOWER(name)=".$db->quote(strtolower($index_name), 'text')." AND LOWER(tbl_name)=".$db->quote(strtolower($table), 'text');
@@ -288,17 +295,21 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
+     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
+     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name)
+    function getTableConstraintDefinition($table, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $index_name = $db->getIndexName($index_name);
+        if ($format_index_name) {
+            $index_name = $db->getIndexName($index_name);
+        }
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $query.= "LOWER(name)=".$db->quote(strtolower($index_name), 'text')." AND LOWER(tbl_name)=".$db->quote(strtolower($table), 'text');
