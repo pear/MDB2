@@ -248,36 +248,6 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
     }
 
     // }}}
-    // {{{ getViewDefinition()
-
-    /**
-     * Get the structure of a view into an array
-     *
-     * @param string    $view    name of view that should be used in method
-     * @return mixed data array on success, a MDB2 error on failure
-     *          The returned array has this structure:
-     *          <pre>
-     *          array (
-     *              [view_name]    => 'view name',
-     *              [fields]       => array([field names]),
-     *              [view_def]     => 'view definition',
-     *          );
-     *          </pre>
-     *
-     * @access public
-    function getViewDefinition($view)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'method not implemented', __FUNCTION__);
-    }
-    */
-
-    // }}}
     // {{{ tableInfo()
 
     /**
