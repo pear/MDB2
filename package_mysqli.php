@@ -17,9 +17,10 @@ $notes = <<<EOT
 - fixed bug #10033: beginTransaction() does not know server capabilities
 - fixed bug #10057: createConstraint() returns an error when the definition is incomplete
 - request #9451: you can set charset, collation, engine and comments in createSequence()
-- added a new boolean parameter to getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to disable the 'idxname_format'
-  option and use the index name as provided
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the 'idxname_format'
+  option and use the index name as provided in case of failure before returning
+  an error
 - phpdoc fixes
 
 open todo items:

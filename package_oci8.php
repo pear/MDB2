@@ -12,9 +12,10 @@ $notes = <<<EOT
 - added missing error code (bug #9780)
 - fixed bug #10003: integer length problem in getTypeDeclaration() in the Datatype
   module (thanks to priyadi at priyadi dot net)
-- added a new boolean parameter to getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to disable the 'idxname_format'
-  option and use the index name as provided
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the 'idxname_format'
+  option and use the index name as provided in case of failure before returning
+  an error
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8

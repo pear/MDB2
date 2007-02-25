@@ -8,9 +8,10 @@ $state = 'stable';
 $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
 - fixed bug #9895: Error mapping broken since 5.2.0
-- added a new boolean parameter to getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to disable the 'idxname_format'
-  option and use the index name as provided
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the 'idxname_format'
+  option and use the index name as provided in case of failure before returning
+  an error
 - phpdoc fixes
 
 note:

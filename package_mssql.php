@@ -42,9 +42,9 @@ $notes = <<<EOT
 - implemented getTableIndexDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module
 - implemented guid() in the Function module [globally unique identifier]
-- added a new boolean parameter to getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to disable the 'idxname_format'
-  option and use the index name as provided
+- implemented a fallback mechanism within getTableIndexDefinition() in the Reverse
+  module to ignore the 'idxname_format' option and use the index name as provided
+  in case of failure before returning an error
 - phpdoc fixes
 
 open todo items:

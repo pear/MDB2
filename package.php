@@ -20,9 +20,10 @@ $notes = <<<EOT
 - fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
 - fixed bug #10105: inTransaction() was returning an incorrect value after a call
   to disconnect() or __destruct()
-- added a new boolean parameter to getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to disable the 'idxname_format'
-  option and use the index name as provided
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the 'idxname_format'
+  option and use the index name as provided in case of failure before returning
+  an error
 - phpdoc fixes
 - added tests
 
