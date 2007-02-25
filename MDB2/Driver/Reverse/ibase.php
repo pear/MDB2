@@ -223,8 +223,6 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
@@ -235,10 +233,6 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $db;
         }
         $table = $db->quote(strtoupper($table), 'text');
-        if ($format_index_name) {
-            $index_name = $db->getIndexName($index_name);
-        }
-        $index_name = $db->quote(strtoupper($index_name), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
@@ -247,10 +241,19 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                    WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)=$table
-                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)=$index_name
+                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)=%s
                      AND RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE IS NULL
                 ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION;";
-        $result = $db->query($query);
+        $index_name_mdb2 = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
+        $result = $db->queryRow(sprintf($query, $index_name_mdb2));
+        if (!PEAR::isError($result) && !is_null($result)) {
+            // apply 'idxname_format' only if the query succeeded, otherwise
+            // fallback to the given $index_name, without transformation
+            $index_name = $index_name_mdb2;
+        } else {
+            $index_name = $db->quote(strtoupper($index_name), 'text');
+        }
+        $result = $db->query(sprintf($query, $index_name));
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -294,22 +297,17 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name, $format_index_name = true)
+    function getTableConstraintDefinition($table, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+        
         $table = $db->quote(strtoupper($table), 'text');
-        if ($format_index_name) {
-            $index_name = $db->getIndexName($index_name);
-        }
-        $index_name = $db->quote(strtoupper($index_name), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
@@ -319,9 +317,18 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                    WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)=$table
-                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)=$index_name
+                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)=%s
                 ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION;";
-        $result = $db->query($query);
+        $index_name_mdb2 = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
+        $result = $db->queryRow(sprintf($query, $index_name_mdb2));
+        if (!PEAR::isError($result) && !is_null($result)) {
+            // apply 'idxname_format' only if the query succeeded, otherwise
+            // fallback to the given $index_name, without transformation
+            $index_name = $index_name_mdb2;
+        } else {
+            $index_name = $db->quote(strtoupper($index_name), 'text');
+        }
+        $result = $db->query(sprintf($query, $index_name));
         if (PEAR::isError($result)) {
             return $result;
         }

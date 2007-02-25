@@ -183,21 +183,16 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
+    function getTableIndexDefinition($table, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if ($format_index_name) {
-            $index_name = $db->getIndexName($index_name);
-        }
         $table = $db->quoteIdentifier($table, true);
         //$idxname = $db->quoteIdentifier($index_name, true);
 
@@ -215,10 +210,17 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                     JOIN sysindexkeys ik ON ik.id = i.id AND ik.indid = i.indid
                     JOIN syscolumns c ON c.id = ik.id AND c.colid = ik.colid
                    WHERE OBJECT_NAME(i.id) = '$table'
-                     AND i.name = '$index_name'
+                     AND i.name = '%s'
                 ORDER BY tablename, indexname, ik.keyno";
 
-        $result = $db->query($query);
+        $index_name_mdb2 = $db->getIndexName($index_name);
+        $result = $db->queryRow(sprintf($query, $index_name_mdb2));
+        if (!PEAR::isError($result) && !is_null($result)) {
+            // apply 'idxname_format' only if the query succeeded, otherwise
+            // fallback to the given $index_name, without transformation
+            $index_name = $index_name_mdb2;
+        }
+        $result = $db->query(sprintf($query, $index_name));
         if (PEAR::isError($result)) {
             return $result;
         }

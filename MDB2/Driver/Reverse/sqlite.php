@@ -226,29 +226,39 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
+    function getTableIndexDefinition($table, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if ($format_index_name) {
-            $index_name = $db->getIndexName($index_name);
-        }
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $query.= "LOWER(name)=".$db->quote(strtolower($index_name), 'text')." AND LOWER(tbl_name)=".$db->quote(strtolower($table), 'text');
+            $query.= 'LOWER(name)=%s AND LOWER(tbl_name)=' . $db->quote(strtolower($table), 'text');
         } else {
-            $query.= 'name='.$db->quote($index_name, 'text').' AND tbl_name='.$db->quote($table, 'text');
+            $query.= 'name=%s AND tbl_name=' . $db->quote($table, 'text');
         }
-        $query.= " AND sql NOT NULL ORDER BY name";
-        $sql = $db->queryOne($query, 'text');
+        $query.= ' AND sql NOT NULL ORDER BY name';
+        $index_name_mdb2 = $db->getIndexName($index_name);
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $qry = sprintf($query, $db->quote(strtolower($index_name_mdb2), 'text'));
+        } else {
+            $qry = sprintf($query, $db->quote($index_name_mdb2, 'text'));
+        }
+        $sql = $db->queryOne($qry, 'text');
+        if (PEAR::isError($sql) || empty($sql)) {
+            // fallback to the given $index_name, without transformation
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                $qry = sprintf($query, $db->quote(strtolower($index_name), 'text'));
+            } else {
+                $qry = sprintf($query, $db->quote($index_name, 'text'));
+            }
+            $sql = $db->queryOne($qry, 'text');
+        }
         if (PEAR::isError($sql)) {
             return $sql;
         }
@@ -295,35 +305,45 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name, $format_index_name = true)
+    function getTableConstraintDefinition($table, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if ($format_index_name) {
-            $index_name = $db->getIndexName($index_name);
-        }
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $query.= "LOWER(name)=".$db->quote(strtolower($index_name), 'text')." AND LOWER(tbl_name)=".$db->quote(strtolower($table), 'text');
+            $query.= 'LOWER(name)=%s AND LOWER(tbl_name)=' . $db->quote(strtolower($table), 'text');
         } else {
-            $query.= 'name='.$db->quote($index_name, 'text').' AND tbl_name='.$db->quote($table, 'text');
+            $query.= 'name=%s AND tbl_name=' . $db->quote($table, 'text');
         }
-        $query.= " AND sql NOT NULL ORDER BY name";
-        $sql = $db->queryOne($query, 'text');
+        $query.= ' AND sql NOT NULL ORDER BY name';
+        $index_name_mdb2 = $db->getIndexName($index_name);
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $qry = sprintf($query, $db->quote(strtolower($index_name_mdb2), 'text'));
+        } else {
+            $qry = sprintf($query, $db->quote($index_name_mdb2, 'text'));
+        }
+        $sql = $db->queryOne($qry, 'text');
+        if (PEAR::isError($sql) || empty($sql)) {
+            // fallback to the given $index_name, without transformation
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                $qry = sprintf($query, $db->quote(strtolower($index_name), 'text'));
+            } else {
+                $qry = sprintf($query, $db->quote($index_name, 'text'));
+            }
+            $sql = $db->queryOne($qry, 'text');
+        }
         if (PEAR::isError($sql)) {
             return $sql;
         }
         if (!$sql) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table index', __FUNCTION__);
+                'it was not specified an existing table constraint', __FUNCTION__);
         }
 
         $sql = strtolower($sql);

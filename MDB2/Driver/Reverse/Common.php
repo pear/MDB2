@@ -102,8 +102,6 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index      name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      *          The returned array has this structure:
      *          </pre>
@@ -119,7 +117,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *          </pre>
      * @access public
      */
-    function getTableIndexDefinition($table, $index, $format_index_name = true)
+    function getTableIndexDefinition($table, $index)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -138,8 +136,6 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index      name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      *          The returned array has this structure:
      *          <pre>
@@ -156,7 +152,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *          </pre>
      * @access public
      */
-    function getTableConstraintDefinition($table, $index, $format_index_name = true)
+    function getTableConstraintDefinition($table, $index)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {

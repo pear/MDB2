@@ -155,30 +155,40 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
+    function getTableIndexDefinition($table, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
-
-        if ($format_index_name) {
-            $index_name = $db->getIndexName($index_name);
-        }
-        $definition = array();
-
+        
         $query = 'SELECT * FROM user_ind_columns';
         $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
-        $query.= ' AND (index_name='.$db->quote($index_name, 'text').' OR index_name='.$db->quote(strtoupper($index_name), 'text').')';
-        $result = $db->query($query);
+        $query.= ' AND (index_name=%s OR index_name=%s)';
+        $index_name_mdb2 = $db->getIndexName($index_name);
+        $sql = sprintf($query,
+            $db->quote($index_name_mdb2, 'text'),
+            $db->quote(strtoupper($index_name_mdb2), 'text')
+        );
+        $result = $db->queryRow($sql);
+        if (!PEAR::isError($result) && !is_null($result)) {
+            // apply 'idxname_format' only if the query succeeded, otherwise
+            // fallback to the given $index_name, without transformation
+            $index_name = $index_name_mdb2;
+        }
+        $sql = sprintf($query,
+            $db->quote($index_name, 'text'),
+            $db->quote(strtoupper($index_name), 'text')
+        );
+        $result = $db->query($sql);
         if (PEAR::isError($result)) {
             return $result;
         }
+
+        $definition = array();
         while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
             $row = array_change_key_case($row, CASE_LOWER);
             $column_name = $row['column_name'];
@@ -211,28 +221,40 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name, $format_index_name = true)
+    function getTableConstraintDefinition($table, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
-
-        if (strtolower($index_name) != 'primary' && $format_index_name) {
-            $index_name = $db->getIndexName($index_name);
-        }
+        
         $query = 'SELECT "all".constraint_type, cols.column_name';
         $query.= ' FROM all_constraints "all", all_cons_columns cols';
         $query.= ' WHERE ("all".table_name='.$db->quote($table, 'text').' OR "all".table_name='.$db->quote(strtoupper($table), 'text').')';
-        $query.= ' AND ("all".index_name='.$db->quote($index_name, 'text').' OR "all".index_name='.$db->quote(strtoupper($index_name), 'text').')';
+        $query.= ' AND ("all".index_name=%s OR "all".index_name=%s)';
         $query.= ' AND "all".constraint_name = cols.constraint_name';
         $query.= ' AND "all".owner = '.$db->quote(strtoupper($db->dsn['username']), 'text');
-        $result = $db->query($query);
+        if (strtolower($index_name) != 'primary') {
+            $index_name_mdb2 = $db->getIndexName($index_name);
+            $sql = sprintf($query,
+                $db->quote($index_name_mdb2, 'text'),
+                $db->quote(strtoupper($index_name_mdb2), 'text')
+            );
+            $result = $db->queryRow($sql);
+            if (!PEAR::isError($result) && !is_null($result)) {
+                // apply 'idxname_format' only if the query succeeded, otherwise
+                // fallback to the given $index_name, without transformation
+                $index_name = $index_name_mdb2;
+            }
+        }
+        $sql = sprintf($query,
+            $db->quote($index_name, 'text'),
+            $db->quote(strtoupper($index_name), 'text')
+        );
+        $result = $db->query($sql);
         if (PEAR::isError($result)) {
             return $result;
         }

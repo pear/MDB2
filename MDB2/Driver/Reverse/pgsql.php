@@ -159,26 +159,26 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
+    function getTableIndexDefinition($table, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
-
-        if ($format_index_name) {
-            $index_name = $db->getIndexName($index_name);
-        }
+        
         $query = 'SELECT relname, indkey FROM pg_index, pg_class';
         $query.= ' WHERE pg_class.oid = pg_index.indexrelid';
         $query.= " AND indisunique != 't' AND indisprimary != 't'";
-        $query.= ' AND pg_class.relname = '.$db->quote($index_name, 'text');
-        $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
+        $query.= ' AND pg_class.relname = %s';
+        $index_name_mdb2 = $db->getIndexName($index_name);
+        $row = $db->queryRow(sprintf($query, $db->quote($index_name_mdb2, 'text')), null, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($row) || empty($row)) {
+            // fallback to the given $index_name, without transformation
+            $row = $db->queryRow(sprintf($query, $db->quote($index_name, 'text')), null, MDB2_FETCHMODE_ASSOC);
+        }
         if (PEAR::isError($row)) {
             return $row;
         }
@@ -210,26 +210,26 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
      *
      * @param string    $table      name of table that should be used in method
      * @param string    $index_name name of index that should be used in method
-     * @param boolean   $format_index_name if FALSE, the 'idxname_format' option
-     *                              is not applied and the index name is used as-is
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name, $format_index_name = true)
+    function getTableConstraintDefinition($table, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
-
-        if ($format_index_name) {
-            $index_name = $db->getIndexName($index_name);
-        }
+        
         $query = 'SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class';
         $query.= ' WHERE pg_class.oid = pg_index.indexrelid';
         $query.= " AND (indisunique = 't' OR indisprimary = 't')";
-        $query.= ' AND pg_class.relname = '.$db->quote($index_name, 'text');
-        $row = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
+        $query.= ' AND pg_class.relname = %s';
+        $index_name_mdb2 = $db->getIndexName($index_name);
+        $row = $db->queryRow(sprintf($query, $db->quote($index_name_mdb2, 'text')), null, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($row) || empty($row)) {
+            // fallback to the given $index_name, without transformation
+            $row = $db->queryRow(sprintf($query, $db->quote($index_name, 'text')), null, MDB2_FETCHMODE_ASSOC);
+        }
         if (PEAR::isError($row)) {
             return $row;
         }
