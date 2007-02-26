@@ -1443,7 +1443,11 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                             $value = $data;
                         }
                     }
-                    $param_query = 'SET @'.$parameter.' = '.$this->db->quote($value, $type);
+                    $quoted = $this->db->quote($value, $type);
+                    if (PEAR::isError($quoted)) {
+                        return $quoted;
+                    }
+                    $param_query = 'SET @'.$parameter.' = '.$quoted;
                     $result = $this->db->_doQuery($param_query, true, $connection);
                     if (PEAR::isError($result)) {
                         return $result;
