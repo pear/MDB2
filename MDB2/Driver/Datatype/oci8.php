@@ -378,7 +378,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
-    // {{{ mapNativeDatatype()
+    // {{{ _mapNativeDatatype()
 
     /**
      * Maps a native array description of a field to a MDB2 datatype and length
@@ -387,7 +387,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
      * @return array containing the various possible types, length, sign, fixed
      * @access public
      */
-    function mapNativeDatatype($field)
+    function _mapNativeDatatype($field)
     {
         $db_type = strtolower($field['type']);
         $type = array();

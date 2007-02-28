@@ -24,6 +24,8 @@ $notes = <<<EOT
   getTableConstraintDefinition() in the Reverse module to ignore the 'idxname_format'
   option and use the index name as provided in case of failure before returning
   an error
+- added a 'nativetype_map_callback' option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
 - phpdoc fixes
 - fixed tests to be compatible with PHP4
 - added tests

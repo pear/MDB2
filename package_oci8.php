@@ -16,6 +16,10 @@ $notes = <<<EOT
   getTableConstraintDefinition() in the Reverse module to ignore the 'idxname_format'
   option and use the index name as provided in case of failure before returning
   an error
+- fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
+- added a 'nativetype_map_callback' option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- phpdoc fixes
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -25,8 +29,6 @@ note:
   behaviour can be disabled by setting the "emulate_database" option to false.
 - the multi_query test failes because this is not supported by ext/oci8
 - the null LOB test failes because this is not supported by Oracle
-- fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
-- phpdoc fixes
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks

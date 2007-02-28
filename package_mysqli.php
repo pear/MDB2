@@ -22,6 +22,8 @@ $notes = <<<EOT
   option and use the index name as provided in case of failure before returning
   an error
 - fixed bug #10181: propagate error when an invalid type is passed to prepare()
+- added a 'nativetype_map_callback' option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
 - phpdoc fixes
 
 open todo items:
