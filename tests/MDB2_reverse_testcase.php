@@ -226,7 +226,11 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
-                $this->assertEquals($this->table, $field_info['table'], "the table name is not correct");
+                //not all the drivers are capable of returning the table name,
+                //and may return an empty value
+                if (!empty($field_info['table'])) {
+                    $this->assertEquals($this->table, $field_info['table'], "the table name is not correct");
+                }
                 if (!array_key_exists(strtolower($field_info['name']), $this->fields)) {
                     $this->assertTrue(false, 'Field names do not match ('.$field_info['name'].' is unknown)');
                 }
@@ -251,10 +255,10 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
-            $this->assertEquals($field_info['type'], 'integer', 'The field type is different from the expected one');
-            $this->assertEquals($field_info['length'], 4, 'The field length is different from the expected one');
+            $this->assertEquals('integer', $field_info['type'], 'The field type is different from the expected one');
+            $this->assertEquals(4, $field_info['length'], 'The field length is different from the expected one');
             $this->assertTrue($field_info['notnull'], 'The field can be null unlike it was expected');
-            $this->assertEquals($field_info['default'], '0', 'The field default value is different from the expected one');
+            $this->assertEquals('0', $field_info['default'], 'The field default value is different from the expected one');
         }
 
         //test blob
@@ -273,8 +277,8 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
-            $this->assertEquals($field_info['type'], 'text', 'The field type is different from the expected one');
-            $this->assertEquals($field_info['length'], 12, 'The field length is different from the expected one');
+            $this->assertEquals('text', $field_info['type'], 'The field type is different from the expected one');
+            $this->assertEquals(12, $field_info['length'], 'The field length is different from the expected one');
             $this->assertFalse($field_info['notnull'], 'The field can be null unlike it was expected');
             $this->assertNull($field_info['default'], 'The field default value is different from the expected one');
             $this->assertFalse($field_info['fixed'], 'The field fixed value is different from the expected one');
@@ -347,7 +351,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         }
 
         //test index created WITHOUT using MDB2 (i.e. without the "_idx" suffix)
-        //@TODO (MDB2 should provide a fallback mechanism)
+        //NB: MDB2 > v.2.3.0 provides a fallback mechanism
     }
 
     /**
