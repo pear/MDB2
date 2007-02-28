@@ -152,7 +152,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getAssoc() with query parameters
         $query = 'SELECT user_id, user_name FROM users WHERE user_id=?';
-        $result = $this->db->getAssoc($query, array('integer', 'text'), array(1234), array('integer'));
+        $result = $this->db->extended->getAssoc($query, array('integer', 'text'), array(1234), array('integer'));
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getAssoc(): '.$result->getMessage());
         }
@@ -161,7 +161,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         
         //test getAssoc() without query parameters
         $query = 'SELECT user_id, user_name FROM users WHERE user_id=1234';
-        $result = $this->db->getAssoc($query, array('integer', 'text'));
+        $result = $this->db->extended->getAssoc($query, array('integer', 'text'));
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getAssoc(): '.$result->getMessage());
         } else {
@@ -178,7 +178,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getAssoc() with $force_array=true
         $query = 'SELECT user_id, user_name FROM users ORDER BY user_id';
-        $values = $this->db->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, true);
+        $values = $this->db->extended->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, true);
         if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
         } else {
@@ -194,7 +194,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getAssoc() with $force_array=false and $group=true
         $query = 'SELECT user_id, user_name FROM users ORDER BY user_id';
-        $values = $this->db->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
+        $values = $this->db->extended->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
         if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
         } else {
@@ -208,10 +208,10 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
             $this->assertEquals($data2['user_name'], $value[0], 'Unexpected returned value');
 
         }
-
+        
         //test $group=true with 3 fields
         $query = 'SELECT user_password, user_id, user_name FROM users ORDER BY user_id';
-        $values = $this->db->getAssoc($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
+        $values = $this->db->extended->getAssoc($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
         if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
         } else {
@@ -227,9 +227,9 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
             $this->assertEquals($data2['user_id'],   $value['user_id'], 'Unexpected returned value');
             $this->assertEquals($data2['user_name'], $value['user_name'], 'Unexpected returned value');
         }
-
+        
         //test $group=false with 3 fields
-        $values = $this->db->getAssoc($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, false);
+        $values = $this->db->extended->getAssoc($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, false);
         if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
         } else {
@@ -266,7 +266,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getOne() with query parameters
         $query = 'SELECT user_name FROM users WHERE user_id=?';
-        $result = $this->db->getOne($query, 'text', array(1234), array('integer'));
+        $result = $this->db->extended->getOne($query, 'text', array(1234), array('integer'));
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getOne(): '.$result->getMessage());
         }
@@ -274,7 +274,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getOne() without query parameters
         $query = 'SELECT user_name FROM users WHERE user_id=1234';
-        $result = $this->db->getOne($query, 'text');
+        $result = $this->db->extended->getOne($query, 'text');
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getOne(): '.$result->getMessage());
         }
@@ -282,7 +282,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getOne() with column number (resultset: 0-based array)
         $query = 'SELECT user_id, user_name, approved FROM users WHERE user_id=1234';
-        $result = $this->db->getOne($query, 'text', null, null, 1); //get the 2nd column
+        $result = $this->db->extended->getOne($query, 'text', null, null, 1); //get the 2nd column
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getOne(): '.$result->getMessage());
         }
@@ -319,7 +319,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getCol() with query parameters
         $query = 'SELECT user_name FROM users WHERE user_id>?';
-        $result = $this->db->getCol($query, 'text', array(1), array('integer'));
+        $result = $this->db->extended->getCol($query, 'text', array(1), array('integer'));
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getCol(): '.$result->getMessage());
         }
@@ -331,7 +331,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getCol() without query parameters
         $query = 'SELECT user_name FROM users';
-        $result = $this->db->getCol($query, 'text');
+        $result = $this->db->extended->getCol($query, 'text');
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getCol(): '.$result->getMessage());
         }
@@ -339,7 +339,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getCol() with column number (resultset: 0-based array)
         $query = 'SELECT user_id, user_name, approved FROM users';
-        $result = $this->db->getCol($query, 'text', null, null, 1); //get the 2nd column
+        $result = $this->db->extended->getCol($query, 'text', null, null, 1); //get the 2nd column
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getCol(): '.$result->getMessage());
         }
@@ -369,7 +369,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getRow() with query parameters
         $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id=?';
-        $result = $this->db->getRow($query, array('integer', 'text', 'text'), array(1234), array('integer'), MDB2_FETCHMODE_ASSOC);
+        $result = $this->db->extended->getRow($query, array('integer', 'text', 'text'), array(1234), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getRow(): '.$result->getMessage());
         }
@@ -379,7 +379,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getRow() without query parameters
         $query = 'SELECT user_id, user_name, user_password FROM users';
-        $result = $this->db->getRow($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
+        $result = $this->db->extended->getRow($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getRow(): '.$result->getMessage());
         }
@@ -416,7 +416,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getAll() with query parameters
         $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id > ? ORDER BY user_id';
-        $values = $this->db->getAll($query, array('integer', 'text', 'text'), array(2), array('integer'), MDB2_FETCHMODE_ASSOC);
+        $values = $this->db->extended->getAll($query, array('integer', 'text', 'text'), array(2), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error fetching the result set: '.$values->getMessage());
         } else {
@@ -430,7 +430,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         //test getAll() without query parameters
         $query = 'SELECT user_id, user_name, user_password FROM users ORDER BY user_id';
-        $values = $this->db->getAll($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
+        $values = $this->db->extended->getAll($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($values)) {
             $this->assertTrue(false, 'Error fetching the result set: '.$values->getMessage());
         } else {
@@ -473,7 +473,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $types = array('integer', 'text', 'text');
 
         //test limitQuery() with offset = 0
-        $result = $this->db->limitQuery($query, $types, 2);
+        $result = $this->db->extended->limitQuery($query, $types, 2);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing limitQuery(): '.$result->getMessage());
         }
@@ -491,7 +491,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $result->free();
 
         //test limitQuery() with offset > 0
-        $result = $this->db->limitQuery($query, $types, 3, 2);
+        $result = $this->db->extended->limitQuery($query, $types, 3, 2);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing limitQuery(): '.$result->getMessage());
         }
@@ -525,13 +525,13 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         
-        $result = $this->db->execParam($query, array_values($data), $this->fields);
+        $result = $this->db->extended->execParam($query, array_values($data), $this->fields);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing execParam(): '.$result->getMessage());
         }
         
         $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id=?';
-        $result = $this->db->getRow($query, array('integer', 'text', 'text'), array(1234), array('integer'), MDB2_FETCHMODE_ASSOC);
+        $result = $this->db->extended->getRow($query, array('integer', 'text', 'text'), array(1234), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
             $this->assertTrue(false, 'Error executing getRow(): '.$result->getMessage());
         }
