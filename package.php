@@ -25,6 +25,7 @@ $notes = <<<EOT
   option and use the index name as provided in case of failure before returning
   an error
 - phpdoc fixes
+- fixed tests to be compatible with PHP4
 - added tests
 
 open todo items:
