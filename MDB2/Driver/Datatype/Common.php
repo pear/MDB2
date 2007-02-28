@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -159,11 +159,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     // {{{ _baseConvertResult()
 
     /**
-     * general type conversion method
+     * General type conversion method
      *
-     * @param mixed $value refernce to a value to be converted
-     * @param string $type specifies which type to convert to
-     * @return object a MDB2 error on failure
+     * @param mixed   $value reference to a value to be converted
+     * @param string  $type  specifies which type to convert to
+     * @param boolean $rtrim [optional] when TRUE [default], apply rtrim() to text
+     * @return object an MDB2 error on failure
      * @access protected
      */
     function _baseConvertResult($value, $type, $rtrim = true)
@@ -218,11 +219,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     // {{{ convertResult()
 
     /**
-     * convert a value to a RDBMS indipendent MDB2 type
+     * Convert a value to a RDBMS indipendent MDB2 type
      *
-     * @param mixed $value value to be converted
-     * @param string $type specifies which type to convert to
-     * @param bool   $rtrim   if to rtrim text values or not
+     * @param mixed   $value value to be converted
+     * @param string  $type  specifies which type to convert to
+     * @param boolean $rtrim [optional] when TRUE [default], apply rtrim() to text
      * @return mixed converted value
      * @access public
      */
@@ -249,12 +250,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     // {{{ convertResultRow()
 
     /**
-     * convert a result row
+     * Convert a result row
      *
-     * @param array $types 
-     * @param array $row specifies the types to convert to
-     * @param bool   $rtrim   if to rtrim text values or not
-     * @return mixed MDB2_OK on success,  a MDB2 error on failure
+     * @param array   $types
+     * @param array   $row   specifies the types to convert to
+     * @param boolean $rtrim [optional] when TRUE [default], apply rtrim() to text
+     * @return mixed MDB2_OK on success, an MDB2 error on failure
      * @access public
      */
     function convertResultRow($types, $row, $rtrim = true)
