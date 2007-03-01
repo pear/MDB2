@@ -170,7 +170,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     // {{{ _getDeclaration()
 
     /**
-+     * Obtain DBMS specific SQL code portion needed to declare a generic type
+     * Obtain DBMS specific SQL code portion needed to declare a generic type
      * field to be used in statements like CREATE TABLE.
      *
      * @param string $name   name the field to be declared.
@@ -193,12 +193,10 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *      declare the specified field.
      * @access protected
      */
-    function _getDeclaration($name, $field)
+    function _getDeclarationOptions($field)
     {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
+        $charset = empty($field['charset']) ? '' :
+            ' '.$this->_getCharsetFieldDeclaration($field['charset']);
 
         $default = '';
         if (array_key_exists('default', $field)) {
@@ -217,8 +215,10 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         }
 
         $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
-        $name = $db->quoteIdentifier($name, true);
-        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull;
+
+        $collation = empty($field['collation']) ? '' :
+            ' '.$this->_getCollationFieldDeclaration($field['collation']);
+        return $charset.$default.$notnull.$collation;
     }
 
     // }}}
