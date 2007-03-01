@@ -19,6 +19,8 @@ $notes = <<<EOT
 - fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
 - added a 'nativetype_map_callback' option to map native data declarations back to
   custom data types (thanks to Andrew Hill).
+- fixed bug #10215: selected the wrong field in the query in listTableConstraints()
+  in the Manager module
 - phpdoc fixes
 
 note:

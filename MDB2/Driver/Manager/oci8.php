@@ -766,7 +766,7 @@ END;
         }
 
         $table = $db->quote($table, 'text');
-        $query = 'SELECT index_name name FROM user_constraints';
+        $query = 'SELECT constraint_name name FROM user_constraints';
         $query.= ' WHERE table_name='.$table.' OR table_name='.strtoupper($table);
         $constraints = $db->queryCol($query);
         if (PEAR::isError($constraints)) {
