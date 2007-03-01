@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -40,7 +40,7 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Authors: Lukas Smith <smith@pooteeweet.org>                        |
+// | Authors: Lukas Smith <smith@pooteeweet.org>                          |
 // |          Daniel Convissor <danielc@php.net>                          |
 // +----------------------------------------------------------------------+
 //
@@ -166,7 +166,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         return '';
     }
 
-     // }}}
+    // }}}
     // {{{ _getDeclaration()
 
     /**
@@ -201,6 +201,10 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $default = '';
         if (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
+                $db =& $this->getDBInstance();
+                if (PEAR::isError($db)) {
+                    return $db;
+                }
                 $field['default'] = empty($field['notnull'])
                     ? null : $this->valid_default_values[$field['type']];
                 if ($field['default'] === ''

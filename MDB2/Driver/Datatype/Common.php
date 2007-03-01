@@ -444,7 +444,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *      collation
      *          Text value with the default COLLATION for this field.
      * @return string  DBMS specific SQL code portion that should be used to
-     *      declare the specified field.
+     *      declare the specified field, or a MDB2_Error on failure
      * @access protected
      */
     function _getDeclaration($name, $field)
@@ -456,6 +456,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
         $name = $db->quoteIdentifier($name, true);
         $declaration_options = $db->datatype->_getDeclarationOptions($field);
+        if (PEAR::isError($declaration_options)) {
+            return $declaration_options;
+        }
         return $name.' '.$this->getTypeDeclaration($field).$declaration_options;
     }
 
@@ -493,6 +496,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $default = '';
         if (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
+                $db =& $this->getDBInstance();
+                if (PEAR::isError($db)) {
+                    return $db;
+                }
                 $field['default'] = empty($field['notnull'])
                     ? null : $this->valid_default_values[$field['type']];
                 if ($field['default'] === ''
