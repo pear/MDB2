@@ -219,6 +219,9 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         }
 
         $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        if ($default == ' DEFAULT NULL' && $notnull == ' NULL') {
+            $notnull = '';
+        }
 
         $collation = empty($field['collation']) ? '' :
             ' '.$this->_getCollationFieldDeclaration($field['collation']);
@@ -274,6 +277,9 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         }
 
         $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        if ($default == ' DEFAULT NULL' && $notnull == ' NULL') {
+            $notnull = '';
+        }
         if (!empty($field['unsigned'])) {
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
