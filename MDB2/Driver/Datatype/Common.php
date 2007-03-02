@@ -1695,7 +1695,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                         'case insensitive LIKE matching requires passing the field name', __FUNCTION__);
                 }
                 $db->loadModule('Function', null, true);
-                $match = $db->function->lower($field).' '.'LIKE ';
+                $match = $db->function->lower($field).' LIKE ';
                 break;
             // case sensitive
             case 'LIKE':
