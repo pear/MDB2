@@ -28,7 +28,7 @@ $notes = <<<EOT
   custom data types (thanks to Andrew Hill).
 - phpdoc fixes
 - fixed tests to be compatible with PHP4
-- added tests
+- added new tests, including some MDB2 internals tests by Andrew Hill and Monique Szpak
 
 open todo items:
 - handle autoincrement fields in alterTable()
