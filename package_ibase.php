@@ -19,6 +19,7 @@ $notes = <<<EOT
   an error
 - added a 'nativetype_map_callback' option to map native data declarations back to
   custom data types (thanks to Andrew Hill).
+- listFunctions() in the Manager module now lists UDFs and stored procedures
 - phpdoc fixes
 EOT;
 

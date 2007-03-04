@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith, Lorenzo Alberton                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -655,7 +655,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     // {{{ listFunctions()
 
     /**
-     * list all functions in the current database
+     * list all functions (and stored procedures) in the current database
      *
      * @return mixed array of function names on success, a MDB2 error on failure
      * @access public
@@ -667,7 +667,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'SELECT RDB$FUNCTION_NAME FROM RDB$FUNCTIONS WHERE RDB$SYSTEM_FLAG IS NULL';
+        $query = 'SELECT RDB$FUNCTION_NAME FROM RDB$FUNCTIONS WHERE RDB$SYSTEM_FLAG IS NULL
+                  UNION
+                  SELECT RDB$PROCEDURE_NAME FROM RDB$PROCEDURES';
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
