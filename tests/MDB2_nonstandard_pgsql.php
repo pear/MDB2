@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2006 Lorenzo Alberton                                  |
+// | Copyright (c) 2006-2007 Lorenzo Alberton                             |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -75,6 +75,19 @@ class MDB2_nonstandard_pgsql extends MDB2_nonstandard {
 
     function dropTrigger($trigger_name, $table_name) {
         return $this->db->exec('DROP TRIGGER '.$trigger_name .' ON '. $table_name);
+    }
+
+    function createFunction($name) {
+        $query = "CREATE FUNCTION $name (Decimal(6,2), Decimal(6,2)) RETURNS Decimal(6,2)
+AS 'select $1 + $2;'
+LANGUAGE SQL
+IMMUTABLE
+RETURNS NULL ON NULL INPUT";
+        return $this->db->exec($query);
+    }
+
+    function dropFunction($name) {
+        return $this->db->exec('DROP FUNCTION '.$name.' (Decimal(6,2), Decimal(6,2))');
     }
 }
 
