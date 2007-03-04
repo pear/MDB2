@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -416,6 +416,38 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
 
         return $db->queryCol('SELECT DISTINCT USER FROM mysql.USER');
+    }
+
+    // }}}
+    // {{{ listFunctions()
+
+    /**
+     * list all functions in the current database
+     *
+     * @return mixed array of function names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listFunctions()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name FROM mysql.proc";
+        /*
+        SELECT ROUTINE_NAME
+          FROM INFORMATION_SCHEMA.ROUTINES
+         WHERE ROUTINE_TYPE = 'FUNCTION'
+        */
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
