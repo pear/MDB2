@@ -40,12 +40,12 @@ can be used to construct portable SQL statements:
   <email>smith@pooteeweet.org</email>
   <active>no</active>
  </lead>
- <developer>
+ <lead>
   <name>Lorenzo Alberton</name>
   <user>quipo</user>
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
- </developer>
+ </lead>
  <contributor>
   <name>Paul Cooper</name>
   <user>pgc</user>

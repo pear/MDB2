@@ -21,6 +21,12 @@ http://pear.php.net/dtd/package-2.0.xsd">
   <email>smith@pooteeweet.org</email>
   <active>no</active>
  </lead>
+ <lead>
+  <name>Lorenzo Alberton</name>
+  <user>quipo</user>
+  <email>l.alberton@quipo.it</email>
+  <active>no</active>
+ </lead>
  <date>2006-10-27</date>
  <time>15:28:43</time>
  <version>
