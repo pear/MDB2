@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith, Frank M. Kromann                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -82,25 +82,22 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         $table = $db->quoteIdentifier($table, true);
         $fldname = $db->quoteIdentifier($field_name, true);
 
-        $query = "SELECT c.name name,
-                         c.length,
-                         c.prec precision,
-                         c.scale,
-                         c.isnullable,
-                         s.text 'default',
-                         t.name type,
-                         t.variable,
-                         o.name tablename
-                    FROM syscolumns c,
-                         systypes t,
-                         sysobjects o,
-                         syscomments s
-                   WHERE o.name = '$table'
-                     AND c.name = '$fldname'
-                     AND o.id = c.id
-                     AND c.xtype = t.xtype
-                     AND c.cdefault = s.id";
-
+        $query = "SELECT t.table_name,
+                         c.column_name 'name',
+                         c.data_type 'type',
+                         c.is_nullable,
+                		 c.column_default,
+                		 c.character_maximum_length 'length',
+                         c.numeric_precision,
+                         c.numeric_scale,
+                         c.character_set_name,
+                         c.collation_name
+                    FROM INFORMATION_SCHEMA.TABLES t,
+                         INFORMATION_SCHEMA.COLUMNS c
+                   WHERE t.table_name = c.table_name
+                     AND t.table_name = '$table'
+                     AND c.column_name = '$fldname'
+                ORDER BY t.table_name";
         $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($column)) {
             return $column;
@@ -119,19 +116,18 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         } else {
             $column = array_change_key_case($column, $db->options['field_case']);
         }
-
         $mapped_datatype = $db->datatype->mapNativeDatatype($column);
         if (PEAR::IsError($mapped_datatype)) {
             return $mapped_datatype;
         }
         list($types, $length, $unsigned, $fixed) = $mapped_datatype;
         $notnull = true;
-        if ($column['isnullable']) {
+        if ($column['is_nullable']) {
             $notnull = false;
         }
         $default = false;
-        if (array_key_exists('default', $column)) {
-            $default = $column['default'];
+        if (array_key_exists('column_default', $column)) {
+            $default = $column['column_default'];
             if (is_null($default) && $notnull) {
                 $default = '';
             } elseif (strlen($default) > 4
@@ -155,12 +151,9 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         if (!is_null($unsigned)) {
             $definition[0]['unsigned'] = $unsigned;
         }
-        /*
         if (!is_null($fixed)) {
             $definition[0]['fixed'] = $fixed;
         }
-        */
-        $definition[0]['fixed'] = !$column['variable'];
         if ($default !== false) {
             $definition[0]['default'] = $default;
         }
