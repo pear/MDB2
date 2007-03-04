@@ -201,16 +201,18 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                          c.name field_name,
                          CASE INDEXKEY_PROPERTY(i.id, i.indid, ik.keyno, 'IsDescending')
                            WHEN 1 THEN 'DESC' ELSE 'ASC'
-                         END 'collation',
-                         CASE o.xtype
-                            WHEN 'UQ' THEN 1 ELSE 0
-                         END 'unique'
+                         END 'collation'
                     FROM sysindexes i
                     JOIN sysobjects o ON o.id = i.id
                     JOIN sysindexkeys ik ON ik.id = i.id AND ik.indid = i.indid
                     JOIN syscolumns c ON c.id = ik.id AND c.colid = ik.colid
                    WHERE OBJECT_NAME(i.id) = '$table'
                      AND i.name = '%s'
+                     AND NOT EXISTS (
+                            SELECT *
+                              FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
+                             WHERE k.table_name = OBJECT_NAME(i.id)
+                               AND k.constraint_name = i.name)
                 ORDER BY tablename, indexname, ik.keyno";
 
         $index_name_mdb2 = $db->getIndexName($index_name);
@@ -240,7 +242,6 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                 $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'ASC'
                     ? 'ascending' : 'descending');
             }
-            $definition['unique'] = $row['unique'];
         }
         $result->free();
         if (empty($definition['fields'])) {
