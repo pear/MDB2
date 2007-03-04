@@ -397,9 +397,6 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         // todo: handle length of various int variations
         $db_type = preg_replace('/\d/','', strtolower($field['type']));
         $length = $field['length'];
-        if ((int)$length <= 0) {
-            $length = null;
-        }
         $type = array();
         // todo: unsigned handling seems to be missing
         $unsigned = $fixed = null;
@@ -462,9 +459,12 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             if (PEAR::isError($db)) {
                 return $db;
             }
-
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'unknown database attribute type: '.$db_type, __FUNCTION__);
+        }
+
+        if ((int)$length <= 0) {
+            $length = null;
         }
 
         return array($type, $length, $unsigned, $fixed);

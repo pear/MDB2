@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith, Frank M. Kromann, Lorenzo Alberton     |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -192,7 +192,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
 
         $definition[0] = array('notnull' => $notnull, 'nativetype' => $column['type']);
-        if ($length > 0) {
+        if (!is_null($length)) {
             $definition[0]['length'] = $length;
         }
         if (!is_null($unsigned)) {

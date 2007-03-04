@@ -26,6 +26,8 @@ $notes = <<<EOT
   an error
 - added a 'nativetype_map_callback' option to map native data declarations back to
   custom data types (thanks to Andrew Hill).
+- fixed bug #10234 and bug #10233: MDB2_Driver_Datatype_Common::mapNativeDatatype()
+  must ensure that it returns the correct length value, or null
 - phpdoc fixes
 - fixed tests to be compatible with PHP4
 - added new tests, including some MDB2 internals tests by Andrew Hill and Monique Szpak

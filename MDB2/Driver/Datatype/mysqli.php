@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -455,6 +455,10 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
                 'unknown database attribute type: '.$db_type, __FUNCTION__);
         }
 
+        if ((int)$length <= 0) {
+            $length = null;
+        }
+
         return array($type, $length, $unsigned, $fixed);
     }
 
@@ -498,5 +502,4 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
     
     // }}}
 }
-
 ?>
