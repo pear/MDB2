@@ -652,7 +652,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         if (!empty($definition['primary'])) {
-            return $db->alterTable($table, array(), false, array('primary' => $definition['fields']));
+            return $db->manager->alterTable($table, array(), false, array('primary' => $definition['fields']));
         }
 
         $table = $db->quoteIdentifier($table, true);
@@ -697,7 +697,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         if ($primary || $name == 'PRIMARY') {
-            return $db->alterTable($table, array(), false, array('primary' => null));
+            return $db->manager->alterTable($table, array(), false, array('primary' => null));
         }
 
         $name = $db->getIndexName($name);
