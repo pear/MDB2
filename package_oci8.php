@@ -9,7 +9,7 @@ $notes = <<<EOT
 - propagate errors in getTableFieldDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module [experimental]
 - implemented guid() in the Function module [globally unique identifier]
-- added missing error code (bug #9780)
+- added missing error codes (including the one reported in bug #9780)
 - fixed bug #10003: integer length problem in getTypeDeclaration() in the Datatype
   module (thanks to priyadi at priyadi dot net)
 - implemented a fallback mechanism within getTableIndexDefinition() and

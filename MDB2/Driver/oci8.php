@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -147,6 +147,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     2291 => MDB2_ERROR_CONSTRAINT,
                     2292 => MDB2_ERROR_CONSTRAINT,
                     2449 => MDB2_ERROR_CONSTRAINT,
+                    24344 => MDB2_ERROR_SYNTAX, //success with compilation error
                 );
             }
             if (isset($ecode_map[$native_code])) {
