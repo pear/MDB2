@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Paul Cooper, Lorenzo Alberton  |
+// | Copyright (c) 1998-2007 Manuel Lemos, Paul Cooper, Lorenzo Alberton  |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -328,7 +328,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $name = 'uniqueindex';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error creating unique index');
+            $this->assertFalse(true, 'Error creating unique constraint');
         } else {
             $constraints = $this->db->manager->listTableConstraints($this->table);
             $this->assertFalse(PEAR::isError($constraints), 'Error listing constraints');
