@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Lukas Smith, Lorenzo Alberton                |
+// | Copyright (c) 1998-2007 Lukas Smith, Lorenzo Alberton                |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -453,7 +453,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         //test
         $start = $this->db->nextId($sequence);
         $def = $this->db->reverse->getSequenceDefinition($sequence);
-        $this->assertEquals($start+1, $def['start'], 'Error getting sequence definition');
+        $this->assertEquals($start+1, (isset($def['start']) ? $def['start'] : 1), 'Error getting sequence definition');
 
         //cleanup
         $result = $this->db->manager->dropSequence($sequence);
