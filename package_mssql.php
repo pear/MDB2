@@ -19,7 +19,7 @@ $notes = <<<EOT
 - reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
   when a table name is passed (Bug #8124)
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-- use old dsn when rolling back open transactions in disconnect()
+- use old DSN when rolling back open transactions in disconnect()
 - MSSQL requires making columns exlicitly NULLable (Bug #8359)
 - do not list empty contraints and indexes
 - added support for autoincrement via IDENTITY in getDeclaration()
@@ -28,7 +28,7 @@ $notes = <<<EOT
 - added dropIndex() to the manager module
 - increased MDB2 dependency to XXX
 - renamed valid_types property to valid_default_values in the Datatype module
-- increased PHP dependency due to http://bugs.php.net/bug.php?id=31195
+- increased PHP dependency due to bug #31195
 - using 'ADD COLUMN' syntax instead of just 'ADD' in alterTable()
 - fixed bug #9024: typo in error checking
 - fixed inheritance structure of convertResult()
@@ -48,6 +48,7 @@ $notes = <<<EOT
   in case of failure before returning an error
 - added a 'nativetype_map_callback' option to map native data declarations back to
   custom data types (thanks to Andrew Hill).
+- added missing integer data types and their length in _mapNativeDatatype()
 - phpdoc fixes
 
 open todo items:

@@ -407,8 +407,21 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         case 'bit':
             $type[0] = 'boolean';
             break;
+        case 'tinyint':
+            $type[0] = 'integer';
+            $length = 1;
+            break;
+        case 'smallint':
+            $type[0] = 'integer';
+            $length = 2;
+            break;
         case 'int':
             $type[0] = 'integer';
+            $length = 4;
+            break;
+        case 'bigint':
+            $type[0] = 'integer';
+            $length = 8;
             break;
         case 'datetime':
             $type[0] = 'timestamp';
