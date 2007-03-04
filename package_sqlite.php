@@ -14,6 +14,7 @@ $notes = <<<EOT
   an error
 - added a 'nativetype_map_callback' option to map native data declarations back to
   custom data types (thanks to Andrew Hill).
+- fixed bug #9693: execute statement again in case of a SQLITE_SCHEMA error
 - fixed bug #10027: PHP4 compatibility in createConstraint() and dropConstraint()
 - phpdoc fixes
 

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -519,10 +519,14 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $php_errormsg = '';
         if (version_compare('5.1.0', PHP_VERSION, '>')) {
             @ini_set('track_errors', true);
-            $result = @$function($query.';', $connection);
+            do {
+                $result = @$function($query.';', $connection);
+            } while (sqlite_last_error($connection) == SQLITE_SCHEMA);
             @ini_restore('track_errors');
         } else {
-            $result = @$function($query.';', $connection, SQLITE_BOTH, $php_errormsg);
+            do {
+                $result = @$function($query.';', $connection, SQLITE_BOTH, $php_errormsg);
+            } while (sqlite_last_error($connection) == SQLITE_SCHEMA);
         }
         $this->_lasterror = $php_errormsg;
 
