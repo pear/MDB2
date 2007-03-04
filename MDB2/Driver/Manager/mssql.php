@@ -373,6 +373,42 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ listFunctions()
+
+    /**
+     * list all functions in the current database
+     *
+     * @return mixed array of function names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listFunctions()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name
+                    FROM sysobjects
+                   WHERE objectproperty(id, N'IsMSShipped') = 0
+                    AND (objectproperty(id, N'IsTableFunction') = 1
+                     OR objectproperty(id, N'IsScalarFunction') = 1)";
+        /*
+        SELECT ROUTINE_NAME
+          FROM INFORMATION_SCHEMA.ROUTINES
+         WHERE ROUTINE_TYPE = 'FUNCTION'
+        */
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
     // {{{ listTableTriggers()
 
     /**
@@ -432,6 +468,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $query = "SELECT name
                    FROM sysobjects
                     WHERE xtype = 'V'";
+        /*
+        SELECT *
+          FROM sysobjects
+         WHERE objectproperty(id, N'IsMSShipped') = 0
+           AND objectproperty(id, N'IsView') = 1
+        */
 
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
