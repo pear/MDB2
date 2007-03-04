@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2006 Lorenzo Alberton                                  |
+// | Copyright (c) 2006-2007 Lorenzo Alberton                             |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -63,6 +63,35 @@ END';
 
     function dropTrigger($trigger_name, $table_name) {
         return $this->db->exec('DROP TRIGGER '.$trigger_name);
+    }
+
+    function createFunction($name) {
+        echo $query = 'CREATE PROCEDURE '.$name.'(N1 DECIMAL(6,2), N2 DECIMAL(6,2))
+RETURNS (
+  res DECIMAL(6,2)
+)
+AS
+BEGIN
+  FOR
+    SELECT (:N1 + :N2) FROM RDB$DATABASE INTO :res
+  DO
+    BEGIN
+      SUSPEND;
+    END
+END';
+/*
+RETURNS Decimal(6,2)
+BEGIN
+    DECLARE @Result Decimal(6,2)
+    SET @Result = @Number1 + @Number2
+    RETURN @Result
+END
+*/
+        return $this->db->exec($query);
+    }
+
+    function dropFunction($name) {
+        return $this->db->exec('DROP PROCEDURE '.$name);
     }
 }
 

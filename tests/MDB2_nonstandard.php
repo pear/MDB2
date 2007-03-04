@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2006 Lorenzo Alberton                                  |
+// | Copyright (c) 2006-2007 Lorenzo Alberton                             |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -110,6 +110,21 @@ class MDB2_nonstandard {
      */
     function dropView($view_name) {
         return $this->db->exec('DROP VIEW '.$view_name);
+    }
+
+    /**
+     * Create a FUNCTION
+     */
+    function createFunction($name) {
+        return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+            'not capable', __FUNCTION__);
+    }
+
+    /**
+     * Drop a FUNCTION
+     */
+    function dropFunction($name) {
+        return $this->db->exec('DROP FUNCTION '.$name);
     }
 }
 ?>
