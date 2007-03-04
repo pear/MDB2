@@ -251,6 +251,81 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
     }
 
     // }}}
+    // {{{ getTableConstraintDefinition()
+
+    /**
+     * Get the structure of a constraint into an array
+     *
+     * @param string    $table      name of table that should be used in method
+     * @param string    $index_name name of index that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTableConstraintDefinition($table, $index_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $table = $db->quoteIdentifier($table, true);
+        $query = "SELECT k.table_name,
+                         k.column_name field_name,
+                         CASE c.constraint_type WHEN 'PRIMARY KEY' THEN 1 ELSE 0 END 'primary',
+                         CASE c.constraint_type WHEN 'UNIQUE' THEN 1 ELSE 0 END 'unique',
+                         CASE c.constraint_type WHEN 'FOREIGN KEY' THEN 1 ELSE 0 END 'foreign',
+                         CASE c.constraint_type WHEN 'CHECK' THEN 1 ELSE 0 END 'check'
+                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
+                    LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
+                      ON k.table_name = c.table_name
+                     AND k.constraint_name = c.constraint_name
+                   WHERE k.constraint_catalog = DB_NAME()
+                    AND k.table_name = '$table'
+                    AND k.constraint_name = '%s'
+               ORDER BY k.constraint_name,
+                        k.ordinal_position";
+
+        $index_name_mdb2 = $db->getIndexName($index_name);
+        $result = $db->queryRow(sprintf($query, $index_name_mdb2));
+        if (!PEAR::isError($result) && !is_null($result)) {
+            // apply 'idxname_format' only if the query succeeded, otherwise
+            // fallback to the given $index_name, without transformation
+            $index_name = $index_name_mdb2;
+        }
+        $result = $db->query(sprintf($query, $index_name));
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        $definition = array();
+        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+            $column_name = $row['field_name'];
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $column_name = strtolower($column_name);
+                } else {
+                    $column_name = strtoupper($column_name);
+                }
+            }
+            $definition['fields'][$column_name] = array();
+            if (!empty($row['collation'])) {
+                $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'ASC'
+                    ? 'ascending' : 'descending');
+            }
+            $definition['primary'] = $row['primary'];
+            $definition['unique']  = $row['unique'];
+            $definition['foreign'] = $row['foreign'];
+            $definition['check']   = $row['check'];
+        }
+        $result->free();
+        if (empty($definition['fields'])) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'it was not specified an existing table index', __FUNCTION__);
+        }
+        return $definition;
+    }
+
+    // }}}
     // {{{ getTriggerDefinition()
 
     /**

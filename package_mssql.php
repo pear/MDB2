@@ -40,6 +40,7 @@ $notes = <<<EOT
 - migrated to package.xml version 2
 - implemented getTableFieldDefinition() in the Reverse module
 - implemented getTableIndexDefinition() in the Reverse module
+- implemented getTableConstraintDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module
 - implemented guid() in the Function module [globally unique identifier]
 - implemented a fallback mechanism within getTableIndexDefinition() in the Reverse
