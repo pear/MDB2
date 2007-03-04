@@ -42,6 +42,7 @@ $notes = <<<EOT
 - implemented getTableIndexDefinition() in the Reverse module
 - implemented getTableConstraintDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module
+- implemented listTableConstraints() in the Manager module
 - implemented guid() in the Function module [globally unique identifier]
 - implemented a fallback mechanism within getTableIndexDefinition() in the Reverse
   module to ignore the 'idxname_format' option and use the index name as provided

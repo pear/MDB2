@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -39,7 +39,9 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Frank M. Kromann <frank@kromann.info>                        |
+// | Authors: Frank M. Kromann <frank@kromann.info>                       |
+// |          David Coallier <davidc@php.net>                             |
+// |          Lorenzo Alberton <l.alberton@quipo.it>                      |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -56,6 +58,7 @@ require_once 'MDB2/Driver/Manager/Common.php';
  * @category Database
  * @author  Frank M. Kromann <frank@kromann.info>
  * @author  David Coallier <davidc@php.net>
+ * @author  Lorenzo Alberton <l.alberton@quipo.it>
  */
 class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 {
@@ -465,6 +468,47 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $table = $db->quoteIdentifier($table, true);
         $name = $db->quoteIdentifier($db->getIndexName($name), true);
         return $db->exec("DROP INDEX $table.$name");
+    }
+
+    // }}}
+    // {{{ listTableConstraints()
+
+    /**
+     * list all constraints in a table
+     *
+     * @param string $table name of table that should be used in method
+     * @return mixed array of constraint names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableConstraints($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $table = $db->quoteIdentifier($table, true);
+        
+        $query = "SELECT c.constraint_name
+                    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
+                   WHERE c.constraint_catalog = DB_NAME()
+                    AND c.table_name = '$table'";
+        $constraints = $db->queryCol($query);
+        if (PEAR::isError($constraints)) {
+            return $constraints;
+        }
+
+        $result = array();
+        foreach ($constraints as $constraint) {
+            $constraint = $this->_fixIndexName($constraint);
+            if (!empty($constraint)) {
+                $result[$constraint] = true;
+            }
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_change_key_case($result, $db->options['field_case']);
+        }
+        return array_keys($result);
     }
 
     // }}}
