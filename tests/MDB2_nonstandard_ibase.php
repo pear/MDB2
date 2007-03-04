@@ -66,7 +66,7 @@ END';
     }
 
     function createFunction($name) {
-        echo $query = 'CREATE PROCEDURE '.$name.'(N1 DECIMAL(6,2), N2 DECIMAL(6,2))
+        $query = 'CREATE PROCEDURE '.$name.'(N1 DECIMAL(6,2), N2 DECIMAL(6,2))
 RETURNS (
   res DECIMAL(6,2)
 )
@@ -79,14 +79,6 @@ BEGIN
       SUSPEND;
     END
 END';
-/*
-RETURNS Decimal(6,2)
-BEGIN
-    DECLARE @Result Decimal(6,2)
-    SET @Result = @Number1 + @Number2
-    RETURN @Result
-END
-*/
         return $this->db->exec($query);
     }
 
