@@ -84,7 +84,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                     'unexpected table column SQL definition: "'.$column_sql[$i].'"', __FUNCTION__);
             }
-            $columns[$j]['name'] = $matches[1];
+            $columns[$j]['name'] = trim($matches[1], implode('', $db->identifier_quoting));
             $columns[$j]['type'] = strtolower($matches[2]);
             if (isset($matches[4]) && strlen($matches[4])) {
                 $columns[$j]['length'] = $matches[4];
