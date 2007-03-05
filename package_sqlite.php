@@ -19,6 +19,7 @@ $notes = <<<EOT
 - implemented listViews() in the Manager module
 - implemented listTableViews() in the Manager module
 - implemented listTableTriggers() in the Manager module
+- fixed bug #9828: propagate errors in getConnection()
 - phpdoc fixes
 
 note:

@@ -470,6 +470,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function getConnection()
     {
         $connection = parent::getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
 
         $fix_assoc_fields_names = $this->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES;
         if ($fix_assoc_fields_names !== $this->fix_assoc_fields_names) {
