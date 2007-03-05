@@ -881,7 +881,11 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if (PEAR::isError($db)) {
                 return $db;
             }
-
+            if (!empty($db->options['datatype_map_callback'][$type])) {
+                $parameter = array('current' => $current, 'previous' => $previous);
+                $change =  call_user_func_array($db->options['datatype_map_callback'][$type], array(&$db, __FUNCTION__, $parameter));
+                return $change;
+            }
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'type "'.$current['type'].'" is not yet supported', __FUNCTION__);
         }
