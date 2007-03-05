@@ -116,6 +116,25 @@ $package->setPhpDep('4.3.2');
 $package->setPearInstallerDep('1.4.0b1');
 $package->addPackageDepWithChannel('required', 'PEAR', 'pear.php.net', '1.3.6');
 
+$package->addDependencyGroup('fbsql-driver', 'Frontbase SQL driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'fbsql-driver', 'MDB2_Driver_fbsql', 'pear.php.net', '0.3.0');
+$package->addDependencyGroup('ibase-driver', 'Interbase/Firebird driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'ibase-driver', 'MDB2_Driver_ibase', 'pear.php.net', '1.4.0');
+$package->addDependencyGroup('mysql-driver', 'MySQL driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'mysql-driver', 'MDB2_Driver_mysql', 'pear.php.net', '1.4.0');
+$package->addDependencyGroup('mysqli-driver', 'MySQLi driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'mysqli-driver', 'MDB2_Driver_mysqli', 'pear.php.net', '1.4.0');
+$package->addDependencyGroup('mssql-driver', 'MS SQL Server driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'oci8-driver', 'MDB2_Driver_oci8', 'pear.php.net', '1.4.0');
+$package->addDependencyGroup('oci8-driver', 'Oracle driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'mssql-driver', 'MDB2_Driver_mssql', 'pear.php.net', '1.4.0');
+$package->addDependencyGroup('pgsql-driver', 'PostgreSQL driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'pgsql-driver', 'MDB2_Driver_pgsql', 'pear.php.net', '1.4.0');
+$package->addDependencyGroup('querysim-driver', 'Querysim driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'querysim-driver', 'MDB2_Driver_querysim', 'pear.php.net', '0.6.0');
+$package->addDependencyGroup('sqlite-driver', 'SQLite2 driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'sqlite-driver', 'MDB2_Driver_sqlite', 'pear.php.net', '1.4.0');
+
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version_release);
