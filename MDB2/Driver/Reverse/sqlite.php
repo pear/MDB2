@@ -378,6 +378,66 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
     }
 
     // }}}
+    // {{{ getTriggerDefinition()
+
+    /**
+     * Get the structure of a trigger into an array
+     *
+     * EXPERIMENTAL
+     *
+     * WARNING: this function is experimental and may change the returned value
+     * at any time until labelled as non-experimental
+     *
+     * @param string    $trigger    name of trigger that should be used in method
+     * @return mixed data array on success, a MDB2 error on failure
+     * @access public
+     */
+    function getTriggerDefinition($trigger)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name as trigger_name,
+                         tbl_name AS table_name,
+                         sql AS trigger_body,
+                         NULL AS trigger_type,
+                         NULL AS trigger_event,
+                         NULL AS trigger_comment,
+                         1 AS trigger_enabled
+                    FROM sqlite_master
+                   WHERE type='trigger'";
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $query.= ' AND LOWER(name)='.$db->quote(strtolower($trigger), 'text');
+        } else {
+            $query.= ' AND name='.$db->quote($trigger, 'text');
+        }
+        $types = array(
+            'trigger_name'    => 'text',
+            'table_name'      => 'text',
+            'trigger_body'    => 'text',
+            'trigger_type'    => 'text',
+            'trigger_event'   => 'text',
+            'trigger_comment' => 'text',
+            'trigger_enabled' => 'boolean',
+        );
+        $def = $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($def)) {
+            return $def;
+        }
+        if (empty($def)) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'it was not specified an existing trigger', __FUNCTION__);
+        }
+        if (preg_match("/^create\s+(?:temp|temporary)?trigger\s+(?:if\s+not\s+exists\s+)?.*(before|after)?\s+(insert|update|delete)/Uims", $def['trigger_body'], $tmp)) {
+            $def['trigger_type'] = strtoupper($tmp[1]);
+            $def['trigger_event'] = strtoupper($tmp[2]);
+        }
+        return $def;
+    }
+
+    // }}}
     // {{{ tableInfo()
 
     /**

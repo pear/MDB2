@@ -48,13 +48,11 @@ class MDB2_nonstandard_sqlite extends MDB2_nonstandard {
     var $trigger_body = '';
 
     function createTrigger($trigger_name, $table_name) {
-        $this->trigger_body = 'UPDATE '. $table_name .' SET somedescription = new.somename WHERE id = old.id;';
-
-        $query = 'CREATE TRIGGER '. $trigger_name .' UPDATE ON '. $table_name .'
-                  BEGIN
-                    '. $this->trigger_body .'
-                  END;';
-        return $this->db->standaloneQuery($query);
+        $this->trigger_body = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
+BEGIN
+    UPDATE '. $table_name .' SET somedescription = new.somename WHERE id = old.id;
+END';
+        return $this->db->standaloneQuery($this->trigger_body);
     }
 
     function checkTrigger($trigger_name, $table_name, $def) {
