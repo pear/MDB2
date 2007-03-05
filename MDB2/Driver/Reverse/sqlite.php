@@ -341,6 +341,31 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($sql)) {
             return $sql;
         }
+        if (!$sql && $index_name == 'primary') {
+            // search in table definition for PRIMARY KEYs
+            $query = "SELECT sql FROM sqlite_master WHERE type='table' AND ";
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                $query.= 'LOWER(name)='.$db->quote(strtolower($table), 'text');
+            } else {
+                $query.= 'name='.$db->quote($table, 'text');
+            }
+            $query.= " AND sql NOT NULL ORDER BY name";
+            $sql = $db->queryOne($query, 'text');
+            if (PEAR::isError($sql)) {
+                return $sql;
+            }
+            if (preg_match("/\bPRIMARY\s+KEY\b\s*\(([^)]+)/i", $sql, $tmp)) {
+                $definition = array();
+                $definition['primary'] = true;
+                $definition['fields'] = array();
+                $column_names = split(',', $tmp[1]);
+                foreach ($column_names as $column_name) {
+                    $definition['fields'][$column_name] = array();
+                }
+                return $definition;
+            }
+            $sql = false;
+        }
         if (!$sql) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'it was not specified an existing table constraint', __FUNCTION__);
