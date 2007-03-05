@@ -16,6 +16,9 @@ $notes = <<<EOT
   custom data types (thanks to Andrew Hill).
 - fixed bug #9693: execute statement again in case of a SQLITE_SCHEMA error
 - fixed bug #10027: PHP4 compatibility in createConstraint() and dropConstraint()
+- implemented listViews() in the Manager module
+- implemented listTableViews() in the Manager module
+- implemented listTableTriggers() in the Manager module
 - phpdoc fixes
 
 note:

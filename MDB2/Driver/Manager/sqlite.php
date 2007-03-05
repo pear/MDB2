@@ -39,7 +39,8 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Lukas Smith <smith@pooteeweet.org>                           |
+// | Authors: Lukas Smith <smith@pooteeweet.org>                          |
+// |          Lorenzo Alberton <l.alberton@quipo.it>                      |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -53,6 +54,7 @@ require_once 'MDB2/Driver/Manager/Common.php';
  * @package MDB2
  * @category Database
  * @author  Lukas Smith <smith@pooteeweet.org>
+ * @author  Lorenzo Alberton <l.alberton@quipo.it>
  */
 class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 {
@@ -407,6 +409,70 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ listViews()
+
+    /**
+     * list all views in the current database
+     *
+     * @return mixed array of view names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listViews()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name FROM sqlite_master WHERE type='view' AND sql NOT NULL";
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ listTableViews()
+
+    /**
+     * list the views in the database that reference a given table
+     *
+     * @param string table for which all referenced views should be found
+     * @return mixed array of view names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableViews($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
+        $views = $db->queryAll($query, array('text', 'text'), MDB2_FETCHMODE_ASSOC);
+        if (PEAR::isError($views)) {
+            return $views;
+        }
+        $result = array();
+        foreach ($views as $row) {
+            if (preg_match("/^create view .* \bfrom\b\s+\b{$table}\b /i", $row['sql'])) {
+                if (!empty($row['name'])) {
+                    $result[$row['name']] = true;
+                }
+            }
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_change_key_case($result, $db->options['field_case']);
+        }
+        return array_keys($result);
+    }
+
+    // }}}
     // {{{ listTables()
 
     /**
@@ -485,6 +551,41 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             $fields[] = $column['name'];
         }
         return $fields;
+    }
+
+    // }}}
+    // {{{ listTableTriggers()
+
+    /**
+     * list all triggers in the database that reference a given table
+     *
+     * @param string table for which all referenced triggers should be found
+     * @return mixed array of trigger names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableTriggers($table = null)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name FROM sqlite_master WHERE type='trigger' AND sql NOT NULL";
+        if (!is_null($table)) {
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                $query.= ' AND LOWER(tbl_name)='.$db->quote(strtolower($table), 'text');
+            } else {
+                $query.= ' AND tbl_name='.$db->quote($table, 'text');
+            }
+        }
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
     }
 
     // }}}
