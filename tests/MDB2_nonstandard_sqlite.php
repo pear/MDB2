@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2006 Lorenzo Alberton                                  |
+// | Copyright (c) 2006-2007 Lorenzo Alberton                             |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -50,11 +50,11 @@ class MDB2_nonstandard_sqlite extends MDB2_nonstandard {
     function createTrigger($trigger_name, $table_name) {
         $this->trigger_body = 'UPDATE '. $table_name .' SET somedescription = new.somename WHERE id = old.id;';
 
-        $query = 'CREATE TRIGGER '. $trigger_name .' IF NOT EXISTS test_trigger UPDATE ON '. $table_name .'
+        $query = 'CREATE TRIGGER '. $trigger_name .' UPDATE ON '. $table_name .'
                   BEGIN
                     '. $this->trigger_body .'
                   END;';
-        return $this->db->exec($query);
+        return $this->db->standaloneQuery($query);
     }
 
     function checkTrigger($trigger_name, $table_name, $def) {
@@ -63,7 +63,14 @@ class MDB2_nonstandard_sqlite extends MDB2_nonstandard {
     }
 
     function dropTrigger($trigger_name, $table_name) {
-        return $this->db->exec('DROP TRIGGER '.$trigger_name);
+        return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name);
+    }
+    
+    function createView($view_name, $table_name) {
+        $query = 'CREATE VIEW '. $this->db->quoteIdentifier($view_name, true)
+                .' AS SELECT id FROM '
+                . $this->db->quoteIdentifier($table_name, true) .' WHERE id > 1';
+        return $this->db->exec($query);
     }
 }
 
