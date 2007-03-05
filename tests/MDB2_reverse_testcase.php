@@ -482,7 +482,11 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
 
         //test
         $def = $this->db->reverse->getTriggerDefinition($trigger_name);
-        $nonstd->checkTrigger($trigger_name, $this->table, $def);
+        if (PEAR::isError($def)) {
+            $this->assertTrue(false, 'getTriggerDefinition: '.$def->getMessage());
+        } else {
+            $nonstd->checkTrigger($trigger_name, $this->table, $def);
+        }
 
         //cleanup
         $result = $nonstd->dropTrigger($trigger_name, $this->table);
