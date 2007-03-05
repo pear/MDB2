@@ -669,5 +669,40 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             $this->assertTrue(in_array(strtolower($this->db->dsn['username']), $users), 'Error: user not found');
         }
     }
+
+    /**
+     * Test listFunctions()
+     */
+    function testListFunctions() {
+        //setup
+        $function_name = 'test_add';
+
+        include_once 'MDB2_nonstandard.php';
+        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
+        if (PEAR::isError($nonstd)) {
+            $this->assertTrue(false, 'Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
+            return;
+        }
+
+        $result = $nonstd->createFunction($function_name);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Cannot create function: '.$result->getMessage().' :: '.$result->getUserInfo());
+            return;
+        }
+
+        //test
+        $functions = $this->db->manager->listFunctions();
+        if (PEAR::isError($functions)) {
+            $this->assertTrue(false, 'Error listing the functions: '.$functions->getMessage());
+        } else {
+            $this->assertTrue(in_array($function_name, $functions), 'Error: function not found');
+        }
+
+        //cleanup
+        $result = $nonstd->dropFunction($function_name);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error dropping the function: '.$result->getMessage());
+        }
+    }
 }
 ?>
