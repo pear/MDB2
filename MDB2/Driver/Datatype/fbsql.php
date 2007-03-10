@@ -224,6 +224,126 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     {
         return 'TIME'.$this->_quoteText($value, $quote, $escape_wildcards);
     }
-}
+    
+    // }}}
+    // {{{ _mapNativeDatatype()
 
+    /**
+     * Maps a native array description of a field to a MDB2 datatype and length
+     *
+     * @param array  $field native field description
+     * @return array containing the various possible types, length, sign, fixed
+     * @access public
+     */
+    function _mapNativeDatatype($field)
+    {
+        $db_type = strtolower($field['type']);
+        $length = $field['length'];
+        if ($length == '-1' && !empty($field['atttypmod'])) {
+            $length = $field['atttypmod'] - 4;
+        }
+        $type = array();
+        $unsigned = $fixed = null;
+        switch ($db_type) {
+        case 'tinyint':
+            $type[] = 'integer';
+            $unsigned = preg_match('/ unsigned/i', $field['type']);
+            $length = 1;
+            break;
+        case 'smallint':
+            $type[] = 'integer';
+            $unsigned = false;
+            $length = 2;
+            if ($length == '2') {
+                $type[] = 'boolean';
+                if (preg_match('/^(is|has)/', $field['name'])) {
+                    $type = array_reverse($type);
+                }
+            }
+            break;
+        case 'int':
+        case 'integer':
+            $type[] = 'integer';
+            $unsigned = false;
+            $length = 4;
+            break;
+        case 'longint':
+            $type[] = 'integer';
+            $unsigned = false;
+            $length = 8;
+            break;
+        case 'boolean':
+            $type[] = 'boolean';
+            $length = null;
+            break;
+        case 'character varying':
+        case 'char varying':
+        case 'varchar':
+        case 'national character varying':
+        case 'national char varying':
+        case 'nchar varying':
+            $fixed = false;
+        case 'unknown':
+        case 'char':
+        case 'character':
+        case 'national character':
+        case 'national char':
+        case 'nchar':
+            $type[] = 'text';
+            if (strstr($db_type, 'text')) {
+                $type[] = 'clob';
+            }
+            if ($fixed !== false) {
+                $fixed = true;
+            }
+            break;
+        case 'date':
+            $type[] = 'date';
+            $length = null;
+            break;
+        case 'timestamp':
+        case 'timestamp with time zone':
+            $type[] = 'timestamp';
+            $length = null;
+            break;
+        case 'time':
+        case 'time with time zone':
+            $type[] = 'time';
+            $length = null;
+            break;
+        case 'float':
+        case 'double precision':
+        case 'real':
+            $type[] = 'float';
+            break;
+        case 'decimal':
+        case 'numeric':
+            $type[] = 'decimal';
+            break;
+        case 'blob':
+            $type[] = 'blob';
+            $length = null;
+            break;
+        case 'clob':
+            $type[] = 'clob';
+            $length = null;
+            break;
+        default:
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'unknown database attribute type: '.$db_type, __FUNCTION__);
+        }
+
+        if ((int)$length <= 0) {
+            $length = null;
+        }
+
+        return array($type, $length, $unsigned, $fixed);
+    }
+
+    // }}}
+}
 ?>
