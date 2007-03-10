@@ -2940,7 +2940,7 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ function _skipDelimitedStrings($value, $type = null, $quote = true)
+    // {{{ function _skipDelimitedStrings($query, $position, $p_position)
     
     /**
      * Utility method, used by prepare() to avoid replacing placeholders within delimited strings.
@@ -2948,9 +2948,9 @@ class MDB2_Driver_Common extends PEAR
      * If so, skip it and advance the position, otherwise return the current position,
      * which is valid
      *
-     * @param $query
-     * @param $position current string cursor position
-     * @param $p_position placeholder position
+     * @param string $query
+     * @param integer $position current string cursor position
+     * @param integer $p_position placeholder position
      *
      * @return mixed integer $new_position on success
      *               MDB2_Error on failure
