@@ -767,6 +767,35 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ function _skipUserDefinedVariable($query, $position)
+
+    /**
+     * Utility method, used by prepare() to avoid misinterpreting MySQL user
+     * defined variables (SELECT @x:=5) for placeholders.
+     * Check if the placeholder is a false positive, i.e. if it is an user defined
+     * variable instead. If so, skip it and advance the position, otherwise
+     * return the current position, which is valid
+     *
+     * @param string $query
+     * @param integer $position current string cursor position
+     * @return integer $new_position
+     * @access protected
+     */
+    function _skipUserDefinedVariable($query, $position)
+    {
+        $found = strpos(strrev(substr($query, 0, $position)), '@');
+        if ($found === false) {
+            return $position;
+        }
+        $pos = strlen($query) - strlen(substr($query, $position)) - $found - 1;
+        $substring = substr($query, $pos, $position - $pos + 2);
+        if (preg_match('/^@\w+:=$/', $substring)) {
+            return $position + 1; //found an user defined variable: skip it
+        }
+        return $position;
+    }
+
+    // }}}
     // {{{ prepare()
 
     /**
@@ -845,6 +874,12 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                     $question = $colon = $placeholder_type;
                 }
                 if ($placeholder_type == ':') {
+                    //make sure this is not part of an user defined variable
+                    $new_pos = $this->_skipUserDefinedVariable($query, $position);
+                    if ($new_pos != $position) {
+                        $position = $new_pos;
+                        continue; //evaluate again starting from the new position
+                    }
                     $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
                     if ($parameter === '') {
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,

@@ -25,6 +25,7 @@ $notes = <<<EOT
 - fixed bug #10181: propagate error when an invalid type is passed to prepare()
 - added a 'nativetype_map_callback' option to map native data declarations back to
   custom data types (thanks to Andrew Hill).
+- fixed bug #10239: execute() misinterprets MySQL's user defined variables
 - phpdoc fixes
 
 open todo items:
