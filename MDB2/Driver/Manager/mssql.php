@@ -414,7 +414,14 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        return $db->queryCol('SELECT DISTINCT loginame FROM master..sysprocesses');
+        $result = $db->queryCol('SELECT DISTINCT loginame FROM master..sysprocesses');
+        if (PEAR::isError($result) || empty($result)) {
+            return $result;
+        }
+        foreach (array_keys($result) as $k) {
+            $result[$k] = trim($result[$k]);
+        }
+        return $result;
     }
 
     // }}}
