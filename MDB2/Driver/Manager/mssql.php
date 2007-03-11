@@ -429,9 +429,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quote($table, 'text');
-        $query = "SELECT name FROM sysobjects WHERE xtype = 'TR'";
+        $query = "SELECT o.name
+                    FROM sysobjects o
+                   WHERE xtype = 'TR'
+                     AND OBJECTPROPERTY(o.id, 'IsMSShipped') = 0";
         if (!is_null($table)) {
-            $query .= "AND object_name(parent_obj) = $table";
+            $query .= " AND object_name(parent_obj) = $table";
         }
 
         $result = $db->queryCol($query);
