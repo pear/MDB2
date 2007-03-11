@@ -343,20 +343,25 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             return $db;
         }
 
-        /*
-             CASE
-               WHEN sys1.instrig > 0 THEN 'INSERT'
-               WHEN sys1.updtrig > 0 THEN 'UPDATE'
-               WHEN sys1.deltrig > 0 THEN 'DELETE'
-             END trigger_event
-        */
         $query = "SELECT sys1.name trigger_name,
                          sys2.name table_name,
                          c.text trigger_body,
                          c.encrypted is_encripted,
-                         1 trigger_enabled,
-                         '' trigger_event,
-                         '' trigger_type,
+                         CASE
+                           WHEN OBJECTPROPERTY(sys1.id, 'ExecIsTriggerDisabled') = 1
+                           THEN 0 ELSE 1
+                         END trigger_enabled,
+                         CASE
+                           WHEN OBJECTPROPERTY(sys1.id, 'ExecIsInsertTrigger') = 1
+                           THEN 'INSERT'
+                           WHEN OBJECTPROPERTY(sys1.id, 'ExecIsUpdateTrigger') = 1
+                           THEN 'UPDATE'
+                           WHEN OBJECTPROPERTY(sys1.id, 'ExecIsDeleteTrigger') = 1
+                           THEN 'DELETE'
+                         END trigger_event,
+                         CASE WHEN OBJECTPROPERTY(sys1.id, 'ExecIsInsteadOfTrigger') = 1
+                           THEN 'INSTEAD OF' ELSE 'AFTER'
+                         END trigger_type,
                          '' trigger_comment
                     FROM sysobjects sys1
                     JOIN sysobjects sys2 ON sys1.parent_obj = sys2.id
@@ -378,14 +383,6 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         $def = $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($def)) {
             return $def;
-        }
-        if (!$def['is_encripted']) {
-            if (preg_match('/\bFOR\b\s+([\w,]+)\s+\bAS\b/Uis', $def['trigger_body'], $matches)) {
-                $def['trigger_type'] = 'AFTER';
-                $def['trigger_event'] = $matches[1];
-            } elseif (preg_match('/\bINSTEAD\b\s+\bOF\b\s+(INSERT|UPDATE|DELETE)/Uis', $def['trigger_body'])) {
-                $def['trigger_type'] = 'INSTEAD OF';
-            }
         }
         return $def;
     }
