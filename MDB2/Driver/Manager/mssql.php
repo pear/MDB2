@@ -373,6 +373,51 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ listDatabases()
+
+    /**
+     * list all databases
+     *
+     * @return mixed array of database names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listDatabases()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $result = $db->queryCol('SELECT name FROM sys.databases');
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ listUsers()
+
+    /**
+     * list all users
+     *
+     * @return mixed array of user names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listUsers()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        return $db->queryCol('SELECT DISTINCT loginame FROM master..sysprocesses');
+    }
+
+    // }}}
     // {{{ listFunctions()
 
     /**
