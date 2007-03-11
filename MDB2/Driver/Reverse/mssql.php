@@ -330,8 +330,6 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
      * WARNING: this function is experimental and may change the returned value
      * at any time until labelled as non-experimental
      *
-     * WARNING: only the first 4000 characters of the Trigger definition are returned
-     *
      * @param string    $trigger    name of trigger that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
@@ -383,6 +381,10 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         $def = $db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($def)) {
             return $def;
+        }
+        $trg_body = $db->queryCol('EXEC sp_helptext '. $db->quote($trigger, 'text'), 'text');
+        if (!PEAR::isError($trg_body)) {
+            $def['trigger_body'] = implode('', $trg_body);
         }
         return $def;
     }
