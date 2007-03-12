@@ -92,7 +92,6 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'missing any fields', __FUNCTION__);
         }
-
         foreach ($fields as $field_name => $field) {
             $query = $db->getDeclaration($field['type'], $field_name, $field);
             if (PEAR::isError($query)) {
@@ -200,7 +199,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     }
 
     // }}}
-    // {{{
+    // {{{ _getCreateTableQuery()
 
     /**
      * Create a basic SQL query for a new table creation
@@ -234,7 +233,34 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         $name = $db->quoteIdentifier($name, true);
-        return "CREATE TABLE $name ($query_fields)";
+        $result = 'CREATE ';
+        if (!empty($options['temporary'])) {
+            $result .= $this->_getTemporaryTableQuery();
+        }
+        $result .= "TABLE $name ($query_fields)";
+        return $result;
+    }
+
+    // }}}
+    // {{{ _getTemporaryTableQuery()
+
+    /**
+     * A method to return the required SQL string that fits between CREATE ... TABLE
+     * to create the table as a temporary table.
+     *
+     * Should be overridden in driver classes to return the correct string for the
+     * specific database type.
+     *
+     * The default is to return the string "TEMPORARY" - this will result in a
+     * SQL error for any database that does not support temporary tables, or that
+     * requires a different SQL command from "CREATE TEMPORARY TABLE".
+     *
+     * @return string The string required to be placed between "CREATE" and "TABLE"
+     *                to generate a temporary table, if possible.
+     */
+    function _getTemporaryTableQuery()
+    {
+        return 'TEMPORARY';
     }
 
     // }}}
@@ -265,7 +291,10 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
      *                              )
      *                          );
      * @param array $options  An associative array of table options:
-     *
+     *                          array(
+     *                              'comment' => 'Foo',
+     *                              'temporary' => true|false,
+     *                          );
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */

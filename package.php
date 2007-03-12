@@ -28,6 +28,7 @@ $notes = <<<EOT
   custom data types (thanks to Andrew Hill).
 - fixed bug #10234 and bug #10233: MDB2_Driver_Datatype_Common::mapNativeDatatype()
   must ensure that it returns the correct length value, or null
+- added support for TEMPORARY tables (patch by Andrew Hill)
 - phpdoc fixes
 - fixed tests to be compatible with PHP4
 - added new tests, including some MDB2 internals tests by Andrew Hill and Monique Szpak
