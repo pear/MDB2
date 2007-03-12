@@ -3,7 +3,7 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'YYY';
+$version = '1.4.0';
 $state = 'stable';
 $notes = <<<EOT
 - fixed bug #9283: missing support for BINARY/VARBINARY data types (thanks to Tom Hendrikx)
@@ -53,13 +53,13 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.4.0');
 $package->addExtensionDep('required', 'mysqli');
 
 $package->addRelease();
 $package->generateContents();
 $package->setReleaseVersion($version);
-$package->setAPIVersion('XXX');
+$package->setAPIVersion($version);
 $package->setReleaseStability($state);
 $package->setAPIStability($state);
 $package->setNotes($notes);

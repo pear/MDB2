@@ -3,7 +3,7 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version_release = 'XXX';
+$version_release = '2.4.0';
 $version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
@@ -36,7 +36,6 @@ $notes = <<<EOT
 open todo items:
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering
-- expand charset support in schema management and result set handling (Request #4666)
 - add EXPLAIN abstraction
 - add cursor support along the lines of PDO (Request #3660 etc.)
 - add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
@@ -45,7 +44,6 @@ open todo items:
 - add support for database/table/row LOCKs
 - add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
 - generate STATUS file from test suite results and allow users to submit test results
-- explore use of install groups (pear install MDB2#mysql)
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
   disabled behaves as expected
@@ -126,9 +124,9 @@ $package->addGroupPackageDepWithChannel('subpackage', 'mysql-driver', 'MDB2_Driv
 $package->addDependencyGroup('mysqli-driver', 'MySQLi driver for MDB2');
 $package->addGroupPackageDepWithChannel('subpackage', 'mysqli-driver', 'MDB2_Driver_mysqli', 'pear.php.net', '1.4.0');
 $package->addDependencyGroup('mssql-driver', 'MS SQL Server driver for MDB2');
-$package->addGroupPackageDepWithChannel('subpackage', 'oci8-driver', 'MDB2_Driver_oci8', 'pear.php.net', '1.4.0');
+$package->addGroupPackageDepWithChannel('subpackage', 'mssql-driver', 'MDB2_Driver_mssql', 'pear.php.net', '1.2.0');
 $package->addDependencyGroup('oci8-driver', 'Oracle driver for MDB2');
-$package->addGroupPackageDepWithChannel('subpackage', 'mssql-driver', 'MDB2_Driver_mssql', 'pear.php.net', '1.4.0');
+$package->addGroupPackageDepWithChannel('subpackage', 'oci8-driver', 'MDB2_Driver_oci8', 'pear.php.net', '1.4.0');
 $package->addDependencyGroup('pgsql-driver', 'PostgreSQL driver for MDB2');
 $package->addGroupPackageDepWithChannel('subpackage', 'pgsql-driver', 'MDB2_Driver_pgsql', 'pear.php.net', '1.4.0');
 $package->addDependencyGroup('querysim-driver', 'Querysim driver for MDB2');
