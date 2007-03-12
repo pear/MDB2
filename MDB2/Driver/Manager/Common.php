@@ -237,7 +237,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if (!empty($options['temporary'])) {
             $result .= $this->_getTemporaryTableQuery();
         }
-        $result .= "TABLE $name ($query_fields)";
+        $result .= " TABLE $name ($query_fields)";
         return $result;
     }
 
