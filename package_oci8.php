@@ -21,6 +21,7 @@ $notes = <<<EOT
   custom data types (thanks to Andrew Hill).
 - fixed bug #10215: selected the wrong field in the query in listTableConstraints()
   in the Manager module
+- fixed bug #10337: call to non-existing object error in the manager module
 - phpdoc fixes
 
 note:

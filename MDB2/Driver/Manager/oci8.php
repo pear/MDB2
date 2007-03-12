@@ -154,7 +154,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             'primary' => true,
             'fields' => array($name => true),
         );
-        $result = $db->manager->createConstraint($table, $index_name, $definition);
+        $result = $this->createConstraint($table, $index_name, $definition);
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
                 'primary key for autoincrement PK could not be created', __FUNCTION__);
@@ -168,10 +168,10 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 return $start;
             }
             ++$start;
-            $result = $db->manager->createSequence($table, $start);
+            $result = $this->createSequence($table, $start);
             $db->commit();
         } else {
-            $result = $db->manager->createSequence($table, $start);
+            $result = $this->createSequence($table, $start);
         }
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
@@ -243,14 +243,14 @@ END;
                     'trigger for autoincrement PK could not be dropped', __FUNCTION__);
             }
 
-            $result = $db->manager->dropSequence($table);
+            $result = $this->dropSequence($table);
             if (PEAR::isError($result)) {
                 return $db->raiseError($result, null, null,
                     'sequence for autoincrement PK could not be dropped', __FUNCTION__);
             }
 
             $index_name = $table . '_AI_PK';
-            $result = $db->manager->dropConstraint($table, $index_name);
+            $result = $this->dropConstraint($table, $index_name);
             if (PEAR::isError($result)) {
                 return $db->raiseError($result, null, null,
                     'primary key for autoincrement PK could not be dropped', __FUNCTION__);
