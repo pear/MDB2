@@ -197,7 +197,7 @@ BEGIN
       SELECT NVL(Last_Number, 0) INTO last_Sequence
         FROM User_Sequences
        WHERE UPPER(Sequence_Name) = UPPER(\''.$sequence_name.'\');
-      SELECT :NEW.id INTO last_InsertID FROM DUAL;
+      SELECT :NEW.'.$name.' INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
          SELECT '.$sequence_name.'.NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;

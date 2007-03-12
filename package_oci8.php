@@ -22,6 +22,7 @@ $notes = <<<EOT
 - fixed bug #10215: selected the wrong field in the query in listTableConstraints()
   in the Manager module
 - fixed bug #10337: call to non-existing object error in the manager module
+- fixed bug #10340: hard-coded field name in SQL query in _makeAutoincrement()
 - phpdoc fixes
 
 note:
