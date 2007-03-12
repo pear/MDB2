@@ -16,6 +16,7 @@ $notes = <<<EOT
   an error
 - added a 'nativetype_map_callback' option to map native data declarations back to
   custom data types (thanks to Andrew Hill).
+- lastInsertID() without parameters now returns the last used ID (request #9989)
 - phpdoc fixes
 
 open todo items:
