@@ -234,6 +234,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      * @param array $options  An associative array of table options:
      *                          array(
      *                              'comment' => 'Foo',
+     *                              'temporary' => true|false,
      *                          );
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
@@ -324,6 +325,21 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             }
         }
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _getTemporaryTableQuery()
+
+    /**
+     * A method to return the required SQL string that fits between CREATE ... TABLE
+     * to create the table as a temporary table.
+     *
+     * @return string The string required to be placed between "CREATE" and "TABLE"
+     *                to generate a temporary table, if possible.
+     */
+    function _getTemporaryTableQuery()
+    {
+        return 'GLOBAL TEMPORARY';
     }
 
     // }}}
