@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.6" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.5.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mssql</name>
  <channel>pear.php.net</channel>
  <summary>mssql MDB2 driver</summary>
@@ -28,19 +28,65 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2007-01-10</date>
- <time>14:22:20</time>
+ <date>2007-03-13</date>
+ <time>22:54:05</time>
  <version>
-  <release>1.1.2</release>
-  <api>1.1.2</api>
+  <release>1.2.0</release>
+  <api>1.2.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- removed mysql_select_db and used mssql_select_db
-
+ <notes>- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
+- added savepoint support to beginTransaction(), commit() and rollback()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
+- added &apos;mdb2type&apos; output to getTableFieldDefinition()
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- use old DSN when rolling back open transactions in disconnect()
+- MSSQL requires making columns exlicitly NULLable (Bug #8359)
+- do not list empty contraints and indexes
+- added support for autoincrement via IDENTITY in getDeclaration()
+- ALTER TABLE bug when adding more than 1 column (Bug #8373)
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- added dropIndex() to the manager module
+- increased MDB2 dependency to XXX
+- renamed valid_types property to valid_default_values in the Datatype module
+- increased PHP dependency due to bug #31195
+- using &apos;ADD COLUMN&apos; syntax instead of just &apos;ADD&apos; in alterTable()
+- fixed bug #9024: typo in error checking
+- fixed inheritance structure of convertResult()
+- added support for new &apos;disable_iso_date&apos; date DSN option (Request #8739)
+- fix typos in error handling in a few places (bug #9024)
+- do not skip id generation in nextId() when creating a sequence on demand
+  because this prevents lastInsertID() from working
+- added support for more error codes (patch by Adam Harvey)
+- migrated to package.xml version 2
+- implemented getTableFieldDefinition() in the Reverse module
+- implemented getTableIndexDefinition() in the Reverse module
+- implemented getTableConstraintDefinition() in the Reverse module
+- implemented getTriggerDefinition() in the Reverse module
+- implemented listTableConstraints() in the Manager module
+- implemented listFunctions() in the Manager module
+- implemented listDatabases() in the Manager module
+- implemented listUsers() in the Manager module
+- implemented guid() in the Function module [globally unique identifier]
+- implemented a fallback mechanism within getTableIndexDefinition() in the Reverse
+  module to ignore the &apos;idxname_format&apos; option and use the index name as provided
+  in case of failure before returning an error
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- added missing integer data types and their length in _mapNativeDatatype()
+- phpdoc fixes
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)</notes>
@@ -95,7 +141,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.3.0</min>
+    <min>2.4.0</min>
    </package>
    <extension>
     <name>mssql</name>
@@ -104,6 +150,69 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.2.0</release>
+    <api>1.2.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-03-13</date>
+   <license>BSD License</license>
+   <notes>- added ability to escape wildcard characters in escape() and quote()
+- added setTransactionIsolation()
+- added savepoint support to beginTransaction(), commit() and rollback()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added context array parameter to debug() and make use of it whereever sensible
+- added optional method name parameter to raiseError() and use whereever possible
+- added ability to escape wildcard characters in escape() and quote()
+- added debug() call at the end of a query/prepare/execute calling (Request #7933)
+- added &apos;nativetype&apos; output to tableInfo() and getTableFieldDefinition()
+- added &apos;mdb2type&apos; output to getTableFieldDefinition()
+- reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
+  when a table name is passed (Bug #8124)
+- fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
+- use old DSN when rolling back open transactions in disconnect()
+- MSSQL requires making columns exlicitly NULLable (Bug #8359)
+- do not list empty contraints and indexes
+- added support for autoincrement via IDENTITY in getDeclaration()
+- ALTER TABLE bug when adding more than 1 column (Bug #8373)
+- fixed handling return values when disable_query is set in _doQuery() and _execute()
+- added dropIndex() to the manager module
+- increased MDB2 dependency to XXX
+- renamed valid_types property to valid_default_values in the Datatype module
+- increased PHP dependency due to bug #31195
+- using &apos;ADD COLUMN&apos; syntax instead of just &apos;ADD&apos; in alterTable()
+- fixed bug #9024: typo in error checking
+- fixed inheritance structure of convertResult()
+- added support for new &apos;disable_iso_date&apos; date DSN option (Request #8739)
+- fix typos in error handling in a few places (bug #9024)
+- do not skip id generation in nextId() when creating a sequence on demand
+  because this prevents lastInsertID() from working
+- added support for more error codes (patch by Adam Harvey)
+- migrated to package.xml version 2
+- implemented getTableFieldDefinition() in the Reverse module
+- implemented getTableIndexDefinition() in the Reverse module
+- implemented getTableConstraintDefinition() in the Reverse module
+- implemented getTriggerDefinition() in the Reverse module
+- implemented listTableConstraints() in the Manager module
+- implemented listFunctions() in the Manager module
+- implemented listDatabases() in the Manager module
+- implemented listUsers() in the Manager module
+- implemented guid() in the Function module [globally unique identifier]
+- implemented a fallback mechanism within getTableIndexDefinition() in the Reverse
+  module to ignore the &apos;idxname_format&apos; option and use the index name as provided
+  in case of failure before returning an error
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- added missing integer data types and their length in _mapNativeDatatype()
+- phpdoc fixes
+
+open todo items:
+- explore fast limit/offset emulation (Request #4544)</notes>
+  </release>
   <release>
    <version>
     <release>1.1.2</release>

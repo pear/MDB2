@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.5.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_oci8</name>
  <channel>pear.php.net</channel>
  <summary>oci8 MDB2 driver</summary>
@@ -22,24 +22,35 @@
   <email>justinpatrin@php.net</email>
   <active>yes</active>
  </developer>
- <date>2006-11-03</date>
- <time>14:02:30</time>
+ <date>2007-03-13</date>
+ <time>22:55:42</time>
  <version>
-  <release>1.3.0</release>
-  <api>2.3.0</api>
+  <release>1.4.0</release>
+  <api>1.4.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed inheritance structure of convertResult()
-- fixed several critical typos in tableInfo()
-- added support for new &apos;disable_iso_date&apos; date DSN option (Request #8739)
-- removed spurious 4th parameter of getDeclaration()
-- fixed handling of last_number in currID() and getSequenceDefinition()
-- skipping 1.1.x and 1.2.x to show that the driver is inline with the other drivers
-- migrated to package.xml version 2
+ <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
+- implemented getTriggerDefinition() in the Reverse module [experimental]
+- implemented guid() in the Function module [globally unique identifier]
+- added missing error codes (including the one reported in bug #9780)
+- fixed bug #10003: integer length problem in getTypeDeclaration() in the Datatype
+  module (thanks to priyadi at priyadi dot net)
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
+  option and use the index name as provided in case of failure before returning
+  an error
+- fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- fixed bug #10215: selected the wrong field in the query in listTableConstraints()
+  in the Manager module
+- fixed bug #10337: call to non-existing object error in the manager module
+- fixed bug #10340: hard-coded field name in SQL query in _makeAutoincrement()
+- phpdoc fixes
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -61,32 +72,35 @@ open todo items:
       <file name="oci8.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Datatype -->
+     </dir> <!-- /MDB2/Driver/Datatype -->
      <dir name="Function">
       <file name="oci8.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Function -->
+     </dir> <!-- /MDB2/Driver/Function -->
      <dir name="Manager">
       <file name="oci8.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Manager -->
+     </dir> <!-- /MDB2/Driver/Manager -->
      <dir name="Native">
       <file name="oci8.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Native -->
+     </dir> <!-- /MDB2/Driver/Native -->
      <dir name="Reverse">
       <file name="oci8.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Reverse -->
+     </dir> <!-- /MDB2/Driver/Reverse -->
      <file name="oci8.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-    </dir> <!-- //MDB2/Driver -->
-   </dir> <!-- //MDB2 -->
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
+   <dir name="tests">
+    <file name="MDB2_nonstandard_oci8.php" role="test" />
+   </dir> <!-- /tests -->
    <file name="package_oci8.xml" role="data" />
   </dir> <!-- / -->
  </contents>
@@ -101,7 +115,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.3.0</min>
+    <min>2.4.0</min>
    </package>
    <extension>
     <name>oci8</name>
@@ -110,6 +124,49 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.4.0</release>
+    <api>1.4.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-03-13</date>
+   <license>BSD License</license>
+   <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
+- implemented getTriggerDefinition() in the Reverse module [experimental]
+- implemented guid() in the Function module [globally unique identifier]
+- added missing error codes (including the one reported in bug #9780)
+- fixed bug #10003: integer length problem in getTypeDeclaration() in the Datatype
+  module (thanks to priyadi at priyadi dot net)
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
+  option and use the index name as provided in case of failure before returning
+  an error
+- fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- fixed bug #10215: selected the wrong field in the query in listTableConstraints()
+  in the Manager module
+- fixed bug #10337: call to non-existing object error in the manager module
+- fixed bug #10340: hard-coded field name in SQL query in _makeAutoincrement()
+- phpdoc fixes
+
+note:
+- please use the latest ext/oci8 version from pecl.php.net/oci8
+ (binaries are available from snaps.php.net and pecl4win.php.net)
+- by default this driver emulates the database concept other RDBMS have by this
+  using the &quot;database&quot; instead of &quot;username&quot; in the DSN as the username name.
+  behaviour can be disabled by setting the &quot;emulate_database&quot; option to false.
+- the multi_query test failes because this is not supported by ext/oci8
+- the null LOB test failes because this is not supported by Oracle
+
+open todo items:
+- enable use of read() for LOBs to read a LOB in chunks
+- buffer LOB&apos;s when doing buffered queries</notes>
+  </release>
   <release>
    <version>
     <release>1.3.0</release>

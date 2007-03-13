@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.5.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_pgsql</name>
  <channel>pear.php.net</channel>
  <summary>pgsql MDB2 driver</summary>
@@ -22,25 +22,29 @@
   <email>nathan@silverorange.com</email>
   <active>yes</active>
  </developer>
- <date>2006-11-03</date>
- <time>14:02:15</time>
+ <date>2007-03-13</date>
+ <time>22:56:24</time>
  <version>
-  <release>1.3.0</release>
-  <api>2.3.0</api>
+  <release>1.4.0</release>
+  <api>1.4.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed _modifyQuery() for manipulation queries
-- fixed inheritance structure of convertResult()
-- added support for new &apos;disable_iso_date&apos; date DSN option (Request #8739)
-- added support for getting the table name in tableInfo()
-- added connection to pg_escape_*() calls
-- fixed _modifyQuery() for manipulation queries
-- enable detection of proper size of integers in mapNativeDatatype
-- migrated to package.xml version 2
+ <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
+- implemented getTriggerDefinition() in the Reverse module [experimental]
+- implemented listTableTriggers() in the Manager module
+- don&apos;t show catalog views in listViews() in the Manager module
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
+  option and use the index name as provided in case of failure before returning
+  an error
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- lastInsertID() without parameters now returns the last used ID (request #9989)
+- phpdoc fixes
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
@@ -55,32 +59,35 @@ open todo items:
       <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Datatype -->
+     </dir> <!-- /MDB2/Driver/Datatype -->
      <dir name="Function">
       <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Function -->
+     </dir> <!-- /MDB2/Driver/Function -->
      <dir name="Manager">
       <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Manager -->
+     </dir> <!-- /MDB2/Driver/Manager -->
      <dir name="Native">
       <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Native -->
+     </dir> <!-- /MDB2/Driver/Native -->
      <dir name="Reverse">
       <file name="pgsql.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Reverse -->
+     </dir> <!-- /MDB2/Driver/Reverse -->
      <file name="pgsql.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-    </dir> <!-- //MDB2/Driver -->
-   </dir> <!-- //MDB2 -->
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
+   <dir name="tests">
+    <file name="MDB2_nonstandard_pgsql.php" role="test" />
+   </dir> <!-- /tests -->
    <file name="package_pgsql.xml" role="data" />
   </dir> <!-- / -->
  </contents>
@@ -95,7 +102,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.3.0</min>
+    <min>2.4.0</min>
    </package>
    <extension>
     <name>pgsql</name>
@@ -104,6 +111,36 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.4.0</release>
+    <api>1.4.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-03-13</date>
+   <license>BSD License</license>
+   <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
+- implemented getTriggerDefinition() in the Reverse module [experimental]
+- implemented listTableTriggers() in the Manager module
+- don&apos;t show catalog views in listViews() in the Manager module
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
+  option and use the index name as provided in case of failure before returning
+  an error
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- lastInsertID() without parameters now returns the last used ID (request #9989)
+- phpdoc fixes
+
+open todo items:
+- enable pg_execute() once issues with bytea column are resolved
+- use pg_result_error_field() to handle localized error messages (Request #7059)
+- add option to use unnamed prepared statements
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
+  </release>
   <release>
    <version>
     <release>1.3.0</release>
@@ -246,7 +283,7 @@ open todo items:
    <license uri="http://www.example.com">BSD License</license>
    <notes>SECURITY FIX (http://www.postgresql.org/docs/techdocs.50)
 - use pg_escape_string()
-- use &quot;&apos;&quot; as the escape character 
+- use &quot;&apos;&quot; as the escape character
 - limit fetch to 1 row in listTableFields()</notes>
   </release>
   <release>

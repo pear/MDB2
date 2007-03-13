@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.5.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_sqlite</name>
  <channel>pear.php.net</channel>
  <summary>sqlite MDB2 driver</summary>
@@ -16,29 +16,35 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2006-11-03</date>
- <time>14:02:20</time>
+ <date>2007-03-13</date>
+ <time>22:57:01</time>
  <version>
-  <release>1.3.0</release>
-  <api>2.3.0</api>
+  <release>1.4.0</release>
+  <api>1.4.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>note:
-- this driver only supports SQLite version 2.x databases
-- the replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced
-- the multi_query test failes because this is not supported by ext/sqlite
-- the savepoint test failes because this is not supported by sqlite
-- the case sensitive search test fails because this is not supported by SQLite
-- the pattern escaping test fails because this is not supported by SQLite
-- do not skip id generation in nextId() when creating a sequence on demand
-  becazse this prevents lastInsertID() from working
-- migrated to package.xml version 2
+ <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
+- fixed bug #9895: Error mapping broken since 5.2.0
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
+  option and use the index name as provided in case of failure before returning
+  an error
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- fixed bug #9693: execute statement again in case of a SQLITE_SCHEMA error
+- fixed bug #10027: PHP4 compatibility in createConstraint() and dropConstraint()
+- implemented listViews() in the Manager module
+- implemented listTableViews() in the Manager module
+- implemented listTableTriggers() in the Manager module
+- implemented getTriggerDefinition() in the Reverse module [experimental]
+- fixed bug #9828: propagate errors in getConnection()
+- phpdoc fixes
 
+note:
 open todo items:
 - fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
  <contents>
@@ -49,32 +55,35 @@ open todo items:
       <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Datatype -->
+     </dir> <!-- /MDB2/Driver/Datatype -->
      <dir name="Function">
       <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Function -->
+     </dir> <!-- /MDB2/Driver/Function -->
      <dir name="Manager">
       <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Manager -->
+     </dir> <!-- /MDB2/Driver/Manager -->
      <dir name="Native">
       <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Native -->
+     </dir> <!-- /MDB2/Driver/Native -->
      <dir name="Reverse">
       <file name="sqlite.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Reverse -->
+     </dir> <!-- /MDB2/Driver/Reverse -->
      <file name="sqlite.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-    </dir> <!-- //MDB2/Driver -->
-   </dir> <!-- //MDB2 -->
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
+   <dir name="tests">
+    <file name="MDB2_nonstandard_sqlite.php" role="test" />
+   </dir> <!-- /tests -->
    <file name="package_sqlite.xml" role="data" />
   </dir> <!-- / -->
  </contents>
@@ -89,7 +98,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.3.0</min>
+    <min>2.4.0</min>
    </package>
    <extension>
     <name>sqlite</name>
@@ -98,6 +107,38 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.4.0</release>
+    <api>1.4.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-03-13</date>
+   <license>BSD License</license>
+   <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
+- fixed bug #9895: Error mapping broken since 5.2.0
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
+  option and use the index name as provided in case of failure before returning
+  an error
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- fixed bug #9693: execute statement again in case of a SQLITE_SCHEMA error
+- fixed bug #10027: PHP4 compatibility in createConstraint() and dropConstraint()
+- implemented listViews() in the Manager module
+- implemented listTableViews() in the Manager module
+- implemented listTableTriggers() in the Manager module
+- implemented getTriggerDefinition() in the Reverse module [experimental]
+- fixed bug #9828: propagate errors in getConnection()
+- phpdoc fixes
+
+note:
+open todo items:
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+  </release>
   <release>
    <version>
     <release>1.3.0</release>

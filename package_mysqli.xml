@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.11" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.5.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mysqli</name>
  <channel>pear.php.net</channel>
  <summary>mysqli MDB2 driver</summary>
@@ -16,25 +16,41 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2006-11-03</date>
- <time>14:02:11</time>
+ <date>2007-03-13</date>
+ <time>22:55:17</time>
  <version>
-  <release>1.3.0</release>
-  <api>2.3.0</api>
+  <release>1.4.0</release>
+  <api>1.4.0</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- added charset and collation support to field declaration
-- fixed bug #9024: typo in error checking
-- fixed parameter order in charset setting fallback (Bug #8807)
-- fix typos in error handling in a few places (bug #9024)
-- typo fix in tableInfo (Bug #8925)
-- do not skip id generation in nextId() when creating a sequence on demand
-  because this prevents lastInsertID() from working
-- migrated to package.xml version 2</notes>
+ <notes>- fixed bug #9283: missing support for BINARY/VARBINARY data types (thanks to Tom Hendrikx)
+- propagate errors in getTableFieldDefinition() in the Reverse module
+- implemented getTriggerDefinition() in the Reverse module (mysql &gt; 5.0.2) [experimental]
+- implemented listTableTriggers() in the Manager module (mysql &gt; 5.0.2)
+- implemented listFunctions() in the Manager module
+- setCharset() now uses &quot;SET NAMES&quot; instead of &quot;SET character_set_client&quot;
+- select the mysql database in listUsers() in the Manager module
+- added error codes for MySQL 5 (patch by Adam Harvey)
+- implemented guid() in the Function module [globally unique identifier]
+- fixed bug #10033: beginTransaction() does not know server capabilities
+- fixed bug #10057: createConstraint() returns an error when the definition is incomplete
+- request #9451: you can set charset, collation, engine and comments in createSequence()
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
+  option and use the index name as provided in case of failure before returning
+  an error
+- fixed bug #10181: propagate error when an invalid type is passed to prepare()
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- fixed bug #10239: execute() misinterprets MySQL&apos;s user defined variables
+- phpdoc fixes
+
+open todo items:
+- use a trigger to emulate setting default now()</notes>
  <contents>
   <dir baseinstalldir="/" name="/">
    <dir name="MDB2">
@@ -43,32 +59,35 @@
       <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Datatype -->
+     </dir> <!-- /MDB2/Driver/Datatype -->
      <dir name="Function">
       <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Function -->
+     </dir> <!-- /MDB2/Driver/Function -->
      <dir name="Manager">
       <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Manager -->
+     </dir> <!-- /MDB2/Driver/Manager -->
      <dir name="Native">
       <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Native -->
+     </dir> <!-- /MDB2/Driver/Native -->
      <dir name="Reverse">
       <file name="mysqli.php" role="php">
        <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
-     </dir> <!-- //MDB2/Driver/Reverse -->
+     </dir> <!-- /MDB2/Driver/Reverse -->
      <file name="mysqli.php" role="php">
       <tasks:replace from="@package_version@" to="version" type="package-info" />
      </file>
-    </dir> <!-- //MDB2/Driver -->
-   </dir> <!-- //MDB2 -->
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
+   <dir name="tests">
+    <file name="MDB2_nonstandard_mysqli.php" role="test" />
+   </dir> <!-- /tests -->
    <file name="package_mysqli.xml" role="data" />
   </dir> <!-- / -->
  </contents>
@@ -83,7 +102,7 @@
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.3.0</min>
+    <min>2.4.0</min>
    </package>
    <extension>
     <name>mysqli</name>
@@ -92,6 +111,42 @@
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.4.0</release>
+    <api>1.4.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-03-13</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #9283: missing support for BINARY/VARBINARY data types (thanks to Tom Hendrikx)
+- propagate errors in getTableFieldDefinition() in the Reverse module
+- implemented getTriggerDefinition() in the Reverse module (mysql &gt; 5.0.2) [experimental]
+- implemented listTableTriggers() in the Manager module (mysql &gt; 5.0.2)
+- implemented listFunctions() in the Manager module
+- setCharset() now uses &quot;SET NAMES&quot; instead of &quot;SET character_set_client&quot;
+- select the mysql database in listUsers() in the Manager module
+- added error codes for MySQL 5 (patch by Adam Harvey)
+- implemented guid() in the Function module [globally unique identifier]
+- fixed bug #10033: beginTransaction() does not know server capabilities
+- fixed bug #10057: createConstraint() returns an error when the definition is incomplete
+- request #9451: you can set charset, collation, engine and comments in createSequence()
+- implemented a fallback mechanism within getTableIndexDefinition() and
+  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
+  option and use the index name as provided in case of failure before returning
+  an error
+- fixed bug #10181: propagate error when an invalid type is passed to prepare()
+- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
+  custom data types (thanks to Andrew Hill).
+- fixed bug #10239: execute() misinterprets MySQL&apos;s user defined variables
+- phpdoc fixes
+
+open todo items:
+- use a trigger to emulate setting default now()</notes>
+  </release>
   <release>
    <version>
     <release>1.3.0</release>
