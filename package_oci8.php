@@ -3,27 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.4.0';
+$version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- propagate errors in getTableFieldDefinition() in the Reverse module
-- implemented getTriggerDefinition() in the Reverse module [experimental]
-- implemented guid() in the Function module [globally unique identifier]
-- added missing error codes (including the one reported in bug #9780)
-- fixed bug #10003: integer length problem in getTypeDeclaration() in the Datatype
-  module (thanks to priyadi at priyadi dot net)
-- implemented a fallback mechanism within getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to ignore the 'idxname_format'
-  option and use the index name as provided in case of failure before returning
-  an error
-- fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
-- added a 'nativetype_map_callback' option to map native data declarations back to
-  custom data types (thanks to Andrew Hill).
-- fixed bug #10215: selected the wrong field in the query in listTableConstraints()
-  in the Manager module
-- fixed bug #10337: call to non-existing object error in the manager module
-- fixed bug #10340: hard-coded field name in SQL query in _makeAutoincrement()
-- phpdoc fixes
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -60,7 +42,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.4.0');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'oci8');
 
 $package->addRelease();
