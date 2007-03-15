@@ -6,7 +6,10 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-fixed bug #10384: in setCharset(), use mysqli_real_escape_string() instead of mysql_real_escape_string()
+- fixed bug #10378: incorrect query rewrite in setLimit() when using "FOR UPDATE"
+  or "LOCK IN SHARE MODE" (thanks to priyadi)
+- fixed bug #10384: in setCharset(), use mysqli_real_escape_string() instead of
+  mysql_real_escape_string()
 
 open todo items:
 - use a trigger to emulate setting default now()

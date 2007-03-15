@@ -667,10 +667,22 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             if (substr($query, -1) == ';') {
                 $query = substr($query, 0, -1);
             }
+
+            // LIMIT doesn't always come last in the query
+            // @see http://dev.mysql.com/doc/refman/5.0/en/select.html
+            $after = '';
+            if (preg_match('/(\s+FOR\s+UPDATE\s*)$/i', $query, $matches)) {
+               $after = $matches[0];
+               $query = preg_replace('/(\s+FOR\s+UPDATE\s*)$/im', '', $query);
+            } elseif (preg_match('/(\s+LOCK\s+IN\s+SHARE\s+MODE\s*)$/im', $query, $matches)) {
+               $after = $matches[0];
+               $query = preg_replace('/(\s+LOCK\s+IN\s+SHARE\s+MODE\s*)$/im', '', $query);
+            }
+
             if ($is_manip) {
-                return $query . " LIMIT $limit";
+                return $query . " LIMIT $limit" . $after;
             } else {
-                return $query . " LIMIT $offset, $limit";
+                return $query . " LIMIT $offset, $limit" . $after;
             }
         }
         return $query;
