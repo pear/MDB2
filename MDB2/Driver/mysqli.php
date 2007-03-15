@@ -503,7 +503,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 return $connection;
             }
         }
-        $query = "SET NAMES '".mysql_real_escape_string($charset, $connection)."'";
+        $query = "SET NAMES '".mysqli_real_escape_string($connection, $charset)."'";
         return $this->_doQuery($query, true, $connection);
     }
 
