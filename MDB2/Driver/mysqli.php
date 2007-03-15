@@ -677,7 +677,10 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             // LIMIT doesn't always come last in the query
             // @see http://dev.mysql.com/doc/refman/5.0/en/select.html
             $after = '';
-            if (preg_match('/(\s+FOR\s+UPDATE\s*)$/i', $query, $matches)) {
+            if (preg_match('/(\s+INTO\s+(?:OUT|DUMP)FILE\s.*)$/ims', $query, $matches)) {
+                $after = $matches[0];
+                $query = preg_replace('/(\s+INTO\s+(?:OUT|DUMP)FILE\s.*)$/ims', '', $query);
+            } elseif (preg_match('/(\s+FOR\s+UPDATE\s*)$/i', $query, $matches)) {
                $after = $matches[0];
                $query = preg_replace('/(\s+FOR\s+UPDATE\s*)$/im', '', $query);
             } elseif (preg_match('/(\s+LOCK\s+IN\s+SHARE\s+MODE\s*)$/im', $query, $matches)) {

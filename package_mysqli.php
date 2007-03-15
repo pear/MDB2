@@ -7,7 +7,7 @@ $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
 - fixed bug #10378: incorrect query rewrite in setLimit() when using "FOR UPDATE"
-  or "LOCK IN SHARE MODE" (thanks to priyadi)
+  or "LOCK IN SHARE MODE" (thanks to priyadi) or "INTO OUTFILE" or "INTO DUMPFILE"
 - fixed bug #10384: in setCharset(), use mysqli_real_escape_string() instead of
   mysql_real_escape_string()
 
