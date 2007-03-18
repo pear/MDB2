@@ -4053,7 +4053,10 @@ class MDB2_Statement_Common
 
         $values = (array)$values;
         if (!empty($values)) {
-            $this->bindValueArray($values);
+            $err = $this->bindValueArray($values);
+            if (PEAR::isError($err)) {
+                return $err;
+            }
         }
         $result =& $this->_execute($result_class, $result_wrap_class);
         return $result;

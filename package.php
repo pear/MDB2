@@ -7,7 +7,7 @@ $version_release = 'XXX';
 $version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
-
+- fixed bug #10407: propagate errors in MDB2_Statement_Common::execute()
 
 open todo items:
 - handle autoincrement fields in alterTable()
