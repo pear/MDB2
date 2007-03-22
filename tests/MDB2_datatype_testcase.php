@@ -695,6 +695,18 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         $field = array('type' => 'test');
         $result = $this->db->datatype->getDeclaration($type, $name, $field);
         $this->assertEquals('datatype_test_callback::getdeclaration', $result, 'getDeclaration');
+        
+        // Test with a custom datatype without datatype_map_callback function
+        $name = 'address';
+        $type = 'text';
+        $field = array(
+            'name' => 'company_addr',
+            'type' => 'address',
+        );
+        $this->db->setOption('datatype_map', array($name => $type));
+        $result = $this->db->datatype->getDeclaration($field['type'], $field['name'], $field);
+        $expected = $field['name'].' '.$this->db->datatype->getTypeDeclaration(array('type' => $type)).' DEFAULT NULL';
+        $this->assertEquals($expected, $result);
         unset($this->db->options['datatype_map']);
         unset($this->db->options['datatype_map_callback']);
     }

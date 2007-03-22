@@ -8,6 +8,8 @@ $version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
 - fixed bug #10407: propagate errors in MDB2_Statement_Common::execute()
+- fixed bug #10452: error in getDeclaration() with custom datatype_map and no
+  datatype_map_callback function
 
 open todo items:
 - handle autoincrement fields in alterTable()
