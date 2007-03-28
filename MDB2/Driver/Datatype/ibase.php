@@ -399,6 +399,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         case 'decimal':
         case 'numeric':
             $type[] = 'decimal';
+            $length = $field['precision'].','.$field['scale'];
             break;
         case 'blob':
             $type[] = ($field['field_sub_type'] == 'text') ? 'clob' : 'blob';

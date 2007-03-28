@@ -224,7 +224,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             return $db;
         }
 
-        $default = $autoinc = '';;
+        $default = $autoinc = '';
         if (!empty($field['autoincrement'])) {
             $autoinc = ' AUTO_INCREMENT PRIMARY KEY';
         } elseif (array_key_exists('default', $field)) {
@@ -318,8 +318,8 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             $db_type = strtok('(), ');
         }
         if (!empty($field['length'])) {
-            $length = $field['length'];
-            $decimal = '';
+            $length = strtok($field['length'], ', ');
+            $decimal = strtok(', ');
         } else {
             $length = strtok('(), ');
             $decimal = strtok('(), ');
@@ -428,6 +428,9 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
         case 'numeric':
             $type[] = 'decimal';
             $unsigned = preg_match('/ unsigned/i', $field['type']);
+            if ($decimal !== false) {
+                $length = $length.','.$decimal;
+            }
             break;
         case 'tinyblob':
         case 'mediumblob':

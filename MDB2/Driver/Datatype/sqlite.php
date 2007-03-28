@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -360,6 +360,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         case 'decimal':
         case 'numeric':
             $type[] = 'decimal';
+            $length = $length.','.$field['decimal'];
             break;
         case 'tinyblob':
         case 'mediumblob':
@@ -381,6 +382,10 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
 
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'unknown database attribute type: '.$db_type, __FUNCTION__);
+        }
+
+        if ((int)$length <= 0) {
+            $length = null;
         }
 
         return array($type, $length, $unsigned, $fixed);

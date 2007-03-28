@@ -395,7 +395,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     function _mapNativeDatatype($field)
     {
         // todo: handle length of various int variations
-        $db_type = preg_replace('/\d/','', strtolower($field['type']));
+        $db_type = preg_replace('/\d/', '', strtolower($field['type']));
         $length = $field['length'];
         $type = array();
         // todo: unsigned handling seems to be missing
@@ -431,6 +431,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         case 'decimal':
         case 'money':
             $type[0] = 'decimal';
+            $length = $field['numeric_precision'].','.$field['numeric_scale'];
             break;
         case 'text':
         case 'varchar':

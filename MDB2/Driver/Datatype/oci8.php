@@ -435,6 +435,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'number':
             if (!empty($field['scale'])) {
                 $type[] = 'decimal';
+                $length = $length.','.$field['scale'];
             } else {
                 $type[] = 'integer';
                 if ($length == '1') {
