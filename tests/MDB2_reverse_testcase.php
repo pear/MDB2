@@ -256,7 +256,8 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('integer', $field_info['type'], 'The field type is different from the expected one');
-            $this->assertEquals(4, $field_info['length'], 'The field length is different from the expected one');
+            $expected_length = ($this->db->phptype == 'oci8') ? 10 : 4;
+            $this->assertEquals($expected_length, $field_info['length'], 'The field length is different from the expected one');
             $this->assertTrue($field_info['notnull'], 'The field can be null unlike it was expected');
             $this->assertEquals('0', $field_info['default'], 'The field default value is different from the expected one');
         }
@@ -290,7 +291,9 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
-            $this->assertEquals($field_info['type'], 'decimal', 'The field type is different from the expected one');
+            $this->assertEquals('decimal', $field_info['type'], 'The field type is different from the expected one');
+            $expected_length = ($this->db->phptype == 'oci8') ? '22,2' : '18,2';
+            $this->assertEquals($expected_length, $field_info['length'], 'The field length is different from the expected one');
         }
     }
 
@@ -378,7 +381,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 $result = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
             }
             if (PEAR::isError($result)) {
-                $this->assertFalse(true, 'Error getting table constraint definition');
+                $this->assertFalse(true, 'Error getting table constraint definition ('.$constraint_name.')');
             } else {
                 $constraint_names = array_keys($constraint['fields']);
                 $this->assertEquals($constraint_names, array_keys($result['fields']), 'Error listing constraint fields');
