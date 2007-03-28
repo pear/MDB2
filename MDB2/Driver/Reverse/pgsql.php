@@ -78,20 +78,46 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             return $result;
         }
 
-        $query = "SELECT
-                    a.attname AS name, t.typname AS type, a.attlen AS length, a.attnotnull,
-                    a.atttypmod, a.atthasdef,
-                    (SELECT substring(pg_get_expr(d.adbin, d.adrelid) for 128)
-                        FROM pg_attrdef d
-                        WHERE d.adrelid = a.attrelid AND d.adnum = a.attnum AND a.atthasdef) as default
-                    FROM pg_attribute a, pg_class c, pg_type t
-                    WHERE c.relname = ".$db->quote($table, 'text')."
-                        AND a.atttypid = t.oid
-                        AND c.oid = a.attrelid
-                        AND NOT a.attisdropped
-                        AND a.attnum > 0
-                        AND a.attname = ".$db->quote($field_name, 'text')."
-                    ORDER BY a.attnum";
+        $query = "SELECT a.attname AS name,
+                         t.typname AS type,
+                         CASE a.attlen
+                           WHEN -1 THEN
+	                         CASE t.typname
+	                           WHEN 'numeric' THEN (a.atttypmod / 65536)
+	                           WHEN 'decimal' THEN (a.atttypmod / 65536)
+	                           WHEN 'money'   THEN (a.atttypmod / 65536)
+	                           ELSE CASE a.atttypmod
+                                 WHEN -1 THEN NULL
+	                             ELSE a.atttypmod - 4
+	                           END
+                             END
+	                       ELSE a.attlen
+                         END AS length,
+	                     CASE t.typname
+	                       WHEN 'numeric' THEN (a.atttypmod % 65536) - 4
+	                       WHEN 'decimal' THEN (a.atttypmod % 65536) - 4
+	                       WHEN 'money'   THEN (a.atttypmod % 65536) - 4
+	                       ELSE 0
+                         END AS scale,
+                         a.attnotnull,
+                         a.atttypmod,
+                         a.atthasdef,
+                         (SELECT substring(pg_get_expr(d.adbin, d.adrelid) for 128)
+                            FROM pg_attrdef d
+                           WHERE d.adrelid = a.attrelid
+                             AND d.adnum = a.attnum
+                             AND a.atthasdef
+                         ) as default
+                    FROM pg_attribute a,
+                         pg_class c,
+                         pg_type t
+                   WHERE c.relname = ".$db->quote($table, 'text')."
+                     AND a.atttypid = t.oid
+                     AND c.oid = a.attrelid
+                     AND NOT a.attisdropped
+                     AND a.attnum > 0
+                     AND a.attname = ".$db->quote($field_name, 'text')."
+                ORDER BY a.attnum";
         $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($column)) {
             return $column;
