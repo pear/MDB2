@@ -50,7 +50,7 @@ require_once 'MDB2_testcase.php';
  * ensuring that custom datatype callback features are handled
  * correctly.
  *
- * @param MDB2   $db         The MDB2 database reource object.
+ * @param MDB2   $db         The MDB2 database resource object.
  * @param string $method     The name of the MDB2_Driver_Datatype_Common method
  *                           the callback function was called from. One of
  *                           "getValidTypes", "convertResult", "getDeclaration",
@@ -330,6 +330,10 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         $actual = $this->db->quote($non_us, 'decimal');
         $this->assertEquals($expected, $actual);
 
+        // test quoting with invalid chars
+        $val = '100.3abc";d@a[\\';
+        $this->assertEquals(100.3, $this->db->quote($val, 'decimal'));
+
         if (!$emulate_prepared && !$this->db->getOption('emulate_prepared')) {
             $this->testDecimalDataType(true);
         } elseif($emulate_prepared) {
@@ -400,6 +404,10 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         $non_us = '1.000,35';
         $actual = $this->db->quote($non_us, 'float');
         $this->assertEquals($expected, $actual);
+
+        // test quoting with invalid chars
+        $val = '100.3abc";d@a[\\';
+        $this->assertEquals(100.3, $this->db->quote($val, 'float'));
 
         if (!$emulate_prepared && !$this->db->getOption('emulate_prepared')) {
             $this->testFloatDataType(true);
@@ -780,6 +788,9 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         // Test with an MDB2 datatype, eg. "text"
         $type = 'text';
         $result = $this->db->datatype->mapPrepareDatatype($type);
+        if ($this->db->phptype == 'mysqli') {
+            $type = 's';
+        }
         $this->assertEquals($type, $result, 'mapPrepareDatatype');
 
         // Test with a custom datatype
@@ -808,7 +819,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
             $field['type'] = 'integer';
         }
         $expected_length = 8;
-        if (in_array($this->db->phptype, array('mysql', 'mysqli', 'pgsql', 'sqlite'))) {
+        if (in_array($this->db->phptype, array('mysql', 'mysqli', 'pgsql', 'sqlite', 'mssql'))) {
             $expected_length = 4;
         }
         $result = $this->db->datatype->mapNativeDatatype($field);
@@ -828,8 +839,8 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         );
         $result = $this->db->datatype->mapNativeDatatype($field);
         $this->assertTrue(is_array($result), 'mapNativeDatatype');
-        $this->assertEquals(count($result), 4, 'mapNativeDatatype');
-        $this->assertEquals($result[0][0], 'test', 'mapNativeDatatype');
+        $this->assertEquals(4, count($result), 'mapNativeDatatype');
+        $this->assertEquals('test', $result[0][0], 'mapNativeDatatype');
         $this->assertNull($result[1], 'mapNativeDatatype');
         $this->assertNull($result[2], 'mapNativeDatatype');
         $this->assertNull($result[3], 'mapNativeDatatype');
