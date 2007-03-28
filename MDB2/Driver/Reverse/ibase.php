@@ -144,6 +144,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $field_name = $db->quote(strtoupper($field_name), 'text');
         $query = "SELECT RDB\$RELATION_FIELDS.RDB\$FIELD_NAME AS name,
                          RDB\$FIELDS.RDB\$FIELD_LENGTH AS \"length\",
+                         RDB\$FIELDS.RDB\$FIELD_PRECISION AS \"precision\",
+                         (RDB\$FIELDS.RDB\$FIELD_SCALE * -1) AS \"scale\",
                          RDB\$FIELDS.RDB\$FIELD_TYPE AS field_type_code,
                          RDB\$FIELDS.RDB\$FIELD_SUB_TYPE AS field_sub_type_code,
                          RDB\$RELATION_FIELDS.RDB\$DESCRIPTION AS description,
