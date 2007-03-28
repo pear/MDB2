@@ -85,7 +85,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         $query = "SELECT t.table_name,
                          c.column_name 'name',
                          c.data_type 'type',
-                         c.is_nullable,
+                         CASE c.is_nullable WHEN 'YES' THEN 1 ELSE 0 END AS 'is_nullable',
                 		 c.column_default,
                 		 c.character_maximum_length 'length',
                          c.numeric_precision,
