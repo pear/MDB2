@@ -6,6 +6,9 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
+- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- more accurate field size information in getTableFieldDefinition() in the
+  Reverse module
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

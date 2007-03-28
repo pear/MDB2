@@ -8,6 +8,7 @@ $state = 'stable';
 $notes = <<<EOT
 - fixed bug #10378: incorrect query rewrite in setLimit() when using "FOR UPDATE"
   or "LOCK IN SHARE MODE" (thanks to priyadi) or "INTO OUTFILE" or "INTO DUMPFILE"
+- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

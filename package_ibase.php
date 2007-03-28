@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
+- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

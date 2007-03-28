@@ -10,6 +10,8 @@ $notes = <<<EOT
 - fixed bug #10407: propagate errors in MDB2_Statement_Common::execute()
 - fixed bug #10452: error in getDeclaration() with custom datatype_map and no
   datatype_map_callback function
+- fixed bug #10521: quote($val,'decimal') and quote($val,'float') pass unsafe characters
+- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 
 open todo items:
 - handle autoincrement fields in alterTable()

@@ -10,6 +10,7 @@ $notes = <<<EOT
   or "LOCK IN SHARE MODE" (thanks to priyadi) or "INTO OUTFILE" or "INTO DUMPFILE"
 - fixed bug #10384: in setCharset(), use mysqli_real_escape_string() instead of
   mysql_real_escape_string()
+- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 
 open todo items:
 - use a trigger to emulate setting default now()
