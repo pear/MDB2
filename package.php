@@ -12,6 +12,7 @@ $notes = <<<EOT
   datatype_map_callback function
 - fixed bug #10521: quote($val,'decimal') and quote($val,'float') pass unsafe characters
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- fixed bug #10537: safer check for valid MDB2 connection in singleton() [fornax]
 
 open todo items:
 - handle autoincrement fields in alterTable()
