@@ -20,6 +20,8 @@ note:
   parameter optional and added support for Foreign Keys and CHECK constraints
   (thanks to Hugh Dixon)
 - detect autoincrement fields in getTableFieldDefinition() (thanks to Hugh Dixon)
+- don't return index definition in getTableIndexDefinition() if it's a constraint
+
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
 - buffer LOB's when doing buffered queries

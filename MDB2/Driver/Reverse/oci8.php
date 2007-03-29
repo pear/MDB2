@@ -195,7 +195,13 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         
         $query = 'SELECT * FROM user_ind_columns';
         $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
-        $query.= ' AND (index_name=%s OR index_name=%s)';
+        $query.= ' AND (index_name=%s OR index_name=%s)
+                   AND index_name NOT IN (
+                        SELECT constraint_name
+                          FROM dba_constraints
+                         WHERE (table_name = '.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')
+                           AND constraint_type in (\'P\',\'U\')
+                   )';
         $index_name_mdb2 = $db->getIndexName($index_name);
         $sql = sprintf($query,
             $db->quote($index_name_mdb2, 'text'),
