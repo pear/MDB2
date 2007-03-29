@@ -16,7 +16,8 @@ note:
   behaviour can be disabled by setting the "emulate_database" option to false.
 - the multi_query test failes because this is not supported by ext/oci8
 - the null LOB test failes because this is not supported by Oracle
-
+- fixed query in getTableConstraintDefinition() and made the $table parameter optional
+  (thanks to Hugh Dixon). [bug #10548]
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
 - buffer LOB's when doing buffered queries
