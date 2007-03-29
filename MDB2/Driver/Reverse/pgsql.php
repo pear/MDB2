@@ -223,10 +223,10 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 
         $index_column_numbers = explode(' ', $row['indkey']);
 
-        $rownum = 1;
+        $colpos = 1;
         foreach ($index_column_numbers as $number) {
             $definition['fields'][$columns[($number - 1)]] = array(
-                'position' => $rownum++,
+                'position' => $colpos++,
                 'sorting' => 'ascending',
             );
         }
@@ -239,11 +239,11 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
      * Get the structure of a constraint into an array
      *
      * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string    $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name)
+    function getTableConstraintDefinition($table, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -254,11 +254,11 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $query.= ' WHERE pg_class.oid = pg_index.indexrelid';
         $query.= " AND (indisunique = 't' OR indisprimary = 't')";
         $query.= ' AND pg_class.relname = %s';
-        $index_name_mdb2 = $db->getIndexName($index_name);
-        $row = $db->queryRow(sprintf($query, $db->quote($index_name_mdb2, 'text')), null, MDB2_FETCHMODE_ASSOC);
+        $constraint_name_mdb2 = $db->getIndexName($constraint_name);
+        $row = $db->queryRow(sprintf($query, $db->quote($constraint_name_mdb2, 'text')), null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row) || empty($row)) {
             // fallback to the given $index_name, without transformation
-            $row = $db->queryRow(sprintf($query, $db->quote($index_name, 'text')), null, MDB2_FETCHMODE_ASSOC);
+            $row = $db->queryRow(sprintf($query, $db->quote($constraint_name, 'text')), null, MDB2_FETCHMODE_ASSOC);
         }
         if (PEAR::isError($row)) {
             return $row;
@@ -266,7 +266,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 
         if (empty($row)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table constraint', __FUNCTION__);
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
 
         $row = array_change_key_case($row, CASE_LOWER);
@@ -283,8 +283,12 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 
         $index_column_numbers = explode(' ', $row['indkey']);
 
+        $colpos = 1;
         foreach ($index_column_numbers as $number) {
-            $definition['fields'][$columns[($number - 1)]] = array('sorting' => 'ascending');
+            $definition['fields'][$columns[($number - 1)]] = array(
+                'position' => $colpos++,
+                'sorting' => 'ascending',
+            );
         }
         return $definition;
     }

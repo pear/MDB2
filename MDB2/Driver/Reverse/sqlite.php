@@ -306,11 +306,11 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
      * Get the stucture of a constraint into an array
      *
      * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string    $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name)
+    function getTableConstraintDefinition($table, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -324,26 +324,26 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             $query.= 'name=%s AND tbl_name=' . $db->quote($table, 'text');
         }
         $query.= ' AND sql NOT NULL ORDER BY name';
-        $index_name_mdb2 = $db->getIndexName($index_name);
+        $constraint_name_mdb2 = $db->getIndexName($constraint_name);
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $qry = sprintf($query, $db->quote(strtolower($index_name_mdb2), 'text'));
+            $qry = sprintf($query, $db->quote(strtolower($constraint_name_mdb2), 'text'));
         } else {
-            $qry = sprintf($query, $db->quote($index_name_mdb2, 'text'));
+            $qry = sprintf($query, $db->quote($constraint_name_mdb2, 'text'));
         }
         $sql = $db->queryOne($qry, 'text');
         if (PEAR::isError($sql) || empty($sql)) {
             // fallback to the given $index_name, without transformation
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                $qry = sprintf($query, $db->quote(strtolower($index_name), 'text'));
+                $qry = sprintf($query, $db->quote(strtolower($constraint_name), 'text'));
             } else {
-                $qry = sprintf($query, $db->quote($index_name, 'text'));
+                $qry = sprintf($query, $db->quote($constraint_name, 'text'));
             }
             $sql = $db->queryOne($qry, 'text');
         }
         if (PEAR::isError($sql)) {
             return $sql;
         }
-        if (!$sql && $index_name == 'primary') {
+        if (!$sql && $constraint_name == 'primary') {
             // search in table definition for PRIMARY KEYs
             $query = "SELECT sql FROM sqlite_master WHERE type='table' AND ";
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -361,8 +361,11 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 $definition['primary'] = true;
                 $definition['fields'] = array();
                 $column_names = split(',', $tmp[1]);
+                $colpos = 1;
                 foreach ($column_names as $column_name) {
-                    $definition['fields'][$column_name] = array();
+                    $definition['fields'][$column_name] = array(
+                        'position' => $colpos++
+                    );
                 }
                 return $definition;
             }
@@ -370,7 +373,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         }
         if (!$sql) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table constraint', __FUNCTION__);
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
 
         $sql = strtolower($sql);
@@ -381,7 +384,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         if (!preg_match("/^create unique/", $sql)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table constraint', __FUNCTION__);
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
 
         $definition = array();
@@ -390,7 +393,9 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         for ($i=0; $i<$count; ++$i) {
             $column_name = strtok($column_names[$i]," ");
             $collation = strtok(" ");
-            $definition['fields'][$column_name] = array();
+            $definition['fields'][$column_name] = array(
+                'position' => $i+1
+            );
             if (!empty($collation)) {
                 $definition['fields'][$column_name]['sorting'] =
                     ($collation=='ASC' ? 'ascending' : 'descending');
@@ -399,7 +404,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table constraint', __FUNCTION__);
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
         return $definition;
     }

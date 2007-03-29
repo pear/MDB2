@@ -11,8 +11,8 @@ $notes = <<<EOT
 - fixed bug #10384: in setCharset(), use mysqli_real_escape_string() instead of
   mysql_real_escape_string()
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- also return the field position in the index in getTableIndexDefinition() in
-  the Reverse module
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
 
 open todo items:
 - use a trigger to emulate setting default now()

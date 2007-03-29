@@ -253,11 +253,11 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
      * Get the structure of a constraint into an array
      *
      * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string    $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name)
+    function getTableConstraintDefinition($table, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -270,25 +270,27 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                          CASE c.constraint_type WHEN 'PRIMARY KEY' THEN 1 ELSE 0 END 'primary',
                          CASE c.constraint_type WHEN 'UNIQUE' THEN 1 ELSE 0 END 'unique',
                          CASE c.constraint_type WHEN 'FOREIGN KEY' THEN 1 ELSE 0 END 'foreign',
-                         CASE c.constraint_type WHEN 'CHECK' THEN 1 ELSE 0 END 'check'
+                         CASE c.constraint_type WHEN 'CHECK' THEN 1 ELSE 0 END 'check',
+                         k.ordinal_position
                     FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
                     LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
                       ON k.table_name = c.table_name
                      AND k.constraint_name = c.constraint_name
+                     AND k.table_schema = c.table_schema
                    WHERE k.constraint_catalog = DB_NAME()
                     AND k.table_name = '$table'
                     AND k.constraint_name = '%s'
                ORDER BY k.constraint_name,
                         k.ordinal_position";
 
-        $index_name_mdb2 = $db->getIndexName($index_name);
-        $result = $db->queryRow(sprintf($query, $index_name_mdb2));
+        $constraint_name_mdb2 = $db->getIndexName($constraint_name);
+        $result = $db->queryRow(sprintf($query, $constraint_name_mdb2));
         if (!PEAR::isError($result) && !is_null($result)) {
             // apply 'idxname_format' only if the query succeeded, otherwise
             // fallback to the given $index_name, without transformation
-            $index_name = $index_name_mdb2;
+            $constraint_name = $constraint_name_mdb2;
         }
-        $result = $db->query(sprintf($query, $index_name));
+        $result = $db->query(sprintf($query, $constraint_name));
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -303,11 +305,15 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                     $column_name = strtoupper($column_name);
                 }
             }
-            $definition['fields'][$column_name] = array();
+            $definition['fields'][$column_name] = array(
+                'position' => (int)$row['ordinal_position']
+            );
+            /*
             if (!empty($row['collation'])) {
                 $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'ASC'
                     ? 'ascending' : 'descending');
             }
+            */
             $definition['primary'] = $row['primary'];
             $definition['unique']  = $row['unique'];
             $definition['foreign'] = $row['foreign'];
@@ -316,7 +322,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table index', __FUNCTION__);
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
         return $definition;
     }

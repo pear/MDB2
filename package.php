@@ -13,8 +13,8 @@ $notes = <<<EOT
 - fixed bug #10521: quote($val,'decimal') and quote($val,'float') pass unsafe characters
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - fixed bug #10537: safer check for valid MDB2 connection in singleton() [fornax]
-- also return the field position in the index in getTableIndexDefinition() in
-  the Reverse module
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
 
 open todo items:
 - handle autoincrement fields in alterTable()

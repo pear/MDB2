@@ -161,11 +161,11 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
      * Get the structure of an index into an array
      *
      * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string    $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function getTableIndexDefinition($table, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -174,18 +174,18 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = %s */";
-        $index_name_mdb2 = $db->getIndexName($index_name);
-        $result = $db->queryRow(sprintf($query, $db->quote($index_name_mdb2)));
+        $constraint_name_mdb2 = $db->getIndexName($constraint_name);
+        $result = $db->queryRow(sprintf($query, $db->quote($constraint_name_mdb2)));
         if (!PEAR::isError($result) && !is_null($result)) {
             // apply 'idxname_format' only if the query succeeded, otherwise
             // fallback to the given $index_name, without transformation
-            $index_name = $index_name_mdb2;
+            $constraint_name = $constraint_name_mdb2;
         }
-        $result = $db->query(sprintf($query, $db->quote($index_name)));
+        $result = $db->query(sprintf($query, $db->quote($constraint_name)));
         if (PEAR::isError($result)) {
             return $result;
         }
-        $rownum = 1;
+        $colpos = 1;
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
             $row = array_change_key_case($row, CASE_LOWER);
@@ -197,10 +197,10 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     $key_name = strtoupper($key_name);
                 }
             }
-            if ($index_name == $key_name) {
+            if ($constraint_name == $key_name) {
                 if (!$row['non_unique']) {
                     return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                        'it was not specified an existing table index', __FUNCTION__);
+                        $constraint_name . ' is not an existing table constraint', __FUNCTION__);
                 }
                 $column_name = $row['column_name'];
                 if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -211,7 +211,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     }
                 }
                 $definition['fields'][$column_name] = array(
-                    'position' => $rownum++
+                    'position' => $colpos++
                 );
                 if (!empty($row['collation'])) {
                     $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
@@ -222,7 +222,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table index', __FUNCTION__);
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
         return $definition;
     }
@@ -260,6 +260,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
+        $colpos = 1;
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
             $row = array_change_key_case($row, CASE_LOWER);
@@ -289,7 +290,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                         $column_name = strtoupper($column_name);
                     }
                 }
-                $definition['fields'][$column_name] = array();
+                $definition['fields'][$column_name] = array(
+                    'position' => $colpos++
+                );
                 if (!empty($row['collation'])) {
                     $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
                         ? 'ascending' : 'descending');

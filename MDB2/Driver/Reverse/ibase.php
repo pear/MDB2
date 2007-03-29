@@ -258,7 +258,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
-
+        
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
             $column_name = $row['field_name'];
@@ -295,73 +295,58 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
      * Get the structure of a constraint into an array
      *
      * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string    $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name)
+    function getTableConstraintDefinition($table, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
-
+        
         $table = $db->quote(strtoupper($table), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
                          RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
                          RDB\$INDICES.RDB\$DESCRIPTION AS description,
-                         RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE AS constraint_type
+                         RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE AS constraint_type,
+                         (RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION + 1) AS field_position
                     FROM RDB\$INDEX_SEGMENTS
                LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                    WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)=$table
                      AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)=%s
                 ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION;";
-        $index_name_mdb2 = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
-        $result = $db->queryRow(sprintf($query, $index_name_mdb2));
+        $constraint_name_mdb2 = $db->quote(strtoupper($db->getIndexName($constraint_name)), 'text');
+        $result = $db->queryRow(sprintf($query, $constraint_name_mdb2));
         if (!PEAR::isError($result) && !is_null($result)) {
             // apply 'idxname_format' only if the query succeeded, otherwise
             // fallback to the given $index_name, without transformation
-            $index_name = $index_name_mdb2;
+            $constraint_name = $constraint_name_mdb2;
         } else {
-            $index_name = $db->quote(strtoupper($index_name), 'text');
+            $constraint_name = $db->quote(strtoupper($constraint_name), 'text');
         }
-        $result = $db->query(sprintf($query, $index_name));
+        $result = $db->query(sprintf($query, $constraint_name));
         if (PEAR::isError($result)) {
             return $result;
         }
-
-        $index = $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
-        if (empty($index)) {
-            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table constraint', __FUNCTION__);
-        }
-        $fields = array();
-        do {
-            $row = array_change_key_case($row, CASE_LOWER);
-            $fields[] = $row['field_name'];
-        } while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)));
-        $result->free();
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
-        }
-
+        
         $definition = array();
-        if ($index['constraint_type'] == 'PRIMARY KEY') {
-            $definition['primary'] = true;
-        } elseif ($index['unique_flag']) {
-            $definition['unique'] = true;
-        } elseif ($index['foreign_key']) {
-            $definition['foreign'] = true;
-        }
-        if (!$index['unique_flag'] && !$index['foreign_key']) {
-            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table constraint', __FUNCTION__);
-        }
-        foreach ($fields as $field) {
-            $definition['fields'][$field] = array();
+        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+            $row = array_change_key_case($row, CASE_LOWER);
+            $column_name = $row['field_name'];
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $column_name = strtolower($column_name);
+                } else {
+                    $column_name = strtoupper($column_name);
+                }
+            }
+            $definition['fields'][$column_name] = array(
+                'position' => (int)$row['field_position']
+            );
             //collation?!?
             /*
             if (!empty($row['collation'])) {
@@ -369,7 +354,26 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                     ? 'ascending' : 'descending');
             }
             */
+            $lastrow = $row;
+            // otherwise $row is no longer usable on exit from loop
         }
+        $result->free();
+        if (empty($definition)) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
+        }
+        if (!$lastrow['unique_flag'] && !$lastrow['foreign_key']) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
+        }
+
+        if ($lastrow['constraint_type'] === 'PRIMARY KEY') {
+            $definition['primary'] = true;
+        } elseif ($lastrow['unique_flag']) {
+            $definition['unique'] = true;
+        } elseif ($lastrow['foreign_key']) {
+            $definition['foreign'] = true;
+		}
         return $definition;
     }
 

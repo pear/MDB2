@@ -193,7 +193,10 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $db;
         }
         
-        $query = "SELECT * FROM user_ind_columns
+        $query = "SELECT column_name,
+                         column_position,
+                         descend
+                    FROM user_ind_columns
                    WHERE (table_name=".$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')
                      AND (index_name=%s OR index_name=%s)
                      AND index_name NOT IN (
@@ -235,7 +238,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 }
             }
             $definition['fields'][$column_name] = array(
-                'position' => $row['column_position'],
+                'position' => (int)$row['column_position'],
             );
             if (!empty($row['descend'])) {
                 $definition['fields'][$column_name]['sorting'] =
@@ -315,12 +318,14 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                     $column_name = strtoupper($column_name);
                 }
             }
-            $definition['fields'][$column_name] = array();
+            $definition['fields'][$column_name] = array(
+                'position' => (int)$row['position']
+            );
             $lastrow = $row;
             // otherwise $row is no longer usable on exit from loop
         }
         $result->free();
-        if (empty($definition['fields'])) {
+        if (empty($definition)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }

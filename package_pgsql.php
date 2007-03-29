@@ -9,8 +9,8 @@ $notes = <<<EOT
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - more accurate field size information in getTableFieldDefinition() in the
   Reverse module
-- also return the field position in the index in getTableIndexDefinition() in
-  the Reverse module
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

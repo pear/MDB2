@@ -7,8 +7,8 @@ $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- also return the field position in the index in getTableIndexDefinition() in
-  the Reverse module
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
