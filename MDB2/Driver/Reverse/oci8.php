@@ -143,6 +143,34 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $definition[$key]['type'] = $type;
             $definition[$key]['mdb2type'] = $type;
         }
+        if ($type == 'integer') {
+            $query = "SELECT DISTINCT name
+                        FROM all_source
+                       WHERE type='TRIGGER'
+                         AND UPPER(text) like '%ON ". strtoupper($db->escape($table, 'text')) ."%'";
+            $result = $db->query($query);
+            if (!PEAR::isError($result)) {
+                while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+                    $row = array_change_key_case($row, CASE_LOWER);
+                    $trquery = 'SELECT text
+                                  FROM all_source
+                                 WHERE name=' . $db->quote($row['name'],'text')
+                          . ' ORDER BY line';
+                    $triggersth = $db->query($trquery);
+                    $triggerstr = '';
+                    while ($triggerline = $triggersth->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+                        $triggerline = array_change_key_case($triggerline,CASE_LOWER);
+                        $triggerstr .= $triggerline['text']. ' ';
+                    }
+                    $matches = array();
+                    if (preg_match('/.*\W(.+)\.nextval into :NEW\.'.$field_name.' FROM dual/i', $triggerstr, $matches)) {
+                        // we reckon it's an autoincrementing trigger on field_name
+                        // there will be other pcre patterns needed here for other ways of mimicking auto_increment in ora.
+                        $definition[0]['autoincrement'] = $matches[1];
+                    }
+                }
+            }
+        }
         return $definition;
     }
 
@@ -231,8 +259,13 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $db;
         }
         
-        $query = 'SELECT alc.constraint_type,
-                         cols.column_name
+        $query = 'SELECT alc.constraint_name, 
+                         alc.constraint_type,
+                         alc.search_condition,
+                         alc.r_constraint_name,
+                         alc.search_condition,
+                         cols.column_name,
+                         cols.position
                     FROM all_constraints alc,
                          all_cons_columns cols
                    WHERE (alc.constraint_name=%s OR alc.constraint_name=%s)
@@ -274,17 +307,35 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 }
             }
             $definition['fields'][$column_name] = array();
+            $lastrow = $row;
+            // otherwise $row is no longer usable on exit from loop
         }
         $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table constraint', __FUNCTION__);
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
-        if ($row['constraint_type'] === 'P') {
+        if ($lastrow['constraint_type'] === 'P') {
             $definition['primary'] = true;
-        } elseif ($row['constraint_type'] === 'U') {
+        } elseif ($lastrow['constraint_type'] === 'U') {
             $definition['unique'] = true;
-        }
+        } elseif ($lastrow['constraint_type'] === 'R') {
+            $definition['foreign'] = $lastrow['r_constraint_name'];
+        } elseif ($lastrow['constraint_type'] === 'C') {
+            $definition['check'] = true;
+            // pattern match constraint for check constraint values into enum-style output:
+			$enumregex = '/'.$lastrow['column_name'].' in \((.+?)\)/i';
+			if (preg_match($enumregex, $lastrow['search_condition'], $rangestr)) {
+				$definition['fields'][$column_name] = array();
+				$allowed = explode(',', $rangestr[1]);
+				foreach ($allowed as $val) {
+					$val = trim($val);
+					$val = preg_replace('/^\'/', '', $val);
+					$val = preg_replace('/\'$/', '', $val);
+					array_push($definition['fields'][$column_name], $val);
+				}
+			}
+		}
         return $definition;
     }
 
