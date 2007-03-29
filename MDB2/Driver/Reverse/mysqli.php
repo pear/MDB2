@@ -239,6 +239,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
+        $rownum = 1;
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
             $row = array_change_key_case($row, CASE_LOWER);
@@ -263,7 +264,9 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                         $column_name = strtoupper($column_name);
                     }
                 }
-                $definition['fields'][$column_name] = array();
+                $definition['fields'][$column_name] = array(
+                    'position' => $rownum++
+                );
                 if (!empty($row['collation'])) {
                     $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
                         ? 'ascending' : 'descending');

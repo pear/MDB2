@@ -194,7 +194,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         $query = 'SELECT relname, indkey FROM pg_index, pg_class';
         $query.= ' WHERE pg_class.oid = pg_index.indexrelid';
         $query.= " AND indisunique != 't' AND indisprimary != 't'";
@@ -223,8 +223,12 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 
         $index_column_numbers = explode(' ', $row['indkey']);
 
+        $rownum = 1;
         foreach ($index_column_numbers as $number) {
-            $definition['fields'][$columns[($number - 1)]] = array('sorting' => 'ascending');
+            $definition['fields'][$columns[($number - 1)]] = array(
+                'position' => $rownum++,
+                'sorting' => 'ascending',
+            );
         }
         return $definition;
     }

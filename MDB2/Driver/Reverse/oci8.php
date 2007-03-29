@@ -193,15 +193,16 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $db;
         }
         
-        $query = 'SELECT * FROM user_ind_columns';
-        $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
-        $query.= ' AND (index_name=%s OR index_name=%s)
-                   AND index_name NOT IN (
-                        SELECT constraint_name
-                          FROM dba_constraints
-                         WHERE (table_name = '.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')
-                           AND constraint_type in (\'P\',\'U\')
-                   )';
+        $query = "SELECT * FROM user_ind_columns
+                   WHERE (table_name=".$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')
+                     AND (index_name=%s OR index_name=%s)
+                     AND index_name NOT IN (
+                           SELECT constraint_name
+                             FROM dba_constraints
+                            WHERE (table_name = '.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').")
+                              AND constraint_type in ('P','U')
+                         )
+                ORDER BY column_position";
         $index_name_mdb2 = $db->getIndexName($index_name);
         $sql = sprintf($query,
             $db->quote($index_name_mdb2, 'text'),
@@ -233,7 +234,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                     $column_name = strtoupper($column_name);
                 }
             }
-            $definition['fields'][$column_name] = array();
+            $definition['fields'][$column_name] = array(
+                'position' => $row['column_position'],
+            );
             if (!empty($row['descend'])) {
                 $definition['fields'][$column_name]['sorting'] =
                     ($row['descend'] == 'ASC' ? 'ascending' : 'descending');

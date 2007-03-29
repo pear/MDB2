@@ -281,9 +281,11 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         $definition = array();
         $count = count($column_names);
         for ($i=0; $i<$count; ++$i) {
-            $column_name = strtok($column_names[$i]," ");
-            $collation = strtok(" ");
-            $definition['fields'][$column_name] = array();
+            $column_name = strtok($column_names[$i], ' ');
+            $collation = strtok(' ');
+            $definition['fields'][$column_name] = array(
+                'position' => $i+1
+            );
             if (!empty($collation)) {
                 $definition['fields'][$column_name]['sorting'] =
                     ($collation=='ASC' ? 'ascending' : 'descending');

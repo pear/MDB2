@@ -329,6 +329,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $expected_fields = array_keys($this->indices[$index_name]['fields']);
             $actual_fields = array_keys($index_info['fields']);
             $this->assertEquals($expected_fields, $actual_fields, 'The INDEX field names don\'t match');
+            $this->assertEquals(1, $index_info['fields'][$expected_fields[0]]['position'], 'The field position in the INDEX is not correct');
         }
 
         //test INDEX on MULTIPLE FIELDS
@@ -341,6 +342,8 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $expected_fields = array_keys($this->indices[$index_name]['fields']);
             $actual_fields = array_keys($index_info['fields']);
             $this->assertEquals($expected_fields, $actual_fields, 'The INDEX field names don\'t match');
+            $this->assertEquals(1, $index_info['fields'][$expected_fields[0]]['position'], 'The field position in the INDEX is not correct');
+            $this->assertEquals(2, $index_info['fields'][$expected_fields[1]]['position'], 'The field position in the INDEX is not correct');
         }
 
         if (!$this->setUpConstraints()) {

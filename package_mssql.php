@@ -7,6 +7,8 @@ $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- also return the field position in the index in getTableIndexDefinition() in
+  the Reverse module
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

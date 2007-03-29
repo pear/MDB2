@@ -236,16 +236,15 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
         $table = $db->quote(strtoupper($table), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
-                         RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
-                         RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
-                         RDB\$INDICES.RDB\$DESCRIPTION AS description
+                         RDB\$INDICES.RDB\$DESCRIPTION AS description,
+                         (RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION + 1) AS field_position
                     FROM RDB\$INDEX_SEGMENTS
                LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
                    WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)=$table
                      AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)=%s
                      AND RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE IS NULL
-                ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION;";
+                ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION";
         $index_name_mdb2 = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
         $result = $db->queryRow(sprintf($query, $index_name_mdb2));
         if (!PEAR::isError($result) && !is_null($result)) {
@@ -260,33 +259,31 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $result;
         }
 
-        $index = $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
-        if (empty($index)) {
-            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table index', __FUNCTION__);
-        }
-
-        $fields = array();
-        do {
-            $row = array_change_key_case($row, CASE_LOWER);
-            $fields[] = $row['field_name'];
-        } while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)));
-        $result->free();
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $fields = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $fields);
-        }
-
         $definition = array();
-        foreach ($fields as $field) {
-            $definition['fields'][$field] = array();
-            // todo: collation?!?
+        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+            $column_name = $row['field_name'];
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $column_name = strtolower($column_name);
+                } else {
+                    $column_name = strtoupper($column_name);
+                }
+            }
+            $definition['fields'][$column_name] = array(
+                'position' => (int)$row['field_position'],
+            );
             /*
             if (!empty($row['collation'])) {
-                $definition['fields'][$field]['sorting'] = ($row['collation'] == 'A'
+                $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'A'
                     ? 'ascending' : 'descending');
             }
             */
+        }
+
+        $result->free();
+        if (empty($definition)) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'it was not specified an existing table index', __FUNCTION__);
         }
         return $definition;
     }
@@ -308,7 +305,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         $table = $db->quote(strtoupper($table), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
