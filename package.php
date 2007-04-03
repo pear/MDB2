@@ -13,6 +13,7 @@ $notes = <<<EOT
 - fixed bug #10521: quote($val,'decimal') and quote($val,'float') pass unsafe characters
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - fixed bug #10537: safer check for valid MDB2 connection in singleton() [fornax]
+- fixed bug #10598: MDB2::singleton() not working in some rare conditions [fornax]
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
 
