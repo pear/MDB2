@@ -743,8 +743,8 @@ END;
 
         $table = $db->quote($table, 'text');
         $query = 'SELECT index_name name FROM user_indexes';
-        $query.= ' WHERE table_name='.$table.' OR table_name='.strtoupper($table);
-        $query.= ' AND generated=' .$db->quote('N', 'text');
+        $query.= ' WHERE (table_name='.$table.' OR table_name='.strtoupper($table);
+        $query.= ') AND generated=' .$db->quote('N', 'text');
         $indexes = $db->queryCol($query, 'text');
         if (PEAR::isError($indexes)) {
             return $indexes;

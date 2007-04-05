@@ -9,6 +9,7 @@ $notes = <<<EOT
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
+- fixed bug #10618: query in listTableIndexes() in the Manager module missing parentheses
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
