@@ -4057,7 +4057,8 @@ class MDB2_Statement_Common
         if (!empty($values)) {
             $err = $this->bindValueArray($values);
             if (PEAR::isError($err)) {
-                return $err;
+                return $this->db->raiseError(MDB2_ERROR, null, null,
+                                            'Binding Values failed with message: ' . $err->getMessage(), __FUNCTION__);
             }
         }
         $result =& $this->_execute($result_class, $result_wrap_class);
