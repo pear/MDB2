@@ -13,6 +13,8 @@ $notes = <<<EOT
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
+- fixed bug #10636: transactions broken in release 2.4.0 because of some properties
+  being reset (thanks to Conor Kerr)
 - fixed bug #10748: failed connections don't return native error code [urkle]
 
 open todo items:

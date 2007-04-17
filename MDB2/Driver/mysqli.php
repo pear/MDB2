@@ -473,11 +473,6 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 break;
             }
         }
-
-        $this->supported['sub_selects'] = 'emulated';
-        $this->supported['prepared_statements'] = 'emulated';
-        $this->start_transaction = false;
-        $this->varchar_max_length = 255;
         
         $this->_getServerCapabilities();
 
@@ -757,6 +752,13 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         static $already_checked = false;
         if (!$already_checked) {
             $already_checked = true;
+
+            //set defaults
+            $this->supported['sub_selects'] = 'emulated';
+            $this->supported['prepared_statements'] = 'emulated';
+            $this->start_transaction = false;
+            $this->varchar_max_length = 255;
+
             $server_info = $this->getServerVersion();
             if (is_array($server_info)) {
                 if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.0', '<')) {
