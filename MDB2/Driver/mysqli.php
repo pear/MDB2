@@ -122,8 +122,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $native_code = @mysqli_errno($this->connection);
             $native_msg  = @mysqli_error($this->connection);
         } else {
-            $native_code = @mysqli_errno();
-            $native_msg  = @mysqli_error();
+            $native_code = @mysqli_connect_errno();
+            $native_msg  = @mysqli_connect_error();
         }
         if (is_null($error)) {
             static $ecode_map;
@@ -433,7 +433,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
 
         if (!$connection) {
             if (($err = @mysqli_connect_error()) != '') {
-                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED,
+                return $this->raiseError(null,
                     null, null, $err, __FUNCTION__);
             } else {
                 return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
