@@ -13,6 +13,7 @@ $notes = <<<EOT
   module, also return the field position in the index/constraint
 - fixed bug #10636: transactions broken in release 2.4.0 because of some properties
   being reset (thanks to Conor Kerr)
+- fixed bug #10807: connect() Method Incorrectly Caches Connections [fornax]
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

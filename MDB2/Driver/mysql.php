@@ -393,6 +393,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         if (is_resource($this->connection)) {
             if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
                 && $this->opened_persistent == $this->options['persistent']
+                && $this->connected_database_name == $this->database_name
             ) {
                 return MDB2_OK;
             }
