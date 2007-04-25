@@ -1248,14 +1248,14 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Database backend used in PHP (mysql, odbc etc.)
      * @var     string
-     * @access  protected
+     * @access  public
      */
     var $phptype;
 
     /**
      * Database used with regards to SQL syntax etc.
      * @var     string
-     * @access  protected
+     * @access  public
      */
     var $dbsyntax;
 

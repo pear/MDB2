@@ -17,6 +17,7 @@ $notes = <<<EOT
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
 - exec() now returns a reference instead of a copy to prevent memory leaks
+- request #10787: MDB2_Driver_Common::$phptype and $dbsyntax properties are now public
 
 open todo items:
 - handle autoincrement fields in alterTable()
