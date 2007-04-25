@@ -2451,7 +2451,7 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ function exec($query)
+    // {{{ function &exec($query)
 
     /**
      * Execute a manipulation query to the database and return the number of affected rows
@@ -2462,7 +2462,7 @@ class MDB2_Driver_Common extends PEAR
      *
      * @access  public
      */
-    function exec($query)
+    function &exec($query)
     {
         $offset = $this->offset;
         $limit = $this->limit;
@@ -2479,7 +2479,8 @@ class MDB2_Driver_Common extends PEAR
             return $result;
         }
 
-        return $this->_affectedRows($connection, $result);
+        $affectedRows = $this->_affectedRows($connection, $result);
+        return $affectedRows;
     }
 
     // }}}

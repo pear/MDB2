@@ -546,7 +546,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ exec()
+    // {{{ &exec()
 
     /**
      * Execute a manipulation query to the database and return any the affected rows
@@ -555,7 +555,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
      * @return mixed affected rows on success, a MDB2 error on failure
      * @access public
      */
-    function exec($query)
+    function &exec($query)
     {
         return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'Querysim only supports reading data', __FUNCTION__);

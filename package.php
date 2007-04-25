@@ -16,6 +16,7 @@ $notes = <<<EOT
 - fixed bug #10598: MDB2::singleton() not working in some rare conditions [fornax]
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
+- exec() now returns a reference instead of a copy to prevent memory leaks
 
 open todo items:
 - handle autoincrement fields in alterTable()
