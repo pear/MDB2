@@ -928,6 +928,48 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ function getSequenceName($sqn)
+
+    /**
+     * adds sequence name formatting to a sequence name
+     *
+     * @param   string  name of the sequence
+     *
+     * @return  string  formatted sequence name
+     *
+     * @access  public
+     */
+    function getSequenceName($sqn)
+    {
+        list($table, $field) = explode('_', $sqn);
+        $query = "SELECT substring((SELECT substring(pg_get_expr(d.adbin, d.adrelid) for 128)
+                	    FROM pg_attrdef d
+                	   WHERE d.adrelid = a.attrelid
+                	     AND d.adnum = a.attnum
+                	     AND a.atthasdef
+                	 ) FROM 'nextval[^\']*\'([^\']*)')
+                    FROM pg_attribute a
+                LEFT JOIN pg_class c ON c.oid = a.attrelid
+                LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum AND a.atthasdef
+                   WHERE (c.relname = ".$this->quote($sqn, 'text');
+        if (!empty($field)) {
+            $query .= " OR (c.relname = ".$this->quote($table, 'text')." AND a.attname = ".$this->quote($field, 'text').")";
+        }
+        $query .= "      )
+                     AND NOT a.attisdropped
+                     AND a.attnum > 0
+                     AND pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%'
+                ORDER BY a.attnum";
+        $seqname = $this->queryOne($query);
+        if (!PEAR::isError($seqname) && !empty($seqname) && is_string($seqname)) {
+            return $seqname;
+        }
+
+        return sprintf($this->options['seqname_format'],
+            preg_replace('/[^\w\$.]/i', '_', $sqn));
+    }
+
+    // }}}
     // {{{ nextID()
 
     /**

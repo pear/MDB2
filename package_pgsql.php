@@ -11,6 +11,7 @@ $notes = <<<EOT
   Reverse module
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
+- Request #9106: more accurate sequence name retrieval routine in getSequenceName()
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
