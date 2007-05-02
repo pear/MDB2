@@ -662,7 +662,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
         }
         if ($limit > 0
-            && !preg_match('/LIMIT\s*\d(?:\s*(?:,|OFFSET)\s*\d+)?/i', $query)
+            && !preg_match('/LIMIT\s*\d(?:\s*(?:,|OFFSET)\s*\d+)?(?:[^\)]*)?$/i', $query)
         ) {
             $query = rtrim($query);
             if (substr($query, -1) == ';') {

@@ -12,6 +12,7 @@ $notes = <<<EOT
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
 - Request #9106: more accurate sequence name retrieval routine in getSequenceName()
+- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

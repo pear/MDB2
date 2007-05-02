@@ -9,6 +9,7 @@ $notes = <<<EOT
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
+- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 note:
 open todo items:

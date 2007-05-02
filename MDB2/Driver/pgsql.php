@@ -674,7 +674,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function _modifyQuery($query, $is_manip, $limit, $offset)
     {
         if ($limit > 0
-            && !preg_match('/LIMIT\s*\d(?:\s*(?:,|OFFSET)\s*\d+)?/i', $query)
+            && !preg_match('/LIMIT\s*\d(?:\s*(?:,|OFFSET)\s*\d+)?(?:[^\)]*)?$/i', $query)
         ) {
             $query = rtrim($query);
             if (substr($query, -1) == ';') {

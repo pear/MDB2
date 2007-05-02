@@ -16,6 +16,7 @@ $notes = <<<EOT
 - fixed bug #10636: transactions broken in release 2.4.0 because of some properties
   being reset (thanks to Conor Kerr)
 - fixed bug #10748: failed connections don't return native error code [urkle]
+- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 open todo items:
 - use a trigger to emulate setting default now()
