@@ -7,6 +7,7 @@ $version_release = 'XXX';
 $version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
+- fixed bug #10024: Security fix for LOBs. Added an option to turn lob_allow_url_include off by default
 - fixed bug #10407: propagate errors in MDB2_Statement_Common::execute()
 - fixed bug #10452: error in getDeclaration() with custom datatype_map and no
   datatype_map_callback function

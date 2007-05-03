@@ -1386,7 +1386,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
             $value = $this->values[$parameter];
             $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
-            if ($type == 'clob' || $type == 'blob') {
+            if ($type == 'clob' || $type == 'blob' && $this->options['lob_allow_url_include']) {
                 $lobs[$i]['file'] = false;
                 if (is_resource($value)) {
                     $fp = $value;
