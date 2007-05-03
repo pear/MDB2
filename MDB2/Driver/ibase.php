@@ -453,9 +453,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             return $database_name;
         }
         $ret = $this->options['database_path'] . $database_name;
-        if (   strpos($database_name, '.fdb') === false
-            && strpos($database_name, '.gdb') === false
-        ) {
+        if (!preg_match('/\.[fg]db$/i', $database_name)) {
             $ret .= $this->options['database_extension'];
         }
         return $ret;

@@ -9,6 +9,8 @@ $notes = <<<EOT
 - return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
+- fixed failed connection when DSN is passed as an uppercase string (db file
+  extension appended twice)
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
