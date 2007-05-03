@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.5.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.5.3" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_sqlite</name>
  <channel>pear.php.net</channel>
  <summary>sqlite MDB2 driver</summary>
@@ -16,33 +16,21 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2007-03-13</date>
- <time>22:57:01</time>
+ <date>2007-05-03</date>
+ <time>20:56:39</time>
  <version>
-  <release>1.4.0</release>
-  <api>1.4.0</api>
+  <release>1.4.1</release>
+  <api>1.4.1</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
-- fixed bug #9895: Error mapping broken since 5.2.0
-- implemented a fallback mechanism within getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
-  option and use the index name as provided in case of failure before returning
-  an error
-- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
-  custom data types (thanks to Andrew Hill).
-- fixed bug #9693: execute statement again in case of a SQLITE_SCHEMA error
-- fixed bug #10027: PHP4 compatibility in createConstraint() and dropConstraint()
-- implemented listViews() in the Manager module
-- implemented listTableViews() in the Manager module
-- implemented listTableTriggers() in the Manager module
-- implemented getTriggerDefinition() in the Reverse module [experimental]
-- fixed bug #9828: propagate errors in getConnection()
-- phpdoc fixes
+ <notes>- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
+- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 note:
 open todo items:
@@ -98,7 +86,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.4.0</min>
+    <min>2.4.1</min>
    </package>
    <extension>
     <name>sqlite</name>
@@ -107,6 +95,26 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.4.1</release>
+    <api>1.4.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-05-03</date>
+   <license>BSD License</license>
+   <notes>- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
+- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
+
+note:
+open todo items:
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+  </release>
   <release>
    <version>
     <release>1.4.0</release>

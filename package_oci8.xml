@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.5.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.5.3" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_oci8</name>
  <channel>pear.php.net</channel>
  <summary>oci8 MDB2 driver</summary>
@@ -22,35 +22,21 @@
   <email>justinpatrin@php.net</email>
   <active>yes</active>
  </developer>
- <date>2007-03-13</date>
- <time>22:55:42</time>
+ <date>2007-05-03</date>
+ <time>20:56:08</time>
  <version>
-  <release>1.4.0</release>
-  <api>1.4.0</api>
+  <release>1.4.1</release>
+  <api>1.4.1</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
-- implemented getTriggerDefinition() in the Reverse module [experimental]
-- implemented guid() in the Function module [globally unique identifier]
-- added missing error codes (including the one reported in bug #9780)
-- fixed bug #10003: integer length problem in getTypeDeclaration() in the Datatype
-  module (thanks to priyadi at priyadi dot net)
-- implemented a fallback mechanism within getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
-  option and use the index name as provided in case of failure before returning
-  an error
-- fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
-- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
-  custom data types (thanks to Andrew Hill).
-- fixed bug #10215: selected the wrong field in the query in listTableConstraints()
-  in the Manager module
-- fixed bug #10337: call to non-existing object error in the manager module
-- fixed bug #10340: hard-coded field name in SQL query in _makeAutoincrement()
-- phpdoc fixes
+ <notes>- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
+- fixed bug #10618: query in listTableIndexes() in the Manager module missing parentheses
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -60,6 +46,11 @@ note:
   behaviour can be disabled by setting the &quot;emulate_database&quot; option to false.
 - the multi_query test failes because this is not supported by ext/oci8
 - the null LOB test failes because this is not supported by Oracle
+- fixed query in getTableConstraintDefinition() [bug #10548], made the $table
+  parameter optional and added support for Foreign Keys and CHECK constraints
+  (thanks to Hugh Dixon)
+- detect autoincrement fields in getTableFieldDefinition() (thanks to Hugh Dixon)
+- don&apos;t return index definition in getTableIndexDefinition() if it&apos;s a constraint
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
@@ -115,7 +106,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.4.0</min>
+    <min>2.4.1</min>
    </package>
    <extension>
     <name>oci8</name>
@@ -124,6 +115,40 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.4.1</release>
+    <api>1.4.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-05-03</date>
+   <license>BSD License</license>
+   <notes>- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
+- fixed bug #10618: query in listTableIndexes() in the Manager module missing parentheses
+
+note:
+- please use the latest ext/oci8 version from pecl.php.net/oci8
+ (binaries are available from snaps.php.net and pecl4win.php.net)
+- by default this driver emulates the database concept other RDBMS have by this
+  using the &quot;database&quot; instead of &quot;username&quot; in the DSN as the username name.
+  behaviour can be disabled by setting the &quot;emulate_database&quot; option to false.
+- the multi_query test failes because this is not supported by ext/oci8
+- the null LOB test failes because this is not supported by Oracle
+- fixed query in getTableConstraintDefinition() [bug #10548], made the $table
+  parameter optional and added support for Foreign Keys and CHECK constraints
+  (thanks to Hugh Dixon)
+- detect autoincrement fields in getTableFieldDefinition() (thanks to Hugh Dixon)
+- don&apos;t return index definition in getTableIndexDefinition() if it&apos;s a constraint
+
+open todo items:
+- enable use of read() for LOBs to read a LOB in chunks
+- buffer LOB&apos;s when doing buffered queries</notes>
+  </release>
   <release>
    <version>
     <release>1.4.0</release>

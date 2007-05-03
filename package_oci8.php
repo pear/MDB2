@@ -19,7 +19,7 @@ note:
   behaviour can be disabled by setting the "emulate_database" option to false.
 - the multi_query test failes because this is not supported by ext/oci8
 - the null LOB test failes because this is not supported by Oracle
-- fixed query in getTableConstraintDefinition() [bug #10548], made the $table
+- fixed query in getTableConstraintDefinition() [bug #10548], made the \$table
   parameter optional and added support for Foreign Keys and CHECK constraints
   (thanks to Hugh Dixon)
 - detect autoincrement fields in getTableFieldDefinition() (thanks to Hugh Dixon)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.5.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.5.3" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2</name>
  <channel>pear.php.net</channel>
  <extends>MDB</extends>
@@ -64,42 +64,28 @@ can be used to construct portable SQL statements:
   <email>david@jaws.com.mx</email>
   <active>yes</active>
  </helper>
- <date>2007-03-13</date>
- <time>21:10:38</time>
+ <date>2007-05-03</date>
+ <time>20:52:29</time>
  <version>
-  <release>2.4.0</release>
-  <api>2.4.0</api>
+  <release>2.4.1</release>
+  <api>2.4.1</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
-- internally use MDB2::classExists() wrapper instead of directly calling class_exists()
-- fixed bug #9502: query result misbehaves when the number of returned columns
-  is greater than the number of passed types
-- fixed bug #9748: Table name is not quoted in Extended.php buildManipSQL()
-- fixed bug #9800: when the php extension for the driver fails to load, the
-  error is not propagated correctly and the script dies
-- propagate errors in the Datatype module
-- implemented guid() in the Function module [globally unique identifier]
-  (thanks to mario dot adam at schaeffler dot com)
-- fixed bug #4854: Oracle Easy Connect syntax only works with array DSN
-- fixed bug #10105: inTransaction() was returning an incorrect value after a call
-  to disconnect() or __destruct()
-- implemented a fallback mechanism within getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
-  option and use the index name as provided in case of failure before returning
-  an error
-- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
-  custom data types (thanks to Andrew Hill).
-- fixed bug #10234 and bug #10233: MDB2_Driver_Datatype_Common::mapNativeDatatype()
-  must ensure that it returns the correct length value, or null
-- added support for TEMPORARY tables (patch by Andrew Hill)
-- phpdoc fixes
-- fixed tests to be compatible with PHP4
-- added new tests, including some MDB2 internals tests by Andrew Hill and Monique Szpak
+ <notes>- fixed bug #10407: propagate errors in MDB2_Statement_Common::execute()
+- fixed bug #10452: error in getDeclaration() with custom datatype_map and no
+  datatype_map_callback function
+- fixed bug #10521: quote($val,&apos;decimal&apos;) and quote($val,&apos;float&apos;) pass unsafe characters
+- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- fixed bug #10537: safer check for valid MDB2 connection in singleton() [fornax]
+- fixed bug #10598: MDB2::singleton() not working in some rare conditions [fornax]
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
+- exec() now returns a reference instead of a copy to prevent memory leaks
+- request #10787: MDB2_Driver_Common::$phptype and $dbsyntax properties are now public
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -305,42 +291,42 @@ open todo items:
    <subpackage>
     <name>MDB2_Driver_ibase</name>
     <channel>pear.php.net</channel>
-    <min>1.4.0</min>
+    <min>1.4.1</min>
    </subpackage>
   </group>
   <group hint="MySQL driver for MDB2" name="mysql">
    <subpackage>
     <name>MDB2_Driver_mysql</name>
     <channel>pear.php.net</channel>
-    <min>1.4.0</min>
+    <min>1.4.1</min>
    </subpackage>
   </group>
   <group hint="MySQLi driver for MDB2" name="mysqli">
    <subpackage>
     <name>MDB2_Driver_mysqli</name>
     <channel>pear.php.net</channel>
-    <min>1.4.0</min>
+    <min>1.4.1</min>
    </subpackage>
   </group>
   <group hint="MS SQL Server driver for MDB2" name="mssql">
    <subpackage>
     <name>MDB2_Driver_mssql</name>
     <channel>pear.php.net</channel>
-    <min>1.2.0</min>
+    <min>1.2.1</min>
    </subpackage>
   </group>
   <group hint="Oracle driver for MDB2" name="oci8">
    <subpackage>
     <name>MDB2_Driver_oci8</name>
     <channel>pear.php.net</channel>
-    <min>1.4.0</min>
+    <min>1.4.1</min>
    </subpackage>
   </group>
   <group hint="PostgreSQL driver for MDB2" name="pgsql">
    <subpackage>
     <name>MDB2_Driver_pgsql</name>
     <channel>pear.php.net</channel>
-    <min>1.4.0</min>
+    <min>1.4.1</min>
    </subpackage>
   </group>
   <group hint="Querysim driver for MDB2" name="querysim">
@@ -354,12 +340,56 @@ open todo items:
    <subpackage>
     <name>MDB2_Driver_sqlite</name>
     <channel>pear.php.net</channel>
-    <min>1.4.0</min>
+    <min>1.4.1</min>
    </subpackage>
   </group>
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>2.4.1</release>
+    <api>2.4.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-05-03</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #10407: propagate errors in MDB2_Statement_Common::execute()
+- fixed bug #10452: error in getDeclaration() with custom datatype_map and no
+  datatype_map_callback function
+- fixed bug #10521: quote($val,&apos;decimal&apos;) and quote($val,&apos;float&apos;) pass unsafe characters
+- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- fixed bug #10537: safer check for valid MDB2 connection in singleton() [fornax]
+- fixed bug #10598: MDB2::singleton() not working in some rare conditions [fornax]
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
+- exec() now returns a reference instead of a copy to prevent memory leaks
+- request #10787: MDB2_Driver_Common::$phptype and $dbsyntax properties are now public
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add length handling to LOB reverse engineering
+- add EXPLAIN abstraction
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
+- add support for database/table/row LOCKs
+- add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
+- generate STATUS file from test suite results and allow users to submit test results
+- add support for full text index creation and querying
+- add tests to check if the RDBMS specific handling with portability options
+  disabled behaves as expected
+- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
+- add a getTableFieldsDefinitions() method to be used in tableInfo()
+- drop ILIKE from matchPattern() and instead add a second parameter to
+  handle case sensitivity with arbitrary operators
+- add charset and collation support to field declaration in all drivers
+- handle LOBs in buffered result sets (Request #8793)</notes>
+  </release>
   <release>
    <version>
     <release>2.4.0</release>

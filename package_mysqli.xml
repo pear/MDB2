@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.5.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.5.3" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mysqli</name>
  <channel>pear.php.net</channel>
  <summary>mysqli MDB2 driver</summary>
@@ -16,38 +16,28 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2007-03-13</date>
- <time>22:55:17</time>
+ <date>2007-05-03</date>
+ <time>20:55:16</time>
  <version>
-  <release>1.4.0</release>
-  <api>1.4.0</api>
+  <release>1.4.1</release>
+  <api>1.4.1</api>
  </version>
  <stability>
   <release>stable</release>
   <api>stable</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #9283: missing support for BINARY/VARBINARY data types (thanks to Tom Hendrikx)
-- propagate errors in getTableFieldDefinition() in the Reverse module
-- implemented getTriggerDefinition() in the Reverse module (mysql &gt; 5.0.2) [experimental]
-- implemented listTableTriggers() in the Manager module (mysql &gt; 5.0.2)
-- implemented listFunctions() in the Manager module
-- setCharset() now uses &quot;SET NAMES&quot; instead of &quot;SET character_set_client&quot;
-- select the mysql database in listUsers() in the Manager module
-- added error codes for MySQL 5 (patch by Adam Harvey)
-- implemented guid() in the Function module [globally unique identifier]
-- fixed bug #10033: beginTransaction() does not know server capabilities
-- fixed bug #10057: createConstraint() returns an error when the definition is incomplete
-- request #9451: you can set charset, collation, engine and comments in createSequence()
-- implemented a fallback mechanism within getTableIndexDefinition() and
-  getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
-  option and use the index name as provided in case of failure before returning
-  an error
-- fixed bug #10181: propagate error when an invalid type is passed to prepare()
-- added a &apos;nativetype_map_callback&apos; option to map native data declarations back to
-  custom data types (thanks to Andrew Hill).
-- fixed bug #10239: execute() misinterprets MySQL&apos;s user defined variables
-- phpdoc fixes
+ <notes>- fixed bug #10378: incorrect query rewrite in setLimit() when using &quot;FOR UPDATE&quot;
+  or &quot;LOCK IN SHARE MODE&quot; (thanks to priyadi) or &quot;INTO OUTFILE&quot; or &quot;INTO DUMPFILE&quot;
+- fixed bug #10384: in setCharset(), use mysqli_real_escape_string() instead of
+  mysql_real_escape_string()
+- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
+- fixed bug #10636: transactions broken in release 2.4.0 because of some properties
+  being reset (thanks to Conor Kerr)
+- fixed bug #10748: failed connections don&apos;t return native error code [urkle]
+- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 open todo items:
 - use a trigger to emulate setting default now()</notes>
@@ -102,7 +92,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.4.0</min>
+    <min>2.4.1</min>
    </package>
    <extension>
     <name>mysqli</name>
@@ -111,6 +101,32 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.4.1</release>
+    <api>1.4.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2007-05-03</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #10378: incorrect query rewrite in setLimit() when using &quot;FOR UPDATE&quot;
+  or &quot;LOCK IN SHARE MODE&quot; (thanks to priyadi) or &quot;INTO OUTFILE&quot; or &quot;INTO DUMPFILE&quot;
+- fixed bug #10384: in setCharset(), use mysqli_real_escape_string() instead of
+  mysql_real_escape_string()
+- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
+  module, also return the field position in the index/constraint
+- fixed bug #10636: transactions broken in release 2.4.0 because of some properties
+  being reset (thanks to Conor Kerr)
+- fixed bug #10748: failed connections don&apos;t return native error code [urkle]
+- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
+
+open todo items:
+- use a trigger to emulate setting default now()</notes>
+  </release>
   <release>
    <version>
     <release>1.4.0</release>
