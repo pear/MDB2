@@ -3,18 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.4.1';
+$version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- fixed bug #10378: incorrect query rewrite in setLimit() when using "FOR UPDATE"
-  or "LOCK IN SHARE MODE" (thanks to priyadi) or "INTO OUTFILE" or "INTO DUMPFILE"
-- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
-  module, also return the field position in the index/constraint
-- fixed bug #10636: transactions broken in release 2.4.0 because of some properties
-  being reset (thanks to Conor Kerr)
-- fixed bug #10807: connect() Method Incorrectly Caches Connections [fornax]
-- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
@@ -44,7 +35,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.4.1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'mysql');
 
 $package->addRelease();

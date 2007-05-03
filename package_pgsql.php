@@ -3,16 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.4.1';
+$version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- more accurate field size information in getTableFieldDefinition() in the
-  Reverse module
-- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
-  module, also return the field position in the index/constraint
-- Request #9106: more accurate sequence name retrieval routine in getSequenceName()
-- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
@@ -42,7 +35,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.4.1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'pgsql');
 
 $package->addRelease();

@@ -3,13 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.4.1';
+$version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
-  module, also return the field position in the index/constraint
-- fixed bug #10618: query in listTableIndexes() in the Manager module missing parentheses
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -51,7 +47,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.4.1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'oci8');
 
 $package->addRelease();

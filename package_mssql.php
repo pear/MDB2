@@ -3,12 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.2.1';
+$version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
-  module, also return the field position in the index/constraint
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
@@ -35,7 +32,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.4.1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'mssql');
 
 $package->addRelease();

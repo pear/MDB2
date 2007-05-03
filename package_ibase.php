@@ -3,16 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.4.1';
+$version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
-  module, also return the field position in the index/constraint
-- fixed failed connection when DSN is passed as an uppercase string (db file
-  extension appended twice)
-- fixed array key case issue with resultset in getTableIndexDefinition() in the
-  Reverse module
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
@@ -36,7 +29,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.4');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.4.1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'interbase');
 
 $package->addRelease();

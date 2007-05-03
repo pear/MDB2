@@ -3,20 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.4.1';
+$version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- fixed bug #10378: incorrect query rewrite in setLimit() when using "FOR UPDATE"
-  or "LOCK IN SHARE MODE" (thanks to priyadi) or "INTO OUTFILE" or "INTO DUMPFILE"
-- fixed bug #10384: in setCharset(), use mysqli_real_escape_string() instead of
-  mysql_real_escape_string()
-- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
-  module, also return the field position in the index/constraint
-- fixed bug #10636: transactions broken in release 2.4.0 because of some properties
-  being reset (thanks to Conor Kerr)
-- fixed bug #10748: failed connections don't return native error code [urkle]
-- fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 open todo items:
 - use a trigger to emulate setting default now()
@@ -43,7 +32,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.4.1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'mysqli');
 
 $package->addRelease();
