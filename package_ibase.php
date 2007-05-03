@@ -11,6 +11,8 @@ $notes = <<<EOT
   module, also return the field position in the index/constraint
 - fixed failed connection when DSN is passed as an uppercase string (db file
   extension appended twice)
+- fixed array key case issue with resultset in getTableIndexDefinition() in the
+  Reverse module
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

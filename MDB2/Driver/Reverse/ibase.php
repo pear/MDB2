@@ -261,6 +261,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         
         $definition = array();
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+            $row = array_change_key_case($row, CASE_LOWER);
             $column_name = $row['field_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 if ($db->options['field_case'] == CASE_LOWER) {
