@@ -249,11 +249,44 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
-        $query = 'SELECT relname, indisunique, indisprimary, indkey FROM pg_index, pg_class';
-        $query.= ' WHERE pg_class.oid = pg_index.indexrelid';
-        $query.= " AND (indisunique = 't' OR indisprimary = 't')";
-        $query.= ' AND pg_class.relname = %s';
+
+        $query = "SELECT c.oid,
+                         c.conname AS constraint_name,
+                         CASE WHEN c.contype = 'c' THEN 1 ELSE 0 END AS \"check\",
+                         CASE WHEN c.contype = 'f' THEN 1 ELSE 0 END AS \"foreign\",
+                         CASE WHEN c.contype = 'p' THEN 1 ELSE 0 END AS \"primary\",
+                         CASE WHEN c.contype = 'u' THEN 1 ELSE 0 END AS \"unique\",
+                         CASE WHEN c.condeferrable = 'f' THEN 0 ELSE 1 END AS is_deferrable,
+                         CASE WHEN c.condeferred = 'f' THEN 0 ELSE 1 END AS is_deferred,
+                         array_to_string(c.conkey, ' ') AS constraint_key,
+                         t.relname AS table_name,
+                         t2.relname AS references_table,
+                         CASE confupdtype
+                           WHEN 'a' THEN 'NO ACTION'
+                           WHEN 'r' THEN 'RESTRICT'
+                           WHEN 'c' THEN 'CASCADE'
+                           WHEN 'n' THEN 'SET NULL'
+                           WHEN 'd' THEN 'SET DEFAULT'
+                         END AS on_update,
+                         CASE confdeltype
+                           WHEN 'a' THEN 'NO ACTION'
+                           WHEN 'r' THEN 'RESTRICT'
+                           WHEN 'c' THEN 'CASCADE'
+                           WHEN 'n' THEN 'SET NULL'
+                           WHEN 'd' THEN 'SET DEFAULT'
+                         END AS on_delete,
+                         CASE confmatchtype
+                           WHEN 'u' THEN 'UNSPECIFIED'
+                           WHEN 'f' THEN 'FULL'
+                           WHEN 'p' THEN 'PARTIAL'
+                         END AS match_type,
+                         array_to_string(c.confkey, ' ') AS fk_constraint_key,
+                         consrc
+                    FROM pg_constraint c
+               LEFT JOIN pg_class t  ON c.conrelid  = t.oid
+               LEFT JOIN pg_class t2 ON c.confrelid = t2.oid
+                   WHERE c.conname = %s
+                    AND t.relname = " . $db->quote($table, 'text');
         $constraint_name_mdb2 = $db->getIndexName($constraint_name);
         $row = $db->queryRow(sprintf($query, $db->quote($constraint_name_mdb2, 'text')), null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row) || empty($row)) {
@@ -274,15 +307,22 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $db->loadModule('Manager', null, true);
         $columns = $db->manager->listTableFields($table);
 
-        $definition = array();
-        if ($row['indisprimary'] == 't') {
-            $definition['primary'] = true;
-        } elseif ($row['indisunique'] == 't') {
-            $definition['unique'] = true;
-        }
+        $definition = array(
+            'primary' => (boolean)$row['primary'],
+            'unique'  => (boolean)$row['unique'],
+            'foreign' => (boolean)$row['foreign'],
+            'check'   => (boolean)$row['check'],
+            'fields'  => array(),
+            'references_table'  => $row['references_table'],
+            'references_fields' => array(),
+            'is_deferrable' => (boolean)$row['is_deferrable'],
+            'is_deferred'   => (boolean)$row['is_deferred'],
+            'on_update'     => $row['on_update'],
+            'on_delete'     => $row['on_delete'],
+            'match_type'    => $row['match_type'],
+        );
 
-        $index_column_numbers = explode(' ', $row['indkey']);
-
+        $index_column_numbers = explode(' ', $row['constraint_key']);
         $colpos = 1;
         foreach ($index_column_numbers as $number) {
             $definition['fields'][$columns[($number - 1)]] = array(
@@ -290,6 +330,23 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                 'sorting' => 'ascending',
             );
         }
+
+        if ($definition['foreign']) {
+            $columns = $db->manager->listTableFields($definition['references_table']);
+            $column_numbers = explode(' ', $row['fk_constraint_key']);
+            $colpos = 1;
+            foreach ($column_numbers as $number) {
+                $definition['references_fields'][$columns[($number - 1)]] = array(
+                    'position' => $colpos++,
+                );
+            }
+        }
+
+        if ($definition['check']) {
+            $check_def = $db->queryOne("SELECT pg_get_constraintdef(" . $row['oid'] . ", 't')");
+            // ...
+        }
+
         return $definition;
     }
 

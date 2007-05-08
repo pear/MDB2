@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse module
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
