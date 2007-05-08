@@ -308,18 +308,31 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
         
         $table = $db->quote(strtoupper($table), 'text');
-        $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
-                         RDB\$INDICES.RDB\$UNIQUE_FLAG AS unique_flag,
-                         RDB\$INDICES.RDB\$FOREIGN_KEY AS foreign_key,
-                         RDB\$INDICES.RDB\$DESCRIPTION AS description,
-                         RDB\$RELATION_CONSTRAINTS.RDB\$CONSTRAINT_TYPE AS constraint_type,
-                         (RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION + 1) AS field_position
-                    FROM RDB\$INDEX_SEGMENTS
-               LEFT JOIN RDB\$INDICES ON RDB\$INDICES.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
-               LEFT JOIN RDB\$RELATION_CONSTRAINTS ON RDB\$RELATION_CONSTRAINTS.RDB\$INDEX_NAME = RDB\$INDEX_SEGMENTS.RDB\$INDEX_NAME
-                   WHERE UPPER(RDB\$INDICES.RDB\$RELATION_NAME)=$table
-                     AND UPPER(RDB\$INDICES.RDB\$INDEX_NAME)=%s
-                ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION;";
+        $query = "SELECT i.RDB\$INDEX_NAME,
+                         s.RDB\$FIELD_NAME AS field_name,
+                         CASE WHEN rc.RDB\$CONSTRAINT_TYPE = 'PRIMARY KEY' THEN 1 ELSE 0 END AS \"primary\",
+                         CASE WHEN rc.RDB\$CONSTRAINT_TYPE = 'FOREIGN KEY' THEN 1 ELSE 0 END AS \"foreign\",
+                         CASE WHEN rc.RDB\$CONSTRAINT_TYPE = 'UNIQUE'      THEN 1 ELSE 0 END AS \"unique\",
+                         CASE WHEN rc.RDB\$CONSTRAINT_TYPE = 'CHECK'       THEN 1 ELSE 0 END AS \"check\",
+                         i.RDB\$DESCRIPTION AS description,
+                         CASE WHEN rc.RDB\$DEFERRABLE = 'NO' THEN 0 ELSE 1 END AS is_deferrable,
+                         CASE WHEN rc.RDB\$INITIALLY_DEFERRED = 'NO' THEN 0 ELSE 1 END AS is_deferred,
+                         refc.RDB\$UPDATE_RULE AS on_update,
+                         refc.RDB\$DELETE_RULE AS on_delete,
+                         refc.RDB\$MATCH_OPTION AS match_type,
+                         i2.RDB\$RELATION_NAME AS references_table,
+                         s2.RDB\$FIELD_NAME AS references_field,
+                         (s.RDB\$FIELD_POSITION + 1) AS field_position
+                    FROM RDB\$INDEX_SEGMENTS s
+               LEFT JOIN RDB\$INDICES i ON i.RDB\$INDEX_NAME = s.RDB\$INDEX_NAME
+               LEFT JOIN RDB\$RELATION_CONSTRAINTS rc ON rc.RDB\$INDEX_NAME = s.RDB\$INDEX_NAME
+               LEFT JOIN RDB\$REF_CONSTRAINTS refc ON rc.RDB\$INDEX_NAME = refc.RDB\$CONSTRAINT_NAME
+               LEFT JOIN RDB\$INDICES i2 ON i2.RDB\$INDEX_NAME = refc.RDB\$CONST_NAME_UQ
+               LEFT JOIN RDB\$INDEX_SEGMENTS s2 ON i2.RDB\$INDEX_NAME = s2.RDB\$INDEX_NAME
+                   WHERE UPPER(i.RDB\$RELATION_NAME)=$table
+                     AND UPPER(i.RDB\$INDEX_NAME)=%s
+                     AND RDB\$CONSTRAINT_TYPE IS NOT NULL
+                ORDER BY s.RDB\$FIELD_POSITION";
         $constraint_name_mdb2 = $db->quote(strtoupper($db->getIndexName($constraint_name)), 'text');
         $result = $db->queryRow(sprintf($query, $constraint_name_mdb2));
         if (!PEAR::isError($result) && !is_null($result)) {
@@ -348,6 +361,19 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $definition['fields'][$column_name] = array(
                 'position' => (int)$row['field_position']
             );
+            if ($row['foreign']) {
+                $ref_column_name = $row['references_field'];
+                if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                    if ($db->options['field_case'] == CASE_LOWER) {
+                        $ref_column_name = strtolower($ref_column_name);
+                    } else {
+                        $ref_column_name = strtoupper($ref_column_name);
+                    }
+                }
+                $definition['references_fields'][$ref_column_name] = array(
+                    'position' => (int)$row['field_position']
+                );
+            }
             //collation?!?
             /*
             if (!empty($row['collation'])) {
@@ -363,18 +389,17 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
-        if (!$lastrow['unique_flag'] && !$lastrow['foreign_key']) {
-            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
-        }
 
-        if ($lastrow['constraint_type'] === 'PRIMARY KEY') {
-            $definition['primary'] = true;
-        } elseif ($lastrow['unique_flag']) {
-            $definition['unique'] = true;
-        } elseif ($lastrow['foreign_key']) {
-            $definition['foreign'] = true;
-		}
+        $definition['primary'] = (boolean)$lastrow['primary'];
+        $definition['unique']  = (boolean)$lastrow['unique'];
+        $definition['foreign'] = (boolean)$lastrow['foreign'];
+        $definition['check']   = (boolean)$lastrow['check'];
+        $definition['is_deferrable'] = (boolean)$lastrow['is_deferrable'];
+        $definition['is_deferred']   = (boolean)$lastrow['is_deferred'];
+        $definition['on_update']     = $lastrow['on_update'];
+        $definition['on_delete']     = $lastrow['on_delete'];
+        $definition['match_type']    = $lastrow['match_type'];
+
         return $definition;
     }
 
