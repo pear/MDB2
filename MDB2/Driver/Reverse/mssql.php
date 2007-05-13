@@ -3,7 +3,7 @@
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
 // | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith, Frank M. Kromann                       |
+// | Stig. S. Bakken, Lukas Smith, Frank M. Kromann, Lorenzo Alberton     |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -271,17 +271,34 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                          CASE c.constraint_type WHEN 'UNIQUE' THEN 1 ELSE 0 END 'unique',
                          CASE c.constraint_type WHEN 'FOREIGN KEY' THEN 1 ELSE 0 END 'foreign',
                          CASE c.constraint_type WHEN 'CHECK' THEN 1 ELSE 0 END 'check',
-                         k.ordinal_position
+                         CASE c.is_deferrable WHEN 'NO' THEN 0 ELSE 1 END 'is_deferrable',
+                         CASE c.initially_deferred WHEN 'NO' THEN 0 ELSE 1 END 'is_deferred',
+                         rc.match_option 'match_type',
+                		 rc.update_rule 'on_update',
+                         rc.delete_rule 'on_delete',
+                         ccu.table_name 'references_table',
+                         ccu.column_name 'references_field',
+                         k.ordinal_position 'field_position'
                     FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
                     LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
                       ON k.table_name = c.table_name
-                     AND k.constraint_name = c.constraint_name
                      AND k.table_schema = c.table_schema
+                     AND k.table_catalog = c.table_catalog
+                     AND k.constraint_catalog = c.constraint_catalog
+                     AND k.constraint_name = c.constraint_name
+               LEFT JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc
+                      ON rc.constraint_schema = c.constraint_schema
+                     AND rc.constraint_catalog = c.constraint_catalog
+                     AND rc.constraint_name = c.constraint_name
+               LEFT JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu
+                      ON rc.unique_constraint_schema = ccu.constraint_schema
+                     AND rc.unique_constraint_catalog = ccu.constraint_catalog
+                     AND rc.unique_constraint_name = ccu.constraint_name
                    WHERE k.constraint_catalog = DB_NAME()
-                    AND k.table_name = '$table'
-                    AND k.constraint_name = '%s'
-               ORDER BY k.constraint_name,
-                        k.ordinal_position";
+                     AND k.table_name = '$table'
+                     AND k.constraint_name = '%s'
+                ORDER BY k.constraint_name,
+                         k.ordinal_position";
 
         $constraint_name_mdb2 = $db->getIndexName($constraint_name);
         $result = $db->queryRow(sprintf($query, $constraint_name_mdb2));
@@ -295,8 +312,11 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
             return $result;
         }
 
-        $definition = array();
+        $definition = array(
+            'fields' => array()
+        );
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+            $row = array_change_key_case($row, CASE_LOWER);
             $column_name = $row['field_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 if ($db->options['field_case'] == CASE_LOWER) {
@@ -306,24 +326,48 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                 }
             }
             $definition['fields'][$column_name] = array(
-                'position' => (int)$row['ordinal_position']
+                'position' => (int)$row['field_position']
             );
+            if ($row['foreign']) {
+                $ref_column_name = $row['references_field'];
+                if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                    if ($db->options['field_case'] == CASE_LOWER) {
+                        $ref_column_name = strtolower($ref_column_name);
+                    } else {
+                        $ref_column_name = strtoupper($ref_column_name);
+                    }
+                }
+                $definition['references_table'] = $row['references_table'];
+                $definition['references_fields'][$ref_column_name] = array(
+                    'position' => (int)$row['field_position']
+                );
+            }
+            //collation?!?
             /*
             if (!empty($row['collation'])) {
                 $definition['fields'][$column_name]['sorting'] = ($row['collation'] == 'ASC'
                     ? 'ascending' : 'descending');
             }
             */
-            $definition['primary'] = $row['primary'];
-            $definition['unique']  = $row['unique'];
-            $definition['foreign'] = $row['foreign'];
-            $definition['check']   = $row['check'];
+            $lastrow = $row;
+            // otherwise $row is no longer usable on exit from loop
         }
         $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
+
+        $definition['primary'] = (boolean)$lastrow['primary'];
+        $definition['unique']  = (boolean)$lastrow['unique'];
+        $definition['foreign'] = (boolean)$lastrow['foreign'];
+        $definition['check']   = (boolean)$lastrow['check'];
+        $definition['is_deferrable'] = (boolean)$lastrow['is_deferrable'];
+        $definition['is_deferred']   = (boolean)$lastrow['is_deferred'];
+        $definition['on_update']     = $lastrow['on_update'];
+        $definition['on_delete']     = $lastrow['on_delete'];
+        $definition['match_type']    = $lastrow['match_type'];
+
         return $definition;
     }
 
