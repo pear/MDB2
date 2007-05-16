@@ -270,16 +270,35 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
-        $query = 'SELECT alc.constraint_name, 
-                         alc.constraint_type,
+        //querying USER_CONSTRAINTS and USER_CONS_COLUMNS is slightly faster than ALL_CONSTRAINTS and ALL_CONS_COLUMNS
+        $query = 'SELECT alc.constraint_name,
+                         CASE alc.constraint_type WHEN \'P\' THEN 1 ELSE 0 END "primary",
+                         CASE alc.constraint_type WHEN \'R\' THEN 1 ELSE 0 END "foreign",
+                         CASE alc.constraint_type WHEN \'U\' THEN 1 ELSE 0 END "unique",
+                         CASE alc.constraint_type WHEN \'C\' THEN 1 ELSE 0 END "check",
+                         alc.DELETE_RULE "on_delete",
+                         \'NO ACTION\' "on_update",
+                         CASE alc.deferrable WHEN \'NOT DEFERRABLE\' THEN 0 ELSE 1 END "is_deferrable",
+                         CASE alc.deferred WHEN \'IMMEDIATE\' THEN 1 ELSE 0 END "is_deferred",
                          alc.search_condition,
-                         alc.r_constraint_name,
                          alc.search_condition,
+                         alc.table_name,
                          cols.column_name,
-                         cols.position
-                    FROM all_constraints alc,
-                         all_cons_columns cols
+                         cols.position,
+                         r_alc.table_name "references_table",
+                         r_cols.column_name "references_field",
+                         r_cols.position "references_field_position"
+                    FROM user_cons_columns cols
+               LEFT JOIN user_constraints alc
+                      ON alc.constraint_name = cols.constraint_name
+                     AND alc.owner = cols.owner
+               LEFT JOIN user_constraints r_alc
+                      ON alc.r_constraint_name = r_alc.constraint_name
+                     AND alc.r_owner = r_alc.owner
+               LEFT JOIN user_cons_columns r_cols
+                      ON r_alc.constraint_name = r_cols.constraint_name
+                     AND r_alc.owner = r_cols.owner
+                     AND cols.position = r_cols.position
                    WHERE (alc.constraint_name=%s OR alc.constraint_name=%s)
                      AND alc.constraint_name = cols.constraint_name
                      AND alc.owner = '.$db->quote(strtoupper($db->dsn['username']), 'text');
@@ -321,6 +340,20 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $definition['fields'][$column_name] = array(
                 'position' => (int)$row['position']
             );
+            if ($row['foreign']) {
+                $ref_column_name = $row['references_field'];
+                if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                    if ($db->options['field_case'] == CASE_LOWER) {
+                        $ref_column_name = strtolower($ref_column_name);
+                    } else {
+                        $ref_column_name = strtoupper($ref_column_name);
+                    }
+                }
+                $definition['references_table'] = $row['references_table'];
+                $definition['references_fields'][$ref_column_name] = array(
+                    'position' => (int)$row['references_field_position']
+                );
+            }
             $lastrow = $row;
             // otherwise $row is no longer usable on exit from loop
         }
@@ -329,14 +362,16 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
-        if ($lastrow['constraint_type'] === 'P') {
-            $definition['primary'] = true;
-        } elseif ($lastrow['constraint_type'] === 'U') {
-            $definition['unique'] = true;
-        } elseif ($lastrow['constraint_type'] === 'R') {
-            $definition['foreign'] = $lastrow['r_constraint_name'];
-        } elseif ($lastrow['constraint_type'] === 'C') {
-            $definition['check'] = true;
+        $definition['primary'] = (boolean)$lastrow['primary'];
+        $definition['unique']  = (boolean)$lastrow['unique'];
+        $definition['foreign'] = (boolean)$lastrow['foreign'];
+        $definition['check']   = (boolean)$lastrow['check'];
+        $definition['is_deferrable'] = (boolean)$lastrow['is_deferrable'];
+        $definition['is_deferred']   = (boolean)$lastrow['is_deferred'];
+        $definition['on_delete']     = $lastrow['on_delete'];
+        $definition['on_update']     = $lastrow['on_update'];
+
+        if ($definition['check']) {
             // pattern match constraint for check constraint values into enum-style output:
 			$enumregex = '/'.$lastrow['column_name'].' in \((.+?)\)/i';
 			if (preg_match($enumregex, $lastrow['search_condition'], $rangestr)) {
@@ -350,6 +385,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 				}
 			}
 		}
+            
+
+		//echo '<hr><pre>'; print_r($definition); echo '</pre><hr>';
         return $definition;
     }
 
