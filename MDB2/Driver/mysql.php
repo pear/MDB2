@@ -802,7 +802,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
         $pos = strlen($query) - strlen(substr($query, $position)) - $found - 1;
         $substring = substr($query, $pos, $position - $pos + 2);
-        if (preg_match('/^@\w+:=$/', $substring)) {
+        if (preg_match('/^@\w+\s*:=$/', $substring)) {
             return $position + 1; //found an user defined variable: skip it
         }
         return $position;
@@ -881,18 +881,19 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 continue; //evaluate again starting from the new position
             }
             
+            //make sure this is not part of an user defined variable
+            $new_pos = $this->_skipUserDefinedVariable($query, $position);
+            if ($new_pos != $position) {
+                $position = $new_pos;
+                continue; //evaluate again starting from the new position
+            }
+
             if ($query[$position] == $placeholder_type_guess) {
                 if (is_null($placeholder_type)) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
                 }
                 if ($placeholder_type == ':') {
-                    //make sure this is not part of an user defined variable
-                    $new_pos = $this->_skipUserDefinedVariable($query, $position);
-                    if ($new_pos != $position) {
-                        $position = $new_pos;
-                        continue; //evaluate again starting from the new position
-                    }
                     $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
                     if ($parameter === '') {
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
