@@ -343,8 +343,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($sql)) {
             return $sql;
         }
-        if (!$sql && $constraint_name == 'primary') {
-            // search in table definition for PRIMARY KEYs
+        if (!$sql) {
             $query = "SELECT sql FROM sqlite_master WHERE type='table' AND ";
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 $query.= 'LOWER(name)='.$db->quote(strtolower($table), 'text');
@@ -356,18 +355,73 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             if (PEAR::isError($sql)) {
                 return $sql;
             }
-            if (preg_match("/\bPRIMARY\s+KEY\b\s*\(([^)]+)/i", $sql, $tmp)) {
-                $definition = array();
-                $definition['primary'] = true;
-                $definition['fields'] = array();
-                $column_names = split(',', $tmp[1]);
-                $colpos = 1;
-                foreach ($column_names as $column_name) {
-                    $definition['fields'][$column_name] = array(
-                        'position' => $colpos++
-                    );
+            if ($constraint_name == 'primary') {
+                // search in table definition for PRIMARY KEYs
+                if (preg_match("/\bPRIMARY\s+KEY\b\s*\(([^)]+)/i", $sql, $tmp)) {
+                    $definition = array();
+                    $definition['primary'] = true;
+                    $definition['fields'] = array();
+                    $column_names = split(',', $tmp[1]);
+                    $colpos = 1;
+                    foreach ($column_names as $column_name) {
+                        $definition['fields'][$column_name] = array(
+                            'position' => $colpos++
+                        );
+                    }
+                    return $definition;
                 }
-                return $definition;
+            } else {
+                // search in table definition for FOREIGN KEYs
+                $pattern = "/\bCONSTRAINT\b\s+%s\s+
+                    \bFOREIGN\s+KEY\b\s*\(([^)]+)\)\s*
+                    \bREFERENCES\b\s+([^\s]+)\s*\(([^)]+)\)\s*
+                    (?:\bMATCH\s*([^\s]+))?\s*
+                    (?:\bON\s+UPDATE\s+([^\s,\)]+))?\s*
+                    (?:\bON\s+DELETE\s+([^\s,\)]+))?\s*
+                    /imsx";
+                $found_fk = false;
+                if (preg_match(sprintf($pattern, $constraint_name_mdb2), $sql, $tmp)) {
+                    $found_fk = true;
+                } elseif (preg_match(sprintf($pattern, $constraint_name), $sql, $tmp)) {
+                    $found_fk = true;
+                }
+                if ($found_fk) {
+                    $definition = array(
+                        'foreign'       => true,
+                        'is_deferrable' => false,
+                        'is_deferred'   => false,
+                        'fields'        => array(),
+                        'references_table'  => $tmp[2],
+                        'references_fields' => array(),
+                        'match_type' => 'SIMPLE',
+                        'on_update'  => 'NO ACTION',
+                        'on_delete'  => 'NO ACTION',
+                    );
+                    $column_names = split(',', $tmp[1]);
+                    $colpos = 1;
+                    foreach ($column_names as $column_name) {
+                        $definition['fields'][$column_name] = array(
+                            'position' => $colpos++
+                        );
+                    }
+                    $referenced_cols = split(',', $tmp[3]);
+                    $colpos = 1;
+                    foreach ($referenced_cols as $column_name) {
+                        $definition['references_fields'][$column_name] = array(
+                            'position' => $colpos++
+                        );
+                    }
+                    if (isset($tmp[4])) {
+                        $definition['match_type'] = $tmp[4];
+                    }
+                    if (isset($tmp[5])) {
+                        $definition['on_update'] = $tmp[5];
+                    }
+                    if (isset($tmp[6])) {
+                        $definition['on_delete'] = $tmp[6];
+                    }
+                    return $definition;
+                }
             }
             $sql = false;
         }
