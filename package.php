@@ -8,17 +8,7 @@ $version_api = $version_release;
 $state = 'stable';
 $notes = <<<EOT
 - fixed bug #10024: Security fix for LOBs. Added an option to turn lob_allow_url_include off by default
-- fixed bug #10407: propagate errors in MDB2_Statement_Common::execute()
-- fixed bug #10452: error in getDeclaration() with custom datatype_map and no
-  datatype_map_callback function
-- fixed bug #10521: quote(\$val,'decimal') and quote(\$val,'float') pass unsafe characters
-- return length as "precision,scale" for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- fixed bug #10537: safer check for valid MDB2 connection in singleton() [fornax]
-- fixed bug #10598: MDB2::singleton() not working in some rare conditions [fornax]
-- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
-  module, also return the field position in the index/constraint
-- exec() now returns a reference instead of a copy to prevent memory leaks
-- request #10787: MDB2_Driver_Common::\$phptype and \$dbsyntax properties are now public
+- fixed bug #11179: prepared statements with named placeholders fail if extra values are provided
 
 open todo items:
 - handle autoincrement fields in alterTable()

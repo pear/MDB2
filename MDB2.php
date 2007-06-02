@@ -3965,6 +3965,10 @@ class MDB2_Statement_Common
         foreach ($parameters as $key => $parameter) {
             $err = $this->bindValue($parameter, $values[$parameter], $types[$key]);
             if (PEAR::isError($err)) {
+                if ($err->getCode() == MDB2_ERROR_NOT_FOUND) {
+                    //ignore (extra value for missing placeholder)
+                    continue;
+                }
                 return $err;
             }
         }
