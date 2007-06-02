@@ -78,6 +78,10 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             return $result;
         }
 
+        if (strpos($table, '.') !== false) {
+            list($schema, $table) = explode('.', $table);
+        }
+
         $query = "SELECT a.attname AS name,
                          t.typname AS type,
                          CASE a.attlen
