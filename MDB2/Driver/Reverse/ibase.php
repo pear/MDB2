@@ -308,7 +308,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         }
         
         $table = $db->quote(strtoupper($table), 'text');
-        $query = "SELECT i.RDB\$INDEX_NAME,
+        $query = "SELECT rc.RDB\$CONSTRAINT_NAME,
                          s.RDB\$FIELD_NAME AS field_name,
                          CASE WHEN rc.RDB\$CONSTRAINT_TYPE = 'PRIMARY KEY' THEN 1 ELSE 0 END AS \"primary\",
                          CASE WHEN rc.RDB\$CONSTRAINT_TYPE = 'FOREIGN KEY' THEN 1 ELSE 0 END AS \"foreign\",
@@ -326,12 +326,12 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                     FROM RDB\$INDEX_SEGMENTS s
                LEFT JOIN RDB\$INDICES i ON i.RDB\$INDEX_NAME = s.RDB\$INDEX_NAME
                LEFT JOIN RDB\$RELATION_CONSTRAINTS rc ON rc.RDB\$INDEX_NAME = s.RDB\$INDEX_NAME
-               LEFT JOIN RDB\$REF_CONSTRAINTS refc ON rc.RDB\$INDEX_NAME = refc.RDB\$CONSTRAINT_NAME
+               LEFT JOIN RDB\$REF_CONSTRAINTS refc ON rc.RDB\$CONSTRAINT_NAME = refc.RDB\$CONSTRAINT_NAME
                LEFT JOIN RDB\$INDICES i2 ON i2.RDB\$INDEX_NAME = refc.RDB\$CONST_NAME_UQ
                LEFT JOIN RDB\$INDEX_SEGMENTS s2 ON i2.RDB\$INDEX_NAME = s2.RDB\$INDEX_NAME
                    WHERE UPPER(i.RDB\$RELATION_NAME)=$table
-                     AND UPPER(i.RDB\$INDEX_NAME)=%s
-                     AND RDB\$CONSTRAINT_TYPE IS NOT NULL
+                     AND UPPER(rc.RDB\$CONSTRAINT_NAME)=%s
+                     AND rc.RDB\$CONSTRAINT_TYPE IS NOT NULL
                 ORDER BY s.RDB\$FIELD_POSITION";
         $constraint_name_mdb2 = $db->quote(strtoupper($db->getIndexName($constraint_name)), 'text');
         $result = $db->queryRow(sprintf($query, $constraint_name_mdb2));
@@ -370,6 +370,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                         $ref_column_name = strtoupper($ref_column_name);
                     }
                 }
+                $definition['references_table'] = $row['references_table'];
                 $definition['references_fields'][$ref_column_name] = array(
                     'position' => (int)$row['field_position']
                 );
