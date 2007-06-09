@@ -56,9 +56,11 @@
 class MDB2_Driver_mssql extends MDB2_Driver_Common
 {
     // {{{ properties
+
     var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => "'", 'escape_pattern' => false);
 
     var $identifier_quoting = array('start' => '[', 'end' => ']', 'escape' => ']');
+
     // }}}
     // {{{ constructor
 
@@ -89,6 +91,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->supported['result_introspection'] = true;
         $this->supported['prepared_statements'] = 'emulated';
         $this->supported['pattern_escaping'] = true;
+        $this->supported['new_link'] = true;
 
         $this->options['database_device'] = false;
         $this->options['database_size'] = false;
@@ -324,6 +327,15 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         if ($this->dsn['port']) {
             $params[0].= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':').$this->dsn['port'];
         }
+        if (!$this->options['persistent']) {
+            if (isset($this->dsn['new_link'])
+                && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true)
+            ) {
+                $params[] = true;
+            } else {
+                $params[] = false;
+            }
+        }
 
         $connect_function = $this->options['persistent'] ? 'mssql_pconnect' : 'mssql_connect';
 
@@ -508,6 +520,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
         return $query;
     }
+
     // }}}
     // {{{ getServerVersion()
 
@@ -555,6 +568,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
     // }}}
     // {{{ _checkSequence
+
     /**
      * Checks if there's a sequence that exists.
      *
@@ -629,8 +643,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
         return $value;
     }
+
     // }}}
     // {{{ lastInsertID()
+
     /**
      * Returns the autoincrement ID if supported or $id or fetches the current
      * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
@@ -653,8 +669,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
         return $this->queryOne($query, 'integer');
     }
+
     // }}}
 }
+
 // }}}
 // {{{ Class MDB2_Result_mssql
 
@@ -858,7 +876,12 @@ class MDB2_Result_mssql extends MDB2_Result_Common
         $this->result = false;
         return MDB2_OK;
     }
+
+    // }}}
 }
+
+// }}}
+// {{{ class MDB2_BufferedResult_mssql
 
 /**
  * MDB2 MSSQL Server buffered result driver
@@ -869,7 +892,6 @@ class MDB2_Result_mssql extends MDB2_Result_Common
  */
 class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
 {
-    // }}}
     // {{{ seek()
 
     /**
@@ -895,6 +917,7 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
         return MDB2_OK;
     }
 
+    // }}}
     // {{{ valid()
 
     /**
@@ -943,6 +966,7 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
         return $rows;
     }
 }
+
 // }}}
 // {{{ MDB2_Statement_mssql
 
@@ -957,6 +981,6 @@ class MDB2_Statement_mssql extends MDB2_Statement_Common
 {
 
 }
-// }}}
 
+// }}}
 ?>
