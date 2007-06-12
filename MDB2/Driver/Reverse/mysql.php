@@ -174,14 +174,14 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = %s */";
-        $constraint_name_mdb2 = $db->getIndexName($constraint_name);
-        $result = $db->queryRow(sprintf($query, $db->quote($constraint_name_mdb2)));
+        $index_name_mdb2 = $db->getIndexName($index_name);
+        $result = $db->queryRow(sprintf($query, $db->quote($index_name_mdb2)));
         if (!PEAR::isError($result) && !is_null($result)) {
             // apply 'idxname_format' only if the query succeeded, otherwise
             // fallback to the given $index_name, without transformation
-            $constraint_name = $constraint_name_mdb2;
+            $index_name = $index_name_mdb2;
         }
-        $result = $db->query(sprintf($query, $db->quote($constraint_name)));
+        $result = $db->query(sprintf($query, $db->quote($index_name)));
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -197,10 +197,10 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     $key_name = strtoupper($key_name);
                 }
             }
-            if ($constraint_name == $key_name) {
+            if ($index_name == $key_name) {
                 if (!$row['non_unique']) {
                     return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                        $constraint_name . ' is not an existing table constraint', __FUNCTION__);
+                        $index_name . ' is not an existing table index', __FUNCTION__);
                 }
                 $column_name = $row['column_name'];
                 if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -222,7 +222,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
+                $index_name . ' is not an existing table index', __FUNCTION__);
         }
         return $definition;
     }
@@ -238,7 +238,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $index_name)
+    function getTableConstraintDefinition($table, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -247,16 +247,16 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = %s */";
-        if (strtolower($index_name) != 'primary') {
-            $index_name_mdb2 = $db->getIndexName($index_name);
-            $result = $db->queryRow(sprintf($query, $db->quote($index_name_mdb2)));
+        if (strtolower($constraint_name) != 'primary') {
+            $constraint_name_mdb2 = $db->getIndexName($constraint_name);
+            $result = $db->queryRow(sprintf($query, $db->quote($constraint_name_mdb2)));
             if (!PEAR::isError($result) && !is_null($result)) {
                 // apply 'idxname_format' only if the query succeeded, otherwise
                 // fallback to the given $index_name, without transformation
-                $index_name = $index_name_mdb2;
+                $constraint_name = $constraint_name_mdb2;
             }
         }
-        $result = $db->query(sprintf($query, $db->quote($index_name)));
+        $result = $db->query(sprintf($query, $db->quote($constraint_name)));
         if (PEAR::isError($result)) {
             return $result;
         }
@@ -272,7 +272,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     $key_name = strtoupper($key_name);
                 }
             }
-            if ($index_name == $key_name) {
+            if ($constraint_name == $key_name) {
                 if ($row['non_unique']) {
                     return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                         'it was not specified an existing table constraint', __FUNCTION__);
