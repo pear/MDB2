@@ -63,12 +63,12 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of a field into an array
      *
-     * @param string    $table       name of table that should be used in method
-     * @param string    $field_name  name of field that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $field_name name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableFieldDefinition($table, $field_name)
+    function getTableFieldDefinition($table_name, $field_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -79,6 +79,9 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
+
+        list($schema, $table) = $this->splitTableSchema($table_name);
+
         $table = $db->quoteIdentifier($table, true);
         $fldname = $db->quoteIdentifier($field_name, true);
 
@@ -86,8 +89,8 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                          c.column_name 'name',
                          c.data_type 'type',
                          CASE c.is_nullable WHEN 'YES' THEN 1 ELSE 0 END AS 'is_nullable',
-                		 c.column_default,
-                		 c.character_maximum_length 'length',
+                         c.column_default,
+                         c.character_maximum_length 'length',
                          c.numeric_precision,
                          c.numeric_scale,
                          c.character_set_name,
@@ -96,8 +99,11 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                          INFORMATION_SCHEMA.COLUMNS c
                    WHERE t.table_name = c.table_name
                      AND t.table_name = '$table'
-                     AND c.column_name = '$fldname'
-                ORDER BY t.table_name";
+                     AND c.column_name = '$fldname'";
+        if (!empty($schema)) {
+            $query .= " AND t.table_schema = '" .$db->quoteIdentifier($schema, true) ."'";
+        }
+        $query .= ' ORDER BY t.table_name';
         $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($column)) {
             return $column;
@@ -174,17 +180,19 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of an index into an array
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $index_name name of index that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function getTableIndexDefinition($table_name, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+
+        list($schema, $table) = $this->splitTableSchema($table_name);
 
         $table = $db->quoteIdentifier($table, true);
         //$idxname = $db->quoteIdentifier($index_name, true);
@@ -205,8 +213,13 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                             SELECT *
                               FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
                              WHERE k.table_name = OBJECT_NAME(i.id)
-                               AND k.constraint_name = i.name)
-                ORDER BY tablename, indexname, ik.keyno";
+                               AND k.constraint_name = i.name";
+        if (!empty($schema)) {
+            $query .= " AND k.table_schema = '" .$db->quoteIdentifier($schema, true) ."'";
+        }
+        $query .= ')
+                ORDER BY tablename, indexname, ik.keyno';
+
 
         $index_name_mdb2 = $db->getIndexName($index_name);
         $result = $db->queryRow(sprintf($query, $index_name_mdb2));
@@ -252,17 +265,19 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of a constraint into an array
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $constraint_name name of constraint that should be used in method
+     * @param string $table_name      name of table that should be used in method
+     * @param string $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $constraint_name)
+    function getTableConstraintDefinition($table_name, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+
+        list($schema, $table) = $this->splitTableSchema($table_name);
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SELECT k.table_name,
@@ -296,9 +311,12 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                      AND rc.unique_constraint_name = ccu.constraint_name
                    WHERE k.constraint_catalog = DB_NAME()
                      AND k.table_name = '$table'
-                     AND k.constraint_name = '%s'
-                ORDER BY k.constraint_name,
-                         k.ordinal_position";
+                     AND k.constraint_name = '%s'";
+        if (!empty($schema)) {
+            $query .= " AND k.table_schema = '" .$db->quoteIdentifier($schema, true) ."'";
+        }
+        $query .= ' ORDER BY k.constraint_name,
+                             k.ordinal_position';
 
         $constraint_name_mdb2 = $db->getIndexName($constraint_name);
         $result = $db->queryRow(sprintf($query, $constraint_name_mdb2));

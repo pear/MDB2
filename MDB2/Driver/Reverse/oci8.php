@@ -2,8 +2,8 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith, Frank M. Kromann                       |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Stig. S. Bakken, Lukas Smith, Frank M. Kromann, Lorenzo Alberton     |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -39,7 +39,8 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Lukas Smith <smith@pooteeweet.org>                           |
+// | Authors: Lukas Smith <smith@pooteeweet.org>                          |
+// |          Lorenzo Alberton <l.alberton@quipo.it>                      |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -61,12 +62,12 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of a field into an array
      *
-     * @param string    $table       name of table that should be used in method
-     * @param string    $field_name  name of field that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $field_name name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableFieldDefinition($table, $field_name)
+    function getTableFieldDefinition($table_name, $field_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -78,10 +79,17 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $result;
         }
 
+        list($owner, $table) = $this->splitTableSchema($table_name);
+
         $query = 'SELECT column_name name, data_type "type", nullable, data_default "default"';
         $query.= ', COALESCE(data_precision, data_length) "length", data_scale "scale"';
-        $query.= ' FROM user_tab_columns';
+        $query.= ' FROM all_tab_columns';
         $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
+        if (empty($owner)) {
+            $query.= ' AND (owner='.$db->quote($db->dsn['username'], 'text').' OR owner='.$db->quote(strtoupper($db->dsn['username']), 'text').')';
+        } else {
+            $query.= ' AND (owner='.$db->quote($owner, 'text').' OR owner='.$db->quote(strtoupper($owner), 'text').')';
+        }
         $query.= ' AND (column_name='.$db->quote($field_name, 'text').' OR column_name='.$db->quote(strtoupper($field_name), 'text').')';
         $query.= ' ORDER BY column_id';
         $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
@@ -181,31 +189,38 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of an index into an array
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $index_name name of index that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function getTableIndexDefinition($table_name, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
         
-        $query = "SELECT column_name,
+        list($owner, $table) = $this->splitTableSchema($table_name);
+        
+        $query = 'SELECT column_name,
                          column_position,
                          descend
-                    FROM user_ind_columns
-                   WHERE (table_name=".$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')
+                    FROM all_ind_columns
+                   WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')
                      AND (index_name=%s OR index_name=%s)
                      AND index_name NOT IN (
                            SELECT constraint_name
                              FROM dba_constraints
                             WHERE (table_name = '.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').")
                               AND constraint_type in ('P','U')
-                         )
-                ORDER BY column_position";
+                         )";
+        if (empty($owner)) {
+            $query.= ' AND (table_owner='.$db->quote($db->dsn['username'], 'text').' OR table_owner='.$db->quote(strtoupper($db->dsn['username']), 'text').')';
+        } else {
+            $query.= ' AND (table_owner='.$db->quote($owner, 'text').' OR table_owner='.$db->quote(strtoupper($owner), 'text').')';
+        }
+        $query .= ' ORDER BY column_position';
         $index_name_mdb2 = $db->getIndexName($index_name);
         $sql = sprintf($query,
             $db->quote($index_name_mdb2, 'text'),
@@ -259,17 +274,20 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of a constraint into an array
      *
-     * @param string    $table           name of table that should be used in method
-     * @param string    $constraint_name name of constraint that should be used in method
+     * @param string $table_name      name of table that should be used in method
+     * @param string $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $constraint_name)
+    function getTableConstraintDefinition($table_name, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+        
+        list($owner, $table) = $this->splitTableSchema($table_name);
+        
         //querying USER_CONSTRAINTS and USER_CONS_COLUMNS is slightly faster than ALL_CONSTRAINTS and ALL_CONS_COLUMNS
         $query = 'SELECT alc.constraint_name,
                          CASE alc.constraint_type WHEN \'P\' THEN 1 ELSE 0 END "primary",
@@ -288,22 +306,26 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                          r_alc.table_name "references_table",
                          r_cols.column_name "references_field",
                          r_cols.position "references_field_position"
-                    FROM user_cons_columns cols
-               LEFT JOIN user_constraints alc
+                    FROM all_cons_columns cols
+               LEFT JOIN all_constraints alc
                       ON alc.constraint_name = cols.constraint_name
                      AND alc.owner = cols.owner
-               LEFT JOIN user_constraints r_alc
+               LEFT JOIN all_constraints r_alc
                       ON alc.r_constraint_name = r_alc.constraint_name
                      AND alc.r_owner = r_alc.owner
-               LEFT JOIN user_cons_columns r_cols
+               LEFT JOIN all_cons_columns r_cols
                       ON r_alc.constraint_name = r_cols.constraint_name
                      AND r_alc.owner = r_cols.owner
                      AND cols.position = r_cols.position
                    WHERE (alc.constraint_name=%s OR alc.constraint_name=%s)
-                     AND alc.constraint_name = cols.constraint_name
-                     AND alc.owner = '.$db->quote(strtoupper($db->dsn['username']), 'text');
+                     AND alc.constraint_name = cols.constraint_name';
         if (!empty($table)) {
              $query.= ' AND (alc.table_name='.$db->quote($table, 'text').' OR alc.table_name='.$db->quote(strtoupper($table), 'text').')';
+        }
+        if (empty($owner)) {
+            $query.= ' AND (alc.owner='.$db->quote($db->dsn['username'], 'text').' OR alc.owner='.$db->quote(strtoupper($db->dsn['username']), 'text').')';
+        } else {
+            $query.= ' AND (alc.owner='.$db->quote($owner, 'text').' OR alc.owner='.$db->quote(strtoupper($owner), 'text').')';
         }
         if (strtolower($constraint_name) != 'primary') {
             $constraint_name_mdb2 = $db->getIndexName($constraint_name);

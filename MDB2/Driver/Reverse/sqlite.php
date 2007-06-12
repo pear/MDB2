@@ -2,8 +2,8 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith                                         |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Stig. S. Bakken, Lukas Smith. Lorenzo Alberton                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -39,7 +39,8 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Lukas Smith <smith@pooteeweet.org>                           |
+// | Authors: Lukas Smith <smith@pooteeweet.org>                          |
+// |          Lorenzo Alberton <l.alberton@quipo.it>                      |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -121,20 +122,22 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
     /**
      * Get the stucture of a field into an array
      *
-     * @param string    $table       name of table that should be used in method
-     * @param string    $field_name  name of field that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $field_name name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure.
      *          The returned array contains an array for each field definition,
      *          with (some of) these indices:
      *          [notnull] [nativetype] [length] [fixed] [default] [type] [mdb2type]
      * @access public
      */
-    function getTableFieldDefinition($table, $field_name)
+    function getTableFieldDefinition($table_name, $field_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+        
+        list($schema, $table) = $this->splitTableSchema($table_name);
 
         $result = $db->loadModule('Datatype', null, true);
         if (PEAR::isError($result)) {
@@ -224,17 +227,19 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
     /**
      * Get the stucture of an index into an array
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $index_name name of index that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name)
+    function getTableIndexDefinition($table_name, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+        
+        list($schema, $table) = $this->splitTableSchema($table_name);
 
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -305,17 +310,19 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
     /**
      * Get the stucture of a constraint into an array
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $constraint_name name of constraint that should be used in method
+     * @param string $table_name      name of table that should be used in method
+     * @param string $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $constraint_name)
+    function getTableConstraintDefinition($table_name, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+        
+        list($schema, $table) = $this->splitTableSchema($table_name);
 
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {

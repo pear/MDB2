@@ -62,12 +62,12 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of a field into an array
      *
-     * @param string    $table       name of table that should be used in method
-     * @param string    $field_name  name of field that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $field_name name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableFieldDefinition($table, $field_name)
+    function getTableFieldDefinition($table_name, $field_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -78,6 +78,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
+
+        list($schema, $table) = $this->splitTableSchema($table_name);
+
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW COLUMNS FROM $table LIKE ".$db->quote($field_name);
         $columns = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
@@ -160,17 +163,19 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of an index into an array
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $constraint_name name of constraint that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $index_name name of index that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $constraint_name)
+    function getTableIndexDefinition($table_name, $index_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+
+        list($schema, $table) = $this->splitTableSchema($table_name);
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = %s */";
@@ -233,17 +238,19 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of a constraint into an array
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string $table_name      name of table that should be used in method
+     * @param string $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $constraint_name)
+    function getTableConstraintDefinition($table_name, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+
+        list($schema, $table) = $this->splitTableSchema($table_name);
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = %s */";
@@ -274,8 +281,9 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
             }
             if ($constraint_name == $key_name) {
                 if ($row['non_unique']) {
+                    //THIS IS WRONG: Foreign Keys can have non_unique = 1
                     return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                        'it was not specified an existing table constraint', __FUNCTION__);
+                        $constraint_name . ' is not an existing table constraint', __FUNCTION__);
                 }
                 if ($row['key_name'] == 'PRIMARY') {
                     $definition['primary'] = true;
@@ -302,7 +310,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table constraint', __FUNCTION__);
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
         return $definition;
     }
@@ -399,7 +407,6 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
 
         $count = @mysql_num_fields($resource);
         $res   = array();
-
         if ($mode) {
             $res['num_fields'] = $count;
         }

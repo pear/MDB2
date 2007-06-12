@@ -124,12 +124,12 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of a field into an array
      *
-     * @param string    $table       name of table that should be used in method
-     * @param string    $field_name  name of field that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $field_name name of field that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableFieldDefinition($table, $field_name)
+    function getTableFieldDefinition($table_name, $field_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -140,6 +140,9 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($result)) {
             return $result;
         }
+
+        list($schema, $table) = $this->splitTableSchema($table_name);
+
         $table = $db->quote(strtoupper($table), 'text');
         $field_name = $db->quote(strtoupper($field_name), 'text');
         $query = "SELECT RDB\$RELATION_FIELDS.RDB\$FIELD_NAME AS name,
@@ -223,17 +226,20 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of an index into an array
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $index_name name of index that should be used in method
+     * @param string $table_name name of table that should be used in method
+     * @param string $index_name name of index that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableIndexDefinition($table, $index_name, $format_index_name = true)
+    function getTableIndexDefinition($table_name, $index_name, $format_index_name = true)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+
+        list($schema, $table) = $this->splitTableSchema($table_name);
+
         $table = $db->quote(strtoupper($table), 'text');
         $query = "SELECT RDB\$INDEX_SEGMENTS.RDB\$FIELD_NAME AS field_name,
                          RDB\$INDICES.RDB\$DESCRIPTION AS description,
@@ -295,17 +301,19 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
     /**
      * Get the structure of a constraint into an array
      *
-     * @param string    $table      name of table that should be used in method
-     * @param string    $constraint_name name of constraint that should be used in method
+     * @param string $table_name      name of table that should be used in method
+     * @param string $constraint_name name of constraint that should be used in method
      * @return mixed data array on success, a MDB2 error on failure
      * @access public
      */
-    function getTableConstraintDefinition($table, $constraint_name)
+    function getTableConstraintDefinition($table_name, $constraint_name)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+
+        list($schema, $table) = $this->splitTableSchema($table_name);
         
         $table = $db->quote(strtoupper($table), 'text');
         $query = "SELECT rc.RDB\$CONSTRAINT_NAME,
@@ -334,6 +342,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                      AND UPPER(rc.RDB\$CONSTRAINT_NAME)=%s
                      AND rc.RDB\$CONSTRAINT_TYPE IS NOT NULL
                 ORDER BY s.RDB\$FIELD_POSITION";
+
         $constraint_name_mdb2 = $db->quote(strtoupper($db->getIndexName($constraint_name)), 'text');
         $result = $db->queryRow(sprintf($query, $constraint_name_mdb2));
         if (!PEAR::isError($result) && !is_null($result)) {
@@ -391,7 +400,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
-
+        
         $definition['primary'] = (boolean)$lastrow['primary'];
         $definition['unique']  = (boolean)$lastrow['unique'];
         $definition['foreign'] = (boolean)$lastrow['foreign'];
@@ -401,8 +410,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $definition['on_update']     = $lastrow['on_update'];
         $definition['on_delete']     = $lastrow['on_delete'];
         $definition['match_type']    = $lastrow['match_type'];
-
-        return $definition;
+        
+		return $definition;
     }
 
     // }}}

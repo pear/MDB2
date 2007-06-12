@@ -9,6 +9,7 @@ $state = 'stable';
 $notes = <<<EOT
 - fixed bug #10024: Security fix for LOBs. Added an option to turn lob_allow_url_include off by default
 - fixed bug #11179: prepared statements with named placeholders fail if extra values are provided
+- added support for "schema.table" (or "owner.table") notation in the Reverse module (request #11297)
 
 open todo items:
 - handle autoincrement fields in alterTable()
