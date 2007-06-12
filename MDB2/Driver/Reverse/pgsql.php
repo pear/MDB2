@@ -265,8 +265,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                          CASE WHEN c.contype = 'f' THEN 1 ELSE 0 END AS \"foreign\",
                          CASE WHEN c.contype = 'p' THEN 1 ELSE 0 END AS \"primary\",
                          CASE WHEN c.contype = 'u' THEN 1 ELSE 0 END AS \"unique\",
-                         CASE WHEN c.condeferrable = 'f' THEN 0 ELSE 1 END AS is_deferrable,
-                         CASE WHEN c.condeferred = 'f' THEN 0 ELSE 1 END AS is_deferred,
+                         CASE WHEN c.condeferrable = 'f' THEN 0 ELSE 1 END AS deferrable,
+                         CASE WHEN c.condeferred = 'f' THEN 0 ELSE 1 END AS initially_deferred,
                          array_to_string(c.conkey, ' ') AS constraint_key,
                          t.relname AS table_name,
                          t2.relname AS references_table,
@@ -288,7 +288,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                            WHEN 'u' THEN 'UNSPECIFIED'
                            WHEN 'f' THEN 'FULL'
                            WHEN 'p' THEN 'PARTIAL'
-                         END AS match_type,
+                         END AS match,
                          array_to_string(c.confkey, ' ') AS fk_constraint_key,
                          consrc
                     FROM pg_constraint c
@@ -322,13 +322,15 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             'foreign' => (boolean)$row['foreign'],
             'check'   => (boolean)$row['check'],
             'fields'  => array(),
-            'references_table'  => $row['references_table'],
-            'references_fields' => array(),
-            'is_deferrable' => (boolean)$row['is_deferrable'],
-            'is_deferred'   => (boolean)$row['is_deferred'],
+            'references' => array(
+                'table' => $row['references_table'],
+                'fields' => array(),
+            ),
+            'deferrable'    => (boolean)$row['deferrable'],
+            'initially_deferred' => (boolean)$row['initially_deferred'],
             'on_update'     => $row['on_update'],
             'on_delete'     => $row['on_delete'],
-            'match_type'    => $row['match_type'],
+            'match'         => $row['match'],
         );
 
         $index_column_numbers = explode(' ', $row['constraint_key']);
@@ -341,11 +343,11 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         }
         
         if ($definition['foreign']) {
-            $columns = $db->manager->listTableFields($definition['references_table']);
+            $columns = $db->manager->listTableFields($definition['references']['table']);
             $column_numbers = explode(' ', $row['fk_constraint_key']);
             $colpos = 1;
             foreach ($column_numbers as $number) {
-                $definition['references_fields'][$columns[($number - 1)]] = array(
+                $definition['references']['fields'][$columns[($number - 1)]] = array(
                     'position' => $colpos++,
                 );
             }

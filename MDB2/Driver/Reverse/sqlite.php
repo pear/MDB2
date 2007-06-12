@@ -3,7 +3,7 @@
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
 // | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith. Lorenzo Alberton                       |
+// | Stig. S. Bakken, Lukas Smith, Lorenzo Alberton                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -395,14 +395,16 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 if ($found_fk) {
                     $definition = array(
                         'foreign'       => true,
-                        'is_deferrable' => false,
-                        'is_deferred'   => false,
+                        'deferrable'    => false,
+                        'initially_deferred' => false,
                         'fields'        => array(),
-                        'references_table'  => $tmp[2],
-                        'references_fields' => array(),
-                        'match_type' => 'SIMPLE',
-                        'on_update'  => 'NO ACTION',
-                        'on_delete'  => 'NO ACTION',
+                        'references' => array(
+                            'table' => $tmp[2],
+                            'fields' => array(),
+                        ),
+                        'match'     => 'SIMPLE',
+                        'on_update' => 'NO ACTION',
+                        'on_delete' => 'NO ACTION',
                     );
                     $column_names = split(',', $tmp[1]);
                     $colpos = 1;
@@ -414,12 +416,12 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     $referenced_cols = split(',', $tmp[3]);
                     $colpos = 1;
                     foreach ($referenced_cols as $column_name) {
-                        $definition['references_fields'][$column_name] = array(
+                        $definition['references']['fields'][$column_name] = array(
                             'position' => $colpos++
                         );
                     }
                     if (isset($tmp[4])) {
-                        $definition['match_type'] = $tmp[4];
+                        $definition['match']     = $tmp[4];
                     }
                     if (isset($tmp[5])) {
                         $definition['on_update'] = $tmp[5];

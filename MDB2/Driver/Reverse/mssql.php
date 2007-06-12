@@ -220,7 +220,6 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         $query .= ')
                 ORDER BY tablename, indexname, ik.keyno';
 
-
         $index_name_mdb2 = $db->getIndexName($index_name);
         $result = $db->queryRow(sprintf($query, $index_name_mdb2));
         if (!PEAR::isError($result) && !is_null($result)) {
@@ -286,9 +285,9 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                          CASE c.constraint_type WHEN 'UNIQUE' THEN 1 ELSE 0 END 'unique',
                          CASE c.constraint_type WHEN 'FOREIGN KEY' THEN 1 ELSE 0 END 'foreign',
                          CASE c.constraint_type WHEN 'CHECK' THEN 1 ELSE 0 END 'check',
-                         CASE c.is_deferrable WHEN 'NO' THEN 0 ELSE 1 END 'is_deferrable',
-                         CASE c.initially_deferred WHEN 'NO' THEN 0 ELSE 1 END 'is_deferred',
-                         rc.match_option 'match_type',
+                         CASE c.is_deferrable WHEN 'NO' THEN 0 ELSE 1 END 'deferrable',
+                         CASE c.initially_deferred WHEN 'NO' THEN 0 ELSE 1 END 'initially_deferred',
+                         rc.match_option 'match',
                 		 rc.update_rule 'on_update',
                          rc.delete_rule 'on_delete',
                          ccu.table_name 'references_table',
@@ -355,8 +354,8 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                         $ref_column_name = strtoupper($ref_column_name);
                     }
                 }
-                $definition['references_table'] = $row['references_table'];
-                $definition['references_fields'][$ref_column_name] = array(
+                $definition['references']['table'] = $row['references_table'];
+                $definition['references']['fields'][$ref_column_name] = array(
                     'position' => (int)$row['field_position']
                 );
             }
@@ -380,11 +379,11 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         $definition['unique']  = (boolean)$lastrow['unique'];
         $definition['foreign'] = (boolean)$lastrow['foreign'];
         $definition['check']   = (boolean)$lastrow['check'];
-        $definition['is_deferrable'] = (boolean)$lastrow['is_deferrable'];
-        $definition['is_deferred']   = (boolean)$lastrow['is_deferred'];
+        $definition['deferrable'] = (boolean)$lastrow['deferrable'];
+        $definition['initially_deferred']   = (boolean)$lastrow['initially_deferred'];
         $definition['on_update']     = $lastrow['on_update'];
         $definition['on_delete']     = $lastrow['on_delete'];
-        $definition['match_type']    = $lastrow['match_type'];
+        $definition['match']    = $lastrow['match'];
 
         return $definition;
     }

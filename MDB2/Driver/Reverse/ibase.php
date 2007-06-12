@@ -323,11 +323,11 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                          CASE WHEN rc.RDB\$CONSTRAINT_TYPE = 'UNIQUE'      THEN 1 ELSE 0 END AS \"unique\",
                          CASE WHEN rc.RDB\$CONSTRAINT_TYPE = 'CHECK'       THEN 1 ELSE 0 END AS \"check\",
                          i.RDB\$DESCRIPTION AS description,
-                         CASE WHEN rc.RDB\$DEFERRABLE = 'NO' THEN 0 ELSE 1 END AS is_deferrable,
-                         CASE WHEN rc.RDB\$INITIALLY_DEFERRED = 'NO' THEN 0 ELSE 1 END AS is_deferred,
+                         CASE WHEN rc.RDB\$DEFERRABLE = 'NO' THEN 0 ELSE 1 END AS deferrable,
+                         CASE WHEN rc.RDB\$INITIALLY_DEFERRED = 'NO' THEN 0 ELSE 1 END AS initially_deferred,
                          refc.RDB\$UPDATE_RULE AS on_update,
                          refc.RDB\$DELETE_RULE AS on_delete,
-                         refc.RDB\$MATCH_OPTION AS match_type,
+                         refc.RDB\$MATCH_OPTION AS \"match\",
                          i2.RDB\$RELATION_NAME AS references_table,
                          s2.RDB\$FIELD_NAME AS references_field,
                          (s.RDB\$FIELD_POSITION + 1) AS field_position
@@ -342,7 +342,6 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                      AND UPPER(rc.RDB\$CONSTRAINT_NAME)=%s
                      AND rc.RDB\$CONSTRAINT_TYPE IS NOT NULL
                 ORDER BY s.RDB\$FIELD_POSITION";
-
         $constraint_name_mdb2 = $db->quote(strtoupper($db->getIndexName($constraint_name)), 'text');
         $result = $db->queryRow(sprintf($query, $constraint_name_mdb2));
         if (!PEAR::isError($result) && !is_null($result)) {
@@ -380,8 +379,8 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                         $ref_column_name = strtoupper($ref_column_name);
                     }
                 }
-                $definition['references_table'] = $row['references_table'];
-                $definition['references_fields'][$ref_column_name] = array(
+                $definition['references']['table'] = $row['references_table'];
+                $definition['references']['fields'][$ref_column_name] = array(
                     'position' => (int)$row['field_position']
                 );
             }
@@ -405,11 +404,11 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $definition['unique']  = (boolean)$lastrow['unique'];
         $definition['foreign'] = (boolean)$lastrow['foreign'];
         $definition['check']   = (boolean)$lastrow['check'];
-        $definition['is_deferrable'] = (boolean)$lastrow['is_deferrable'];
-        $definition['is_deferred']   = (boolean)$lastrow['is_deferred'];
+        $definition['deferrable'] = (boolean)$lastrow['deferrable'];
+        $definition['initially_deferred']   = (boolean)$lastrow['initially_deferred'];
         $definition['on_update']     = $lastrow['on_update'];
         $definition['on_delete']     = $lastrow['on_delete'];
-        $definition['match_type']    = $lastrow['match_type'];
+        $definition['match']         = $lastrow['match'];
         
 		return $definition;
     }

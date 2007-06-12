@@ -296,8 +296,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                          CASE alc.constraint_type WHEN \'C\' THEN 1 ELSE 0 END "check",
                          alc.DELETE_RULE "on_delete",
                          \'NO ACTION\' "on_update",
-                         CASE alc.deferrable WHEN \'NOT DEFERRABLE\' THEN 0 ELSE 1 END "is_deferrable",
-                         CASE alc.deferred WHEN \'IMMEDIATE\' THEN 1 ELSE 0 END "is_deferred",
+                         \'SIMPLE\' "match",
+                         CASE alc.deferrable WHEN \'NOT DEFERRABLE\' THEN 0 ELSE 1 END "deferrable",
+                         CASE alc.deferred WHEN \'IMMEDIATE\' THEN 1 ELSE 0 END "initially_deferred",
                          alc.search_condition,
                          alc.search_condition,
                          alc.table_name,
@@ -371,8 +372,8 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                         $ref_column_name = strtoupper($ref_column_name);
                     }
                 }
-                $definition['references_table'] = $row['references_table'];
-                $definition['references_fields'][$ref_column_name] = array(
+                $definition['references']['table'] = $row['references_table'];
+                $definition['references']['fields'][$ref_column_name] = array(
                     'position' => (int)$row['references_field_position']
                 );
             }
@@ -388,10 +389,11 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         $definition['unique']  = (boolean)$lastrow['unique'];
         $definition['foreign'] = (boolean)$lastrow['foreign'];
         $definition['check']   = (boolean)$lastrow['check'];
-        $definition['is_deferrable'] = (boolean)$lastrow['is_deferrable'];
-        $definition['is_deferred']   = (boolean)$lastrow['is_deferred'];
+        $definition['deferrable'] = (boolean)$lastrow['deferrable'];
+        $definition['initially_deferred']   = (boolean)$lastrow['initially_deferred'];
         $definition['on_delete']     = $lastrow['on_delete'];
         $definition['on_update']     = $lastrow['on_update'];
+        $definition['match']         = $lastrow['match'];
 
         if ($definition['check']) {
             // pattern match constraint for check constraint values into enum-style output:
