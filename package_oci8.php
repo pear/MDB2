@@ -6,7 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse module
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8

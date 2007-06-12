@@ -6,7 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse module
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #10986: Using more random statement names
 - fixed bug #11207: strip schema from table name in getTableFieldDefinition()
 

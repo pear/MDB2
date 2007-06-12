@@ -10,6 +10,7 @@ $notes = <<<EOT
   [dis]allow inserting a LOB from an url (file, http, ...).
 - fixed bug #10986: Using more random statement names
 - fixed bug #11055: Using placeholders with := variable assignment fails [bekarau]
+- initial support for FOREIGN KEY constraints in the Manager module
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

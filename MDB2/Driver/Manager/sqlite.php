@@ -2,8 +2,8 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith                                         |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Stig. S. Bakken, Lukas Smith, Lorenzo Alberton                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -117,6 +117,42 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                 (isset($php_errormsg) ? $php_errormsg : 'could not remove the database file'), __FUNCTION__);
         }
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _getAdvancedFKOptions()
+
+    /**
+     * Return the FOREIGN KEY query section dealing with non-standard options
+     * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
+     *
+     * @param array $definition
+     * @return string
+     * @access protected
+     */
+    function _getAdvancedFKOptions($definition)
+    {
+        $query = '';
+        if (!empty($definition['match'])) {
+            $query .= ' MATCH '.$definition['match'];
+        }
+        if (!empty($definition['on_update'])) {
+            $query .= ' ON UPDATE '.$definition['on_update'];
+        }
+        if (!empty($definition['on_delete'])) {
+            $query .= ' ON DELETE '.$definition['on_delete'];
+        }
+        if (!empty($definition['is_deferrable'])) {
+            $query .= ' DEFERRABLE';
+        } else {
+            $query .= ' NOT DEFERRABLE';
+        }
+        if (!empty($definition['is_deferred'])) {
+            $query .= ' INITIALLY DEFERRED';
+        } else {
+            $query .= ' INITIALLY IMMEDIATE';
+        }
+        return $query;
     }
 
     // }}}

@@ -123,6 +123,29 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ _getAdvancedFKOptions()
+
+    /**
+     * Return the FOREIGN KEY query section dealing with non-standard options
+     * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
+     *
+     * @param array $definition
+     * @return string
+     * @access protected
+     */
+    function _getAdvancedFKOptions($definition)
+    {
+        $query = '';
+        if (!empty($definition['on_update'])) {
+            $query .= ' ON UPDATE '.$definition['on_update'];
+        }
+        if (!empty($definition['on_delete'])) {
+            $query .= ' ON DELETE '.$definition['on_delete'];
+        }
+        return $query;
+    }
+
+    // }}}
     // {{{ createTable()
 
     /**

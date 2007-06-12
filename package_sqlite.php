@@ -6,7 +6,9 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse module
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+- in listTableConstraints() in the Reverse module, also search in table definition
+  for PRIMARY KEYs
 
 note:
 open todo items:

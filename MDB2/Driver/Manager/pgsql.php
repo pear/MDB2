@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -94,6 +94,42 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
 
         $name = $db->quoteIdentifier($name, true);
         return $db->standaloneQuery("DROP DATABASE $name", null, true);
+    }
+
+    // }}}
+    // {{{ _getAdvancedFKOptions()
+
+    /**
+     * Return the FOREIGN KEY query section dealing with non-standard options
+     * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
+     *
+     * @param array $definition
+     * @return string
+     * @access protected
+     */
+    function _getAdvancedFKOptions($definition)
+    {
+        $query = '';
+        if (!empty($definition['match'])) {
+            $query .= ' MATCH '.$definition['match'];
+        }
+        if (!empty($definition['on_update'])) {
+            $query .= ' ON UPDATE '.$definition['on_update'];
+        }
+        if (!empty($definition['on_delete'])) {
+            $query .= ' ON DELETE '.$definition['on_delete'];
+        }
+        if (!empty($definition['is_deferrable'])) {
+            $query .= ' DEFERRABLE';
+        } else {
+            $query .= ' NOT DEFERRABLE';
+        }
+        if (!empty($definition['is_deferred'])) {
+            $query .= ' INITIALLY DEFERRED';
+        } else {
+            $query .= ' INITIALLY IMMEDIATE';
+        }
+        return $query;
     }
 
     // }}}
@@ -262,7 +298,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                     }
                 }
                 if (!empty($field['notnull'])) {
-                    $query = "ALTER $field_name ".($field['definition']['notnull'] ? "SET" : "DROP").' NOT NULL';
+                    $query = "ALTER $field_name ".($field['definition']['notnull'] ? 'SET' : 'DROP').' NOT NULL';
                     $result = $db->exec("ALTER TABLE $name $query");
                     if (PEAR::isError($result)) {
                         return $result;

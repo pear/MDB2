@@ -6,7 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse module
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

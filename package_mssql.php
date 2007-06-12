@@ -6,7 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse module
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #9735, #11175, #11228: two instances fail to keep different databases selected
 
 open todo items:
