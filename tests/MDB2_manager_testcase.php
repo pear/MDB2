@@ -288,6 +288,35 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
     /**
      *
      */
+    function testCreateForeignKeyConstraint() {
+        if (!$this->methodExists($this->db->manager, 'createConstraint')) {
+            return;
+        }
+        $constraint = array(
+            'fields' => array(
+                'id' => array(
+                    'sorting' => 'ascending',
+                ),
+            ),
+            'foreign' => true,
+            'references' => array(
+                'table' => 'users',
+                'fields' => array('user_id' => 1),
+            ),
+            'initially_deferred' => false,
+            'deferrable' => false,
+            'match' => 'SIMPLE',
+            'on_update' => 'CASCADE',
+            'on_delete' => 'CASCADE',
+        );
+        $name = 'fkconstraint';
+        $result = $this->db->manager->createConstraint($this->table, $name, $constraint);
+        $this->assertFalse(PEAR::isError($result), 'Error creating FOREIGN KEY constraint');
+    }
+
+    /**
+     *
+     */
     function testDropPrimaryKey() {
         if (!$this->methodExists($this->db->manager, 'dropConstraint')) {
             return;
