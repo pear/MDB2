@@ -155,7 +155,10 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *          The returned array has this structure:
      *          <pre>
      *          array (
-     *              [primary] => 1
+     *              [primary] => 0
+     *              [unique]  => 0
+     *              [foreign] => 1
+     *              [check]   => 0
      *              [fields] => array (
      *                  [field1name] => array() // one entry per each field covered
      *                  [field2name] => array() // by the index
@@ -163,6 +166,16 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *                      [sorting] => ascending
      *                  )
      *              )
+     *              [references] => array(
+     *                  [table] => name
+     *                  [fields] => array(
+     *                      [field1name] => position //one entry per each referenced field
+     *                  )
+     *              [deferrable] => 0
+     *              [initially_deferred] => 0
+     *              [on_update] => CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION
+     *              [on_delete] => CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION
+     *              [match] => SIMPLE|PARTIAL|FULL
      *          );
      *          </pre>
      * @access public
