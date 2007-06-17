@@ -8,7 +8,8 @@ $state = 'stable';
 $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #10986: Using more random statement names
-- fixed bug #11207: strip schema from table name in getTableFieldDefinition()
+- request #11297: added support for "schema.table" (or "owner.table") notation
+  in the Reverse module (related to bug #11207)
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

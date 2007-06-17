@@ -7,7 +7,8 @@ $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
-
+- request #11297: added support for "owner.table" notation in the Reverse module
+  
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
  (binaries are available from snaps.php.net and pecl4win.php.net)
