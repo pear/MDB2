@@ -300,7 +300,6 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                          CASE alc.deferrable WHEN \'NOT DEFERRABLE\' THEN 0 ELSE 1 END "deferrable",
                          CASE alc.deferred WHEN \'IMMEDIATE\' THEN 1 ELSE 0 END "initially_deferred",
                          alc.search_condition,
-                         alc.search_condition,
                          alc.table_name,
                          cols.column_name,
                          cols.position,
