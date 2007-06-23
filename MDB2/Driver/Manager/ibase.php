@@ -577,7 +577,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $query = 'SELECT RDB$RELATION_NAME FROM RDB$RELATIONS WHERE RDB$SYSTEM_FLAG=0 AND RDB$VIEW_BLR IS NULL';
+        $query = 'SELECT RDB$RELATION_NAME
+                    FROM RDB$RELATIONS
+                   WHERE (RDB$SYSTEM_FLAG=0 OR RDB$SYSTEM_FLAG IS NULL)
+                     AND RDB$VIEW_BLR IS NULL
+                ORDER BY RDB$RELATION_NAME';
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -605,7 +609,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = $db->quote(strtoupper($table), 'text');
-        $query = "SELECT RDB\$FIELD_NAME FROM RDB\$RELATION_FIELDS WHERE UPPER(RDB\$RELATION_NAME)=$table";
+        $query = "SELECT RDB\$FIELD_NAME
+                    FROM RDB\$RELATION_FIELDS
+                   WHERE UPPER(RDB\$RELATION_NAME)=$table
+                     AND (RDB\$SYSTEM_FLAG=0 OR RDB\$SYSTEM_FLAG IS NULL)";
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
             return $result;
@@ -843,6 +850,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $query = "SELECT RDB\$INDEX_NAME
                     FROM RDB\$INDICES
                    WHERE UPPER(RDB\$RELATION_NAME)=$table
+                     AND (RDB\$SYSTEM_FLAG=0 OR RDB\$SYSTEM_FLAG IS NULL)
                      AND RDB\$UNIQUE_FLAG IS NULL
                      AND RDB\$FOREIGN_KEY IS NULL";
         $indexes = $db->queryCol($query, 'text');
