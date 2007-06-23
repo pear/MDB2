@@ -11,6 +11,7 @@ $notes = <<<EOT
 - fixed bug #10986: Using more random statement names
 - fixed bug #11055: Using placeholders with := variable assignment fails [bekarau]
 - initial support for FOREIGN KEY constraints in the Manager module
+- request #11389: added many new MySQL 5.1 error codes in errorInfo()
 
 open todo items:
 - use a trigger to emulate setting default now()
