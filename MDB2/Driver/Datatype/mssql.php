@@ -434,9 +434,12 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             $length = $field['numeric_precision'].','.$field['numeric_scale'];
             break;
         case 'text':
+        case 'ntext':
         case 'varchar':
+        case 'nvarchar':
             $fixed = false;
         case 'char':
+        case 'nchar':
             $type[0] = 'text';
             if ($length == '1') {
                 $type[] = 'boolean';
