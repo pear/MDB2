@@ -11,6 +11,7 @@ $notes = <<<EOT
 - request #11297: added support for "schema.table" (or "owner.table") notation
   in the Reverse module (related to bug #11207)
 - fixed bug #11428: propagate quote() errors with invalid data types
+- fixed bug in MDB2_Statement_pgsql::_execute(), called property of invalid object
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

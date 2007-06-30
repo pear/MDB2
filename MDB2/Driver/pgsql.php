@@ -1353,7 +1353,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
                 }
                 $value = $this->values[$parameter];
                 $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
-                if (is_resource($value) || $type == 'clob' || $type == 'blob' || $this->options['lob_allow_url_include']) {
+                if (is_resource($value) || $type == 'clob' || $type == 'blob' || $this->db->options['lob_allow_url_include']) {
                     if (!is_resource($value) && preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
                         if ($match[1] == 'file://') {
                             $value = $match[2];
