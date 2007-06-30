@@ -954,7 +954,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function currId($seq_name)
     {
         $sequence_name = $this->getSequenceName($seq_name);
-        $query = 'SELECT (last_number-1) FROM user_sequences';
+        $query = 'SELECT (last_number-1) FROM all_sequences';
         $query.= ' WHERE sequence_name='.$this->quote($sequence_name, 'text');
         $query.= ' OR sequence_name='.$this->quote(strtoupper($sequence_name), 'text');
         return $this->queryOne($query, 'integer');
