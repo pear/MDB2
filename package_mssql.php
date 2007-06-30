@@ -10,6 +10,7 @@ $notes = <<<EOT
 - fixed bug #9735, #11175, #11228: two instances fail to keep different databases selected
 - request #11297: added support for "schema.table" notation in the Reverse module
 - request #11445: added support for unicode datatypes (nchar, nvarchar, ntext)
+- fixed bug #11479: wrong query in nextID()
   
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

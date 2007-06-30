@@ -614,7 +614,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
         if ($seq_val) {
             $query = "SET IDENTITY_INSERT $sequence_name OFF ".
-                     "INSERT INTO $sequence_name ($seqcol_name) DEFAULT VALUES";
+                     "INSERT INTO $sequence_name DEFAULT VALUES";
         } else {
             $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
         }
