@@ -1428,7 +1428,11 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             }
             $value = $this->values[$parameter];
             $type = !empty($this->types[$parameter]) ? $this->types[$parameter] : null;
-            $parameters[] = $this->db->quote($value, $type, false);
+            $quoted = $this->db->quote($value, $type, false);
+            if (PEAR::isError($quoted)) {
+                return $quoted;
+            }
+            $parameters[] = $quoted;
         }
 
         $result = @call_user_func_array('ibase_execute', $parameters);

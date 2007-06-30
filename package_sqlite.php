@@ -9,6 +9,7 @@ $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - in listTableConstraints() in the Reverse module, also search in table definition
   for PRIMARY KEYs
+- fixed bug #11428: propagate quote() errors with invalid data types
 
 note:
 open todo items:

@@ -849,6 +849,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                         $lobs[$parameter] = $parameter;
                     }
                     $value = $this->quote(true, $types[$parameter]);
+                    if (PEAR::isError($value)) {
+                        return $value;
+                    }
                     $query = substr_replace($query, $value, $p_position, $length);
                     $position = $p_position + strlen($value) - 1;
                 } elseif ($placeholder_type == '?') {

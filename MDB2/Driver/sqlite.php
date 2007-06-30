@@ -725,6 +725,9 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             } else {
                 $type = isset($fields[$name]['type']) ? $fields[$name]['type'] : null;
                 $value = $this->quote($fields[$name]['value'], $type);
+                if (PEAR::isError($value)) {
+                    return $value;
+                }
             }
             $values.= $value;
             if (isset($fields[$name]['key']) && $fields[$name]['key']) {

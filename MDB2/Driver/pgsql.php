@@ -941,7 +941,9 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function getSequenceName($sqn)
     {
-        list($table, $field) = explode('_', $sqn);
+        if (strpos($sqn, '_') !== false) {
+            list($table, $field) = explode('_', $sqn);
+        }
         $query = "SELECT substring((SELECT substring(pg_get_expr(d.adbin, d.adrelid) for 128)
                 	    FROM pg_attrdef d
                 	   WHERE d.adrelid = a.attrelid
@@ -1370,7 +1372,11 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
                         $value = $data;
                     }
                 }
-                $parameters[] = $this->db->quote($value, $type, $query);
+                $quoted = $this->db->quote($value, $type, $query);
+                if (PEAR::isError($quoted)) {
+                    return $quoted;
+                }
+                $parameters[] = $quoted;
             }
             if ($query) {
                 $query.= ' ('.implode(', ', $parameters).')';

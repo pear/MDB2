@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+- fixed bug #11428: propagate quote() errors with invalid data types
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

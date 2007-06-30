@@ -11,6 +11,7 @@ $notes = <<<EOT
 - fixed bug #11179: prepared statements with named placeholders fail if extra values are provided
 - added support for "schema.table" (or "owner.table") notation in the Reverse module (request #11297)
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+- fixed bug #11428: propagate quote() errors with invalid data types
 
 open todo items:
 - handle autoincrement fields in alterTable()
