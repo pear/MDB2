@@ -721,9 +721,9 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
 
             if ($is_manip) {
-                return $query . " LIMIT $limit";
+                return $query . " LIMIT $limit" . $after;
             } else {
-                return $query . " LIMIT $offset, $limit";
+                return $query . " LIMIT $offset, $limit" . $after;
             }
         }
         return $query;
@@ -1064,6 +1064,9 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             } else {
                 $type = isset($fields[$name]['type']) ? $fields[$name]['type'] : null;
                 $value = $this->quote($fields[$name]['value'], $type);
+                if (PEAR::isError($value)) {
+                    return $value;
+                }
             }
             $values.= $value;
             if (isset($fields[$name]['key']) && $fields[$name]['key']) {
@@ -1153,7 +1156,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     function lastInsertID($table = null, $field = null)
     {
         // not using mysql_insert_id() due to http://pear.php.net/bugs/bug.php?id=8051
-        return $this->queryOne('SELECT LAST_INSERT_ID()');
+        return $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
     }
 
     // }}}
@@ -1548,7 +1551,11 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                         $parameters[1].= 'b';
                         $lobs[$i] = $parameter;
                     } else {
-                        $parameters[] = $this->db->quote($value, $type, false);
+                        $quoted = $this->db->quote($value, $type, false);
+                        if (PEAR::isError($quoted)) {
+                            return $quoted;
+                        }
+                        $parameters[] = $quoted;
                         $parameters[1].= $this->db->datatype->mapPrepareDatatype($type);
                     }
                     ++$i;
