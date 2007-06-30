@@ -287,8 +287,10 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
         
         list($owner, $table) = $this->splitTableSchema($table_name);
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
+        }
         
-        //querying USER_CONSTRAINTS and USER_CONS_COLUMNS is slightly faster than ALL_CONSTRAINTS and ALL_CONS_COLUMNS
         $query = 'SELECT alc.constraint_name,
                          CASE alc.constraint_type WHEN \'P\' THEN 1 ELSE 0 END "primary",
                          CASE alc.constraint_type WHEN \'R\' THEN 1 ELSE 0 END "foreign",
@@ -322,23 +324,17 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         if (!empty($table)) {
              $query.= ' AND (alc.table_name='.$db->quote($table, 'text').' OR alc.table_name='.$db->quote(strtoupper($table), 'text').')';
         }
-        if (empty($owner)) {
-            $query.= ' AND (alc.owner='.$db->quote($db->dsn['username'], 'text').' OR alc.owner='.$db->quote(strtoupper($db->dsn['username']), 'text').')';
-        } else {
-            $query.= ' AND (alc.owner='.$db->quote($owner, 'text').' OR alc.owner='.$db->quote(strtoupper($owner), 'text').')';
-        }
-        if (strtolower($constraint_name) != 'primary') {
-            $constraint_name_mdb2 = $db->getIndexName($constraint_name);
-            $sql = sprintf($query,
-                $db->quote($constraint_name_mdb2, 'text'),
-                $db->quote(strtoupper($constraint_name_mdb2), 'text')
-            );
-            $result = $db->queryRow($sql);
-            if (!PEAR::isError($result) && !is_null($result)) {
-                // apply 'idxname_format' only if the query succeeded, otherwise
-                // fallback to the given $index_name, without transformation
-                $constraint_name = $constraint_name_mdb2;
-            }
+        $query.= ' AND (alc.owner='.$db->quote($owner, 'text').' OR alc.owner='.$db->quote(strtoupper($owner), 'text').')';
+        $constraint_name_mdb2 = $db->getIndexName($constraint_name);
+        $sql = sprintf($query,
+            $db->quote($constraint_name_mdb2, 'text'),
+            $db->quote(strtoupper($constraint_name_mdb2), 'text')
+        );
+        $result = $db->queryRow($sql);
+        if (!PEAR::isError($result) && !is_null($result)) {
+            // apply 'idxname_format' only if the query succeeded, otherwise
+            // fallback to the given $index_name, without transformation
+            $constraint_name = $constraint_name_mdb2;
         }
         $sql = sprintf($query,
             $db->quote($constraint_name, 'text'),
