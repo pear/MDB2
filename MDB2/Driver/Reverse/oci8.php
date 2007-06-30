@@ -80,18 +80,21 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
 
         list($owner, $table) = $this->splitTableSchema($table_name);
-
-        $query = 'SELECT column_name name, data_type "type", nullable, data_default "default"';
-        $query.= ', COALESCE(data_precision, data_length) "length", data_scale "scale"';
-        $query.= ' FROM all_tab_columns';
-        $query.= ' WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')';
         if (empty($owner)) {
-            $query.= ' AND (owner='.$db->quote($db->dsn['username'], 'text').' OR owner='.$db->quote(strtoupper($db->dsn['username']), 'text').')';
-        } else {
-            $query.= ' AND (owner='.$db->quote($owner, 'text').' OR owner='.$db->quote(strtoupper($owner), 'text').')';
+            $owner = $db->dsn['username'];
         }
-        $query.= ' AND (column_name='.$db->quote($field_name, 'text').' OR column_name='.$db->quote(strtoupper($field_name), 'text').')';
-        $query.= ' ORDER BY column_id';
+
+        $query = 'SELECT column_name name,
+                         data_type "type",
+                         nullable,
+                         data_default "default",
+                         COALESCE(data_precision, data_length) "length",
+                         data_scale "scale"
+                    FROM all_tab_columns
+                   WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')
+                     AND (owner='.$db->quote($owner, 'text').' OR owner='.$db->quote(strtoupper($owner), 'text').')
+                     AND (column_name='.$db->quote($field_name, 'text').' OR column_name='.$db->quote(strtoupper($field_name), 'text').')
+                ORDER BY column_id';
         $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($column)) {
             return $column;
@@ -202,7 +205,10 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
         
         list($owner, $table) = $this->splitTableSchema($table_name);
-        
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
+        }
+
         $query = 'SELECT column_name,
                          column_position,
                          descend
@@ -214,13 +220,9 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                              FROM dba_constraints
                             WHERE (table_name = '.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').")
                               AND constraint_type in ('P','U')
-                         )";
-        if (empty($owner)) {
-            $query.= ' AND (table_owner='.$db->quote($db->dsn['username'], 'text').' OR table_owner='.$db->quote(strtoupper($db->dsn['username']), 'text').')';
-        } else {
-            $query.= ' AND (table_owner='.$db->quote($owner, 'text').' OR table_owner='.$db->quote(strtoupper($owner), 'text').')';
-        }
-        $query .= ' ORDER BY column_position';
+                         )
+                     AND (table_owner=".$db->quote($owner, 'text').' OR table_owner='.$db->quote(strtoupper($owner), 'text').')
+                ORDER BY column_position';
         $index_name_mdb2 = $db->getIndexName($index_name);
         $sql = sprintf($query,
             $db->quote($index_name_mdb2, 'text'),
@@ -320,11 +322,11 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                      AND r_alc.owner = r_cols.owner
                      AND cols.position = r_cols.position
                    WHERE (alc.constraint_name=%s OR alc.constraint_name=%s)
-                     AND alc.constraint_name = cols.constraint_name';
+                     AND alc.constraint_name = cols.constraint_name
+                     AND (alc.owner='.$db->quote($owner, 'text').' OR alc.owner='.$db->quote(strtoupper($owner), 'text').')';
         if (!empty($table)) {
              $query.= ' AND (alc.table_name='.$db->quote($table, 'text').' OR alc.table_name='.$db->quote(strtoupper($table), 'text').')';
         }
-        $query.= ' AND (alc.owner='.$db->quote($owner, 'text').' OR alc.owner='.$db->quote(strtoupper($owner), 'text').')';
         $constraint_name_mdb2 = $db->getIndexName($constraint_name);
         $sql = sprintf($query,
             $db->quote($constraint_name_mdb2, 'text'),
@@ -430,7 +432,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         $sequence_name = $db->getSequenceName($sequence);
         $query = 'SELECT last_number FROM user_sequences';
         $query.= ' WHERE sequence_name='.$db->quote($sequence_name, 'text');
-        $query.= ' OR sequence_name='.$db->quote(strtoupper($sequence_name), 'text');
+        $query.= '    OR sequence_name='.$db->quote(strtoupper($sequence_name), 'text');
         $start = $db->queryOne($query, 'integer');
         if (PEAR::isError($start)) {
             return $start;
