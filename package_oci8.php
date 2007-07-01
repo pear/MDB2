@@ -7,9 +7,12 @@ $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
-- request #11297: added support for "owner.table" notation in the Reverse module
+- request #11297: added support for "owner.table" notation in the Manager and Reverse modules
 - fixed bug #11428: propagate quote() errors with invalid data types
 - fixed bug #10969: execute() does not bind reference variables (patch by Charles Woodcock)
+- use prepared queries in the list*() methods of the Manager module
+- add support for "owner" parameter in listViews(), listFunctions(), listTables(),
+  listSequences() in the Manager module
   
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
