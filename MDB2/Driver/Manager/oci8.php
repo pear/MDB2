@@ -563,6 +563,47 @@ END;
     }
 
     // }}}
+    // {{{ _fetchCol()
+
+    /**
+     * Utility method to fetch and format a column from a resultset
+     *
+     * @param resource $result
+     * @param boolean $fixname (used when listing indices or constraints)
+     * @return mixed array of names on success, a MDB2 error on failure
+     * @access private
+     */
+    function _fetchCol($result, $fixname = false)
+    {
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        $col = $result->fetchCol();
+        if (PEAR::isError($col)) {
+            return $col;
+        }
+        $result->free();
+        
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        
+        if ($fixname) {
+            foreach ($col as $k => $v) {
+                $col[$k] = $this->_fixIndexName($v);
+            }
+        }
+        
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $col = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $col);
+        }
+        return $col;
+    }
+
+    // }}}
     // {{{ listDatabases()
 
     /**
@@ -591,21 +632,8 @@ END;
         } else {
             $query = 'SELECT username FROM sys.dba_users';
         }
-        $result2 = $db->standaloneQuery($query, array('text'), false);
-        if (PEAR::isError($result2)) {
-            return $result2;
-        }
-        $result = $result2->fetchCol();
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        $result2->free();
-        return $result;
+        $result = $db->standaloneQuery($query, array('text'), false);
+        return $this->_fetchCol($result);
     }
 
     // }}}
@@ -641,27 +669,30 @@ END;
     /**
      * list all views in the current database
      *
+     * @param string owner, the current is default
      * @return mixed array of view names on success, a MDB2 error on failure
      * @access public
      */
-    function listViews()
+    function listViews($owner = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+        
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
+        }
 
-        $query = 'SELECT view_name FROM sys.user_views';
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $query = 'SELECT view_name
+                    FROM sys.all_views
+                   WHERE owner=? OR owner=?';
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        return $result;
+        $result = $stmt->execute(array($owner, strtoupper($owner)));
+        return $this->_fetchCol($result);
     }
 
     // }}}
@@ -670,56 +701,64 @@ END;
     /**
      * list all functions in the current database
      *
+     * @param string owner, the current is default
      * @return mixed array of function names on success, a MDB2 error on failure
      * @access public
      */
-    function listFunctions()
+    function listFunctions($owner = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $query = "SELECT name FROM sys.user_source WHERE line = 1 AND type = 'FUNCTION'";
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+
+        $query = "SELECT name
+                    FROM sys.all_source
+                   WHERE line = 1
+                     AND type = 'FUNCTION'
+                     AND (owner=? OR owner=?)";
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
         }
-        return $result;
+        $result = $stmt->execute(array($owner, strtoupper($owner)));
+        return $this->_fetchCol($result);
     }
 
     // }}}
     // {{{ listTables()
 
     /**
-     * list all tables in the current database
+     * list all tables in the database
      *
+     * @param string owner, the current is default
      * @return mixed array of table names on success, a MDB2 error on failure
      * @access public
      */
-    function listTables()
+    function listTables($owner = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
+        
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
+        }
 
-        $query = 'SELECT table_name FROM sys.user_tables';
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $query = 'SELECT table_name
+                    FROM sys.all_tables
+                   WHERE owner=? OR owner=?';
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        return $result;
+        $result = $stmt->execute(array($owner, strtoupper($owner)));
+        return $this->_fetchCol($result);
     }
 
     // }}}
@@ -738,20 +777,29 @@ END;
         if (PEAR::isError($db)) {
             return $db;
         }
+        
+        list($owner, $table) = $this->splitTableSchema($table);
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
+        }
 
-        $table = $db->quote($table, 'text');
-        $query = 'SELECT column_name FROM user_tab_columns';
-        $query.= ' WHERE table_name='.$table.' OR table_name='.strtoupper($table).' ORDER BY column_id';
-        $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
-            return $result;
+        $query = 'SELECT column_name
+                    FROM all_tab_columns
+                   WHERE (table_name=? OR table_name=?)
+                     AND (owner=? OR owner=?)
+                ORDER BY column_id';
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
-        }
-        return $result;
+        $args = array(
+            $table,
+            strtoupper($table),
+            $owner,
+            strtoupper($owner),
+        );
+        $result = $stmt->execute($args);
+        return $this->_fetchCol($result);
     }
 
     // }}}
@@ -770,30 +818,29 @@ END;
         if (PEAR::isError($db)) {
             return $db;
         }
-
-        $table = $db->quote($table, 'text');
-        $query = 'SELECT index_name name FROM user_indexes';
-        $query.= ' WHERE (table_name='.$table.' OR table_name='.strtoupper($table);
-        $query.= ') AND generated=' .$db->quote('N', 'text');
-        $indexes = $db->queryCol($query, 'text');
-        if (PEAR::isError($indexes)) {
-            return $indexes;
+        
+        list($owner, $table) = $this->splitTableSchema($table);
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
         }
-
-        $result = array();
-        foreach ($indexes as $index) {
-            $index = $this->_fixIndexName($index);
-            if (!empty($index)) {
-                $result[$index] = true;
-            }
+        
+        $query = 'SELECT index_name name
+                    FROM all_indexes
+                   WHERE (table_name=? OR table_name=?)
+                     AND (owner=? OR owner=?)
+                     AND generated=' .$db->quote('N', 'text');
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
         }
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
-            $result = array_change_key_case($result, $db->options['field_case']);
-        }
-        return array_keys($result);
+        $args = array(
+            $table,
+            strtoupper($table),
+            $owner,
+            strtoupper($owner),
+        );
+        $result = $stmt->execute($args);
+        return $this->_fetchCol($result, true);
     }
 
     // }}}
@@ -813,28 +860,27 @@ END;
             return $db;
         }
 
-        $table = $db->quote($table, 'text');
-        $query = 'SELECT constraint_name name FROM user_constraints';
-        $query.= ' WHERE table_name='.$table.' OR table_name='.strtoupper($table);
-        $constraints = $db->queryCol($query);
-        if (PEAR::isError($constraints)) {
-            return $constraints;
+        list($owner, $table) = $this->splitTableSchema($table);
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
         }
 
-        $result = array();
-        foreach ($constraints as $constraint) {
-            $constraint = $this->_fixIndexName($constraint);
-            if (!empty($constraint)) {
-                $result[$constraint] = true;
-            }
+        $query = 'SELECT constraint_name
+                    FROM all_constraints
+                   WHERE (table_name=? OR table_name=?)
+                     AND (owner=? OR owner=?)';
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
         }
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            && $db->options['field_case'] == CASE_LOWER
-        ) {
-            $result = array_change_key_case($result, $db->options['field_case']);
-        }
-        return array_keys($result);
+        $args = array(
+            $table,
+            strtoupper($table),
+            $owner,
+            strtoupper($owner),
+        );
+        $result = $stmt->execute($args);
+        return $this->_fetchCol($result, true);
     }
 
     // }}}
@@ -890,29 +936,48 @@ END;
     /**
      * list all sequences in the current database
      *
+     * @param string owner, the current is default
      * @return mixed array of sequence names on success, a MDB2 error on failure
      * @access public
      */
-    function listSequences()
+    function listSequences($owner = null)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $query = "SELECT sequence_name FROM sys.user_sequences";
-        $table_names = $db->queryCol($query);
-        if (PEAR::isError($table_names)) {
-            return $table_names;
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
         }
-        $result = array();
-        foreach ($table_names as $table_name) {
-            $result[] = $this->_fixSequenceName($table_name);
+
+        $query = 'SELECT sequence_name
+                    FROM sys.all_sequences
+                   WHERE (sequence_owner=? OR sequence_owner=?)';
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
         }
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        $result = $stmt->execute(array($owner, strtoupper($owner)));
+        if (PEAR::isError($result)) {
+            return $result;
         }
-        return $result;
+        $col = $result->fetchCol();
+        if (PEAR::isError($col)) {
+            return $col;
+        }
+        $result->free();
+        
+        foreach ($col as $k => $v) {
+            $col[$k] = $this->_fixSequenceName($v);
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
+            && $db->options['field_case'] == CASE_LOWER
+        ) {
+            $col = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $col);
+        }
+        return $col;
     }
 }
 ?>
