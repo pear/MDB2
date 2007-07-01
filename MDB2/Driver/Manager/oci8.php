@@ -730,6 +730,45 @@ END;
     }
 
     // }}}
+    // {{{ listTableTriggers()
+
+    /**
+     * list all triggers in the database that reference a given table
+     *
+     * @param string table for which all referenced triggers should be found
+     * @return mixed array of trigger names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableTriggers($table = null)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (empty($owner)) {
+            $owner = $db->dsn['username'];
+        }
+
+        $query = "SELECT trigger_name
+                    FROM sys.all_triggers
+                   WHERE (table_name=? OR table_name=?)
+                     AND (owner=? OR owner=?)";
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
+        }
+        $args = array(
+            $table,
+            strtoupper($table),
+            $owner,
+            strtoupper($owner),
+        );
+        $result = $stmt->execute($args);
+        return $this->_fetchCol($result);
+    }
+
+    // }}}
     // {{{ listTables()
 
     /**

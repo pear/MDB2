@@ -13,6 +13,7 @@ $notes = <<<EOT
 - use prepared queries in the list*() methods of the Manager module
 - add support for "owner" parameter in listViews(), listFunctions(), listTables(),
   listSequences() in the Manager module
+- added listTableTriggers() in the Manager module
   
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
