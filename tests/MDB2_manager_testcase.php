@@ -342,6 +342,21 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
     /**
      *
      */
+    function testListDatabases() {
+        if (!$this->methodExists($this->db->manager, 'listDatabases')) {
+            return;
+        }
+        $result = $this->db->manager->listDatabases();
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error listing databases ('.$result->getMessage().')');
+        } else {
+            $this->assertTrue(in_array(strtolower($this->database), $result), 'Error listing databases');
+        }
+    }
+
+    /**
+     *
+     */
     function testListConstraints() {
         if (!$this->methodExists($this->db->manager, 'listTableConstraints')) {
             return;
