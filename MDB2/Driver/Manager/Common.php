@@ -60,6 +60,22 @@
  */
 class MDB2_Driver_Manager_Common extends MDB2_Module_Common
 {
+    // {{{ splitTableSchema()
+
+    /**
+     * Split the "[owner|schema].table" notation into an array
+     * @access private
+     */
+    function splitTableSchema($table)
+    {
+        $ret = array();
+        if (strpos($table, '.') !== false) {
+            return explode('.', $table);
+        }
+        return array(null, $table);
+    }
+
+    // }}}
     // {{{ getFieldDeclarationList()
 
     /**
