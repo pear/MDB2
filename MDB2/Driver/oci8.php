@@ -1350,6 +1350,40 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
  */
 class MDB2_Statement_oci8 extends MDB2_Statement_Common
 {
+    // {{{ Variables (Properties)
+
+    var $type_maxlengths = array();
+
+    // }}}
+    // {{{ bindParam()
+
+    /**
+     * Bind a variable to a parameter of a prepared query.
+     *
+     * @param   int     $parameter  the order number of the parameter in the query
+     *                               statement. The order number of the first parameter is 1.
+     * @param   mixed   &$value     variable that is meant to be bound to specified
+     *                               parameter. The type of the value depends on the $type argument.
+     * @param   string  $type       specifies the type of the field
+     * @param   int     $maxlength  specifies the maximum length of the field; if set to -1, the
+     *                               current length of $value is used
+     *
+     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     *
+     * @access  public
+     */
+    function bindParam($parameter, &$value, $type = null, $maxlength = -1)
+    {
+        if (!is_numeric($parameter)) {
+            $parameter = preg_replace('/^:(.*)$/', '\\1', $parameter);
+        }
+        if (MDB2_OK === ($ret = parent::bindParam($parameter, $value, $type))) {
+            $this->type_maxlengths[$parameter] = $maxlength;
+        }
+
+        return $ret;
+    }
+
     // }}}
     // {{{ _execute()
 
@@ -1387,28 +1421,34 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);
             }
-            $value = $this->values[$parameter];
             $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
-            if ($type == 'clob' || $type == 'blob' && $this->options['lob_allow_url_include']) {
+            if ($type == 'clob' || $type == 'blob') {
                 $lobs[$i]['file'] = false;
-                if (is_resource($value)) {
-                    $fp = $value;
-                    $value = '';
+                if (is_resource($this->values[$parameter])) {
+                    $fp = $this->values[$parameter];
+                    $this->values[$parameter] = '';
                     while (!feof($fp)) {
-                        $value.= fread($fp, 8192);
+                        $this->values[$parameter] .= fread($fp, 8192);
                     }
-                } elseif (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
+                } elseif ($this->db->getOption('lob_allow_url_include')
+                          && preg_match('/^(\w+:\/\/)(.*)$/', $this->values[$parameter], $match)
+                ) {
                     $lobs[$i]['file'] = true;
                     if ($match[1] == 'file://') {
-                        $value = $match[2];
+                        $this->values[$parameter] = $match[2];
                     }
                 }
-                $lobs[$i]['value'] = $value;
-                $lobs[$i]['descriptor'] = @OCINewDescriptor($connection, OCI_D_LOB);
-                if (!is_object($lobs[$i]['descriptor'])) {
-                    $result = $this->db->raiseError(null, null, null,
-                        'Unable to create descriptor for LOB in parameter: '.$parameter, __FUNCTION__);
-                    break;
+                $lobs[$i]['value'] = $this->values[$parameter];
+                $lobs[$i]['descriptor'] =& $this->values[$parameter];
+                // Test to see if descriptor has already been created for this
+                // variable (i.e. if it has been bound more than once):
+                if (!is_a($this->values[$parameter], "OCI-Lob")) {
+                    $this->values[$parameter] = @OCINewDescriptor($connection, OCI_D_LOB);
+                    if ($this->values[$parameter] === false) {
+                        $result = $this->db->raiseError(null, null, null,
+                            'Unable to create descriptor for LOB in parameter: '.$parameter, __FUNCTION__);
+                        break;
+                    }
                 }
                 $lob_type = ($type == 'blob' ? OCI_B_BLOB : OCI_B_CLOB);
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $lobs[$i]['descriptor'], -1, $lob_type)) {
@@ -1416,14 +1456,64 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                         'could not bind LOB parameter', __FUNCTION__);
                     break;
                 }
+            } else if ($type == OCI_B_BFILE) {
+                // Test to see if descriptor has already been created for this
+                // variable (i.e. if it has been bound more than once):
+                if (!is_a($this->values[$parameter], "OCI-Lob")) {
+                    $this->values[$parameter] = @OCINewDescriptor($connection, OCI_D_FILE);
+                    if ($this->values[$parameter] === false) {
+                        $result = $this->db->raiseError(null, null, null,
+                            'Unable to create descriptor for BFILE in parameter: '.$parameter, __FUNCTION__);
+                        break;
+                    }
+                }
+                if (!@OCIBindByName($this->statement, ':'.$parameter, $this->values[$parameter], -1, $type)) {
+                    $result = $this->db->raiseError($this->statement, null, null,
+                        'Could not bind BFILE parameter', __FUNCTION__);
+                    break;
+                }
+            } else if ($type == OCI_B_ROWID) {
+                // Test to see if descriptor has already been created for this
+                // variable (i.e. if it has been bound more than once):
+                if (!is_a($this->values[$parameter], "OCI-Lob")) {
+                    $this->values[$parameter] = @OCINewDescriptor($connection, OCI_D_ROWID);
+                    if ($this->values[$parameter] === false) {
+                        $result = $this->db->raiseError(null, null, null,
+                            'Unable to create descriptor for ROWID in parameter: '.$parameter, __FUNCTION__);
+                        break;
+                    }
+                }
+                if (!@OCIBindByName($this->statement, ':'.$parameter, $this->values[$parameter], -1, $type)) {
+                    $result = $this->db->raiseError($this->statement, null, null,
+                        'Could not bind ROWID parameter', __FUNCTION__);
+                    break;
+                }
+            } else if ($type == OCI_B_CURSOR) {
+                // Test to see if cursor has already been allocated for this
+                // variable (i.e. if it has been bound more than once):
+                if (!is_resource($this->values[$parameter]) || !get_resource_type($this->values[$parameter]) == "oci8 statement") {
+                    $this->values[$parameter] = @OCINewCursor($connection);
+                    if ($this->values[$parameter] === false) {
+                        $result = $this->db->raiseError(null, null, null,
+                        'Unable to allocate cursor for parameter: '.$parameter, __FUNCTION__);
+                    break;
+                    }
+                }
+                if (!@OCIBindByName($this->statement, ':'.$parameter, $this->values[$parameter], -1, $type)) {
+                    $result = $this->db->raiseError($this->statement, null, null,
+                        'Could not bind CURSOR parameter', __FUNCTION__);
+                    break;
+                }
             } else {
-                $quoted_values[$i] = $this->db->quote($value, $type, false);
+                $maxlength = array_key_exists($parameter, $this->type_maxlengths) ? $this->type_maxlengths[$parameter] : -1;
+                $this->values[$parameter] = $this->db->quote($this->values[$parameter], $type, false);
+                $quoted_values[$i] =& $this->values[$parameter];
                 if (PEAR::isError($quoted_values[$i])) {
                     return $quoted_values[$i];
                 }
-                if (!@OCIBindByName($this->statement, ':'.$parameter, $quoted_values[$i])) {
+                if (!@OCIBindByName($this->statement, ':'.$parameter, $quoted_values[$i], $maxlength)) {
                     $result = $this->db->raiseError($this->statement, null, null,
-                        'could not bind non LOB parameter', __FUNCTION__);
+                        'could not bind non-abstract parameter', __FUNCTION__);
                     break;
                 }
             }
@@ -1466,11 +1556,6 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     }
                 }
             }
-        }
-
-        $lob_keys = array_keys($lobs);
-        foreach ($lob_keys as $i) {
-            $lobs[$i]['descriptor']->free();
         }
 
         if (PEAR::isError($result)) {

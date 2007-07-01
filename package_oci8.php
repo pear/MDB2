@@ -9,6 +9,7 @@ $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - request #11297: added support for "owner.table" notation in the Reverse module
 - fixed bug #11428: propagate quote() errors with invalid data types
+- fixed bug #10969: execute() does not bind reference variables (patch by Charles Woodcock)
   
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
