@@ -91,18 +91,34 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                          COALESCE(data_precision, data_length) "length",
                          data_scale "scale"
                     FROM all_tab_columns
-                   WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')
-                     AND (owner='.$db->quote($owner, 'text').' OR owner='.$db->quote(strtoupper($owner), 'text').')
-                     AND (column_name='.$db->quote($field_name, 'text').' OR column_name='.$db->quote(strtoupper($field_name), 'text').')
+                   WHERE (table_name=? OR table_name=?)
+                     AND (owner=? OR owner=?)
+                     AND (column_name=? OR column_name=?)
                 ORDER BY column_id';
-        $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
+        }
+        $args = array(
+            $table,
+            strtoupper($table),
+            $owner,
+            strtoupper($owner),
+            $field_name,
+            strtoupper($field_name)
+        );
+        $result = $stmt->execute($args);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        $column = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($column)) {
             return $column;
         }
 
         if (empty($column)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table column', __FUNCTION__);
+                $field_name . 'is not a column in table ' . $table_name, __FUNCTION__);
         }
 
         $column = array_change_key_case($column, CASE_LOWER);
@@ -155,30 +171,23 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $definition[$key]['mdb2type'] = $type;
         }
         if ($type == 'integer') {
-            $query = "SELECT DISTINCT name
-                        FROM all_source
-                       WHERE type='TRIGGER'
-                         AND UPPER(text) like '%ON ". strtoupper($db->escape($table, 'text')) ."%'";
-            $result = $db->query($query);
-            if (!PEAR::isError($result)) {
-                while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
-                    $row = array_change_key_case($row, CASE_LOWER);
-                    $trquery = 'SELECT text
-                                  FROM all_source
-                                 WHERE name=' . $db->quote($row['name'],'text')
-                          . ' ORDER BY line';
-                    $triggersth = $db->query($trquery);
-                    $triggerstr = '';
-                    while ($triggerline = $triggersth->fetchRow(MDB2_FETCHMODE_ASSOC)) {
-                        $triggerline = array_change_key_case($triggerline,CASE_LOWER);
-                        $triggerstr .= $triggerline['text']. ' ';
-                    }
-                    $matches = array();
-                    if (preg_match('/.*\W(.+)\.nextval into :NEW\.'.$field_name.' FROM dual/i', $triggerstr, $matches)) {
-                        // we reckon it's an autoincrementing trigger on field_name
-                        // there will be other pcre patterns needed here for other ways of mimicking auto_increment in ora.
-                        $definition[0]['autoincrement'] = $matches[1];
-                    }
+            $query= "SELECT trigger_body
+                       FROM all_triggers
+                      WHERE table_name=?
+                        AND triggering_event='INSERT'
+                        AND trigger_type='BEFORE EACH ROW'";
+			// ^^ pretty reasonable mimic for "auto_increment" in oracle?
+			$stmt = $db->prepare($query);
+            if (PEAR::isError($stmt)) {
+                return $stmt;
+            }
+			$result = $stmt->execute(strtoupper($table));
+	        if (PEAR::isError($result)) {
+	            return $result;
+	        }
+	        while ($triggerstr = $result->fetchOne()) {
+	           	if (preg_match('/.*SELECT\W+(.+)\.nextval +into +\:NEW\.'.$field_name.' +FROM +dual/im', $triggerstr, $matches)) {
+					$definition[0]['autoincrement'] = $matches[1];
                 }
             }
         }
@@ -186,7 +195,6 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
     }
 
     // }}}
-
     // {{{ getTableIndexDefinition()
 
     /**
@@ -380,7 +388,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         $result->free();
         if (empty($definition)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
+                $constraint_name . ' is not an existing constraint on table '. $table_name, __FUNCTION__);
         }
         $definition['primary'] = (boolean)$lastrow['primary'];
         $definition['unique']  = (boolean)$lastrow['unique'];
