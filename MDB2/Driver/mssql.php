@@ -628,6 +628,21 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                     return $this->raiseError($result, null, null,
                         'on demand sequence '.$seq_name.' could not be created', __FUNCTION__);
                 } else {
+                    /**
+                     * Little off-by-one problem with the sequence emulation
+                     * here being fixed, that instead of re-calling nextID
+                     * and forcing an increment by one, we simply check if it
+                     * exists, then we get the last inserted id if it does.
+                     *
+                     * In theory, $seq_name should be created otherwise there would
+                     * have been an error thrown somewhere up there.. 
+                     *
+                     * @todo confirm
+                     */
+                    if ($this->_checkSequence($seq_name)) {
+                        return $this->lastInsertID($seq_name);
+                    }
+
                     return $this->nextID($seq_name, false);
                 }
             }
