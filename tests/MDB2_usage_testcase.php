@@ -1290,8 +1290,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             }
         }
 
-        $stmt->bindParam(0, $character_lob);
-        $stmt->bindParam(1, $binary_lob);
+        $stmt->bindValue(0, $character_lob);
+        $stmt->bindValue(1, $binary_lob);
 
         $result = $stmt->execute();
 
@@ -1352,8 +1352,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $query = 'INSERT INTO files (ID, document, picture) VALUES (?, ?, ?)';
             $stmt = $this->db->prepare($query, array('integer', 'clob', 'blob'), MDB2_PREPARE_MANIP, array(1 => 'document', 2 => 'picture'));
             $character_lob = $binary_lob = $i;
-            $stmt->bindParam(1, $character_lob);
-            $stmt->bindParam(2, $binary_lob);
+            $stmt->bindValue(1, $character_lob);
+            $stmt->bindValue(2, $binary_lob);
 
             $result = $stmt->execute(array($i));
 
@@ -1552,8 +1552,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             }
         }
 
-        $stmt->bindParam(0, $character_lob);
-        $stmt->bindParam(1, $binary_lob);
+        $stmt->bindValue(0, $character_lob);
+        $stmt->bindValue(1, $binary_lob);
 
         $result = $stmt->execute();
 
@@ -1750,8 +1750,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             }
         }
 
-        $stmt->bindParam(0, $character_lob);
-        $stmt->bindParam(1, $binary_lob);
+        $stmt->bindValue(0, $character_lob);
+        $stmt->bindValue(1, $binary_lob);
 
         $result = $stmt->execute();
 
