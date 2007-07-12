@@ -1578,8 +1578,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             }
         }
 
-        $stmt->bindParam(0, $character_lob);
-        $stmt->bindParam(1, $binary_lob);
+        $stmt->bindValue(0, $character_lob);
+        $stmt->bindValue(1, $binary_lob);
 
         $result = $stmt->execute();
 
