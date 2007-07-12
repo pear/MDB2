@@ -99,6 +99,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->options['emulate_database'] = true;
         $this->options['default_tablespace'] = false;
         $this->options['default_text_field_length'] = 2000;
+        $this->options['lob_allow_url_include'] = false;
         $this->options['result_prefetching'] = false;
     }
 
@@ -1430,6 +1431,8 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     while (!feof($fp)) {
                         $this->values[$parameter] .= fread($fp, 8192);
                     }
+                } elseif (is_a($this->values[$parameter], 'OCI-Lob')) {
+                    //do nothing
                 } elseif ($this->db->getOption('lob_allow_url_include')
                           && preg_match('/^(\w+:\/\/)(.*)$/', $this->values[$parameter], $match)
                 ) {
@@ -1442,7 +1445,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 $lobs[$i]['descriptor'] =& $this->values[$parameter];
                 // Test to see if descriptor has already been created for this
                 // variable (i.e. if it has been bound more than once):
-                if (!is_a($this->values[$parameter], "OCI-Lob")) {
+                if (!is_a($this->values[$parameter], 'OCI-Lob')) {
                     $this->values[$parameter] = @OCINewDescriptor($connection, OCI_D_LOB);
                     if ($this->values[$parameter] === false) {
                         $result = $this->db->raiseError(null, null, null,
