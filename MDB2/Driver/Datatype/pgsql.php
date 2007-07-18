@@ -474,7 +474,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         case 'money':
         case 'numeric':
             $type[] = 'decimal';
-            if (!empty($field['scale'])) {
+            if (isset($field['scale'])) {
                 $length = $length.','.$field['scale'];
             }
             break;
