@@ -118,7 +118,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 
         if (empty($column)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                $field_name . 'is not a column in table ' . $table_name, __FUNCTION__);
+                $field_name . ' is not a column in table ' . $table_name, __FUNCTION__);
         }
 
         $column = array_change_key_case($column, CASE_LOWER);
@@ -217,42 +217,57 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             $owner = $db->dsn['username'];
         }
 
-        $query = 'SELECT column_name,
-                         column_position,
-                         descend
-                    FROM all_ind_columns
-                   WHERE (table_name='.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').')
-                     AND (index_name=%s OR index_name=%s)
-                     AND index_name NOT IN (
-                           SELECT constraint_name
-                             FROM dba_constraints
-                            WHERE (table_name = '.$db->quote($table, 'text').' OR table_name='.$db->quote(strtoupper($table), 'text').")
-                              AND constraint_type in ('P','U')
-                         )
-                     AND (table_owner=".$db->quote($owner, 'text').' OR table_owner='.$db->quote(strtoupper($owner), 'text').')
-                ORDER BY column_position';
-        $index_name_mdb2 = $db->getIndexName($index_name);
-        $sql = sprintf($query,
-            $db->quote($index_name_mdb2, 'text'),
-            $db->quote(strtoupper($index_name_mdb2), 'text')
-        );
-        $result = $db->queryRow($sql);
-        if (!PEAR::isError($result) && !is_null($result)) {
-            // apply 'idxname_format' only if the query succeeded, otherwise
-            // fallback to the given $index_name, without transformation
-            $index_name = $index_name_mdb2;
+        $query = "SELECT aic.column_name,
+                         aic.column_position,
+                         aic.descend,
+                         aic.table_owner,
+                         alc.constraint_type
+                    FROM all_ind_columns aic
+               LEFT JOIN all_constraints alc
+                      ON aic.index_name = alc.constraint_name
+                     AND aic.table_name = alc.table_name
+                     AND aic.table_owner = alc.owner
+                   WHERE (aic.table_name=? OR aic.table_name=?)
+                     AND (aic.index_name=? OR aic.index_name=?)
+                     AND (aic.table_owner=? OR aic.table_owner=?)
+                ORDER BY column_position";
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
         }
-        $sql = sprintf($query,
-            $db->quote($index_name, 'text'),
-            $db->quote(strtoupper($index_name), 'text')
-        );
-        $result = $db->query($sql);
-        if (PEAR::isError($result)) {
-            return $result;
+        $indexnames = array($db->getIndexName($index_name), $index_name);
+        $i = 0;
+        $row = null;
+        while (is_null($row) && array_key_exists($i, $indexnames)) {
+            $args = array(
+                $table,
+                strtoupper($table),
+                $indexnames[$i],
+                strtoupper($indexnames[$i]),
+                $owner,
+                strtoupper($owner)
+            );
+        	$result = $stmt->execute($args);
+        	if (PEAR::isError($result)) {
+                return $result;
+            }
+        	$row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+        	if (PEAR::isError($row)) {
+                return $row;
+            }
+        	$i++;
+        }
+        if (is_null($row)) {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $index_name. ' is not an index on table '. $table_name, __FUNCTION__);
+        }
+        if ($row['constraint_type'] == 'U' || $row['constraint_type'] == 'P') {
+            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $index_name. ' is a constraint, not an index on table '. $table_name, __FUNCTION__);
         }
 
         $definition = array();
-        while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+        while (!is_null($row)) {
             $row = array_change_key_case($row, CASE_LOWER);
             $column_name = $row['column_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -269,11 +284,12 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 $definition['fields'][$column_name]['sorting'] =
                     ($row['descend'] == 'ASC' ? 'ascending' : 'descending');
             }
+            $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         }
         $result->free();
         if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'it was not specified an existing table index', __FUNCTION__);
+                $index_name. ' is not an index on table '. $table_name, __FUNCTION__);
         }
         return $definition;
     }
@@ -329,33 +345,71 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                       ON r_alc.constraint_name = r_cols.constraint_name
                      AND r_alc.owner = r_cols.owner
                      AND cols.position = r_cols.position
-                   WHERE (alc.constraint_name=%s OR alc.constraint_name=%s)
+                   WHERE (alc.constraint_name=? OR alc.constraint_name=?)
                      AND alc.constraint_name = cols.constraint_name
-                     AND (alc.owner='.$db->quote($owner, 'text').' OR alc.owner='.$db->quote(strtoupper($owner), 'text').')';
+                     AND (alc.owner=? OR alc.owner=?)';
+        $tablenames = array();
         if (!empty($table)) {
-             $query.= ' AND (alc.table_name='.$db->quote($table, 'text').' OR alc.table_name='.$db->quote(strtoupper($table), 'text').')';
+            $query.= ' AND (alc.table_name=? OR alc.table_name=?)';
+            $tablenames = array($table, strtoupper($table));
         }
-        $constraint_name_mdb2 = $db->getIndexName($constraint_name);
-        $sql = sprintf($query,
-            $db->quote($constraint_name_mdb2, 'text'),
-            $db->quote(strtoupper($constraint_name_mdb2), 'text')
+        $stmt = $db->prepare($query);
+        if (PEAR::isError($stmt)) {
+            return $stmt;
+        }
+        
+        $constraintnames = array($db->getIndexName($constraint_name), $constraint_name);
+        $c = 0;
+        $row = null;
+        while (is_null($row) && array_key_exists($c, $constraintnames)) {
+            $args = array(
+                $constraintnames[$c],
+                strtoupper($constraintnames[$c]),
+                $owner,
+                strtoupper($owner)
+            );
+            if (!empty($table)) {
+                $args = array_merge($args, $tablenames);
+            }
+            $result = $stmt->execute($args);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+            $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+            if (PEAR::isError($row)) {
+                return $row;
+            }
+            $c++;
+        }
+
+        $definition = array(
+            'primary' => (boolean)$row['primary'],
+            'unique'  => (boolean)$row['unique'],
+            'foreign' => (boolean)$row['foreign'],
+            'check'   => (boolean)$row['check'],
+            'deferrable' => (boolean)$row['deferrable'],
+            'initially_deferred' => (boolean)$row['initially_deferred'],
+            'on_delete' => $row['on_delete'],
+            'on_update' => $row['on_update'],
+            'match'     => $row['match'],
         );
-        $result = $db->queryRow($sql);
-        if (!PEAR::isError($result) && !is_null($result)) {
-            // apply 'idxname_format' only if the query succeeded, otherwise
-            // fallback to the given $index_name, without transformation
-            $constraint_name = $constraint_name_mdb2;
-        }
-        $sql = sprintf($query,
-            $db->quote($constraint_name, 'text'),
-            $db->quote(strtoupper($constraint_name), 'text')
-        );
-        $result = $db->query($sql);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        $definition = array();
-        while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
+
+        if ($definition['check']) {
+            // pattern match constraint for check constraint values into enum-style output:
+			$enumregex = '/'.$row['column_name'].' in \((.+?)\)/i';
+			if (preg_match($enumregex, $row['search_condition'], $rangestr)) {
+				$definition['fields'][$column_name] = array();
+				$allowed = explode(',', $rangestr[1]);
+				foreach ($allowed as $val) {
+					$val = trim($val);
+					$val = preg_replace('/^\'/', '', $val);
+					$val = preg_replace('/\'$/', '', $val);
+					array_push($definition['fields'][$column_name], $val);
+				}
+			}
+		}
+        
+        while (!is_null($row)) {
             $row = array_change_key_case($row, CASE_LOWER);
             $column_name = $row['column_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -383,40 +437,14 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                 );
             }
             $lastrow = $row;
-            // otherwise $row is no longer usable on exit from loop
+            $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         }
         $result->free();
-        if (empty($definition)) {
+        if (empty($definition['fields'])) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                $constraint_name . ' is not an existing constraint on table '. $table_name, __FUNCTION__);
+                $constraint_name . ' is not a constraint on table '. $table_name, __FUNCTION__);
         }
-        $definition['primary'] = (boolean)$lastrow['primary'];
-        $definition['unique']  = (boolean)$lastrow['unique'];
-        $definition['foreign'] = (boolean)$lastrow['foreign'];
-        $definition['check']   = (boolean)$lastrow['check'];
-        $definition['deferrable'] = (boolean)$lastrow['deferrable'];
-        $definition['initially_deferred']   = (boolean)$lastrow['initially_deferred'];
-        $definition['on_delete']     = $lastrow['on_delete'];
-        $definition['on_update']     = $lastrow['on_update'];
-        $definition['match']         = $lastrow['match'];
 
-        if ($definition['check']) {
-            // pattern match constraint for check constraint values into enum-style output:
-			$enumregex = '/'.$lastrow['column_name'].' in \((.+?)\)/i';
-			if (preg_match($enumregex, $lastrow['search_condition'], $rangestr)) {
-				$definition['fields'][$column_name] = array();
-				$allowed = explode(',', $rangestr[1]);
-				foreach ($allowed as $val) {
-					$val = trim($val);
-					$val = preg_replace('/^\'/', '', $val);
-					$val = preg_replace('/\'$/', '', $val);
-					array_push($definition['fields'][$column_name], $val);
-				}
-			}
-		}
-            
-
-		//echo '<hr><pre>'; print_r($definition); echo '</pre><hr>';
         return $definition;
     }
 
