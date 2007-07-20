@@ -822,6 +822,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
             $c_position = strpos($query, $colon, $position);
+            //skip "::type" cast ("select id::varchar(20) from sometable where name=?")
+            $doublecolon_position = strpos($query, '::', $position);
+            if ($doublecolon_position !== false && $doublecolon_position == $c_position) {
+                $c_position = strpos($query, $colon, $position+2);
+            }
             if ($q_position && $c_position) {
                 $p_position = min($q_position, $c_position);
             } elseif ($q_position) {
