@@ -10,11 +10,12 @@ $notes = <<<EOT
 - request #11297: added support for "owner.table" notation in the Manager and Reverse modules
 - fixed bug #11428: propagate quote() errors with invalid data types
 - fixed bug #10969: execute() does not bind reference variables (patch by Charles Woodcock)
-- use prepared queries in the list*() methods of the Manager module
+- use prepared queries in the list*() methods of the Manager module and in the
+  Reverse module (thanks to Hugh Dixon)
 - add support for "owner" parameter in listViews(), listFunctions(), listTables(),
   listSequences() in the Manager module
 - added listTableTriggers() in the Manager module
-  
+
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
  (binaries are available from snaps.php.net and pecl4win.php.net)
@@ -23,11 +24,6 @@ note:
   behaviour can be disabled by setting the "emulate_database" option to false.
 - the multi_query test failes because this is not supported by ext/oci8
 - the null LOB test failes because this is not supported by Oracle
-- fixed query in getTableConstraintDefinition() [bug #10548], made the \$table
-  parameter optional and added support for Foreign Keys and CHECK constraints
-  (thanks to Hugh Dixon)
-- detect autoincrement fields in getTableFieldDefinition() (thanks to Hugh Dixon)
-- don't return index definition in getTableIndexDefinition() if it's a constraint
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
