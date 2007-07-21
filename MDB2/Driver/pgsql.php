@@ -904,8 +904,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-
-        $statement_name = sprintf($this->options['statement_format'], $this->phptype, sha1(microtime() + mt_rand()));
+        static $prep_statement_counter = 1;
+        $statement_name = sprintf($this->options['statement_format'], $this->phptype, sha1(microtime() + mt_rand())) . $prep_statement_counter++;
         $statement_name = strtolower($statement_name);
         if ($pgtypes === false) {
             $result = @pg_prepare($connection, $statement_name, $query);

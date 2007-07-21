@@ -8,7 +8,7 @@ $state = 'stable';
 $notes = <<<EOT
 - fixed bug #10024: Added new option 'lob_allow_url_include' (default false) to
   [dis]allow inserting a LOB from an url (file, http, ...).
-- fixed bug #10986: Using more random statement names
+- fixed bug #10986: Using more random statement names (request #11625)
 - fixed bug #11055: Using placeholders with := variable assignment fails [bekarau]
 - initial support for FOREIGN KEY constraints in the Manager module
 - request #11389: added many new MySQL 5.1 error codes in errorInfo()

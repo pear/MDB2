@@ -7,7 +7,7 @@ $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
-- fixed bug #10986: Using more random statement names
+- fixed bug #10986: Using more random statement names (request #11625)
 - request #11297: added support for "schema.table" (or "owner.table") notation
   in the Reverse module (related to bug #11207)
 - fixed bug #11428: propagate quote() errors with invalid data types
