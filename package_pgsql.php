@@ -12,6 +12,8 @@ $notes = <<<EOT
   in the Reverse module (related to bug #11207)
 - fixed bug #11428: propagate quote() errors with invalid data types
 - fixed bug in MDB2_Statement_pgsql::_execute(), called property of invalid object
+- fixed bug #11624: getSequenceName() returning incorrect results with multiple
+  schemas and 'SET search_path'
 - fixed bug #11652: failed prepared queries containing the "::type" style of casting
 
 open todo items:
