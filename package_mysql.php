@@ -13,6 +13,7 @@ $notes = <<<EOT
 - initial support for FOREIGN KEY constraints in the Manager module
 - request #11389: added many new MySQL 5.1 error codes in errorInfo()
 - fixed bug #11428: propagate quote() errors with invalid data types
+- fixed bug #11590: _getServerCapabilities() has to be called once per connection
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

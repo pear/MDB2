@@ -56,6 +56,7 @@
 class MDB2_Driver_mysqli extends MDB2_Driver_Common
 {
     // {{{ properties
+
     var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => '\\', 'escape_pattern' => '\\');
 
     var $identifier_quoting = array('start' => '`', 'end' => '`', 'escape' => '`');
@@ -66,9 +67,12 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         array('start' => '/*', 'end' => '*/', 'escape' => false),
     );
 
+    var $server_capabilities_checked = false;
+
     var $start_transaction = false;
 
     var $varchar_max_length = 255;
+
     // }}}
     // {{{ constructor
 
@@ -786,9 +790,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function _getServerCapabilities()
     {
-        static $already_checked = false;
-        if (!$already_checked) {
-            $already_checked = true;
+        if (!$this->server_capabilities_checked) {
+            $this->server_capabilities_checked = true;
 
             //set defaults
             $this->supported['sub_selects'] = 'emulated';
