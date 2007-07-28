@@ -863,11 +863,16 @@ END;
             $owner = $db->dsn['username'];
         }
         
-        $query = 'SELECT index_name name
-                    FROM all_indexes
-                   WHERE (table_name=? OR table_name=?)
-                     AND (owner=? OR owner=?)
-                     AND generated=' .$db->quote('N', 'text');
+        $query = 'SELECT i.index_name name
+                    FROM all_indexes i
+               LEFT JOIN all_constraints c
+                      ON c.index_name = i.index_name
+                     AND c.owner = i.owner
+                     AND c.table_name = i.table_name
+                   WHERE (i.table_name=? OR i.table_name=?)
+                     AND (i.owner=? OR i.owner=?)
+                     AND c.index_name IS NULL
+                     AND i.generated=' .$db->quote('N', 'text');
         $stmt = $db->prepare($query);
         if (PEAR::isError($stmt)) {
             return $stmt;
