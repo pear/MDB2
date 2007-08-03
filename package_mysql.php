@@ -10,7 +10,7 @@ $notes = <<<EOT
   [dis]allow inserting a LOB from an url (file, http, ...).
 - fixed bug #10986: Using more random statement names (request #11625)
 - fixed bug #11055: Using placeholders with := variable assignment fails [bekarau]
-- initial support for FOREIGN KEY constraints in the Manager module
+- initial support for FOREIGN KEY constraints in the Manager and Reverse modules
 - request #11389: added many new MySQL 5.1 error codes in errorInfo()
 - fixed bug #11428: propagate quote() errors with invalid data types
 - fixed bug #11590: _getServerCapabilities() has to be called once per connection
