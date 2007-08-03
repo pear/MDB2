@@ -15,6 +15,8 @@ $notes = <<<EOT
 - fixed bug #11624: getSequenceName() returning incorrect results with multiple
   schemas and 'SET search_path'
 - fixed bug #11652: failed prepared queries containing the "::type" style of casting
+- fixed bug #11694: remove data type cast from DEFAULT value in getTableFieldDefinition()
+  in the Reverse module
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
