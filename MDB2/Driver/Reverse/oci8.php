@@ -326,7 +326,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
                          \'NO ACTION\' "on_update",
                          \'SIMPLE\' "match",
                          CASE alc.deferrable WHEN \'NOT DEFERRABLE\' THEN 0 ELSE 1 END "deferrable",
-                         CASE alc.deferred WHEN \'IMMEDIATE\' THEN 1 ELSE 0 END "initially_deferred",
+                         CASE alc.deferred WHEN \'IMMEDIATE\' THEN 0 ELSE 1 END "initially_deferred",
                          alc.search_condition,
                          alc.table_name,
                          cols.column_name,
@@ -424,14 +424,17 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             );
             if ($row['foreign']) {
                 $ref_column_name = $row['references_field'];
+                $ref_table_name  = $row['references_table'];
                 if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                     if ($db->options['field_case'] == CASE_LOWER) {
                         $ref_column_name = strtolower($ref_column_name);
+                        $ref_table_name  = strtolower($ref_table_name);
                     } else {
                         $ref_column_name = strtoupper($ref_column_name);
+                        $ref_table_name  = strtoupper($ref_table_name);
                     }
                 }
-                $definition['references']['table'] = $row['references_table'];
+                $definition['references']['table'] = $ref_table_name;
                 $definition['references']['fields'][$ref_column_name] = array(
                     'position' => (int)$row['references_field_position']
                 );
