@@ -881,7 +881,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             }
         }
 
-        // also search in table definition for PRIMARY KEYs
+        // also search in table definition for PRIMARY KEYs...
         $query = "SELECT sql FROM sqlite_master WHERE type='table' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $query.= 'LOWER(name)='.strtolower($table);
@@ -895,6 +895,13 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
         if (preg_match("/\bPRIMARY\s+KEY\b\s*\(([^)]+)/i", $table_def, $tmp)) {
             $result['primary'] = true;
+        }
+
+        // ...and for FOREIGN KEYs
+        if (preg_match_all("/\bCONSTRAINT\b\s+([^\s]+)\s+\bFOREIGN\s+KEY/imsx", $table_def, $tmp)) {
+            foreach ($tmp[1] as $fk) {
+                $result[$fk] = true;
+            }
         }
 
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
