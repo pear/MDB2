@@ -350,6 +350,23 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($sql)) {
             return $sql;
         }
+        //default values, eventually overridden
+        $definition = array(
+            'primary' => false,
+            'unique'  => false,
+            'foreign' => false,
+            'check'   => false,
+            'fields'  => array(),
+            'references' => array(
+                'table'  => '',
+                'fields' => array(),
+            ),
+            'on_update'  => '',
+            'on_delete'  => '',
+            'match'      => '',
+            'deferrable'         => false,
+            'initially_deferred' => false,
+        );
         if (!$sql) {
             $query = "SELECT sql FROM sqlite_master WHERE type='table' AND ";
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -365,13 +382,12 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             if ($constraint_name == 'primary') {
                 // search in table definition for PRIMARY KEYs
                 if (preg_match("/\bPRIMARY\s+KEY\b\s*\(([^)]+)/i", $sql, $tmp)) {
-                    $definition = array();
                     $definition['primary'] = true;
                     $definition['fields'] = array();
                     $column_names = split(',', $tmp[1]);
                     $colpos = 1;
                     foreach ($column_names as $column_name) {
-                        $definition['fields'][$column_name] = array(
+                        $definition['fields'][trim($column_name)] = array(
                             'position' => $colpos++
                         );
                     }
@@ -380,8 +396,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             } else {
                 // search in table definition for FOREIGN KEYs
                 $pattern = "/\bCONSTRAINT\b\s+%s\s+
-                    \bFOREIGN\s+KEY\b\s*\(([^)]+)\)\s*
-                    \bREFERENCES\b\s+([^\s]+)\s*\(([^)]+)\)\s*
+                    \bFOREIGN\s+KEY\b\s*\(([^\)]+)\)\s*
+                    \bREFERENCES\b\s+([^\s]+)\s*\(([^\)]+)\)\s*
                     (?:\bMATCH\s*([^\s]+))?\s*
                     (?:\bON\s+UPDATE\s+([^\s,\)]+))?\s*
                     (?:\bON\s+DELETE\s+([^\s,\)]+))?\s*
@@ -393,30 +409,22 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     $found_fk = true;
                 }
                 if ($found_fk) {
-                    $definition = array(
-                        'foreign'       => true,
-                        'deferrable'    => false,
-                        'initially_deferred' => false,
-                        'fields'        => array(),
-                        'references' => array(
-                            'table' => $tmp[2],
-                            'fields' => array(),
-                        ),
-                        'match'     => 'SIMPLE',
-                        'on_update' => 'NO ACTION',
-                        'on_delete' => 'NO ACTION',
-                    );
+                    $definition['foreign'] = true;
+                    $definition['match'] = 'SIMPLE';
+                    $definition['on_update'] = 'NO ACTION';
+                    $definition['on_delete'] = 'NO ACTION';
+                    $definition['references']['table'] = $tmp[2];
                     $column_names = split(',', $tmp[1]);
                     $colpos = 1;
                     foreach ($column_names as $column_name) {
-                        $definition['fields'][$column_name] = array(
+                        $definition['fields'][trim($column_name)] = array(
                             'position' => $colpos++
                         );
                     }
                     $referenced_cols = split(',', $tmp[3]);
                     $colpos = 1;
                     foreach ($referenced_cols as $column_name) {
-                        $definition['references']['fields'][$column_name] = array(
+                        $definition['references']['fields'][trim($column_name)] = array(
                             'position' => $colpos++
                         );
                     }
@@ -441,7 +449,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
 
         $sql = strtolower($sql);
         $start_pos = strpos($sql, '(');
-        $end_pos = strrpos($sql, ')');
+        $end_pos   = strrpos($sql, ')');
         $column_names = substr($sql, $start_pos+1, $end_pos-$start_pos-1);
         $column_names = split(',', $column_names);
 
@@ -450,7 +458,6 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 $constraint_name . ' is not an existing table constraint', __FUNCTION__);
         }
 
-        $definition = array();
         $definition['unique'] = true;
         $count = count($column_names);
         for ($i=0; $i<$count; ++$i) {
