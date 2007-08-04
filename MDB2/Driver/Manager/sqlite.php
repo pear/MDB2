@@ -156,6 +156,64 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ _getCreateTableQuery()
+
+    /**
+     * Create a basic SQL query for a new table creation
+     * @param string $name   Name of the database that should be created
+     * @param array $fields  Associative array that contains the definition of each field of the new table
+     * @param array $options  An associative array of table options
+     * @return mixed string (the SQL query) on success, a MDB2 error on failure
+     * @see createTable()
+     */
+    function _getCreateTableQuery($name, $fields, $options = array())
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (!$name) {
+            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
+                'no valid table name specified', __FUNCTION__);
+        }
+        if (empty($fields)) {
+            return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
+                'no fields specified for table "'.$name.'"', __FUNCTION__);
+        }
+        $query_fields = $this->getFieldDeclarationList($fields);
+        if (PEAR::isError($query_fields)) {
+            return $query_fields;
+        }
+        if (!empty($options['primary'])) {
+            $query_fields.= ', PRIMARY KEY ('.implode(', ', array_keys($options['primary'])).')';
+        }
+        if (!empty($options['foreign_keys'])) {
+            foreach ($options['foreign_keys'] as $fkname => $fkdef) {
+                $query_fields.= ', CONSTRAINT '.$fkname.' FOREIGN KEY ('.implode(', ', array_keys($fkdef['fields'])).')';
+                $query_fields.= ' REFERENCES '.$fkdef['references']['table'].' ('.implode(', ', array_keys($fkdef['references']['fields'])).')';
+                if (!empty($fkdef['match'])) {
+                    $query_fields.= ' MATCH '.$fkdef['match'];
+                }
+                if (!empty($fkdef['on_update'])) {
+                    $query_fields.= ' ON UPDATE '.$fkdef['on_update'];
+                }
+                if (!empty($fkdef['on_delete'])) {
+                    $query_fields.= ' ON DELETE '.$fkdef['on_delete'];
+                }
+            }
+        }
+
+        $name = $db->quoteIdentifier($name, true);
+        $result = 'CREATE ';
+        if (!empty($options['temporary'])) {
+            $result .= $this->_getTemporaryTableQuery();
+        }
+        $result .= " TABLE $name ($query_fields)";
+        return $result;
+    }
+
+    // }}}
     // {{{ alterTable()
 
     /**
@@ -309,18 +367,31 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             return $constraints;
         }
 
+        if (!array_key_exists('foreign_keys', $options)) {
+            $options['foreign_keys'] = array();
+        }
         $constraints = array_flip($constraints);
         foreach ($constraints as $constraint => $value) {
             if (!empty($definition['primary'])) {
                 if (!array_key_exists('primary', $options)) {
                     $options['primary'] = $definition['fields'];
+                    //remove from the $constraint array, it's already handled by createTable()
+                    unset($constraints[$constraint]);
                 }
             } else {
                 $definition = $db->reverse->getTableConstraintDefinition($name, $constraint);
                 if (PEAR::isError($definition)) {
                     return $definition;
                 }
-                $constraints[$constraint] = $definition;
+                if (!empty($definition['foreign'])) {
+                    if (!array_key_exists($constraint, $options['foreign_keys'])) {
+                        $options['foreign_keys'][$constraint] = $definition;
+                    }
+                    //remove from the $constraint array, it's already handled by createTable()
+                    unset($constraints[$constraint]);
+                } else {
+                    $constraints[$constraint] = $definition;
+                }
             }
         }
 
@@ -762,22 +833,22 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     /**
      * create a constraint on a table
      *
-     * @param string    $table         name of the table on which the constraint is to be created
-     * @param string    $name         name of the constraint to be created
-     * @param array     $definition        associative array that defines properties of the constraint to be created.
-     *                                 Currently, only one property named FIELDS is supported. This property
-     *                                 is also an associative with the names of the constraint fields as array
-     *                                 constraints. Each entry of this array is set to another type of associative
-     *                                 array that specifies properties of the constraint that are specific to
-     *                                 each field.
+     * @param string $table      name of the table on which the constraint is to be created
+     * @param string $name       name of the constraint to be created
+     * @param array  $definition associative array that defines properties of the constraint to be created.
+     *                           Currently, only one property named FIELDS is supported. This property
+     *                           is also an associative with the names of the constraint fields as array
+     *                           constraints. Each entry of this array is set to another type of associative
+     *                           array that specifies properties of the constraint that are specific to
+     *                           each field.
      *
-     *                                 Example
-     *                                    array(
-     *                                        'fields' => array(
-     *                                            'user_name' => array(),
-     *                                            'last_login' => array()
-     *                                        )
-     *                                    )
+     *                           Example
+     *                              array(
+     *                                  'fields' => array(
+     *                                      'user_name' => array(),
+     *                                      'last_login' => array()
+     *                                  )
+     *                              )
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -790,6 +861,10 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         if (!empty($definition['primary'])) {
             return $db->manager->alterTable($table, array(), false, array('primary' => $definition['fields']));
+        }
+        
+        if (!empty($definition['foreign'])) {
+            return $db->manager->alterTable($table, array(), false, array('foreign_keys' => array($name => $definition)));
         }
 
         $table = $db->quoteIdentifier($table, true);
@@ -880,7 +955,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                 }
             }
         }
-
+        
         // also search in table definition for PRIMARY KEYs...
         $query = "SELECT sql FROM sqlite_master WHERE type='table' AND ";
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
