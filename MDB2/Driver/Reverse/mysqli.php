@@ -305,6 +305,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         }
         
         list($schema, $table) = $this->splitTableSchema($table_name);
+        $constraint_name_original = $constraint_name;
 
         $table = $db->quoteIdentifier($table, true);
         $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = %s */";
@@ -330,14 +331,14 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             'check'   => false,
             'fields'  => array(),
             'references' => array(
-                'table' => '',
+                'table'  => '',
                 'fields' => array(),
             ),
-            'deferrable'    => false,
+            'on_update'  => '',
+            'on_delete'  => '',
+            'match'      => '',
+            'deferrable'         => false,
             'initially_deferred' => false,
-            'on_update'     => '',
-            'on_delete'     => '',
-            'match'         => '',
         );
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
             $row = array_change_key_case($row, CASE_LOWER);
@@ -362,7 +363,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                                 $constraint = strtoupper($constraint);
                             }
                         }
-                        $pattern = '/\bCONSTRAINT\s+'.$constraint_name.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^ ]+) \(([^\)]+)\)/i';
+                        //NB: MySQL creates FKs with names in this format: "<TABLENAME>_ibfk_<INCREMENTAL_N>"
+                        $pattern = '/\bCONSTRAINT\s+'.$constraint_name_original.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^ ]+) \(([^\)]+)\)/i';
                         if (preg_match($pattern, str_replace('`', '', $constraint), $matches)) {
                             $definition['foreign'] = true;
                             $column_names = explode(',', $matches[1]);
@@ -373,13 +375,13 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                             );
                             $colpos = 1;
                             foreach ($column_names as $column_name) {
-                                $definition['fields'][$column_name] = array(
+                                $definition['fields'][trim($column_name)] = array(
                                     'position' => $colpos++
                                 );
                             }
                             $colpos = 1;
                             foreach ($referenced_cols as $column_name) {
-                                $definition['references']['fields'][$column_name] = array(
+                                $definition['references']['fields'][trim($column_name)] = array(
                                     'position' => $colpos++
                                 );
                             }
