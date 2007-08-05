@@ -53,6 +53,11 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
     var $indices     = array();
     var $constraints = array();
 
+    var $table2      = 'testtable2';
+    var $fields2      = array();
+    var $indices2     = array();
+    var $constraints2 = array();
+
     function setUp() {
         parent::setUp();
         $this->db->loadModule('Reverse', null, true);
@@ -100,12 +105,46 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             ),
         );
 
+        $options = array();
+        if ('mysql' == substr($this->db->phptype, 0, 5)) {
+            $options['type'] = 'innodb';
+        }
+
         if (!$this->tableExists($this->table)) {
-            $this->db->manager->createTable($this->table, $this->fields);
+            $this->db->manager->createTable($this->table, $this->fields, $options);
+        }
+
+        //Table2 structure
+        $this->fields2 = array(
+            'ext_id' => array(  //SINGLE_FK
+                'type'     => 'integer',
+                'unsigned' => 1,
+                'notnull'  => 1,
+                'default'  => 0,
+            ),
+            'ext_id2' => array( //MULTI_FK(1/2)
+                'type'     => 'integer',
+                'unsigned' => 1,
+                'notnull'  => 1,
+                'default'  => 0,
+            ),
+            'ext_id3' => array( //MULTI_FK(2/2)
+                'type'     => 'integer',
+                'unsigned' => 1,
+                'notnull'  => 1,
+                'default'  => 0,
+            ),
+        );
+
+        if (!$this->tableExists($this->table2)) {
+            $this->db->manager->createTable($this->table2, $this->fields2, $options);
         }
     }
 
     function tearDown() {
+        if ($this->tableExists($this->table2)) {
+            $this->db->manager->dropTable($this->table2);
+        }
         if ($this->tableExists($this->table)) {
             $this->db->manager->dropTable($this->table);
         }
@@ -182,14 +221,91 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 'unique' => true,
             ),
         );
+        $failed1 = false;
         foreach ($this->constraints as $constraint_name => $constraint) {
+            //$this->db->manager->dropConstraint($this->table, $constraint_name);
             $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
             $this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
             if (PEAR::isError($result)) {
+                $failed1 = true;
                 break;
             }
         }
-        return PEAR::isError($result);
+
+        //mysql ignores custom FK names and follows this syntax:
+        $this->fk_constraint1_name = $this->table2.'_ibfk_1';
+        $this->fk_constraint2_name = $this->table2.'_ibfk_2';
+        $this->constraints2 = array(
+            $this->fk_constraint1_name => array(
+                'primary' => false,
+                'unique'  => false,
+                'foreign' => true,
+                'check'   => false,
+                'fields' => array(
+                    'ext_id' => array(
+                        'position' => 1,
+                        'sorting' => 'ascending',
+                    ),
+                ),
+                'references' => array(
+                    'table'  => $this->table,
+                    'fields' => array(
+                        'id' => array(
+                            'position' => 1,
+                        ),
+                    ),
+                ),
+                'on_update' => 'CASCADE',
+                'on_delete' => 'CASCADE',
+                'match'     => 'FULL',
+                'deferrable'         => false,
+                'initially_deferred' => false,
+            ),
+            $this->fk_constraint2_name => array(
+                'primary' => false,
+                'unique'  => false,
+                'foreign' => true,
+                'check'   => false,
+                'fields' => array(
+                    'ext_id2' => array(
+                        'position' => 1,
+                        'sorting'  => 'ascending',
+                    ),
+                    'ext_id3' => array(
+                        'position' => 2,
+                        'sorting'  => 'ascending',
+                    ),
+                ),
+                'references' => array(
+                    'table'  => $this->table,
+                    'fields' => array(
+                        'id2' => array(
+                            'position' => 1,
+                        ),
+                        'id3' => array(
+                            'position' => 2,
+                        ),
+                    ),
+                ),
+                'on_update' => 'NO ACTION',
+                'on_delete' => 'NO ACTION',
+                'match'     => 'FULL',
+                'deferrable'         => false,
+                'initially_deferred' => false,
+            ),
+        );
+        $failed2 = false;
+        foreach ($this->constraints2 as $constraint_name => $constraint) {
+            //$this->db->manager->dropConstraint($this->table, $constraint_name);
+            $result = $this->db->manager->createConstraint($this->table2, $constraint_name, $constraint);
+            $this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
+            if (PEAR::isError($result)) {
+                $failed2 = true;
+                break;
+            }
+        }
+
+        return !($failed1 || $failed2);
     }
 
     /**
@@ -207,7 +323,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
-                $this->assertEquals($this->table, $field_info['table'], "the table name is not correct");
+                $this->assertEquals($this->table, $field_info['table'], 'the table name is not correct');
                 if (!array_key_exists(strtolower($field_info['name']), $this->fields)) {
                     $this->assertTrue(false, 'Field names do not match ('.$field_info['name'].' is unknown)');
                 }
@@ -229,7 +345,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 //not all the drivers are capable of returning the table name,
                 //and may return an empty value
                 if (!empty($field_info['table'])) {
-                    $this->assertEquals($this->table, $field_info['table'], "the table name is not correct");
+                    $this->assertEquals($this->table, $field_info['table'], 'the table name is not correct');
                 }
                 if (!array_key_exists(strtolower($field_info['name']), $this->fields)) {
                     $this->assertTrue(false, 'Field names do not match ('.$field_info['name'].' is unknown)');
@@ -294,6 +410,18 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->assertEquals('decimal', $field_info['type'], 'The field type is different from the expected one');
             $expected_length = ($this->db->phptype == 'oci8') ? '22,2' : '18,2';
             $this->assertEquals($expected_length, $field_info['length'], 'The field length is different from the expected one');
+        }
+
+        $field_info = $this->db->reverse->getTableFieldDefinition('users', 'user_name');
+        if (PEAR::isError($field_info)) {
+            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+        } else {
+            $field_info = array_shift($field_info);
+            $this->assertEquals('text', $field_info['type'], 'The field type is different from the expected one');
+            $this->assertEquals(12, $field_info['length'], 'The field length is different from the expected one');
+            $this->assertFalse($field_info['notnull'], 'The field can be null unlike it was expected');
+            $this->assertNull($field_info['default'], 'The field default value is different from the expected one');
+            $this->assertFalse($field_info['fixed'], 'The field fixed value is different from the expected one');
         }
     }
 
@@ -444,6 +572,41 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $this->assertEquals(1, $constraint_info['fields'][$expected_fields[0]]['position'], 'The field position in the INDEX is not correct');
             $this->assertEquals(2, $constraint_info['fields'][$expected_fields[1]]['position'], 'The field position in the INDEX is not correct');
         }
+
+        //test FOREIGN KEYs
+        foreach (array_keys($this->constraints2) as $constraint_name) {
+            $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table2, $constraint_name);
+            if (PEAR::isError($constraint_info)) {
+                $this->assertTrue(false, 'Error in getTableConstraintDefinition():'. $constraint_info->getMessage());
+            } else {
+                $this->_compareFKdefinitions($this->constraints2[$constraint_name], $constraint_info);
+            }
+        }
+    }
+
+    /**
+     * Check the original FK constraint definition against the reverse engineered one.
+     *
+     * Ideally, the retrieved FK constraint definition should be equal to the
+     * one used to create the constraint, but not all the DBMS support all the
+     * parameters, so check the common base and do some generic checks for the
+     * other patameters.
+     */
+    function _compareFKdefinitions($expected, $actual) {
+        //ideal case: all the parameters are supported by all the DBMS:
+        //$this->assertEquals($expected, $actual);
+
+        $this->assertEquals($expected['primary'], $actual['primary']);
+        $this->assertEquals($expected['unique'],  $actual['unique']);
+        $this->assertEquals($expected['foreign'], $actual['foreign']);
+        $this->assertEquals($expected['check'],   $actual['check']);
+        $this->assertEquals(array_keys($expected['fields']), array_keys($actual['fields']));
+        $this->assertEquals($expected['references'],   $actual['references']);
+        $this->assertEquals($expected['deferrable'],   $actual['deferrable']);
+        $this->assertEquals($expected['initially_deferred'],   $actual['initially_deferred']);
+        $this->assertTrue(!empty($actual['match']));
+        $this->assertTrue(!empty($actual['on_update']));
+        $this->assertTrue(!empty($actual['on_delete']));
     }
 
     /**
