@@ -12,6 +12,7 @@ $notes = <<<EOT
 - added support for "schema.table" (or "owner.table") notation in the Reverse module (request #11297)
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #11428: propagate quote() errors with invalid data types
+- added new test cases in the test suite
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -22,7 +23,7 @@ open todo items:
 - add support to export/import in CSV format
 - add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
 - add support for database/table/row LOCKs
-- add support for FOREIGN KEYs and CHECK (ENUM as possible mysql fallback) constraints
+- add support for CHECK (ENUM as possible mysql fallback) constraints
 - generate STATUS file from test suite results and allow users to submit test results
 - add support for full text index creation and querying
 - add tests to check if the RDBMS specific handling with portability options
