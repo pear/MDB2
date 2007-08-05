@@ -338,6 +338,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                LEFT JOIN RDB\$RELATION_CONSTRAINTS rc2 ON rc2.RDB\$CONSTRAINT_NAME = refc.RDB\$CONST_NAME_UQ
                LEFT JOIN RDB\$INDICES i2 ON i2.RDB\$INDEX_NAME = rc2.RDB\$INDEX_NAME
                LEFT JOIN RDB\$INDEX_SEGMENTS s2 ON i2.RDB\$INDEX_NAME = s2.RDB\$INDEX_NAME
+                     AND s.RDB\$FIELD_POSITION = s2.RDB\$FIELD_POSITION
                    WHERE UPPER(i.RDB\$RELATION_NAME)=$table
                      AND UPPER(rc.RDB\$CONSTRAINT_NAME)=%s
                      AND rc.RDB\$CONSTRAINT_TYPE IS NOT NULL
@@ -372,14 +373,17 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             );
             if ($row['foreign']) {
                 $ref_column_name = $row['references_field'];
+                $ref_table_name  = $row['references_table'];
                 if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                     if ($db->options['field_case'] == CASE_LOWER) {
                         $ref_column_name = strtolower($ref_column_name);
+                        $ref_table_name  = strtolower($ref_table_name);
                     } else {
                         $ref_column_name = strtoupper($ref_column_name);
+                        $ref_table_name  = strtoupper($ref_table_name);
                     }
                 }
-                $definition['references']['table'] = $row['references_table'];
+                $definition['references']['table'] = $ref_table_name;
                 $definition['references']['fields'][$ref_column_name] = array(
                     'position' => (int)$row['field_position']
                 );
