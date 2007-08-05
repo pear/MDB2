@@ -290,8 +290,8 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                          rc.match_option 'match',
                 		 rc.update_rule 'on_update',
                          rc.delete_rule 'on_delete',
-                         ccu.table_name 'references_table',
-                         ccu.column_name 'references_field',
+                         kcu.table_name 'references_table',
+                         kcu.column_name 'references_field',
                          k.ordinal_position 'field_position'
                     FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
                     LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
@@ -304,10 +304,11 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                       ON rc.constraint_schema = c.constraint_schema
                      AND rc.constraint_catalog = c.constraint_catalog
                      AND rc.constraint_name = c.constraint_name
-               LEFT JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu
-                      ON rc.unique_constraint_schema = ccu.constraint_schema
-                     AND rc.unique_constraint_catalog = ccu.constraint_catalog
-                     AND rc.unique_constraint_name = ccu.constraint_name
+               LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
+                      ON rc.unique_constraint_schema = kcu.constraint_schema
+                     AND rc.unique_constraint_catalog = kcu.constraint_catalog
+                     AND rc.unique_constraint_name = kcu.constraint_name
+					 AND k.ordinal_position = kcu.ordinal_position
                    WHERE k.constraint_catalog = DB_NAME()
                      AND k.table_name = '$table'
                      AND k.constraint_name = '%s'";
