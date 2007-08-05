@@ -1277,6 +1277,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1, ?, ?)';
         $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
+        if (PEAR::isError($stmt)) {
+            $this->assertTrue(false, 'Failed prepared statement to insert LOB values: '.$stmt->getUserInfo());
+        }
 
         $character_lob = '';
         $binary_lob = '';
@@ -1373,6 +1376,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             } else {
                 if ($buffered) {
                     $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon'.$msgPost);
+                    $this->assertEquals('mdb2_bufferedresult_', strtolower(substr(get_class($result), 0, 20)), 'Error: not a buffered result');
+                } else {
+                    $this->assertEquals('mdb2_result_', strtolower(substr(get_class($result), 0, 12)), 'Error: an unbuffered result was expected');
                 }
                 for ($i = 1; $i <= ($buffered ? 2 : 1); ++$i) {
                     $result->seek(0);
