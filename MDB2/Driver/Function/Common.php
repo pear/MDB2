@@ -206,6 +206,21 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
     }
 
     // }}}
+    // {{{ length()
+
+    /**
+     * return string to call a function to get the length of a string expression
+     *
+     * @param string $expression
+     * @return return string to get the string expression length
+     * @access public
+     */
+    function length($expression)
+    {
+        return "LENGTH($expression)";
+    }
+
+    // }}}
     // {{{ guid()
 
     /**

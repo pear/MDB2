@@ -13,6 +13,7 @@ $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #11428: propagate quote() errors with invalid data types
 - added new test cases in the test suite
+- added LENGTH() function in the Function module
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -21,7 +22,7 @@ open todo items:
 - add cursor support along the lines of PDO (Request #3660 etc.)
 - add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
 - add support to export/import in CSV format
-- add more functions to the Function module (MD5(), IFNULL(), LENGTH() etc.)
+- add more functions to the Function module (MD5(), IFNULL(), etc.)
 - add support for database/table/row LOCKs
 - add support for CHECK (ENUM as possible mysql fallback) constraints
 - generate STATUS file from test suite results and allow users to submit test results

@@ -225,5 +225,25 @@ class MDB2_Function_TestCase extends MDB2_TestCase
             $this->assertTrue(($result === 'FOO'), 'Error: could not upper case "FoO": '.$result);
         }
     }
+
+    /**
+     * Test length()
+     */
+    function testLenght()
+    {
+        if (!$this->methodExists($this->db->function, 'length')) {
+            return;
+        }
+        $string = $this->db->quote('foo');
+        $upper_clause = $this->db->function->length($string);
+        $functionTable_clause = $this->db->function->functionTable();
+        $query = 'SELECT '.$upper_clause . $functionTable_clause;
+        $len = $this->db->queryOne($query, 'integer');
+        if (PEAR::isError($len)) {
+            $this->assertFalse(true, 'Error getting upper case value:'. $len->getMessage());
+        } else {
+            $this->assertEquals(3, $len, 'Error: incorrect length for "foo" string: '.$len);
+        }
+    }
 }
 ?>
