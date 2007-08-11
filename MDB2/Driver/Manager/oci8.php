@@ -289,7 +289,7 @@ END;
     function _getAdvancedFKOptions($definition)
     {
         $query = '';
-        if (!empty($definition['on_delete'])) {
+        if (!empty($definition['on_delete']) && (strtoupper($definition['on_delete']) != 'NO ACTION')) {
             $query .= ' ON DELETE '.$definition['on_delete'];
         }
         if (!empty($definition['is_deferrable'])) {
