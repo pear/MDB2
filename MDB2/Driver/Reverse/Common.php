@@ -163,13 +163,16 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *                  [field1name] => array() // one entry per each field covered
      *                  [field2name] => array() // by the index
      *                  [field3name] => array(
-     *                      [sorting] => ascending
+     *                      [sorting]  => ascending
+     *                      [position] => 3
      *                  )
      *              )
      *              [references] => array(
      *                  [table] => name
      *                  [fields] => array(
-     *                      [field1name] => position //one entry per each referenced field
+     *                      [field1name] => array(  //one entry per each referenced field
+     *                           [position] => 1
+     *                      )
      *                  )
      *              )
      *              [deferrable] => 0

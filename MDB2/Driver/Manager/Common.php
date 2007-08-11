@@ -739,22 +739,39 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
     /**
      * create a constraint on a table
      *
-     * @param string    $table         name of the table on which the constraint is to be created
-     * @param string    $name         name of the constraint to be created
-     * @param array     $definition        associative array that defines properties of the constraint to be created.
-     *                                 Currently, only one property named FIELDS is supported. This property
-     *                                 is also an associative with the names of the constraint fields as array
-     *                                 constraints. Each entry of this array is set to another type of associative
-     *                                 array that specifies properties of the constraint that are specific to
-     *                                 each field.
-     *
-     *                                 Example
-     *                                    array(
-     *                                        'fields' => array(
-     *                                            'user_name' => array(),
-     *                                            'last_login' => array()
-     *                                        )
-     *                                    )
+     * @param string    $table       name of the table on which the constraint is to be created
+     * @param string    $name        name of the constraint to be created
+     * @param array     $definition  associative array that defines properties of the constraint to be created.
+     *                               The full structure of the array looks like this:
+     *          <pre>
+     *          array (
+     *              [primary] => 0
+     *              [unique]  => 0
+     *              [foreign] => 1
+     *              [check]   => 0
+     *              [fields] => array (
+     *                  [field1name] => array() // one entry per each field covered
+     *                  [field2name] => array() // by the index
+     *                  [field3name] => array(
+     *                      [sorting]  => ascending
+     *                      [position] => 3
+     *                  )
+     *              )
+     *              [references] => array(
+     *                  [table] => name
+     *                  [fields] => array(
+     *                      [field1name] => array(  //one entry per each referenced field
+     *                           [position] => 1
+     *                      )
+     *                  )
+     *              )
+     *              [deferrable] => 0
+     *              [initiallydeferred] => 0
+     *              [onupdate] => CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION
+     *              [ondelete] => CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION
+     *              [match] => SIMPLE|PARTIAL|FULL
+     *          );
+     *          </pre>
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
