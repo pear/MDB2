@@ -136,10 +136,10 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (!empty($definition['match'])) {
             $query .= ' MATCH '.$definition['match'];
         }
-        if (!empty($definition['on_update'])) {
+        if (!empty($definition['on_update']) && (strtoupper($definition['on_update']) != 'NO ACTION')) {
             $query .= ' ON UPDATE '.$definition['on_update'];
         }
-        if (!empty($definition['on_delete'])) {
+        if (!empty($definition['on_delete']) && (strtoupper($definition['on_delete']) != 'NO ACTION')) {
             $query .= ' ON DELETE '.$definition['on_delete'];
         }
         if (!empty($definition['is_deferrable'])) {
@@ -192,15 +192,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
             foreach ($options['foreign_keys'] as $fkname => $fkdef) {
                 $query_fields.= ', CONSTRAINT '.$fkname.' FOREIGN KEY ('.implode(', ', array_keys($fkdef['fields'])).')';
                 $query_fields.= ' REFERENCES '.$fkdef['references']['table'].' ('.implode(', ', array_keys($fkdef['references']['fields'])).')';
-                if (!empty($fkdef['match'])) {
-                    $query_fields.= ' MATCH '.$fkdef['match'];
-                }
-                if (!empty($fkdef['on_update'])) {
-                    $query_fields.= ' ON UPDATE '.$fkdef['on_update'];
-                }
-                if (!empty($fkdef['on_delete'])) {
-                    $query_fields.= ' ON DELETE '.$fkdef['on_delete'];
-                }
+                $query_fields.= $this->_getAdvancedFKOptions($fkdef);
             }
         }
 
