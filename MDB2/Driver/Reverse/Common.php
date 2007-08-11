@@ -171,6 +171,7 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *                  [fields] => array(
      *                      [field1name] => position //one entry per each referenced field
      *                  )
+     *              )
      *              [deferrable] => 0
      *              [initiallydeferred] => 0
      *              [onupdate] => CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION
