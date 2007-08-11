@@ -126,11 +126,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         if (!empty($definition['match'])) {
             $query .= ' MATCH '.$definition['match'];
         }
-        if (!empty($definition['on_update'])) {
-            $query .= ' ON UPDATE '.$definition['on_update'];
+        if (!empty($definition['onupdate'])) {
+            $query .= ' ON UPDATE '.$definition['onupdate'];
         }
-        if (!empty($definition['on_delete'])) {
-            $query .= ' ON DELETE '.$definition['on_delete'];
+        if (!empty($definition['ondelete'])) {
+            $query .= ' ON DELETE '.$definition['ondelete'];
         }
         return $query;
     }

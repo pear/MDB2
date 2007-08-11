@@ -113,18 +113,18 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         if (!empty($definition['match'])) {
             $query .= ' MATCH '.$definition['match'];
         }
-        if (!empty($definition['on_update'])) {
-            $query .= ' ON UPDATE '.$definition['on_update'];
+        if (!empty($definition['onupdate'])) {
+            $query .= ' ON UPDATE '.$definition['onupdate'];
         }
-        if (!empty($definition['on_delete'])) {
-            $query .= ' ON DELETE '.$definition['on_delete'];
+        if (!empty($definition['ondelete'])) {
+            $query .= ' ON DELETE '.$definition['ondelete'];
         }
-        if (!empty($definition['is_deferrable'])) {
+        if (!empty($definition['deferrable'])) {
             $query .= ' DEFERRABLE';
         } else {
             $query .= ' NOT DEFERRABLE';
         }
-        if (!empty($definition['is_deferred'])) {
+        if (!empty($definition['initiallydeferred'])) {
             $query .= ' INITIALLY DEFERRED';
         } else {
             $query .= ' INITIALLY IMMEDIATE';

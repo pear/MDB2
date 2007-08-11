@@ -286,10 +286,10 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
                          CASE c.constraint_type WHEN 'FOREIGN KEY' THEN 1 ELSE 0 END 'foreign',
                          CASE c.constraint_type WHEN 'CHECK' THEN 1 ELSE 0 END 'check',
                          CASE c.is_deferrable WHEN 'NO' THEN 0 ELSE 1 END 'deferrable',
-                         CASE c.initially_deferred WHEN 'NO' THEN 0 ELSE 1 END 'initially_deferred',
+                         CASE c.initially_deferred WHEN 'NO' THEN 0 ELSE 1 END 'initiallydeferred',
                          rc.match_option 'match',
-                		 rc.update_rule 'on_update',
-                         rc.delete_rule 'on_delete',
+                		 rc.update_rule 'onupdate',
+                         rc.delete_rule 'ondelete',
                          kcu.table_name 'references_table',
                          kcu.column_name 'references_field',
                          k.ordinal_position 'field_position'
@@ -381,9 +381,9 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         $definition['foreign'] = (boolean)$lastrow['foreign'];
         $definition['check']   = (boolean)$lastrow['check'];
         $definition['deferrable'] = (boolean)$lastrow['deferrable'];
-        $definition['initially_deferred']   = (boolean)$lastrow['initially_deferred'];
-        $definition['on_update']     = $lastrow['on_update'];
-        $definition['on_delete']     = $lastrow['on_delete'];
+        $definition['initiallydeferred'] = (boolean)$lastrow['initiallydeferred'];
+        $definition['onupdate'] = $lastrow['onupdate'];
+        $definition['ondelete'] = $lastrow['ondelete'];
         $definition['match']    = $lastrow['match'];
 
         return $definition;

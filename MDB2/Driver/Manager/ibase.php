@@ -356,11 +356,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function _getAdvancedFKOptions($definition)
     {
         $query = '';
-        if (!empty($definition['on_update'])) {
-            $query .= ' ON UPDATE '.$definition['on_update'];
+        if (!empty($definition['onupdate'])) {
+            $query .= ' ON UPDATE '.$definition['onupdate'];
         }
-        if (!empty($definition['on_delete'])) {
-            $query .= ' ON DELETE '.$definition['on_delete'];
+        if (!empty($definition['ondelete'])) {
+            $query .= ' ON DELETE '.$definition['ondelete'];
         }
         return $query;
     }

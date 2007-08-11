@@ -270,7 +270,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                          CASE WHEN c.contype = 'p' THEN 1 ELSE 0 END AS \"primary\",
                          CASE WHEN c.contype = 'u' THEN 1 ELSE 0 END AS \"unique\",
                          CASE WHEN c.condeferrable = 'f' THEN 0 ELSE 1 END AS deferrable,
-                         CASE WHEN c.condeferred = 'f' THEN 0 ELSE 1 END AS initially_deferred,
+                         CASE WHEN c.condeferred = 'f' THEN 0 ELSE 1 END AS initiallydeferred,
                          array_to_string(c.conkey, ' ') AS constraint_key,
                          t.relname AS table_name,
                          t2.relname AS references_table,
@@ -280,14 +280,14 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                            WHEN 'c' THEN 'CASCADE'
                            WHEN 'n' THEN 'SET NULL'
                            WHEN 'd' THEN 'SET DEFAULT'
-                         END AS on_update,
+                         END AS onupdate,
                          CASE confdeltype
                            WHEN 'a' THEN 'NO ACTION'
                            WHEN 'r' THEN 'RESTRICT'
                            WHEN 'c' THEN 'CASCADE'
                            WHEN 'n' THEN 'SET NULL'
                            WHEN 'd' THEN 'SET DEFAULT'
-                         END AS on_delete,
+                         END AS ondelete,
                          CASE confmatchtype
                            WHEN 'u' THEN 'UNSPECIFIED'
                            WHEN 'f' THEN 'FULL'
@@ -331,10 +331,10 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                 'fields' => array(),
             ),
             'deferrable'    => (boolean)$row['deferrable'],
-            'initially_deferred' => (boolean)$row['initially_deferred'],
-            'on_update'     => $row['on_update'],
-            'on_delete'     => $row['on_delete'],
-            'match'         => $row['match'],
+            'initiallydeferred' => (boolean)$row['initiallydeferred'],
+            'onupdate' => $row['onupdate'],
+            'ondelete' => $row['ondelete'],
+            'match'    => $row['match'],
         );
 
         $index_column_numbers = explode(' ', $row['constraint_key']);

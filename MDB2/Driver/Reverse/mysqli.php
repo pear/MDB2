@@ -334,11 +334,11 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 'table'  => '',
                 'fields' => array(),
             ),
-            'on_update'  => '',
-            'on_delete'  => '',
-            'match'      => '',
-            'deferrable'         => false,
-            'initially_deferred' => false,
+            'onupdate'  => '',
+            'ondelete'  => '',
+            'match'     => '',
+            'deferrable'        => false,
+            'initiallydeferred' => false,
         );
         while (is_array($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC))) {
             $row = array_change_key_case($row, CASE_LOWER);
@@ -385,9 +385,9 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                                     'position' => $colpos++
                                 );
                             }
-                            $definition['on_update'] = 'NO ACTION';
-                            $definition['on_delete'] = 'NO ACTION';
-                            $definition['match']     = 'SIMPLE';
+                            $definition['onupdate'] = 'NO ACTION';
+                            $definition['ondelete'] = 'NO ACTION';
+                            $definition['match']    = 'SIMPLE';
                             return $definition;
                         }
                     }

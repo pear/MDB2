@@ -324,9 +324,9 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                          CASE WHEN rc.RDB\$CONSTRAINT_TYPE = 'CHECK'       THEN 1 ELSE 0 END AS \"check\",
                          i.RDB\$DESCRIPTION AS description,
                          CASE WHEN rc.RDB\$DEFERRABLE = 'NO' THEN 0 ELSE 1 END AS deferrable,
-                         CASE WHEN rc.RDB\$INITIALLY_DEFERRED = 'NO' THEN 0 ELSE 1 END AS initially_deferred,
-                         refc.RDB\$UPDATE_RULE AS on_update,
-                         refc.RDB\$DELETE_RULE AS on_delete,
+                         CASE WHEN rc.RDB\$INITIALLY_DEFERRED = 'NO' THEN 0 ELSE 1 END AS initiallydeferred,
+                         refc.RDB\$UPDATE_RULE AS onupdate,
+                         refc.RDB\$DELETE_RULE AS ondelete,
                          refc.RDB\$MATCH_OPTION AS \"match\",
                          i2.RDB\$RELATION_NAME AS references_table,
                          s2.RDB\$FIELD_NAME AS references_field,
@@ -409,10 +409,10 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         $definition['foreign'] = (boolean)$lastrow['foreign'];
         $definition['check']   = (boolean)$lastrow['check'];
         $definition['deferrable'] = (boolean)$lastrow['deferrable'];
-        $definition['initially_deferred']   = (boolean)$lastrow['initially_deferred'];
-        $definition['on_update']     = $lastrow['on_update'];
-        $definition['on_delete']     = $lastrow['on_delete'];
-        $definition['match']         = $lastrow['match'];
+        $definition['initiallydeferred'] = (boolean)$lastrow['initiallydeferred'];
+        $definition['onupdate'] = $lastrow['onupdate'];
+        $definition['ondelete'] = $lastrow['ondelete'];
+        $definition['match']    = $lastrow['match'];
         
 		return $definition;
     }

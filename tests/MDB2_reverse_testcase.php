@@ -255,11 +255,11 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                         ),
                     ),
                 ),
-                'on_update' => 'CASCADE',
-                'on_delete' => 'CASCADE',
-                'match'     => 'FULL',
-                'deferrable'         => false,
-                'initially_deferred' => false,
+                'onupdate' => 'CASCADE',
+                'ondelete' => 'CASCADE',
+                'match'    => 'FULL',
+                'deferrable'        => false,
+                'initiallydeferred' => false,
             ),
             $this->fk_constraint2_name => array(
                 'primary' => false,
@@ -287,11 +287,11 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                         ),
                     ),
                 ),
-                'on_update' => 'NO ACTION',
-                'on_delete' => 'NO ACTION',
-                'match'     => 'FULL',
-                'deferrable'         => false,
-                'initially_deferred' => false,
+                'onupdate' => 'NO ACTION',
+                'ondelete' => 'NO ACTION',
+                'match'    => 'FULL',
+                'deferrable'        => false,
+                'initiallydeferred' => false,
             ),
         );
         $failed2 = false;
@@ -603,10 +603,10 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $this->assertEquals(array_keys($expected['fields']), array_keys($actual['fields']));
         $this->assertEquals($expected['references'],   $actual['references']);
         $this->assertEquals($expected['deferrable'],   $actual['deferrable']);
-        $this->assertEquals($expected['initially_deferred'],   $actual['initially_deferred']);
+        $this->assertEquals($expected['initiallydeferred'],   $actual['initiallydeferred']);
         $this->assertTrue(!empty($actual['match']));
-        $this->assertTrue(!empty($actual['on_update']));
-        $this->assertTrue(!empty($actual['on_delete']));
+        $this->assertTrue(!empty($actual['onupdate']));
+        $this->assertTrue(!empty($actual['ondelete']));
     }
 
     /**

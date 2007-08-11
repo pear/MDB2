@@ -75,13 +75,15 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             ),
         );
         if (!$this->tableExists($this->table)) {
-            $this->db->manager->createTable($this->table, $this->fields);
+            $result = $this->db->manager->createTable($this->table, $this->fields);
+            $this->assertFalse(PEAR::isError($result), 'Error creating table');
         }
     }
 
     function tearDown() {
         if ($this->tableExists($this->table)) {
-            $this->db->manager->dropTable($this->table);
+            $result = $this->db->manager->dropTable($this->table);
+            $this->assertFalse(PEAR::isError($result), 'Error dropping table');
         }
         $this->db->popExpect();
         unset($this->dsn);
@@ -252,7 +254,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
-        $index = array(
+        $constraint = array(
             'fields' => array(
                 'id' => array(
                     'sorting' => 'ascending',
@@ -261,8 +263,8 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             'primary' => true,
         );
         $name = 'pkindex';
-        $result = $this->db->manager->createConstraint($this->table, $name, $index);
-        $this->assertFalse(PEAR::isError($result), 'Error creating primary index');
+        $result = $this->db->manager->createConstraint($this->table, $name, $constraint);
+        $this->assertFalse(PEAR::isError($result), 'Error creating primary key constraint');
     }
 
     /**
@@ -272,7 +274,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
-        $index = array(
+        $constraint = array(
             'fields' => array(
                 'somename' => array(
                     'sorting' => 'ascending',
@@ -281,8 +283,8 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             'unique' => true,
         );
         $name = 'uniqueindex';
-        $result = $this->db->manager->createConstraint($this->table, $name, $index);
-        $this->assertFalse(PEAR::isError($result), 'Error creating unique index');
+        $result = $this->db->manager->createConstraint($this->table, $name, $constraint);
+        $this->assertFalse(PEAR::isError($result), 'Error creating unique constraint');
     }
 
     /**
@@ -301,13 +303,17 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             'foreign' => true,
             'references' => array(
                 'table' => 'users',
-                'fields' => array('user_id' => 1),
+                'fields' => array(
+                    'user_id' => array(
+                        'position' => 1,
+                    ),
+                ),
             ),
-            'initially_deferred' => false,
+            'initiallydeferred' => false,
             'deferrable' => false,
             'match' => 'SIMPLE',
-            'on_update' => 'CASCADE',
-            'on_delete' => 'CASCADE',
+            'onupdate' => 'CASCADE',
+            'ondelete' => 'CASCADE',
         );
         $name = 'fkconstraint';
         $result = $this->db->manager->createConstraint($this->table, $name, $constraint);

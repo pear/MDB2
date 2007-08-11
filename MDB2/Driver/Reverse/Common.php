@@ -69,7 +69,7 @@ define('MDB2_TABLEINFO_FULL',       3);
  */
 class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
 {
-    // {{{
+    // {{{ splitTableSchema()
 
     /**
      * Split the "[owner|schema].table" notation into an array
@@ -172,9 +172,9 @@ class MDB2_Driver_Reverse_Common extends MDB2_Module_Common
      *                      [field1name] => position //one entry per each referenced field
      *                  )
      *              [deferrable] => 0
-     *              [initially_deferred] => 0
-     *              [on_update] => CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION
-     *              [on_delete] => CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION
+     *              [initiallydeferred] => 0
+     *              [onupdate] => CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION
+     *              [ondelete] => CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION
      *              [match] => SIMPLE|PARTIAL|FULL
      *          );
      *          </pre>

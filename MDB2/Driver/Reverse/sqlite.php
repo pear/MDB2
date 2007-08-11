@@ -361,11 +361,11 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 'table'  => '',
                 'fields' => array(),
             ),
-            'on_update'  => '',
-            'on_delete'  => '',
-            'match'      => '',
-            'deferrable'         => false,
-            'initially_deferred' => false,
+            'onupdate'  => '',
+            'ondelete'  => '',
+            'match'     => '',
+            'deferrable'        => false,
+            'initiallydeferred' => false,
         );
         if (!$sql) {
             $query = "SELECT sql FROM sqlite_master WHERE type='table' AND ";
@@ -411,8 +411,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 if ($found_fk) {
                     $definition['foreign'] = true;
                     $definition['match'] = 'SIMPLE';
-                    $definition['on_update'] = 'NO ACTION';
-                    $definition['on_delete'] = 'NO ACTION';
+                    $definition['onupdate'] = 'NO ACTION';
+                    $definition['ondelete'] = 'NO ACTION';
                     $definition['references']['table'] = $tmp[2];
                     $column_names = split(',', $tmp[1]);
                     $colpos = 1;
@@ -429,13 +429,13 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                         );
                     }
                     if (isset($tmp[4])) {
-                        $definition['match']     = $tmp[4];
+                        $definition['match']    = $tmp[4];
                     }
                     if (isset($tmp[5])) {
-                        $definition['on_update'] = $tmp[5];
+                        $definition['onupdate'] = $tmp[5];
                     }
                     if (isset($tmp[6])) {
-                        $definition['on_delete'] = $tmp[6];
+                        $definition['ondelete'] = $tmp[6];
                     }
                     return $definition;
                 }

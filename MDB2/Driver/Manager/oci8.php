@@ -289,15 +289,15 @@ END;
     function _getAdvancedFKOptions($definition)
     {
         $query = '';
-        if (!empty($definition['on_delete']) && (strtoupper($definition['on_delete']) != 'NO ACTION')) {
-            $query .= ' ON DELETE '.$definition['on_delete'];
+        if (!empty($definition['ondelete']) && (strtoupper($definition['ondelete']) != 'NO ACTION')) {
+            $query .= ' ON DELETE '.$definition['ondelete'];
         }
-        if (!empty($definition['is_deferrable'])) {
+        if (!empty($definition['deferrable'])) {
             $query .= ' DEFERRABLE';
         } else {
             $query .= ' NOT DEFERRABLE';
         }
-        if (!empty($definition['is_deferred'])) {
+        if (!empty($definition['initiallydeferred'])) {
             $query .= ' INITIALLY DEFERRED';
         } else {
             $query .= ' INITIALLY IMMEDIATE';
