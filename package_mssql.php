@@ -11,7 +11,9 @@ $notes = <<<EOT
 - request #11297: added support for "schema.table" notation in the Reverse module
 - request #11445: added support for unicode datatypes (nchar, nvarchar, ntext)
 - fixed bug #11479: wrong query in nextID()
-  
+- request #11797: don't use mssql_field_name() in listTableFields() in the Manager module
+  since it only returns the first 30 chars
+
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
 EOT;

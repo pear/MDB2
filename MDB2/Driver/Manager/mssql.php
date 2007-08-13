@@ -391,19 +391,19 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-
+        
         $table = $db->quoteIdentifier($table, true);
-        $db->setLimit(1);
-        $result2 = $db->query("SELECT * FROM $table");
-        if (PEAR::isError($result2)) {
-            return $result2;
+        $columns = $db->queryCol("SELECT c.name
+                                    FROM syscolumns c
+                               LEFT JOIN sysobjects o ON c.id = o.id
+                                   WHERE o.name = '$table'");
+        if (PEAR::isError($columns)) {
+            return $columns;
         }
-        $result = $result2->getColumnNames();
-        $result2->free();
-        if (PEAR::isError($result)) {
-            return $result;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $columns = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $columns);
         }
-        return array_flip($result);
+        return $columns;
     }
 
     // }}}
@@ -604,8 +604,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         $query = "SELECT name
-                   FROM sysobjects
-                    WHERE xtype = 'V'";
+                    FROM sysobjects
+                   WHERE xtype = 'V'";
         /*
         SELECT *
           FROM sysobjects
@@ -671,7 +671,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $query = "SELECT c.constraint_name
                     FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
                    WHERE c.constraint_catalog = DB_NAME()
-                    AND c.table_name = '$table'";
+                     AND c.table_name = '$table'";
         $constraints = $db->queryCol($query);
         if (PEAR::isError($constraints)) {
             return $constraints;
@@ -697,8 +697,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     /**
      * create sequence
      *
-     * @param string    $seq_name     name of the sequence to be created
-     * @param string    $start         start value of the sequence; default is 1
+     * @param string $seq_name  name of the sequence to be created
+     * @param string $start     start value of the sequence; default is 1
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
