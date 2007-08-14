@@ -315,9 +315,69 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             'onupdate' => 'CASCADE',
             'ondelete' => 'CASCADE',
         );
-        $name = 'fkconstraint';
-        $result = $this->db->manager->createConstraint($this->table, $name, $constraint);
+        $constraint_name = 'fkconstraint';
+        $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
         $this->assertFalse(PEAR::isError($result), 'Error creating FOREIGN KEY constraint');
+
+        //now check that it is enforced...
+
+        //insert a row in the primary table
+        $result = $this->db->exec('INSERT INTO users (user_id) VALUES (1)');
+        $this->assertTrue(!PEAR::isError($result), 'Insert failed');
+
+        //insert a row in the FK table with an id that references
+        //the newly inserted row on the primary table: should not fail
+        $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table)
+                .' ('.$this->db->quoteIdentifier('id').') VALUES (1)';
+        $result = $this->db->exec($query);
+        $this->assertTrue(!PEAR::isError($result), 'Insert failed');
+
+        //try to insert a row into the FK table with an id that does not
+        //exist in the primary table: should fail
+        $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table)
+                .' ('.$this->db->quoteIdentifier('id').') VALUES (123456)';
+        $this->db->expectError();
+        $result = $this->db->exec($query);
+        $this->db->popExpect();
+        $this->assertTrue(PEAR::isError($result), 'Foreign Key constraint is not enforced for INSERT query');
+
+        //try to update the first row of the FK table with an id that does not
+        //exist in the primary table: should fail
+        $query = 'UPDATE '.$this->db->quoteIdentifier($this->table)
+                .' SET '.$this->db->quoteIdentifier('id').' = 123456 '
+                .' WHERE '.$this->db->quoteIdentifier('id').' = 1';
+        $this->db->expectError();
+        $result = $this->db->exec($query);
+        $this->db->popExpect();
+        $this->assertTrue(PEAR::isError($result), 'Foreign Key constraint is not enforced for UPDATE query');
+
+        $numrows_query = 'SELECT COUNT(*) FROM '. $this->db->quoteIdentifier($this->table);
+        $numrows = $this->db->queryOne($numrows_query, 'integer');
+        $this->assertEquals(1, $numrows, 'Invalid number of rows in the FK table');
+
+        //insert the PK value of the primary table: the new value should be
+        //propagated to the FK table (ON UPDATE CASCADE)
+        $result = $this->db->exec('UPDATE users SET user_id = 2');
+        $this->assertTrue(!PEAR::isError($result), 'Update failed');
+
+        $numrows = $this->db->queryOne($numrows_query, 'integer');
+        $this->assertEquals(1, $numrows, 'Invalid number of rows in the FK table');
+
+        $query = 'SELECT id FROM '.$this->db->quoteIdentifier($this->table);
+        $newvalue = $this->db->queryOne($query, 'integer');
+        $this->assertEquals(2, $newvalue, 'The value of the FK field was not updated (CASCADE failed)');
+
+        //delete the row of the primary table: the row in the FK table should be
+        //deleted automatically (ON DELETE CASCADE)
+        $result = $this->db->exec('DELETE FROM users');
+        $this->assertTrue(!PEAR::isError($result), 'Delete failed');
+
+        $numrows = $this->db->queryOne($numrows_query, 'integer');
+        $this->assertEquals(0, $numrows, 'Invalid number of rows in the FK table (CASCADE failed)');
+
+        //cleanup
+        $result = $this->db->manager->dropConstraint($this->table, $constraint_name);
+        $this->assertTrue(!PEAR::isError($result), 'Error dropping the constraint');
     }
 
     /**
