@@ -190,6 +190,9 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
         if (!empty($options['foreign_keys'])) {
             foreach ($options['foreign_keys'] as $fkname => $fkdef) {
+                if (empty($fkdef)) {
+                    continue;
+                }
                 $query_fields.= ', CONSTRAINT '.$fkname.' FOREIGN KEY ('.implode(', ', array_keys($fkdef['fields'])).')';
                 $query_fields.= ' REFERENCES '.$fkdef['references']['table'].' ('.implode(', ', array_keys($fkdef['references']['fields'])).')';
                 $query_fields.= $this->_getAdvancedFKOptions($fkdef);
@@ -203,6 +206,171 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
         $result .= " TABLE $name ($query_fields)";
         return $result;
+    }
+
+    // }}}
+    // {{{ createTable()
+
+    /**
+     * create a new table
+     *
+     * @param string $name   Name of the database that should be created
+     * @param array $fields  Associative array that contains the definition of each field of the new table
+     * @param array $options  An associative array of table options
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function createTable($name, $fields, $options = array())
+    {
+        $result = parent::createTable($name, $fields, $options);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        // create triggers to enforce FOREIGN KEY constraints
+        if (!empty($options['foreign_keys'])) {
+            $db =& $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            foreach ($options['foreign_keys'] as $fkname => $fkdef) {
+                if (empty($fkdef)) {
+                    continue;
+                }
+                //set actions to 'RESTRICT' if not set
+                if (empty($fkdef['onupdate'])) {
+                    $fkdef['onupdate'] = 'RESTRICT';
+                } else {
+                    $fkdef['onupdate'] = strtoupper($fkdef['onupdate']);
+                }
+                if (empty($fkdef['ondelete'])) {
+                    $fkdef['ondelete'] = 'RESTRICT';
+                } else {
+                    $fkdef['ondelete'] = strtoupper($fkdef['ondelete']);
+                }
+
+                $trigger_names = array(
+                    'insert'    => $fkname.'_insert_trg',
+                    'update'    => $fkname.'_update_trg',
+                    'pk_update' => $fkname.'_pk_update_trg',
+                    'pk_delete' => $fkname.'_pk_delete_trg',
+                );
+                
+                //create the [insert|update] triggers on the FK table
+                $table_fields = array_keys($fkdef['fields']);
+                $referenced_fields = array_keys($fkdef['references']['fields']);
+                $query = 'CREATE TRIGGER %s BEFORE %s ON '.$name
+                        .' FOR EACH ROW BEGIN'
+                        .' SELECT RAISE(ROLLBACK, \'%s on table "'.$name.'" violates FOREIGN KEY constraint "'.$fkname.'"\')'
+                        .' WHERE  (SELECT ';
+                $aliased_fields = array();
+                foreach ($referenced_fields as $field) {
+                    $aliased_fields[] = $fkdef['references']['table'] .'.'.$field .' AS '.$field;
+                }
+                $query .= implode(',', $aliased_fields)
+                       .' FROM '.$fkdef['references']['table']
+                       .' WHERE ';
+                $conditions = array();
+                for ($i=0; $i<count($table_fields); $i++) {
+                    $conditions[] = $referenced_fields[$i] .' = NEW.'.$table_fields[$i];
+                }
+                $query .= implode(' AND ', $conditions).') IS NULL; END;';
+                $result = $db->exec(sprintf($query, $trigger_names['insert'], 'INSERT', 'insert'));
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+
+                $result = $db->exec(sprintf($query, $trigger_names['update'], 'UPDATE', 'update'));
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+                
+                //create the ON [UPDATE|DELETE] triggers on the primary table
+                $restrict_action = 'SELECT RAISE(ROLLBACK, \'%s on table "'.$name.'" violates FOREIGN KEY constraint "'.$fkname.'"\')'
+                                  .' WHERE  (SELECT ';
+                $aliased_fields = array();
+                foreach ($table_fields as $field) {
+                    $aliased_fields[] = $name .'.'.$field .' AS '.$field;
+                }
+                $restrict_action .= implode(',', $aliased_fields)
+                       .' FROM '.$name
+                       .' WHERE ';
+                $conditions = array();
+                $new_values = array();
+                for ($i=0; $i<count($table_fields); $i++) {
+                    $conditions[] = $table_fields[$i] .' = OLD.'.$referenced_fields[$i];
+                    $new_values[] = $table_fields[$i] .' = NEW.'.$referenced_fields[$i];
+                }
+                $restrict_action .= implode(' AND ', $conditions).') IS NOT NULL;';
+                
+                $cascade_action_update = 'UPDATE '.$name.' SET '.implode(', ', $new_values).' WHERE '.implode(' AND ', $conditions);
+                $cascade_action_delete = 'DELETE FROM '.$name.' WHERE '.implode(' AND ', $conditions);
+
+                $query = 'CREATE TRIGGER %s'
+                        .' %s ON '.$fkdef['references']['table']
+                        .' FOR EACH ROW BEGIN ';
+
+                if ($fkdef['onupdate'] == 'RESTRICT') {
+                    $sql_update = sprintf($query, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update') . $restrict_action. '; END;';
+                } else {
+                    $sql_update = sprintf($query, $trigger_names['pk_update'], 'AFTER UPDATE', 'update') . $cascade_action_update. '; END;';
+                }
+                if ($fkdef['ondelete'] == 'RESTRICT') {
+                    $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete') . $restrict_action. '; END;';
+                } else {
+                    $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'AFTER DELETE', 'delete') . $cascade_action_delete. '; END;';
+                }
+                
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+                $result = $db->exec($sql_delete);
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+                $result = $db->exec($sql_update);
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+                
+            }
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ dropTable()
+
+    /**
+     * drop an existing table
+     *
+     * @param string $name name of the table that should be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropTable($name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        
+        //delete the triggers associated to existing FK constraints
+        $constraints = $this->listTableConstraints($name);
+        if (!PEAR::isError($constraints) && !empty($constraints)) {
+            $db->loadModule('Reverse', null, true);
+            foreach ($constraints as $constraint) {
+                $definition = $db->reverse->getTableConstraintDefinition($name, $constraint);
+                if (!PEAR::isError($definition) && !empty($definition['foreign'])) {
+                    $result = $this->_dropFKTriggers($name, $constraint, $definition['references']['table']);
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
+                }
+            }
+        }
+
+        $name = $db->quoteIdentifier($name, true);
+        return $db->exec("DROP TABLE $name");
     }
 
     // }}}
@@ -371,18 +539,18 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                     unset($constraints[$constraint]);
                 }
             } else {
-                $definition = $db->reverse->getTableConstraintDefinition($name, $constraint);
-                if (PEAR::isError($definition)) {
-                    return $definition;
+                $c_definition = $db->reverse->getTableConstraintDefinition($name, $constraint);
+                if (PEAR::isError($c_definition)) {
+                    return $c_definition;
                 }
-                if (!empty($definition['foreign'])) {
+                if (!empty($c_definition['foreign'])) {
                     if (!array_key_exists($constraint, $options['foreign_keys'])) {
-                        $options['foreign_keys'][$constraint] = $definition;
+                        $options['foreign_keys'][$constraint] = $c_definition;
                     }
                     //remove from the $constraint array, it's already handled by createTable()
                     unset($constraints[$constraint]);
                 } else {
-                    $constraints[$constraint] = $definition;
+                    $constraints[$constraint] = $c_definition;
                 }
             }
         }
@@ -895,13 +1063,26 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      */
     function dropConstraint($table, $name, $primary = false)
     {
+        if ($primary || $name == 'PRIMARY') {
+            return $this->alterTable($table, array(), false, array('primary' => null));
+        }
+
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        if ($primary || $name == 'PRIMARY') {
-            return $db->manager->alterTable($table, array(), false, array('primary' => null));
+        //is it a FK constraint? If so, also delete the associated triggers
+        $db->loadModule('Reverse', null, true);
+        $definition = $db->reverse->getTableConstraintDefinition($table, $name);
+        if (!PEAR::isError($definition) && !empty($definition['foreign'])) {
+            //first drop the FK enforcing triggers
+            $result = $this->_dropFKTriggers($table, $name, $definition['references']['table']);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+            //then drop the constraint itself
+            return $this->alterTable($table, array(), false, array('foreign_keys' => array($name => null)));
         }
 
         $name = $db->getIndexName($name);
@@ -909,6 +1090,42 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ _dropFKTriggers()
+    
+    /**
+     * Drop the triggers created to enforce the FOREIGN KEY constraint on the table
+     *
+     * @param string $table  table name
+     * @param string $fkname FOREIGN KEY constraint name
+     * @param string $referenced_table  referenced table name
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function _dropFKTriggers($table, $fkname, $referenced_table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $triggers  = $this->listTableTriggers($table);
+        $triggers2 = $this->listTableTriggers($referenced_table);
+        if (!PEAR::isError($triggers2) && !PEAR::isError($triggers)) {
+            $triggers = array_merge($triggers, $triggers2);
+            $pattern = '/^'.$fkname.'(_pk)?_(insert|update|delete)_trg$/i';
+            foreach ($triggers as $trigger) {
+                if (preg_match($pattern, $trigger)) {
+                    $result = $db->exec('DROP TRIGGER '.$trigger);
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
+                }
+            }
+        }
+        return MDB2_OK;
+    }
+
+    // }]]
     // {{{ listTableConstraints()
 
     /**

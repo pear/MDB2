@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'stable';
 $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+  (on FK creation, some triggers are automatically created to enforce the FK constraint)
 - in listTableConstraints() in the Reverse module, also search in table definition
   for PRIMARY KEYs and FOREIGN KEYs
 - fixed bug #11428: propagate quote() errors with invalid data types
