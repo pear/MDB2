@@ -237,16 +237,8 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                     continue;
                 }
                 //set actions to 'RESTRICT' if not set
-                if (empty($fkdef['onupdate'])) {
-                    $fkdef['onupdate'] = 'RESTRICT';
-                } else {
-                    $fkdef['onupdate'] = strtoupper($fkdef['onupdate']);
-                }
-                if (empty($fkdef['ondelete'])) {
-                    $fkdef['ondelete'] = 'RESTRICT';
-                } else {
-                    $fkdef['ondelete'] = strtoupper($fkdef['ondelete']);
-                }
+                $fkdef['onupdate'] = empty($fkdef['onupdate']) ? 'RESTRICT' : strtoupper($fkdef['onupdate']);
+                $fkdef['ondelete'] = empty($fkdef['ondelete']) ? 'RESTRICT' : strtoupper($fkdef['ondelete']);
 
                 $trigger_names = array(
                     'insert'    => $fkname.'_insert_trg',
@@ -294,32 +286,62 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                 $restrict_action .= implode(',', $aliased_fields)
                        .' FROM '.$name
                        .' WHERE ';
-                $conditions = array();
-                $new_values = array();
+                $conditions  = array();
+                $new_values  = array();
+                $null_values = array();
                 for ($i=0; $i<count($table_fields); $i++) {
-                    $conditions[] = $table_fields[$i] .' = OLD.'.$referenced_fields[$i];
-                    $new_values[] = $table_fields[$i] .' = NEW.'.$referenced_fields[$i];
+                    $conditions[]  = $table_fields[$i] .' = OLD.'.$referenced_fields[$i];
+                    $new_values[]  = $table_fields[$i] .' = NEW.'.$referenced_fields[$i];
+                    $null_values[] = $table_fields[$i] .' = NULL';
                 }
-                $restrict_action .= implode(' AND ', $conditions).') IS NOT NULL;';
-                
-                $cascade_action_update = 'UPDATE '.$name.' SET '.implode(', ', $new_values).' WHERE '.implode(' AND ', $conditions);
+                $restrict_action .= implode(' AND ', $conditions).') IS NOT NULL';
+
+                $cascade_action_update = 'UPDATE '.$name.' SET '.implode(', ', $new_values) .' WHERE '.implode(' AND ', $conditions);
                 $cascade_action_delete = 'DELETE FROM '.$name.' WHERE '.implode(' AND ', $conditions);
+                $setnull_action        = 'UPDATE '.$name.' SET '.implode(', ', $null_values).' WHERE '.implode(' AND ', $conditions);
+
+                if ('SET DEFAULT' == $fkdef['onupdate'] || 'SET DEFAULT' == $fkdef['ondelete']) {
+                    $db->loadModule('Reverse', null, true);
+                    $default_values = array();
+                    foreach ($table_fields as $table_field) {
+                        $field_definition = $db->reverse->getTableFieldDefinition($name, $field);
+                        if (PEAR::isError($field_definition)) {
+                            return $field_definition;
+                        }
+                        $default_values[] = $table_field .' = '. $field_definition[0]['default'];
+                    }
+                    $setdefault_action = 'UPDATE '.$name.' SET '.implode(', ', $default_values).' WHERE '.implode(' AND ', $conditions);
+                }
 
                 $query = 'CREATE TRIGGER %s'
                         .' %s ON '.$fkdef['references']['table']
                         .' FOR EACH ROW BEGIN ';
 
-                if ($fkdef['onupdate'] == 'RESTRICT') {
-                    $sql_update = sprintf($query, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update') . $restrict_action. '; END;';
+                if ('CASCADE' == $fkdef['onupdate']) {
+                    $sql_update = sprintf($query, $trigger_names['pk_update'], 'AFTER UPDATE',  'update') . $cascade_action_update. '; END;';
+                } elseif ('SET NULL' == $fkdef['onupdate']) {
+                    $sql_update = sprintf($query, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update') . $setnull_action. '; END;';
+                } elseif ('SET DEFAULT' == $fkdef['onupdate']) {
+                    $sql_update = sprintf($query, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update') . $setdefault_action. '; END;';
+                } elseif ('NO ACTION' == $fkdef['onupdate']) {
+                    $sql_update = sprintf($query.$restrict_action, $trigger_names['pk_update'], 'AFTER UPDATE', 'update') . '; END;';
                 } else {
-                    $sql_update = sprintf($query, $trigger_names['pk_update'], 'AFTER UPDATE', 'update') . $cascade_action_update. '; END;';
+                    //'RESTRICT'
+                    $sql_update = sprintf($query.$restrict_action, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update') . '; END;';
                 }
-                if ($fkdef['ondelete'] == 'RESTRICT') {
-                    $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete') . $restrict_action. '; END;';
+                if ('CASCADE' == $fkdef['ondelete']) {
+                    $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'AFTER DELETE',  'delete') . $cascade_action_delete. '; END;';
+                } elseif ('SET NULL' == $fkdef['ondelete']) {
+                    $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete') . $setnull_action. '; END;';
+                } elseif ('SET DEFAULT' == $fkdef['ondelete']) {
+                    $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete') . $setdefault_action. '; END;';
+                } elseif ('NO ACTION' == $fkdef['ondelete']) {
+                    $sql_delete = sprintf($query.$restrict_action, $trigger_names['pk_delete'], 'AFTER DELETE', 'delete')  . '; END;';
                 } else {
-                    $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'AFTER DELETE', 'delete') . $cascade_action_delete. '; END;';
+                    //'RESTRICT'
+                    $sql_delete = sprintf($query.$restrict_action, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete') . '; END;';
                 }
-                
+
                 if (PEAR::isError($result)) {
                     return $result;
                 }
@@ -331,7 +353,6 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                 if (PEAR::isError($result)) {
                     return $result;
                 }
-                
             }
         }
         return $result;
