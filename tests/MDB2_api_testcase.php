@@ -292,6 +292,21 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
             $this->assertTrue(is_array($server_info), 'Error: Server info is not returned as an array: '. serialize($server_info));
         }
     }
+
+    function testQuoteIdentifier() {
+        if ($this->db->phptype != 'ibase') {
+            $start = $this->db->identifier_quoting['start'];
+            $end = $this->db->identifier_quoting['end'];
+
+            $string = 'test';
+            $expected = $start . $string . $end;
+            $this->assertEquals($expected, $this->db->quoteIdentifier($string, false), 'Error: identifier not quoted properly');
+
+            $string = 'test.test';
+            $expected = $start . 'test' . $end . '.' . $start . 'test' . $end;
+            $this->assertEquals($expected, $this->db->quoteIdentifier($string, false), 'Error: identifier not quoted properly');
+        }
+    }
 }
 
 ?>
