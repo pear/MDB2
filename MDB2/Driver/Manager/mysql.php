@@ -865,8 +865,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             }
         }
 
-        $table = $db->quoteIdentifier($table, true);
-        $query = "SHOW INDEX FROM $table";
+        $query = 'SHOW INDEX FROM ' . $db->quoteIdentifier($table, true);
         $indexes = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($indexes)) {
             return $indexes;
@@ -882,6 +881,18 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 }
                 if (!empty($index)) {
                     $result[$index] = true;
+                }
+            }
+        }
+
+        //list FOREIGN KEY constraints...
+        $query = 'SHOW CREATE TABLE '. $db->escape($table);
+        $definition = $db->queryOne($query, 'text', 1);
+        if (!PEAR::isError($definition) && !empty($definition)) {
+            $pattern = '/\bCONSTRAINT\s+([^\s]+)\s+FOREIGN KEY\b/i';
+            if (preg_match_all($pattern, str_replace('`', '', $definition), $matches) > 1) {
+                foreach ($matches[1] as $constraint) {
+                    $result[$constraint] = true;
                 }
             }
         }
