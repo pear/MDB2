@@ -1704,7 +1704,11 @@ class MDB2_Driver_Common extends PEAR
             return $str;
         }
         $str = str_replace($this->identifier_quoting['end'], $this->identifier_quoting['escape'] . $this->identifier_quoting['end'], $str);
-        return $this->identifier_quoting['start'] . $str . $this->identifier_quoting['end'];
+        $parts = explode('.', $str);
+        foreach (array_keys($parts) as $k) {
+            $parts[$k] = $this->identifier_quoting['start'] . $parts[$k] . $this->identifier_quoting['end'];
+        }
+        return implode('.', $parts);
     }
 
     // }}}
