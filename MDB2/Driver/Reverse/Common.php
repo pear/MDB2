@@ -63,6 +63,9 @@ define('MDB2_TABLEINFO_FULL',       3);
 /**
  * Base class for the schema reverse engineering module that is extended by each MDB2 driver
  *
+ * To load this module in the MDB2 object:
+ * $mdb->loadModule('Reverse');
+ *
  * @package MDB2
  * @category Database
  * @author  Lukas Smith <smith@pooteeweet.org>

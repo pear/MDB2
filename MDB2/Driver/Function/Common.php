@@ -54,6 +54,9 @@
 /**
  * Base class for the function modules that is extended by each MDB2 driver
  *
+ * To load this module in the MDB2 object:
+ * $mdb->loadModule('Function');
+ *
  * @package MDB2
  * @category Database
  * @author  Lukas Smith <smith@pooteeweet.org>
