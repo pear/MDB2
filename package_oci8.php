@@ -16,6 +16,8 @@ $notes = <<<EOT
   listSequences() in the Manager module
 - added listTableTriggers() in the Manager module
 - do not list constraints in listTableIndexes() in the Manager module
+- fixed bug #11933: avoid duplicate queries in the Reverse module and free results
+  and prepared statement handles (thanks Jan Reitz)
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8

@@ -115,6 +115,8 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($column)) {
             return $column;
         }
+        $stmt->free();
+        $result->free();
 
         if (empty($column)) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
@@ -190,6 +192,8 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 					$definition[0]['autoincrement'] = $matches[1];
                 }
             }
+	        $stmt->free();
+	        $result->free();
         }
         return $definition;
     }
@@ -235,7 +239,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($stmt)) {
             return $stmt;
         }
-        $indexnames = array($db->getIndexName($index_name), $index_name);
+        $indexnames = array_unique(array($db->getIndexName($index_name), $index_name));
         $i = 0;
         $row = null;
         while (is_null($row) && array_key_exists($i, $indexnames)) {
@@ -358,7 +362,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             return $stmt;
         }
         
-        $constraintnames = array($db->getIndexName($constraint_name), $constraint_name);
+        $constraintnames = array_unique(array($db->getIndexName($constraint_name), $constraint_name));
         $c = 0;
         $row = null;
         while (is_null($row) && array_key_exists($c, $constraintnames)) {
