@@ -15,6 +15,8 @@ $notes = <<<EOT
 - added new test cases in the test suite
 - added LENGTH() function in the Function module
 - fixed bug #11906: quoteIdentifier fails for names with dots
+- fixed bug #11975: Extended::autoExecute() does not work with Oracle when using LOBs
+  (patch by Pieter Meulen, van der)
 
 open todo items:
 - handle autoincrement fields in alterTable()
