@@ -14,11 +14,11 @@ $notes = <<<EOT
 - fixed bug #11428: propagate quote() errors with invalid data types
 - added new test cases in the test suite
 - added LENGTH() function in the Function module
+- fixed bug #11612: raiseError() must be compatible with PEAR::raiseError() [PHP6]
 - fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 - fixed bug #11906: quoteIdentifier fails for names with dots
 - fixed bug #11975: Extended::autoExecute() does not work with Oracle when using LOBs
   (patch by Pieter Meulen, van der)
-
 open todo items:
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering

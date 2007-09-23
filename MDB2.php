@@ -594,7 +594,13 @@ class MDB2
      * @access  private
      * @see     PEAR_Error
      */
-    function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
+    function &raiseError($code = null,
+                         $mode = null,
+                         $options = null,
+                         $userinfo = null,
+                         $dummy1 = null,
+                         $dummy2 = null,
+                         $dummy3 = false)
     {
         $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
         return $err;
@@ -986,10 +992,10 @@ class MDB2_Error extends PEAR_Error
      * @param   mixed   MDB2 error code, or string with error message.
      * @param   int     what 'error mode' to operate in
      * @param   int     what error level to use for $mode & PEAR_ERROR_TRIGGER
-     * @param   smixed   additional debug info, such as the last query
+     * @param   mixed   additional debug info, such as the last query
      */
     function MDB2_Error($code = MDB2_ERROR, $mode = PEAR_ERROR_RETURN,
-              $level = E_USER_NOTICE, $debuginfo = null)
+              $level = E_USER_NOTICE, $debuginfo = null, $dummy = null)
     {
         if (is_null($code)) {
             $code = MDB2_ERROR;
