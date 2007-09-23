@@ -204,7 +204,11 @@ BEGIN
    END IF;
 END;
 ';
-        return $db->exec($trigger_sql);
+        $result = $db->exec($trigger_sql);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

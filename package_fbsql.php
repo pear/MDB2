@@ -42,6 +42,8 @@ $notes = <<<EOT
 - migrated to package.xml version 2
 - added _mapNativeDatatype() in the Datatype module
 - fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
+- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
+  as documented
 
 note:
 - this driver needs a serious update as it's currently unmaintained/untested

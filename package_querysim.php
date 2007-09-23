@@ -9,6 +9,8 @@ $notes = <<<EOT
 open todo items:
 - add ability to reference multiple results set files for different queries
 - phpdoc fixes
+- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
+  as documented
 EOT;
 
 $description = 'This is the Querysim MDB2 driver.';

@@ -20,6 +20,8 @@ $notes = <<<EOT
 - fixed bug #11975: Extended::autoExecute() does not work with Oracle when using LOBs
   (patch by Pieter Meulen, van der)
 - fixed some E_STRICT errors with PHP5
+- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
+  as documented
 
 open todo items:
 - handle autoincrement fields in alterTable()

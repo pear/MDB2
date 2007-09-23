@@ -14,6 +14,8 @@ $notes = <<<EOT
 - fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 - request #11797: don't use mssql_field_name() in listTableFields() in the Manager module
   since it only returns the first 30 chars
+- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
+  as documented
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

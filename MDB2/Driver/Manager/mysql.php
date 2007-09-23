@@ -211,7 +211,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         if (!empty($options_strings)) {
             $query .= ' '.implode(' ', $options_strings);
         }
-        return $db->exec($query);
+        $result = $db->exec($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

@@ -355,7 +355,10 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                 }
             }
         }
-        return $result;
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

@@ -77,6 +77,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         if (!$this->tableExists($this->table)) {
             $result = $this->db->manager->createTable($this->table, $this->fields);
             $this->assertFalse(PEAR::isError($result), 'Error creating table');
+            $this->assertEquals(MDB2_OK, $result, 'Invalid return value for createTable()');
         }
     }
 

@@ -157,7 +157,7 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
      * Removes any formatting in an index name using the 'idxname_format' option
      *
      * @param string $idx string that containts name of anl index
-     * @return string name of the index with possible formatting removed
+     * @return string name of the index with eventual formatting removed
      * @access protected
      */
     function _fixIndexName($idx)
@@ -327,7 +327,11 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        return $db->exec($query);
+        $result = $db->exec($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

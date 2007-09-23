@@ -165,8 +165,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                             NEW.' . $name . ' = GEN_ID('.$sequence_name.', 1);
                         END';
         $result = $db->exec($trigger_sql);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
         $this->_silentCommit();
-        return $result;
+        return MDB2_OK;
     }
 
     // }}}
@@ -282,6 +285,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 return $this->_makeAutoincrement($field_name, $name, 1);
             }
         }
+        return MDB2_OK;
     }
 
     // }}}

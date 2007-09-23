@@ -20,6 +20,8 @@ $notes = <<<EOT
 - fixed bug #11753: NOTICEs in alterTable() in the Manager module
 - fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 - fixed some E_STRICT errors with PHP5
+- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
+  as documented
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
