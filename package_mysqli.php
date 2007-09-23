@@ -15,6 +15,7 @@ $notes = <<<EOT
 - fixed bug #11428: propagate quote() errors with invalid data types
 - fixed bug in _modifyQuery() when using SELECT FOR UPDATE or similar queries
 - fixed bug #11590: _getServerCapabilities() has to be called once per connection
+- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 
 open todo items:
 - use a trigger to emulate setting default now()

@@ -452,7 +452,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function connect()
     {
         if (is_resource($this->connection)) {
-            if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
+            //if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
+            if (MDB2::areEquals($this->connected_dsn, $this->dsn)
                 && $this->connected_database_name == $this->database_name
                 && ($this->opened_persistent == $this->options['persistent'])
             ) {

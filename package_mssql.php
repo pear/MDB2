@@ -11,6 +11,7 @@ $notes = <<<EOT
 - request #11297: added support for "schema.table" notation in the Reverse module
 - request #11445: added support for unicode datatypes (nchar, nvarchar, ntext)
 - fixed bug #11479: wrong query in nextID()
+- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 - request #11797: don't use mssql_field_name() in listTableFields() in the Manager module
   since it only returns the first 30 chars
 

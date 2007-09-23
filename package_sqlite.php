@@ -11,6 +11,7 @@ $notes = <<<EOT
 - in listTableConstraints() in the Reverse module, also search in table definition
   for PRIMARY KEYs and FOREIGN KEYs
 - fixed bug #11428: propagate quote() errors with invalid data types
+- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 
 note:
 open todo items:

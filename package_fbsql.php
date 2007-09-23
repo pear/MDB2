@@ -41,6 +41,7 @@ $notes = <<<EOT
   because this prevents lastInsertID() from working
 - migrated to package.xml version 2
 - added _mapNativeDatatype() in the Datatype module
+- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 
 note:
 - this driver needs a serious update as it's currently unmaintained/untested

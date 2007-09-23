@@ -8,6 +8,7 @@ $state = 'stable';
 $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #11428: propagate quote() errors with invalid data types
+- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

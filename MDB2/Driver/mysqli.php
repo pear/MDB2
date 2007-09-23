@@ -429,7 +429,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     function connect()
     {
         if (is_object($this->connection)) {
-            if (count(array_diff($this->connected_dsn, $this->dsn)) == 0) {
+            //if (count(array_diff($this->connected_dsn, $this->dsn)) == 0) {
+            if (MDB2::areEquals($this->connected_dsn, $this->dsn) {
                 return MDB2_OK;
             }
             $this->connection = 0;

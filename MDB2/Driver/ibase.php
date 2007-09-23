@@ -518,7 +518,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     {
         $database_file = $this->_getDatabaseFile($this->database_name);
         if (is_resource($this->connection)) {
-            if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
+            //if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
+            if (MDB2::areEquals($this->connected_dsn, $this->dsn)
                 && $this->connected_database_name == $database_file
                 && $this->opened_persistent == $this->options['persistent']
             ) {

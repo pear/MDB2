@@ -18,6 +18,7 @@ $notes = <<<EOT
 - fixed bug #11694: remove data type cast from DEFAULT value in getTableFieldDefinition()
   in the Reverse module
 - fixed bug #11753: NOTICEs in alterTable() in the Manager module
+- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

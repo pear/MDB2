@@ -502,6 +502,31 @@ class MDB2
     }
 
     // }}}
+    // {{{ function areEquals()
+
+    /**
+     * It looks like there's a memory leak in array_diff() in PHP 5.1.x,
+     * so use this method instead.
+     * @see http://pear.php.net/bugs/bug.php?id=11790
+     *
+     * @param array $arr1
+     * @param array $arr2
+     * @return boolean
+     */
+    function areEquals($arr1, $arr2)
+    {
+        if (count($arr1) != count($arr2)) {
+            return false;
+        }
+        foreach (array_keys($arr1) as $k) {
+            if (!array_key_exists($k, $arr2) || $arr1[$k] != $arr2[$k]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // }}}
     // {{{ function loadFile($file)
 
     /**
@@ -1868,7 +1893,7 @@ class MDB2_Driver_Common extends PEAR
                 return $err;
             }
 
-            // load modul in a specific version
+            // load module in a specific version
             if ($version) {
                 if (method_exists($class_name, 'getClassName')) {
                     $class_name_new = call_user_func(array($class_name, 'getClassName'), $this->db_index);
