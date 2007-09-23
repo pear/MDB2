@@ -2605,7 +2605,7 @@ class MDB2_Driver_Common extends PEAR
                     'result class does not exist '.$class_name, __FUNCTION__);
                 return $err;
             }
-            $result = new $class_name($this, $result, $limit, $offset);
+            $result =& new $class_name($this, $result, $limit, $offset);
             if (!MDB2::isResultCommon($result)) {
                 $err =& $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                     'result class is not extended from MDB2_Result_Common', __FUNCTION__);
