@@ -19,6 +19,8 @@ $notes = <<<EOT
 - fixed bug #11906: quoteIdentifier fails for names with dots
 - fixed bug #11975: Extended::autoExecute() does not work with Oracle when using LOBs
   (patch by Pieter Meulen, van der)
+- fixed some E_STRICT errors with PHP5
+
 open todo items:
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering

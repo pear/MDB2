@@ -19,6 +19,7 @@ $notes = <<<EOT
   in the Reverse module
 - fixed bug #11753: NOTICEs in alterTable() in the Manager module
 - fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
+- fixed some E_STRICT errors with PHP5
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

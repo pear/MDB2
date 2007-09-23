@@ -19,6 +19,7 @@ $notes = <<<EOT
 - fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 - fixed bug #11933: avoid duplicate queries in the Reverse module and free results
   and prepared statement handles (thanks Jan Reitz)
+- fixed some E_STRICT errors with PHP5
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
