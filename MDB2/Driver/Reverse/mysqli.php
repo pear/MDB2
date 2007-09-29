@@ -197,7 +197,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 }
                 foreach ($types as $key => $type) {
                     $definition[$key] = $definition[0];
-                    if ($type == 'clob' || $type == 'blob') {
+                    if ($type == 'clob' || $type == 'blob' || $type == 'text') {
                         unset($definition[$key]['default']);
                     }
                     $definition[$key]['type'] = $type;
@@ -228,7 +228,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         list($schema, $table) = $this->splitTableSchema($table_name);
 
         $table = $db->quoteIdentifier($table, true);
@@ -303,7 +303,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         list($schema, $table) = $this->splitTableSchema($table_name);
         $constraint_name_original = $constraint_name;
 

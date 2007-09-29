@@ -143,7 +143,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                 }
                 foreach ($types as $key => $type) {
                     $definition[$key] = $definition[0];
-                    if ($type == 'clob' || $type == 'blob') {
+                    if ($type == 'clob' || $type == 'blob' || $type == 'text') {
                         unset($definition[$key]['default']);
                     }
                     $definition[$key]['type'] = $type;
@@ -337,7 +337,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                             return $definition;
                         }
                     }
-                    
+
                     return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                         $constraint_name . ' is not an existing table constraint', __FUNCTION__);
                 }
