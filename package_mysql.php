@@ -16,6 +16,7 @@ $notes = <<<EOT
 - fixed bug #11590: _getServerCapabilities() has to be called once per connection
 - fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 - fixed some E_STRICT errors with PHP5
+- fixed bug #12010: MDB2_PORTABILITY_RTRIM option was ignored
 - fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
   as documented
 
