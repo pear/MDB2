@@ -75,8 +75,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'unexpected empty table column definition list', __FUNCTION__);
         }
-        $regexp = '/^([^ ]+) (CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|SMALLINT|INT|INTEGER|DECIMAL|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( ?\(([1-9][0-9]*)(:([1-9][0-9]*))?\))?( UNSIGNED)?( PRIMARY KEY)?( DEFAULT (\'[^\']*\'|[^ ]+))?( NULL| NOT NULL)?( PRIMARY KEY)?$/i';
-        $regexp2 = '/^([^ ]+) (PRIMARY|UNIQUE|CHECK)$/i';
+        $regexp = '/^([^ ]+) +(CHAR|VARCHAR|VARCHAR2|TEXT|BOOLEAN|SMALLINT|INT|INTEGER|DECIMAL|BIGINT|DOUBLE|FLOAT|DATETIME|DATE|TIME|LONGTEXT|LONGBLOB)( ?\(([1-9][0-9]*)(:([1-9][0-9]*))?\))?( UNSIGNED)?( PRIMARY KEY)?( DEFAULT (\'[^\']*\'|[^ ]+))?( NULL| NOT NULL)?( PRIMARY KEY)?$/i';
+        $regexp2 = '/^([^ ]+) +(PRIMARY|UNIQUE|CHECK)$/i';
         for ($i=0, $j=0; $i<$count; ++$i) {
             if (!preg_match($regexp, trim($column_sql[$i]), $matches)) {
                 if (!preg_match($regexp2, trim($column_sql[$i]))) {
