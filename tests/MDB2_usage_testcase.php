@@ -774,6 +774,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
             $result_rows = $result->numRows();
 
+            $expected = ($start_row == $total_rows-1) ? 1 : $rows;
+            $this->assertEquals($expected, $result_rows, 'invalid number of rows returned');
             $this->assertTrue(($result_rows <= $rows), 'expected a result of no more than '.$rows.' but the returned number of rows is '.$result_rows);
 
             for ($row = 0; $row < $result_rows; $row++) {
@@ -1734,6 +1736,20 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
         }
         $this->assertEquals(rtrim($value), $result, '"MDB2_PORTABILITY_RTRIM = on" not working');
+
+        $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_RTRIM);
+        $value = ' ';
+        $query = 'INSERT INTO users (user_id, user_name) VALUES (2, ' . $this->db->quote($value, 'text') .')';
+        $res = $this->db->exec($query);
+        if (PEAR::isError($res)) {
+            $this->assertTrue(false, 'Error executing query: '.$res->getMessage());
+        }
+        $query = 'SELECT user_name FROM users WHERE user_id = 2';
+        $result = $this->db->queryOne($query, array('text'));
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+        }
+        $this->assertEquals(0, strlen($result), '"MDB2_PORTABILITY_RTRIM = on" not working');
 
         if (!$this->supported('LOBs')) {
             return;
