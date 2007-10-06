@@ -14,6 +14,7 @@ $notes = <<<EOT
 - fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 - fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
   as documented
+- fixed bug #12146: wrong regex in _getTableColumns($sql) in the Reverse module
 
 note:
 open todo items:
