@@ -1704,6 +1704,9 @@ class MDB2_Driver_Common extends PEAR
      * you SHOULD use them.  In general, they end up causing way more
      * problems than they solve.
      *
+     * NOTE: if you have table names containing periods, don't use this method
+     * (@see bug #11906)
+     *
      * Portability is broken by using the following characters inside
      * delimited identifiers:
      *   + backtick (<kbd>`</kbd>) -- due to MySQL
