@@ -222,8 +222,8 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
             return;
         }
         $result = $this->standardQuery();
-
         $this->assertTrue(MDB2::isResult($result), 'query: $result returned is not a resource');
+        $this->assertTrue(MDB2::isResultCommon($result), 'query: $result returned is not a resource');
     }
 
     function testExec() {
@@ -233,6 +233,15 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
         $result = $this->db->exec('UPDATE users SET user_name = user_name WHERE user_id = user_id');
         $this->assertFalse(PEAR::isError($result), 'exec: $result returned is an error');
         $this->assertEquals(0, $result, 'exec: incorrect number of affected rows returned');
+    }
+
+    function testPrepare() {
+        if (!$this->methodExists($this->db, 'prepare')) {
+            return;
+        }
+        $stmt = $this->db->prepare('SELECT user_name FROM users WHERE user_id = ?', array('integer'), MDB2_PREPARE_RESULT);
+        $this->assertTrue(MDB2::isStatement($stmt));
+        $stmt->free();
     }
 
     function testFetchRow() {
