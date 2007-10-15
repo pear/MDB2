@@ -702,7 +702,7 @@ class MDB2
      */
     function isStatement($value)
     {
-        return is_a($value, 'MDB2_Statement');
+        return is_a($value, 'MDB2_Statement_Common');
     }
 
     // }}}

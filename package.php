@@ -9,7 +9,7 @@ $state = 'stable';
 $notes = <<<EOT
 - fixed bug #10024: Security fix for LOBs. Added an option to turn lob_allow_url_include off by default
 - fixed bug #11179: prepared statements with named placeholders fail if extra values are provided
-- added support for "schema.table" (or "owner.table") notation in the Reverse module (request #11297)
+- request #11297: added support for "schema.table" (or "owner.table") notation in the Reverse module
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #11428: propagate quote() errors with invalid data types
 - added new test cases in the test suite
@@ -22,6 +22,7 @@ $notes = <<<EOT
 - fixed some E_STRICT errors with PHP5
 - fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
   as documented
+- fixed bug #12246: wrong check in MDB2::isStatement() (thanks to zaa@zaa.pp.ru)
 
 open todo items:
 - handle autoincrement fields in alterTable()
