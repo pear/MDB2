@@ -1391,8 +1391,8 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
     function numRows()
     {
         $rows = @mysql_num_rows($this->result);
-        if (is_null($rows)) {
-            if ($this->result === false) {
+        if (false === $rows) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
             } elseif (is_null($this->result)) {

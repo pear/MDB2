@@ -19,6 +19,7 @@ $notes = <<<EOT
 - fixed bug #12010: MDB2_PORTABILITY_RTRIM option was ignored
 - fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
   as documented
+- fixed bug #12217: mysql_num_rows() returns FALSE on failure, not NULL (thanks to zaa@zaa.pp.ru)
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
