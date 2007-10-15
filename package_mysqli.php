@@ -20,6 +20,8 @@ $notes = <<<EOT
 - fixed bug #12010: MDB2_PORTABILITY_RTRIM option was ignored
 - fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
   as documented
+- request #12213: usage of mysqli_options 'MYSQLI_SET_CHARSET_NAME' and mysqli_set_charset()
+  when available (patch by Carsten Wiedmann)
 
 open todo items:
 - use a trigger to emulate setting default now()

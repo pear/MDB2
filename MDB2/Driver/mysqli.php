@@ -196,6 +196,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                     1542 => MDB2_ERROR_CANNOT_DROP,
                     1546 => MDB2_ERROR_CONSTRAINT,
                     1582 => MDB2_ERROR_CONSTRAINT,
+                    2019 => MDB2_ERROR_INVALID,
                 );
             }
             if ($this->options['portability'] & MDB2_PORTABILITY_ERRORS) {
@@ -441,39 +442,33 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }
 
+        $connection = @mysqli_init();
+        if (!empty($this->dsn['charset']) && defined('MYSQLI_SET_CHARSET_NAME')) {
+            @mysqli_options($connection, MYSQLI_SET_CHARSET_NAME, $this->dsn['charset']);
+        }
+
+
         if ($this->options['ssl']) {
-            $init = @mysqli_init();
             @mysqli_ssl_set(
-                $init,
+                $connection,
                 empty($this->dsn['key'])    ? null : $this->dsn['key'],
                 empty($this->dsn['cert'])   ? null : $this->dsn['cert'],
                 empty($this->dsn['ca'])     ? null : $this->dsn['ca'],
                 empty($this->dsn['capath']) ? null : $this->dsn['capath'],
                 empty($this->dsn['cipher']) ? null : $this->dsn['cipher']
             );
-            if ($connection = @mysqli_real_connect(
-                    $init,
-                    $this->dsn['hostspec'],
-                    $this->dsn['username'],
-                    $this->dsn['password'],
-                    $this->database_name,
-                    $this->dsn['port'],
-                    $this->dsn['socket']))
-            {
-                $connection = $init;
-            }
-        } else {
-            $connection = @mysqli_connect(
-                $this->dsn['hostspec'],
-                $this->dsn['username'],
-                $this->dsn['password'],
-                $this->database_name,
-                $this->dsn['port'],
-                $this->dsn['socket']
-            );
         }
 
-        if (!$connection) {
+        if (!@mysqli_real_connect(
+            $connection,
+            $this->dsn['hostspec'],
+            $this->dsn['username'],
+            $this->dsn['password'],
+            $this->database_name,
+            $this->dsn['port'],
+            $this->dsn['socket']
+        )) {
+
             if (($err = @mysqli_connect_error()) != '') {
                 return $this->raiseError(null,
                     null, null, $err, __FUNCTION__);
@@ -483,7 +478,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
         }
 
-        if (!empty($this->dsn['charset'])) {
+        if (!empty($this->dsn['charset']) && !defined('MYSQLI_SET_CHARSET_NAME')) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
             if (PEAR::isError($result)) {
                 return $result;
@@ -540,8 +535,19 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 return $connection;
             }
         }
-        $query = "SET NAMES '".mysqli_real_escape_string($connection, $charset)."'";
-        return $this->_doQuery($query, true, $connection);
+        $client_info = mysqli_get_client_version();
+        if (OS_WINDOWS && ((40111 > $client_info) ||
+            ((50000 <= $client_info) && (50006 > $client_info)))
+        ) {
+            $query = "SET NAMES '".mysqli_real_escape_string($connection, $charset)."'";
+            return $this->_doQuery($query, true, $connection);
+        }
+        if (!$result = mysqli_set_charset($connection, $charset)) {
+            $err =& $this->raiseError(null, null, null,
+                'Could not set client character set', __FUNCTION__);
+            return $err;
+        }
+        return $result;
     }
 
     // }}}
