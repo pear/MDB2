@@ -143,7 +143,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                 }
                 foreach ($types as $key => $type) {
                     $definition[$key] = $definition[0];
-                    if ($type == 'clob' || $type == 'blob' || $type == 'text') {
+                    if ($type == 'clob' || $type == 'blob') {
                         unset($definition[$key]['default']);
                     }
                     $definition[$key]['type'] = $type;
