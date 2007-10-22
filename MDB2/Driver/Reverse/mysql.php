@@ -82,7 +82,7 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         list($schema, $table) = $this->splitTableSchema($table_name);
 
         $table = $db->quoteIdentifier($table, true);
-        $query = "SHOW COLUMNS FROM $table LIKE ".$db->quote($field_name);
+        $query = "SHOW FULL COLUMNS FROM $table LIKE ".$db->quote($field_name);
         $columns = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($columns)) {
             return $columns;
@@ -121,6 +121,11 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                 if (!empty($column['extra']) && $column['extra'] == 'auto_increment') {
                     $autoincrement = true;
                 }
+                $collate = null;
+                if (!empty($column['collation'])) {
+                    $collate = $column['collation'];
+                    $charset = preg_replace('/(.+?)(_.+)?/', '$1', $collate);
+                }
 
                 $definition[0] = array(
                     'notnull' => $notnull,
@@ -140,6 +145,10 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                 }
                 if ($autoincrement !== false) {
                     $definition[0]['autoincrement'] = $autoincrement;
+                }
+                if (!is_null($collate)) {
+                    $definition[0]['collate'] = $collate;
+                    $definition[0]['charset'] = $charset;
                 }
                 foreach ($types as $key => $type) {
                     $definition[$key] = $definition[0];

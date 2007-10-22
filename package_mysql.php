@@ -20,6 +20,7 @@ $notes = <<<EOT
 - fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
   as documented
 - fixed bug #12217: mysql_num_rows() returns FALSE on failure, not NULL (thanks to zaa@zaa.pp.ru)
+- fixed bug #12242: missing charset info in the Reverse module (patch by Carsten Wiedmann)
 - fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
   as first option
 
