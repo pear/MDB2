@@ -446,6 +446,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
                 }
             } elseif (strstr($db_type, 'text')) {
                 $type[] = 'clob';
+                $type = array_reverse($type);
             }
             if ($fixed !== false) {
                 $fixed = true;

@@ -318,6 +318,9 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
             $length = 8;
             break;
         case 'clob':
+            $type[] = 'clob';
+            $fixed  = false;
+            break;
         case 'tinytext':
         case 'mediumtext':
         case 'longtext':
@@ -334,6 +337,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
                 }
             } elseif (strstr($db_type, 'text')) {
                 $type[] = 'clob';
+                $type = array_reverse($type);
             }
             if ($fixed !== false) {
                 $fixed = true;

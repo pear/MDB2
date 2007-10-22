@@ -292,6 +292,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
             $type[] = 'text';
             if (strstr($db_type, 'text')) {
                 $type[] = 'clob';
+                $type = array_reverse($type);
             }
             if ($fixed !== false) {
                 $fixed = true;

@@ -17,6 +17,8 @@ $notes = <<<EOT
 - fixed bug #12010: MDB2_PORTABILITY_RTRIM option was ignored
 - fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
   as documented
+- fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
+  as first option
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

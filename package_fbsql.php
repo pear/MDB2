@@ -44,6 +44,8 @@ $notes = <<<EOT
 - fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
 - fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
   as documented
+- fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
+  as first option
 
 note:
 - this driver needs a serious update as it's currently unmaintained/untested

@@ -22,6 +22,8 @@ $notes = <<<EOT
   as documented
 - request #12213: usage of mysqli_options 'MYSQLI_SET_CHARSET_NAME' and mysqli_set_charset()
   when available (patch by Carsten Wiedmann)
+- fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
+  as first option
 
 open todo items:
 - use a trigger to emulate setting default now()

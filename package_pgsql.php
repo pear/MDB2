@@ -22,6 +22,8 @@ $notes = <<<EOT
 - fixed some E_STRICT errors with PHP5
 - fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
   as documented
+- fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
+  as first option
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

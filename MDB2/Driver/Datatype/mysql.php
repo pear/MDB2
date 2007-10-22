@@ -361,7 +361,6 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
         case 'mediumtext':
         case 'longtext':
         case 'text':
-        case 'text':
         case 'varchar':
             $fixed = false;
         case 'string':
@@ -377,6 +376,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
                 if ($decimal == 'binary') {
                     $type[] = 'blob';
                 }
+                $type = array_reverse($type);
             }
             if ($fixed !== false) {
                 $fixed = true;
