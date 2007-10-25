@@ -208,6 +208,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                     $definition[$key] = $definition[0];
                     if ($type == 'clob' || $type == 'blob') {
                         unset($definition[$key]['default']);
+                    } elseif ($type == 'timestamp' && $notnull && empty($definition[$key]['default'])) {
+                        $definition[$key]['default'] = '0000-00-00 00:00:00';
                     }
                     $definition[$key]['type'] = $type;
                     $definition[$key]['mdb2type'] = $type;

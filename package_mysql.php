@@ -23,6 +23,7 @@ $notes = <<<EOT
 - fixed bug #12242: missing charset info in the Reverse module (patch by Carsten Wiedmann)
 - fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
   as first option
+- fixed bug #12336: supply default value for NOT NULL timestamp fields
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

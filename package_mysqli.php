@@ -25,6 +25,7 @@ $notes = <<<EOT
 - fixed bug #12242: missing charset info in the Reverse module (patch by Carsten Wiedmann)
 - fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
   as first option
+- fixed bug #12336: supply default value for NOT NULL timestamp fields
 
 open todo items:
 - use a trigger to emulate setting default now()
