@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.5.3" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.6.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mssql</name>
  <channel>pear.php.net</channel>
  <summary>mssql MDB2 driver</summary>
@@ -28,20 +28,30 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2007-05-03</date>
- <time>20:54:38</time>
+ <date>2007-10-28</date>
+ <time>21:02:04</time>
  <version>
-  <release>1.2.1</release>
-  <api>1.2.1</api>
+  <release>1.3.0a1</release>
+  <api>1.3.0a1</api>
  </version>
  <stability>
-  <release>stable</release>
-  <api>stable</api>
+  <release>alpha</release>
+  <api>alpha</api>
  </stability>
  <license>BSD License</license>
- <notes>- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
-- in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
-  module, also return the field position in the index/constraint
+ <notes>- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+- fixed bug #9735, #11175, #11228: two instances fail to keep different databases selected
+- request #11297: added support for &quot;schema.table&quot; notation in the Reverse module
+- request #11445: added support for unicode datatypes (nchar, nvarchar, ntext)
+- fixed bug #11479: wrong query in nextID()
+- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
+- request #11797: don&apos;t use mssql_field_name() in listTableFields() in the Manager module
+  since it only returns the first 30 chars
+- fixed bug #12010: MDB2_PORTABILITY_RTRIM option was ignored
+- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
+  as documented
+- fixed bug #12269: tableInfo() in the Reverse module detect &apos;clob&apos; data type
+  as first option
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)</notes>
@@ -96,7 +106,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.4.1</min>
+    <min>2.5.0a1</min>
    </package>
    <extension>
     <name>mssql</name>
@@ -105,6 +115,34 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.3.0a1</release>
+    <api>1.3.0a1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2007-10-28</date>
+   <license>BSD License</license>
+   <notes>- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+- fixed bug #9735, #11175, #11228: two instances fail to keep different databases selected
+- request #11297: added support for &quot;schema.table&quot; notation in the Reverse module
+- request #11445: added support for unicode datatypes (nchar, nvarchar, ntext)
+- fixed bug #11479: wrong query in nextID()
+- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
+- request #11797: don&apos;t use mssql_field_name() in listTableFields() in the Manager module
+  since it only returns the first 30 chars
+- fixed bug #12010: MDB2_PORTABILITY_RTRIM option was ignored
+- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
+  as documented
+- fixed bug #12269: tableInfo() in the Reverse module detect &apos;clob&apos; data type
+  as first option
+
+open todo items:
+- explore fast limit/offset emulation (Request #4544)</notes>
+  </release>
   <release>
    <version>
     <release>1.2.1</release>

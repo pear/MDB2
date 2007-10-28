@@ -3,8 +3,8 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'XXX';
-$state = 'stable';
+$version = '1.5.0a1';
+$state = 'alpha';
 $notes = <<<EOT
 - initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #10969: execute() does not bind reference variables (patch by Charles Woodcock)
@@ -26,9 +26,9 @@ $notes = <<<EOT
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
  (binaries are available from snaps.php.net and pecl4win.php.net)
-- by default this driver emulates the database concept other RDBMS have by this
-  using the "database" instead of "username" in the DSN as the username name.
-  behaviour can be disabled by setting the "emulate_database" option to false.
+- by default this driver emulates the database concept other RDBMS have by 
+  using the "database" option instead of "username" in the DSN as the username name.
+  This behaviour can be disabled by setting the "emulate_database" option to false.
 - the multi_query test failes because this is not supported by ext/oci8
 - the null LOB test failes because this is not supported by Oracle
 
@@ -58,7 +58,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a1');
 $package->addExtensionDep('required', 'oci8');
 
 $package->addRelease();

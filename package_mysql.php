@@ -3,8 +3,8 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'XXX';
-$state = 'stable';
+$version = '1.5.0a1';
+$state = 'alpha';
 $notes = <<<EOT
 - fixed bug #10024: Added new option 'lob_allow_url_include' (default false) to
   [dis]allow inserting a LOB from an url (file, http, ...).
@@ -53,7 +53,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a1');
 $package->addExtensionDep('required', 'mysql');
 
 $package->addRelease();
