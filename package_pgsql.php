@@ -3,27 +3,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0a1';
+$version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
-- fixed bug #10986: Using more random statement names (request #11625)
-- request #11297: added support for "schema.table" (or "owner.table") notation
-  in the Reverse module (related to bug #11207)
-- fixed bug #11428: propagate quote() errors with invalid data types
-- fixed bug in MDB2_Statement_pgsql::_execute(), called property of invalid object
-- fixed bug #11624: getSequenceName() returning incorrect results with multiple
-  schemas and 'SET search_path'
-- fixed bug #11652: failed prepared queries containing the "::type" style of casting
-- fixed bug #11694: remove data type cast from DEFAULT value in getTableFieldDefinition()
-  in the Reverse module
-- fixed bug #11753: NOTICEs in alterTable() in the Manager module
-- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
-- fixed some E_STRICT errors with PHP5
-- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
-  as documented
-- fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
-  as first option
+- 
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
@@ -53,7 +36,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'pgsql');
 
 $package->addRelease();

@@ -3,15 +3,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0a1';
+$version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
-- fixed bug #11428: propagate quote() errors with invalid data types
-- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
-- fixed some E_STRICT errors with PHP5
-- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
-  as documented
+- 
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
@@ -35,7 +30,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.4');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'interbase');
 
 $package->addRelease();

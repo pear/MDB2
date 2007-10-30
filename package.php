@@ -3,26 +3,11 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version_release = '2.5.0a1';
+$version_release = 'XXX';
 $version_api = $version_release;
 $state = 'alpha';
 $notes = <<<EOT
-- fixed bug #10024: Security fix for LOBs. Added an option to turn lob_allow_url_include off by default
-- fixed bug #11179: prepared statements with named placeholders fail if extra values are provided
-- request #11297: added support for "schema.table" (or "owner.table") notation in the Reverse module
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
-- fixed bug #11428: propagate quote() errors with invalid data types
-- added new test cases in the test suite
-- added LENGTH() function in the Function module
-- fixed bug #11612: raiseError() must be compatible with PEAR::raiseError() [PHP6]
-- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
-- fixed bug #11906: quoteIdentifier fails for names with dots
-- fixed bug #11975: Extended::autoExecute() does not work with Oracle when using LOBs
-  (patch by Pieter Meulen, van der)
-- fixed some E_STRICT errors with PHP5
-- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
-  as documented
-- fixed bug #12246: wrong check in MDB2::isStatement() (thanks to zaa@zaa.pp.ru)
+- 
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -109,21 +94,21 @@ $package->addPackageDepWithChannel('required', 'PEAR', 'pear.php.net', '1.3.6');
 $package->addDependencyGroup('fbsql', 'Frontbase SQL driver for MDB2');
 $package->addGroupPackageDepWithChannel('subpackage', 'fbsql', 'MDB2_Driver_fbsql', 'pear.php.net', '0.3.0');
 $package->addDependencyGroup('ibase', 'Interbase/Firebird driver for MDB2');
-$package->addGroupPackageDepWithChannel('subpackage', 'ibase', 'MDB2_Driver_ibase', 'pear.php.net', '1.5.0a1');
+$package->addGroupPackageDepWithChannel('subpackage', 'ibase', 'MDB2_Driver_ibase', 'pear.php.net', 'XXX');
 $package->addDependencyGroup('mysql', 'MySQL driver for MDB2');
-$package->addGroupPackageDepWithChannel('subpackage', 'mysql', 'MDB2_Driver_mysql', 'pear.php.net', '1.5.0a1');
+$package->addGroupPackageDepWithChannel('subpackage', 'mysql', 'MDB2_Driver_mysql', 'pear.php.net', 'XXX');
 $package->addDependencyGroup('mysqli', 'MySQLi driver for MDB2');
-$package->addGroupPackageDepWithChannel('subpackage', 'mysqli', 'MDB2_Driver_mysqli', 'pear.php.net', '1.5.0a1');
+$package->addGroupPackageDepWithChannel('subpackage', 'mysqli', 'MDB2_Driver_mysqli', 'pear.php.net', 'XXX');
 $package->addDependencyGroup('mssql', 'MS SQL Server driver for MDB2');
-$package->addGroupPackageDepWithChannel('subpackage', 'mssql', 'MDB2_Driver_mssql', 'pear.php.net', '1.3.0a1');
+$package->addGroupPackageDepWithChannel('subpackage', 'mssql', 'MDB2_Driver_mssql', 'pear.php.net', 'XXX');
 $package->addDependencyGroup('oci8', 'Oracle driver for MDB2');
-$package->addGroupPackageDepWithChannel('subpackage', 'oci8', 'MDB2_Driver_oci8', 'pear.php.net', '1.5.0a1');
+$package->addGroupPackageDepWithChannel('subpackage', 'oci8', 'MDB2_Driver_oci8', 'pear.php.net', 'XXX');
 $package->addDependencyGroup('pgsql', 'PostgreSQL driver for MDB2');
-$package->addGroupPackageDepWithChannel('subpackage', 'pgsql', 'MDB2_Driver_pgsql', 'pear.php.net', '1.5.0a1');
+$package->addGroupPackageDepWithChannel('subpackage', 'pgsql', 'MDB2_Driver_pgsql', 'pear.php.net', 'XXX');
 $package->addDependencyGroup('querysim', 'Querysim driver for MDB2');
 $package->addGroupPackageDepWithChannel('subpackage', 'querysim', 'MDB2_Driver_querysim', 'pear.php.net', '0.6.0');
 $package->addDependencyGroup('sqlite', 'SQLite2 driver for MDB2');
-$package->addGroupPackageDepWithChannel('subpackage', 'sqlite', 'MDB2_Driver_sqlite', 'pear.php.net', '1.5.0a1');
+$package->addGroupPackageDepWithChannel('subpackage', 'sqlite', 'MDB2_Driver_sqlite', 'pear.php.net', 'XXX');
 
 $package->addRelease();
 $package->generateContents();

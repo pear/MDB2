@@ -3,29 +3,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0a1';
+$version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- fixed bug #10024: Added new option 'lob_allow_url_include' (default false) to
-  [dis]allow inserting a LOB from an url (file, http, ...).
-- fixed bug #10986: Using more random statement names (request #11625)
-- fixed bug #11055: Using placeholders with := variable assignment fails [bekarau]
-- initial support for FOREIGN KEY constraints in the Manager and Reverse modules
-- request #11389: added many new MySQL 5.1 error codes in errorInfo()
-- fixed bug #11428: propagate quote() errors with invalid data types
-- fixed bug in _modifyQuery() when using SELECT FOR UPDATE or similar queries
-- fixed bug #11590: _getServerCapabilities() has to be called once per connection
-- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
-- fixed some E_STRICT errors with PHP5
-- fixed bug #12010: MDB2_PORTABILITY_RTRIM option was ignored
-- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
-  as documented
-- request #12213: usage of mysqli_options 'MYSQLI_SET_CHARSET_NAME' and mysqli_set_charset()
-  when available (patch by Carsten Wiedmann)
-- fixed bug #12242: missing charset info in the Reverse module (patch by Carsten Wiedmann)
-- fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
-  as first option
-- fixed bug #12336: supply default value for NOT NULL timestamp fields
+- 
 
 open todo items:
 - use a trigger to emulate setting default now()
@@ -52,7 +33,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'mysqli');
 
 $package->addRelease();
