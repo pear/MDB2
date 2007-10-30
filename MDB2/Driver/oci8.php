@@ -826,7 +826,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     }
                 }
                 if ($placeholder_type == ':') {
-                    $parameter = preg_replace('/^.{'.($position+1).'}([a-z0-9_]+).*$/si', '\\1', $query);
+                    $parameter = preg_replace('/^.{'.($position+1).'}([a-z][a-z0-9_]*).*$/si', '\\1', $query);
                     if ($parameter === '') {
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter with an empty name', __FUNCTION__);

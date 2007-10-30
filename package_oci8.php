@@ -3,25 +3,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0a1';
+$version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
-- fixed bug #10969: execute() does not bind reference variables (patch by Charles Woodcock)
-- request #11297: added support for "owner.table" notation in the Manager and Reverse modules
-- fixed bug #11428: propagate quote() errors with invalid data types
-- use prepared queries in the list*() methods of the Manager module and in the
-  Reverse module (thanks to Hugh Dixon)
-- add support for "owner" parameter in listViews(), listFunctions(), listTables(),
-  listSequences() in the Manager module
-- added listTableTriggers() in the Manager module
-- do not list constraints in listTableIndexes() in the Manager module
-- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
-- fixed bug #11933: avoid duplicate queries in the Reverse module and free results
-  and prepared statement handles (thanks Jan Reitz)
-- fixed some E_STRICT errors with PHP5
-- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
-  as documented
+- fixed named parameter validation regexp in prepared queries
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
