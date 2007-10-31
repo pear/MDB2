@@ -387,7 +387,7 @@ class MDB2
             return $err;
         }
 
-        $db = new $class_name();
+        $db =& new $class_name();
         $db->setDSN($dsninfo);
         $err = MDB2::setOptions($db, $options);
         if (PEAR::isError($err)) {
