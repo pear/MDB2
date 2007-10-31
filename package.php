@@ -7,7 +7,8 @@ $version_release = 'XXX';
 $version_api = $version_release;
 $state = 'alpha';
 $notes = <<<EOT
-- 
+- fixed bug #12358: E_STRICT changes in latest alpha broke PHP4 compatibility
+
 
 open todo items:
 - handle autoincrement fields in alterTable()
