@@ -1670,11 +1670,6 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Quotes pattern (% and _) characters in a string)
      *
-     * EXPERIMENTAL
-     *
-     * WARNING: this function is experimental and may change signature at
-     * any time until labelled as non-experimental
-     *
      * @param   string  the input string to quote
      *
      * @return  string  quoted string
