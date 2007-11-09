@@ -8,6 +8,8 @@ $state = 'alpha';
 $notes = <<<EOT
 - fixed bug #12376: getTableConstraintDefinition() in the Reverse module
   uses incorrect column number in certain cases (thanks to Dennis Birne)
+- request #12338: added 'disable_smart_seqname' option to make improved
+  getSequenceName() behaviour optional (thanks to Dennis Birne) (@see bug #9106)
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
