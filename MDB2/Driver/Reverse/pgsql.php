@@ -271,7 +271,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                          CASE WHEN c.contype = 'u' THEN 1 ELSE 0 END AS \"unique\",
                          CASE WHEN c.condeferrable = 'f' THEN 0 ELSE 1 END AS deferrable,
                          CASE WHEN c.condeferred = 'f' THEN 0 ELSE 1 END AS initiallydeferred,
-                         array_to_string(c.conkey, ' ') AS constraint_key,
+                         --array_to_string(c.conkey, ' ') AS constraint_key,
                          t.relname AS table_name,
                          t2.relname AS references_table,
                          CASE confupdtype
@@ -293,7 +293,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                            WHEN 'f' THEN 'FULL'
                            WHEN 'p' THEN 'PARTIAL'
                          END AS match,
-                         array_to_string(c.confkey, ' ') AS fk_constraint_key,
+                         --array_to_string(c.confkey, ' ') AS fk_constraint_key,
                          consrc
                     FROM pg_constraint c
                LEFT JOIN pg_class t  ON c.conrelid  = t.oid
@@ -304,7 +304,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         $row = $db->queryRow(sprintf($query, $db->quote($constraint_name_mdb2, 'text')), null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($row) || empty($row)) {
             // fallback to the given $index_name, without transformation
-            $row = $db->queryRow(sprintf($query, $db->quote($constraint_name, 'text')), null, MDB2_FETCHMODE_ASSOC);
+            $constraint_name_mdb2 = $constraint_name;
+            $row = $db->queryRow(sprintf($query, $db->quote($constraint_name_mdb2, 'text')), null, MDB2_FETCHMODE_ASSOC);
         }
         if (PEAR::isError($row)) {
             return $row;
@@ -317,9 +318,6 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 
         $row = array_change_key_case($row, CASE_LOWER);
 
-        $db->loadModule('Manager', null, true);
-        $columns = $db->manager->listTableFields($table_name);
-
         $definition = array(
             'primary' => (boolean)$row['primary'],
             'unique'  => (boolean)$row['unique'],
@@ -327,31 +325,50 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             'check'   => (boolean)$row['check'],
             'fields'  => array(),
             'references' => array(
-                'table' => $row['references_table'],
+                'table'  => $row['references_table'],
                 'fields' => array(),
             ),
-            'deferrable'    => (boolean)$row['deferrable'],
+            'deferrable' => (boolean)$row['deferrable'],
             'initiallydeferred' => (boolean)$row['initiallydeferred'],
             'onupdate' => $row['onupdate'],
             'ondelete' => $row['ondelete'],
             'match'    => $row['match'],
         );
 
-        $index_column_numbers = explode(' ', $row['constraint_key']);
+        $query = 'SELECT a.attname
+                    FROM pg_constraint c
+               LEFT JOIN pg_class t  ON c.conrelid  = t.oid
+               LEFT JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY(c.conkey)
+                   WHERE c.conname = %s
+                     AND t.relname = ' . $db->quote($table, 'text');
+        $constraint_name_mdb2 = $db->getIndexName($constraint_name);
+        $fields = $db->queryCol(sprintf($query, $db->quote($constraint_name_mdb2, 'text')), null);
+        if (PEAR::isError($fields)) {
+            return $fields;
+        }
         $colpos = 1;
-        foreach ($index_column_numbers as $number) {
-            $definition['fields'][$columns[($number - 1)]] = array(
+        foreach ($fields as $field) {
+            $definition['fields'][$field] = array(
                 'position' => $colpos++,
                 'sorting' => 'ascending',
             );
         }
         
         if ($definition['foreign']) {
-            $columns = $db->manager->listTableFields($definition['references']['table']);
-            $column_numbers = explode(' ', $row['fk_constraint_key']);
+            $query = 'SELECT a.attname
+                        FROM pg_constraint c
+                   LEFT JOIN pg_class t  ON c.confrelid  = t.oid
+                   LEFT JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY(c.conkey)
+                       WHERE c.conname = %s
+                         AND t.relname = ' . $db->quote($definition['references']['table'], 'text');
+            $constraint_name_mdb2 = $db->getIndexName($constraint_name);
+            $foreign_fields = $db->queryCol(sprintf($query, $db->quote($constraint_name_mdb2, 'text')), null);
+            if (PEAR::isError($foreign_fields)) {
+                return $foreign_fields;
+            }
             $colpos = 1;
-            foreach ($column_numbers as $number) {
-                $definition['references']['fields'][$columns[($number - 1)]] = array(
+            foreach ($foreign_fields as $foreign_field) {
+                $definition['references']['fields'][$foreign_field] = array(
                     'position' => $colpos++,
                 );
             }

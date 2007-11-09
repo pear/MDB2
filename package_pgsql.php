@@ -6,7 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- 
+- fixed bug #12376: getTableConstraintDefinition() in the Reverse module
+  uses incorrect column number in certain cases (thanks to Dennis Birne)
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
