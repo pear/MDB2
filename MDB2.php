@@ -1141,6 +1141,7 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['emulate_prepared'] -> boolean: force prepared statements to be emulated</li>
      *  <li>$options['datatype_map'] -> array: map user defined datatypes to other primitive datatypes</li>
      *  <li>$options['datatype_map_callback'] -> array: callback function/method that should be called</li>
+     *  <li>$options['bindname_format'] -> string: regular expression pattern for named parameters
      * </ul>
      *
      * @var     array
@@ -1188,7 +1189,7 @@ class MDB2_Driver_Common extends PEAR
         'datatype_map_callback' => array(),
         'nativetype_map_callback' => array(),
         'lob_allow_url_include' => false,
-        'bindname_format' => '(?:\d+)|(?:[a-z][a-z0-9_]*)',
+        'bindname_format' => '(?:\d+)|(?:[a-zA-Z][a-zA-Z0-9_]*)',
     );
 
     /**
@@ -2852,8 +2853,8 @@ class MDB2_Driver_Common extends PEAR
      * 'INSERT INTO numbers VALUES(?,?)' or
      * 'INSERT INTO numbers VALUES(:foo,:bar)'.
      * The ? and :name and are placeholders which can be set using
+     * bindParam() and the query can be sent off using the execute() method.
      * The allowed format for :name can be set with the 'bindname_format' option.
-     * bindParam() and the query can be send off using the execute() method.
      *
      * @param   string  the query to prepare
      * @param   mixed   array that contains the types of the placeholders
