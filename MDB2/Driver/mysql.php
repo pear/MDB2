@@ -859,8 +859,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      * 'INSERT INTO numbers VALUES(?,?)' or
      * 'INSERT INTO numbers VALUES(:foo,:bar)'.
      * The ? and :name and are placeholders which can be set using
+     * bindParam() and the query can be sent off using the execute() method.
      * The allowed format for :name can be set with the 'bindname_format' option.
-     * bindParam() and the query can be send off using the execute() method.
      *
      * @param string $query the query to prepare
      * @param mixed   $types  array that contains the types of the placeholders
