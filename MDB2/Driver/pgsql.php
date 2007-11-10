@@ -782,7 +782,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      * 'INSERT INTO numbers VALUES(:foo,:bar)'.
      * The ? and :name and are placeholders which can be set using
      * The allowed format for :name can be set with the 'bindname_format' option.
-     * bindParam() and the query can be send off using the execute() method.
+     * bindParam() and the query can be sent off using the execute() method.
      *
      * @param string $query the query to prepare
      * @param mixed   $types  array that contains the types of the placeholders
@@ -868,15 +868,15 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     $name = $parameter;
                 } else {
                     $regexp = '/^.{'.($position+1).'}('.$this->options['bindname_format'].').*$/s';
-                    $parameter = preg_replace($regexp, '\\1', $query);
-                    if ($parameter === '') {
+                    $param = preg_replace($regexp, '\\1', $query);
+                    if ($param === '') {
                         $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter name must match "bindname_format" option', __FUNCTION__);
                         return $err;
                     }
-                    $length = strlen($parameter) + 1;
+                    $length = strlen($param) + 1;
+                    $name = $param;
                 }
-                $name = $parameter;
                 if ($pgtypes !== false) {
                     if (is_array($types) && array_key_exists($name, $types)) {
                         $pgtypes[] = $this->datatype->mapPrepareDatatype($types[$name]);
