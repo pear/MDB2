@@ -6,7 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- 
+- fixed bug #11571: when using setLimit(), numRows() returns wrong values
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
