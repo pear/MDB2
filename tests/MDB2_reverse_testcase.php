@@ -232,9 +232,8 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             }
         }
 
-        //mysql ignores custom FK names and follows this syntax:
-        $this->fk_constraint1_name = $this->table2.'_ibfk_1';
-        $this->fk_constraint2_name = $this->table2.'_ibfk_2';
+        $this->fk_constraint1_name = $this->table2.'_fk_on_'.$this->table.'_id';
+        $this->fk_constraint2_name = $this->table2.'_fk_on_'.$this->table.'_id2_id3';
         $this->constraints2 = array(
             $this->fk_constraint1_name => array(
                 'primary' => false,

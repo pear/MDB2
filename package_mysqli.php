@@ -6,7 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- 
+- fixed bug #12516: error in FK constraint creation query
 
 open todo items:
 - use a trigger to emulate setting default now()

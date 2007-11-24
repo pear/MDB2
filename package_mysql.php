@@ -6,7 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- 
+- fixed bug #12516: error in FK constraint creation query
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

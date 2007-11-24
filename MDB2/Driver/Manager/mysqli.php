@@ -785,7 +785,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         } elseif (!empty($definition['unique'])) {
             $type = 'UNIQUE';
         } elseif (!empty($definition['foreign'])) {
-            $type = 'FOREIGN KEY';
+            $type = 'CONSTRAINT';
         }
         if (empty($type)) {
             return $db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
@@ -794,6 +794,9 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table, true);
         $query = "ALTER TABLE $table ADD $type $name";
+        if (!empty($definition['foreign'])) {
+            $query .= ' FOREIGN KEY ';
+        }
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
             $fields[] = $db->quoteIdentifier($field, true);
