@@ -133,7 +133,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
 
         $column = array_change_key_case($column, CASE_LOWER);
         $mapped_datatype = $db->datatype->mapNativeDatatype($column);
-        if (PEAR::IsError($mapped_datatype)) {
+        if (PEAR::isError($mapped_datatype)) {
             return $mapped_datatype;
         }
         list($types, $length, $unsigned, $fixed) = $mapped_datatype;

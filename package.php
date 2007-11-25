@@ -8,7 +8,8 @@ $version_api = $version_release;
 $state = 'alpha';
 $notes = <<<EOT
 - fixed bug #12358: E_STRICT changes in latest alpha broke PHP4 compatibility
-
+- fixed bug #12351: wrong case for function PEAR::isError() in the Reverse module
+  [was: IsError()]
 
 open todo items:
 - handle autoincrement fields in alterTable()
