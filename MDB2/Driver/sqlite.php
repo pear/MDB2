@@ -140,6 +140,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                     '/uniqueness constraint failed/' => MDB2_ERROR_CONSTRAINT,
                     '/may not be NULL/' => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                     '/^no such column:/' => MDB2_ERROR_NOSUCHFIELD,
+                    '/no column named/' => MDB2_ERROR_NOSUCHFIELD,
                     '/column not present in both tables/i' => MDB2_ERROR_NOSUCHFIELD,
                     '/^near ".*": syntax error$/' => MDB2_ERROR_SYNTAX,
                     '/[0-9]+ values for [0-9]+ columns/i' => MDB2_ERROR_VALUE_COUNT_ON_ROW,

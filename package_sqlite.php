@@ -6,7 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- 
+- fixed bug #12105: new error message in the SQLite driver (patch by Adam Ashley)
 
 note:
 open todo items:
