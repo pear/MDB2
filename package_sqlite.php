@@ -7,6 +7,8 @@ $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
 - fixed bug #12105: new error message in the SQLite driver (patch by Adam Ashley)
+- fixed bug #12145: missing optional spaces in regexp in _getTableColumns() in the
+  Reverse module
 
 note:
 open todo items:
