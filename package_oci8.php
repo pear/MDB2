@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
 - fixed named parameter validation regexp in prepared queries
+- fixed bug #12552: _makeAutoincrement() not quoting the sequence name in the Manager module
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8

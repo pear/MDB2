@@ -177,8 +177,9 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db->raiseError($result, null, null,
                 'sequence for autoincrement PK could not be created', __FUNCTION__);
         }
-        $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $db->quoteIdentifier($table . '_AI_PK', true);
+        $sequence_name         = $db->getSequenceName($table);
+        $trigger_name          = $db->quoteIdentifier($table . '_AI_PK', true);
+        $sequence_name_quoted  = $db->quoteIdentifier($sequence_name, true);
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->quoteIdentifier($name, true);
         $trigger_sql = '
@@ -190,16 +191,16 @@ DECLARE
    last_Sequence NUMBER;
    last_InsertID NUMBER;
 BEGIN
-   SELECT '.$sequence_name.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
+   SELECT '.$sequence_name_quoted.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
    IF (:NEW.'.$name.' IS NULL OR :NEW.'.$name.' = 0) THEN
-      SELECT '.$sequence_name.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
+      SELECT '.$sequence_name_quoted.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
         FROM User_Sequences
        WHERE UPPER(Sequence_Name) = UPPER(\''.$sequence_name.'\');
       SELECT :NEW.'.$name.' INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
-         SELECT '.$sequence_name.'.NEXTVAL INTO last_Sequence FROM DUAL;
+         SELECT '.$sequence_name_quoted.'.NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
    END IF;
 END;
