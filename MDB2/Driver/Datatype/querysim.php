@@ -57,7 +57,6 @@ require_once 'MDB2/Driver/Datatype/Common.php';
  */
 class MDB2_Driver_Datatype_querysim extends MDB2_Driver_Datatype_Common
 {
-    // }}}
     // {{{ getTypeDeclaration()
 
     /**
@@ -93,6 +92,8 @@ class MDB2_Driver_Datatype_querysim extends MDB2_Driver_Datatype_Common
         return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'method not implemented', __FUNCTION__);
     }
+
+    // }}}
 }
 
 ?>
