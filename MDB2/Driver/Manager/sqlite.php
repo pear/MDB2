@@ -63,11 +63,13 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     /**
      * create a new database
      *
-     * @param string $name name of the database that should be created
+     * @param string $name    name of the database that should be created
+     * @param array  $options array with charset info
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createDatabase($name)
+    function createDatabase($name, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -84,6 +86,10 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (!$handle) {
             return $db->raiseError(MDB2_ERROR_CANNOT_CREATE, null, null,
                 (isset($php_errormsg) ? $php_errormsg : 'could not create the database file'), __FUNCTION__);
+        }
+        if (!empty($options['charset'])) {
+            $query = 'PRAGMA encoding = ' . $db->quote($options['charset'], 'text');
+            @sqlite_query($query, $handle);
         }
         @sqlite_close($handle);
         return MDB2_OK;

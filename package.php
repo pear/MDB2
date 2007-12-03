@@ -11,6 +11,8 @@ $notes = <<<EOT
 - fixed bug #12351: wrong case for function PEAR::isError() in the Reverse module
   [was: IsError()]
 - fixed bug #12530: MDB2_Extended::autoPrepare() gives error if $types is null
+- request #12012: added charset/collation support in createDatabase() for the
+  drivers that support this feature
 
 open todo items:
 - handle autoincrement fields in alterTable()

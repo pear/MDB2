@@ -60,12 +60,13 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     /**
      * create a new database
      *
-     * @param object $db database object that is extended by this class
-     * @param string $name name of the database that should be created
+     * @param string $name    name of the database that should be created
+     * @param array  $options array with charset, collation info
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createDatabase($name)
+    function createDatabase($name, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {

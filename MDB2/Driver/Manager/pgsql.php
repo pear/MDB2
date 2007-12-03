@@ -60,19 +60,25 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
     /**
      * create a new database
      *
-     * @param string $name name of the database that should be created
+     * @param string $name    name of the database that should be created
+     * @param array  $options array with charset info
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createDatabase($name)
+    function createDatabase($name, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name, true);
-        return $db->standaloneQuery("CREATE DATABASE $name", null, true);
+        $name  = $db->quoteIdentifier($name, true);
+        $query = 'CREATE DATABASE ' . $name;
+        if (!empty($options['charset'])) {
+            $query .= ' WITH ENCODING ' . $db->quote($options['charset'], 'text');
+        }
+        return $db->standaloneQuery($query, null, true);
     }
 
     // }}}

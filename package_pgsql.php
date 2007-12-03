@@ -10,7 +10,8 @@ $notes = <<<EOT
   uses incorrect column number in certain cases (thanks to Dennis Birne)
 - request #12338: added 'disable_smart_seqname' option to make improved
   getSequenceName() behaviour optional (thanks to Dennis Birne) (@see bug #9106)
-
+- request #12012: added collation support in createDatabase()
+  
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)

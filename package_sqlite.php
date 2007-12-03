@@ -9,6 +9,8 @@ $notes = <<<EOT
 - fixed bug #12105: new error message in the SQLite driver (patch by Adam Ashley)
 - fixed bug #12145: missing optional spaces in regexp in _getTableColumns() in the
   Reverse module
+- request #12012: added charset support in createDatabase() and collation support
+  in createTable() for table fields
 
 note:
 open todo items:

@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
 - fixed bug #12516: error in FK constraint creation query
+- request #12012: added charset/collation support in createDatabase()
 
 open todo items:
 - use a trigger to emulate setting default now()

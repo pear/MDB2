@@ -63,19 +63,27 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     /**
      * create a new database
      *
-     * @param string $name name of the database that should be created
+     * @param string $name    name of the database that should be created
+     * @param array  $options array with charset, collation info
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createDatabase($name)
+    function createDatabase($name, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $name = $db->quoteIdentifier($name, true);
-        $query = "CREATE DATABASE $name";
+        $name  = $db->quoteIdentifier($name, true);
+        $query = 'CREATE DATABASE ' . $name;
+        if (!empty($options['charset'])) {
+            $query .= ' DEFAULT CHARACTER SET ' . $options['charset'];
+        }
+        if (!empty($options['collation'])) {
+            $query .= ' COLLATE ' . $options['collation'];
+        }
         $result = $db->exec($query);
         if (PEAR::isError($result)) {
             return $result;

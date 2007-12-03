@@ -60,11 +60,13 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     /**
      * create a new database
      *
-     * @param string $name  name of the database that should be created
+     * @param string $name    name of the database that should be created
+     * @param array  $options array with charset info
+     *
      * @return mixed        MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createDatabase($name)
+    function createDatabase($name, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -83,6 +85,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
      * drop an existing database
      *
      * @param string $name  name of the database that should be dropped
+     *
      * @return mixed        MDB2_OK on success, a MDB2 error on failure
      * @access public
      */

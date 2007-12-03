@@ -7,6 +7,8 @@ $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
 - fixed bug #11571: when using setLimit(), numRows() returns wrong values
+- request #12012: added collation support in createDatabase() and in createTable()
+  for table fields
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

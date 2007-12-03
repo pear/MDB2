@@ -66,11 +66,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     /**
      * create a new database
      *
-     * @param string $name name of the database that should be created
+     * @param string $name    name of the database that should be created
+     * @param array  $options array with collation info
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function createDatabase($name)
+    function createDatabase($name, $options = array())
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -84,6 +86,9 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $query.= $db->options['database_size'] ? '=' .
                      $db->options['database_size'] : '';
         }
+        if (!empty($options['collation'])) {
+            $query .= ' COLLATE ' . $options['collation'];
+        }
         return $db->standaloneQuery($query, null, true);
     }
 
@@ -94,6 +99,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * drop an existing database
      *
      * @param string $name name of the database that should be dropped
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -130,6 +136,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
      *
      * @param array $definition
+     *
      * @return string
      * @access protected
      */
@@ -151,13 +158,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     /**
      * create a new table
      *
-     * @param string $name     Name of the database that should be created
-     * @param array $fields Associative array that contains the definition of each field of the new table
-     *                        The indexes of the array entries are the names of the fields of the table an
-     *                        the array entry values are associative arrays like those that are meant to be
-     *                         passed with the field definitions to get[Type]Declaration() functions.
+     * @param string $name   Name of the database that should be created
+     * @param array  $fields Associative array that contains the definition of each field of the new table
+     *                       The indexes of the array entries are the names of the fields of the table an
+     *                       the array entry values are associative arrays like those that are meant to be
+     *                       passed with the field definitions to get[Type]Declaration() functions.
      *
-     *                        Example
+     *                      Example
      *                        array(
      *
      *                            'id' => array(
@@ -175,11 +182,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                'length' => 12,
      *                            )
      *                        );
-     * @param array $options  An associative array of table options:
+     * @param array $options An associative array of table options:
      *                          array(
      *                              'comment' => 'Foo',
      *                              'temporary' => true|false,
      *                          );
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -197,10 +205,10 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     /**
      * alter an existing table
      *
-     * @param string $name         name of the table that is intended to be changed.
-     * @param array $changes     associative array that contains the details of each type
-     *                             of change that is intended to be performed. The types of
-     *                             changes that are currently supported are defined as follows:
+     * @param string  $name    name of the table that is intended to be changed.
+     * @param array   $changes associative array that contains the details of each type
+     *                         of change that is intended to be performed. The types of
+     *                         changes that are currently supported are defined as follows:
      *
      *                             name
      *
@@ -277,12 +285,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *                                    )
      *                                )
      *
-     * @param boolean $check     indicates whether the function should just check if the DBMS driver
-     *                             can perform the requested table alterations if the value is true or
-     *                             actually perform them otherwise.
-     * @access public
+     * @param boolean $check   indicates whether the function should just check if the DBMS driver
+     *                         can perform the requested table alterations if the value is true or
+     *                         actually perform them otherwise.
      *
-      * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
     function alterTable($name, $changes, $check)
     {
@@ -382,6 +390,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * list all fields in a table in the current database
      *
      * @param string $table name of table that should be used in method
+     *
      * @return mixed array of field names on success, a MDB2 error on failure
      * @access public
      */
@@ -413,6 +422,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * list all indexes in a table
      *
      * @param string $table name of table that should be used in method
+     *
      * @return mixed array of index names on success, a MDB2 error on failure
      * @access public
      */
@@ -550,6 +560,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * list all triggers in the database that reference a given table
      *
      * @param string table for which all referenced triggers should be found
+     *
      * @return mixed array of trigger names on success,  otherwise, false which
      *               could be a db error if the db is not instantiated or could
      *               be the results of the error that occured during the
@@ -593,6 +604,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * list all views in the current database
      *
      * @param string database, the current is default
+     *
      * @return mixed array of view names on success, a MDB2 error on failure
      * @access public
      */
@@ -633,8 +645,9 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     /**
      * drop existing index
      *
-     * @param string    $table         name of table that should be used in method
-     * @param string    $name         name of the index to be dropped
+     * @param string $table name of table that should be used in method
+     * @param string $name  name of the index to be dropped
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -657,6 +670,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * list all constraints in a table
      *
      * @param string $table name of table that should be used in method
+     *
      * @return mixed array of constraint names on success, a MDB2 error on failure
      * @access public
      */
@@ -699,6 +713,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      *
      * @param string $seq_name  name of the sequence to be created
      * @param string $start     start value of the sequence; default is 1
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -744,6 +759,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
      * This function drops an existing sequence
      *
      * @param string $seq_name name of the sequence to be dropped
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
