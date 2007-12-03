@@ -57,6 +57,22 @@ require_once 'MDB2/Driver/Datatype/Common.php';
  */
 class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
 {
+    // {{{ _getCollationFieldDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to set the COLLATION
+     * of a field declaration to be used in statements like CREATE TABLE.
+     *
+     * @param string $collation name of the collation
+     *
+     * @return string DBMS specific SQL code portion needed to set the COLLATION
+     *                of a field declaration.
+     */
+    function _getCollationFieldDeclaration($collation)
+    {
+        return 'COLLATE '.$collation;
+    }
+
     // }}}
     // {{{ getTypeDeclaration()
 
@@ -389,6 +405,8 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
 
         return array($type, $length, $unsigned, $fixed);
     }
+
+    // }}}
 }
 
 ?>

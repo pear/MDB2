@@ -90,6 +90,24 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         }
         return parent::_baseConvertResult($value, $type, $rtrim);
     }
+
+    // }}}
+    // {{{ _getCollationFieldDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to set the COLLATION
+     * of a field declaration to be used in statements like CREATE TABLE.
+     *
+     * @param string $collation name of the collation
+     *
+     * @return string DBMS specific SQL code portion needed to set the COLLATION
+     *                of a field declaration.
+     */
+    function _getCollationFieldDeclaration($collation)
+    {
+        return 'COLLATE '.$collation;
+    }
+
     // }}}
     // {{{ getTypeDeclaration()
 
