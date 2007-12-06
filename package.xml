@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.6.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.7.0RC1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2</name>
  <channel>pear.php.net</channel>
  <extends>MDB</extends>
@@ -64,33 +64,25 @@ can be used to construct portable SQL statements:
   <email>david@jaws.com.mx</email>
   <active>yes</active>
  </helper>
- <date>2007-10-28</date>
- <time>21:01:08</time>
+ <date>2007-12-06</date>
+ <time>20:57:26</time>
  <version>
-  <release>2.5.0a1</release>
-  <api>2.5.0a1</api>
+  <release>2.5.0a2</release>
+  <api>2.5.0a2</api>
  </version>
  <stability>
   <release>alpha</release>
   <api>alpha</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #10024: Security fix for LOBs. Added an option to turn lob_allow_url_include off by default
-- fixed bug #11179: prepared statements with named placeholders fail if extra values are provided
-- request #11297: added support for &quot;schema.table&quot; (or &quot;owner.table&quot;) notation in the Reverse module
-- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
-- fixed bug #11428: propagate quote() errors with invalid data types
-- added new test cases in the test suite
-- added LENGTH() function in the Function module
-- fixed bug #11612: raiseError() must be compatible with PEAR::raiseError() [PHP6]
-- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
-- fixed bug #11906: quoteIdentifier fails for names with dots
-- fixed bug #11975: Extended::autoExecute() does not work with Oracle when using LOBs
-  (patch by Pieter Meulen, van der)
-- fixed some E_STRICT errors with PHP5
-- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
-  as documented
-- fixed bug #12246: wrong check in MDB2::isStatement() (thanks to zaa@zaa.pp.ru)
+ <notes>- fixed bug #12358: E_STRICT changes in latest alpha broke PHP4 compatibility
+- fixed bug #12351: wrong case for function PEAR::isError() in the Reverse module
+  [was: IsError()]
+- fixed bug #12530: MDB2_Extended::autoPrepare() gives error if $types is null
+- request #12012: added charset/collation support in createDatabase() for the
+  drivers that support this feature
+- added bindname_format option (this is the regexp used to recognize named
+  placeholders in prepared statements)
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -110,7 +102,6 @@ open todo items:
 - add a getTableFieldsDefinitions() method to be used in tableInfo()
 - drop ILIKE from matchPattern() and instead add a second parameter to
   handle case sensitivity with arbitrary operators
-- add charset and collation support to field declaration in all drivers
 - handle LOBs in buffered result sets (Request #8793)</notes>
  <contents>
   <dir baseinstalldir="/" name="/">
@@ -296,42 +287,42 @@ open todo items:
    <subpackage>
     <name>MDB2_Driver_ibase</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a1</min>
+    <min>1.5.0a2</min>
    </subpackage>
   </group>
   <group hint="MySQL driver for MDB2" name="mysql">
    <subpackage>
     <name>MDB2_Driver_mysql</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a1</min>
+    <min>1.5.0a2</min>
    </subpackage>
   </group>
   <group hint="MySQLi driver for MDB2" name="mysqli">
    <subpackage>
     <name>MDB2_Driver_mysqli</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a1</min>
+    <min>1.5.0a2</min>
    </subpackage>
   </group>
   <group hint="MS SQL Server driver for MDB2" name="mssql">
    <subpackage>
     <name>MDB2_Driver_mssql</name>
     <channel>pear.php.net</channel>
-    <min>1.3.0a1</min>
+    <min>1.3.0a2</min>
    </subpackage>
   </group>
   <group hint="Oracle driver for MDB2" name="oci8">
    <subpackage>
     <name>MDB2_Driver_oci8</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a1</min>
+    <min>1.5.0a2</min>
    </subpackage>
   </group>
   <group hint="PostgreSQL driver for MDB2" name="pgsql">
    <subpackage>
     <name>MDB2_Driver_pgsql</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a1</min>
+    <min>1.5.0a2</min>
    </subpackage>
   </group>
   <group hint="Querysim driver for MDB2" name="querysim">
@@ -345,12 +336,52 @@ open todo items:
    <subpackage>
     <name>MDB2_Driver_sqlite</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a1</min>
+    <min>1.5.0a2</min>
    </subpackage>
   </group>
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>2.5.0a2</release>
+    <api>2.5.0a2</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2007-12-06</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #12358: E_STRICT changes in latest alpha broke PHP4 compatibility
+- fixed bug #12351: wrong case for function PEAR::isError() in the Reverse module
+  [was: IsError()]
+- fixed bug #12530: MDB2_Extended::autoPrepare() gives error if $types is null
+- request #12012: added charset/collation support in createDatabase() for the
+  drivers that support this feature
+- added bindname_format option (this is the regexp used to recognize named
+  placeholders in prepared statements)
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add length handling to LOB reverse engineering
+- add EXPLAIN abstraction
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), etc.)
+- add support for database/table/row LOCKs
+- add support for CHECK (ENUM as possible mysql fallback) constraints
+- generate STATUS file from test suite results and allow users to submit test results
+- add support for full text index creation and querying
+- add tests to check if the RDBMS specific handling with portability options
+  disabled behaves as expected
+- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
+- add a getTableFieldsDefinitions() method to be used in tableInfo()
+- drop ILIKE from matchPattern() and instead add a second parameter to
+  handle case sensitivity with arbitrary operators
+- handle LOBs in buffered result sets (Request #8793)</notes>
+  </release>
   <release>
    <version>
     <release>2.5.0a1</release>

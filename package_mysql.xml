@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.6.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.7.0RC1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mysql</name>
  <channel>pear.php.net</channel>
  <summary>mysql MDB2 driver</summary>
@@ -16,35 +16,19 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2007-10-28</date>
- <time>21:03:05</time>
+ <date>2007-12-06</date>
+ <time>21:05:39</time>
  <version>
-  <release>1.5.0a1</release>
-  <api>1.5.0a1</api>
+  <release>1.5.0a2</release>
+  <api>1.5.0a2</api>
  </version>
  <stability>
   <release>alpha</release>
   <api>alpha</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #10024: Added new option &apos;lob_allow_url_include&apos; (default false) to
-  [dis]allow inserting a LOB from an url (file, http, ...).
-- fixed bug #10986: Using more random statement names (request #11625)
-- fixed bug #11055: Using placeholders with := variable assignment fails [bekarau]
-- initial support for FOREIGN KEY constraints in the Manager and Reverse modules
-- request #11389: added many new MySQL 5.1 error codes in errorInfo()
-- fixed bug #11428: propagate quote() errors with invalid data types
-- fixed bug #11590: _getServerCapabilities() has to be called once per connection
-- fixed bug #11790: avoid array_diff() because it has a memory leak in PHP 5.1.x
-- fixed some E_STRICT errors with PHP5
-- fixed bug #12010: MDB2_PORTABILITY_RTRIM option was ignored
-- fixed bug #12083: createTable() in the Manager module now returns MDB2_OK on success,
-  as documented
-- fixed bug #12217: mysql_num_rows() returns FALSE on failure, not NULL (thanks to zaa@zaa.pp.ru)
-- fixed bug #12242: missing charset info in the Reverse module (patch by Carsten Wiedmann)
-- fixed bug #12269: tableInfo() in the Reverse module detect &apos;clob&apos; data type
-  as first option
-- fixed bug #12336: supply default value for NOT NULL timestamp fields
+ <notes>- fixed bug #12516: error in FK constraint creation query
+- request #12012: added charset/collation support in createDatabase()
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
@@ -102,7 +86,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0a1</min>
+    <min>2.5.0a2</min>
    </package>
    <extension>
     <name>mysql</name>
@@ -111,6 +95,26 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0a2</release>
+    <api>1.5.0a2</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2007-12-06</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #12516: error in FK constraint creation query
+- request #12012: added charset/collation support in createDatabase()
+
+note:
+- the multi_query test failes because this is not supported by ext/mysql
+
+open todo items:
+- use a trigger to emulate setting default now()</notes>
+  </release>
   <release>
    <version>
     <release>1.5.0a1</release>

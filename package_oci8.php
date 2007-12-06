@@ -3,7 +3,7 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'XXX';
+$version = '1.5.0a2';
 $state = 'alpha';
 $notes = <<<EOT
 - fixed named parameter validation regexp in prepared queries
@@ -20,7 +20,7 @@ note:
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
-- buffer LOB's when doing buffered queries
+- buffer LOBs when doing buffered queries
 EOT;
 
 $description = 'This is the Oracle OCI8 MDB2 driver.';
@@ -44,7 +44,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a2');
 $package->addExtensionDep('required', 'oci8');
 
 $package->addRelease();
