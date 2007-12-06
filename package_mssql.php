@@ -3,12 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.3.0a2';
+$version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- fixed bug #11571: when using setLimit(), numRows() returns wrong values
-- request #12012: added collation support in createDatabase() and in createTable()
-  for table fields
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
@@ -35,7 +32,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a2');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'mssql');
 
 $package->addRelease();

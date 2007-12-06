@@ -3,11 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0a2';
+$version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- fixed bug #12516: error in FK constraint creation query
-- request #12012: added charset/collation support in createDatabase() 
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
@@ -37,7 +35,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a2');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'mysql');
 
 $package->addRelease();

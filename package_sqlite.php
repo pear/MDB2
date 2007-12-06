@@ -3,14 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0a2';
+$version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- fixed bug #12105: new error message in the SQLite driver (patch by Adam Ashley)
-- fixed bug #12145: missing optional spaces in regexp in _getTableColumns() in the
-  Reverse module
-- request #12012: added charset support in createDatabase() and collation support
-  in createTable() for table fields
 
 note:
 open todo items:
@@ -38,7 +33,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a2');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'sqlite');
 
 $package->addRelease();

@@ -3,14 +3,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0a2';
+$version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- fixed bug #12376: getTableConstraintDefinition() in the Reverse module
-  uses incorrect column number in certain cases (thanks to Dennis Birne)
-- request #12338: added 'disable_smart_seqname' option to make improved
-  getSequenceName() behaviour optional (thanks to Dennis Birne) (@see bug #9106)
-- request #12012: added collation support in createDatabase()
+
   
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
@@ -40,7 +36,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a2');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'pgsql');
 
 $package->addRelease();

@@ -3,11 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0a2';
+$version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- fixed named parameter validation regexp in prepared queries
-- fixed bug #12552: _makeAutoincrement() not quoting the sequence name in the Manager module
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -44,7 +42,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0a2');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'oci8');
 
 $package->addRelease();
