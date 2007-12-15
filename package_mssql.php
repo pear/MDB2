@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
+- fixed bug #12697: MDB2_Driver_mssql fails to load with the sybase_ct extension
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
