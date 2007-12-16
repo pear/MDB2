@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
+- request #12528: added 'session_mode' DSN parameter
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
