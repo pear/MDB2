@@ -227,6 +227,28 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ truncateTable()
+
+    /**
+     * Truncate an existing table (if the TRUNCATE TABLE syntax is not supported,
+     * it falls back to a DELETE FROM TABLE query)
+     *
+     * @param string $name name of the table that should be truncated
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function truncateTable($name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $name = $db->quoteIdentifier($name, true);
+        return $db->exec("TRUNCATE TABLE $name");
+    }
+
+    // }}}
     // {{{ alterTable()
 
     /**

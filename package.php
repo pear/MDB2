@@ -7,6 +7,7 @@ $version_release = 'XXX';
 $version_api = $version_release;
 $state = 'alpha';
 $notes = <<<EOT
+- request #12731: added truncateTable() in the Manager module
 
 open todo items:
 - handle autoincrement fields in alterTable()
