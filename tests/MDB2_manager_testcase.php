@@ -124,12 +124,13 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $fields['id']['autoincrement'] = true;
         $result = $this->db->manager->createTable($this->table, $fields);
         $this->assertFalse(PEAR::isError($result), 'Error creating table');
+        $this->assertEquals(MDB2_OK, $result, 'Error creating table: unexpected return value');
         $query = 'INSERT INTO '.$this->table;
         $query.= ' (somename, somedescription)';
         $query.= ' VALUES (:somename, :somedescription)';
         $stmt =& $this->db->prepare($query, array('text', 'text'), MDB2_PREPARE_MANIP);
         if (PEAR::isError($stmt)) {
-            $this->assertTrue(true, 'Preparing insert');
+            $this->assertFalse(true, 'Preparing insert');
             return;
         }
         $values = array(
@@ -148,16 +149,16 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $query = 'SELECT id FROM '.$this->table;
         $data = $this->db->queryCol($query);
         if (PEAR::isError($data)) {
-            $this->assertTrue(true, 'Error executing select');
+            $this->assertFalse(true, 'Error executing select');
             return;
         }
         for ($i =0; $i < $rows; ++$i) {
             if (!isset($data[$i])) {
-                $this->assertTrue(true, 'Error in data returned by select');
+                $this->assertFalse(true, 'Error in data returned by select');
                 return;
             }
             if ($data[$i] === ($i+1)) {
-                $this->assertTrue(true, 'Error executing autoincrementing insert');
+                $this->assertFalse(true, 'Error executing autoincrementing insert');
                 return;
             }
         }
@@ -516,11 +517,11 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $result = $this->db->manager->alterTable($this->table, $changes, true);
         $this->db->popExpect();
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Cannot alter table');
+            $this->assertFalse(true, 'Cannot alter table');
         } else {
             $result = $this->db->manager->alterTable($this->table, $changes, false);
             if (PEAR::isError($result)) {
-                $this->assertTrue(true, 'Error altering table');
+                $this->assertFalse(true, 'Error altering table');
             } else {
                 $this->db->manager->dropTable($newer);
             }
@@ -576,45 +577,95 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             $result = $this->db->manager->alterTable($this->table, $changes, true);
             $this->db->popExpect();
             if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Cannot alter table: '.$type);
+                $this->assertFalse(true, 'Cannot alter table: '.$type);
+                return;
+            }
+            $result = $this->db->manager->alterTable($this->table, $changes, false);
+            if (PEAR::isError($result)) {
+                $this->assertFalse(true, 'Error altering table: '.$type);
             } else {
-                $result = $this->db->manager->alterTable($this->table, $changes, false);
-                if (PEAR::isError($result)) {
-                    $this->assertTrue(true, 'Error altering table: '.$type);
-                } else {
-                    switch ($type) {
-                    case 'add':
-                        $altered_table_fields = $this->db->manager->listTableFields($this->table);
-                        foreach ($change as $newfield => $dummy) {
-                            $this->assertTrue(in_array($newfield, $altered_table_fields), 'Error: new field "'.$newfield.'" not added');
-                        }
-                        break;
-                    case 'rename':
-                        $altered_table_fields = $this->db->manager->listTableFields($this->table);
-                        foreach ($change as $oldfield => $newfield) {
-                            $this->assertFalse(in_array($oldfield, $altered_table_fields), 'Error: field "'.$oldfield.'" not renamed');
-                            $this->assertTrue(in_array($newfield['name'], $altered_table_fields), 'Error: field "'.$oldfield.'" not renamed correctly');
-                        }
-                        break;
-                    case 'change':
-                        break;
-                    case 'remove':
-                        $altered_table_fields = $this->db->manager->listTableFields($this->table);
-                        foreach ($change as $newfield => $dummy) {
-                            $this->assertFalse(in_array($newfield, $altered_table_fields), 'Error: field "'.$newfield.'" not removed');
-                        }
-                        break;
-                    case 'name':
-                        if ($this->tableExists($newer)) {
-                            $this->db->manager->dropTable($newer);
-                        } else {
-                            $this->assertTrue(true, 'Error: table "'.$this->table.'" not renamed');
-                        }
-                        break;
+                switch ($type) {
+                case 'add':
+                    $altered_table_fields = $this->db->manager->listTableFields($this->table);
+                    foreach ($change as $newfield => $dummy) {
+                        $this->assertTrue(in_array($newfield, $altered_table_fields), 'Error: new field "'.$newfield.'" not added');
                     }
+                    break;
+                case 'rename':
+                    $altered_table_fields = $this->db->manager->listTableFields($this->table);
+                    foreach ($change as $oldfield => $newfield) {
+                        $this->assertFalse(in_array($oldfield, $altered_table_fields), 'Error: field "'.$oldfield.'" not renamed');
+                        $this->assertTrue(in_array($newfield['name'], $altered_table_fields), 'Error: field "'.$oldfield.'" not renamed correctly');
+                    }
+                    break;
+                case 'change':
+                    break;
+                case 'remove':
+                    $altered_table_fields = $this->db->manager->listTableFields($this->table);
+                    foreach ($change as $newfield => $dummy) {
+                        $this->assertFalse(in_array($newfield, $altered_table_fields), 'Error: field "'.$newfield.'" not removed');
+                    }
+                    break;
+                case 'name':
+                    if ($this->tableExists($newer)) {
+                        $this->db->manager->dropTable($newer);
+                    } else {
+                        $this->assertFalse(true, 'Error: table "'.$this->table.'" not renamed');
+                    }
+                    break;
                 }
             }
         }
+    }
+
+    /**
+     *
+     */
+    function testTruncateTable() {
+        if (!$this->methodExists($this->db->manager, 'truncateTable')) {
+            return;
+        }
+
+        $query = 'INSERT INTO '.$this->table;
+        $query.= ' (id, somename, somedescription)';
+        $query.= ' VALUES (:id, :somename, :somedescription)';
+        $stmt =& $this->db->prepare($query, array('integer', 'text', 'text'), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->assertFalse(true, 'Error preparing INSERT');
+            return;
+        }
+        $rows = 5;
+        for ($i=1; $i<=$rows; ++$i) {
+            $values = array(
+                'id' => $i,
+                'somename' => 'foo'.$i,
+                'somedescription' => 'bar'.$i,
+            );
+            $result = $stmt->execute($values);
+            if (PEAR::isError($result)) {
+                $this->assertFalse(true, 'Error executing insert number: '.$i);
+                return;
+            }
+        }
+        $stmt->free();
+        $count = $this->db->queryOne('SELECT COUNT(*) FROM '.$this->table, 'integer');
+        if (PEAR::isError($count)) {
+            $this->assertFalse(true, 'Error executing SELECT');
+            return;
+        }
+        $this->assertEquals($rows, $count, 'Error: invalid number of rows returned');
+
+        $result = $this->db->manager->truncateTable($this->table);
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error truncating table');
+        }
+
+        $count = $this->db->queryOne('SELECT COUNT(*) FROM '.$this->table, 'integer');
+        if (PEAR::isError($count)) {
+            $this->assertFalse(true, 'Error executing SELECT');
+            return;
+        }
+        $this->assertEquals(0, $count, 'Error: invalid number of rows returned');
     }
 
     /**
