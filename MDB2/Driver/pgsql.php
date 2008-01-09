@@ -975,7 +975,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     	   WHERE d.adrelid = a.attrelid
                     	     AND d.adnum = a.attnum
                     	     AND a.atthasdef
-                    	 ) FROM 'nextval[^\']*\'([^\']*)')
+                    	 ) FROM E'nextval[^\']*\'([^\']*)')
                         FROM pg_attribute a
                     LEFT JOIN pg_class c ON c.oid = a.attrelid
                     LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum AND a.atthasdef

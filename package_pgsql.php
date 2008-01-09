@@ -6,7 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-
+- fixed bug #12846: missing escape in getSequenceName() on PostgreSQL 8.2.4
+  [thanks to Stephane Berthelot]
   
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
