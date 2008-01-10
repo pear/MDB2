@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
 - fixed bug #12697: MDB2_Driver_mssql fails to load with the sybase_ct extension
+- fixed bug #12599: BLOB quoting incorrect (thanks to Ferdy Hanssen)
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

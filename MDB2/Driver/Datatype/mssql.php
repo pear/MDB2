@@ -396,7 +396,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         if (!$quote) {
             return $value;
         }
-        $value = bin2hex("0x".$this->_readFile($value));
+        $value = '0x'.bin2hex($this->_readFile($value));
         return $value;
     }
 
