@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
 - request #12528: added 'session_mode' DSN parameter
+- request #12800: added alterDatabase() in the Manager module
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8

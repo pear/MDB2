@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2008 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -99,6 +99,65 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             }
             return $result;
         }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ alterDatabase()
+
+    /**
+     * alter an existing database
+     *
+     * IMPORTANT: the safe way to change the db charset is to do a full import/export!
+     * If - and only if - the new character set is a strict superset of the current
+     * character set, it is possible to use the ALTER DATABASE CHARACTER SET to
+     * expedite the change in the database character set.
+     *
+     * @param string $name    name of the database that is intended to be changed
+     * @param array  $options array with name, charset info
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function alterDatabase($name, $options = array())
+    {
+        //disabled
+        //return parent::alterDatabase($name, $options);
+
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (!empty($options['name'])) {
+            $query = 'ALTER DATABASE ' . $db->quoteIdentifier($name, true)
+                    .' RENAME GLOBAL_NAME TO ' . $db->quoteIdentifier($options['name'], true);
+            $result = $db->standaloneQuery($query);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        if (!empty($options['charset'])) {
+            $queries = array();
+            $queries[] = 'SHUTDOWN IMMEDIATE'; //or NORMAL
+            $queries[] = 'STARTUP MOUNT';
+            $queries[] = 'ALTER SYSTEM ENABLE RESTRICTED SESSION';
+            $queries[] = 'ALTER SYSTEM SET JOB_QUEUE_PROCESSES=0';
+            $queries[] = 'ALTER DATABASE OPEN';
+            $queries[] = 'ALTER DATABASE CHARACTER SET ' . $options['charset'];
+            $queries[] = 'ALTER DATABASE NATIONAL CHARACTER SET ' . $options['charset'];
+            $queries[] = 'SHUTDOWN IMMEDIATE'; //or NORMAL
+            $queries[] = 'STARTUP';
+
+            foreach ($queries as $query) {
+                $result = $db->standaloneQuery($query);
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+            }
+        }
+
         return MDB2_OK;
     }
 

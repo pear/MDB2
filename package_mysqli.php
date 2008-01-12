@@ -6,6 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
+- request #12800: added alterDatabase() in the Manager module (thanks to Ali Fazelzade)
+- fixed quoting in createDatabase() in the Manager module
 
 open todo items:
 - use a trigger to emulate setting default now()

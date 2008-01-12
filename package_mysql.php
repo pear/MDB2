@@ -6,6 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
+- request #12800: added alterDatabase() in the Manager module (thanks to Ali Fazelzade)
+- fixed quoting in createDatabase() in the Manager module
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

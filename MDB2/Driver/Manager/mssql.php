@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2008 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -85,6 +85,35 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $query.= ' ON '.$db->options['database_device'];
             $query.= $db->options['database_size'] ? '=' .
                      $db->options['database_size'] : '';
+        }
+        if (!empty($options['collation'])) {
+            $query .= ' COLLATE ' . $options['collation'];
+        }
+        return $db->standaloneQuery($query, null, true);
+    }
+
+    // }}}
+    // {{{ alterDatabase()
+
+    /**
+     * alter an existing database
+     *
+     * @param string $name    name of the database that is intended to be changed
+     * @param array  $options array with name, collation info
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function alterDatabase($name, $options = array())
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true);
+        if (!empty($options['name'])) {
+            $query .= ' MODIFY NAME = ' .$db->quoteIdentifier($options['name'], true);
         }
         if (!empty($options['collation'])) {
             $query .= ' COLLATE ' . $options['collation'];
