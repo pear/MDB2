@@ -119,6 +119,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 $native_msg = 'Database connection has been lost.';
                 $error_code = MDB2_ERROR_CONNECT_FAILED;
             }
+        } else {
+            $native_msg = @pg_last_error();
         }
 
         static $error_regexps;
@@ -130,6 +132,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     => MDB2_ERROR_NOSUCHTABLE,
                 '/index .* does not exist/'
                     => MDB2_ERROR_NOT_FOUND,
+                '/database .* already exists/i'
+                    => MDB2_ERROR_ALREADY_EXISTS,
                 '/relation .* already exists/i'
                     => MDB2_ERROR_ALREADY_EXISTS,
                 '/(divide|division) by zero$/i'
@@ -202,7 +206,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return $connection;
         }
-        if (version_compare(PHP_VERSION, '5.2.0RC5', '>=')) {
+        if (is_resource($connection) && version_compare(PHP_VERSION, '5.2.0RC5', '>=')) {
             $text = @pg_escape_string($connection, $text);
         } else {
             $text = @pg_escape_string($text);
