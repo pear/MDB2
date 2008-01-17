@@ -11,7 +11,8 @@ $notes = <<<EOT
 - request #12800: added alterDatabase() in the Manager module
 - fixed bug #12920: added new error info and fixed escape method if connection doesn't exist
   [thanks to Ali Fazelzade]
-  
+- fixed bug #12922: use standaloneQuery() in alterDatabase() [thanks to Ali Fazelzade]
+
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)

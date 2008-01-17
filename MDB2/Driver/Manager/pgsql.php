@@ -107,11 +107,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         if (!empty($options['owner'])) {
             $query .= ' OWNER TO ' . $options['owner'];
         }
-        $result = $db->exec($query);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        return MDB2_OK;
+        return $db->standaloneQuery($query, null, true);
     }
 
     // }}}
