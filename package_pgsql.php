@@ -12,6 +12,7 @@ $notes = <<<EOT
 - fixed bug #12920: added new error info and fixed escape method if connection doesn't exist
   [thanks to Ali Fazelzade]
 - fixed bug #12922: use standaloneQuery() in alterDatabase() [thanks to Ali Fazelzade]
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

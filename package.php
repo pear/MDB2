@@ -9,6 +9,7 @@ $state = 'alpha';
 $notes = <<<EOT
 - request #12731: added truncateTable() in the Manager module
 - request #12800: added alterDatabase() in the Manager module (thanks to Ali Fazelzade)
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
 
 open todo items:
 - handle autoincrement fields in alterTable()

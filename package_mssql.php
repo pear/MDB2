@@ -9,6 +9,7 @@ $notes = <<<EOT
 - fixed bug #12697: MDB2_Driver_mssql fails to load with the sybase_ct extension
 - fixed bug #12599: BLOB quoting incorrect (thanks to Ferdy Hanssen)
 - request #12800: added alterDatabase() in the Manager module (thanks to Ali Fazelzade)
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

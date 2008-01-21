@@ -1021,9 +1021,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
         $query = "SELECT NEXTVAL('$sequence_name')";
+        $this->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result = $this->queryOne($query, 'integer');
         $this->popExpect();
+        $this->popErrorHandling();
         if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('Manager', null, true);

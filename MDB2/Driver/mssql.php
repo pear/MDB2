@@ -609,6 +609,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     {
         $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
         $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
+        $this->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         
         $seq_val = $this->_checkSequence($sequence_name);
@@ -621,6 +622,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
         $result =& $this->_doQuery($query, true);
         $this->popExpect();
+        $this->popErrorHandling();
         if (PEAR::isError($result)) {
             if ($ondemand && !$this->_checkSequence($sequence_name)) {
                 $this->loadModule('Manager', null, true);

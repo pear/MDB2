@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
 
 note:
 open todo items:

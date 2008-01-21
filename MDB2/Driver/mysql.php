@@ -1105,9 +1105,11 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
         $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (NULL)";
+        $this->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
         $result =& $this->_doQuery($query, true);
         $this->popExpect();
+        $this->popErrorHandling();
         if (PEAR::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('Manager', null, true);

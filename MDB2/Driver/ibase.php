@@ -893,9 +893,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     {
         $sequence_name = $this->getSequenceName($seq_name);
         $query = 'SELECT GEN_ID('.$sequence_name.', 1) as the_value FROM RDB$DATABASE';
+        $this->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->expectError('*');
         $result = $this->queryOne($query, 'integer');
         $this->popExpect();
+        $this->popErrorHandling();
         if (PEAR::isError($result)) {
             if ($ondemand) {
                 $this->loadModule('Manager', null, true);

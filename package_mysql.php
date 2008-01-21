@@ -8,6 +8,7 @@ $state = 'alpha';
 $notes = <<<EOT
 - request #12800: added alterDatabase() in the Manager module (thanks to Ali Fazelzade)
 - fixed quoting in createDatabase() in the Manager module
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
