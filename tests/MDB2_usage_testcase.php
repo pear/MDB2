@@ -423,6 +423,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (:text, :question, :userid)";
         $stmt = $this->db->prepare($query, array('text', 'text', 'integer'), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->assertTrue(false, 'Error preparing query: ' . $stmt->getMessage. ' :: '.$stmt->getUserInfo());
+        }
 
         $stmt->bindValue('text', $data[0]['user_name']);
         $stmt->bindValue('question', $data[0]['user_password']);
@@ -442,7 +445,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
         $result = $stmt->execute();
         if (PEAR::isError($result)) {
-            $this->assertTrue(true, 'Could not execute prepared query with named placeholders and a quoted text value in front. Error: '.$error);
+            $this->assertTrue(true, 'Could not execute prepared query with named placeholders and a quoted text value in front. Error: '.$result->getMessage());
         }
         $stmt->free();
 
@@ -757,7 +760,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             }
         }
 
-        $this->assertTrue(!$result->valid(), "The query result did not seem to have reached the end of result as expected starting row $start_row after fetching upto row $row");
+        $this->assertFalse($result->valid(), "The query result did not seem to have reached the end of result as expected starting row $start_row after fetching upto row $row");
 
         $result->free();
 
@@ -807,9 +810,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
                 $this->assertTrue(false, "Error creating sequence $sequence_name with start value $start_value: ".$result->getMessage());
             } else {
                 for ($sequence_value = $start_value; $sequence_value < ($start_value + 4); $sequence_value++) {
-                    $value = $this->db->nextId($sequence_name, false);
+                    $value = $this->db->nextID($sequence_name, false);
 
-                    $this->assertEquals($sequence_value, $value, "The returned sequence value is not expected with sequence start value with $start_value");
+                    $this->assertEquals($sequence_value, $value, "The returned sequence value for $sequence_name is not expected with sequence start value with $start_value");
                 }
 
                 $result = $this->db->manager->dropSequence($sequence_name);
@@ -827,7 +830,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $this->db->popExpect();
 
         for ($sequence_value = 1; $sequence_value < 4; $sequence_value++) {
-            $value = $this->db->nextId($sequence_name);
+            $value = $this->db->nextID($sequence_name);
 
             if (PEAR::isError($result)) {
                 $this->assertTrue(false, "Error creating with ondemand sequence: ".$result->getMessage());
@@ -844,17 +847,17 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         // Test currId()
         $sequence_name = 'test_currid';
 
-        $next = $this->db->nextId($sequence_name);
-        $curr = $this->db->currId($sequence_name);
+        $next = $this->db->nextID($sequence_name);
+        $curr = $this->db->currID($sequence_name);
 
         if (PEAR::isError($curr)) {
             $this->assertTrue(false, "Error getting the current value of sequence $sequence_name : ".$curr->getMessage());
         } else {
             if ($next != $curr) {
                 if ($next+1 == $curr) {
-                    $this->assertTrue(false, "Warning: currId() is using nextId() instead of a native implementation");
+                    $this->assertTrue(false, "Warning: currID() is using nextID() instead of a native implementation");
                 } else {
-                    $this->assertEquals($next, $curr, "return value if currId() does not match the previous call to nextId()");
+                    $this->assertEquals($next, $curr, "return value if currID() does not match the previous call to nextID()");
                 }
             }
         }
@@ -875,14 +878,14 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $dsn['database'] = $this->database;
         $db =& MDB2::connect($dsn, $this->options);
 
-        $next = $this->db->nextId($sequence_name);
-        $next2 = $db->nextId($sequence_name);
-        $last = $this->db->lastInsertId($sequence_name);
+        $next = $this->db->nextID($sequence_name);
+        $next2 = $db->nextID($sequence_name);
+        $last = $this->db->lastInsertID($sequence_name);
 
         if (PEAR::isError($last)) {
             $this->assertTrue(false, "Error getting the last value of sequence $sequence_name : ".$last->getMessage());
         } else {
-            $this->assertEquals($next, $last, "return value if lastInsertId() does not match the previous call to nextId()");
+            $this->assertEquals($next, $last, "return value if lastInsertID() does not match the previous call to nextID()");
         }
         $result = $this->db->manager->dropSequence($sequence_name);
         if (PEAR::isError($result)) {
