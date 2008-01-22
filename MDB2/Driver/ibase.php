@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2008 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith, Lorenzo Alberton                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -55,6 +55,7 @@
 class MDB2_Driver_ibase extends MDB2_Driver_Common
 {
     // {{{ properties
+
     var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => "'", 'escape_pattern' => '\\');
 
     var $identifier_quoting = array('start' => '', 'end' => '', 'escape' => false);
@@ -64,6 +65,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     var $query_parameters = array();
 
     var $query_parameter_values = array();
+
     // }}}
     // {{{ constructor
 
@@ -545,36 +547,6 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
             $this->supported['limit_queries'] = ($this->dbsyntax == 'firebird') ? true : 'emulated';
         }
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ setCharset()
-
-    /**
-     * Set the charset on the current connection
-     *
-     * @param string    charset
-     * @param resource  connection handle
-     *
-     * @return true on success, MDB2 Error Object on failure
-     */
-    function setCharset($charset, $connection = null)
-    {
-        if (is_null($connection)) {
-            $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
-                return $connection;
-            }
-        }
-
-        $query = 'SET NAMES '.$this->quote($charset, 'text');
-        $result = @ibase_query($connection, $query);
-        if (!$result) {
-            return $this->raiseError(null, null, null,
-                'Unable to set client charset: '.$charset, __FUNCTION__);
-        }
-
         return MDB2_OK;
     }
 

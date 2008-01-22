@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
+- fixed bug #12948: removed setCharset(), since "SET NAMES" is only supported in ISQL
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
