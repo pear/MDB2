@@ -10,6 +10,7 @@ $notes = <<<EOT
 - fixed bug #12948: removed setCharset(), since "SET NAMES" is only supported in ISQL
 - fixed bug #12958: support multi autoincrement fields in _makeAutoincrement() [patch by Ali Fazelzade]
 - fixed listSequences() in the Manager module with Firebird 2.x
+- fixed getServerVersion() with Firebird 2.x
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

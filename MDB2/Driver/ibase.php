@@ -706,7 +706,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->connected_server_info = $server_info;
         if (!$native) {
             //WI-V1.5.3.4854 Firebird 1.5
-            if (!preg_match('/-V([\d\.]*)/', $server_info, $matches)) {
+            //WI-T2.1.0.16780 Firebird 2.1 Beta 2
+            if (!preg_match('/-[VT]([\d\.]*)/', $server_info, $matches)) {
                 return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                     'Could not parse version information:'.$server_info, __FUNCTION__);
             }
