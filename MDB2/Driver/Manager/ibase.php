@@ -138,6 +138,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        $mix_name = $table . '_' . $name;
         if (is_null($start)) {
             $db->beginTransaction();
             $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $db->quoteIdentifier($table, true);
@@ -146,18 +147,18 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 return $start;
             }
             ++$start;
-            $result = $db->manager->createSequence($table, $start);
+            $result = $db->manager->createSequence($mix_name, $start);
             $db->commit();
         } else {
-            $result = $db->manager->createSequence($table, $start);
+            $result = $db->manager->createSequence($mix_name, $start);
         }
         if (PEAR::isError($result)) {
             return $db->raiseError(null, null, null,
                 'sequence for autoincrement PK could not be created', __FUNCTION__);
         }
 
-        $sequence_name = $db->getSequenceName($table);
-        $trigger_name  = $db->quoteIdentifier($table . '_AUTOINCREMENT_PK', true);
+        $sequence_name = $db->getSequenceName($mix_name);
+        $trigger_name  = $db->quoteIdentifier($mix_name . '_AUTOINCREMENT_PK', true);
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->quoteIdentifier($name, true);
         $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
