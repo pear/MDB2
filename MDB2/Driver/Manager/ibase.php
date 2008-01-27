@@ -728,7 +728,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'SELECT RDB$FUNCTION_NAME FROM RDB$FUNCTIONS WHERE RDB$SYSTEM_FLAG IS NULL
+        $query = 'SELECT RDB$FUNCTION_NAME FROM RDB$FUNCTIONS WHERE (RDB$SYSTEM_FLAG IS NULL OR RDB$SYSTEM_FLAG = 0)
                   UNION
                   SELECT RDB$PROCEDURE_NAME FROM RDB$PROCEDURES';
         $result = $db->queryCol($query);

@@ -9,7 +9,7 @@ $notes = <<<EOT
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - fixed bug #12948: removed setCharset(), since "SET NAMES" is only supported in ISQL
 - fixed bug #12958: support multi autoincrement fields in _makeAutoincrement() [patch by Ali Fazelzade]
-- fixed listSequences() in the Manager module with Firebird 2.x
+- fixed listSequences() and listFunctions() in the Manager module with Firebird 2.x
 - fixed getServerVersion() with Firebird 2.x
 - feature #12962: in getServerVersion(), fallback to the username/password of the
   connected user if DBA_username/DBA_password options are not provided [thanks to Ali Fazelzade]
