@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2007 Manuel Lemos, Paul Cooper, Lorenzo Alberton  |
+// | Copyright (c) 1998-2008 Manuel Lemos, Paul Cooper, Lorenzo Alberton  |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -119,6 +119,15 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         if ($this->tableExists($this->table)) {
             $this->db->manager->dropTable($this->table);
         }
+        $seq_name = $this->table;
+        if ('ibase' == $this->db->phptype) {
+            $seq_name .= '_id';
+        }
+        //remove existing PK sequence
+        $sequences = $this->db->manager->listSequences();
+        if (in_array($seq_name, $sequences)) {
+            $this->db->manager->dropSequence($seq_name);
+        }
 
         $fields = $this->fields;
         $fields['id']['autoincrement'] = true;
@@ -147,9 +156,9 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         }
         $stmt->free();
         $query = 'SELECT id FROM '.$this->table;
-        $data = $this->db->queryCol($query);
+        $data = $this->db->queryCol($query, 'integer');
         if (PEAR::isError($data)) {
-            $this->assertFalse(true, 'Error executing select');
+            $this->assertFalse(true, 'Error executing select: ' . $data->getMessage());
             return;
         }
         for ($i =0; $i < $rows; ++$i) {
@@ -157,7 +166,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                 $this->assertFalse(true, 'Error in data returned by select');
                 return;
             }
-            if ($data[$i] === ($i+1)) {
+            if ($data[$i] !== ($i+1)) {
                 $this->assertFalse(true, 'Error executing autoincrementing insert');
                 return;
             }
