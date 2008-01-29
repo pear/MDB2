@@ -111,14 +111,18 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true);
+        $query = '';
         if (!empty($options['name'])) {
             $query .= ' MODIFY NAME = ' .$db->quoteIdentifier($options['name'], true);
         }
         if (!empty($options['collation'])) {
             $query .= ' COLLATE ' . $options['collation'];
         }
-        return $db->standaloneQuery($query, null, true);
+        if (!empty($query)) {
+            $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true) . $query;
+            return $db->standaloneQuery($query, null, true);
+        }
+        return MDB2_OK;
     }
 
     // }}}
