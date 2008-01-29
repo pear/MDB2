@@ -138,6 +138,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                     547   => MDB2_ERROR_CONSTRAINT,
                     1018  => MDB2_ERROR_SYNTAX,
                     1035  => MDB2_ERROR_SYNTAX,
+                    1801  => MDB2_ERROR_ALREADY_EXISTS,
                     1913  => MDB2_ERROR_ALREADY_EXISTS,
                     2209  => MDB2_ERROR_SYNTAX,
                     2223  => MDB2_ERROR_SYNTAX,
