@@ -681,7 +681,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         if (is_array($server_info) && !is_null($server_info['major'])
            && $server_info['major'] >= 8
         ) {
-            $query = "SELECT SCOPE_IDENTITY()";
+            $query = "SELECT IDENT_CURRENT('$table')";
         } else {
             $query = "SELECT @@IDENTITY";
         }
