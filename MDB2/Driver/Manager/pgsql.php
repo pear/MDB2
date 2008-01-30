@@ -307,9 +307,10 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        if (!empty($changes['add']) && is_array($changes['add'])) {
-            foreach ($changes['add'] as $field_name => $field) {
-                $query = 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
+        if (!empty($changes['remove']) && is_array($changes['remove'])) {
+            foreach ($changes['remove'] as $field_name => $field) {
+                $field_name = $db->quoteIdentifier($field_name, true);
+                $query = 'DROP ' . $field_name;
                 $result = $db->exec("ALTER TABLE $name $query");
                 if (PEAR::isError($result)) {
                     return $result;
@@ -317,10 +318,19 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             }
         }
 
-        if (!empty($changes['remove']) && is_array($changes['remove'])) {
-            foreach ($changes['remove'] as $field_name => $field) {
+        if (!empty($changes['rename']) && is_array($changes['rename'])) {
+            foreach ($changes['rename'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name, true);
-                $query = 'DROP ' . $field_name;
+                $result = $db->exec("ALTER TABLE $name RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name'], true));
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+            }
+        }
+
+        if (!empty($changes['add']) && is_array($changes['add'])) {
+            foreach ($changes['add'] as $field_name => $field) {
+                $query = 'ADD ' . $db->getDeclaration($field['type'], $field_name, $field);
                 $result = $db->exec("ALTER TABLE $name $query");
                 if (PEAR::isError($result)) {
                     return $result;
@@ -360,16 +370,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                     if (PEAR::isError($result)) {
                         return $result;
                     }
-                }
-            }
-        }
-
-        if (!empty($changes['rename']) && is_array($changes['rename'])) {
-            foreach ($changes['rename'] as $field_name => $field) {
-                $field_name = $db->quoteIdentifier($field_name, true);
-                $result = $db->exec("ALTER TABLE $name RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name'], true));
-                if (PEAR::isError($result)) {
-                    return $result;
                 }
             }
         }
