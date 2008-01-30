@@ -211,39 +211,34 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *      declare the specified field.
      * @access protected
      */
-    function _getDeclarationOptions($field)
+    function _getDeclarationOptions($field, $altering = false)
     {
         $charset = empty($field['charset']) ? '' :
             ' '.$this->_getCharsetFieldDeclaration($field['charset']);
 
+        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
         $default = '';
-        if (array_key_exists('default', $field)) {
+        if (array_key_exists('default', $field) && !$altering) {
             if ($field['default'] === '') {
                 $db =& $this->getDBInstance();
                 if (PEAR::isError($db)) {
                     return $db;
                 }
-                $field['default'] = empty($field['notnull'])
-                    ? null : $this->valid_default_values[$field['type']];
-                if ($field['default'] === ''
-                    && ($db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)
-                ) {
+                $field['default'] = $this->valid_default_values[$field['type']];
+                if ($field['default'] === ''&& ($db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)) {
                     $field['default'] = ' ';
                 }
             }
-            $default = ' DEFAULT '.$this->quote($field['default'], $field['type']);
-        } elseif (empty($field['notnull'])) {
-            $default = ' DEFAULT NULL';
-        }
-
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
-        if ($default == ' DEFAULT NULL' && $notnull == ' NULL') {
-            $notnull = '';
+            if (is_null($field['default'])) {
+                $default = ' DEFAULT (null)';
+            } else {
+                $default = ' DEFAULT (' . $this->quote($field['default'], $field['type']) . ')';
+            }
         }
 
         $collation = empty($field['collation']) ? '' :
             ' '.$this->_getCollationFieldDeclaration($field['collation']);
-        return $charset.$default.$notnull.$collation;
+        return $charset.$notnull.$default.$collation;
     }
 
     // }}}
@@ -275,34 +270,34 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                 declare the specified field.
      * @access protected
      */
-    function _getIntegerDeclaration($name, $field)
+    function _getIntegerDeclaration($name, $field, $altering = false)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $default = $autoinc = '';;
+        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $default = $autoinc = '';
         if (!empty($field['autoincrement'])) {
             $autoinc = ' IDENTITY PRIMARY KEY';
-        } elseif (array_key_exists('default', $field)) {
+        } elseif (array_key_exists('default', $field) && !$altering) {
             if ($field['default'] === '') {
-                $field['default'] = empty($field['notnull']) ? null : 0;
+                $field['default'] = 0;
             }
-            $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
-        } elseif (empty($field['notnull'])) {
-            $default = ' DEFAULT NULL';
+            if (is_null($field['default'])) {
+                $default = ' DEFAULT (null)';
+            } else {
+                $default = ' DEFAULT (' . $this->quote($field['default'], 'integer') . ')';
+            }
         }
 
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
-        if ($default == ' DEFAULT NULL' && $notnull == ' NULL') {
-            $notnull = '';
-        }
         if (!empty($field['unsigned'])) {
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
+
         $name = $db->quoteIdentifier($name, true);
-        return $name.' '.$this->getTypeDeclaration($field).$default.$notnull.$autoinc;
+        return $name.' '.$this->getTypeDeclaration($field).$notnull.$default.$autoinc;
     }
 
     // }}}
