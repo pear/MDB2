@@ -353,16 +353,16 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
+        $name = $db->quoteIdentifier($name, true);
 
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
-            case 'add':
-                break;
             case 'remove':
-                break;
-            case 'name':
             case 'rename':
+            case 'add':
             case 'change':
+            case 'name':
+                break;
             default:
                 return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
                     'change type "'.$change_name.'" not yet supported', __FUNCTION__);
@@ -373,19 +373,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $query = '';
-        if (!empty($changes['add']) && is_array($changes['add'])) {
-            foreach ($changes['add'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                } else {
-                    $query.= 'ADD COLUMN ';
-                }
-                $query.= $db->getDeclaration($field['type'], $field_name, $field);
-            }
-        }
-
         if (!empty($changes['remove']) && is_array($changes['remove'])) {
+            $query = '';
             foreach ($changes['remove'] as $field_name => $field) {
                 if ($query) {
                     $query.= ', ';
@@ -393,14 +382,66 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $field_name = $db->quoteIdentifier($field_name, true);
                 $query.= 'DROP COLUMN ' . $field_name;
             }
+
+            $result = $db->exec("ALTER TABLE $name $query");
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
 
-        if (!$query) {
-            return MDB2_OK;
+        if (!empty($changes['rename']) && is_array($changes['rename'])) {
+            foreach ($changes['rename'] as $field_name => $field) {
+                $field_name = $db->quoteIdentifier($field_name, true);
+                $result = $db->exec("sp_rename '$name.$field_name', '".$field['name']."', 'COLUMN'");
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+            }
         }
 
-        $name = $db->quoteIdentifier($name, true);
-        return $db->exec("ALTER TABLE $name $query");
+        if (!empty($changes['add']) && is_array($changes['add'])) {
+            $query = '';
+            foreach ($changes['add'] as $field_name => $field) {
+                if ($query) {
+                    $query.= ', ';
+                } else {
+                    $query.= 'ADD ';
+                }
+                $query.= $db->getDeclaration($field['type'], $field_name, $field);
+            }
+
+            $result = $db->exec("ALTER TABLE $name $query");
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        if (!empty($changes['change']) && is_array($changes['change'])) {
+            $query = '';
+            foreach ($changes['change'] as $field_name => $field) {
+                if ($query) {
+                    $query.= ', ';
+                } else {
+                    $query.= 'ALTER COLUMN ';
+                }
+                $query.= $db->getDeclaration($field['definition']['type'], $field_name, $field['definition'], true);
+            }
+
+            $result = $db->exec("ALTER TABLE $name $query");
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        if (!empty($changes['name'])) {
+            $new_name = $db->quoteIdentifier($changes['name'], true);
+            $result = $db->exec("sp_rename '$name', '$new_name'");
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        return MDB2_OK;
     }
 
     // }}}
