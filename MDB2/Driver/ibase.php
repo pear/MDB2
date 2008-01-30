@@ -694,8 +694,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         } elseif ($this->options['server_version']) {
             $server_info = $this->options['server_version'];
         } else {
-            $username = isset($this->options['DBA_username']) ? $this->options['DBA_username'] : $this->dsn['username'];
-            $password = isset($this->options['DBA_password']) ? $this->options['DBA_password'] : $this->dsn['password'];
+            $username = $this->options['DBA_username'] ? $this->options['DBA_username'] : $this->dsn['username'];
+            $password = $this->options['DBA_password'] ? $this->options['DBA_password'] : $this->dsn['password'];
             $ibserv = @ibase_service_attach($this->dsn['hostspec'], $username, $password);
             $server_info = @ibase_server_info($ibserv, IBASE_SVC_SERVER_VERSION);
             @ibase_service_detach($ibserv);
