@@ -3050,13 +3050,13 @@ class MDB2_Driver_Common extends PEAR
      *
      * @access  public
      */
-    function getDeclaration($type, $name, $field)
+    function getDeclaration($type, $name, $field, $altering = false)
     {
         $result = $this->loadModule('Datatype', null, true);
         if (PEAR::isError($result)) {
             return $result;
         }
-        return $this->datatype->getDeclaration($type, $name, $field);
+        return $this->datatype->getDeclaration($type, $name, $field, $altering);
     }
 
     // }}}
