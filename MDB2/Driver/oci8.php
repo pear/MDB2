@@ -514,11 +514,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function &standaloneExec($query)
     {
-        $connection = $this->_doConnect(
-            $this->options['DBA_username'],
-            $this->options['DBA_password'],
-            $this->options['persistent']
-        );
+        $username = $this->options['DBA_username'] ? $this->options['DBA_username'] : $this->dsn['username'];
+        $password = $this->options['DBA_password'] ? $this->options['DBA_password'] : $this->dsn['password'];
+        $connection = $this->_doConnect($username, $password, $this->options['persistent']);
         if (PEAR::isError($connection)) {
             return $connection;
         }
@@ -554,11 +552,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function &standaloneQuery($query, $types = null, $is_manip = false)
     {
-        $connection = $this->_doConnect(
-            $this->options['DBA_username'],
-            $this->options['DBA_password'],
-            $this->options['persistent']
-        );
+        $username = $this->options['DBA_username'] ? $this->options['DBA_username'] : $this->dsn['username'];
+        $password = $this->options['DBA_password'] ? $this->options['DBA_password'] : $this->dsn['password'];
+        $connection = $this->_doConnect($username, $password, $this->options['persistent']);
         if (PEAR::isError($connection)) {
             return $connection;
         }
