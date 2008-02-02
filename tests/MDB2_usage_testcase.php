@@ -777,7 +777,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
             $result_rows = $result->numRows();
 
-            $expected = ($start_row == $total_rows-1) ? 1 : $rows;
+            $expected = ($start_row == ($total_rows-1)) ? 1 : $rows;
             $this->assertEquals($expected, $result_rows, 'invalid number of rows returned');
             $this->assertTrue(($result_rows <= $rows), 'expected a result of no more than '.$rows.' but the returned number of rows is '.$result_rows);
 
@@ -867,7 +867,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
 
         // Test lastInsertid()
-        if (!$this->supported('new_link')) {
+        if (!$this->db->supports('new_link')) {
            return;
         }
 
