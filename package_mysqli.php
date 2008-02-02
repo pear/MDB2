@@ -6,7 +6,9 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- request #12800: added alterDatabase() in the Manager module (thanks to Ali Fazelzade)
+- request #11204: support AUTO_INCREMENT for FLOAT data type and UNSIGNED option
+  for FLOAT and DECIMAL data type [afz]
+- request #12800: added alterDatabase() in the Manager module [afz]
 - fixed quoting in createDatabase() in the Manager module
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 
