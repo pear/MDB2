@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2008 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -273,6 +273,9 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
      */
     function _getFloatDeclaration($name, $field)
     {
+        // Since AUTO_INCREMENT can be used for integer or floating-point types,
+        // reuse the INTEGER declaration
+        // @see http://bugs.mysql.com/bug.php?id=31032
         return $this->_getIntegerDeclaration($name, $field);
     }
 
