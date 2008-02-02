@@ -1490,7 +1490,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
     {
         $value = (string)$value;
         $value = preg_replace('/[^\d\.,\-+eE]/', '', $value);
-        if (preg_match('/[^.0-9]/', $value)) {
+        if (preg_match('/[^\.\d]/', $value)) {
             if (strpos($value, ',')) {
                 // 1000,00
                 if (!strpos($value, '.')) {
