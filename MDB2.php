@@ -3980,9 +3980,11 @@ class MDB2_Statement_Common
         $types = is_array($types) ? array_values($types) : array_fill(0, count($values), null);
         $parameters = array_keys($values);
         foreach ($parameters as $key => $parameter) {
+            $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
             $this->db->expectError(MDB2_ERROR_NOT_FOUND);
             $err = $this->bindValue($parameter, $values[$parameter], $types[$key]);
             $this->db->popExpect();
+            $this->db->popErrorHandling();
             if (PEAR::isError($err)) {
                 if ($err->getCode() == MDB2_ERROR_NOT_FOUND) {
                     //ignore (extra value for missing placeholder)
