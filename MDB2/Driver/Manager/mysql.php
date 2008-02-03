@@ -76,6 +76,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         $name  = $db->quoteIdentifier($name, true);
         $query = 'CREATE DATABASE ' . $name;
         if (!empty($options['charset'])) {
@@ -84,11 +89,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         if (!empty($options['collation'])) {
             $query .= ' COLLATE ' . $db->quote($options['collation'], 'text');
         }
-        $result = $db->exec($query);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        return MDB2_OK;
+        return $db->standaloneQuery($query, null, true);
     }
 
     // }}}
@@ -110,6 +111,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true);
         if (!empty($options['charset'])) {
             $query .= ' DEFAULT CHARACTER SET ' . $db->quote($options['charset'], 'text');
@@ -117,11 +123,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         if (!empty($options['collation'])) {
             $query .= ' COLLATE ' . $db->quote($options['collation'], 'text');
         }
-        $result = $db->exec($query);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        return MDB2_OK;
+        return $db->standaloneQuery($query, null, true);
     }
 
     // }}}
@@ -141,13 +143,14 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         $name = $db->quoteIdentifier($name, true);
         $query = "DROP DATABASE $name";
-        $result = $db->exec($query);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        return MDB2_OK;
+        return $db->standaloneQuery($query, null, true);
     }
 
     // }}}
