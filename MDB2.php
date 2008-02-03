@@ -100,6 +100,8 @@ define('MDB2_ERROR_MANAGER',            -32);
 define('MDB2_ERROR_MANAGER_PARSE',      -33);
 define('MDB2_ERROR_LOADMODULE',         -34);
 define('MDB2_ERROR_INSUFFICIENT_DATA',  -35);
+define('MDB2_ERROR_NO_PERMISSION',      -36);
+
 // }}}
 // {{{ Verbose constants
 /**
@@ -764,6 +766,7 @@ class MDB2
                 MDB2_ERROR_LOADMODULE         => 'error while including on demand module',
                 MDB2_ERROR_TRUNCATED          => 'truncated',
                 MDB2_ERROR_DEADLOCK           => 'deadlock detected',
+                MDB2_ERROR_NO_PERMISSION      => 'no permission',
             );
         }
 
