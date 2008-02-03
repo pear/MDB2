@@ -424,7 +424,13 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 } else {
                     $query.= 'ALTER COLUMN ';
                 }
-                $query.= $db->getDeclaration($field['definition']['type'], $field_name, $field['definition'], true);
+
+                //MSSQL not support change default value of field in altering mode
+                if (array_key_exists('default', $field['definition'])) {
+                    unset($field['definition']['default']);
+                }
+
+                $query.= $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
             }
 
             $result = $db->exec("ALTER TABLE $name $query");

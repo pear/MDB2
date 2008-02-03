@@ -336,7 +336,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *                 declare the specified field.
      * @access public
      */
-    function getDeclaration($type, $name, $field, $altering = false)
+    function getDeclaration($type, $name, $field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -356,7 +356,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'type not defined: '.$type, __FUNCTION__);
         }
-        return $this->{"_get{$type}Declaration"}($name, $field, $altering);
+        return $this->{"_get{$type}Declaration"}($name, $field);
     }
 
     // }}}
@@ -451,7 +451,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *      declare the specified field, or a MDB2_Error on failure
      * @access protected
      */
-    function _getDeclaration($name, $field, $altering = false)
+    function _getDeclaration($name, $field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -459,7 +459,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         }
 
         $name = $db->quoteIdentifier($name, true);
-        $declaration_options = $db->datatype->_getDeclarationOptions($field, $altering);
+        $declaration_options = $db->datatype->_getDeclarationOptions($field);
         if (PEAR::isError($declaration_options)) {
             return $declaration_options;
         }
@@ -492,7 +492,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *      declare the specified field's options.
      * @access protected
      */
-    function _getDeclarationOptions($field, $altering = false)
+    function _getDeclarationOptions($field)
     {
         $charset = empty($field['charset']) ? '' :
             ' '.$this->_getCharsetFieldDeclaration($field['charset']);
@@ -586,7 +586,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *       declare the specified field.
      * @access protected
      */
-    function _getIntegerDeclaration($name, $field, $altering = false)
+    function _getIntegerDeclaration($name, $field)
     {
         if (!empty($field['unsigned'])) {
             $db =& $this->getDBInstance();
@@ -596,7 +596,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
             $db->warnings[] = "unsigned integer field \"$name\" is being declared as signed integer";
         }
-        return $this->_getDeclaration($name, $field, $altering);
+        return $this->_getDeclaration($name, $field);
     }
 
     // }}}
@@ -626,9 +626,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *       declare the specified field.
      * @access protected
      */
-    function _getTextDeclaration($name, $field, $altering = false)
+    function _getTextDeclaration($name, $field)
     {
-        return $this->_getDeclaration($name, $field, $altering);
+        return $this->_getDeclaration($name, $field);
     }
 
     // }}}
@@ -655,7 +655,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *        declare the specified field.
      * @access public
      */
-    function _getCLOBDeclaration($name, $field, $altering = false)
+    function _getCLOBDeclaration($name, $field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -691,7 +691,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *        declare the specified field.
      * @access protected
      */
-    function _getBLOBDeclaration($name, $field, $altering = false)
+    function _getBLOBDeclaration($name, $field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -725,9 +725,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *       declare the specified field.
      * @access protected
      */
-    function _getBooleanDeclaration($name, $field, $altering = false)
+    function _getBooleanDeclaration($name, $field)
     {
-        return $this->_getDeclaration($name, $field, $altering);
+        return $this->_getDeclaration($name, $field);
     }
 
     // }}}
@@ -752,9 +752,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *       declare the specified field.
      * @access protected
      */
-    function _getDateDeclaration($name, $field, $altering = false)
+    function _getDateDeclaration($name, $field)
     {
-        return $this->_getDeclaration($name, $field, $altering);
+        return $this->_getDeclaration($name, $field);
     }
 
     // }}}
@@ -779,9 +779,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *       declare the specified field.
      * @access protected
      */
-    function _getTimestampDeclaration($name, $field, $altering = false)
+    function _getTimestampDeclaration($name, $field)
     {
-        return $this->_getDeclaration($name, $field, $altering);
+        return $this->_getDeclaration($name, $field);
     }
 
     // }}}
@@ -806,9 +806,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *       declare the specified field.
      * @access protected
      */
-    function _getTimeDeclaration($name, $field, $altering = false)
+    function _getTimeDeclaration($name, $field)
     {
-        return $this->_getDeclaration($name, $field, $altering);
+        return $this->_getDeclaration($name, $field);
     }
 
     // }}}
@@ -833,9 +833,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *       declare the specified field.
      * @access protected
      */
-    function _getFloatDeclaration($name, $field, $altering = false)
+    function _getFloatDeclaration($name, $field)
     {
-        return $this->_getDeclaration($name, $field, $altering);
+        return $this->_getDeclaration($name, $field);
     }
 
     // }}}
@@ -860,9 +860,9 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *       declare the specified field.
      * @access protected
      */
-    function _getDecimalDeclaration($name, $field, $altering = false)
+    function _getDecimalDeclaration($name, $field)
     {
-        return $this->_getDeclaration($name, $field, $altering);
+        return $this->_getDeclaration($name, $field);
     }
 
     // }}}

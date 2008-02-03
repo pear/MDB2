@@ -211,14 +211,14 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *      declare the specified field.
      * @access protected
      */
-    function _getDeclarationOptions($field, $altering = false)
+    function _getDeclarationOptions($field)
     {
         $charset = empty($field['charset']) ? '' :
             ' '.$this->_getCharsetFieldDeclaration($field['charset']);
 
         $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
         $default = '';
-        if (array_key_exists('default', $field) && !$altering) {
+        if (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
                 $db =& $this->getDBInstance();
                 if (PEAR::isError($db)) {
@@ -270,7 +270,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      *                 declare the specified field.
      * @access protected
      */
-    function _getIntegerDeclaration($name, $field, $altering = false)
+    function _getIntegerDeclaration($name, $field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -281,7 +281,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         $default = $autoinc = '';
         if (!empty($field['autoincrement'])) {
             $autoinc = ' IDENTITY PRIMARY KEY';
-        } elseif (array_key_exists('default', $field) && !$altering) {
+        } elseif (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
                 $field['default'] = 0;
             }
