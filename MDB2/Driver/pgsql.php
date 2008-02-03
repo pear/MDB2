@@ -91,6 +91,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['pattern_escaping'] = true;
         $this->supported['new_link'] = true;
 
+        $this->options['DBA_username'] = false;
+        $this->options['DBA_password'] = false;
         $this->options['multi_query'] = false;
         $this->options['disable_smart_seqname'] = false;
     }
@@ -130,6 +132,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     => MDB2_ERROR_NOSUCHFIELD,
                 '/(relation|sequence|table).*does not exist|class .* not found/i'
                     => MDB2_ERROR_NOSUCHTABLE,
+                '/database .* does not exist/'
+                    => MDB2_ERROR_NOT_FOUND,
                 '/index .* does not exist/'
                     => MDB2_ERROR_NOT_FOUND,
                 '/database .* already exists/i'
@@ -357,13 +361,18 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     // {{{ _doConnect()
 
     /**
-     * Does the grunt work of connecting to the database
+     * do the grunt work of the connect
      *
-     * @return mixed connection resource on success, MDB2 Error Object on failure
+     * @return connection on success or MDB2 Error Object on failure
      * @access protected
-     **/
-    function _doConnect($database_name, $persistent = false)
+     */
+    function _doConnect($username, $password, $database_name, $persistent = false)
     {
+        if (!PEAR::loadExtension($this->phptype)) {
+            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
+        }
+
         if ($database_name == '') {
             $database_name = 'template1';
         }
@@ -390,11 +399,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         if ($database_name) {
             $params[0].= ' dbname=\'' . addslashes($database_name) . '\'';
         }
-        if ($this->dsn['username']) {
-            $params[0].= ' user=\'' . addslashes($this->dsn['username']) . '\'';
+        if ($username) {
+            $params[0].= ' user=\'' . addslashes($username) . '\'';
         }
-        if ($this->dsn['password']) {
-            $params[0].= ' password=\'' . addslashes($this->dsn['password']) . '\'';
+        if ($password) {
+            $params[0].= ' password=\'' . addslashes($password) . '\'';
         }
         if (!empty($this->dsn['options'])) {
             $params[0].= ' options=' . $this->dsn['options'];
@@ -467,22 +476,22 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $this->disconnect(false);
         }
 
-        if (!PEAR::loadExtension($this->phptype)) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
-        }
-
         if ($this->database_name) {
-            $connection = $this->_doConnect($this->database_name, $this->options['persistent']);
+            $connection = $this->_doConnect($this->dsn['username'],
+                                            $this->dsn['password'],
+                                            $this->database_name,
+                                            $this->options['persistent']);
             if (PEAR::isError($connection)) {
                 return $connection;
             }
+
             $this->connection = $connection;
             $this->connected_dsn = $this->dsn;
             $this->connected_database_name = $this->database_name;
             $this->opened_persistent = $this->options['persistent'];
             $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
         }
+
         return MDB2_OK;
     }
 
@@ -512,6 +521,30 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 'Unable to set client charset: '.$charset, __FUNCTION__);
         }
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ databaseExists()
+
+    /**
+     * check if given database name is exists?
+     *
+     * @param string $name    name of the database that should be checked
+     *
+     * @return mixed true/false on success, a MDB2 error on failure
+     * @access public
+     */
+    function databaseExists($name)
+    {
+        $res = $this->_doConnect($this->dsn['username'],
+                                 $this->dsn['password'],
+                                 $this->escape($name),
+                                 $this->options['persistent']);
+        if (!PEAR::isError($res)) {
+            return true;
+        }
+
+        return false;
     }
 
     // }}}
@@ -564,11 +597,12 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function &standaloneQuery($query, $types = null, $is_manip = false)
     {
-        $connection = $this->_doConnect('template1', false);
+        $connection = $this->_doConnect($this->options['DBA_username'],
+                                        $this->options['DBA_password'],
+                                        $this->database_name,
+                                        $this->options['persistent']);
         if (PEAR::isError($connection)) {
-            $err =& $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-                'Cannot connect to template1', __FUNCTION__);
-            return $err;
+            return $connection;
         }
 
         $offset = $this->offset;
@@ -576,17 +610,16 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
-        $result =& $this->_doQuery($query, $is_manip, $connection, false);
-        @pg_close($connection);
-        if (PEAR::isError($result)) {
-            return $result;
+        $result =& $this->_doQuery($query, $is_manip, $connection, $this->database_name);
+        if (!PEAR::isError($result)) {
+            if ($is_manip) {
+                $result =  $this->_affectedRows($connection, $result);
+            } else {
+                $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
+            }
         }
 
-        if ($is_manip) {
-            $affected_rows =  $this->_affectedRows($connection, $result);
-            return $affected_rows;
-        }
-        $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
+        @pg_close($connection);
         return $result;
     }
 

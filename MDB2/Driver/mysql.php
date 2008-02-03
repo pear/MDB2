@@ -106,6 +106,8 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->supported['pattern_escaping'] = true;
         $this->supported['new_link'] = true;
 
+        $this->options['DBA_username'] = false;
+        $this->options['DBA_password'] = false;
         $this->options['default_table_type'] = '';
     }
 
@@ -422,26 +424,16 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ connect()
+    // {{{ _doConnect()
 
     /**
-     * Connect to the database
+     * do the grunt work of the connect
      *
-     * @return true on success, MDB2 Error Object on failure
+     * @return connection on success or MDB2 Error Object on failure
+     * @access protected
      */
-    function connect()
+    function _doConnect($username, $password, $persistent = false)
     {
-        if (is_resource($this->connection)) {
-            //if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
-            if (MDB2::areEquals($this->connected_dsn, $this->dsn)
-                && $this->opened_persistent == $this->options['persistent']
-                && $this->connected_database_name == $this->database_name
-            ) {
-                return MDB2_OK;
-            }
-            $this->disconnect(false);
-        }
-
         if (!PEAR::loadExtension($this->phptype)) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
@@ -457,9 +449,9 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 $params[0].= ':' . $this->dsn['port'];
             }
         }
-        $params[] = $this->dsn['username'] ? $this->dsn['username'] : null;
-        $params[] = $this->dsn['password'] ? $this->dsn['password'] : null;
-        if (!$this->options['persistent']) {
+        $params[] = $username ? $username : null;
+        $params[] = $password ? $password : null;
+        if (!$persistent) {
             if (isset($this->dsn['new_link'])
                 && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true)
             ) {
@@ -472,7 +464,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             $params[] = isset($this->dsn['client_flags'])
                 ? $this->dsn['client_flags'] : null;
         }
-        $connect_function = $this->options['persistent'] ? 'mysql_pconnect' : 'mysql_connect';
+        $connect_function = $persistent ? 'mysql_pconnect' : 'mysql_connect';
 
         $connection = @call_user_func_array($connect_function, $params);
         if (!$connection) {
@@ -488,8 +480,43 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
             if (PEAR::isError($result)) {
+                $this->disconnect(false);
                 return $result;
             }
+        }
+
+        return $connection;
+    }
+
+    // }}}
+    // {{{ connect()
+
+    /**
+     * Connect to the database
+     *
+     * @return MDB2_OK on success, MDB2 Error Object on failure
+     * @access public
+     */
+    function connect()
+    {
+        if (is_resource($this->connection)) {
+            //if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
+            if (MDB2::areEquals($this->connected_dsn, $this->dsn)
+                && $this->opened_persistent == $this->options['persistent']
+                && $this->connected_database_name == $this->database_name
+            ) {
+                return MDB2_OK;
+            }
+            $this->disconnect(false);
+        }
+
+        $connection = $this->_doConnect(
+            $this->dsn['username'],
+            $this->dsn['password'],
+            $this->options['persistent']
+        );
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
 
         $this->connection = $connection;
@@ -559,6 +586,32 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ databaseExists()
+
+    /**
+     * check if given database name is exists?
+     *
+     * @param string $name    name of the database that should be checked
+     *
+     * @return mixed true/false on success, a MDB2 error on failure
+     * @access public
+     */
+    function databaseExists($name)
+    {
+        $connection = $this->_doConnect($this->dsn['username'],
+                                        $this->dsn['password'],
+                                        $this->options['persistent']);
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $result = @mysql_select_db($name, $connection);
+        @mysql_close($connection);
+
+        return $result;
+    }
+
+    // }}}
     // {{{ disconnect()
 
     /**
@@ -591,6 +644,42 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             }
         }
         return parent::disconnect($force);
+    }
+
+    // }}}
+    // {{{ standaloneQuery()
+
+   /**
+     * execute a query as DBA
+     *
+     * @param string $query the SQL query
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
+     * @param boolean $is_manip  if the query is a manipulation query
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function &standaloneQuery($query, $types = null, $is_manip = false)
+    {
+        $connection = $this->_doConnect($this->options['DBA_username'],
+                                        $this->options['DBA_password'],
+                                        $this->options['persistent']);
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
+        $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
+        
+        $result =& $this->_doQuery($query, $is_manip, $connection, $this->database_name);
+        if (!PEAR::isError($result)) {
+            $result = $this->_affectedRows($connection, $result);
+        }
+
+        @mysql_close($connection);
+        return $result;
     }
 
     // }}}

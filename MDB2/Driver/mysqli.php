@@ -106,6 +106,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->supported['pattern_escaping'] = true;
         $this->supported['new_link'] = true;
 
+        $this->options['DBA_username'] = false;
+        $this->options['DBA_password'] = false;
         $this->options['default_table_type'] = '';
         $this->options['multi_query'] = false;
     }
@@ -420,6 +422,66 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ _doConnect()
+
+    /**
+     * do the grunt work of the connect
+     *
+     * @return connection on success or MDB2 Error Object on failure
+     * @access protected
+     */
+    function _doConnect($username, $password, $persistent = false)
+    {
+        if (!PEAR::loadExtension($this->phptype)) {
+            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
+        }
+
+        $connection = @mysqli_init();
+        if (!empty($this->dsn['charset']) && defined('MYSQLI_SET_CHARSET_NAME')) {
+            @mysqli_options($connection, MYSQLI_SET_CHARSET_NAME, $this->dsn['charset']);
+        }
+
+        if ($this->options['ssl']) {
+            @mysqli_ssl_set(
+                $connection,
+                empty($this->dsn['key'])    ? null : $this->dsn['key'],
+                empty($this->dsn['cert'])   ? null : $this->dsn['cert'],
+                empty($this->dsn['ca'])     ? null : $this->dsn['ca'],
+                empty($this->dsn['capath']) ? null : $this->dsn['capath'],
+                empty($this->dsn['cipher']) ? null : $this->dsn['cipher']
+            );
+        }
+
+        if (!@mysqli_real_connect(
+            $connection,
+            $this->dsn['hostspec'],
+            $username,
+            $password,
+            $this->database_name,
+            $this->dsn['port'],
+            $this->dsn['socket']
+        )) {
+            if (($err = @mysqli_connect_error()) != '') {
+                return $this->raiseError(null,
+                    null, null, $err, __FUNCTION__);
+            } else {
+                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+                    'unable to establish a connection', __FUNCTION__);
+            }
+        }
+
+        if (!empty($this->dsn['charset']) && !defined('MYSQLI_SET_CHARSET_NAME')) {
+            $result = $this->setCharset($this->dsn['charset'], $connection);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        return $connection;
+    }
+
+    // }}}
     // {{{ connect()
 
     /**
@@ -437,52 +499,12 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $this->connection = 0;
         }
 
-        if (!PEAR::loadExtension($this->phptype)) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
-        }
-
-        $connection = @mysqli_init();
-        if (!empty($this->dsn['charset']) && defined('MYSQLI_SET_CHARSET_NAME')) {
-            @mysqli_options($connection, MYSQLI_SET_CHARSET_NAME, $this->dsn['charset']);
-        }
-
-
-        if ($this->options['ssl']) {
-            @mysqli_ssl_set(
-                $connection,
-                empty($this->dsn['key'])    ? null : $this->dsn['key'],
-                empty($this->dsn['cert'])   ? null : $this->dsn['cert'],
-                empty($this->dsn['ca'])     ? null : $this->dsn['ca'],
-                empty($this->dsn['capath']) ? null : $this->dsn['capath'],
-                empty($this->dsn['cipher']) ? null : $this->dsn['cipher']
-            );
-        }
-
-        if (!@mysqli_real_connect(
-            $connection,
-            $this->dsn['hostspec'],
+        $connection = $this->_doConnect(
             $this->dsn['username'],
-            $this->dsn['password'],
-            $this->database_name,
-            $this->dsn['port'],
-            $this->dsn['socket']
-        )) {
-
-            if (($err = @mysqli_connect_error()) != '') {
-                return $this->raiseError(null,
-                    null, null, $err, __FUNCTION__);
-            } else {
-                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-                    'unable to establish a connection', __FUNCTION__);
-            }
-        }
-
-        if (!empty($this->dsn['charset']) && !defined('MYSQLI_SET_CHARSET_NAME')) {
-            $result = $this->setCharset($this->dsn['charset'], $connection);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
+            $this->dsn['password']
+        );
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
 
         $this->connection = $connection;
@@ -551,6 +573,31 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ databaseExists()
+
+    /**
+     * check if given database name is exists?
+     *
+     * @param string $name    name of the database that should be checked
+     *
+     * @return mixed true/false on success, a MDB2 error on failure
+     * @access public
+     */
+    function databaseExists($name)
+    {
+        $connection = $this->_doConnect($this->dsn['username'],
+                                        $this->dsn['password']);
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $result = @mysqli_select_db($connection, $name);
+        @mysqli_close($connection);
+
+        return $result;
+    }
+
+    // }}}
     // {{{ disconnect()
 
     /**
@@ -583,6 +630,41 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
         }
         return parent::disconnect($force);
+    }
+
+    // }}}
+    // {{{ standaloneQuery()
+
+   /**
+     * execute a query as DBA
+     *
+     * @param string $query the SQL query
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
+     * @param boolean $is_manip  if the query is a manipulation query
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function &standaloneQuery($query, $types = null, $is_manip = false)
+    {
+        $connection = $this->_doConnect($this->options['DBA_username'],
+                                        $this->options['DBA_password']);
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
+        $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
+        
+        $result =& $this->_doQuery($query, $is_manip, $connection, $this->database_name);
+        if (!PEAR::isError($result)) {
+            $result = $this->_affectedRows($connection, $result);
+        }
+
+        @mysqli_close($connection);
+        return $result;
     }
 
     // }}}
