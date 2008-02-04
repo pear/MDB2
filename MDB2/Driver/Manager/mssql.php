@@ -79,6 +79,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         $name = $db->quoteIdentifier($name, true);
         $query = "CREATE DATABASE $name";
         if ($db->options['database_device']) {
@@ -111,6 +116,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         $query = '';
         if (!empty($options['name'])) {
             $query .= ' MODIFY NAME = ' .$db->quoteIdentifier($options['name'], true);
@@ -141,6 +151,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
+        }
+
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
         }
 
         $name = $db->quoteIdentifier($name, true);
