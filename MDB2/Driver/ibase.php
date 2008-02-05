@@ -470,17 +470,21 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @return mixed connection resource on success, MDB2 Error Object on failure
      * @access protected
      */
-    function _doConnect($database_name, $persistent = false)
+    function _doConnect($username, $password, $database_name, $persistent = false)
     {
-        $user    = $this->dsn['username'];
-        $pw      = $this->dsn['password'];
+        if (!PEAR::loadExtension('interbase')) {
+            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
+        }
+
+        $database_file = $this->_getDatabaseFile($database_name);
         $dbhost  = $this->dsn['hostspec'] ?
-            ($this->dsn['hostspec'].':'.$database_name) : $database_name;
+            ($this->dsn['hostspec'].':'.$database_file) : $database_file;
 
         $params = array();
         $params[] = $dbhost;
-        $params[] = !empty($user) ? $user : null;
-        $params[] = !empty($pw) ? $pw : null;
+        $params[] = !empty($username) ? $username : null;
+        $params[] = !empty($password) ? $password : null;
         $params[] = isset($this->dsn['charset']) ? $this->dsn['charset'] : null;
         $params[] = isset($this->dsn['buffers']) ? $this->dsn['buffers'] : null;
         $params[] = isset($this->dsn['dialect']) ? $this->dsn['dialect'] : null;
@@ -530,13 +534,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $this->disconnect(false);
         }
 
-        if (!PEAR::loadExtension('interbase')) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
-        }
-
         if (!empty($this->database_name)) {
-            $connection = $this->_doConnect($database_file, $this->options['persistent']);
+            $connection = $this->_doConnect($this->dsn['username'],
+                                            $this->dsn['password'],
+                                            $this->database_name,
+                                            $this->options['persistent']);
             if (PEAR::isError($connection)) {
                 return $connection;
             }
@@ -548,6 +550,24 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $this->supported['limit_queries'] = ($this->dbsyntax == 'firebird') ? true : 'emulated';
         }
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ databaseExists()
+
+    /**
+     * check if given database name is exists?
+     *
+     * @param string $name    name of the database that should be checked
+     *
+     * @return mixed true/false on success, a MDB2 error on failure
+     * @access public
+     */
+    function databaseExists($name)
+    {
+        $database_file = $this->_getDatabaseFile($name);
+        $result = file_exists($database_file);
+        return $result;
     }
 
     // }}}
@@ -583,6 +603,43 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             }
         }
         return parent::disconnect($force);
+    }
+
+    // }}}
+    // {{{ standaloneQuery()
+
+   /**
+     * execute a query as DBA
+     *
+     * @param string $query the SQL query
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
+     * @param boolean $is_manip  if the query is a manipulation query
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function &standaloneQuery($query, $types = null, $is_manip = false)
+    {
+        $connection = $this->_doConnect($this->options['DBA_username'],
+                                        $this->options['DBA_password'],
+                                        $this->database_name,
+                                        $this->options['persistent']);
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
+        $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
+        
+        $result =& $this->_doQuery($query, $is_manip, $connection);
+        if (!PEAR::isError($result)) {
+            $result = $this->_affectedRows($connection, $result);
+        }
+
+        @mysql_close($connection);
+        return $result;
     }
 
     // }}}
