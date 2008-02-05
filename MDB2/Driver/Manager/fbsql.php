@@ -74,9 +74,14 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         $name = $db->quoteIdentifier($name, true);
         $query = "CREATE DATABASE $name";
-        return $db->exec($query);
+        return $db->standaloneQuery($query, null, true);
     }
 
     // }}}
@@ -96,9 +101,14 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         $name = $db->quoteIdentifier($name, true);
         $query = "DELETE DATABASE $name";
-        return $db->exec($query);
+        return $db->standaloneQuery($query, null, true);
     }
 
     // }}}
