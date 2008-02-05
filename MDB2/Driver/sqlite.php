@@ -97,6 +97,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->supported['pattern_escaping'] = false;
         $this->supported['new_link'] = false;
 
+        $this->options['DBA_username'] = false;
+        $this->options['DBA_password'] = false;
         $this->options['base_transaction_name'] = '___php_MDB2_sqlite_auto_commit_off';
         $this->options['fixed_float'] = 0;
         $this->options['database_path'] = '';
@@ -422,6 +424,24 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
         }
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ databaseExists()
+
+    /**
+     * check if given database name is exists?
+     *
+     * @param string $name    name of the database that should be checked
+     *
+     * @return mixed true/false on success, a MDB2 error on failure
+     * @access public
+     */
+    function databaseExists($name)
+    {
+        $database_file = $this->_getDatabaseFile($name);
+        $result = file_exists($database_file);
+        return $result;
     }
 
     // }}}
