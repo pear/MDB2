@@ -92,6 +92,9 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $this->supported['identifier_quoting'] = true;
         $this->supported['pattern_escaping'] = false;
         $this->supported['new_link'] = false;
+
+        $this->options['DBA_username'] = false;
+        $this->options['DBA_password'] = false;
     }
 
     // }}}
@@ -251,6 +254,46 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ _doConnect()
+
+    /**
+     * do the grunt work of the connect
+     *
+     * @return connection on success or MDB2 Error Object on failure
+     * @access protected
+     */
+    function _doConnect($username, $password, $persistent = false)
+    {
+        if (!PEAR::loadExtension($this->phptype)) {
+            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
+        }
+
+        $params = array(
+            $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost',
+            $username ? $username : null,
+            $password ? $password : null,
+        );
+
+        $connect_function = $persistent ? 'fbsql_pconnect' : 'fbsql_connect';
+
+        $connection = @call_user_func_array($connect_function, $params);
+        if ($connection <= 0) {
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+                'unable to establish a connection', __FUNCTION__);
+        }
+
+        if (!empty($this->dsn['charset'])) {
+            $result = $this->setCharset($this->dsn['charset'], $connection);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        return $connection;
+    }
+
+    // }}}
     // {{{ connect()
 
     /**
@@ -270,30 +313,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             $this->disconnect(false);
         }
 
-        if (!PEAR::loadExtension($this->phptype)) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
-        }
-
-        $params = array(
-            $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost',
-            $this->dsn['username'] ? $this->dsn['username'] : null,
-            $this->dsn['password'] ? $this->dsn['password'] : null,
-        );
-
-        $connect_function = $this->options['persistent'] ? 'fbsql_pconnect' : 'fbsql_connect';
-
-        $connection = @call_user_func_array($connect_function, $params);
-        if ($connection <= 0) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-                'unable to establish a connection', __FUNCTION__);
-        }
-
-        if (!empty($this->dsn['charset'])) {
-            $result = $this->setCharset($this->dsn['charset'], $connection);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
+        $connection = $this->_doConnect($this->dsn['username'],
+                                        $this->dsn['password'],
+                                        $this->options['persistent']);
+        if (PEAR::isError($connection)) {
+            return $connection;
         }
 
         $this->connection = $connection;
@@ -314,6 +338,32 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         }
 
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ databaseExists()
+
+    /**
+     * check if given database name is exists?
+     *
+     * @param string $name    name of the database that should be checked
+     *
+     * @return mixed true/false on success, a MDB2 error on failure
+     * @access public
+     */
+    function databaseExists($name)
+    {
+        $connection = $this->_doConnect($this->dsn['username'],
+                                        $this->dsn['password'],
+                                        $this->options['persistent']);
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $result = @fbsql_select_db($name, $connection);
+        @fbsql_close($connection);
+
+        return $result;
     }
 
     // }}}
@@ -349,6 +399,42 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             }
         }
         return parent::disconnect($force);
+    }
+
+    // }}}
+    // {{{ standaloneQuery()
+
+   /**
+     * execute a query as DBA
+     *
+     * @param string $query the SQL query
+     * @param mixed   $types  array that contains the types of the columns in
+     *                        the result set
+     * @param boolean $is_manip  if the query is a manipulation query
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function &standaloneQuery($query, $types = null, $is_manip = false)
+    {
+        $connection = $this->_doConnect($this->options['DBA_username'],
+                                        $this->options['DBA_password'],
+                                        $this->options['persistent']);
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $offset = $this->offset;
+        $limit = $this->limit;
+        $this->offset = $this->limit = 0;
+        $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
+        
+        $result =& $this->_doQuery($query, $is_manip, $connection, $this->database_name);
+        if (!PEAR::isError($result)) {
+            $result = $this->_affectedRows($connection, $result);
+        }
+
+        @fbsql_close($connection);
+        return $result;
     }
 
     // }}}
