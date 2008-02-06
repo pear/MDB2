@@ -96,7 +96,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;
         $this->options['database_name_prefix'] = false;
-        $this->options['emulate_database'] = true;
+        $this->options['emulate_database'] = false;
         $this->options['default_tablespace'] = false;
         $this->options['default_text_field_length'] = 2000;
         $this->options['lob_allow_url_include'] = false;
@@ -142,6 +142,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     1401 => MDB2_ERROR_INVALID,
                     1407 => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                     1418 => MDB2_ERROR_NOT_FOUND,
+                    1435 => MDB2_ERROR_NOT_FOUND,
                     1476 => MDB2_ERROR_DIVZERO,
                     1722 => MDB2_ERROR_INVALID_NUMBER,
                     2289 => MDB2_ERROR_NOSUCHTABLE,
@@ -343,6 +344,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             // we have hostspec but not a service name, now we assume that
             // hostspec is a tnsname defined in tnsnames.ora
             $sid = $this->dsn['hostspec'];
+            if (isset($this->dsn['port']) && $this->dsn['port']) {
+                $sid = $sid.':'.$this->dsn['port'];
+            }
         } else {
             // oci://username:password@
             // if everything fails, we have to rely on environment variables
@@ -424,13 +428,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function connect()
     {
-        if ($this->database_name && $this->options['emulate_database']) {
-             $this->dsn['username'] = $this->options['database_name_prefix'].$this->database_name;
-        }
         if (is_resource($this->connection)) {
             //if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
             if (MDB2::areEquals($this->connected_dsn, $this->dsn)
-                && $this->connected_database_name == $this->database_name
                 && $this->opened_persistent == $this->options['persistent']
             ) {
                 return MDB2_OK;
@@ -438,19 +438,34 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $this->disconnect(false);
         }
 
-        $connection = $this->_doConnect(
-            $this->dsn['username'],
-            $this->dsn['password'],
-            $this->options['persistent']
-        );
+        if ($this->database_name && $this->options['emulate_database']) {
+             $this->dsn['username'] = $this->options['database_name_prefix'].$this->database_name;
+        }
+
+        $connection = $this->_doConnect($this->dsn['username'],
+                                        $this->dsn['password'],
+                                        $this->options['persistent']);
         if (PEAR::isError($connection)) {
             return $connection;
         }
         $this->connection = $connection;
         $this->connected_dsn = $this->dsn;
-        $this->connected_database_name = $this->database_name;
+        $this->connected_database_name = '';
         $this->opened_persistent = $this->options['persistent'];
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
+
+        if ($this->database_name) {
+            if ($this->database_name != $this->connected_database_name) {
+                $query = 'ALTER SESSION SET CURRENT_SCHEMA = "' .strtoupper($this->database_name) .'"';
+                $result =& $this->_doQuery($query);
+                if (PEAR::isError($result)) {
+                    $err = $this->raiseError($result, null, null,
+                        'Could not select the database: '.$this->database_name, __FUNCTION__);
+                    return $err;
+                }
+                $this->connected_database_name = $this->database_name;
+            }
+        }
 
         $this->as_keyword = ' ';
         $server_info = $this->getServerVersion();
@@ -460,6 +475,37 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
         }
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ databaseExists()
+
+    /**
+     * check if given database name is exists?
+     *
+     * @param string $name    name of the database that should be checked
+     *
+     * @return mixed true/false on success, a MDB2 error on failure
+     * @access public
+     */
+    function databaseExists($name)
+    {
+        $connection = $this->_doConnect($this->dsn['username'],
+                                        $this->dsn['password'],
+                                        $this->options['persistent']);
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
+        $query = 'ALTER SESSION SET CURRENT_SCHEMA = "' .strtoupper($name) .'"';
+        $result =& $this->_doQuery($query, true, $connection, false);
+        if (PEAR::isError($result)) {
+            if (!MDB2::isError($result, MDB2_ERROR_NOT_FOUND)) {
+                return $result;
+            }
+            return false;
+        }
+        return true;
     }
 
     // }}}
@@ -503,41 +549,6 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ standaloneExec()
-
-   /**
-     * execute a query as database administrator
-     *
-     * @param string $query the SQL query
-     * @return mixed MDB2_OK on success, a MDB2 error on failure
-     * @access public
-     */
-    function &standaloneExec($query)
-    {
-        $username = $this->options['DBA_username'] ? $this->options['DBA_username'] : $this->dsn['username'];
-        $password = $this->options['DBA_password'] ? $this->options['DBA_password'] : $this->dsn['password'];
-        $connection = $this->_doConnect($username, $password, $this->options['persistent']);
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-
-        $offset = $this->offset;
-        $limit = $this->limit;
-        $this->offset = $this->limit = 0;
-        $query = $this->_modifyQuery($query, false, $limit, $offset);
-
-        $result =& $this->_doQuery($query, false, $connection, false);
-        if (PEAR::isError($result)) {
-            @OCILogOff($connection);
-            return $result;
-        }
-
-        $ret = $this->_affectedRows($connection, $result);
-        @OCILogOff($connection);
-        return $ret;
-    }
-
-    // }}}
     // {{{ standaloneQuery()
 
    /**
@@ -552,9 +563,9 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function &standaloneQuery($query, $types = null, $is_manip = false)
     {
-        $username = $this->options['DBA_username'] ? $this->options['DBA_username'] : $this->dsn['username'];
-        $password = $this->options['DBA_password'] ? $this->options['DBA_password'] : $this->dsn['password'];
-        $connection = $this->_doConnect($username, $password, $this->options['persistent']);
+        $connection = $this->_doConnect($this->options['DBA_username'],
+                                        $this->options['DBA_password'],
+                                        $this->options['persistent']);
         if (PEAR::isError($connection)) {
             return $connection;
         }
@@ -565,17 +576,16 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
         $result =& $this->_doQuery($query, $is_manip, $connection, false);
-        @OCILogOff($connection);
-        if (PEAR::isError($result)) {
-            return $result;
+        if (!PEAR::isError($result)) {
+            if ($is_manip) {
+                $result = $this->_affectedRows($connection, $result);
+            } else {
+                $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
+            }
         }
 
-        if ($is_manip) {
-            $affected_rows =  $this->_affectedRows($connection, $result);
-            return $affected_rows;
-        }
-        $return =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
-        return $return;
+        @OCILogOff($connection);
+        return $result;
     }
 
     // }}}
