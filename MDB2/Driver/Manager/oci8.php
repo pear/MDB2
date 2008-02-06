@@ -73,6 +73,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         if (!$db->options['emulate_database']) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'database creation is only supported if the "emulate_database" option is enabled', __FUNCTION__);
@@ -129,6 +134,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         if (!empty($options['name'])) {
             $query = 'ALTER DATABASE ' . $db->quoteIdentifier($name, true)
                     .' RENAME GLOBAL_NAME TO ' . $db->quoteIdentifier($options['name'], true);
@@ -179,6 +189,11 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
         if (!$db->options['emulate_database']) {
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'database dropping is only supported if the "emulate_database" option is enabled', __FUNCTION__);
@@ -208,8 +223,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = strtoupper($table);
-        $index_name  = $table . '_AI_PK';
+        $index_name  = strtoupper($table) . '_AI_PK';
         $definition = array(
             'primary' => true,
             'fields' => array($name => true),
