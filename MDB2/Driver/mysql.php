@@ -503,7 +503,6 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             //if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
             if (MDB2::areEquals($this->connected_dsn, $this->dsn)
                 && $this->opened_persistent == $this->options['persistent']
-                && $this->connected_database_name == $this->database_name
             ) {
                 return MDB2_OK;
             }
