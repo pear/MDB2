@@ -110,6 +110,27 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->options['DBA_password'] = false;
         $this->options['default_table_type'] = '';
         $this->options['multi_query'] = false;
+
+        $this->supported['transactions'] = $this->options['use_transactions'];
+        if ($this->options['default_table_type']) {
+            switch (strtoupper($this->options['default_table_type'])) {
+            case 'BLACKHOLE':
+            case 'MEMORY':
+            case 'ARCHIVE':
+            case 'CSV':
+            case 'HEAP':
+            case 'ISAM':
+            case 'MERGE':
+            case 'MRG_ISAM':
+            case 'ISAM':
+            case 'MRG_MYISAM':
+            case 'MYISAM':
+                $this->supported['transactions'] = false;
+                $this->warnings[] = $this->options['default_table_type'] .
+                    ' is not a supported default table type';
+                break;
+            }
+        }
     }
 
     // }}}
@@ -512,27 +533,6 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->connected_database_name = $this->database_name;
         $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
 
-        $this->supported['transactions'] = $this->options['use_transactions'];
-        if ($this->options['default_table_type']) {
-            switch (strtoupper($this->options['default_table_type'])) {
-            case 'BLACKHOLE':
-            case 'MEMORY':
-            case 'ARCHIVE':
-            case 'CSV':
-            case 'HEAP':
-            case 'ISAM':
-            case 'MERGE':
-            case 'MRG_ISAM':
-            case 'ISAM':
-            case 'MRG_MYISAM':
-            case 'MYISAM':
-                $this->supported['transactions'] = false;
-                $this->warnings[] = $this->options['default_table_type'] .
-                    ' is not a supported default table type';
-                break;
-            }
-        }
-        
         $this->_getServerCapabilities();
 
         return MDB2_OK;
