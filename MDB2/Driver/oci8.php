@@ -657,6 +657,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
         }
 
+        $query = str_replace("\r\n", "\n", $query); //for fixing end-of-line character in the PL/SQL in windows
         $result = @OCIParse($connection, $query);
         if (!$result) {
             $err = $this->raiseError(null, null, null,
