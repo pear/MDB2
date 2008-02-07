@@ -223,7 +223,8 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $index_name  = strtoupper($table) . '_AI_PK';
+        $table_upperd = strtoupper($table);
+        $index_name  = $table_upperd . '_AI_PK';
         $definition = array(
             'primary' => true,
             'fields' => array($name => true),
@@ -252,7 +253,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 'sequence for autoincrement PK could not be created', __FUNCTION__);
         }
         $sequence_name         = $db->getSequenceName($table);
-        $trigger_name          = $db->quoteIdentifier($table . '_AI_PK', true);
+        $trigger_name          = $db->quoteIdentifier($table_upperd . '_AI_PK', true);
         $sequence_name_quoted  = $db->quoteIdentifier($sequence_name, true);
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->quoteIdentifier($name, true);
