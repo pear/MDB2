@@ -78,11 +78,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                                    'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
         }
 
-        if (!$db->options['emulate_database']) {
-            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'database creation is only supported if the "emulate_database" option is enabled', __FUNCTION__);
-        }
-
         $username = $db->options['database_name_prefix'].$name;
         $password = $db->dsn['password'] ? $db->dsn['password'] : $name;
         $tablespace = $db->options['default_tablespace']
@@ -192,11 +187,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         if (!$db->options['DBA_username']) {
             return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
                                    'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
-        }
-
-        if (!$db->options['emulate_database']) {
-            return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                'database dropping is only supported if the "emulate_database" option is enabled', __FUNCTION__);
         }
 
         $username = $db->options['database_name_prefix'].$name;
