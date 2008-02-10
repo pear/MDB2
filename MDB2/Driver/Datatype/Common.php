@@ -521,9 +521,6 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $collation = empty($field['collation']) ? '' :
             ' '.$this->_getCollationFieldDeclaration($field['collation']);
 
-        $charset = empty($field['charset']) ? '' :
-            ' '.$this->_getCharsetFieldDeclaration($field['charset']);
-
         return $charset.$default.$notnull.$collation;
     }
 
