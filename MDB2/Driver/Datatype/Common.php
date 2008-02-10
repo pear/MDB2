@@ -497,6 +497,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $charset = empty($field['charset']) ? '' :
             ' '.$this->_getCharsetFieldDeclaration($field['charset']);
 
+        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
         $default = '';
         if (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
@@ -504,27 +505,25 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 if (PEAR::isError($db)) {
                     return $db;
                 }
-                if (empty($field['notnull'])) {
-                    $field['default'] = null;
-                } else {
-                    $valid_default_values = $this->getValidTypes();
-                    $field['default'] = $valid_default_values[$field['type']];
-                }
-                if ($field['default'] === ''
-                    && ($db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)
-                ) {
+                $valid_default_values = $this->getValidTypes();
+                $field['default'] = $valid_default_values[$field['type']];
+                if ($field['default'] === ''&& ($db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL)) {
                     $field['default'] = ' ';
                 }
             }
-            $default = ' DEFAULT '.$this->quote($field['default'], $field['type']);
-        } elseif (empty($field['notnull'])) {
-            $default = ' DEFAULT NULL';
+            if (is_null($field['default'])) {
+                $default = ' DEFAULT (null)';
+            } else {
+                $default = ' DEFAULT (' . $this->quote($field['default'], $field['type']) . ')';
+            }
         }
 
-        $notnull = empty($field['notnull']) ? '' : ' NOT NULL';
-        
         $collation = empty($field['collation']) ? '' :
             ' '.$this->_getCollationFieldDeclaration($field['collation']);
+
+        $charset = empty($field['charset']) ? '' :
+            ' '.$this->_getCharsetFieldDeclaration($field['charset']);
+
         return $charset.$default.$notnull.$collation;
     }
 
