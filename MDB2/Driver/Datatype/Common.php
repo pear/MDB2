@@ -511,10 +511,8 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                     $field['default'] = ' ';
                 }
             }
-            if (is_null($field['default'])) {
-                $default = ' DEFAULT (null)';
-            } else {
-                $default = ' DEFAULT (' . $this->quote($field['default'], $field['type']) . ')';
+            if (!is_null($field['default'])) {
+                $default = ' DEFAULT ' . $this->quote($field['default'], $field['type']);
             }
         }
 
