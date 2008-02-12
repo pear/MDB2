@@ -361,9 +361,9 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     // {{{ _doConnect()
 
     /**
-     * do the grunt work of the connect
+     * do the grunt work of connecting to the database
      *
-     * @return connection on success or MDB2 Error Object on failure
+     * @return mixed connection resource on success, MDB2 Error Object on failure
      * @access protected
      */
     function _doConnect($username, $password, $database_name, $persistent = false)
@@ -430,7 +430,6 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         $connect_function = $persistent ? 'pg_pconnect' : 'pg_connect';
-
         $connection = @call_user_func_array($connect_function, $params);
         if (!$connection) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
@@ -462,7 +461,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      *
      * @return true on success, MDB2 Error Object on failure
      * @access public
-     **/
+     */
     function connect()
     {
         if (is_resource($this->connection)) {

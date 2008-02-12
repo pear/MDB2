@@ -648,7 +648,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         // cache server_info
         $this->connected_server_info = $server_info;
         if (!$native && !PEAR::isError($server_info)) {
-            if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)/', $server_info, $tmp)) {
+            if (preg_match('/(\d+)\.(\d+)\.(\d+)/', $server_info, $tmp)) {
                 $server_info = array(
                     'major' => $tmp[1],
                     'minor' => $tmp[2],
