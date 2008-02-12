@@ -2222,6 +2222,23 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ databaseExists()
+
+    /**
+     * check if given database name is exists?
+     *
+     * @param string $name    name of the database that should be checked
+     *
+     * @return mixed true/false on success, a MDB2 error on failure
+     * @access public
+     */
+    function databaseExists($name)
+    {
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'method not implemented', __FUNCTION__);
+    }
+
+    // }}}
     // {{{ setCharset($charset, $connection = null)
 
     /**
