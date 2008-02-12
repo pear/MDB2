@@ -147,6 +147,20 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
     }
 
     // }}}
+    // {{{ replace()
+
+    /**
+     * return string to call a function to get replace inside an SQL statement.
+     *
+     * @return string to call a function to get a replace
+     * @access public
+     */
+    function replace($str, $from_str, $to_str)
+    {
+        return "REPLACE($value , $from_str , $to_str)";
+    }
+
+    // }}}
     // {{{ concat()
 
     /**
