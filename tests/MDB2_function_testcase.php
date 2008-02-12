@@ -245,5 +245,37 @@ class MDB2_Function_TestCase extends MDB2_TestCase
             $this->assertEquals(3, $len, 'Error: incorrect length for "foo" string: '.$len);
         }
     }
+
+    /**
+     * Test replace()
+     */
+    function testReplace()
+    {
+        if (!$this->methodExists($this->db->function, 'replace')) {
+            return;
+        }
+
+        $string  = $this->db->quote('so what');
+        $search  = $this->db->quote('o');
+        $replace = $this->db->quote('ay');
+        $replace_clause = $this->db->function->replace($string, $search, $replace);
+        $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
+        $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
+        $replace_clause = $this->db->function->replace($string, $search, $replace);
+        $this->db->popExpect();
+        $this->db->popErrorHandling();
+        if (PEAR::isError($replace_clause) && $replace_clause->getCode() == MDB2_ERROR_UNSUPPORTED) {
+            return;
+        }
+
+        $functionTable_clause = $this->db->function->functionTable();
+        $query = 'SELECT '.$replace_clause . $functionTable_clause;
+        $result = $this->db->queryOne($query, 'text');
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting replaced value:'. $result->getMessage());
+        } else {
+            $this->assertEquals('say what', $result, 'Error: could not get replace string: '.$result);
+        }
+    }
 }
 ?>
