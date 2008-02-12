@@ -13,6 +13,8 @@ $notes = <<<EOT
 - fixed getServerVersion() with Firebird 2.x
 - feature #12962: in getServerVersion(), fallback to the username/password of the
   connected user if DBA_username/DBA_password options are not provided [thanks to Ali Fazelzade]
+- added standaloneQuery() and databaseExists()
+- added length() function in the Function module (use STRLEN in the std UDF functions)
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

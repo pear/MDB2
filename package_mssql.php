@@ -12,6 +12,7 @@ $notes = <<<EOT
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - extended alterTable() support in the Manager module [afz]
 - fixed bug #12391: fixed lastInsertID() (thanks to Marius Toma)
+- added standaloneQuery() and databaseExists()
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)

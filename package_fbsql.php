@@ -47,6 +47,7 @@ $notes = <<<EOT
 - fixed bug #12269: tableInfo() in the Reverse module detect 'clob' data type
   as first option
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
+- added standaloneQuery()
 
 note:
 - this driver needs a serious update as it's currently unmaintained/untested
