@@ -875,5 +875,33 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             $this->assertTrue(false, 'Error dropping the function: '.$result->getMessage());
         }
     }
+
+    /**
+     * Test vacuum
+     */
+    function testVacuum() {
+        //vacuum table
+        $result = $this->db->manager->vacuum($this->table);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error: cannot vacuum table: ' . $result->getMessage());
+        }
+
+        //vacuum and analyze table
+        $options = array(
+            'analyze' => true,
+            'full'    => true,
+            'freeze'  => true,
+        );
+        $result = $this->db->manager->vacuum($this->table, $options);
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error: cannot vacuum table: ' . $result->getMessage());
+        }
+
+        //vacuum all tables
+        $result = $this->db->manager->vacuum();
+        if (PEAR::isError($result)) {
+            $this->assertTrue(false, 'Error: cannot vacuum table: ' . $result->getMessage());
+        }
+    }
 }
 ?>
