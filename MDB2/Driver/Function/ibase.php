@@ -69,5 +69,40 @@ class MDB2_Driver_Function_ibase extends MDB2_Driver_Function_Common
     }
 
     // }}}
+    // {{{ length()
+
+    /**
+     * return string to call a function to get a replacement inside an SQL statement.
+     *
+     * @return string to call a function to get a replace
+     * @access public
+     */
+    function length($expression)
+    {
+        return "STRLEN($expression)";
+    }
+
+    // }}}
+    // {{{ replace()
+
+    /**
+     * return string to call a function to get a replacement inside an SQL statement.
+     *
+     * @return string to call a function to get a replace
+     * @access public
+     */
+    function replace($str, $from_str, $to_str)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $error =& $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'method not implemented', __FUNCTION__);
+        return $error;
+    }
+
+    // }}}
 }
 ?>
