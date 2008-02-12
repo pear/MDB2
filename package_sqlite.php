@@ -6,6 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
+- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
 

@@ -206,6 +206,47 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ vacuum()
+
+    /**
+     * Optimize (vacuum) all the tables in the db (or only the specified table)
+     * and optionally run ANALYZE.
+     *
+     * @param string $table table name (all the tables if empty)
+     * @param array  $options an array with driver-specific options:
+     *               - timeout [int] (in seconds) [mssql-only]
+     *               - analyze [boolean] [pgsql and mysql]
+     *               - full [boolean] [pgsql-only]
+     *               - freeze [boolean] [pgsql-only]
+     *
+     * @return mixed MDB2_OK success, a MDB2 error on failure
+     * @access public
+     */
+    function vacuum($table = null, $options = array())
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $query = 'VACUUM';
+
+        if (!empty($options['full'])) {
+            $query .= ' FULL';
+        }
+        if (!empty($options['freeze'])) {
+            $query .= ' FREEZE';
+        }
+        if (!empty($options['analyze'])) {
+            $query .= ' ANALYZE';
+        }
+
+        if (!empty($table)) {
+            $query .= ' '.$db->quoteIdentifier($table, true);
+        }
+        return $db->exec($query);
+    }
+
+    // }}}
     // {{{ alterTable()
 
     /**

@@ -6,12 +6,14 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
-- fixed bug #12697: MDB2_Driver_mssql fails to load with the sybase_ct extension
+- fixed bug #12391: fixed lastInsertID() (thanks to Marius Toma)
 - fixed bug #12599: BLOB quoting incorrect (thanks to Ferdy Hanssen)
+- fixed bug #12697: MDB2_Driver_mssql fails to load with the sybase_ct extension
+- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - request #12800: added alterDatabase() in the Manager module [afz]
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - extended alterTable() support in the Manager module [afz]
-- fixed bug #12391: fixed lastInsertID() (thanks to Marius Toma)
 - added standaloneQuery() and databaseExists()
 
 open todo items:

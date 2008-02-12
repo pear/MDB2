@@ -6,6 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
+- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - fixed bug #12948: removed setCharset(), since "SET NAMES" is only supported in ISQL
 - fixed bug #12958: support multi autoincrement fields in _makeAutoincrement() [patch by Ali Fazelzade]

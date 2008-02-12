@@ -6,9 +6,11 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
+- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
+- request #12800: added alterDatabase() in the Manager module
 - fixed bug #12846: missing escape in getSequenceName() on PostgreSQL 8.2.4
   [thanks to Stephane Berthelot]
-- request #12800: added alterDatabase() in the Manager module
 - fixed bug #12920: added new error info and fixed escape method if connection doesn't exist
   [thanks to Ali Fazelzade]
 - fixed bug #12922: use standaloneQuery() in alterDatabase() [thanks to Ali Fazelzade]

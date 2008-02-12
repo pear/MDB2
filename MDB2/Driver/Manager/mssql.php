@@ -270,6 +270,42 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ vacuum()
+
+    /**
+     * Optimize (vacuum) all the tables in the db (or only the specified table)
+     * and optionally run ANALYZE.
+     *
+     * @param string $table table name (all the tables if empty)
+     * @param array  $options an array with driver-specific options:
+     *               - timeout [int] (in seconds) [mssql-only]
+     *               - analyze [boolean] [pgsql and mysql]
+     *               - full [boolean] [pgsql-only]
+     *               - freeze [boolean] [pgsql-only]
+     *
+     * NB: you have to run the NSControl Create utility to enable VACUUM
+     *
+     * @return mixed MDB2_OK success, a MDB2 error on failure
+     * @access public
+     */
+    function vacuum($table = null, $options = array())
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $timeout = isset($options['timeout']) ? (int)$options['timeout'] : 300;
+
+        $query = 'NSControl Create';
+        $result = $db->exec($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        return $db->exec('EXEC NSVacuum '.$timeout);
+    }
+
+    // }}}
     // {{{ alterTable()
 
     /**
@@ -420,7 +456,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 } else {
-                    $query.= 'ADD ';
+                    $query.= 'ADD COLUMN ';
                 }
                 $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
@@ -440,7 +476,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                     $query.= 'ALTER COLUMN ';
                 }
 
-                //MSSQL not support change default value of field in altering mode
+                //MSSQL doesn't allow changing the DEFAULT value of a field in altering mode
                 if (array_key_exists('default', $field['definition'])) {
                     unset($field['definition']['default']);
                 }

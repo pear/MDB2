@@ -285,6 +285,55 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ vacuum()
+
+    /**
+     * Optimize (vacuum) all the tables in the db (or only the specified table)
+     * and optionally run ANALYZE.
+     *
+     * @param string $table table name (all the tables if empty)
+     * @param array  $options an array with driver-specific options:
+     *               - timeout [int] (in seconds) [mssql-only]
+     *               - analyze [boolean] [pgsql and mysql]
+     *               - full [boolean] [pgsql-only]
+     *               - freeze [boolean] [pgsql-only]
+     *
+     * @return mixed MDB2_OK success, a MDB2 error on failure
+     * @access public
+     */
+    function vacuum($table = null, $options = array())
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (empty($table)) {
+            $table = $this->listTables();
+            if (PEAR::isError($table)) {
+                return $table;
+            }
+        }
+        if (is_array($table)) {
+            foreach (array_keys($table) as $k) {
+            	$table[$k] = $db->quoteIdentifier($table[$k]);
+            }
+            $table = implode(', ', $table);
+        } else {
+            $table = $db->quoteIdentifier($table);
+        }
+        
+        $result = $db->exec('OPTIMIZE TABLE '.$table);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if (!empty($options['analyze'])) {
+            return $db->exec('ANALYZE TABLE '.$table);
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
     // {{{ alterTable()
 
     /**
@@ -687,33 +736,34 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
      * Get the stucture of a field into an array
      *
      * @author Leoncx
-     * @param string    $table         name of the table on which the index is to be created
-     * @param string    $name         name of the index to be created
-     * @param array     $definition        associative array that defines properties of the index to be created.
-     *                                 Currently, only one property named FIELDS is supported. This property
-     *                                 is also an associative with the names of the index fields as array
-     *                                 indexes. Each entry of this array is set to another type of associative
-     *                                 array that specifies properties of the index that are specific to
-     *                                 each field.
+     * @param string $table      name of the table on which the index is to be created
+     * @param string $name       name of the index to be created
+     * @param array  $definition associative array that defines properties of the index to be created.
+     *                           Currently, only one property named FIELDS is supported. This property
+     *                           is also an associative with the names of the index fields as array
+     *                           indexes. Each entry of this array is set to another type of associative
+     *                           array that specifies properties of the index that are specific to
+     *                           each field.
      *
-     *                                Currently, only the sorting property is supported. It should be used
-     *                                 to define the sorting direction of the index. It may be set to either
-     *                                 ascending or descending.
+     *                           Currently, only the sorting property is supported. It should be used
+     *                           to define the sorting direction of the index. It may be set to either
+     *                           ascending or descending.
      *
-     *                                Not all DBMS support index sorting direction configuration. The DBMS
-     *                                 drivers of those that do not support it ignore this property. Use the
-     *                                 function supports() to determine whether the DBMS driver can manage indexes.
+     *                           Not all DBMS support index sorting direction configuration. The DBMS
+     *                           drivers of those that do not support it ignore this property. Use the
+     *                           function supports() to determine whether the DBMS driver can manage indexes.
      *
-     *                                 Example
-     *                                    array(
-     *                                        'fields' => array(
-     *                                            'user_name' => array(
-     *                                                'sorting' => 'ascending'
-     *                                                'length' => 10
-     *                                            ),
-     *                                            'last_login' => array()
-     *                                        )
+     *                           Example
+     *                               array(
+     *                                   'fields' => array(
+     *                                       'user_name' => array(
+     *                                           'sorting' => 'ascending'
+     *                                           'length' => 10
+     *                                       ),
+     *                                       'last_login' => array()
      *                                    )
+     *                                )
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */

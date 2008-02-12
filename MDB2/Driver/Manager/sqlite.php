@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2008 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith, Lorenzo Alberton                       |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -401,6 +401,37 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
 
         $name = $db->quoteIdentifier($name, true);
         return $db->exec("DROP TABLE $name");
+    }
+
+    // }}}
+    // {{{ vacuum()
+
+    /**
+     * Optimize (vacuum) all the tables in the db (or only the specified table)
+     * and optionally run ANALYZE.
+     *
+     * @param string $table table name (all the tables if empty)
+     * @param array  $options an array with driver-specific options:
+     *               - timeout [int] (in seconds) [mssql-only]
+     *               - analyze [boolean] [pgsql and mysql]
+     *               - full [boolean] [pgsql-only]
+     *               - freeze [boolean] [pgsql-only]
+     *
+     * @return mixed MDB2_OK success, a MDB2 error on failure
+     * @access public
+     */
+    function vacuum($table = null, $options = array())
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = 'VACUUM';
+        if (!empty($table)) {
+            $query .= ' '.$db->quoteIdentifier($table, true);
+        }
+        return $db->exec($query);
     }
 
     // }}}

@@ -7,6 +7,8 @@ $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
 - request #12528: added 'session_mode' DSN parameter
+- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - request #12800: added alterDatabase() in the Manager module
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()

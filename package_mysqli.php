@@ -9,6 +9,8 @@ $notes = <<<EOT
 - request #11204: support AUTO_INCREMENT for FLOAT data type and UNSIGNED option
   for FLOAT and DECIMAL data type [afz]
 - fixed bug #11692: value of $db->supports('transactions') changes after query [afz]
+- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - request #12800: added alterDatabase() in the Manager module [afz]
 - fixed quoting in createDatabase() in the Manager module
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling

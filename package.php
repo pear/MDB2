@@ -8,6 +8,7 @@ $version_api = $version_release;
 $state = 'alpha';
 $notes = <<<EOT
 - request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - request #12800: added alterDatabase() in the Manager module [afz]
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - fixed bug #12991: new error code in errorInfo() [afz]

@@ -285,6 +285,55 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ vacuum()
+
+    /**
+     * Optimize (vacuum) all the tables in the db (or only the specified table)
+     * and optionally run ANALYZE.
+     *
+     * @param string $table table name (all the tables if empty)
+     * @param array  $options an array with driver-specific options:
+     *               - timeout [int] (in seconds) [mssql-only]
+     *               - analyze [boolean] [pgsql and mysql]
+     *               - full [boolean] [pgsql-only]
+     *               - freeze [boolean] [pgsql-only]
+     *
+     * @return mixed MDB2_OK success, a MDB2 error on failure
+     * @access public
+     */
+    function vacuum($table = null, $options = array())
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (empty($table)) {
+            $table = $this->listTables();
+            if (PEAR::isError($table)) {
+                return $table;
+            }
+        }
+        if (is_array($table)) {
+            foreach (array_keys($table) as $k) {
+            	$table[$k] = $db->quoteIdentifier($table[$k]);
+            }
+            $table = implode(', ', $table);
+        } else {
+            $table = $db->quoteIdentifier($table);
+        }
+
+        $result = $db->exec('OPTIMIZE TABLE '.$table);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if (!empty($options['analyze'])) {
+            return $db->exec('ANALYZE TABLE '.$table);
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
     // {{{ alterTable()
 
     /**
