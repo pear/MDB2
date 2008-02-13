@@ -16,6 +16,7 @@ $notes = <<<EOT
 - fixed bug #12922: use standaloneQuery() in alterDatabase() [thanks to Ali Fazelzade]
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
+- fixed bug #13112: the Reverse module does not know the timestamptz data type
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

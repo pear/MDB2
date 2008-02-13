@@ -453,6 +453,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
             break;
         case 'datetime':
         case 'timestamp':
+        case 'timestamptz':
             $type[] = 'timestamp';
             $length = null;
             break;
