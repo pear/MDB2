@@ -456,7 +456,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 if ($query) {
                     $query.= ', ';
                 } else {
-                    $query.= 'ADD COLUMN ';
+                    $query.= 'ADD ';
                 }
                 $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
@@ -468,25 +468,20 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         if (!empty($changes['change']) && is_array($changes['change'])) {
-            $query = '';
             foreach ($changes['change'] as $field_name => $field) {
-                if ($query) {
-                    $query.= ', ';
-                } else {
-                    $query.= 'ALTER COLUMN ';
-                }
+                //MSSQL doesn't allow multiple ALTER COLUMNs in one query
+                $query = 'ALTER COLUMN ';
 
                 //MSSQL doesn't allow changing the DEFAULT value of a field in altering mode
                 if (array_key_exists('default', $field['definition'])) {
                     unset($field['definition']['default']);
                 }
 
-                $query.= $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
-            }
-
-            $result = $db->exec("ALTER TABLE $name $query");
-            if (PEAR::isError($result)) {
-                return $result;
+                $query .= $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
+                $result = $db->exec("ALTER TABLE $name $query");
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
             }
         }
 
