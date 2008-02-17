@@ -12,7 +12,8 @@ $notes = <<<EOT
 - request #12800: added alterDatabase() in the Manager module
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
-- better handle NULL LOBs in execute()
+- better handling of NULL LOBs in execute()
+- request #13106: added unixtimestamp() in the Function module
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8

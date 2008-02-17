@@ -15,6 +15,7 @@ $notes = <<<EOT
 - fixed quoting in createDatabase() in the Manager module
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
+- request #13106: added unixtimestamp() in the Function module
 
 open todo items:
 - use a trigger to emulate setting default now()

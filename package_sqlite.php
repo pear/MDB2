@@ -10,6 +10,7 @@ $notes = <<<EOT
 - request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
+- request #13106: added unixtimestamp() in the Function module
 
 note:
 open todo items:

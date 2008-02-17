@@ -13,6 +13,7 @@ $notes = <<<EOT
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - fixed bug #12991: new error code in errorInfo() [afz]
 - added databaseExists() method [afz]
+- request #13106: added unixtimestamp() in the Function module
 
 open todo items:
 - handle autoincrement fields in alterTable()

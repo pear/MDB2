@@ -17,6 +17,7 @@ $notes = <<<EOT
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
 - fixed bug #13112: the Reverse module does not know the timestamptz data type
+- request #13106: added unixtimestamp() in the Function module
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

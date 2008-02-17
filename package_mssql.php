@@ -15,6 +15,7 @@ $notes = <<<EOT
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - extended alterTable() support in the Manager module [afz]
 - added standaloneQuery() and databaseExists()
+- request #13106: added unixtimestamp() in the Function module
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
