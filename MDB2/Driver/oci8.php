@@ -551,13 +551,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     // }}}
     // {{{ standaloneQuery()
 
-   /**
+    /**
      * execute a query as DBA
      *
-     * @param string $query the SQL query
-     * @param mixed   $types  array that contains the types of the columns in
-     *                        the result set
-     * @param boolean $is_manip  if the query is a manipulation query
+     * @param string $query     the SQL query
+     * @param mixed  $types     array containing the types of the columns in
+     *                          the result set
+     * @param boolean $is_manip if the query is a manipulation query
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -1548,6 +1548,11 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             if (!empty($lobs)) {
                 foreach ($lob_keys as $i) {
                     if (!is_null($lobs[$i]['value']) && $lobs[$i]['value'] !== '') {
+                        if (is_object($lobs[$i]['value'])) {
+                            // Probably a NULL LOB
+                            // @see http://bugs.php.net/bug.php?id=27485
+                            continue;
+                        }
                         if ($lobs[$i]['file']) {
                             $result = $lobs[$i]['descriptor']->savefile($lobs[$i]['value']);
                         } else {
