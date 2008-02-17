@@ -277,5 +277,37 @@ class MDB2_Function_TestCase extends MDB2_TestCase
             $this->assertEquals('say what', $result, 'Error: could not get replace string: '.$result);
         }
     }
+
+    /**
+     * Test unixtimestamp()
+     */
+    function testUnixtimestamp()
+    {
+        if (!$this->methodExists($this->db->function, 'unixtimestamp')) {
+            return;
+        }
+
+        $datetime = '2008-01-01 00:00:00';
+        $quoted_dt = $this->db->quote($datetime, 'timestamp');
+        $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
+        $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
+        $unixts_clause = $this->db->function->unixtimestamp($quoted_dt);
+        $this->db->popExpect();
+        $this->db->popErrorHandling();
+        if (PEAR::isError($unixts_clause) && $unixts_clause->getCode() == MDB2_ERROR_UNSUPPORTED) {
+            return;
+        }
+
+        $expected = strtotime($datetime);
+
+        $functionTable_clause = $this->db->function->functionTable();
+        $query = 'SELECT '.$unixts_clause . $functionTable_clause;
+        $result = $this->db->queryOne($query, 'text');
+        if (PEAR::isError($result)) {
+            $this->assertFalse(true, 'Error getting UNIX timestamp:'. $result->getMessage() . ' :: ' . $result->getUserInfo());
+        } else {
+            $this->assertEquals($expected, $result, 'Error: could not get correct UNIX timestamp: '.$result);
+        }
+    }
 }
 ?>

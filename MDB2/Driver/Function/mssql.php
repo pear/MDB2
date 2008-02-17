@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2008 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -57,7 +57,6 @@ require_once 'MDB2/Driver/Function/Common.php';
  */
 class MDB2_Driver_Function_mssql extends MDB2_Driver_Function_Common
 {
-     // }}}
     // {{{ executeStoredProc()
 
     /**
@@ -106,6 +105,22 @@ class MDB2_Driver_Function_mssql extends MDB2_Driver_Function_Common
         default:
             return 'GETDATE()';
         }
+    }
+
+    // }}}
+    // {{{ unixtimestamp()
+
+    /**
+     * return string to call a function to get the unix timestamp from a iso timestamp
+     *
+     * @param string $expression
+     *
+     * @return string to call a variable with the timestamp
+     * @access public
+     */
+    function unixtimestamp($expression)
+    {
+        return 'DATEDIFF(second, \'19700101\', '. $expression.') + DATEDIFF(second, GETDATE(), GETUTCDATE())';
     }
 
     // }}}
