@@ -232,8 +232,9 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             }
         }
 
-        $this->fk_constraint1_name = $this->table2.'_fk_on_'.$this->table.'_id';
-        $this->fk_constraint2_name = $this->table2.'_fk_on_'.$this->table.'_id2_id3';
+        $this->fk_constraint1_name = $this->table2.'_fk_'.$this->table.'_id';
+        //$this->fk_constraint2_name = $this->table2.'_fk_'.$this->table.'_id2_id3';
+        $this->fk_constraint2_name = $this->table2.'_fk_'.$this->table.'_2f';
         $this->constraints2 = array(
             $this->fk_constraint1_name => array(
                 'primary' => false,
@@ -318,7 +319,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
 
         $table_info = $this->db->reverse->tableInfo($this->table);
         if (PEAR::isError($table_info)) {
-            $this->assertTrue(false, 'Error in tableInfo(): '.$table_info->getMessage());
+            $this->assertTrue(false, 'Error in tableInfo(): '.$table_info->getMessage().' :: '.$table_info->getUserInfo());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
@@ -337,7 +338,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $result = $this->db->query('SELECT * FROM '.$this->table);
         $table_info = $this->db->reverse->tableInfo($result);
         if (PEAR::isError($table_info)) {
-            $this->assertTrue(false, 'Error in tableInfo(): '.$table_info->getMessage());
+            $this->assertTrue(false, 'Error in tableInfo(): '.$table_info->getMessage().' :: '.$table_info->getUserInfo());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
@@ -380,7 +381,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         //test blob
         $field_info = $this->db->reverse->getTableFieldDefinition('files', 'picture');
         if (PEAR::isError($field_info)) {
-            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage().' :: '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals($field_info['type'], 'blob', 'The field type is different from the expected one');
