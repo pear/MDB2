@@ -497,7 +497,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         $charset = empty($field['charset']) ? '' :
             ' '.$this->_getCharsetFieldDeclaration($field['charset']);
 
-        $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+        $notnull = empty($field['notnull']) ? '' : ' NOT NULL';
         $default = '';
         if (array_key_exists('default', $field)) {
             if ($field['default'] === '') {
@@ -514,14 +514,6 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if (!is_null($field['default'])) {
                 $default = ' DEFAULT ' . $this->quote($field['default'], $field['type']);
             }
-        }
-
-        if (!empty($default) && $notnull == ' NULL') {
-            $notnull = '';
-        }
-
-        if (empty($default) && ($notnull == ' NULL' || $notnull == ' NOT NULL')) {
-            $default = ' DEFAULT';
         }
 
         $collation = empty($field['collation']) ? '' :
