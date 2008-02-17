@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2007 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2008 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -424,7 +424,10 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                             WHEN 24 THEN 'UPDATE, DELETE'
                             WHEN 12 THEN 'INSERT, DELETE'
                          END AS trigger_event,
-                         trg.tgenabled AS trigger_enabled,
+                         CASE trg.tgenabled
+                            WHEN 'O' THEN 't'
+                            ELSE trg.tgenabled
+                         END AS trigger_enabled,
                          obj_description(trg.oid, 'pg_trigger') AS trigger_comment
                     FROM pg_trigger trg,
                          pg_class tbl,
