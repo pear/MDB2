@@ -516,6 +516,10 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             }
         }
 
+        if (!empty($default) && $notnull == ' NULL') {
+            $notnull = '';
+        }
+
         if (empty($default) && ($notnull == ' NULL' || $notnull == ' NOT NULL')) {
             $default = ' DEFAULT';
         }
