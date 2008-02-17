@@ -454,7 +454,7 @@ class MDB2_Driver_Reverse_mssql extends MDB2_Driver_Reverse_Common
         }
         $trg_body = $db->queryCol('EXEC sp_helptext '. $db->quote($trigger, 'text'), 'text');
         if (!PEAR::isError($trg_body)) {
-            $def['trigger_body'] = implode('', $trg_body);
+            $def['trigger_body'] = implode(' ', $trg_body);
         }
         return $def;
     }
