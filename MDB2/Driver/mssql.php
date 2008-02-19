@@ -345,6 +345,8 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                 'unable to establish a connection', __FUNCTION__, __FUNCTION__);
         }
 
+        @mssql_query('SET ANSI_NULL_DFLT_ON ON', $connection);
+
         if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
             if (PEAR::isError($result)) {
