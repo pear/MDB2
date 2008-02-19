@@ -159,7 +159,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->getSequenceName($mix_name);
-        $trigger_name  = $db->quoteIdentifier($mix_name . '_AUTOINCREMENT_PK', true);
+        $trigger_name  = $db->quoteIdentifier($mix_name . '_AI_PK', true);
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->quoteIdentifier($name, true);
         $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
@@ -201,7 +201,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         //remove autoincrement trigger associated with the table
         $table = $db->quote(strtoupper($table), 'text');
-        $trigger_name = $db->quote(strtoupper($table) . '_AUTOINCREMENT_PK', 'text');
+        $trigger_name = $db->quote(strtoupper($table) . '_AI_PK', 'text');
         $result = $db->exec("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)=$table AND UPPER(RDB\$TRIGGER_NAME)=$trigger_name");
         if (PEAR::isError($result)) {
             return $db->raiseError(null, null, null,
