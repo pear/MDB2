@@ -287,16 +287,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
     {
         $db_type = strtolower($field['type']);
         $length = !empty($field['length']) ? $field['length'] : null;
-        /*
-        $db_type = strtok($db_type, '(), ');
-        if (!empty($field['length'])) {
-            $length = strtok($field['length'], ', ');
-            $decimal = strtok(', ');
-        } else {
-            $length = strtok('(), ');
-            $decimal = strtok('(), ');
-        }
-        */
         $unsigned = !empty($field['unsigned']) ? $field['unsigned'] : null;
         $fixed = null;
         $type = array();
@@ -383,7 +373,6 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         case 'decimal':
         case 'numeric':
             $type[] = 'decimal';
-            //$unsigned = preg_match('/ unsigned/i', $field['type']);
             $length = $length.','.$field['decimal'];
             break;
         case 'tinyblob':
@@ -413,7 +402,7 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
 
         return array($type, $length, $unsigned, $fixed);
     }
-    
+
     // }}}
 }
 
