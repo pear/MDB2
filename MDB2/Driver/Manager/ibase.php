@@ -202,7 +202,12 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         //remove autoincrement trigger associated with the table
         $table = $db->quote(strtoupper($table), 'text');
         $trigger_name = $db->quote(strtoupper($table) . '_AI_PK', 'text');
-        $result = $db->exec("DELETE FROM RDB\$TRIGGERS WHERE UPPER(RDB\$RELATION_NAME)=$table AND UPPER(RDB\$TRIGGER_NAME)=$trigger_name");
+        $trigger_name_old = $db->quote(strtoupper($table) . '_AUTOINCREMENT_PK', 'text');
+        $query = "DELETE FROM RDB\$TRIGGERS
+                   WHERE UPPER(RDB\$RELATION_NAME)=$table
+                     AND (UPPER(RDB\$TRIGGER_NAME)=$trigger_name
+                      OR UPPER(RDB\$TRIGGER_NAME)=$trigger_name_old)";
+        $result = $db->exec($query);
         if (PEAR::isError($result)) {
             return $db->raiseError(null, null, null,
                 'trigger for autoincrement PK could not be dropped', __FUNCTION__);
