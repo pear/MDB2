@@ -775,6 +775,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      *
      * @param string $table name of the table into which a new row was inserted
      * @param string $field name of the field into which a new row was inserted
+     *
      * @return mixed MDB2 Error Object or id
      * @access public
      */
@@ -787,6 +788,9 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             $query = "SELECT IDENT_CURRENT('$table')";
         } else {
             $query = "SELECT @@IDENTITY";
+            if (!is_null($table)) {
+                $query .= ' FROM '.$this->quoteIdentifier($table, true);
+            }
         }
 
         return $this->queryOne($query, 'integer');
