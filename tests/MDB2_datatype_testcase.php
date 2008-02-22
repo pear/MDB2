@@ -693,7 +693,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         $field = array('type' => 'integer');
         $result = $this->db->datatype->getDeclaration($type, $name, $field);
         $actual_type = $this->db->phptype == 'sqlite' ? 'INTEGER' : 'INT';
-        $default = $this->db->phptype == 'mssql' ? ' NULL' : ' DEFAULT NULL';
+        $default = $this->db->phptype == 'mssql' ? ' NULL' : '';
         $this->assertEquals('column '.$actual_type.$default, $result, 'getDeclaration');
 
         // Test with a custom datatype
@@ -728,7 +728,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         );
         $this->db->setOption('datatype_map', array($name => $type));
         $result = $this->db->datatype->getDeclaration($field['type'], $field['name'], $field);
-        $default = $this->db->phptype == 'mssql' ? ' NULL' : ' DEFAULT NULL';
+        $default = $this->db->phptype == 'mssql' ? ' NULL' : '';
         $expected = $field['name'].' '.$this->db->datatype->getTypeDeclaration(array('type' => $type)).$default;
         $this->assertEquals($expected, $result);
         unset($this->db->options['datatype_map']);

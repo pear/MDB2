@@ -232,8 +232,6 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
                 $field['default'] = empty($field['notnull']) ? null : 0;
             }
             $default = ' DEFAULT '.$this->quote($field['default'], 'integer');
-        } elseif (empty($field['notnull'])) {
-            $default = ' DEFAULT NULL';
         }
 
         $notnull = empty($field['notnull']) ? '' : ' NOT NULL';
