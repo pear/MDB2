@@ -404,7 +404,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $name = $db->quoteIdentifier($name, true);
+        $name_quoted = $db->quoteIdentifier($name, true);
 
         foreach ($changes as $change_name => $change) {
             switch ($change_name) {
@@ -424,9 +424,27 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $indexes = $this->TableIndexesInfo($name);
         if (!empty($changes['remove']) && is_array($changes['remove'])) {
             $query = '';
             foreach ($changes['remove'] as $field_name => $field) {
+                $idxname_format = $db->getOption('idxname_format');
+                $db->setOption('idxname_format', '%s');
+                foreach ($indexes as $index_name => $index) {
+                    if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
+                        $indexes[$index_name]['flag'] = true;
+                        if ($index['primary'] || $index['unique']) {
+                            $result = $this->dropConstraint($name, $index_name);
+                        } else {
+                            $result = $this->dropIndex($name, $index_name);
+                        }
+                        if (PEAR::isError($result)) {
+                            return $result;
+                        }
+                    }
+                }
+                $db->setOption('idxname_format', $idxname_format);
+
                 if ($query) {
                     $query.= ', ';
                 }
@@ -434,7 +452,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $query.= 'DROP COLUMN ' . $field_name;
             }
 
-            $result = $db->exec("ALTER TABLE $name $query");
+            $result = $db->exec("ALTER TABLE $name_quoted $query");
             if (PEAR::isError($result)) {
                 return $result;
             }
@@ -443,7 +461,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if (!empty($changes['rename']) && is_array($changes['rename'])) {
             foreach ($changes['rename'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name, true);
-                $result = $db->exec("sp_rename '$name.$field_name', '".$field['name']."', 'COLUMN'");
+                $result = $db->exec("sp_rename '$name_quoted.$field_name', '".$field['name']."', 'COLUMN'");
                 if (PEAR::isError($result)) {
                     return $result;
                 }
@@ -461,14 +479,32 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $query.= $db->getDeclaration($field['type'], $field_name, $field);
             }
 
-            $result = $db->exec("ALTER TABLE $name $query");
+            $result = $db->exec("ALTER TABLE $name_quoted $query");
             if (PEAR::isError($result)) {
                 return $result;
             }
         }
 
+        $indexes = $this->TableIndexesInfo($name);
         if (!empty($changes['change']) && is_array($changes['change'])) {
             foreach ($changes['change'] as $field_name => $field) {
+                $idxname_format = $db->getOption('idxname_format');
+                $db->setOption('idxname_format', '%s');
+                foreach ($indexes as $index_name => $index) {
+                    if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
+                        $indexes[$index_name]['flag'] = true;
+                        if ($index['primary'] || $index['unique']) {
+                            $result = $this->dropConstraint($name, $index_name);
+                        } else {
+                            $result = $this->dropIndex($name, $index_name);
+                        }
+                        if (PEAR::isError($result)) {
+                            return $result;
+                        }
+                    }
+                }
+                $db->setOption('idxname_format', $idxname_format);
+
                 //MSSQL doesn't allow multiple ALTER COLUMNs in one query
                 $query = 'ALTER COLUMN ';
 
@@ -478,16 +514,32 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 }
 
                 $query .= $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
-                $result = $db->exec("ALTER TABLE $name $query");
+                $result = $db->exec("ALTER TABLE $name_quoted $query");
                 if (PEAR::isError($result)) {
                     return $result;
                 }
             }
+
+            $idxname_format = $db->getOption('idxname_format');
+            $db->setOption('idxname_format', '%s');
+            foreach ($indexes as $index_name => $index) {
+                if (isset($index['flag'])) {
+                    if ($index['primary'] || $index['unique']) {
+                        $result = $this->createConstraint($name, $index_name, $index);
+                    } else {
+                        $result = $this->createIndex($name, $index_name, $index);
+                    }
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
+                }
+            }
+            $db->setOption('idxname_format', $idxname_format);
         }
 
         if (!empty($changes['name'])) {
             $new_name = $db->quoteIdentifier($changes['name'], true);
-            $result = $db->exec("sp_rename '$name', '$new_name'");
+            $result = $db->exec("sp_rename '$name_quoted', '$new_name'");
             if (PEAR::isError($result)) {
                 return $result;
             }
@@ -561,6 +613,58 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $columns = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $columns);
         }
         return $columns;
+    }
+
+    // }}}
+    // {{{ TableIndexesInfo()
+
+    /**
+     * Information about indexes
+     *
+     * @param string $table name of table that should be used in method
+     *
+     * @return mixed array of indexs info on success, a MDB2 error on failure
+     * @access public
+     */
+    function TableIndexesInfo($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $table = $db->quote($table, 'text');
+        $query = "sp_statistics @table_name=$table";
+        $indexes = $db->queryAll($query);
+        if (PEAR::isError($indexes)) {
+            return $indexes;
+        }
+
+        $result = array();
+        foreach ($indexes as $index) {
+            if (empty($index[8])) {
+                continue;
+            }
+
+            $index_name = $index[5];
+            if (isset($result[$index_name])) {
+                $result[$index_name]['fields'][$index[8]] = array('sorting'  => $index[9],
+                                                                  'position' => $index[7],
+                                                                 );
+            } else {
+                $result[$index_name]['primary'] = $index[6] == 1;
+                $result[$index_name]['unique']  = !(bool)$index[3];
+                $result[$index_name]['fields'][$index[8]] = array('sorting'  => $index[9],
+                                                                  'position' => $index[7],
+                                                                 );
+            }
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_change_key_case($result, $db->options['field_case']);
+        }
+
+        return $result;
     }
 
     // }}}
