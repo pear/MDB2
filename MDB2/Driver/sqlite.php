@@ -127,7 +127,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             
         // PHP 5.2+ prepends the function name to $php_errormsg, so we need
         // this hack to work around it, per bug #9599.
-        $native_msg = preg_replace('/^sqlite[a-z_]+\(\): /', '', $native_msg);
+        $native_msg = preg_replace('/^sqlite[a-z_]+\(\)[^:]*: /', '', $native_msg);
 
         if (is_null($error)) {
             static $error_regexps;

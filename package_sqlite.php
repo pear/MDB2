@@ -11,6 +11,7 @@ $notes = <<<EOT
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
 - request #13106: added unixtimestamp() in the Function module
+- fixed bug #13201: better regexp in errorInfo()
 
 note:
 open todo items:
