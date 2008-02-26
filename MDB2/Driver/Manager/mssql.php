@@ -424,12 +424,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $idxname_format = $db->getOption('idxname_format');
+        $db->setOption('idxname_format', '%s');
         $indexes = $this->TableIndexesInfo($name);
         if (!empty($changes['remove']) && is_array($changes['remove'])) {
             $query = '';
             foreach ($changes['remove'] as $field_name => $field) {
-                $idxname_format = $db->getOption('idxname_format');
-                $db->setOption('idxname_format', '%s');
                 foreach ($indexes as $index_name => $index) {
                     if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
                         $indexes[$index_name]['flag'] = true;
@@ -443,7 +443,14 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                         }
                     }
                 }
-                $db->setOption('idxname_format', $idxname_format);
+
+                $result = $this->GetTableFieldDefaultConstraint($name, $field_name);
+                if (!PEAR::isError($result) && !empty($result)) {
+                    $result = $this->dropConstraint($name, $result);
+                }
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
 
                 if ($query) {
                     $query.= ', ';
@@ -488,8 +495,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $indexes = $this->TableIndexesInfo($name);
         if (!empty($changes['change']) && is_array($changes['change'])) {
             foreach ($changes['change'] as $field_name => $field) {
-                $idxname_format = $db->getOption('idxname_format');
-                $db->setOption('idxname_format', '%s');
                 foreach ($indexes as $index_name => $index) {
                     if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
                         $indexes[$index_name]['flag'] = true;
@@ -503,7 +508,14 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                         }
                     }
                 }
-                $db->setOption('idxname_format', $idxname_format);
+
+                $result = $this->GetTableFieldDefaultConstraint($name, $field_name);
+                if (!PEAR::isError($result) && !empty($result)) {
+                    $result = $this->dropConstraint($name, $result);
+                }
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
 
                 //MSSQL doesn't allow multiple ALTER COLUMNs in one query
                 $query = 'ALTER COLUMN ';
@@ -520,8 +532,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 }
             }
 
-            $idxname_format = $db->getOption('idxname_format');
-            $db->setOption('idxname_format', '%s');
             foreach ($indexes as $index_name => $index) {
                 if (isset($index['flag'])) {
                     if ($index['primary'] || $index['unique']) {
@@ -534,8 +544,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                     }
                 }
             }
-            $db->setOption('idxname_format', $idxname_format);
         }
+        $db->setOption('idxname_format', $idxname_format);
 
         if (!empty($changes['name'])) {
             $new_name = $db->quoteIdentifier($changes['name'], true);
@@ -668,6 +678,34 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ GetTableFieldDefaultConstraint()
+
+    /**
+     * Get field's default constraint
+     *
+     * @param string $table name of table that should be used in method
+     * @param string $field name of field that should be used in method
+     *
+     * @return mixed name of default constraint on success, a MDB2 error on failure
+     * @access public
+     */
+    function GetTableFieldDefaultConstraint($table, $field)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $table = $db->quoteIdentifier($table, true);
+        $field = $db->quote($field, 'text');
+        $query = "SELECT OBJECT_NAME(syscolumns.cdefault)
+                  FROM syscolumns
+                  WHERE syscolumns.id = object_id('$table') and syscolumns.name = $field";
+        $result = $db->queryOne($query);
+        return $result;
+    }
+
+        // }}}
     // {{{ listTableIndexes()
 
     /**
