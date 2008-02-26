@@ -1,10 +1,9 @@
 <?php
-// vim: set et ts=4 sw=4 fdm=marker:
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
-// | Stig. S. Bakken, Lukas Smith, Frank M. Kromann                       |
+// | Copyright (c) 1998-2008 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -40,1080 +39,1066 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Frank M. Kromann <frank@kromann.info>                        |
+// | Authors: Frank M. Kromann <frank@kromann.info>                       |
+// |          David Coallier <davidc@php.net>                             |
+// |          Lorenzo Alberton <l.alberton@quipo.it>                      |
 // +----------------------------------------------------------------------+
 //
 // $Id$
 //
-// {{{ Class MDB2_Driver_mssql
+
+require_once 'MDB2/Driver/Manager/Common.php';
+
+// {{{ class MDB2_Driver_Manager_mssql
+
 /**
- * MDB2 MSSQL Server driver
+ * MDB2 MSSQL driver for the management modules
  *
  * @package MDB2
  * @category Database
  * @author  Frank M. Kromann <frank@kromann.info>
+ * @author  David Coallier <davidc@php.net>
+ * @author  Lorenzo Alberton <l.alberton@quipo.it>
  */
-class MDB2_Driver_mssql extends MDB2_Driver_Common
+class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 {
-    // {{{ properties
-
-    var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => "'", 'escape_pattern' => false);
-
-    var $identifier_quoting = array('start' => '[', 'end' => ']', 'escape' => ']');
-
-    // }}}
-    // {{{ constructor
-
+    // {{{ createDatabase()
     /**
-     * Constructor
-     */
-    function __construct()
-    {
-        parent::__construct();
-
-        $this->phptype = 'mssql';
-        $this->dbsyntax = 'mssql';
-
-        $this->supported['sequences'] = 'emulated';
-        $this->supported['indexes'] = true;
-        $this->supported['affected_rows'] = true;
-        $this->supported['transactions'] = true;
-        $this->supported['savepoints'] = false;
-        $this->supported['summary_functions'] = true;
-        $this->supported['order_by_text'] = true;
-        $this->supported['current_id'] = 'emulated';
-        $this->supported['limit_queries'] = 'emulated';
-        $this->supported['LOBs'] = true;
-        $this->supported['replace'] = 'emulated';
-        $this->supported['sub_selects'] = true;
-        $this->supported['auto_increment'] = true;
-        $this->supported['primary_key'] = true;
-        $this->supported['result_introspection'] = true;
-        $this->supported['prepared_statements'] = 'emulated';
-        $this->supported['pattern_escaping'] = true;
-        $this->supported['new_link'] = true;
-
-        $this->options['DBA_username'] = false;
-        $this->options['DBA_password'] = false;
-        $this->options['database_device'] = false;
-        $this->options['database_size'] = false;
-    }
-
-    // }}}
-    // {{{ errorInfo()
-
-    /**
-     * This method is used to collect information about an error
+     * create a new database
      *
-     * @param integer $error
-     * @return array
-     * @access public
-     */
-    function errorInfo($error = null, $connection = null)
-    {
-        if (is_null($connection)) {
-            $connection = $this->connection;
-        }
-
-        $native_code = null;
-        if ($connection) {
-            $result = @mssql_query('select @@ERROR as ErrorCode', $connection);
-            if ($result) {
-                $native_code = @mssql_result($result, 0, 0);
-                @mssql_free_result($result);
-            }
-        }
-        $native_msg = @mssql_get_last_message();
-        if (is_null($error)) {
-            static $ecode_map;
-            if (empty($ecode_map)) {
-                $ecode_map = array(
-                    102   => MDB2_ERROR_SYNTAX,
-                    110   => MDB2_ERROR_VALUE_COUNT_ON_ROW,
-                    155   => MDB2_ERROR_NOSUCHFIELD,
-                    156   => MDB2_ERROR_SYNTAX,
-                    170   => MDB2_ERROR_SYNTAX,
-                    207   => MDB2_ERROR_NOSUCHFIELD,
-                    208   => MDB2_ERROR_NOSUCHTABLE,
-                    245   => MDB2_ERROR_INVALID_NUMBER,
-                    319   => MDB2_ERROR_SYNTAX,
-                    321   => MDB2_ERROR_NOSUCHFIELD,
-                    325   => MDB2_ERROR_SYNTAX,
-                    336   => MDB2_ERROR_SYNTAX,
-                    515   => MDB2_ERROR_CONSTRAINT_NOT_NULL,
-                    547   => MDB2_ERROR_CONSTRAINT,
-                    911   => MDB2_ERROR_NOT_FOUND,
-                    1018  => MDB2_ERROR_SYNTAX,
-                    1035  => MDB2_ERROR_SYNTAX,
-                    1801  => MDB2_ERROR_ALREADY_EXISTS,
-                    1913  => MDB2_ERROR_ALREADY_EXISTS,
-                    2209  => MDB2_ERROR_SYNTAX,
-                    2223  => MDB2_ERROR_SYNTAX,
-                    2248  => MDB2_ERROR_SYNTAX,
-                    2256  => MDB2_ERROR_SYNTAX,
-                    2257  => MDB2_ERROR_SYNTAX,
-                    2627  => MDB2_ERROR_CONSTRAINT,
-                    2714  => MDB2_ERROR_ALREADY_EXISTS,
-                    3607  => MDB2_ERROR_DIVZERO,
-                    3701  => MDB2_ERROR_NOSUCHTABLE,
-                    7630  => MDB2_ERROR_SYNTAX,
-                    8134  => MDB2_ERROR_DIVZERO,
-                    9303  => MDB2_ERROR_SYNTAX,
-                    9317  => MDB2_ERROR_SYNTAX,
-                    9318  => MDB2_ERROR_SYNTAX,
-                    9331  => MDB2_ERROR_SYNTAX,
-                    9332  => MDB2_ERROR_SYNTAX,
-                    15253 => MDB2_ERROR_SYNTAX,
-                );
-            }
-            if (isset($ecode_map[$native_code])) {
-                if ($native_code == 3701
-                    && preg_match('/Cannot drop the index/i', $native_msg)
-                ) {
-                   $error = MDB2_ERROR_NOT_FOUND;
-                } else {
-                    $error = $ecode_map[$native_code];
-                }
-            }
-        }
-        return array($error, $native_code, $native_msg);
-    }
-
-    // }}}
-    // {{{ function escapePattern($text)
-
-    /**
-     * Quotes pattern (% and _) characters in a string)
+     * @param string $name    name of the database that should be created
+     * @param array  $options array with collation info
      *
-     * @param   string  the input string to quote
-     *
-     * @return  string  quoted string
-     *
-     * @access  public
-     */
-    function escapePattern($text)
-    {
-        $text = str_replace("[", "[ [ ]", $text);
-        foreach ($this->wildcards as $wildcard) {
-            $text = str_replace($wildcard, '[' . $wildcard . ']', $text);
-        }
-        return $text;
-    }
-
-    // }}}
-    // {{{ beginTransaction()
-
-    /**
-     * Start a transaction or set a savepoint.
-     *
-     * @param   string  name of a savepoint to set
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access  public
-     */
-    function beginTransaction($savepoint = null)
-    {
-        $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        if (!is_null($savepoint)) {
-            if (!$this->in_transaction) {
-                return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                    'savepoint cannot be released when changes are auto committed', __FUNCTION__);
-            }
-            $query = 'SAVE TRANSACTION '.$savepoint;
-            return $this->_doQuery($query, true);
-        } elseif ($this->in_transaction) {
-            return MDB2_OK;  //nothing to do
-        }
-        if (!$this->destructor_registered && $this->opened_persistent) {
-            $this->destructor_registered = true;
-            register_shutdown_function('MDB2_closeOpenTransactions');
-        }
-        $result =& $this->_doQuery('BEGIN TRANSACTION', true);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        $this->in_transaction = true;
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ commit()
-
-    /**
-     * Commit the database changes done during a transaction that is in
-     * progress or release a savepoint. This function may only be called when
-     * auto-committing is disabled, otherwise it will fail. Therefore, a new
-     * transaction is implicitly started after committing the pending changes.
-     *
-     * @param   string  name of a savepoint to release
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access  public
-     */
-    function commit($savepoint = null)
-    {
-        $this->debug('Committing transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
-        }
-        if (!is_null($savepoint)) {
-            return MDB2_OK;
-        }
-
-        $result =& $this->_doQuery('COMMIT TRANSACTION', true);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        $this->in_transaction = false;
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ rollback()
-
-    /**
-     * Cancel any database changes done during a transaction or since a specific
-     * savepoint that is in progress. This function may only be called when
-     * auto-committing is disabled, otherwise it will fail. Therefore, a new
-     * transaction is implicitly started after canceling the pending changes.
-     *
-     * @param   string  name of a savepoint to rollback to
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access  public
-     */
-    function rollback($savepoint = null)
-    {
-        $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        if (!$this->in_transaction) {
-            return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                'rollback cannot be done changes are auto committed', __FUNCTION__);
-        }
-        if (!is_null($savepoint)) {
-            $query = 'ROLLBACK TRANSACTION '.$savepoint;
-            return $this->_doQuery($query, true);
-        }
-
-        $result =& $this->_doQuery('ROLLBACK TRANSACTION', true);
-        if (PEAR::isError($result)) {
-            return $result;
-        }
-        $this->in_transaction = false;
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ _doConnect()
-
-    /**
-     * do the grunt work of the connect
-     *
-     * @return connection on success or MDB2 Error Object on failure
-     * @access protected
-     */
-    function _doConnect($username, $password, $persistent = false)
-    {
-        if (!PEAR::loadExtension($this->phptype) && !PEAR::loadExtension('sybase_ct')) {
-            return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
-        }
-
-        $params = array(
-            $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost',
-            $username ? $username : null,
-            $password ? $password : null,
-        );
-        if ($this->dsn['port']) {
-            $params[0].= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':').$this->dsn['port'];
-        }
-        if (!$persistent) {
-            if (isset($this->dsn['new_link'])
-                && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true)
-            ) {
-                $params[] = true;
-            } else {
-                $params[] = false;
-            }
-        }
-
-        $connect_function = $persistent ? 'mssql_pconnect' : 'mssql_connect';
-
-        $connection = @call_user_func_array($connect_function, $params);
-        if ($connection <= 0) {
-            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-                'unable to establish a connection', __FUNCTION__, __FUNCTION__);
-        }
-
-        @mssql_query('SET ANSI_NULL_DFLT_ON ON', $connection);
-
-        if (!empty($this->dsn['charset'])) {
-            $result = $this->setCharset($this->dsn['charset'], $connection);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
-        }
-
-       if ((bool)ini_get('mssql.datetimeconvert')) {
-           @ini_set('mssql.datetimeconvert', '0');
-       }
-
-       if (empty($this->dsn['disable_iso_date'])) {
-           @mssql_query('SET DATEFORMAT ymd', $connection);
-       }
-
-       return $connection;
-    }
-
-    // }}}
-    // {{{ connect()
-
-    /**
-     * Connect to the database
-     *
-     * @return true on success, MDB2 Error Object on failure
-     */
-    function connect()
-    {
-        if (is_resource($this->connection)) {
-            //if (count(array_diff($this->connected_dsn, $this->dsn)) == 0
-            if (MDB2::areEquals($this->connected_dsn, $this->dsn)
-                && $this->opened_persistent == $this->options['persistent']
-            ) {
-                return MDB2_OK;
-            }
-            $this->disconnect(false);
-        }
-
-        $connection = $this->_doConnect(
-            $this->dsn['username'],
-            $this->dsn['password'],
-            $this->options['persistent']
-        );
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-
-        $this->connection = $connection;
-        $this->connected_dsn = $this->dsn;
-        $this->connected_database_name = '';
-        $this->opened_persistent = $this->options['persistent'];
-        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
-
-        if ($this->database_name) {
-            if ($this->database_name != $this->connected_database_name) {
-                if (!@mssql_select_db($this->database_name, $connection)) {
-                    $err = $this->raiseError(null, null, null,
-                        'Could not select the database: '.$this->database_name, __FUNCTION__);
-                    return $err;
-                }
-                $this->connected_database_name = $this->database_name;
-            }
-        }
-
-        return MDB2_OK;
-    }
-
-    // }}}
-    // {{{ databaseExists()
-
-    /**
-     * check if given database name is exists?
-     *
-     * @param string $name    name of the database that should be checked
-     *
-     * @return mixed true/false on success, a MDB2 error on failure
-     * @access public
-     */
-    function databaseExists($name)
-    {
-        $connection = $this->_doConnect($this->dsn['username'],
-                                        $this->dsn['password'],
-                                        $this->options['persistent']);
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-
-        $result = @mssql_select_db($name, $connection);
-        $errorInfo = $this->errorInfo(null, $connection);
-        @mssql_close($connection);
-        if (!$result) {
-            if ($errorInfo[0] != MDB2_ERROR_NOT_FOUND) {
-            exit;
-                $result = $this->raiseError($errorInfo[0], null, null, $errorInfo[2], __FUNCTION__);
-                return $result;
-            }
-            $result = false;
-        }
-
-        return $result;
-    }
-
-    // }}}
-    // {{{ disconnect()
-
-    /**
-     * Log out and disconnect from the database.
-     *
-     * @param  boolean $force if the disconnect should be forced even if the
-     *                        connection is opened persistently
-     * @return mixed true on success, false if not connected and error
-     *                object on error
-     * @access public
-     */
-    function disconnect($force = true)
-    {
-        if (is_resource($this->connection)) {
-            if ($this->in_transaction) {
-                $dsn = $this->dsn;
-                $database_name = $this->database_name;
-                $persistent = $this->options['persistent'];
-                $this->dsn = $this->connected_dsn;
-                $this->database_name = $this->connected_database_name;
-                $this->options['persistent'] = $this->opened_persistent;
-                $this->rollback();
-                $this->dsn = $dsn;
-                $this->database_name = $database_name;
-                $this->options['persistent'] = $persistent;
-            }
-
-            if (!$this->opened_persistent || $force) {
-                @mssql_close($this->connection);
-            }
-        }
-        return parent::disconnect($force);
-    }
-
-    // }}}
-    // {{{ standaloneQuery()
-
-   /**
-     * execute a query as DBA
-     *
-     * @param string $query the SQL query
-     * @param mixed   $types  array that contains the types of the columns in
-     *                        the result set
-     * @param boolean $is_manip  if the query is a manipulation query
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &standaloneQuery($query, $types = null, $is_manip = false)
+    function createDatabase($name, $options = array())
     {
-        $connection = $this->_doConnect($this->options['DBA_username'],
-                                        $this->options['DBA_password'],
-                                        $this->options['persistent']);
-        if (PEAR::isError($connection)) {
-            return $connection;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
         }
 
-        $offset = $this->offset;
-        $limit = $this->limit;
-        $this->offset = $this->limit = 0;
-        $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
-        
-        $result =& $this->_doQuery($query, $is_manip, $connection, $this->database_name);
-        if (!PEAR::isError($result)) {
-            $result = $this->_affectedRows($connection, $result);
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
         }
 
-        @mssql_close($connection);
-        return $result;
+        $name = $db->quoteIdentifier($name, true);
+        $query = "CREATE DATABASE $name";
+        if ($db->options['database_device']) {
+            $query.= ' ON '.$db->options['database_device'];
+            $query.= $db->options['database_size'] ? '=' .
+                     $db->options['database_size'] : '';
+        }
+        if (!empty($options['collation'])) {
+            $query .= ' COLLATE ' . $options['collation'];
+        }
+        return $db->standaloneQuery($query, null, true);
     }
 
     // }}}
-    // {{{ _doQuery()
+    // {{{ alterDatabase()
 
     /**
-     * Execute a query
-     * @param string $query  query
-     * @param boolean $is_manip  if the query is a manipulation query
-     * @param resource $connection
-     * @param string $database_name
-     * @return result or error object
+     * alter an existing database
+     *
+     * @param string $name    name of the database that is intended to be changed
+     * @param array  $options array with name, collation info
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function alterDatabase($name, $options = array())
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
+        $query = '';
+        if (!empty($options['name'])) {
+            $query .= ' MODIFY NAME = ' .$db->quoteIdentifier($options['name'], true);
+        }
+        if (!empty($options['collation'])) {
+            $query .= ' COLLATE ' . $options['collation'];
+        }
+        if (!empty($query)) {
+            $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true) . $query;
+            return $db->standaloneQuery($query, null, true);
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ dropDatabase()
+
+    /**
+     * drop an existing database
+     *
+     * @param string $name name of the database that should be dropped
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropDatabase($name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        if (!$db->options['DBA_username']) {
+            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
+                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
+        }
+
+        $name = $db->quoteIdentifier($name, true);
+        return $db->standaloneQuery("DROP DATABASE $name", null, true);
+    }
+
+    // }}}
+    // {{{ _getTemporaryTableQuery()
+
+    /**
+     * Override the parent method.
+     *
+     * @return string The string required to be placed between "CREATE" and "TABLE"
+     *                to generate a temporary table, if possible.
+     */
+    function _getTemporaryTableQuery()
+    {
+        return '';
+    }
+
+    // }}}
+    // {{{ _getAdvancedFKOptions()
+
+    /**
+     * Return the FOREIGN KEY query section dealing with non-standard options
+     * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
+     *
+     * @param array $definition
+     *
+     * @return string
      * @access protected
      */
-    function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    function _getAdvancedFKOptions($definition)
     {
-        $this->last_query = $query;
-        $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
-        if ($result) {
-            if (PEAR::isError($result)) {
-                return $result;
-            }
-            $query = $result;
+        $query = '';
+        if (!empty($definition['onupdate'])) {
+            $query .= ' ON UPDATE '.$definition['onupdate'];
         }
-        if ($this->options['disable_query']) {
-            $result = $is_manip ? 0 : null;
-            return $result;
-        }
-
-        if (is_null($connection)) {
-            $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
-                return $connection;
-            }
-        }
-        if (is_null($database_name)) {
-            $database_name = $this->database_name;
-        }
-
-        if ($database_name) {
-            if ($database_name != $this->connected_database_name) {
-                if (!@mssql_select_db($database_name, $connection)) {
-                    $err = $this->raiseError(null, null, null,
-                        'Could not select the database: '.$database_name, __FUNCTION__);
-                    return $err;
-                }
-                $this->connected_database_name = $database_name;
-            }
-        }
-
-        $result = @mssql_query($query, $connection);
-        if (!$result) {
-            $err =& $this->raiseError(null, null, null,
-                'Could not execute statement', __FUNCTION__);
-            return $err;
-        }
-
-        $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'post', 'result' => $result));
-        return $result;
-    }
-
-    // }}}
-    // {{{ _affectedRows()
-
-    /**
-     * Returns the number of rows affected
-     *
-     * @param resource $result
-     * @param resource $connection
-     * @return mixed MDB2 Error Object or the number of rows affected
-     * @access private
-     */
-    function _affectedRows($connection, $result = null)
-    {
-        if (is_null($connection)) {
-            $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
-                return $connection;
-            }
-        }
-        return @mssql_rows_affected($connection);
-    }
-
-    // }}}
-    // {{{ _modifyQuery()
-
-    /**
-     * Changes a query string for various DBMS specific reasons
-     *
-     * @param string $query  query to modify
-     * @param boolean $is_manip  if it is a DML query
-     * @param integer $limit  limit the number of rows
-     * @param integer $offset  start reading from given offset
-     * @return string modified query
-     * @access protected
-     */
-    function _modifyQuery($query, $is_manip, $limit, $offset)
-    {
-        if ($limit > 0) {
-            $fetch = $offset + $limit;
-            if (!$is_manip) {
-                return preg_replace('/^([\s(])*SELECT( DISTINCT)?(?!\s*TOP\s*\()/i',
-                    "\\1SELECT\\2 TOP $fetch", $query);
-            }
+        if (!empty($definition['ondelete'])) {
+            $query .= ' ON DELETE '.$definition['ondelete'];
         }
         return $query;
     }
 
     // }}}
-    // {{{ getServerVersion()
+    // {{{ createTable()
 
     /**
-     * return version information about the server
+     * create a new table
      *
-     * @param bool   $native  determines if the raw version string should be returned
-     * @return mixed array/string with version information or MDB2 error object
+     * @param string $name   Name of the database that should be created
+     * @param array  $fields Associative array that contains the definition of each field of the new table
+     *                       The indexes of the array entries are the names of the fields of the table an
+     *                       the array entry values are associative arrays like those that are meant to be
+     *                       passed with the field definitions to get[Type]Declaration() functions.
+     *
+     *                      Example
+     *                        array(
+     *
+     *                            'id' => array(
+     *                                'type' => 'integer',
+     *                                'unsigned' => 1,
+     *                                'notnull' => 1,
+     *                                'default' => 0,
+     *                            ),
+     *                            'name' => array(
+     *                                'type' => 'text',
+     *                                'length' => 12,
+     *                            ),
+     *                            'description' => array(
+     *                                'type' => 'text',
+     *                                'length' => 12,
+     *                            )
+     *                        );
+     * @param array $options An associative array of table options:
+     *                          array(
+     *                              'comment' => 'Foo',
+     *                              'temporary' => true|false,
+     *                          );
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function getServerVersion($native = false)
+    function createTable($name, $fields, $options = array())
     {
-        if ($this->connected_server_info) {
-            $server_info = $this->connected_server_info;
-        } else {
-            $query = 'SELECT @@VERSION';
-            $server_info = $this->queryOne($query, 'text');
-            if (PEAR::isError($server_info)) {
-                return $server_info;
-            }
+        if (!empty($options['temporary'])) {
+            $name = '#'.$name;
         }
-        // cache server_info
-        $this->connected_server_info = $server_info;
-        if (!$native && !PEAR::isError($server_info)) {
-            if (preg_match('/(\d+)\.(\d+)\.(\d+)/', $server_info, $tmp)) {
-                $server_info = array(
-                    'major' => $tmp[1],
-                    'minor' => $tmp[2],
-                    'patch' => $tmp[3],
-                    'extra' => null,
-                    'native' => $server_info,
-                );
-            } else {
-                $server_info = array(
-                    'major' => null,
-                    'minor' => null,
-                    'patch' => null,
-                    'extra' => null,
-                    'native' => $server_info,
-                );
-            }
-        }
-        return $server_info;
+        return parent::createTable($name, $fields, $options);
     }
 
     // }}}
-    // {{{ _checkSequence
+    // {{{ truncateTable()
 
     /**
-     * Checks if there's a sequence that exists.
+     * Truncate an existing table (if the TRUNCATE TABLE syntax is not supported,
+     * it falls back to a DELETE FROM TABLE query)
      *
-     * @param  string $seq_name    The sequence name to verify.
-     * @return bool   $tableExists The value if the table exists or not
-     * @access private
+     * @param string $name name of the table that should be truncated
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
-    function _checkSequence($seq_name)
+    function truncateTable($name)
     {
-        $query = "SELECT * FROM $seq_name";
-        $tableExists =& $this->_doQuery($query, true);
-        if (PEAR::isError($tableExists)) {
-            if ($tableExists->getCode() == MDB2_ERROR_NOSUCHTABLE) {
-                return false;
-            }
-            //return $tableExists;
-            return false;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
         }
-        return mssql_result($tableExists, 0, 0);
+
+        $name = $db->quoteIdentifier($name, true);
+        return $db->exec("TRUNCATE TABLE $name");
     }
 
     // }}}
-    // {{{ nextID()
+    // {{{ vacuum()
 
     /**
-     * Returns the next free id of a sequence
+     * Optimize (vacuum) all the tables in the db (or only the specified table)
+     * and optionally run ANALYZE.
      *
-     * @param string $seq_name name of the sequence
-     * @param boolean $ondemand when true the sequence is
-     *                          automatic created, if it
-     *                          not exists
+     * @param string $table table name (all the tables if empty)
+     * @param array  $options an array with driver-specific options:
+     *               - timeout [int] (in seconds) [mssql-only]
+     *               - analyze [boolean] [pgsql and mysql]
+     *               - full [boolean] [pgsql-only]
+     *               - freeze [boolean] [pgsql-only]
      *
-     * @return mixed MDB2 Error Object or id
+     * NB: you have to run the NSControl Create utility to enable VACUUM
+     *
+     * @return mixed MDB2_OK success, a MDB2 error on failure
      * @access public
      */
-    function nextID($seq_name, $ondemand = true)
+    function vacuum($table = null, $options = array())
     {
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq_name), true);
-        $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
-        $this->pushErrorHandling(PEAR_ERROR_RETURN);
-        $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        
-        $seq_val = $this->_checkSequence($sequence_name);
-
-        if ($seq_val) {
-            $query = "SET IDENTITY_INSERT $sequence_name OFF ".
-                     "INSERT INTO $sequence_name DEFAULT VALUES";
-        } else {
-            $query = "INSERT INTO $sequence_name ($seqcol_name) VALUES (0)";
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
         }
-        $result =& $this->_doQuery($query, true);
-        $this->popExpect();
-        $this->popErrorHandling();
+        $timeout = isset($options['timeout']) ? (int)$options['timeout'] : 300;
+
+        $query = 'NSControl Create';
+        $result = $db->exec($query);
         if (PEAR::isError($result)) {
-            if ($ondemand && !$this->_checkSequence($sequence_name)) {
-                $this->loadModule('Manager', null, true);
-                $result = $this->manager->createSequence($seq_name);
-                if (PEAR::isError($result)) {
-                    return $this->raiseError($result, null, null,
-                        'on demand sequence '.$seq_name.' could not be created', __FUNCTION__);
-                } else {
-                    /**
-                     * Little off-by-one problem with the sequence emulation
-                     * here being fixed, that instead of re-calling nextID
-                     * and forcing an increment by one, we simply check if it
-                     * exists, then we get the last inserted id if it does.
-                     *
-                     * In theory, $seq_name should be created otherwise there would
-                     * have been an error thrown somewhere up there.. 
-                     *
-                     * @todo confirm
-                     */
-                    if ($this->_checkSequence($seq_name)) {
-                        return $this->lastInsertID($seq_name);
-                    }
-
-                    return $this->nextID($seq_name, false);
-                }
-            }
             return $result;
         }
-        $value = $this->lastInsertID($sequence_name);
-        if (is_numeric($value)) {
-            $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
-            $result =& $this->_doQuery($query, true);
-            if (PEAR::isError($result)) {
-                $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
-            }
-        }
-        return $value;
+
+        return $db->exec('EXEC NSVacuum '.$timeout);
     }
 
     // }}}
-    // {{{ lastInsertID()
+    // {{{ alterTable()
 
     /**
-     * Returns the autoincrement ID if supported or $id or fetches the current
-     * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
+     * alter an existing table
      *
-     * @param string $table name of the table into which a new row was inserted
-     * @param string $field name of the field into which a new row was inserted
+     * @param string  $name    name of the table that is intended to be changed.
+     * @param array   $changes associative array that contains the details of each type
+     *                         of change that is intended to be performed. The types of
+     *                         changes that are currently supported are defined as follows:
      *
-     * @return mixed MDB2 Error Object or id
+     *                             name
+     *
+     *                                New name for the table.
+     *
+     *                            add
+     *
+     *                                Associative array with the names of fields to be added as
+     *                                 indexes of the array. The value of each entry of the array
+     *                                 should be set to another associative array with the properties
+     *                                 of the fields to be added. The properties of the fields should
+     *                                 be the same as defined by the MDB2 parser.
+     *
+     *
+     *                            remove
+     *
+     *                                Associative array with the names of fields to be removed as indexes
+     *                                 of the array. Currently the values assigned to each entry are ignored.
+     *                                 An empty array should be used for future compatibility.
+     *
+     *                            rename
+     *
+     *                                Associative array with the names of fields to be renamed as indexes
+     *                                 of the array. The value of each entry of the array should be set to
+     *                                 another associative array with the entry named name with the new
+     *                                 field name and the entry named Declaration that is expected to contain
+     *                                 the portion of the field declaration already in DBMS specific SQL code
+     *                                 as it is used in the CREATE TABLE statement.
+     *
+     *                            change
+     *
+     *                                Associative array with the names of the fields to be changed as indexes
+     *                                 of the array. Keep in mind that if it is intended to change either the
+     *                                 name of a field and any other properties, the change array entries
+     *                                 should have the new names of the fields as array indexes.
+     *
+     *                                The value of each entry of the array should be set to another associative
+     *                                 array with the properties of the fields to that are meant to be changed as
+     *                                 array entries. These entries should be assigned to the new values of the
+     *                                 respective properties. The properties of the fields should be the same
+     *                                 as defined by the MDB2 parser.
+     *
+     *                            Example
+     *                                array(
+     *                                    'name' => 'userlist',
+     *                                    'add' => array(
+     *                                        'quota' => array(
+     *                                            'type' => 'integer',
+     *                                            'unsigned' => 1
+     *                                        )
+     *                                    ),
+     *                                    'remove' => array(
+     *                                        'file_limit' => array(),
+     *                                        'time_limit' => array()
+     *                                    ),
+     *                                    'change' => array(
+     *                                        'name' => array(
+     *                                            'length' => '20',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 20,
+     *                                            ),
+     *                                        )
+     *                                    ),
+     *                                    'rename' => array(
+     *                                        'sex' => array(
+     *                                            'name' => 'gender',
+     *                                            'definition' => array(
+     *                                                'type' => 'text',
+     *                                                'length' => 1,
+     *                                                'default' => 'M',
+     *                                            ),
+     *                                        )
+     *                                    )
+     *                                )
+     *
+     * @param boolean $check   indicates whether the function should just check if the DBMS driver
+     *                         can perform the requested table alterations if the value is true or
+     *                         actually perform them otherwise.
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function lastInsertID($table = null, $field = null)
+    function alterTable($name, $changes, $check)
     {
-        $server_info = $this->getServerVersion();
-        if (is_array($server_info) && !is_null($server_info['major'])
-           && $server_info['major'] >= 8
-        ) {
-            $query = "SELECT IDENT_CURRENT('$table')";
-        } else {
-            $query = "SELECT @@IDENTITY";
-            if (!is_null($table)) {
-                $query .= ' FROM '.$this->quoteIdentifier($table, true);
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $name_quoted = $db->quoteIdentifier($name, true);
+
+        foreach ($changes as $change_name => $change) {
+            switch ($change_name) {
+            case 'remove':
+            case 'rename':
+            case 'add':
+            case 'change':
+            case 'name':
+                break;
+            default:
+                return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
+                    'change type "'.$change_name.'" not yet supported', __FUNCTION__);
             }
         }
 
-        return $this->queryOne($query, 'integer');
-    }
+        if ($check) {
+            return MDB2_OK;
+        }
 
-    // }}}
-}
+        $idxname_format = $db->getOption('idxname_format');
+        $db->setOption('idxname_format', '%s');
+        $indexes = $this->TableIndexesInfo($name);
+        if (!empty($changes['remove']) && is_array($changes['remove'])) {
+            $query = '';
+            foreach ($changes['remove'] as $field_name => $field) {
+                foreach ($indexes as $index_name => $index) {
+                    if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
+                        $indexes[$index_name]['flag'] = true;
+                        if ($index['primary'] || $index['unique']) {
+                            $result = $this->dropConstraint($name, $index_name);
+                        } else {
+                            $result = $this->dropIndex($name, $index_name);
+                        }
+                        if (PEAR::isError($result)) {
+                            return $result;
+                        }
+                    }
+                }
 
-// }}}
-// {{{ Class MDB2_Result_mssql
+                $result = $this->GetTableFieldDefaultConstraint($name, $field_name);
+                if (!PEAR::isError($result) && !empty($result)) {
+                    $result = $this->dropConstraint($name, $result);
+                }
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
 
-/**
- * MDB2 MSSQL Server result driver
- *
- * @package MDB2
- * @category Database
- * @author  Frank M. Kromann <frank@kromann.info>
- */
-class MDB2_Result_mssql extends MDB2_Result_Common
-{
-    // {{{ _skipLimitOffset()
+                if ($query) {
+                    $query.= ', ';
+                }
+                $field_name = $db->quoteIdentifier($field_name, true);
+                $query.= 'DROP COLUMN ' . $field_name;
+            }
 
-    /**
-     * Skip the first row of a result set.
-     *
-     * @param resource $result
-     * @return mixed a result handle or MDB2_OK on success, a MDB2 error on failure
-     * @access protected
-     */
-    function _skipLimitOffset()
-    {
-        if ($this->limit) {
-            if ($this->rownum >= $this->limit) {
-                return false;
+            $result = $db->exec("ALTER TABLE $name_quoted $query");
+            if (PEAR::isError($result)) {
+                return $result;
             }
         }
-        if ($this->offset) {
-            while ($this->offset_count < $this->offset) {
-                ++$this->offset_count;
-                if (!is_array(@mssql_fetch_row($this->result))) {
-                    $this->offset_count = $this->limit;
-                    return false;
+
+        if (!empty($changes['rename']) && is_array($changes['rename'])) {
+            foreach ($changes['rename'] as $field_name => $field) {
+                $field_name = $db->quoteIdentifier($field_name, true);
+                $result = $db->exec("sp_rename '$name_quoted.$field_name', '".$field['name']."', 'COLUMN'");
+                if (PEAR::isError($result)) {
+                    return $result;
                 }
             }
         }
+
+        if (!empty($changes['add']) && is_array($changes['add'])) {
+            $query = '';
+            foreach ($changes['add'] as $field_name => $field) {
+                if ($query) {
+                    $query.= ', ';
+                } else {
+                    $query.= 'ADD ';
+                }
+                $query.= $db->getDeclaration($field['type'], $field_name, $field);
+            }
+
+            $result = $db->exec("ALTER TABLE $name_quoted $query");
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        $indexes = $this->TableIndexesInfo($name);
+        if (!empty($changes['change']) && is_array($changes['change'])) {
+            foreach ($changes['change'] as $field_name => $field) {
+                foreach ($indexes as $index_name => $index) {
+                    if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
+                        $indexes[$index_name]['flag'] = true;
+                        if ($index['primary'] || $index['unique']) {
+                            $result = $this->dropConstraint($name, $index_name);
+                        } else {
+                            $result = $this->dropIndex($name, $index_name);
+                        }
+                        if (PEAR::isError($result)) {
+                            return $result;
+                        }
+                    }
+                }
+
+                $result = $this->GetTableFieldDefaultConstraint($name, $field_name);
+                if (!PEAR::isError($result) && !empty($result)) {
+                    $result = $this->dropConstraint($name, $result);
+                }
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+
+                //MSSQL doesn't allow multiple ALTER COLUMNs in one query
+                $query = 'ALTER COLUMN ';
+
+                //MSSQL doesn't allow changing the DEFAULT value of a field in altering mode
+                if (array_key_exists('default', $field['definition'])) {
+                    unset($field['definition']['default']);
+                }
+
+                $query .= $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
+                $result = $db->exec("ALTER TABLE $name_quoted $query");
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+            }
+
+            foreach ($indexes as $index_name => $index) {
+                if (isset($index['flag'])) {
+                    if ($index['primary'] || $index['unique']) {
+                        $result = $this->createConstraint($name, $index_name, $index);
+                    } else {
+                        $result = $this->createIndex($name, $index_name, $index);
+                    }
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
+                }
+            }
+        }
+        $db->setOption('idxname_format', $idxname_format);
+
+        if (!empty($changes['name'])) {
+            $new_name = $db->quoteIdentifier($changes['name'], true);
+            $result = $db->exec("sp_rename '$name_quoted', '$new_name'");
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
         return MDB2_OK;
     }
 
     // }}}
-    // {{{ fetchRow()
+    // {{{ listTables()
 
     /**
-     * Fetch a row and insert the data into an existing array.
+     * list all tables in the current database
      *
-     * @param int       $fetchmode  how the array data should be indexed
-     * @param int    $rownum    number of the row where the data can be found
-     * @return int data array on success, a MDB2 error on failure
+     * @return mixed array of table names on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
+    function listTables()
     {
-        if (!$this->_skipLimitOffset()) {
-            $null = null;
-            return $null;
+        $db =& $this->getDBInstance();
+
+        if (PEAR::isError($db)) {
+            return $db;
         }
-        if (!is_null($rownum)) {
-            $seek = $this->seek($rownum);
-            if (PEAR::isError($seek)) {
-                return $seek;
+
+        $query = 'EXEC sp_tables @table_type = "\'TABLE\'"';
+        $table_names = $db->queryCol($query, null, 2);
+        if (PEAR::isError($table_names)) {
+            return $table_names;
+        }
+        $result = array();
+        foreach ($table_names as $table_name) {
+            if (!$this->_fixSequenceName($table_name, true)) {
+                $result[] = $table_name;
             }
         }
-        if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
-            $fetchmode = $this->db->fetchmode;
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ?
+                        'strtolower' : 'strtoupper'), $result);
         }
-        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
-            $row = @mssql_fetch_assoc($this->result);
-            if (is_array($row)
-                && $this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
-            ) {
-                $row = array_change_key_case($row, $this->db->options['field_case']);
-            }
-        } else {
-            $row = @mssql_fetch_row($this->result);
-        }
-        if (!$row) {
-            if ($this->result === false) {
-                $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'resultset has already been freed', __FUNCTION__);
-                return $err;
-            }
-            $null = null;
-            return $null;
-        }
-        $mode = $this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL;
-        $rtrim = false;
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_RTRIM) {
-            if (empty($this->types)) {
-                $mode += MDB2_PORTABILITY_RTRIM;
-            } else {
-                $rtrim = true;
-            }
-        }
-        if ($mode) {
-            $this->db->_fixResultArrayValues($row, $mode);
-        }
-        if (!empty($this->types)) {
-            $row = $this->db->datatype->convertResultRow($this->types, $row, $rtrim);
-        }
-        if (!empty($this->values)) {
-            $this->_assignBindColumns($row);
-        }
-        if ($fetchmode === MDB2_FETCHMODE_OBJECT) {
-            $object_class = $this->db->options['fetch_class'];
-            if ($object_class == 'stdClass') {
-                $row = (object) $row;
-            } else {
-                $row = &new $object_class($row);
-            }
-        }
-        ++$this->rownum;
-        return $row;
+        return $result;
     }
 
     // }}}
-    // {{{ _getColumnNames()
+    // {{{ listTableFields()
 
     /**
-     * Retrieve the names of columns returned by the DBMS in a query result.
+     * list all fields in a table in the current database
      *
-     * @return  mixed   Array variable that holds the names of columns as keys
-     *                  or an MDB2 error on failure.
-     *                  Some DBMS may not return any columns when the result set
-     *                  does not contain any rows.
-     * @access private
+     * @param string $table name of table that should be used in method
+     *
+     * @return mixed array of field names on success, a MDB2 error on failure
+     * @access public
      */
-    function _getColumnNames()
+    function listTableFields($table)
     {
-        $columns = array();
-        $numcols = $this->numCols();
-        if (PEAR::isError($numcols)) {
-            return $numcols;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
         }
-        for ($column = 0; $column < $numcols; $column++) {
-            $column_name = @mssql_field_name($this->result, $column);
-            $columns[$column_name] = $column;
+        
+        $table = $db->quoteIdentifier($table, true);
+        $columns = $db->queryCol("SELECT c.name
+                                    FROM syscolumns c
+                               LEFT JOIN sysobjects o ON c.id = o.id
+                                   WHERE o.name = '$table'");
+        if (PEAR::isError($columns)) {
+            return $columns;
         }
-        if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $columns = array_change_key_case($columns, $this->db->options['field_case']);
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $columns = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $columns);
         }
         return $columns;
     }
 
     // }}}
-    // {{{ numCols()
+    // {{{ TableIndexesInfo()
 
     /**
-     * Count the number of columns returned by the DBMS in a query result.
+     * Information about indexes
      *
-     * @return mixed integer value with the number of columns, a MDB2 error
-     *      on failure
+     * @param string $table name of table that should be used in method
+     *
+     * @return mixed array of indexs info on success, a MDB2 error on failure
      * @access public
      */
-    function numCols()
+    function TableIndexesInfo($table)
     {
-        $cols = @mssql_num_fields($this->result);
-        if (is_null($cols)) {
-            if ($this->result === false) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
-                return count($this->types);
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $table = $db->quote($table, 'text');
+        $query = "sp_statistics @table_name=$table";
+        $indexes = $db->queryAll($query);
+        if (PEAR::isError($indexes)) {
+            return $indexes;
+        }
+
+        $result = array();
+        foreach ($indexes as $index) {
+            if (empty($index[8])) {
+                continue;
             }
-            return $this->db->raiseError(null, null, null,
-                'Could not get column count', __FUNCTION__);
-        }
-        return $cols;
-    }
 
-    // }}}
-    // {{{ nextResult()
-
-    /**
-     * Move the internal result pointer to the next available result
-     *
-     * @return true on success, false if there is no more result set or an error object on failure
-     * @access public
-     */
-    function nextResult()
-    {
-        if ($this->result === false) {
-            return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                'resultset has already been freed', __FUNCTION__);
-        } elseif (is_null($this->result)) {
-            return false;
-        }
-        return @mssql_next_result($this->result);
-    }
-
-    // }}}
-    // {{{ free()
-
-    /**
-     * Free the internal resources associated with $result.
-     *
-     * @return boolean true on success, false if $result is invalid
-     * @access public
-     */
-    function free()
-    {
-        if (is_resource($this->result) && $this->db->connection) {
-            $free = @mssql_free_result($this->result);
-            if ($free === false) {
-                return $this->db->raiseError(null, null, null,
-                    'Could not free result', __FUNCTION__);
+            $index_name = $index[5];
+            if (isset($result[$index_name])) {
+                $result[$index_name]['fields'][$index[8]] = array('sorting'  => $index[9],
+                                                                  'position' => $index[7],
+                                                                 );
+            } else {
+                $result[$index_name]['primary'] = $index[6] == 1;
+                $result[$index_name]['unique']  = !(bool)$index[3];
+                $result[$index_name]['fields'][$index[8]] = array('sorting'  => $index[9],
+                                                                  'position' => $index[7],
+                                                                 );
             }
         }
-        $this->result = false;
-        return MDB2_OK;
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_change_key_case($result, $db->options['field_case']);
+        }
+
+        return $result;
     }
 
     // }}}
-}
-
-// }}}
-// {{{ class MDB2_BufferedResult_mssql
-
-/**
- * MDB2 MSSQL Server buffered result driver
- *
- * @package MDB2
- * @category Database
- * @author  Frank M. Kromann <frank@kromann.info>
- */
-class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
-{
-    // {{{ seek()
+    // {{{ GetTableFieldDefaultConstraint()
 
     /**
-     * Seek to a specific row in a result set
+     * Get field's default constraint
      *
-     * @param int    $rownum    number of the row where the data can be found
+     * @param string $table name of table that should be used in method
+     * @param string $field name of field that should be used in method
+     *
+     * @return mixed name of default constraint on success, a MDB2 error on failure
+     * @access public
+     */
+    function GetTableFieldDefaultConstraint($table, $field)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $table = $db->quoteIdentifier($table, true);
+        $field = $db->quote($field, 'text');
+        $query = "SELECT OBJECT_NAME(syscolumns.cdefault)
+                  FROM syscolumns
+                  WHERE syscolumns.id = object_id('$table') and syscolumns.name = $field";
+        $result = $db->queryOne($query);
+        return $result;
+    }
+
+        // }}}
+    // {{{ listTableIndexes()
+
+    /**
+     * list all indexes in a table
+     *
+     * @param string $table name of table that should be used in method
+     *
+     * @return mixed array of index names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listTableIndexes($table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $key_name = 'INDEX_NAME';
+        $pk_name = 'PK_NAME';
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            if ($db->options['field_case'] == CASE_LOWER) {
+                $key_name = strtolower($key_name);
+                $pk_name  = strtolower($pk_name);
+            } else {
+                $key_name = strtoupper($key_name);
+                $pk_name  = strtoupper($pk_name);
+            }
+        }
+        $table = $db->quote($table, 'text');
+        $query = "EXEC sp_statistics @table_name=$table";
+        $indexes = $db->queryCol($query, 'text', $key_name);
+        if (PEAR::isError($indexes)) {
+            return $indexes;
+        }
+        $query = "EXEC sp_pkeys @table_name=$table";
+        $pk_all = $db->queryCol($query, 'text', $pk_name);
+        $result = array();
+        foreach ($indexes as $index) {
+            if (!in_array($index, $pk_all) && ($index = $this->_fixIndexName($index))) {
+                $result[$index] = true;
+            }
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_change_key_case($result, $db->options['field_case']);
+        }
+        return array_keys($result);
+    }
+
+    // }}}
+    // {{{ listDatabases()
+
+    /**
+     * list all databases
+     *
+     * @return mixed array of database names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listDatabases()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $result = $db->queryCol('SELECT name FROM sys.databases');
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ listUsers()
+
+    /**
+     * list all users
+     *
+     * @return mixed array of user names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listUsers()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $result = $db->queryCol('SELECT DISTINCT loginame FROM master..sysprocesses');
+        if (PEAR::isError($result) || empty($result)) {
+            return $result;
+        }
+        foreach (array_keys($result) as $k) {
+            $result[$k] = trim($result[$k]);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ listFunctions()
+
+    /**
+     * list all functions in the current database
+     *
+     * @return mixed array of function names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listFunctions()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name
+                    FROM sysobjects
+                   WHERE objectproperty(id, N'IsMSShipped') = 0
+                    AND (objectproperty(id, N'IsTableFunction') = 1
+                     OR objectproperty(id, N'IsScalarFunction') = 1)";
+        /*
+        SELECT ROUTINE_NAME
+          FROM INFORMATION_SCHEMA.ROUTINES
+         WHERE ROUTINE_TYPE = 'FUNCTION'
+        */
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ listTableTriggers()
+
+    /**
+     * list all triggers in the database that reference a given table
+     *
+     * @param string table for which all referenced triggers should be found
+     *
+     * @return mixed array of trigger names on success,  otherwise, false which
+     *               could be a db error if the db is not instantiated or could
+     *               be the results of the error that occured during the
+     *               querying of the sysobject module.
+     * @access public
+     */
+    function listTableTriggers($table = null)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $table = $db->quote($table, 'text');
+        $query = "SELECT o.name
+                    FROM sysobjects o
+                   WHERE xtype = 'TR'
+                     AND OBJECTPROPERTY(o.id, 'IsMSShipped') = 0";
+        if (!is_null($table)) {
+            $query .= " AND object_name(parent_obj) = $table";
+        }
+
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE &&
+            $db->options['field_case'] == CASE_LOWER)
+        {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ?
+                'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ listViews()
+
+    /**
+     * list all views in the current database
+     *
+     * @param string database, the current is default
+     *
+     * @return mixed array of view names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listViews()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name
+                    FROM sysobjects
+                   WHERE xtype = 'V'";
+        /*
+        SELECT *
+          FROM sysobjects
+         WHERE objectproperty(id, N'IsMSShipped') = 0
+           AND objectproperty(id, N'IsView') = 1
+        */
+
+        $result = $db->queryCol($query);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE &&
+            $db->options['field_case'] == CASE_LOWER)
+        {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ?
+                          'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ dropIndex()
+
+    /**
+     * drop existing index
+     *
+     * @param string $table name of table that should be used in method
+     * @param string $name  name of the index to be dropped
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function seek($rownum = 0)
+    function dropIndex($table, $name)
     {
-        if ($this->rownum != ($rownum - 1) && !@mssql_data_seek($this->result, $rownum)) {
-            if ($this->result === false) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
-                return MDB2_OK;
-            }
-            return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
-                'tried to seek to an invalid row number ('.$rownum.')', __FUNCTION__);
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
         }
-        $this->rownum = $rownum - 1;
-        return MDB2_OK;
+
+        $table = $db->quoteIdentifier($table, true);
+        $name = $db->quoteIdentifier($db->getIndexName($name), true);
+        return $db->exec("DROP INDEX $table.$name");
     }
 
     // }}}
-    // {{{ valid()
+    // {{{ listTableConstraints()
 
     /**
-     * Check if the end of the result set has been reached
+     * list all constraints in a table
      *
-     * @return mixed true or false on sucess, a MDB2 error on failure
+     * @param string $table name of table that should be used in method
+     *
+     * @return mixed array of constraint names on success, a MDB2 error on failure
      * @access public
      */
-    function valid()
+    function listTableConstraints($table)
     {
-        $numrows = $this->numRows();
-        if (PEAR::isError($numrows)) {
-            return $numrows;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
         }
-        return $this->rownum < ($numrows - 1);
+        $table = $db->quoteIdentifier($table, true);
+        
+        $query = "SELECT c.constraint_name
+                    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
+                   WHERE c.constraint_catalog = DB_NAME()
+                     AND c.table_name = '$table'";
+        $constraints = $db->queryCol($query);
+        if (PEAR::isError($constraints)) {
+            return $constraints;
+        }
+
+        $result = array();
+        foreach ($constraints as $constraint) {
+            $constraint = $this->_fixIndexName($constraint);
+            if (!empty($constraint)) {
+                $result[$constraint] = true;
+            }
+        }
+
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_change_key_case($result, $db->options['field_case']);
+        }
+        return array_keys($result);
     }
 
     // }}}
-    // {{{ numRows()
+    // {{{ createSequence()
 
     /**
-     * Returns the number of rows in a result object
+     * create sequence
      *
-     * @return mixed MDB2 Error Object or the number of rows
+     * @param string $seq_name  name of the sequence to be created
+     * @param string $start     start value of the sequence; default is 1
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function numRows()
+    function createSequence($seq_name, $start = 1)
     {
-        $rows = @mssql_num_rows($this->result);
-        if (is_null($rows)) {
-            if ($this->result === false) {
-                return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
-                    'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
-                return 0;
-            }
-            return $this->db->raiseError(null, null, null,
-                'Could not get row count', __FUNCTION__);
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
         }
-        if ($this->limit) {
-            $rows -= $this->limit -1 + $this->offset;
-            if ($rows < 0) {
-                $rows = 0;
-            }
+
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
+        $seqcol_name = $db->quoteIdentifier($db->options['seqcol_name'], true);
+        $query = "CREATE TABLE $sequence_name ($seqcol_name " .
+                 "INT PRIMARY KEY CLUSTERED IDENTITY($start,1) NOT NULL)";
+
+        $res = $db->exec($query);
+        if (PEAR::isError($res)) {
+            return $res;
         }
-        return $rows;
+
+        $query = "SET IDENTITY_INSERT $sequence_name ON ".
+                 "INSERT INTO $sequence_name ($seqcol_name) VALUES ($start)";
+        $res = $db->exec($query);
+
+        if (!PEAR::isError($res)) {
+            return MDB2_OK;
+        }
+
+        $result = $db->exec("DROP TABLE $sequence_name");
+        if (PEAR::isError($result)) {
+            return $db->raiseError($result, null, null,
+                'could not drop inconsistent sequence table', __FUNCTION__);
+        }
+
+        return $db->raiseError($res, null, null,
+            'could not create sequence table', __FUNCTION__);
     }
-}
 
-// }}}
-// {{{ MDB2_Statement_mssql
+    // }}}
+    // {{{ dropSequence()
 
-/**
- * MDB2 MSSQL Server statement driver
- *
- * @package MDB2
- * @category Database
- * @author  Frank M. Kromann <frank@kromann.info>
- */
-class MDB2_Statement_mssql extends MDB2_Statement_Common
-{
+    /**
+     * This function drops an existing sequence
+     *
+     * @param string $seq_name name of the sequence to be dropped
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropSequence($seq_name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
 
+        $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
+        return $db->exec("DROP TABLE $sequence_name");
+    }
+
+    // }}}
+    // {{{ listSequences()
+
+    /**
+     * list all sequences in the current database
+     *
+     * @return mixed array of sequence names on success, a MDB2 error on failure
+     * @access public
+     */
+    function listSequences()
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $query = "SELECT name FROM sysobjects WHERE xtype = 'U'";
+        $table_names = $db->queryCol($query);
+        if (PEAR::isError($table_names)) {
+            return $table_names;
+        }
+        $result = array();
+        foreach ($table_names as $table_name) {
+            if ($sqn = $this->_fixSequenceName($table_name, true)) {
+                $result[] = $sqn;
+            }
+        }
+        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+            $result = array_map(($db->options['field_case'] == CASE_LOWER ?
+                          'strtolower' : 'strtoupper'), $result);
+        }
+        return $result;
+    }
+
+    // }}}
 }
 
 // }}}
