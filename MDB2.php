@@ -2297,7 +2297,7 @@ class MDB2_Driver_Common extends PEAR
     {
         $previous_database_name = (isset($this->database_name)) ? $this->database_name : '';
         $this->database_name = $name;
-        if ($previous_database_name != $this->database_name) {
+        if (!empty($this->connected_database_name) && ($this->connected_database_name != $this->database_name)) {
             $this->disconnect(false);
         }
         return $previous_database_name;
