@@ -439,16 +439,18 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                             $result = $this->dropIndex($name, $index_name);
                         }
                         if (PEAR::isError($result)) {
+                            $db->setOption('idxname_format', $idxname_format);
                             return $result;
                         }
                     }
                 }
 
-                $result = $this->GetTableFieldDefaultConstraint($name, $field_name);
+                $result = $this->_getTableFieldDefaultConstraint($name, $field_name);
                 if (!PEAR::isError($result) && !empty($result)) {
                     $result = $this->dropConstraint($name, $result);
                 }
                 if (PEAR::isError($result)) {
+                    $db->setOption('idxname_format', $idxname_format);
                     return $result;
                 }
 
@@ -461,6 +463,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
             $result = $db->exec("ALTER TABLE $name_quoted $query");
             if (PEAR::isError($result)) {
+                $db->setOption('idxname_format', $idxname_format);
                 return $result;
             }
         }
@@ -470,6 +473,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $field_name = $db->quoteIdentifier($field_name, true);
                 $result = $db->exec("sp_rename '$name_quoted.$field_name', '".$field['name']."', 'COLUMN'");
                 if (PEAR::isError($result)) {
+                    $db->setOption('idxname_format', $idxname_format);
                     return $result;
                 }
             }
@@ -488,6 +492,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
             $result = $db->exec("ALTER TABLE $name_quoted $query");
             if (PEAR::isError($result)) {
+                $db->setOption('idxname_format', $idxname_format);
                 return $result;
             }
         }
@@ -504,16 +509,18 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                             $result = $this->dropIndex($name, $index_name);
                         }
                         if (PEAR::isError($result)) {
+                            $db->setOption('idxname_format', $idxname_format);
                             return $result;
                         }
                     }
                 }
 
-                $result = $this->GetTableFieldDefaultConstraint($name, $field_name);
+                $result = $this->_getTableFieldDefaultConstraint($name, $field_name);
                 if (!PEAR::isError($result) && !empty($result)) {
                     $result = $this->dropConstraint($name, $result);
                 }
                 if (PEAR::isError($result)) {
+                    $db->setOption('idxname_format', $idxname_format);
                     return $result;
                 }
 
@@ -528,6 +535,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 $query .= $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
                 $result = $db->exec("ALTER TABLE $name_quoted $query");
                 if (PEAR::isError($result)) {
+                    $db->setOption('idxname_format', $idxname_format);
                     return $result;
                 }
             }
@@ -540,6 +548,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                         $result = $this->createIndex($name, $index_name, $index);
                     }
                     if (PEAR::isError($result)) {
+                        $db->setOption('idxname_format', $idxname_format);
                         return $result;
                     }
                 }
@@ -678,18 +687,18 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-    // {{{ GetTableFieldDefaultConstraint()
+    // {{{ _getTableFieldDefaultConstraint()
 
     /**
-     * Get field's default constraint
+     * Get the default constraint for a table field
      *
      * @param string $table name of table that should be used in method
      * @param string $field name of field that should be used in method
      *
      * @return mixed name of default constraint on success, a MDB2 error on failure
-     * @access public
+     * @access private
      */
-    function GetTableFieldDefaultConstraint($table, $field)
+    function _getTableFieldDefaultConstraint($table, $field)
     {
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
@@ -699,13 +708,14 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $table = $db->quoteIdentifier($table, true);
         $field = $db->quote($field, 'text');
         $query = "SELECT OBJECT_NAME(syscolumns.cdefault)
-                  FROM syscolumns
-                  WHERE syscolumns.id = object_id('$table') and syscolumns.name = $field";
-        $result = $db->queryOne($query);
-        return $result;
+                    FROM syscolumns
+                   WHERE syscolumns.id = object_id('$table')
+                     AND syscolumns.name = $field
+                     AND syscolumns.cdefault <> 0";
+        return $db->queryOne($query);
     }
 
-        // }}}
+    // }}}
     // {{{ listTableIndexes()
 
     /**
