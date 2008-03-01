@@ -450,10 +450,10 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                     $query.= ', ';
                 }
                 $field_name = $db->quoteIdentifier($field_name, true);
-                $query.= 'DROP COLUMN ' . $field_name;
+                $query.= 'COLUMN ' . $field_name;
             }
 
-            $result = $db->exec("ALTER TABLE $name_quoted $query");
+            $result = $db->exec("ALTER TABLE $name_quoted DROP $query");
             if (PEAR::isError($result)) {
                 $db->setOption('idxname_format', $idxname_format);
                 return $result;
@@ -576,7 +576,10 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $db->loadModule('Reverse');
         $indexes = array();
         foreach ($index_names as $index_name) {
-        	$indexes[$index_name] = $db->reverse->getTableIndexDefinition($table, $index_name);
+        	$idx_def = $db->reverse->getTableIndexDefinition($table, $index_name);
+            if (!PEAR::isError($idx_def)) {
+                $indexes[$index_name] = $idx_def;
+            }
         }
         foreach ($fields as $field_name) {
             foreach ($indexes as $index_name => $index) {
