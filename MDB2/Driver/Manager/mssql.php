@@ -427,22 +427,17 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $idxname_format = $db->getOption('idxname_format');
         $db->setOption('idxname_format', '%s');
 
-        $dropped_indices     = array();
-        $dropped_constraints = array();
-
         if (!empty($changes['remove']) && is_array($changes['remove'])) {
-            $dropped = $this->_dropConflictingIndices($name, array_keys($changes['remove']));
-            if (PEAR::isError($dropped)) {
+            $result = $this->_dropConflictingIndices($name, array_keys($changes['remove']));
+            if (PEAR::isError($result)) {
                 $db->setOption('idxname_format', $idxname_format);
-                return $dropped;
+                return $result;
             }
-            $dropped_indices = array_merge($dropped_indices, $dropped);
-            $dropped = $this->_dropConflictingConstraints($name, array_keys($changes['remove']));
-            if (PEAR::isError($dropped)) {
+            $result = $this->_dropConflictingConstraints($name, array_keys($changes['remove']));
+            if (PEAR::isError($result)) {
                 $db->setOption('idxname_format', $idxname_format);
-                return $dropped;
+                return $result;
             }
-            $dropped_constraints = array_merge($dropped_constraints, $dropped);
 
             $query = '';
             foreach ($changes['remove'] as $field_name => $field) {
@@ -488,6 +483,9 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                 return $result;
             }
         }
+
+        $dropped_indices     = array();
+        $dropped_constraints = array();
 
         if (!empty($changes['change']) && is_array($changes['change'])) {
             $dropped = $this->_dropConflictingIndices($name, array_keys($changes['change']));
@@ -583,7 +581,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         foreach ($fields as $field_name) {
             foreach ($indexes as $index_name => $index) {
-                if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
+                if (!isset($dropped[$index_name]) && array_key_exists($field_name, $index['fields'])) {
                     $dropped[$index_name] = $index;
                     $result = $this->dropIndex($table, $index_name);
                     if (PEAR::isError($result)) {
@@ -629,7 +627,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
         foreach ($fields as $field_name) {
             foreach ($constraints as $constraint_name => $constraint) {
-                if (!isset($constraint['flag']) && array_key_exists($field_name, $constraint['fields'])) {
+                if (!isset($dropped[$constraint_name]) && array_key_exists($field_name, $constraint['fields'])) {
                     $dropped[$constraint_name] = $constraint;
                     $result = $this->dropConstraint($table, $constraint_name);
                     if (PEAR::isError($result)) {
