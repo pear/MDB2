@@ -622,7 +622,10 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         $db->loadModule('Reverse');
         $constraints = array();
         foreach ($constraint_names as $constraint_name) {
-        	$constraints[$constraint_name] = $db->reverse->getTableConstraintDefinition($table, $constraint_name);
+        	$cons_def = $db->reverse->getTableConstraintDefinition($table, $constraint_name);
+            if (!PEAR::isError($cons_def)) {
+                $constraints[$constraint_name] = $cons_def;
+            }
         }
         foreach ($fields as $field_name) {
             foreach ($constraints as $constraint_name => $constraint) {
