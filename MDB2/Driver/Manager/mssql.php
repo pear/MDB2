@@ -426,34 +426,26 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         $idxname_format = $db->getOption('idxname_format');
         $db->setOption('idxname_format', '%s');
-        $indexes = $this->TableIndexesInfo($name);
+
+        $dropped_indices     = array();
+        $dropped_constraints = array();
+
         if (!empty($changes['remove']) && is_array($changes['remove'])) {
+            $dropped = $this->_dropConflictingIndices($name, array_keys($changes['remove']));
+            if (PEAR::isError($dropped)) {
+                $db->setOption('idxname_format', $idxname_format);
+                return $dropped;
+            }
+            $dropped_indices = array_merge($dropped_indices, $dropped);
+            $dropped = $this->_dropConflictingConstraints($name, array_keys($changes['remove']));
+            if (PEAR::isError($dropped)) {
+                $db->setOption('idxname_format', $idxname_format);
+                return $dropped;
+            }
+            $dropped_constraints = array_merge($dropped_constraints, $dropped);
+
             $query = '';
             foreach ($changes['remove'] as $field_name => $field) {
-                foreach ($indexes as $index_name => $index) {
-                    if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
-                        $indexes[$index_name]['flag'] = true;
-                        if ($index['primary'] || $index['unique']) {
-                            $result = $this->dropConstraint($name, $index_name);
-                        } else {
-                            $result = $this->dropIndex($name, $index_name);
-                        }
-                        if (PEAR::isError($result)) {
-                            $db->setOption('idxname_format', $idxname_format);
-                            return $result;
-                        }
-                    }
-                }
-
-                $result = $this->_getTableFieldDefaultConstraint($name, $field_name);
-                if (!PEAR::isError($result) && !empty($result)) {
-                    $result = $this->dropConstraint($name, $result);
-                }
-                if (PEAR::isError($result)) {
-                    $db->setOption('idxname_format', $idxname_format);
-                    return $result;
-                }
-
                 if ($query) {
                     $query.= ', ';
                 }
@@ -497,33 +489,21 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             }
         }
 
-        $indexes = $this->TableIndexesInfo($name);
         if (!empty($changes['change']) && is_array($changes['change'])) {
+            $dropped = $this->_dropConflictingIndices($name, array_keys($changes['change']));
+            if (PEAR::isError($dropped)) {
+                $db->setOption('idxname_format', $idxname_format);
+                return $dropped;
+            }
+            $dropped_indices = array_merge($dropped_indices, $dropped);
+            $dropped = $this->_dropConflictingConstraints($name, array_keys($changes['change']));
+            if (PEAR::isError($dropped)) {
+                $db->setOption('idxname_format', $idxname_format);
+                return $dropped;
+            }
+            $dropped_constraints = array_merge($dropped_constraints, $dropped);
+
             foreach ($changes['change'] as $field_name => $field) {
-                foreach ($indexes as $index_name => $index) {
-                    if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
-                        $indexes[$index_name]['flag'] = true;
-                        if ($index['primary'] || $index['unique']) {
-                            $result = $this->dropConstraint($name, $index_name);
-                        } else {
-                            $result = $this->dropIndex($name, $index_name);
-                        }
-                        if (PEAR::isError($result)) {
-                            $db->setOption('idxname_format', $idxname_format);
-                            return $result;
-                        }
-                    }
-                }
-
-                $result = $this->_getTableFieldDefaultConstraint($name, $field_name);
-                if (!PEAR::isError($result) && !empty($result)) {
-                    $result = $this->dropConstraint($name, $result);
-                }
-                if (PEAR::isError($result)) {
-                    $db->setOption('idxname_format', $idxname_format);
-                    return $result;
-                }
-
                 //MSSQL doesn't allow multiple ALTER COLUMNs in one query
                 $query = 'ALTER COLUMN ';
 
@@ -539,21 +519,24 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
                     return $result;
                 }
             }
+        }
 
-            foreach ($indexes as $index_name => $index) {
-                if (isset($index['flag'])) {
-                    if ($index['primary'] || $index['unique']) {
-                        $result = $this->createConstraint($name, $index_name, $index);
-                    } else {
-                        $result = $this->createIndex($name, $index_name, $index);
-                    }
-                    if (PEAR::isError($result)) {
-                        $db->setOption('idxname_format', $idxname_format);
-                        return $result;
-                    }
-                }
+        // restore the dropped conflicting indices and constraints
+        foreach ($dropped_indices as $index_name => $index) {
+            $result = $this->createIndex($name, $index_name, $index);
+            if (PEAR::isError($result)) {
+                $db->setOption('idxname_format', $idxname_format);
+                return $result;
             }
         }
+        foreach ($dropped_constraints as $constraint_name => $constraint) {
+            $result = $this->createConstraint($name, $constraint_name, $constraint);
+            if (PEAR::isError($result)) {
+                $db->setOption('idxname_format', $idxname_format);
+                return $result;
+            }
+        }
+
         $db->setOption('idxname_format', $idxname_format);
 
         if (!empty($changes['name'])) {
@@ -565,6 +548,129 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         }
 
         return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _dropConflictingIndices()
+
+    /**
+     * Drop the indices that prevent a successful ALTER TABLE action
+     *
+     * @param string $table  table name
+     * @param array  $fields array of names of the fields affected by the change
+     *
+     * @return array dropped indices definitions
+     */
+    function _dropConflictingIndices($table, $fields)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $dropped = array();
+        $index_names = $this->listTableIndexes($table);
+        if (PEAR::isError($index_names)) {
+            return $index_names;
+        }
+        $db->loadModule('Reverse');
+        $indexes = array();
+        foreach ($index_names as $index_name) {
+        	$indexes[$index_name] = $db->reverse->getTableIndexDefinition($table, $index_name);
+        }
+        foreach ($fields as $field_name) {
+            foreach ($indexes as $index_name => $index) {
+                if (!isset($index['flag']) && array_key_exists($field_name, $index['fields'])) {
+                    $dropped[$index_name] = $index;
+                    $result = $this->dropIndex($table, $index_name);
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
+                }
+            }
+        }
+
+        return $dropped;
+    }
+
+    // }}}
+    // {{{ _dropConflictingConstraints()
+
+    /**
+     * Drop the constraints that prevent a successful ALTER TABLE action
+     *
+     * @param string $table  table name
+     * @param array  $fields array of names of the fields affected by the change
+     *
+     * @return array dropped constraints definitions
+     */
+    function _dropConflictingConstraints($table, $fields)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $dropped = array();
+        $constraint_names = $this->listTableConstraints($table);
+        if (PEAR::isError($constraint_names)) {
+            return $constraint_names;
+        }
+        $db->loadModule('Reverse');
+        $constraints = array();
+        foreach ($constraint_names as $constraint_name) {
+        	$constraints[$constraint_name] = $db->reverse->getTableConstraintDefinition($table, $constraint_name);
+        }
+        foreach ($fields as $field_name) {
+            foreach ($constraints as $constraint_name => $constraint) {
+                if (!isset($constraint['flag']) && array_key_exists($field_name, $constraint['fields'])) {
+                    $dropped[$constraint_name] = $constraint;
+                    $result = $this->dropConstraint($table, $constraint_name);
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
+                }
+            }
+            // also drop implicit DEFAULT constraints
+            $default = $this->_getTableFieldDefaultConstraint($table, $field_name);
+            if (!PEAR::isError($default) && !empty($default)) {
+                $result = $this->dropConstraint($table, $default);
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+            }
+        }
+
+        return $dropped;
+    }
+
+    // }}}
+    // {{{ _getTableFieldDefaultConstraint()
+
+    /**
+     * Get the default constraint for a table field
+     *
+     * @param string $table name of table that should be used in method
+     * @param string $field name of field that should be used in method
+     *
+     * @return mixed name of default constraint on success, a MDB2 error on failure
+     * @access private
+     */
+    function _getTableFieldDefaultConstraint($table, $field)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $table = $db->quoteIdentifier($table, true);
+        $field = $db->quote($field, 'text');
+        $query = "SELECT OBJECT_NAME(syscolumns.cdefault)
+                    FROM syscolumns
+                   WHERE syscolumns.id = object_id('$table')
+                     AND syscolumns.name = $field
+                     AND syscolumns.cdefault <> 0";
+        return $db->queryOne($query);
     }
 
     // }}}
@@ -619,7 +725,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         $table = $db->quoteIdentifier($table, true);
         $columns = $db->queryCol("SELECT c.name
                                     FROM syscolumns c
@@ -632,87 +738,6 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             $columns = array_map(($db->options['field_case'] == CASE_LOWER ? 'strtolower' : 'strtoupper'), $columns);
         }
         return $columns;
-    }
-
-    // }}}
-    // {{{ TableIndexesInfo()
-
-    /**
-     * Information about indexes
-     *
-     * @param string $table name of table that should be used in method
-     *
-     * @return mixed array of indexs info on success, a MDB2 error on failure
-     * @access public
-     */
-    function TableIndexesInfo($table)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $table = $db->quote($table, 'text');
-        $query = "sp_statistics @table_name=$table";
-        $indexes = $db->queryAll($query);
-        if (PEAR::isError($indexes)) {
-            return $indexes;
-        }
-
-        $result = array();
-        foreach ($indexes as $index) {
-            if (empty($index[8])) {
-                continue;
-            }
-
-            $index_name = $index[5];
-            if (isset($result[$index_name])) {
-                $result[$index_name]['fields'][$index[8]] = array('sorting'  => $index[9],
-                                                                  'position' => $index[7],
-                                                                 );
-            } else {
-                $result[$index_name]['primary'] = $index[6] == 1;
-                $result[$index_name]['unique']  = !(bool)$index[3];
-                $result[$index_name]['fields'][$index[8]] = array('sorting'  => $index[9],
-                                                                  'position' => $index[7],
-                                                                 );
-            }
-        }
-
-        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-            $result = array_change_key_case($result, $db->options['field_case']);
-        }
-
-        return $result;
-    }
-
-    // }}}
-    // {{{ _getTableFieldDefaultConstraint()
-
-    /**
-     * Get the default constraint for a table field
-     *
-     * @param string $table name of table that should be used in method
-     * @param string $field name of field that should be used in method
-     *
-     * @return mixed name of default constraint on success, a MDB2 error on failure
-     * @access private
-     */
-    function _getTableFieldDefaultConstraint($table, $field)
-    {
-        $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
-            return $db;
-        }
-
-        $table = $db->quoteIdentifier($table, true);
-        $field = $db->quote($field, 'text');
-        $query = "SELECT OBJECT_NAME(syscolumns.cdefault)
-                    FROM syscolumns
-                   WHERE syscolumns.id = object_id('$table')
-                     AND syscolumns.name = $field
-                     AND syscolumns.cdefault <> 0";
-        return $db->queryOne($query);
     }
 
     // }}}
@@ -981,7 +1006,7 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
         $table = $db->quoteIdentifier($table, true);
-        
+
         $query = "SELECT c.constraint_name
                     FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
                    WHERE c.constraint_catalog = DB_NAME()
@@ -1011,8 +1036,8 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
     /**
      * create sequence
      *
-     * @param string $seq_name  name of the sequence to be created
-     * @param string $start     start value of the sequence; default is 1
+     * @param string $seq_name name of the sequence to be created
+     * @param string $start    start value of the sequence; default is 1
      *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
