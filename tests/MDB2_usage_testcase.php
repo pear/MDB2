@@ -656,7 +656,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             if ($is_null) {
                 $error_message = 'A query result column is not NULL unlike what was expected';
             } else {
-                $error_message = 'A query result column is NULL even though it was expected to be differnt';
+                $error_message = 'A query result column is NULL even though it was expected to be different';
             }
 
             $row = $result->fetchRow();
@@ -672,9 +672,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $result =& $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
             $value = $result->$method();
             if (PEAR::isError($value)) {
-                $this->assertTrue(false, 'Error fetching non existant row');
+                $this->assertTrue(false, 'Error fetching non existent row');
             } else {
-                $this->assertNull($value, 'selecting non existant row with "'.$method.'()" did not return NULL');
+                $this->assertNull($value, 'selecting non existent row with "'.$method.'()" did not return NULL');
                 $result->free();
             }
         }
@@ -685,9 +685,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $result =& $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
             $value = $result->$method();
             if (PEAR::isError($value)) {
-                $this->assertTrue(false, 'Error fetching non existant row');
+                $this->assertTrue(false, 'Error fetching non existent row');
             } else {
-                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existant row with "'.$method.'()" did not return empty array');
+                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existent row with "'.$method.'()" did not return empty array');
                 $result->free();
             }
         }
@@ -697,9 +697,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         foreach ($methods as $method) {
             $value = $this->db->$method('SELECT user_name FROM users WHERE user_id=123', array('text'));
             if (PEAR::isError($value)) {
-                $this->assertTrue(false, 'Error fetching non existant row');
+                $this->assertTrue(false, 'Error fetching non existent row');
             } else {
-                $this->assertNull($value, 'selecting non existant row with "'.$method.'()" did not return NULL');
+                $this->assertNull($value, 'selecting non existent row with "'.$method.'()" did not return NULL');
                 $result->free();
             }
         }
@@ -709,9 +709,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         foreach ($methods as $method) {
             $value = $this->db->$method('SELECT user_name FROM users WHERE user_id=123', array('text'));
             if (PEAR::isError($value)) {
-                $this->assertTrue(false, 'Error fetching non existant row');
+                $this->assertTrue(false, 'Error fetching non existent row');
             } else {
-                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existant row with "'.$method.'()" did not return empty array');
+                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existent row with "'.$method.'()" did not return empty array');
                 $result->free();
             }
         }
@@ -1272,6 +1272,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
 
     /**
      * Testing LOB storage
+     *
+     * N.B. for the mssql driver: if this test fails, use an higher limit in these
+     * two php.ini settings: "mssql.textlimit" and "mssql.textsize"
      */
     function testLOBStorage() {
         if (!$this->supported('LOBs')) {
