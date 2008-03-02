@@ -16,6 +16,7 @@ $notes = <<<EOT
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
 - request #13106: added unixtimestamp() in the Function module
+- fixed regexp in listTableConstraints() in the Manager module to list FOREIGN KEY constraints
 
 open todo items:
 - use a trigger to emulate setting default now()
