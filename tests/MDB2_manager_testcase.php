@@ -74,8 +74,12 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                 'default'  => 'M',
             ),
         );
+        $options = array();
+        if ('mysql' == substr($this->db->phptype, 0, 5)) {
+            $options['type'] = 'innodb';
+        }
         if (!$this->tableExists($this->table)) {
-            $result = $this->db->manager->createTable($this->table, $this->fields);
+            $result = $this->db->manager->createTable($this->table, $this->fields, $options);
             $this->assertFalse(PEAR::isError($result), 'Error creating table');
             $this->assertEquals(MDB2_OK, $result, 'Invalid return value for createTable()');
         }
@@ -330,6 +334,12 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
         $this->assertFalse(PEAR::isError($result), 'Error creating FOREIGN KEY constraint');
 
+        //see if it was created successfully
+        $constraints = $this->db->manager->listTableConstraints($this->table);
+        $this->assertTrue(!PEAR::isError($constraints), 'Error listing table constraints');
+        $constraint_name_idx = $this->db->getIndexName($constraint_name);
+        $this->assertTrue(in_array($constraint_name_idx, $constraints) || in_array($constraint_name, $constraints), 'Error, FK constraint not found');
+
         //now check that it is enforced...
 
         //insert a row in the primary table
@@ -347,9 +357,11 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         //exist in the primary table: should fail
         $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table)
                 .' ('.$this->db->quoteIdentifier('id').') VALUES (123456)';
-        $this->db->expectError();
+        $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
+        $this->db->expectError('*');
         $result = $this->db->exec($query);
         $this->db->popExpect();
+        $this->db->popErrorHandling();
         $this->assertTrue(PEAR::isError($result), 'Foreign Key constraint is not enforced for INSERT query');
 
         //try to update the first row of the FK table with an id that does not
