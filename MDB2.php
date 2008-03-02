@@ -2817,7 +2817,7 @@ class MDB2_Driver_Common extends PEAR
                     return $this->raiseError(MDB2_ERROR_CANNOT_REPLACE, null, null,
                         'key value '.$name.' may not be NULL', __FUNCTION__);
                 }
-                $condition[] = $name . '=' . $value;
+                $condition[] = $this->quoteIdentifier($name, true) . '=' . $value;
             }
         }
         if (empty($condition)) {
@@ -2837,13 +2837,16 @@ class MDB2_Driver_Common extends PEAR
         }
 
         $condition = ' WHERE '.implode(' AND ', $condition);
-        $query = "DELETE FROM $table$condition";
+        $query = 'DELETE FROM ' . $this->quoteIdentifier($table, true) . $condition;
         $result =& $this->_doQuery($query, true, $connection);
         if (!PEAR::isError($result)) {
             $affected_rows = $this->_affectedRows($connection, $result);
-            $insert = implode(', ', array_keys($values));
+            $insert = '';
+            foreach ($values as $key => $value) {
+                $insert .= ($insert?', ':'') . $this->quoteIdentifier($key, true);
+            }
             $values = implode(', ', $values);
-            $query = "INSERT INTO $table ($insert) VALUES ($values)";
+            $query = 'INSERT INTO '. $this->quoteIdentifier($table, true) . "($insert) VALUES ($values)";
             $result =& $this->_doQuery($query, true, $connection);
             if (!PEAR::isError($result)) {
                 $affected_rows += $this->_affectedRows($connection, $result);;
