@@ -911,7 +911,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         $table = $db->quoteIdentifier($table, true);
         $query = "ALTER TABLE $table ADD $type $name";
         if (!empty($definition['foreign'])) {
-            $query .= ' FOREIGN KEY ';
+            $query .= ' FOREIGN KEY';
         }
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
@@ -1012,8 +1012,8 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         $query = 'SHOW CREATE TABLE '. $db->escape($table);
         $definition = $db->queryOne($query, 'text', 1);
         if (!PEAR::isError($definition) && !empty($definition)) {
-            $pattern = '/\bCONSTRAINT\s+([^\s]+)\s+FOREIGN KEY\b/i';
-            if (preg_match_all($pattern, str_replace('`', '', $definition), $matches) > 1) {
+            $pattern = '/\bCONSTRAINT\b\s+([^\s]+)\s+\bFOREIGN KEY\b/Uims';
+            if (preg_match_all($pattern, str_replace('`', '', $definition), $matches) > 0) {
                 foreach ($matches[1] as $constraint) {
                     $result[$constraint] = true;
                 }
@@ -1082,7 +1082,6 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             $query .= ' '.implode(' ', $options_strings);
         }
         $res = $db->exec($query);
-
         if (PEAR::isError($res)) {
             return $res;
         }

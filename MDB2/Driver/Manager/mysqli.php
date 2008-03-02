@@ -763,6 +763,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
      *                                            'last_login' => array()
      *                                        )
      *                                    )
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -910,7 +911,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         $table = $db->quoteIdentifier($table, true);
         $query = "ALTER TABLE $table ADD $type $name";
         if (!empty($definition['foreign'])) {
-            $query .= ' FOREIGN KEY ';
+            $query .= ' FOREIGN KEY';
         }
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
@@ -1011,8 +1012,8 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         $query = 'SHOW CREATE TABLE '. $db->escape($table);
         $definition = $db->queryOne($query, 'text', 1);
         if (!PEAR::isError($definition) && !empty($definition)) {
-            $pattern = '/\bCONSTRAINT\s+([^\s]+)\s+FOREIGN KEY\b/i';
-            if (preg_match_all($pattern, str_replace('`', '', $definition), $matches) > 1) {
+            $pattern = '/\bCONSTRAINT\b\s+([^\s]+)\s+\bFOREIGN KEY\b/Uims';
+            if (preg_match_all($pattern, str_replace('`', '', $definition), $matches) > 0) {
                 foreach ($matches[1] as $constraint) {
                     $result[$constraint] = true;
                 }
@@ -1074,10 +1075,6 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
         if ($type) {
             $options_strings[] = "ENGINE = $type";
-        }
-
-        if (!empty($options_strings)) {
-            $query.= ' '.implode(' ', $options_strings);
         }
 
         $query = "CREATE TABLE $sequence_name ($seqcol_name INT NOT NULL AUTO_INCREMENT, PRIMARY KEY ($seqcol_name))";
