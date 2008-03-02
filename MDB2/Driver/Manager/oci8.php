@@ -219,7 +219,10 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             'primary' => true,
             'fields' => array($name => true),
         );
+        $idxname_format = $db->getOption('idxname_format');
+        $db->setOption('idxname_format', '%s');
         $result = $this->createConstraint($table, $index_name, $definition);
+        $db->setOption('idxname_format', $idxname_format);
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
                 'primary key for autoincrement PK could not be created', __FUNCTION__);
@@ -320,9 +323,13 @@ END;
             }
 
             $index_name = $table . '_AI_PK';
-            $result = $this->dropConstraint($table, $index_name);
-            if (PEAR::isError($result)) {
-                return $db->raiseError($result, null, null,
+            $idxname_format = $db->getOption('idxname_format');
+            $db->setOption('idxname_format', '%s');
+            $result1 = $this->dropConstraint($table, $index_name);
+            $db->setOption('idxname_format', $idxname_format);
+            $result2 = $this->dropConstraint($table, $index_name);
+            if (PEAR::isError($result1) && PEAR::isError($result2)) {
+                return $db->raiseError($result1, null, null,
                     'primary key for autoincrement PK could not be dropped', __FUNCTION__);
             }
         }
