@@ -11,13 +11,13 @@ $notes = <<<EOT
 - request #12800: added alterDatabase() in the Manager module
 - fixed bug #12846: missing escape in getSequenceName() on PostgreSQL 8.2.4
   [thanks to Stephane Berthelot]
-- fixed bug #12920: added new error info and fixed escape method if connection doesn't exist
-  [thanks to Ali Fazelzade]
-- fixed bug #12922: use standaloneQuery() in alterDatabase() [thanks to Ali Fazelzade]
+- fixed bug #12920: added new error info and fixed escape method if connection doesn't exist [afz]
+- fixed bug #12922: use standaloneQuery() in alterDatabase() [afz]
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
 - fixed bug #13112: the Reverse module does not know the timestamptz data type
 - request #13106: added unixtimestamp() in the Function module
+- fixed bug #13281: list FOREIGN KEY constraints in listTableConstraints() in the Manager module
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

@@ -770,9 +770,10 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $table = $db->quote($table, 'text');
-        $subquery = "SELECT indexrelid FROM pg_index, pg_class";
-        $subquery.= " WHERE pg_class.relname=$table AND pg_class.oid=pg_index.indrelid AND (indisunique = 't' OR indisprimary = 't')";
-        $query = "SELECT relname FROM pg_class WHERE oid IN ($subquery)";
+        $query = 'SELECT conname
+                    FROM pg_constraint, pg_class
+                   WHERE pg_constraint.conrelid = pg_class.oid
+                     AND relname = ' .$table;
         $constraints = $db->queryCol($query);
         if (PEAR::isError($constraints)) {
             return $constraints;
