@@ -1090,7 +1090,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $this->queryOne('SELECT lastval()', 'integer');
         }
         $seq = $table.(empty($field) ? '' : '_'.$field);
-        $sequence_name = $this->getSequenceName($seq);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq), true);
         return $this->queryOne("SELECT currval('$sequence_name')", 'integer');
     }
 
