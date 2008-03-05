@@ -1149,7 +1149,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 $query .= ',';
                 $values.= ',';
             }
-            $query.= $name;
+            $query.= $this->quoteIdentifier($name, true);
             if (isset($fields[$name]['null']) && $fields[$name]['null']) {
                 $value = 'NULL';
             } else {
@@ -1178,6 +1178,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             return $connection;
         }
 
+        $table = $this->quoteIdentifier($table, true);
         $query = "REPLACE INTO $table ($query) VALUES ($values)";
         $result =& $this->_doQuery($query, true, $connection);
         if (PEAR::isError($result)) {
