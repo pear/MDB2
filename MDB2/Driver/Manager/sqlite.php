@@ -1238,7 +1238,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (PEAR::isError($table_def)) {
             return $table_def;
         }
-        if (preg_match("/\bPRIMARY\s+KEY\b\s*\(([^)]+)/i", $table_def, $tmp)) {
+        if (preg_match("/\bPRIMARY\s+KEY\b/i", $table_def, $tmp)) {
             $result['primary'] = true;
         }
 

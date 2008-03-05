@@ -12,6 +12,8 @@ $notes = <<<EOT
 - added standaloneQuery() and databaseExists()
 - request #13106: added unixtimestamp() in the Function module
 - fixed bug #13201: better regexp in errorInfo()
+- fixed bug #13303: PRIMARY keys are not always returned in listTableConstraints()
+  and in getTableConstraintDefinition()
 
 note:
 open todo items:

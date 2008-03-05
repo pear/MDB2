@@ -393,6 +393,18 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     }
                     return $definition;
                 }
+                if (preg_match("/\"([^\"]+)\"[^\,\"]+\bPRIMARY\s+KEY\b[^\,\)]*/i", $sql, $tmp)) {
+                    $definition['primary'] = true;
+                    $definition['fields'] = array();
+                    $column_names = split(',', $tmp[1]);
+                    $colpos = 1;
+                    foreach ($column_names as $column_name) {
+                        $definition['fields'][trim($column_name)] = array(
+                            'position' => $colpos++
+                        );
+                    }
+                    return $definition;
+                }
             } else {
                 // search in table definition for FOREIGN KEYs
                 $pattern = "/\bCONSTRAINT\b\s+%s\s+
