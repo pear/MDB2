@@ -112,6 +112,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->options['multi_query'] = false;
 
         $this->supported['transactions'] = $this->options['use_transactions'];
+        $this->supported['savepoints']   = $this->options['use_transactions'];
         if ($this->options['default_table_type']) {
             switch (strtoupper($this->options['default_table_type'])) {
             case 'BLACKHOLE':
@@ -125,6 +126,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             case 'ISAM':
             case 'MRG_MYISAM':
             case 'MYISAM':
+                $this->supported['savepoints']   = false;
                 $this->supported['transactions'] = false;
                 $this->warnings[] = $this->options['default_table_type'] .
                     ' is not a supported default table type';

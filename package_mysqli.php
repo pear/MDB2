@@ -17,6 +17,7 @@ $notes = <<<EOT
 - added standaloneQuery() and databaseExists()
 - request #13106: added unixtimestamp() in the Function module
 - fixed regexp in listTableConstraints() in the Manager module to list FOREIGN KEY constraints
+- fixed bug #13180: MySQL driver tells SAVEPOINT is supported for MyISAM tables
 
 open todo items:
 - use a trigger to emulate setting default now()
