@@ -547,7 +547,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     /**
      * Set the charset on the current connection
      *
-     * @param string    charset
+     * @param string    charset (or array(charset, collation))
      * @param resource  connection handle
      *
      * @return true on success, MDB2 Error Object on failure
@@ -560,11 +560,19 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 return $connection;
             }
         }
+        $collation = null;
+        if (is_array($charset) && 2 == count($charset)) {
+            $collation = array_pop($charset);
+            $charset   = array_pop($charset);
+        }
         $client_info = mysqli_get_client_version();
         if (OS_WINDOWS && ((40111 > $client_info) ||
             ((50000 <= $client_info) && (50006 > $client_info)))
         ) {
             $query = "SET NAMES '".mysqli_real_escape_string($connection, $charset)."'";
+            if (!is_null($collation)) {
+                $query .= " COLLATE '".mysqli_real_escape_string($connection, $collation)."'";
+            }
             return $this->_doQuery($query, true, $connection);
         }
         if (!$result = mysqli_set_charset($connection, $charset)) {

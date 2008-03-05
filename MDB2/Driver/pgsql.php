@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1998-2006 Manuel Lemos, Tomas V.V.Cox,                 |
+// | Copyright (c) 1998-2008 Manuel Lemos, Tomas V.V.Cox,                 |
 // | Stig. S. Bakken, Lukas Smith                                         |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
@@ -373,7 +373,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }
-
+        
         if ($database_name == '') {
             $database_name = 'template1';
         }
@@ -514,7 +514,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 return $connection;
             }
         }
-
+        if (is_array($charset)) {
+            $charset   = array_shift($charset);
+            $this->warnings[] = 'postgresql does not support setting client collation';
+        }
         $result = @pg_set_client_encoding($connection, $charset);
         if ($result == -1) {
             return $this->raiseError(null, null, null,
@@ -1011,7 +1014,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     	   WHERE d.adrelid = a.attrelid
                     	     AND d.adnum = a.attnum
                     	     AND a.atthasdef
-                      ) FROM 'nextval[^'']*''([^'']*)')
+                    	 ) FROM 'nextval[^'']*''([^'']*)')
                         FROM pg_attribute a
                     LEFT JOIN pg_class c ON c.oid = a.attrelid
                     LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum AND a.atthasdef
