@@ -73,11 +73,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (!$db->options['DBA_username']) {
-            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
-                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
-        }
-
         $name  = $db->quoteIdentifier($name, true);
         $query = 'CREATE DATABASE ' . $name;
         if (!empty($options['charset'])) {
@@ -105,11 +100,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (!$db->options['DBA_username']) {
-            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
-                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
-        }
-
         $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true);
         if (!empty($options['name'])) {
             $query .= ' RENAME TO ' . $options['name'];
@@ -135,11 +125,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
-        }
-
-        if (!$db->options['DBA_username']) {
-            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
-                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
         }
 
         $name = $db->quoteIdentifier($name, true);

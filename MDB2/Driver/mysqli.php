@@ -650,8 +650,9 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function &standaloneQuery($query, $types = null, $is_manip = false)
     {
-        $connection = $this->_doConnect($this->options['DBA_username'],
-                                        $this->options['DBA_password']);
+        $user = $this->options['DBA_username']? $this->options['DBA_username'] : $this->dsn['username'];
+        $pass = $this->options['DBA_password']? $this->options['DBA_password'] : $this->dsn['password'];
+        $connection = $this->_doConnect($user, $pass);
         if (PEAR::isError($connection)) {
             return $connection;
         }

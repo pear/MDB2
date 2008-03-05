@@ -621,10 +621,9 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function &standaloneQuery($query, $types = null, $is_manip = false)
     {
-        $connection = $this->_doConnect($this->options['DBA_username'],
-                                        $this->options['DBA_password'],
-                                        $this->database_name,
-                                        $this->options['persistent']);
+        $user = $this->options['DBA_username']? $this->options['DBA_username'] : $this->dsn['username'];
+        $pass = $this->options['DBA_password']? $this->options['DBA_password'] : $this->dsn['password'];
+        $connection = $this->_doConnect($user, $pass, $this->database_name, $this->options['persistent']);
         if (PEAR::isError($connection)) {
             return $connection;
         }

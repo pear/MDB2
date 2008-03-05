@@ -73,11 +73,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (!$db->options['DBA_username']) {
-            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
-                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
-        }
-
         $username = $db->options['database_name_prefix'].$name;
         $password = $db->dsn['password'] ? $db->dsn['password'] : $name;
         $tablespace = $db->options['default_tablespace']
@@ -129,11 +124,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        if (!$db->options['DBA_username']) {
-            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
-                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
-        }
-
         if (!empty($options['name'])) {
             $query = 'ALTER DATABASE ' . $db->quoteIdentifier($name, true)
                     .' RENAME GLOBAL_NAME TO ' . $db->quoteIdentifier($options['name'], true);
@@ -182,11 +172,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $db =& $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
-        }
-
-        if (!$db->options['DBA_username']) {
-            return $db->raiseError(MDB2_ERROR_NO_PERMISSION, null, null,
-                                   'Requires "DBA_username"/"DBA_password" option', __FUNCTION__);
         }
 
         $username = $db->options['database_name_prefix'].$name;
