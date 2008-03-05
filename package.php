@@ -14,6 +14,7 @@ $notes = <<<EOT
 - fixed bug #12991: new error code in errorInfo() [afz]
 - added databaseExists() method [afz]
 - request #13106: added unixtimestamp() in the Function module
+- added max_identifiers_length option
 
 open todo items:
 - handle autoincrement fields in alterTable()

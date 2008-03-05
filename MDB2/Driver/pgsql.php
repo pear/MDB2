@@ -95,6 +95,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->options['DBA_password'] = false;
         $this->options['multi_query'] = false;
         $this->options['disable_smart_seqname'] = false;
+        $this->options['max_identifiers_length'] = 63;
     }
 
     // }}}
@@ -361,7 +362,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     // {{{ _doConnect()
 
     /**
-     * do the grunt work of connecting to the database
+     * Do the grunt work of connecting to the database
      *
      * @return mixed connection resource on success, MDB2 Error Object on failure
      * @access protected
@@ -946,8 +947,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $connection;
         }
         static $prep_statement_counter = 1;
-        $statement_name = sprintf($this->options['statement_format'], $this->phptype, sha1(microtime() + mt_rand())) . $prep_statement_counter++;
-        $statement_name = strtolower($statement_name);
+        $statement_name = sprintf($this->options['statement_format'], $this->phptype, $prep_statement_counter++ . sha1(microtime() + mt_rand()));
+        $statement_name = substr(strtolower($statement_name), 0, $this->options['max_identifiers_length']);
         if ($pgtypes === false) {
             $result = @pg_prepare($connection, $statement_name, $query);
             if (!$result) {

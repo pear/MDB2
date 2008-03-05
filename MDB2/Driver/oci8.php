@@ -101,6 +101,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->options['default_text_field_length'] = 2000;
         $this->options['lob_allow_url_include'] = false;
         $this->options['result_prefetching'] = false;
+        $this->options['max_identifiers_length'] = 30;
     }
 
     // }}}

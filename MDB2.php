@@ -1145,6 +1145,7 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['datatype_map'] -> array: map user defined datatypes to other primitive datatypes</li>
      *  <li>$options['datatype_map_callback'] -> array: callback function/method that should be called</li>
      *  <li>$options['bindname_format'] -> string: regular expression pattern for named parameters
+     *  <li>$options['max_identifiers_length'] -> integer: max identifier length</li>
      * </ul>
      *
      * @var     array
@@ -1193,6 +1194,7 @@ class MDB2_Driver_Common extends PEAR
         'nativetype_map_callback' => array(),
         'lob_allow_url_include' => false,
         'bindname_format' => '(?:\d+)|(?:[a-zA-Z][a-zA-Z0-9_]*)',
+        'max_identifiers_length' => 30,
     );
 
     /**

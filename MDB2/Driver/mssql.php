@@ -97,6 +97,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $this->options['DBA_password'] = false;
         $this->options['database_device'] = false;
         $this->options['database_size'] = false;
+        $this->options['max_identifiers_length'] = 128; // MS Access: 64
     }
 
     // }}}

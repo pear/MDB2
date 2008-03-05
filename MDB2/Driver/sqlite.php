@@ -104,6 +104,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->options['database_path'] = '';
         $this->options['database_extension'] = '';
         $this->options['server_version'] = '';
+        $this->options['max_identifiers_length'] = 128; //no real limit
     }
 
     // }}}

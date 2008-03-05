@@ -110,6 +110,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->options['DBA_password'] = false;
         $this->options['default_table_type'] = '';
         $this->options['multi_query'] = false;
+        $this->options['max_identifiers_length'] = 64;
 
         $this->supported['transactions'] = $this->options['use_transactions'];
         $this->supported['savepoints']   = $this->options['use_transactions'];
@@ -1054,7 +1055,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
 
         if (!$is_manip) {
             static $prep_statement_counter = 1;
-            $statement_name = sprintf($this->options['statement_format'], $this->phptype, sha1(microtime() + mt_rand())) . $prep_statement_counter++;
+            $statement_name = sprintf($this->options['statement_format'], $this->phptype, $prep_statement_counter++ . sha1(microtime() + mt_rand()));
+            $statement_name = substr(strtolower($statement_name), 0, $this->options['max_identifiers_length']);
             $query = "PREPARE $statement_name FROM ".$this->quote($query, 'text');
 
             $statement =& $this->_doQuery($query, true, $connection);
