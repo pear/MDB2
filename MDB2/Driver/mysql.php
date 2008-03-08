@@ -221,6 +221,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                     1542 => MDB2_ERROR_CANNOT_DROP,
                     1546 => MDB2_ERROR_CONSTRAINT,
                     1582 => MDB2_ERROR_CONSTRAINT,
+                    2019 => MDB2_ERROR_INVALID,
                 );
             }
             if ($this->options['portability'] & MDB2_PORTABILITY_ERRORS) {
@@ -897,22 +898,27 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             
             $server_info = $this->getServerVersion();
             if (is_array($server_info)) {
-                if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.0', '<')) {
+                $server_version = $server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'];
+
+                if (!version_compare($server_version, '4.1.0', '<')) {
                     $this->supported['sub_selects'] = true;
                     $this->supported['prepared_statements'] = true;
                 }
 
-                if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.0.14', '<')
-                    || !version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.1.1', '<')
-                ) {
-                    $this->supported['savepoints'] = true;
+                // SAVEPOINTs were introduced in MySQL 4.0.14 and 4.1.1 (InnoDB)
+                if (version_compare($server_version, '4.1.0', '>=')) {
+                    if (version_compare($server_version, '4.1.1', '<')) {
+                        $this->supported['savepoints'] = false;
+                    }
+                } elseif (version_compare($server_version, '4.0.14', '<')) {
+                    $this->supported['savepoints'] = false;
                 }
 
-                if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '4.0.11', '<')) {
+                if (!version_compare($server_version, '4.0.11', '<')) {
                     $this->start_transaction = true;
                 }
 
-                if (!version_compare($server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'], '5.0.3', '<')) {
+                if (!version_compare($server_version, '5.0.3', '<')) {
                     $this->varchar_max_length = 65532;
                 }
             }
