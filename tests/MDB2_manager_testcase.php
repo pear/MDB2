@@ -138,7 +138,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $result = $this->db->manager->createTable($this->table, $fields);
         $this->assertFalse(PEAR::isError($result), 'Error creating table');
         $this->assertEquals(MDB2_OK, $result, 'Error creating table: unexpected return value');
-        $query = 'INSERT INTO '.$this->table;
+        $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table, true);
         $query.= ' (somename, somedescription)';
         $query.= ' VALUES (:somename, :somedescription)';
         $stmt =& $this->db->prepare($query, array('text', 'text'), MDB2_PREPARE_MANIP);
@@ -348,15 +348,15 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
 
         //insert a row in the FK table with an id that references
         //the newly inserted row on the primary table: should not fail
-        $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table)
-                .' ('.$this->db->quoteIdentifier('id').') VALUES (1)';
+        $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table, true)
+                .' ('.$this->db->quoteIdentifier('id', true).') VALUES (1)';
         $result = $this->db->exec($query);
         $this->assertTrue(!PEAR::isError($result), 'Insert failed');
 
         //try to insert a row into the FK table with an id that does not
         //exist in the primary table: should fail
-        $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table)
-                .' ('.$this->db->quoteIdentifier('id').') VALUES (123456)';
+        $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table, true)
+                .' ('.$this->db->quoteIdentifier('id', true).') VALUES (123456)';
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->db->expectError('*');
         $result = $this->db->exec($query);
@@ -366,19 +366,19 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
 
         //try to update the first row of the FK table with an id that does not
         //exist in the primary table: should fail
-        $query = 'UPDATE '.$this->db->quoteIdentifier($this->table)
-                .' SET '.$this->db->quoteIdentifier('id').' = 123456 '
-                .' WHERE '.$this->db->quoteIdentifier('id').' = 1';
-        $this->db->expectError();
+        $query = 'UPDATE '.$this->db->quoteIdentifier($this->table, true)
+                .' SET '.$this->db->quoteIdentifier('id', true).' = 123456 '
+                .' WHERE '.$this->db->quoteIdentifier('id', true).' = 1';
+        $this->db->expectError('*');
         $result = $this->db->exec($query);
         $this->db->popExpect();
         $this->assertTrue(PEAR::isError($result), 'Foreign Key constraint is not enforced for UPDATE query');
 
-        $numrows_query = 'SELECT COUNT(*) FROM '. $this->db->quoteIdentifier($this->table);
+        $numrows_query = 'SELECT COUNT(*) FROM '. $this->db->quoteIdentifier($this->table, true);
         $numrows = $this->db->queryOne($numrows_query, 'integer');
         $this->assertEquals(1, $numrows, 'Invalid number of rows in the FK table');
 
-        //insert the PK value of the primary table: the new value should be
+        //update the PK value of the primary table: the new value should be
         //propagated to the FK table (ON UPDATE CASCADE)
         $result = $this->db->exec('UPDATE users SET user_id = 2');
         $this->assertTrue(!PEAR::isError($result), 'Update failed');
@@ -386,7 +386,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $numrows = $this->db->queryOne($numrows_query, 'integer');
         $this->assertEquals(1, $numrows, 'Invalid number of rows in the FK table');
 
-        $query = 'SELECT id FROM '.$this->db->quoteIdentifier($this->table);
+        $query = 'SELECT id FROM '.$this->db->quoteIdentifier($this->table, true);
         $newvalue = $this->db->queryOne($query, 'integer');
         $this->assertEquals(2, $newvalue, 'The value of the FK field was not updated (CASCADE failed)');
 
