@@ -995,6 +995,209 @@ END;
     }
 
     // }}}
+    // {{{ createConstraint()
+
+    /**
+     * create a constraint on a table
+     *
+     * @param string    $table        name of the table on which the constraint is to be created
+     * @param string    $name         name of the constraint to be created
+     * @param array     $definition   associative array that defines properties of the constraint to be created.
+     *                                Currently, only one property named FIELDS is supported. This property
+     *                                is also an associative with the names of the constraint fields as array
+     *                                constraints. Each entry of this array is set to another type of associative
+     *                                array that specifies properties of the constraint that are specific to
+     *                                each field.
+     *
+     *                                Example
+     *                                   array(
+     *                                       'fields' => array(
+     *                                           'user_name' => array(),
+     *                                           'last_login' => array()
+     *                                       )
+     *                                   )
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function createConstraint($table, $name, $definition)
+    {
+        $result = parent::createConstraint($table, $name, $definition);
+        if (PEAR::isError($result)) {
+            return $result;
+        }
+        if (!empty($definition['foreign'])) {
+            return $this->_createFKTriggers($table, array($name => $definition));
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ dropConstraint()
+
+    /**
+     * drop existing constraint
+     *
+     * @param string    $table        name of table that should be used in method
+     * @param string    $name         name of the constraint to be dropped
+     * @param string    $primary      hint if the constraint is primary
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropConstraint($table, $name, $primary = false)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        //is it a FK constraint? If so, also delete the associated triggers
+        $db->loadModule('Reverse', null, true);
+        $definition = $db->reverse->getTableConstraintDefinition($table, $name);
+        if (!PEAR::isError($definition) && !empty($definition['foreign'])) {
+            //first drop the FK enforcing triggers
+            $result = $this->_dropFKTriggers($table, $name, $definition['references']['table']);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
+        }
+
+        return parent::dropConstraint($table, $name, $primary);
+    }
+
+    // }}}
+    // {{{ _createFKTriggers()
+
+    /**
+     * Create triggers to enforce the FOREIGN KEY constraint on the table
+     *
+     * NB: since there's no RAISE_APPLICATION_ERROR facility in mysql,
+     * we call a non-existent procedure to raise the FK violation message.
+     * @see http://forums.mysql.com/read.php?99,55108,71877#msg-71877
+     *
+     * @param string $table        table name
+     * @param array  $foreign_keys FOREIGN KEY definitions
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function _createFKTriggers($table, $foreign_keys)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        // create triggers to enforce FOREIGN KEY constraints
+        if ($db->supports('triggers') && !empty($foreign_keys)) {
+            $table = $db->quoteIdentifier($table, true);
+            foreach ($foreign_keys as $fkname => $fkdef) {
+                if (empty($fkdef) || empty($fkdef['onupdate'])) {
+                    continue;
+                }
+                $fkdef['onupdate'] = strtoupper($fkdef['onupdate']);
+                if ('RESTRICT' == $fkdef['onupdate'] || 'NO ACTION' == $fkdef['onupdate']) {
+                    // already handled by default
+                    continue;
+                }
+
+                $trigger_name = substr(strtolower($fkname.'_pk_upd_trg'), 0, $db->options['max_identifiers_length']);
+                $table_fields = array_keys($fkdef['fields']);
+                $referenced_fields = array_keys($fkdef['references']['fields']);
+
+                //create the ON UPDATE trigger on the primary table
+                $restrict_action = ' IF (SELECT ';
+                $aliased_fields = array();
+                foreach ($table_fields as $field) {
+                    $aliased_fields[] = $table .'.'.$field .' AS '.$field;
+                }
+                $restrict_action .= implode(',', $aliased_fields)
+                       .' FROM '.$table
+                       .' WHERE ';
+                $conditions  = array();
+                $new_values  = array();
+                $null_values = array();
+                for ($i=0; $i<count($table_fields); $i++) {
+                    $conditions[]  = $table_fields[$i] .' = :OLD.'.$referenced_fields[$i];
+                    $new_values[]  = $table_fields[$i] .' = :NEW.'.$referenced_fields[$i];
+                    $null_values[] = $table_fields[$i] .' = NULL';
+                }
+
+                $cascade_action = 'UPDATE '.$table.' SET '.implode(', ', $new_values) .' WHERE '.implode(' AND ', $conditions). ';';
+                $setnull_action = 'UPDATE '.$table.' SET '.implode(', ', $null_values).' WHERE '.implode(' AND ', $conditions). ';';
+
+                if ('SET DEFAULT' == $fkdef['onupdate'] || 'SET DEFAULT' == $fkdef['ondelete']) {
+                    $db->loadModule('Reverse', null, true);
+                    $default_values = array();
+                    foreach ($table_fields as $table_field) {
+                        $field_definition = $db->reverse->getTableFieldDefinition($table, $field);
+                        if (PEAR::isError($field_definition)) {
+                            return $field_definition;
+                        }
+                        $default_values[] = $table_field .' = '. $field_definition[0]['default'];
+                    }
+                    $setdefault_action = 'UPDATE '.$table.' SET '.implode(', ', $default_values).' WHERE '.implode(' AND ', $conditions). ';';
+                }
+
+                $query = 'CREATE TRIGGER %s'
+                        .' %s ON '.$fkdef['references']['table']
+                        .' FOR EACH ROW '
+                        .' BEGIN ';
+
+                if ('CASCADE' == $fkdef['onupdate']) {
+                    $sql_update = sprintf($query, $trigger_name, 'BEFORE UPDATE',  'update') . $cascade_action;
+                } elseif ('SET NULL' == $fkdef['onupdate']) {
+                    $sql_update = sprintf($query, $trigger_name, 'BEFORE UPDATE', 'update') . $setnull_action;
+                } elseif ('SET DEFAULT' == $fkdef['onupdate']) {
+                    $sql_update = sprintf($query, $trigger_name, 'BEFORE UPDATE', 'update') . $setdefault_action;
+                }
+                $sql_update .= ' END;';
+                $result = $db->exec($sql_update);
+                if (PEAR::isError($result)) {
+                    return $result;
+                }
+            }
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
+    // {{{ _dropFKTriggers()
+
+    /**
+     * Drop the triggers created to enforce the FOREIGN KEY constraint on the table
+     *
+     * @param string $table            table name
+     * @param string $fkname           FOREIGN KEY constraint name
+     * @param string $referenced_table referenced table name
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access private
+     */
+    function _dropFKTriggers($table, $fkname, $referenced_table)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $triggers  = $this->listTableTriggers($table);
+        $triggers2 = $this->listTableTriggers($referenced_table);
+        if (!PEAR::isError($triggers2) && !PEAR::isError($triggers)) {
+            $triggers = array_merge($triggers, $triggers2);
+            $trigger_name = substr(strtolower($fkname.'_pk_upd_trg'), 0, $db->options['max_identifiers_length']);
+            $pattern = '/^'.$trigger_name.'$/i';
+            foreach ($triggers as $trigger) {
+                if (preg_match($pattern, $trigger)) {
+                    $result = $db->exec('DROP TRIGGER '.$trigger);
+                    if (PEAR::isError($result)) {
+                        return $result;
+                    }
+                }
+            }
+        }
+        return MDB2_OK;
+    }
+
+    // }}}
     // {{{ listTableConstraints()
 
     /**

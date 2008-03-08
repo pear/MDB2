@@ -14,6 +14,7 @@ $notes = <<<EOT
 - added standaloneQuery() and databaseExists()
 - better handling of NULL LOBs in execute()
 - request #13106: added unixtimestamp() in the Function module
+- a trigger is created to emulate the ON UPDATE action for FOREIGN KEY constraints.
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
