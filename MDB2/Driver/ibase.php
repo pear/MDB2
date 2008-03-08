@@ -91,6 +91,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = false;
         $this->supported['sub_selects'] = true;
+        $this->supported['triggers'] = true;
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
         $this->supported['result_introspection'] = true;

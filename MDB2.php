@@ -1098,6 +1098,7 @@ class MDB2_Driver_Common extends PEAR
         'LOBs' => false,
         'replace' => false,
         'sub_selects' => false,
+        'triggers' => false,
         'auto_increment' => false,
         'primary_key' => false,
         'result_introspection' => false,

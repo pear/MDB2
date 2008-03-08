@@ -83,6 +83,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = 'emulated';
         $this->supported['sub_selects'] = true;
+        $this->supported['triggers'] = true;
         $this->supported['auto_increment'] = 'emulated';
         $this->supported['primary_key'] = true;
         $this->supported['result_introspection'] = true;

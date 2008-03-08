@@ -89,6 +89,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->supported['transactions'] = true;
         $this->supported['savepoints'] = false;
         $this->supported['sub_selects'] = true;
+        $this->supported['triggers'] = true;
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = false; // requires alter table implementation
         $this->supported['result_introspection'] = false; // not implemented
