@@ -98,6 +98,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $this->supported['LOBs'] = true;
         $this->supported['replace'] = true;
         $this->supported['sub_selects'] = 'emulated';
+        $this->supported['triggers'] = false;
         $this->supported['auto_increment'] = true;
         $this->supported['primary_key'] = true;
         $this->supported['result_introspection'] = true;
@@ -204,6 +205,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                     1216 => MDB2_ERROR_CONSTRAINT,
                     1217 => MDB2_ERROR_CONSTRAINT,
                     1227 => MDB2_ERROR_ACCESS_VIOLATION,
+                    1235 => MDB2_ERROR_CANNOT_CREATE,
                     1299 => MDB2_ERROR_INVALID_DATE,
                     1300 => MDB2_ERROR_INVALID,
                     1304 => MDB2_ERROR_ALREADY_EXISTS,
@@ -897,13 +899,14 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             //set defaults
             $this->supported['sub_selects'] = 'emulated';
             $this->supported['prepared_statements'] = 'emulated';
+            $this->supported['triggers'] = false;
             $this->start_transaction = false;
             $this->varchar_max_length = 255;
 
             $server_info = $this->getServerVersion();
             if (is_array($server_info)) {
                 $server_version = $server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'];
-
+            
                 if (!version_compare($server_version, '4.1.0', '<')) {
                     $this->supported['sub_selects'] = true;
                     $this->supported['prepared_statements'] = true;
@@ -924,6 +927,10 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
 
                 if (!version_compare($server_version, '5.0.3', '<')) {
                     $this->varchar_max_length = 65532;
+                }
+
+                if (!version_compare($server_version, '5.0.2', '<')) {
+                    $this->supported['triggers'] = true;
                 }
             }
         }
