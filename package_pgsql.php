@@ -18,6 +18,7 @@ $notes = <<<EOT
 - fixed bug #13112: the Reverse module does not know the timestamptz data type
 - request #13106: added unixtimestamp() in the Function module
 - fixed bug #13281: list FOREIGN KEY constraints in listTableConstraints() in the Manager module
+- fixed bug #13356: added float4 to _mapNativeDatatype()
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
