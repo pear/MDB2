@@ -20,6 +20,8 @@ $notes = <<<EOT
 - fixed bug #13180: MySQL driver tells SAVEPOINT is supported for MyISAM tables
 - fixed bug #13283: replace() doesn't respect quote_identifiers option
 - request #13313: setCharSet() supports 'COLLATE' too
+- fixed bug #13370: some capabilities depend on user options, so check them after
+  a setOption() call
 - when triggers are supported, two triggers are created to emulate ON UPDATE / ON DELETE actions
   for FOREIGN KEY constraints. Known limitation: since mysql doesn't support multiple triggers
   with the same action time and event for one table, if there are multiple table referencing

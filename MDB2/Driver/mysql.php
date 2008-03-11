@@ -112,6 +112,20 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $this->options['default_table_type'] = '';
         $this->options['max_identifiers_length'] = 64;
 
+        $this->_reCheckSupportedOptions();
+    }
+
+    // }}}
+    // {{{ _reCheckSupportedOptions()
+    
+    /**
+     * If the user changes certain options, other capabilities may depend
+     * on the new settings, so we need to check them (again).
+     *
+     * @access private
+     */
+    function _reCheckSupportedOptions()
+    {
         $this->supported['transactions'] = $this->options['use_transactions'];
         $this->supported['savepoints']   = $this->options['use_transactions'];
         if ($this->options['default_table_type']) {
@@ -134,6 +148,25 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 break;
             }
         }
+    }
+
+    // }}}
+    // {{{ function setOption($option, $value)
+
+    /**
+     * set the option for the db class
+     *
+     * @param   string  option name
+     * @param   mixed   value for the option
+     *
+     * @return  mixed   MDB2_OK or MDB2 Error Object
+     *
+     * @access  public
+     */
+    function setOption($option, $value)
+    {
+        $res = parent::setOption($option, $value);
+        $this->_reCheckSupportedOptions();
     }
 
     // }}}
