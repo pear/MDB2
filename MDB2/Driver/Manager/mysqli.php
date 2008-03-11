@@ -209,9 +209,35 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        // if we have an AUTO_INCREMENT column and a PK on more than one field,
+        // we have to handle it differently...
+        $autoincrement = null;
+        if (empty($options['primary'])) {
+            $pk_fields = array();
+            foreach ($fields as $fieldname => $def) {
+                if (!empty($def['primary'])) {
+                    $pk_fields[$fieldname] = true;
+                }
+                if (!empty($def['autoincrement'])) {
+                    $autoincrement = $fieldname;
+                }
+            }
+            if (!is_null($autoincrement) && count($pk_fields) > 1) {
+                $options['primary'] = $pk_fields;
+            } else {
+                // the PK constraint is on max one field => OK
+                $autoincrement = null;
+            }
+        }
+
         $query = $this->_getCreateTableQuery($name, $fields, $options);
         if (PEAR::isError($query)) {
             return $query;
+        }
+
+        if (!is_null($autoincrement)) {
+            // we have to remove the PK clause added by _getIntegerDeclaration()
+            $query = str_replace('AUTO_INCREMENT PRIMARY KEY', 'AUTO_INCREMENT', $query);
         }
 
         $options_strings = array();

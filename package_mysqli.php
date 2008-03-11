@@ -6,6 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'alpha';
 $notes = <<<EOT
+- fixed bug #11831: createTable() now supports tables with a multi-field PRIMARY KEY
+  where one field is defined as AUTO_INCREMENT
 - request #11204: support AUTO_INCREMENT for FLOAT data type and UNSIGNED option
   for FLOAT and DECIMAL data type [afz]
 - fixed bug #11692: value of $db->supports('transactions') changes after query [afz]
@@ -26,7 +28,6 @@ $notes = <<<EOT
   for FOREIGN KEY constraints. Known limitation: since mysql doesn't support multiple triggers
   with the same action time and event for one table, if there are multiple table referencing
   the same table, only the first one will have the triggers created.
-
 
 open todo items:
 - use a trigger to emulate setting default now()
