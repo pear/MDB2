@@ -213,6 +213,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 'primary key for autoincrement PK could not be created', __FUNCTION__);
         }
 
+        $seq_name = $table.'_'.$name;
         if (is_null($start)) {
             $db->beginTransaction();
             $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $db->quoteIdentifier($table, true);
@@ -221,18 +222,18 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 return $start;
             }
             ++$start;
-            $result = $this->createSequence($table, $start);
+            $result = $this->createSequence($seq_name, $start);
             $db->commit();
         } else {
-            $result = $this->createSequence($table, $start);
+            $result = $this->createSequence($seq_name, $start);
         }
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
                 'sequence for autoincrement PK could not be created', __FUNCTION__);
         }
-        $sequence_name         = $db->getSequenceName($table);
-        $trigger_name          = $db->quoteIdentifier($table_uppercase . '_AI_PK', true);
-        $sequence_name_quoted  = $db->quoteIdentifier($sequence_name, true);
+        $seq_name        = $db->getSequenceName($seq_name);
+        $trigger_name    = $db->quoteIdentifier($table_uppercase . '_AI_PK', true);
+        $seq_name_quoted = $db->quoteIdentifier($seq_name, true);
         $table = $db->quoteIdentifier($table, true);
         $name  = $db->quoteIdentifier($name, true);
         $trigger_sql = '
@@ -244,16 +245,16 @@ DECLARE
    last_Sequence NUMBER;
    last_InsertID NUMBER;
 BEGIN
-   SELECT '.$sequence_name_quoted.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
+   SELECT '.$seq_name_quoted.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
    IF (:NEW.'.$name.' IS NULL OR :NEW.'.$name.' = 0) THEN
-      SELECT '.$sequence_name_quoted.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
+      SELECT '.$seq_name_quoted.'.NEXTVAL INTO :NEW.'.$name.' FROM DUAL;
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
         FROM User_Sequences
-       WHERE UPPER(Sequence_Name) = UPPER(\''.$sequence_name.'\');
+       WHERE UPPER(Sequence_Name) = UPPER(\''.$seq_name.'\');
       SELECT :NEW.'.$name.' INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
-         SELECT '.$sequence_name_quoted.'.NEXTVAL INTO last_Sequence FROM DUAL;
+         SELECT '.$seq_name_quoted.'.NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
    END IF;
 END;
