@@ -19,6 +19,8 @@ $notes = <<<EOT
 - request #13106: added unixtimestamp() in the Function module
 - fixed bug #13281: list FOREIGN KEY constraints in listTableConstraints() in the Manager module
 - fixed bug #13356: added float4 to _mapNativeDatatype()
+- fixed query in getTableConstraintDefinition() for FK constraints in the Reverse module
+  (thanks to André Restivo)
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
