@@ -256,6 +256,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                     1542 => MDB2_ERROR_CANNOT_DROP,
                     1546 => MDB2_ERROR_CONSTRAINT,
                     1582 => MDB2_ERROR_CONSTRAINT,
+                    2003 => MDB2_ERROR_CONNECT_FAILED,
                     2019 => MDB2_ERROR_INVALID,
                 );
             }
