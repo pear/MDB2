@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.0RC1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mysql</name>
  <channel>pear.php.net</channel>
  <summary>mysql MDB2 driver</summary>
@@ -16,19 +16,39 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2007-12-06</date>
- <time>21:05:39</time>
+ <date>2008-03-15</date>
+ <time>10:10:11</time>
  <version>
-  <release>1.5.0a2</release>
-  <api>1.5.0a2</api>
+  <release>1.5.0b1</release>
+  <api>1.5.0b1</api>
  </version>
  <stability>
   <release>alpha</release>
   <api>alpha</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #12516: error in FK constraint creation query
-- request #12012: added charset/collation support in createDatabase()
+ <notes>- fixed bug #11831: createTable() now supports tables with a multi-field PRIMARY KEY
+  where one field is defined as AUTO_INCREMENT
+- request #11204: support AUTO_INCREMENT for FLOAT data type and UNSIGNED option
+  for FLOAT and DECIMAL data type [afz]
+- fixed bug #11692: value of $db-&gt;supports(&apos;transactions&apos;) changes after query [afz]
+- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
+- request #12800: added alterDatabase() in the Manager module [afz]
+- fixed quoting in createDatabase() in the Manager module
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
+- added standaloneQuery() and databaseExists()
+- request #13106: added unixtimestamp() in the Function module
+- fixed regexp in listTableConstraints() in the Manager module to list FOREIGN KEY constraints
+- fixed bug #13180: MySQL driver tells SAVEPOINT is supported for MyISAM tables
+- fixed bug #13283: replace() doesn&apos;t respect quote_identifiers option
+- request #13313: setCharSet() supports &apos;COLLATE&apos; too
+- fixed bug #13370: some capabilities depend on user options, so check them after
+  a setOption() call
+- when triggers are supported, two triggers are created to emulate ON UPDATE / ON DELETE actions
+  for FOREIGN KEY constraints. Known limitation: since mysql doesn&apos;t support multiple triggers
+  with the same action time and event for one table, if there are multiple table referencing
+  the same table, only the first one will have the triggers created.
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
@@ -86,7 +106,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0a2</min>
+    <min>2.5.0b1</min>
    </package>
    <extension>
     <name>mysql</name>
@@ -95,6 +115,46 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0b1</release>
+    <api>1.5.0b1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2008-03-15</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #11831: createTable() now supports tables with a multi-field PRIMARY KEY
+  where one field is defined as AUTO_INCREMENT
+- request #11204: support AUTO_INCREMENT for FLOAT data type and UNSIGNED option
+  for FLOAT and DECIMAL data type [afz]
+- fixed bug #11692: value of $db-&gt;supports(&apos;transactions&apos;) changes after query [afz]
+- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
+- request #12800: added alterDatabase() in the Manager module [afz]
+- fixed quoting in createDatabase() in the Manager module
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
+- added standaloneQuery() and databaseExists()
+- request #13106: added unixtimestamp() in the Function module
+- fixed regexp in listTableConstraints() in the Manager module to list FOREIGN KEY constraints
+- fixed bug #13180: MySQL driver tells SAVEPOINT is supported for MyISAM tables
+- fixed bug #13283: replace() doesn&apos;t respect quote_identifiers option
+- request #13313: setCharSet() supports &apos;COLLATE&apos; too
+- fixed bug #13370: some capabilities depend on user options, so check them after
+  a setOption() call
+- when triggers are supported, two triggers are created to emulate ON UPDATE / ON DELETE actions
+  for FOREIGN KEY constraints. Known limitation: since mysql doesn&apos;t support multiple triggers
+  with the same action time and event for one table, if there are multiple table referencing
+  the same table, only the first one will have the triggers created.
+
+note:
+- the multi_query test failes because this is not supported by ext/mysql
+
+open todo items:
+- use a trigger to emulate setting default now()</notes>
+  </release>
   <release>
    <version>
     <release>1.5.0a2</release>

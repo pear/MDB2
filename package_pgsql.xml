@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.0RC1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_pgsql</name>
  <channel>pear.php.net</channel>
  <summary>pgsql MDB2 driver</summary>
@@ -22,22 +22,38 @@
   <email>nathan@silverorange.com</email>
   <active>yes</active>
  </developer>
- <date>2007-12-06</date>
- <time>21:10:17</time>
+ <helper>
+  <name>Ali Fazelzadeh</name>
+  <user>afz</user>
+  <email>afz@dev-code.com</email>
+  <active>yes</active>
+ </helper>
+ <date>2008-03-15</date>
+ <time>10:11:53</time>
  <version>
-  <release>1.5.0a2</release>
-  <api>1.5.0a2</api>
+  <release>1.5.0b1</release>
+  <api>1.5.0b1</api>
  </version>
  <stability>
   <release>alpha</release>
   <api>alpha</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #12376: getTableConstraintDefinition() in the Reverse module
-  uses incorrect column number in certain cases (thanks to Dennis Birne)
-- request #12338: added &apos;disable_smart_seqname&apos; option to make improved
-  getSequenceName() behaviour optional (thanks to Dennis Birne) (@see bug #9106)
-- request #12012: added collation support in createDatabase()
+ <notes>- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
+- request #12800: added alterDatabase() in the Manager module
+- fixed bug #12846: missing escape in getSequenceName() on PostgreSQL 8.2.4
+  [thanks to Stephane Berthelot]
+- fixed bug #12920: added new error info and fixed escape method if connection doesn&apos;t exist [afz]
+- fixed bug #12922: use standaloneQuery() in alterDatabase() [afz]
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
+- added standaloneQuery() and databaseExists()
+- fixed bug #13112: the Reverse module does not know the timestamptz data type
+- request #13106: added unixtimestamp() in the Function module
+- fixed bug #13281: list FOREIGN KEY constraints in listTableConstraints() in the Manager module
+- fixed bug #13356: added float4 to _mapNativeDatatype()
+- fixed query in getTableConstraintDefinition() for FK constraints in the Reverse module
+  (thanks to André Restivo)
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
@@ -95,7 +111,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0a2</min>
+    <min>2.5.0b1</min>
    </package>
    <extension>
     <name>pgsql</name>
@@ -104,6 +120,39 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0b1</release>
+    <api>1.5.0b1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2008-03-15</date>
+   <license>BSD License</license>
+   <notes>- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
+- request #12800: added alterDatabase() in the Manager module
+- fixed bug #12846: missing escape in getSequenceName() on PostgreSQL 8.2.4
+  [thanks to Stephane Berthelot]
+- fixed bug #12920: added new error info and fixed escape method if connection doesn&apos;t exist [afz]
+- fixed bug #12922: use standaloneQuery() in alterDatabase() [afz]
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
+- added standaloneQuery() and databaseExists()
+- fixed bug #13112: the Reverse module does not know the timestamptz data type
+- request #13106: added unixtimestamp() in the Function module
+- fixed bug #13281: list FOREIGN KEY constraints in listTableConstraints() in the Manager module
+- fixed bug #13356: added float4 to _mapNativeDatatype()
+- fixed query in getTableConstraintDefinition() for FK constraints in the Reverse module
+  (thanks to André Restivo)
+
+open todo items:
+- enable pg_execute() once issues with bytea column are resolved
+- use pg_result_error_field() to handle localized error messages (Request #7059)
+- add option to use unnamed prepared statements
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
+  </release>
   <release>
    <version>
     <release>1.5.0a2</release>

@@ -3,7 +3,7 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'XXX';
+$version = '1.5.0b1';
 $state = 'alpha';
 $notes = <<<EOT
 - request #12528: added 'session_mode' DSN parameter
@@ -51,7 +51,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b1');
 $package->addExtensionDep('required', 'oci8');
 
 $package->addRelease();

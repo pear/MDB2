@@ -3,14 +3,14 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'XXX';
+$version = '1.5.0b1';
 $state = 'alpha';
 $notes = <<<EOT
 - fixed bug #11831: createTable() now supports tables with a multi-field PRIMARY KEY
   where one field is defined as AUTO_INCREMENT
 - request #11204: support AUTO_INCREMENT for FLOAT data type and UNSIGNED option
   for FLOAT and DECIMAL data type [afz]
-- fixed bug #11692: value of $db->supports('transactions') changes after query [afz]
+- fixed bug #11692: value of \$db->supports('transactions') changes after query [afz]
 - request #12731: added truncateTable() in the Manager module
 - request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - request #12800: added alterDatabase() in the Manager module [afz]
@@ -54,7 +54,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b1');
 $package->addExtensionDep('required', 'mysqli');
 
 $package->addRelease();

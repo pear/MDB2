@@ -3,7 +3,7 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'XXX';
+$version = '1.5.0b1';
 $state = 'alpha';
 $notes = <<<EOT
 - request #12731: added truncateTable() in the Manager module
@@ -40,7 +40,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.4');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b1');
 $package->addExtensionDep('required', 'interbase');
 
 $package->addRelease();

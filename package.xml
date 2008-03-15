@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.0RC1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2</name>
  <channel>pear.php.net</channel>
  <extends>MDB</extends>
@@ -64,25 +64,31 @@ can be used to construct portable SQL statements:
   <email>david@jaws.com.mx</email>
   <active>yes</active>
  </helper>
- <date>2007-12-06</date>
- <time>20:57:26</time>
+ <helper>
+  <name>Ali Fazelzadeh</name>
+  <user>afz</user>
+  <email>afz@dev-code.com</email>
+  <active>yes</active>
+ </helper>
+ <date>2008-03-15</date>
+ <time>09:59:48</time>
  <version>
-  <release>2.5.0a2</release>
-  <api>2.5.0a2</api>
+  <release>2.5.0b1</release>
+  <api>2.5.0b1</api>
  </version>
  <stability>
   <release>alpha</release>
   <api>alpha</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #12358: E_STRICT changes in latest alpha broke PHP4 compatibility
-- fixed bug #12351: wrong case for function PEAR::isError() in the Reverse module
-  [was: IsError()]
-- fixed bug #12530: MDB2_Extended::autoPrepare() gives error if $types is null
-- request #12012: added charset/collation support in createDatabase() for the
-  drivers that support this feature
-- added bindname_format option (this is the regexp used to recognize named
-  placeholders in prepared statements)
+ <notes>- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
+- request #12800: added alterDatabase() in the Manager module [afz]
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
+- fixed bug #12991: new error code in errorInfo() [afz]
+- added databaseExists() method [afz]
+- request #13106: added unixtimestamp() in the Function module
+- added max_identifiers_length option
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -287,42 +293,42 @@ open todo items:
    <subpackage>
     <name>MDB2_Driver_ibase</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a2</min>
-   </subpackage>
-  </group>
-  <group hint="MySQL driver for MDB2" name="mysql">
-   <subpackage>
-    <name>MDB2_Driver_mysql</name>
-    <channel>pear.php.net</channel>
-    <min>1.5.0a2</min>
-   </subpackage>
-  </group>
-  <group hint="MySQLi driver for MDB2" name="mysqli">
-   <subpackage>
-    <name>MDB2_Driver_mysqli</name>
-    <channel>pear.php.net</channel>
-    <min>1.5.0a2</min>
+    <min>1.5.0b1</min>
    </subpackage>
   </group>
   <group hint="MS SQL Server driver for MDB2" name="mssql">
    <subpackage>
     <name>MDB2_Driver_mssql</name>
     <channel>pear.php.net</channel>
-    <min>1.3.0a2</min>
+    <min>1.3.0b1</min>
+   </subpackage>
+  </group>
+  <group hint="MySQL driver for MDB2" name="mysql">
+   <subpackage>
+    <name>MDB2_Driver_mysql</name>
+    <channel>pear.php.net</channel>
+    <min>1.5.0b1</min>
+   </subpackage>
+  </group>
+  <group hint="MySQLi driver for MDB2" name="mysqli">
+   <subpackage>
+    <name>MDB2_Driver_mysqli</name>
+    <channel>pear.php.net</channel>
+    <min>1.5.0b1</min>
    </subpackage>
   </group>
   <group hint="Oracle driver for MDB2" name="oci8">
    <subpackage>
     <name>MDB2_Driver_oci8</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a2</min>
+    <min>1.5.0b1</min>
    </subpackage>
   </group>
   <group hint="PostgreSQL driver for MDB2" name="pgsql">
    <subpackage>
     <name>MDB2_Driver_pgsql</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a2</min>
+    <min>1.5.0b1</min>
    </subpackage>
   </group>
   <group hint="Querysim driver for MDB2" name="querysim">
@@ -336,12 +342,52 @@ open todo items:
    <subpackage>
     <name>MDB2_Driver_sqlite</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0a2</min>
+    <min>1.5.0b1</min>
    </subpackage>
   </group>
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>2.5.0b1</release>
+    <api>2.5.0b1</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2008-03-15</date>
+   <license>BSD License</license>
+   <notes>- request #12731: added truncateTable() in the Manager module
+- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
+- request #12800: added alterDatabase() in the Manager module [afz]
+- fixed bug #12924: correctly handle internal expected errors even with custom error handling
+- fixed bug #12991: new error code in errorInfo() [afz]
+- added databaseExists() method [afz]
+- request #13106: added unixtimestamp() in the Function module
+- added max_identifiers_length option
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add length handling to LOB reverse engineering
+- add EXPLAIN abstraction
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), etc.)
+- add support for database/table/row LOCKs
+- add support for CHECK (ENUM as possible mysql fallback) constraints
+- generate STATUS file from test suite results and allow users to submit test results
+- add support for full text index creation and querying
+- add tests to check if the RDBMS specific handling with portability options
+  disabled behaves as expected
+- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
+- add a getTableFieldsDefinitions() method to be used in tableInfo()
+- drop ILIKE from matchPattern() and instead add a second parameter to
+  handle case sensitivity with arbitrary operators
+- handle LOBs in buffered result sets (Request #8793)</notes>
+  </release>
   <release>
    <version>
     <release>2.5.0a2</release>
