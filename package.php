@@ -5,7 +5,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
 $version_release = '2.5.0b1';
 $version_api = $version_release;
-$state = 'alpha';
+$state = 'beta';
 $notes = <<<EOT
 - request #12731: added truncateTable() in the Manager module
 - request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction

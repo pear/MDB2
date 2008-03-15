@@ -77,8 +77,8 @@ can be used to construct portable SQL statements:
   <api>2.5.0b1</api>
  </version>
  <stability>
-  <release>alpha</release>
-  <api>alpha</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
  <license>BSD License</license>
  <notes>- request #12731: added truncateTable() in the Manager module

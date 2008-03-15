@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
 $version = '1.5.0b1';
-$state = 'alpha';
+$state = 'beta';
 $notes = <<<EOT
 - request #12528: added 'session_mode' DSN parameter
 - request #12731: added truncateTable() in the Manager module

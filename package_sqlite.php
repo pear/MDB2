@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
 $version = '1.5.0b1';
-$state = 'alpha';
+$state = 'beta';
 $notes = <<<EOT
 - request #12731: added truncateTable() in the Manager module
 - request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction

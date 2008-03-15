@@ -4,7 +4,7 @@ require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
 $version = '1.3.0b1';
-$state = 'alpha';
+$state = 'beta';
 $notes = <<<EOT
 - fixed bug #12391: fixed lastInsertID() (thanks to Marius Toma)
 - fixed bug #12599: BLOB quoting incorrect (thanks to Ferdy Hanssen)
