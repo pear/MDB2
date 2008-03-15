@@ -3,19 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.3.0b1';
+$version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
-- fixed bug #12391: fixed lastInsertID() (thanks to Marius Toma)
-- fixed bug #12599: BLOB quoting incorrect (thanks to Ferdy Hanssen)
-- fixed bug #12697: MDB2_Driver_mssql fails to load with the sybase_ct extension
-- request #12731: added truncateTable() in the Manager module
-- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
-- request #12800: added alterDatabase() in the Manager module [afz]
-- fixed bug #12924: correctly handle internal expected errors even with custom error handling
-- extended alterTable() support in the Manager module [afz]
-- added standaloneQuery() and databaseExists()
-- request #13106: added unixtimestamp() in the Function module
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
@@ -42,7 +32,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'mssql');
 
 $package->addRelease();

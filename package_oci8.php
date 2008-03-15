@@ -3,18 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0b1';
+$version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
-- request #12528: added 'session_mode' DSN parameter
-- request #12731: added truncateTable() in the Manager module
-- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
-- request #12800: added alterDatabase() in the Manager module
-- fixed bug #12924: correctly handle internal expected errors even with custom error handling
-- added standaloneQuery() and databaseExists()
-- better handling of NULL LOBs in execute()
-- request #13106: added unixtimestamp() in the Function module
-- a trigger is created to emulate the ON UPDATE action for FOREIGN KEY constraints.
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -51,7 +42,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'oci8');
 
 $package->addRelease();

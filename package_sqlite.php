@@ -3,18 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0b1';
+$version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
-- request #12731: added truncateTable() in the Manager module
-- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
-- fixed bug #12924: correctly handle internal expected errors even with custom error handling
-- added standaloneQuery() and databaseExists()
-- request #13106: added unixtimestamp() in the Function module
-- fixed bug #13201: better regexp in errorInfo()
-- fixed bug #13283: replace() doesn't respect quote_identifiers option
-- fixed bug #13303: PRIMARY keys are not always returned in listTableConstraints()
-  and in getTableConstraintDefinition()
 
 note:
 open todo items:
@@ -42,7 +33,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'sqlite');
 
 $package->addRelease();
