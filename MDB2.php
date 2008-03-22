@@ -3054,6 +3054,12 @@ class MDB2_Driver_Common extends PEAR
      */
     function quote($value, $type = null, $quote = true, $escape_wildcards = false)
     {
+        // If the string has no length, let's just return
+        // it. Bug #13406
+        if (strlen(trim($value)) == 0) {
+            return $value;
+        }
+
         $result = $this->loadModule('Datatype', null, true);
         if (PEAR::isError($result)) {
             return $result;
