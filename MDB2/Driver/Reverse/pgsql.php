@@ -339,7 +339,8 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
                   FROM pg_constraint c
                   LEFT JOIN pg_class t  ON c.conrelid  = t.oid
                   LEFT JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY(c.conkey)
-                  WHERE c.conname = %s AND t.relname = ' . $db->quote($definition['references']['table'], 'text');
+                  WHERE c.conname = %s
+                   AND t.relname = ' . $db->quote($definition['references']['table'], 'text');
         $constraint_name_mdb2 = $db->getIndexName($constraint_name);
         $fields = $db->queryCol(sprintf($query, $db->quote($constraint_name_mdb2, 'text')), null);
         if (PEAR::isError($fields)) {

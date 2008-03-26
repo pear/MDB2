@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #13481: getTableConstraintDefinition() may return incomplete results
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
