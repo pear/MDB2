@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #13412: sometimes getTableConstraintDefinition() fails for FOREIGN KEYs
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

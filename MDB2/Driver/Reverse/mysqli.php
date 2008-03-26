@@ -364,50 +364,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             if ($constraint_name == $key_name) {
                 if ($row['non_unique']) {
                     //FOREIGN KEY?
-                    $query = 'SHOW CREATE TABLE '. $db->escape($table);
-                    $constraint = $db->queryOne($query, 'text', 1);
-                    if (!PEAR::isError($constraint) && !empty($constraint)) {
-                        if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
-                            if ($db->options['field_case'] == CASE_LOWER) {
-                                $constraint = strtolower($constraint);
-                            } else {
-                                $constraint = strtoupper($constraint);
-                            }
-                        }
-                        $pattern = '/\bCONSTRAINT\s+'.$constraint_name.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^ ]+) \(([^\)]+)\)/i';
-                        if (!preg_match($pattern, str_replace('`', '', $constraint), $matches)) {
-                            //fallback to original constraint name
-                            $pattern = '/\bCONSTRAINT\s+'.$constraint_name_original.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^ ]+) \(([^\)]+)\)/i';
-                        }
-                        if (preg_match($pattern, str_replace('`', '', $constraint), $matches)) {
-                            $definition['foreign'] = true;
-                            $column_names = explode(',', $matches[1]);
-                            $referenced_cols = explode(',', $matches[3]);
-                            $definition['references'] = array(
-                                'table'  => $matches[2],
-                                'fields' => array(),
-                            );
-                            $colpos = 1;
-                            foreach ($column_names as $column_name) {
-                                $definition['fields'][trim($column_name)] = array(
-                                    'position' => $colpos++
-                                );
-                            }
-                            $colpos = 1;
-                            foreach ($referenced_cols as $column_name) {
-                                $definition['references']['fields'][trim($column_name)] = array(
-                                    'position' => $colpos++
-                                );
-                            }
-                            $definition['onupdate'] = 'NO ACTION';
-                            $definition['ondelete'] = 'NO ACTION';
-                            $definition['match']    = 'SIMPLE';
-                            return $definition;
-                        }
-                    }
-
-                    return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                        $constraint_name . ' is not an existing table constraint', __FUNCTION__);
+                    return $this->_getTableFKConstraintDefinition($table, $constraint_name_original, $definition);
                 }
                 if ($row['key_name'] == 'PRIMARY') {
                     $definition['primary'] = true;
@@ -433,10 +390,75 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         }
         $result->free();
         if (empty($definition['fields'])) {
-            return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
+            return $this->_getTableFKConstraintDefinition($table, $constraint_name_original, $definition);
         }
         return $definition;
+    }
+
+    // }}}
+    // {{{ _getTableFKConstraintDefinition()
+
+    /**
+     * Get the FK definition from the CREATE TABLE statement
+     *
+     * @param string $table           table name
+     * @param string $constraint_name constraint name
+     * @param array  $definition      default values for constraint definition
+     *
+     * @return array|PEAR_Error
+     * @access private
+     */
+    function _getTableFKConstraintDefinition($table, $constraint_name, $definition)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        $query = 'SHOW CREATE TABLE '. $db->escape($table);
+        $constraint = $db->queryOne($query, 'text', 1);
+        if (!PEAR::isError($constraint) && !empty($constraint)) {
+            if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
+                if ($db->options['field_case'] == CASE_LOWER) {
+                    $constraint = strtolower($constraint);
+                } else {
+                    $constraint = strtoupper($constraint);
+                }
+            }
+            $constraint_name_original = $constraint_name;
+            $constraint_name = $db->getIndexName($constraint_name);
+            $pattern = '/\bCONSTRAINT\s+'.$constraint_name.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^ ]+) \(([^\)]+)\)/i';
+            if (!preg_match($pattern, str_replace('`', '', $constraint), $matches)) {
+                //fallback to original constraint name
+                $pattern = '/\bCONSTRAINT\s+'.$constraint_name_original.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^ ]+) \(([^\)]+)\)/i';
+            }
+            if (preg_match($pattern, str_replace('`', '', $constraint), $matches)) {
+                $definition['foreign'] = true;
+                $column_names = explode(',', $matches[1]);
+                $referenced_cols = explode(',', $matches[3]);
+                $definition['references'] = array(
+                    'table'  => $matches[2],
+                    'fields' => array(),
+                );
+                $colpos = 1;
+                foreach ($column_names as $column_name) {
+                    $definition['fields'][trim($column_name)] = array(
+                        'position' => $colpos++
+                    );
+                }
+                $colpos = 1;
+                foreach ($referenced_cols as $column_name) {
+                    $definition['references']['fields'][trim($column_name)] = array(
+                        'position' => $colpos++
+                    );
+                }
+                $definition['onupdate'] = 'NO ACTION';
+                $definition['ondelete'] = 'NO ACTION';
+                $definition['match']    = 'SIMPLE';
+                return $definition;
+            }
+        }
+        return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                $constraint_name . ' is not an existing table constraint', __FUNCTION__);
     }
 
     // }}}

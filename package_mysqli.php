@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #13412: sometimes getTableConstraintDefinition() fails for FOREIGN KEYs
 
 open todo items:
 - use a trigger to emulate setting default now()
