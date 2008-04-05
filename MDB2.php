@@ -2738,8 +2738,7 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Execute a SQL REPLACE query. A REPLACE query is identical to a INSERT
      * query, except that if there is already a row in the table with the same
-     * key field values, the REPLACE query just updates its values instead of
-     * inserting a new row.
+     * key field values, the old row is deleted before the new row is inserted.
      *
      * The REPLACE type of query does not make part of the SQL standards. Since
      * practically only MySQL and SQLite implement it natively, this type of

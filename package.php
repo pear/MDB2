@@ -7,6 +7,7 @@ $version_release = 'XXX';
 $version_api = $version_release;
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #12912: replace() documentation
 
 open todo items:
 - handle autoincrement fields in alterTable()

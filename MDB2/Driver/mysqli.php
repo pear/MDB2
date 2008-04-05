@@ -946,7 +946,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                     $this->supported['prepared_statements'] = true;
                 }
 
-                // SAVEPOINTS were introduced in MySQL 4.0.14 and 4.1.1 (InnoDB)
+                // SAVEPOINTs were introduced in MySQL 4.0.14 and 4.1.1 (InnoDB)
                 if (version_compare($server_version, '4.1.0', '>=')) {
                     if (version_compare($server_version, '4.1.1', '<')) {
                         $this->supported['savepoints'] = false;
@@ -1140,8 +1140,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     /**
      * Execute a SQL REPLACE query. A REPLACE query is identical to a INSERT
      * query, except that if there is already a row in the table with the same
-     * key field values, the REPLACE query just updates its values instead of
-     * inserting a new row.
+     * key field values, the old row is deleted before the new row is inserted.
      *
      * The REPLACE type of query does not make part of the SQL standards. Since
      * practically only MySQL implements it natively, this type of query is
@@ -1199,6 +1198,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      *
      *    Default: 0
      *
+     * @see http://dev.mysql.com/doc/refman/5.0/en/replace.html
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      */
     function replace($table, $fields)
