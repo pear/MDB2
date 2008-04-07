@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #13412: sometimes getTableConstraintDefinition() fails for FOREIGN KEYs
+- fixed bug #13581: wrong query in beginTransaction() for certain MySQL versions
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
