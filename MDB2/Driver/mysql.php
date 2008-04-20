@@ -625,6 +625,15 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             $collation = array_pop($charset);
             $charset   = array_pop($charset);
         }
+        $client_info = mysql_get_client_info();
+        if (function_exists('mysql_set_charset') && version_compare($client_info, '5.0.6')) {
+            if (!$result = mysql_set_charset($charset, $connection)) {
+                $err =& $this->raiseError(null, null, null,
+                    'Could not set client character set', __FUNCTION__);
+                return $err;
+            }
+            return $result;
+        }
         $query = "SET NAMES '".mysql_real_escape_string($charset, $connection)."'";
         if (!is_null($collation)) {
             $query .= " COLLATE '".mysqli_real_escape_string($connection, $collation)."'";
