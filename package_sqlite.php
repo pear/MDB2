@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #13815: incomplete regexp in the Reverse module
 
 note:
 open todo items:
