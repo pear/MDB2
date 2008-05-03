@@ -1145,7 +1145,8 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['emulate_prepared'] -> boolean: force prepared statements to be emulated</li>
      *  <li>$options['datatype_map'] -> array: map user defined datatypes to other primitive datatypes</li>
      *  <li>$options['datatype_map_callback'] -> array: callback function/method that should be called</li>
-     *  <li>$options['bindname_format'] -> string: regular expression pattern for named parameters
+     *  <li>$options['bindname_format'] -> string: regular expression pattern for named parameters</li>
+     *  <li>$options['multi_query'] -> boolean: determines if queries returning multiple result sets should be executed</li>
      *  <li>$options['max_identifiers_length'] -> integer: max identifier length</li>
      * </ul>
      *
