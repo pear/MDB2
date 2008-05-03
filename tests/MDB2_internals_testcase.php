@@ -432,8 +432,7 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
     }
 
     /**
-     * Tests that the MDB2::setDSN() method correctly sets
-     * the DSN.
+     * Tests that the MDB2::setDSN() method correctly sets the DSN.
      */
     function test_setDSN()
     {
@@ -453,8 +452,7 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
     }
 
     /**
-     * Tests that the MDB2::getDSN() method correctly gets
-     * the DSN.
+     * Tests that the MDB2::getDSN() method correctly gets the DSN.
      */
     function test_getDSN()
     {
@@ -517,8 +515,7 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
     }
 
     /**
-     * Tests that the MDB2::getIndexName() method correctly gets
-     * index names.
+     * Tests that the MDB2::getIndexName() method correctly gets index names.
      */
     function test_getIndexName()
     {
@@ -541,6 +538,27 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
         $this->assertEquals('', $this->db->connected_server_info, 'disconnect');
         $this->assertNull($this->db->in_transaction, 'disconnect');
         $this->assertNull($this->db->nested_transaction_counter, 'disconnect');
+    }
+    
+    /**
+     * Test that the MDB2::_skipDelimitedStrings() method correctly recognizes
+     * parameter placeholders from quoted strings
+     */
+    function test_skipDelimitedStrings() {
+        $query = "UPDATE tbl SET fld='' WHERE fld2=:param AND fld3=':fakeparam' AND fld3=:param2";
+        $this->assertEquals(0, $this->db->_skipDelimitedStrings($query, 0, 0));
+        $this->assertEquals(18, $this->db->_skipDelimitedStrings($query, 18, 19));
+        $this->assertEquals(20, $this->db->_skipDelimitedStrings($query, 20, 20));
+        $this->assertEquals(21, $this->db->_skipDelimitedStrings($query, 19, 21));
+        $this->assertEquals(30, $this->db->_skipDelimitedStrings($query, 30, 33));
+        $this->assertEquals(30, $this->db->_skipDelimitedStrings($query, 30, 34));
+        $this->assertEquals(33, $this->db->_skipDelimitedStrings($query, 33, 33));
+        $this->assertEquals(50, $this->db->_skipDelimitedStrings($query, 50, 50));
+        $this->assertEquals(61, $this->db->_skipDelimitedStrings($query, 49, 51));
+        $this->assertEquals(52, $this->db->_skipDelimitedStrings($query, 52, 52));
+        $this->assertEquals(70, $this->db->_skipDelimitedStrings($query, 70, 72));
+        $this->assertEquals(71, $this->db->_skipDelimitedStrings($query, 71, 72));
+        $this->assertEquals(72, $this->db->_skipDelimitedStrings($query, 72, 72));
     }
 
 }

@@ -8,6 +8,7 @@ $version_api = $version_release;
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #12912: replace() documentation
+- fixed bug #13811: _skipDelimitedStrings() fails on empty strings
 
 open todo items:
 - handle autoincrement fields in alterTable()
