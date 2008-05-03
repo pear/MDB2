@@ -1094,7 +1094,10 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
                 'Could not get row count', __FUNCTION__);
         }
         if ($this->limit) {
-            $rows -= $this->limit -1 + $this->offset;
+            $rows -= $this->offset;
+            if ($rows > $this->limit) {
+                $rows = $this->limit;
+            }
             if ($rows < 0) {
                 $rows = 0;
             }
