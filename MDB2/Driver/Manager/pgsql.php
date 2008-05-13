@@ -738,6 +738,57 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
     }
 
     // }}}
+    // {{{ dropConstraint()
+
+    /**
+     * drop existing constraint
+     *
+     * @param string $table   name of table that should be used in method
+     * @param string $name    name of the constraint to be dropped
+     * @param string $primary hint if the constraint is primary
+     *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropConstraint($table, $name, $primary = false)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        
+        // is it an UNIQUE index?
+        $query = 'SELECT relname
+                    FROM pg_class
+                   WHERE oid IN (
+                         SELECT indexrelid
+                           FROM pg_index, pg_class
+                          WHERE pg_class.relname = '.$db->quote($table, 'text').'
+                            AND pg_class.oid = pg_index.indrelid
+                            AND indisunique = \'t\')
+                  EXCEPT
+                  SELECT conname
+                   FROM pg_constraint, pg_class
+                  WHERE pg_constraint.conrelid = pg_class.oid
+                    AND relname = '. $db->quote($table, 'text');
+        $unique = $db->queryCol($query, 'text');
+        if (PEAR::isError($unique) || empty($unique)) {
+            // not an UNIQUE index, maybe a CONSTRAINT
+            return parent::dropConstraint($table, $name, $primary);
+        }
+
+        if (in_array($name, $unique)) {
+            return $db->exec('DROP INDEX '.$db->quoteIdentifier($name, true));
+        }
+        $idxname = $db->getIndexName($name);
+        if (in_array($idxname, $unique)) {
+            return $db->exec('DROP INDEX '.$db->quoteIdentifier($idxname, true));
+        }
+        return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+            $name . ' is not an existing constraint for table ' . $table, __FUNCTION__);
+    }
+
+    // }}}
     // {{{ listTableConstraints()
 
     /**
