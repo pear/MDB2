@@ -758,7 +758,16 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         $query = 'SELECT conname
                     FROM pg_constraint, pg_class
                    WHERE pg_constraint.conrelid = pg_class.oid
-                     AND relname = ' .$table;
+                     AND relname = '.$table.'
+                UNION DISTINCT
+                  SELECT relname
+                    FROM pg_class
+                   WHERE oid IN (
+                         SELECT indexrelid
+                           FROM pg_index, pg_class
+                          WHERE pg_class.relname = '.$table.'
+                            AND pg_class.oid = pg_index.indrelid
+                            AND indisunique = \'t\')';
         $constraints = $db->queryCol($query);
         if (PEAR::isError($constraints)) {
             return $constraints;
