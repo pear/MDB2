@@ -6,7 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
-- fixed bug #13481: getTableConstraintDefinition() may return incomplete results
+- fixed bug #13481: getTableConstraintDefinition() may return incomplete results (thanks to Holger Schletz)
+- fixed bug #13877: UNIQUE index not always recognized as constraint (thanks to Holger Schletz)
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
