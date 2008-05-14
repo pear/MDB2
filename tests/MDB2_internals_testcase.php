@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2007 m3 Media Services Ltd.                            |
+// | Copyright (c) 2008 m3 Media Services Ltd.                            |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -472,7 +472,62 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
         $this->assertRegExp($dsn_rex, $dsn_get, 'testGetDSN');
         $dsn_rex = "/{$this->dsn['phptype']}[\w\W]+/";
         $this->assertRegExp($dsn_rex, $dsn_get, 'testGetDSN');
+    }
 
+    /**
+     * Tests that the 'new_link' DSN option is read correctly
+     */
+    function test_isNewLinkSet()
+    {
+        $dsn = array(
+            'phptype'  => 'mydbms',
+            'host'     => 'localhost',
+            'database' => 'dbname',
+            'username' => 'myname',
+            'password' => 'mypassword',
+        );
+        $this->db->setDSN($dsn);
+        $this->assertFalse($this->db->_isNewLinkSet());
+        $dsn['new_link'] = true;
+        $this->db->setDSN($dsn);
+        $this->assertTrue($this->db->_isNewLinkSet());
+        $dsn['new_link'] = false;
+        $this->db->setDSN($dsn);
+        $this->assertFalse($this->db->_isNewLinkSet());
+        $dsn['new_link'] = 'true';
+        $this->db->setDSN($dsn);
+        $this->assertTrue($this->db->_isNewLinkSet());
+        $dsn['new_link'] = 'false';
+        $this->db->setDSN($dsn);
+        $this->assertFalse($this->db->_isNewLinkSet());
+        $dsn['new_link'] = 1;
+        $this->db->setDSN($dsn);
+        $this->assertTrue($this->db->_isNewLinkSet());
+        $dsn['new_link'] = 0;
+        $this->db->setDSN($dsn);
+        $this->assertFalse($this->db->_isNewLinkSet());
+        $dsn['new_link'] = '1';
+        $this->db->setDSN($dsn);
+        $this->assertTrue($this->db->_isNewLinkSet());
+        $dsn['new_link'] = '0';
+        $this->db->setDSN($dsn);
+        $this->assertFalse($this->db->_isNewLinkSet());
+        $dsn['new_link'] = 'True';
+        $this->db->setDSN($dsn);
+        $this->assertTrue($this->db->_isNewLinkSet());
+        $dsn['new_link'] = 'TRUE';
+        $this->db->setDSN($dsn);
+        $this->assertTrue($this->db->_isNewLinkSet());
+        //now test some invalid values...
+        $dsn['new_link'] = new StdClass;
+        $this->db->setDSN($dsn);
+        $this->assertFalse($this->db->_isNewLinkSet());
+        $dsn['new_link'] = '';
+        $this->db->setDSN($dsn);
+        $this->assertFalse($this->db->_isNewLinkSet());
+        $dsn['new_link'] = 'blah';
+        $this->db->setDSN($dsn);
+        $this->assertFalse($this->db->_isNewLinkSet());
     }
 
     /**

@@ -330,9 +330,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             $params[0].= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':').$this->dsn['port'];
         }
         if (!$persistent) {
-            if (isset($this->dsn['new_link'])
-                && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true)
-            ) {
+            if ($this->_isNewLinkSet()) {
                 $params[] = true;
             } else {
                 $params[] = false;

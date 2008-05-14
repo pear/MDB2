@@ -423,9 +423,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $params[0].= ' service=' . $this->dsn['service'];
         }
 
-        if (!empty($this->dsn['new_link'])
-            && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true))
-        {
+        if ($this->_isNewLinkSet()) {
             if (version_compare(phpversion(), '4.3.0', '>=')) {
                 $params[] = PGSQL_CONNECT_FORCE_NEW;
             }

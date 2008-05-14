@@ -2385,6 +2385,26 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ _isNewLinkSet()
+
+    /**
+     * Check if the 'new_link' option is set
+     *
+     * @return boolean
+     *
+     * @access protected
+     */
+    function _isNewLinkSet()
+    {
+        return (isset($this->dsn['new_link'])
+            && ($this->dsn['new_link'] === true
+             || (is_string($this->dsn['new_link']) && preg_match('/^true$/i', $this->dsn['new_link']))
+             || (is_numeric($this->dsn['new_link']) && 0 != (int)$this->dsn['new_link'])
+            )
+        );
+    }
+
+    // }}}
     // {{{ function &standaloneQuery($query, $types = null, $is_manip = false)
 
    /**

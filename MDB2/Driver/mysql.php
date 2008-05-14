@@ -513,9 +513,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $params[] = $username ? $username : null;
         $params[] = $password ? $password : null;
         if (!$persistent) {
-            if (isset($this->dsn['new_link'])
-                && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true)
-            ) {
+            if ($this->_isNewLinkSet()) {
                 $params[] = true;
             } else {
                 $params[] = false;

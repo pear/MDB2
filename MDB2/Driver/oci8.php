@@ -367,9 +367,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         if (function_exists('oci_connect')) {
-            if (isset($this->dsn['new_link'])
-                && ($this->dsn['new_link'] == 'true' || $this->dsn['new_link'] === true)
-            ) {
+            if ($this->_isNewLinkSet()) {
                 $connect_function = 'oci_new_connect';
             } else {
                 $connect_function = $persistent ? 'oci_pconnect' : 'oci_connect';
