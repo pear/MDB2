@@ -1071,10 +1071,6 @@ END;
     /**
      * Create triggers to enforce the FOREIGN KEY constraint on the table
      *
-     * NB: since there's no RAISE_APPLICATION_ERROR facility in mysql,
-     * we call a non-existent procedure to raise the FK violation message.
-     * @see http://forums.mysql.com/read.php?99,55108,71877#msg-71877
-     *
      * @param string $table        table name
      * @param array  $foreign_keys FOREIGN KEY definitions
      *
