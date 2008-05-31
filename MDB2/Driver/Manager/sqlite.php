@@ -220,9 +220,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
     /**
      * create a new table
      *
-     * @param string $name   Name of the database that should be created
-     * @param array $fields  Associative array that contains the definition of each field of the new table
-     * @param array $options  An associative array of table options
+     * @param string $name    Name of the database that should be created
+     * @param array  $fields  Associative array that contains the definition
+     *                        of each field of the new table
+     * @param array  $options An associative array of table options
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -300,7 +302,12 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                     $new_values[]  = $table_fields[$i] .' = NEW.'.$referenced_fields[$i];
                     $null_values[] = $table_fields[$i] .' = NULL';
                 }
-                $restrict_action .= implode(' AND ', $conditions).') IS NOT NULL';
+                $conditions2 = array();
+                for ($i=0; $i<count($referenced_fields); $i++) {
+                    $conditions2[]  = 'NEW.'.$referenced_fields[$i] .' <> OLD.'.$referenced_fields[$i];
+                }
+                $restrict_action .= implode(' AND ', $conditions).') IS NOT NULL'
+                                 .' AND (' .implode(' OR ', $conditions2) .')';
 
                 $cascade_action_update = 'UPDATE '.$name.' SET '.implode(', ', $new_values) .' WHERE '.implode(' AND ', $conditions);
                 $cascade_action_delete = 'DELETE FROM '.$name.' WHERE '.implode(' AND ', $conditions);
@@ -1159,6 +1166,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
      * @param string $table  table name
      * @param string $fkname FOREIGN KEY constraint name
      * @param string $referenced_table  referenced table name
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access private
      */
@@ -1186,7 +1194,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         return MDB2_OK;
     }
 
-    // }]]
+    // }}}
     // {{{ listTableConstraints()
 
     /**

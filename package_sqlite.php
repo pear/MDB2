@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #13815: incomplete regexp in the Reverse module
+- fixed bug #13928: Invalid triggers created for 'ON UPDATE'
 
 note:
 open todo items:
