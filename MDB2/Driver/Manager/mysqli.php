@@ -1088,7 +1088,12 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
                     $new_values[]  = $table_fields[$i] .' = NEW.'.$referenced_fields[$i];
                     $null_values[] = $table_fields[$i] .' = NULL';
                 }
+                $conditions2 = array();
+                for ($i=0; $i<count($referenced_fields); $i++) {
+                    $conditions2[]  = 'NEW.'.$referenced_fields[$i] .' <> OLD.'.$referenced_fields[$i];
+                }
                 $restrict_action .= implode(' AND ', $conditions).') IS NOT NULL'
+                                .' AND (' .implode(' OR ', $conditions2) .')'
                                 .' THEN CALL %s_ON_TABLE_'.$table.'_VIOLATES_FOREIGN_KEY_CONSTRAINT();'
                                 .' END IF;';
 

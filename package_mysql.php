@@ -9,6 +9,7 @@ $notes = <<<EOT
 - fixed bug #13412: sometimes getTableConstraintDefinition() fails for FOREIGN KEYs
 - fixed bug #13581: wrong query in beginTransaction() for certain MySQL versions
 - request #13657: in setCharset(), use mysql_set_charset() if available [cwiedmann]
+- fixed bug #13928: Invalid triggers created for 'ON UPDATE'
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
