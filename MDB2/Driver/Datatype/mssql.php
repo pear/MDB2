@@ -376,6 +376,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             $type[0] = 'integer';
             $length = 8;
             break;
+        case 'smalldatetime':
         case 'datetime':
             $type[0] = 'timestamp';
             break;
