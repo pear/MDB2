@@ -10,6 +10,8 @@ $notes = <<<EOT
 - fixed bug #12912: replace() documentation
 - fixed bug #13811: _skipDelimitedStrings() fails on empty strings
 - fixed bug #13898: more tolerant check for 'new_link' DSN option
+- request #13929: added 'default_fk_action_ondelete' and 'default_fk_action_onupdate'
+  options for default FOREIGN KEY constraints actions
 
 open todo items:
 - handle autoincrement fields in alterTable()

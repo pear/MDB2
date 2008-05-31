@@ -1148,6 +1148,8 @@ class MDB2_Driver_Common extends PEAR
      *  <li>$options['bindname_format'] -> string: regular expression pattern for named parameters</li>
      *  <li>$options['multi_query'] -> boolean: determines if queries returning multiple result sets should be executed</li>
      *  <li>$options['max_identifiers_length'] -> integer: max identifier length</li>
+     *  <li>$options['default_fk_action_onupdate'] -> string: default FOREIGN KEY ON UPDATE action ['RESTRICT'|'NO ACTION'|'SET DEFAULT'|'SET NULL'|'CASCADE']</li>
+     *  <li>$options['default_fk_action_ondelete'] -> string: default FOREIGN KEY ON DELETE action ['RESTRICT'|'NO ACTION'|'SET DEFAULT'|'SET NULL'|'CASCADE']</li>
      * </ul>
      *
      * @var     array
@@ -1197,6 +1199,8 @@ class MDB2_Driver_Common extends PEAR
         'lob_allow_url_include' => false,
         'bindname_format' => '(?:\d+)|(?:[a-zA-Z][a-zA-Z0-9_]*)',
         'max_identifiers_length' => 30,
+        'default_fk_action_onupdate' => 'RESTRICT',
+        'default_fk_action_ondelete' => 'RESTRICT',
     );
 
     /**

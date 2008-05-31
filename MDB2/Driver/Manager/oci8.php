@@ -1087,10 +1087,10 @@ END;
         if ($db->supports('triggers') && !empty($foreign_keys)) {
             $table = $db->quoteIdentifier($table, true);
             foreach ($foreign_keys as $fkname => $fkdef) {
-                if (empty($fkdef) || empty($fkdef['onupdate'])) {
+                if (empty($fkdef)) {
                     continue;
                 }
-                $fkdef['onupdate'] = strtoupper($fkdef['onupdate']);
+                $fkdef['onupdate'] = empty($fkdef['onupdate']) ? $db->options['default_fk_action_onupdate'] : strtoupper($fkdef['onupdate']);
                 if ('RESTRICT' == $fkdef['onupdate'] || 'NO ACTION' == $fkdef['onupdate']) {
                     // already handled by default
                     continue;

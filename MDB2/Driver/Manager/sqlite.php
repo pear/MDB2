@@ -244,9 +244,9 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                 if (empty($fkdef)) {
                     continue;
                 }
-                //set actions to 'RESTRICT' if not set
-                $fkdef['onupdate'] = empty($fkdef['onupdate']) ? 'RESTRICT' : strtoupper($fkdef['onupdate']);
-                $fkdef['ondelete'] = empty($fkdef['ondelete']) ? 'RESTRICT' : strtoupper($fkdef['ondelete']);
+                //set actions to default if not set
+                $fkdef['onupdate'] = empty($fkdef['onupdate']) ? $db->options['default_fk_action_onupdate'] : strtoupper($fkdef['onupdate']);
+                $fkdef['ondelete'] = empty($fkdef['ondelete']) ? $db->options['default_fk_action_ondelete'] : strtoupper($fkdef['ondelete']);
 
                 $trigger_names = array(
                     'insert'    => $fkname.'_insert_trg',
@@ -338,8 +338,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                     $sql_update = sprintf($query, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update') . $setdefault_action. '; END;';
                 } elseif ('NO ACTION' == $fkdef['onupdate']) {
                     $sql_update = sprintf($query.$restrict_action, $trigger_names['pk_update'], 'AFTER UPDATE', 'update') . '; END;';
-                } else {
-                    //'RESTRICT'
+                } elseif ('RESTRICT' == $fkdef['onupdate']) {
                     $sql_update = sprintf($query.$restrict_action, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update') . '; END;';
                 }
                 if ('CASCADE' == $fkdef['ondelete']) {
@@ -350,8 +349,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
                     $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete') . $setdefault_action. '; END;';
                 } elseif ('NO ACTION' == $fkdef['ondelete']) {
                     $sql_delete = sprintf($query.$restrict_action, $trigger_names['pk_delete'], 'AFTER DELETE', 'delete')  . '; END;';
-                } else {
-                    //'RESTRICT'
+                } elseif ('RESTRICT' == $fkdef['ondelete']) {
                     $sql_delete = sprintf($query.$restrict_action, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete') . '; END;';
                 }
 
