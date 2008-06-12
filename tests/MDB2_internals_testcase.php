@@ -614,6 +614,13 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
         $this->assertEquals(70, $this->db->_skipDelimitedStrings($query, 70, 72));
         $this->assertEquals(71, $this->db->_skipDelimitedStrings($query, 71, 72));
         $this->assertEquals(72, $this->db->_skipDelimitedStrings($query, 72, 72));
+
+        //be careful about SQL comments that are not comments (because within quotes)
+        $query = "UPDATE tbl SET fld='--some text' WHERE col2=?";
+        $this->assertEquals(0, $this->db->_skipDelimitedStrings($query, 0, 0));
+        $this->assertEquals(18, $this->db->_skipDelimitedStrings($query, 18, 19));
+        $this->assertEquals(20, $this->db->_skipDelimitedStrings($query, 20, 20));
+        $this->assertEquals(32, $this->db->_skipDelimitedStrings($query, 19, 21));
     }
 
 }
