@@ -2936,13 +2936,13 @@ class MDB2_Driver_Common extends PEAR
             $query = $result;
         }
         $placeholder_type_guess = $placeholder_type = null;
-        $question = '?';
-        $colon = ':';
+        $question  = '?';
+        $colon     = ':';
         $positions = array();
-        $position = 0;
-        $ignores = $this->sql_comments;
-        $ignores[] = $this->string_quoting;
+        $position  = 0;
+        $ignores   = $this->string_quoting;
         $ignores[] = $this->identifier_quoting;
+        $ignores[] = $this->sql_comments;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
             $c_position = strpos($query, $colon, $position);
