@@ -404,7 +404,7 @@ class MDB2
     // {{{ function &connect($dsn, $options = false)
 
     /**
-     * Create a new MDB2 connection object and connect to the specified
+     * Create a new MDB2_Driver_* connection object and connect to the specified
      * database
      *
      * IMPORTANT: In order for MDB2 to work properly it is necessary that
@@ -418,15 +418,15 @@ class MDB2
      *     $db = MDB2::connect($dsn);
      *          ^^
      *
-     * @param   mixed   'data source name', see the MDB2::parseDSN
-     *                            method for a description of the dsn format.
-     *                            Can also be specified as an array of the
-     *                            format returned by MDB2::parseDSN.
-     * @param   array   An associative array of option names and
-     *                            their values.
+     * @param mixed $dsn     'data source name', see the MDB2::parseDSN
+     *                       method for a description of the dsn format.
+     *                       Can also be specified as an array of the
+     *                       format returned by MDB2::parseDSN.
+     * @param array $options An associative array of option names and
+     *                       their values.
      *
-     * @return  mixed   a newly created MDB2 connection object, or a MDB2
-     *                  error object on error
+     * @return mixed a newly created MDB2 connection object, or a MDB2
+     *               error object on error
      *
      * @access  public
      * @see     MDB2::parseDSN
