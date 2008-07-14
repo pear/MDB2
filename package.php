@@ -13,7 +13,11 @@ $notes = <<<EOT
 - fixed bug #13898: more tolerant check for 'new_link' DSN option
 - request #13929: added 'default_fk_action_ondelete' and 'default_fk_action_onupdate'
   options for default FOREIGN KEY constraints actions
-- fixed bug #14124: _skipDelimitedStrings() fails with sql comments inside quoted strings
+- fixed bug #14124: _skipDelimitedStrings() and prepare() fail with sql comments
+  inside quoted strings
+- fixed bug #14179: declaration of MDB2_Driver_Common::raiseError() must be
+  compatible with that of PEAR::raiseError()
+- fixed doc bug #14290: connect should mention the type of object returned
 
 open todo items:
 - handle autoincrement fields in alterTable()

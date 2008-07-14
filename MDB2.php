@@ -1433,26 +1433,34 @@ class MDB2_Driver_Common extends PEAR
      * callbacks etc.  Basically a wrapper for PEAR::raiseError
      * without the message string.
      *
-     * @param   mixed   integer error code, or a PEAR error object (all other
-     *                  parameters are ignored if this parameter is an object
-     * @param   int     error mode, see PEAR_Error docs
-     * @param   mixed   If error mode is PEAR_ERROR_TRIGGER, this is the
-         *              error level (E_USER_NOTICE etc).  If error mode is
-     *                  PEAR_ERROR_CALLBACK, this is the callback function,
-     *                  either as a function name, or as an array of an
-     *                  object and method name.  For other error modes this
-     *                  parameter is ignored.
-     * @param   string  Extra debug information.  Defaults to the last
-     *                  query and native error code.
-     * @param   string  name of the method that triggered the error
+     * @param mixed  $code     integer error code, or a PEAR error object (all 
+     *                         other parameters are ignored if this parameter is
+     *                         an object
+     * @param int    $mode     error mode, see PEAR_Error docs
+     * @param mixed  $options  If error mode is PEAR_ERROR_TRIGGER, this is the
+     *                         error level (E_USER_NOTICE etc). If error mode is
+     *                         PEAR_ERROR_CALLBACK, this is the callback function,
+     *                         either as a function name, or as an array of an
+     *                         object and method name. For other error modes this
+     *                         parameter is ignored.
+     * @param string $userinfo Extra debug information. Defaults to the last
+     *                         query and native error code.
+     * @param string $method   name of the method that triggered the error
+     * @param string $dummy1   not used
+     * @param bool   $dummy2   not used
      *
-     * @return PEAR_Error   instance of a PEAR Error object
-     *
-     * @access  public
-     * @see     PEAR_Error
+     * @return PEAR_Error instance of a PEAR Error object
+     * @access public
+     * @see    PEAR_Error
      */
-    function &raiseError($code = null, $mode = null, $options = null, $userinfo = null, $method = null)
-    {
+    function &raiseError($code = null,
+                         $mode = null,
+                         $options = null,
+                         $userinfo = null,
+                         $method = null,
+                         $dummy1 = null,
+                         $dummy2 = false
+    ) {
         $userinfo = "[Error message: $userinfo]\n";
         // The error is yet a MDB2 error object
         if (PEAR::isError($code)) {
