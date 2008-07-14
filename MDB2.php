@@ -101,6 +101,7 @@ define('MDB2_ERROR_MANAGER_PARSE',      -33);
 define('MDB2_ERROR_LOADMODULE',         -34);
 define('MDB2_ERROR_INSUFFICIENT_DATA',  -35);
 define('MDB2_ERROR_NO_PERMISSION',      -36);
+define('MDB2_ERROR_DISCONNECT_FAILED',  -37);
 
 // }}}
 // {{{ Verbose constants
@@ -767,6 +768,7 @@ class MDB2
                 MDB2_ERROR_TRUNCATED          => 'truncated',
                 MDB2_ERROR_DEADLOCK           => 'deadlock detected',
                 MDB2_ERROR_NO_PERMISSION      => 'no permission',
+                MDB2_ERROR_DISCONNECT_FAILED  => 'disconnect failed',
             );
         }
 
@@ -2269,11 +2271,10 @@ class MDB2_Driver_Common extends PEAR
     /**
      * Log out and disconnect from the database.
      *
-     * @param   bool    if the disconnect should be forced even if the
-     *                  connection is opened persistently
+     * @param boolean $force whether the disconnect should be forced even if the
+     *                       connection is opened persistently
      *
-     * @return  mixed   true on success, false if not connected and error
-     *                  object on error
+     * @return mixed true on success, false if not connected and error object on error
      *
      * @access  public
      */
