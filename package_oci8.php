@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #12117: disconnect() does not work as documented
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8

@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #12117: disconnect() does not work as documented
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

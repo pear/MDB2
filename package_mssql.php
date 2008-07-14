@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #11571: when using setLimit(), numRows() returns wrong values
+- fixed bug #12117: disconnect() does not work as documented
 - fixed bug #14019: MDB2 is not aware of MS-SQL 'smalldatetime' type
 
 open todo items:

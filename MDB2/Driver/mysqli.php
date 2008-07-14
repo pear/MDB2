@@ -673,8 +673,14 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             }
 
             if ($force) {
-                @mysqli_close($this->connection);
+                $ok = @mysqli_close($this->connection);
+                if (!$ok) {
+                    return $this->raiseError(MDB2_ERROR_DISCONNECT_FAILED,
+                           null, null, null, __FUNCTION__);
+                }
             }
+        } else {
+            return false;
         }
         return parent::disconnect($force);
     }

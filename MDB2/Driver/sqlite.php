@@ -470,6 +470,8 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             if (!$this->opened_persistent || $force) {
                 @sqlite_close($this->connection);
             }
+        } else {
+            return false;
         }
         return parent::disconnect($force);
     }

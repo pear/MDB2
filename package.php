@@ -7,6 +7,7 @@ $version_release = 'XXX';
 $version_api = $version_release;
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #12117: disconnect() does not work as documented
 - fixed bug #12912: replace() documentation
 - fixed bug #13811: _skipDelimitedStrings() fails on empty strings
 - fixed bug #13898: more tolerant check for 'new_link' DSN option

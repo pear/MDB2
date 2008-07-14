@@ -537,13 +537,20 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
 
             if (!$this->opened_persistent || $force) {
+                $ok = false;
                 if (function_exists('oci_close')) {
-                    @oci_close($this->connection);
+                    $ok = @oci_close($this->connection);
                 } else {
-                    @OCILogOff($this->connection);
+                    $ok = @OCILogOff($this->connection);
+                }
+                if (!$ok) {
+                    return $this->raiseError(MDB2_ERROR_DISCONNECT_FAILED,
+                           null, null, null, __FUNCTION__);
                 }
             }
             $this->uncommitedqueries = 0;
+        } else {
+            return false;
         }
         return parent::disconnect($force);
     }

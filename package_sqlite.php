@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #12117: disconnect() does not work as documented
 - fixed bug #13815: incomplete regexp in the Reverse module
 - fixed bug #13928: Invalid triggers created for 'ON UPDATE'
 

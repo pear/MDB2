@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #12117: disconnect() does not work as documented
 - fixed bug #13412: sometimes getTableConstraintDefinition() fails for FOREIGN KEYs
 - fixed bug #13581: wrong query in beginTransaction() for certain MySQL versions
 - request #13657: in setCharset(), use mysql_set_charset() if available [cwiedmann]
