@@ -940,10 +940,10 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $type = '';
-        $name = $db->quoteIdentifier($db->getIndexName($name), true);
+        $idx_name = $db->quoteIdentifier($db->getIndexName($name), true);
         if (!empty($definition['primary'])) {
             $type = 'PRIMARY';
-            $name = 'KEY';
+            $idx_name = 'KEY';
         } elseif (!empty($definition['unique'])) {
             $type = 'UNIQUE';
         } elseif (!empty($definition['foreign'])) {
@@ -955,7 +955,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $table_quoted = $db->quoteIdentifier($table, true);
-        $query = "ALTER TABLE $table_quoted ADD $type $name";
+        $query = "ALTER TABLE $table_quoted ADD $type $idx_name";
         if (!empty($definition['foreign'])) {
             $query .= ' FOREIGN KEY';
         }
