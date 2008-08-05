@@ -393,7 +393,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                             'changing column type for "'.$change_name.'\" requires PostgreSQL 8.0 or above', __FUNCTION__);
                     }
                     $db->loadModule('Datatype', null, true);
-                    $query = "ALTER $field_name TYPE ".$db->datatype->getTypeDeclaration($field['definition']);
+                    $type = $db->datatype->getTypeDeclaration($field['definition']);
+                    $query = "ALTER $field_name TYPE $type USING CAST($field_name AS $type)";
                     $result = $db->exec("ALTER TABLE $name $query");
                     if (PEAR::isError($result)) {
                         return $result;

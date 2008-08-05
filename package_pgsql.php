@@ -9,6 +9,8 @@ $notes = <<<EOT
 - fixed bug #12117: disconnect() does not work as documented
 - fixed bug #13481: getTableConstraintDefinition() may return incomplete results (thanks to Holger Schletz)
 - fixed bug #13877: UNIQUE index not always recognized as constraint (thanks to Holger Schletz)
+- fixed bug #14292: alterTable() cannot change column type when no implicit cast is defined
+  (patch by Holger Schletz)
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
