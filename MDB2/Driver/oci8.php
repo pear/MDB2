@@ -856,7 +856,8 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $length = strlen($parameter) + 1;
                 } else {
                     ++$parameter;
-                    $length = strlen($parameter);
+                    //$length = strlen($parameter);
+                    $length = 1; // strlen('?')
                 }
                 if (!in_array($parameter, $positions)) {
                     $positions[] = $parameter;

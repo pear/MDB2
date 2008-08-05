@@ -7,6 +7,8 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #12117: disconnect() does not work as documented
+- fixed bug #14383: wrong replacement with prepared statements with LOB parameters
+  after the 9th position
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
