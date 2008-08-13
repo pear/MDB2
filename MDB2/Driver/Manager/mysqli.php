@@ -1053,7 +1053,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
         // create triggers to enforce FOREIGN KEY constraints
         if ($db->supports('triggers') && !empty($foreign_keys)) {
-            $table = $db->quoteIdentifier($table, true);
+            $table_quoted = $db->quoteIdentifier($table, true);
             foreach ($foreign_keys as $fkname => $fkdef) {
                 if (empty($fkdef)) {
                     continue;
@@ -1075,10 +1075,10 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
                 $restrict_action = ' IF (SELECT ';
                 $aliased_fields = array();
                 foreach ($table_fields as $field) {
-                    $aliased_fields[] = $table .'.'.$field .' AS '.$field;
+                    $aliased_fields[] = $table_quoted .'.'.$field .' AS '.$field;
                 }
                 $restrict_action .= implode(',', $aliased_fields)
-                       .' FROM '.$table
+                       .' FROM '.$table_quoted
                        .' WHERE ';
                 $conditions  = array();
                 $new_values  = array();
@@ -1097,9 +1097,9 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
                                 .' THEN CALL %s_ON_TABLE_'.$table.'_VIOLATES_FOREIGN_KEY_CONSTRAINT();'
                                 .' END IF;';
 
-                $cascade_action_update = 'UPDATE '.$table.' SET '.implode(', ', $new_values) .' WHERE '.implode(' AND ', $conditions). ';';
-                $cascade_action_delete = 'DELETE FROM '.$table.' WHERE '.implode(' AND ', $conditions). ';';
-                $setnull_action        = 'UPDATE '.$table.' SET '.implode(', ', $null_values).' WHERE '.implode(' AND ', $conditions). ';';
+                $cascade_action_update = 'UPDATE '.$table_quoted.' SET '.implode(', ', $new_values) .' WHERE '.implode(' AND ', $conditions). ';';
+                $cascade_action_delete = 'DELETE FROM '.$table_quoted.' WHERE '.implode(' AND ', $conditions). ';';
+                $setnull_action        = 'UPDATE '.$table_quoted.' SET '.implode(', ', $null_values).' WHERE '.implode(' AND ', $conditions). ';';
 
                 if ('SET DEFAULT' == $fkdef['onupdate'] || 'SET DEFAULT' == $fkdef['ondelete']) {
                     $db->loadModule('Reverse', null, true);
@@ -1111,7 +1111,7 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
                         }
                         $default_values[] = $table_field .' = '. $field_definition[0]['default'];
                     }
-                    $setdefault_action = 'UPDATE '.$table.' SET '.implode(', ', $default_values).' WHERE '.implode(' AND ', $conditions). ';';
+                    $setdefault_action = 'UPDATE '.$table_quoted.' SET '.implode(', ', $default_values).' WHERE '.implode(' AND ', $conditions). ';';
                 }
 
                 $query = 'CREATE TRIGGER %s'
