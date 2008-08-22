@@ -145,7 +145,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         if ($column['atthasdef'] === 't'
             && !preg_match("/nextval\('([^']+)'/", $column['default'])
         ) {
-            $pattern = '/(\'.*\')::[\w ]+$/i';
+            $pattern = '/^\'(.*)\'::[\w ]+$/i';
             $default = $column['default'];#substr($column['adsrc'], 1, -1);
             if (is_null($default) && $notnull) {
                 $default = '';

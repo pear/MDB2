@@ -11,6 +11,7 @@ $notes = <<<EOT
 - fixed bug #13877: UNIQUE index not always recognized as constraint (thanks to Holger Schletz)
 - fixed bug #14292: alterTable() cannot change column type when no implicit cast is defined
   (patch by Holger Schletz)
+- fixed bug #14510: getTableFieldDefinition() does not unquote defaults (patch by Holger Schletz)
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
