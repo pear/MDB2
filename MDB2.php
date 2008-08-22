@@ -3268,12 +3268,12 @@ class MDB2_Driver_Common extends PEAR
      * the first row of the result set and then frees
      * the result set.
      *
-     * @param   string  the SELECT query statement to be executed.
-     * @param   string  optional argument that specifies the expected
-     *       datatype of the result set field, so that an eventual conversion
-     *       may be performed. The default datatype is text, meaning that no
-     *       conversion is performed
-     * @param   int     the column number to fetch
+     * @param string $query  the SELECT query statement to be executed.
+     * @param string $type   optional argument that specifies the expected
+     *                       datatype of the result set field, so that an eventual
+     *                       conversion may be performed. The default datatype is
+     *                       text, meaning that no conversion is performed
+     * @param mixed  $colnum the column number (or name) to fetch
      *
      * @return  mixed   MDB2_OK or field value on success, a MDB2 error on failure
      *
@@ -3329,15 +3329,14 @@ class MDB2_Driver_Common extends PEAR
      * Execute the specified query, fetch the value from the first column of
      * each row of the result set into an array and then frees the result set.
      *
-     * @param   string  the SELECT query statement to be executed.
-     * @param   string  optional argument that specifies the expected
-     *       datatype of the result set field, so that an eventual conversion
-     *       may be performed. The default datatype is text, meaning that no
-     *       conversion is performed
-     * @param   int     the row number to fetch
+     * @param string $query  the SELECT query statement to be executed.
+     * @param string $type   optional argument that specifies the expected
+     *                       datatype of the result set field, so that an eventual
+     *                       conversion may be performed. The default datatype is text,
+     *                       meaning that no conversion is performed
+     * @param mixed  $colnum the column number (or name) to fetch
      *
      * @return  mixed   MDB2_OK or data array on success, a MDB2 error on failure
-     *
      * @access  public
      */
     function queryCol($query, $type = null, $colnum = 0)
@@ -3547,11 +3546,10 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * fetch single column from the next row from a result set
      *
-     * @param   int     the column number to fetch
-     * @param   int     number of the row where the data can be found
+     * @param int|string the column number (or name) to fetch
+     * @param int        number of the row where the data can be found
      *
-     * @return  string  data on success, a MDB2 error on failure
-     *
+     * @return string data on success, a MDB2 error on failure
      * @access  public
      */
     function fetchOne($colnum = 0, $rownum = null)
@@ -3574,10 +3572,9 @@ class MDB2_Result_Common extends MDB2_Result
     /**
      * Fetch and return a column from the current row pointer position
      *
-     * @param   int     the column number to fetch
+     * @param int|string the column number (or name) to fetch
      *
-     * @return  mixed   data array on success, a MDB2 error on failure
-     *
+     * @return  mixed data array on success, a MDB2 error on failure
      * @access  public
      */
     function fetchCol($colnum = 0)
