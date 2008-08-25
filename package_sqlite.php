@@ -9,6 +9,7 @@ $notes = <<<EOT
 - fixed bug #12117: disconnect() does not work as documented
 - fixed bug #13815: incomplete regexp in the Reverse module
 - fixed bug #13928: Invalid triggers created for 'ON UPDATE'
+- fixed bug #14302: Connection errors were not always returned
 
 note:
 open todo items:
