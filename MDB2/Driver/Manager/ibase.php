@@ -139,30 +139,29 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $mix_name = $table . '_' . $name;
+        $table_quoted = $db->quoteIdentifier($table, true);
         if (is_null($start)) {
             $db->beginTransaction();
-            $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $db->quoteIdentifier($table, true);
+            $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $table_quoted;
             $start = $this->db->queryOne($query, 'integer');
             if (PEAR::isError($start)) {
                 return $start;
             }
             ++$start;
-            $result = $db->manager->createSequence($mix_name, $start);
+            $result = $db->manager->createSequence($table, $start);
             $db->commit();
         } else {
-            $result = $db->manager->createSequence($mix_name, $start);
+            $result = $db->manager->createSequence($table, $start);
         }
         if (PEAR::isError($result)) {
             return $db->raiseError(null, null, null,
                 'sequence for autoincrement PK could not be created', __FUNCTION__);
         }
 
-        $sequence_name = $db->getSequenceName($mix_name);
-        $trigger_name  = $db->quoteIdentifier($mix_name . '_AI_PK', true);
-        $table = $db->quoteIdentifier($table, true);
+        $sequence_name = $db->getSequenceName($table);
+        $trigger_name  = $db->quoteIdentifier($table . '_AI_PK', true);
         $name  = $db->quoteIdentifier($name, true);
-        $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table . '
+        $trigger_sql = 'CREATE TRIGGER ' . $trigger_name . ' FOR ' . $table_quoted . '
                         ACTIVE BEFORE INSERT POSITION 0
                         AS
                         BEGIN

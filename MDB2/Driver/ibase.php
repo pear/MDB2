@@ -966,8 +966,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function lastInsertID($table = null, $field = null)
     {
-        $seq = $table.(empty($field) ? '' : '_'.$field);
-        return $this->currID($seq);
+        return $this->currID($table);
     }
     
     // }}}
