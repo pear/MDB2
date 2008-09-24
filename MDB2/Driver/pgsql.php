@@ -1040,8 +1040,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
         }
 
-        return sprintf($this->options['seqname_format'],
-            preg_replace('/[^\w\$.]/i', '_', $sqn));
+        return parent::getSequenceName($sqn);
     }
 
     // }}}
