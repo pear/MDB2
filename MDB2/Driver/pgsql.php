@@ -95,7 +95,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->options['DBA_username'] = false;
         $this->options['DBA_password'] = false;
         $this->options['multi_query'] = false;
-        $this->options['disable_smart_seqname'] = false;
+        $this->options['disable_smart_seqname'] = true;
         $this->options['max_identifiers_length'] = 63;
     }
 
