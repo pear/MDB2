@@ -18,6 +18,7 @@ $notes = <<<EOT
 - fixed bug #14179: declaration of MDB2_Driver_Common::raiseError() must be
   compatible with that of PEAR::raiseError()
 - fixed doc bug #14290: connect should mention the type of object returned
+- fixed bug #14831: $ignores in _skipDelimitedStrings() [patch by Aleksander Machniak]
 
 open todo items:
 - handle autoincrement fields in alterTable()

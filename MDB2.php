@@ -2948,9 +2948,6 @@ class MDB2_Driver_Common extends PEAR
         $colon     = ':';
         $positions = array();
         $position  = 0;
-        $ignores   = $this->string_quoting;
-        $ignores[] = $this->identifier_quoting;
-        $ignores[] = $this->sql_comments;
         while ($position < strlen($query)) {
             $q_position = strpos($query, $question, $position);
             $c_position = strpos($query, $colon, $position);
@@ -3043,7 +3040,7 @@ class MDB2_Driver_Common extends PEAR
     {
         $ignores = $this->string_quoting;
         $ignores[] = $this->identifier_quoting;
-        $ignores[] = $this->sql_comments;
+        $ignores = array_merge($ignores, $this->sql_comments);
         
         foreach ($ignores as $ignore) {
             if (!empty($ignore['start'])) {
@@ -3059,7 +3056,13 @@ class MDB2_Driver_Common extends PEAR
                                 return $err;
                             }
                         }
-                    } while ($ignore['escape'] && $query[($end_quote - 1)] == $ignore['escape']  && $end_quote-1 != $start_quote);
+                    } while ($ignore['escape']
+                        && $end_quote-1 != $start_quote
+                        && $query[($end_quote - 1)] == $ignore['escape']
+                        && (   $ignore['escape_pattern'] !== $ignore['escape']
+                            || $query[($end_quote - 2)] != $ignore['escape'])
+                    );
+
                     $position = $end_quote + 1;
                     return $position;
                 }
