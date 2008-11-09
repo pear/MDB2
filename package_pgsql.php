@@ -7,11 +7,13 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #12117: disconnect() does not work as documented
-- fixed bug #13481: getTableConstraintDefinition() may return incomplete results (thanks to Holger Schletz)
-- fixed bug #13877: UNIQUE index not always recognized as constraint (thanks to Holger Schletz)
+- fixed bug #13481: getTableConstraintDefinition() may return incomplete results
+- fixed bug #13877: UNIQUE index not always recognized as constraint
 - fixed bug #14292: alterTable() cannot change column type when no implicit cast is defined
-  (patch by Holger Schletz)
-- fixed bug #14510: getTableFieldDefinition() does not unquote defaults (patch by Holger Schletz)
+- fixed bug #14510: getTableFieldDefinition() does not unquote defaults
+- fixed bug #14828: unixtimestamp() generates invalid SQL for non-constant argument
+
+Thanks to Holger Schletz for all the above patches!
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved

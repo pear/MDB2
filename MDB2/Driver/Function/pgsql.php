@@ -93,7 +93,7 @@ class MDB2_Driver_Function_pgsql extends MDB2_Driver_Function_Common
      */
     function unixtimestamp($expression)
     {
-        return 'EXTRACT(EPOCH FROM DATE_TRUNC(\'seconds\', TIMESTAMP '. $expression.'))';
+        return 'EXTRACT(EPOCH FROM DATE_TRUNC(\'seconds\', CAST ((' . $expression . ') AS TIMESTAMP)))';
     }
 
     // }}}
