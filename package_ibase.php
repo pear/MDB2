@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #12117: disconnect() does not work as documented
+- request #14639: automatically fetch CLOBs when retrieved with 'text' data type
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

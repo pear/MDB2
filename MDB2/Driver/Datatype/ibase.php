@@ -80,6 +80,24 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         }
 
         switch ($type) {
+        case 'text':
+            $blob_info = @ibase_blob_info($value);
+            if (is_array($blob_info) && $blob_info['length'] > 0) {
+                //LOB => fetch into variable
+                $clob = $this->_baseConvertResult($value, 'clob', $rtrim);
+                if (!PEAR::isError($clob) && is_resource($clob)) {
+                    $clob_value = '';
+                    while (!feof($clob)) {
+                        $clob_value .= fread($clob, 8192);
+                    }
+                    $this->destroyLOB($clob);
+                }
+                $value = $clob_value;
+            }
+            if ($rtrim) {
+                $value = rtrim($value);
+            }
+            return $value;
         case 'timestamp':
             return substr($value, 0, strlen('YYYY-MM-DD HH:MM:SS'));
         }
