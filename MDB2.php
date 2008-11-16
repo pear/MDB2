@@ -4124,15 +4124,15 @@ class MDB2_Statement_Common
     /**
      * Execute a prepared query statement.
      *
-     * @param   array   specifies all necessary information
-     *       for bindParam() the array elements must use keys corresponding to
-     *       the number of the position of the parameter.
-     * @param   mixed   specifies which result class to use
-     * @param   mixed   specifies which class to wrap results in
+     * @param array specifies all necessary information
+     *              for bindParam() the array elements must use keys corresponding
+     *              to the number of the position of the parameter.
+     * @param mixed specifies which result class to use
+     * @param mixed specifies which class to wrap results in
      *
-     * @return  mixed   a result handle or MDB2_OK on success, a MDB2 error on failure
-     *
-     * @access  public
+     * @return mixed MDB2_Result or integer (affected rows) on success,
+     *               a MDB2 error on failure
+     * @access public
      */
     function &execute($values = null, $result_class = true, $result_wrap_class = false)
     {
@@ -4162,8 +4162,8 @@ class MDB2_Statement_Common
      * @param   mixed   specifies which result class to use
      * @param   mixed   specifies which class to wrap results in
      *
-     * @return  mixed   MDB2_Result or integer on success, a MDB2 error on failure
-     *
+     * @return mixed MDB2_Result or integer (affected rows) on success,
+     *               a MDB2 error on failure
      * @access  private
      */
     function &_execute($result_class = true, $result_wrap_class = false)

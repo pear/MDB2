@@ -89,7 +89,8 @@ can be used to construct portable SQL statements:
 - added databaseExists() method [afz]
 - request #13106: added unixtimestamp() in the Function module
 - added max_identifiers_length option
-
+- fixed bug #15040: wrong phpdoc for execute() return value
+ 
 open todo items:
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering
