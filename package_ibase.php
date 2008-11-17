@@ -8,6 +8,7 @@ $state = 'beta';
 $notes = <<<EOT
 - fixed bug #12117: disconnect() does not work as documented
 - request #14639: automatically fetch CLOBs when retrieved with 'text' data type
+- getTableFieldDefinition() now returns the charset and collation of the field, if defined
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

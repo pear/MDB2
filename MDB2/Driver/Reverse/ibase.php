@@ -153,9 +153,13 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                          RDB\$FIELDS.RDB\$FIELD_SUB_TYPE AS field_sub_type_code,
                          RDB\$RELATION_FIELDS.RDB\$DESCRIPTION AS description,
                          RDB\$RELATION_FIELDS.RDB\$NULL_FLAG AS null_flag,
-                         RDB\$FIELDS.RDB\$DEFAULT_SOURCE AS default_source
+                         RDB\$FIELDS.RDB\$DEFAULT_SOURCE AS default_source,
+                         RDB\$CHARACTER_SETS.RDB\$CHARACTER_SET_NAME AS \"charset\",
+                         RDB\$COLLATIONS.RDB\$COLLATION_NAME AS \"collation\"
                     FROM RDB\$FIELDS
                LEFT JOIN RDB\$RELATION_FIELDS ON RDB\$FIELDS.RDB\$FIELD_NAME = RDB\$RELATION_FIELDS.RDB\$FIELD_SOURCE
+               LEFT JOIN RDB\$CHARACTER_SETS ON RDB\$FIELDS.RDB\$CHARACTER_SET_ID = RDB\$CHARACTER_SETS.RDB\$CHARACTER_SET_ID
+               LEFT JOIN RDB\$COLLATIONS ON RDB\$FIELDS.RDB\$COLLATION_ID = RDB\$COLLATIONS.RDB\$COLLATION_ID
                    WHERE UPPER(RDB\$RELATION_FIELDS.RDB\$RELATION_NAME)=$table
                      AND UPPER(RDB\$RELATION_FIELDS.RDB\$FIELD_NAME)=$field_name;";
         $column = $db->queryRow($query, null, MDB2_FETCHMODE_ASSOC);
@@ -196,7 +200,12 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             $default = ($types[0] == 'integer') ? 0 : '';
         }
 
-        $definition[0] = array('notnull' => $notnull, 'nativetype' => $column['type']);
+        $definition[0] = array(
+            'notnull'    => $notnull,
+            'nativetype' => $column['type'],
+            'charset'    => $column['charset'],
+            'collation'  => $column['collation'],
+        );
         if (!is_null($length)) {
             $definition[0]['length'] = $length;
         }
