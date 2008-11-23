@@ -11,6 +11,8 @@ $notes = <<<EOT
 - fixed bug #13581: wrong query in beginTransaction() for certain MySQL versions
 - request #13657: in setCharset(), use mysql_set_charset() if available [cwiedmann]
 - fixed bug #13928: Invalid triggers created for 'ON UPDATE'
+- fixed bug #15051: Cannot create constraints with field length
+- add index on FK column(s) or a FK constraint cannot be created in some cases
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

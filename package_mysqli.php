@@ -10,6 +10,8 @@ $notes = <<<EOT
 - fixed bug #13412: sometimes getTableConstraintDefinition() fails for FOREIGN KEYs
 - fixed bug #13581: wrong query in beginTransaction() for certain MySQL versions
 - fixed bug #13928: Invalid triggers created for 'ON UPDATE'
+- fixed bug #15051: Cannot create constraints with field length
+- add index on FK column(s) or a FK constraint cannot be created in some cases
 
 open todo items:
 - use a trigger to emulate setting default now()

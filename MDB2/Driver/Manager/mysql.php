@@ -960,8 +960,12 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             $query .= ' FOREIGN KEY';
         }
         $fields = array();
-        foreach (array_keys($definition['fields']) as $field) {
-            $fields[] = $db->quoteIdentifier($field, true);
+        foreach ($definition['fields'] as $field => $fieldinfo) {
+            $quoted = $db->quoteIdentifier($field, true);
+            if (!empty($fieldinfo['length'])) {
+                $quoted .= '(' . $fieldinfo['length'] . ')';
+            }
+            $fields[] = $quoted;
         }
         $query .= ' ('. implode(', ', $fields) . ')';
         if (!empty($definition['foreign'])) {
@@ -972,6 +976,13 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             }
             $query .= ' ('. implode(', ', $referenced_fields) . ')';
             $query .= $this->_getAdvancedFKOptions($definition);
+
+            // add index on FK column(s) or we can't add a FK constraint
+            // @see http://forums.mysql.com/read.php?22,19755,226009
+            $result = $this->createIndex($table, $name.'_fkidx', $definition);
+            if (PEAR::isError($result)) {
+                return $result;
+            }
         }
         $res = $db->exec($query);
         if (PEAR::isError($res)) {
