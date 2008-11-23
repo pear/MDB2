@@ -12,6 +12,8 @@ $notes = <<<EOT
 - fixed bug #14292: alterTable() cannot change column type when no implicit cast is defined
 - fixed bug #14510: getTableFieldDefinition() does not unquote defaults
 - fixed bug #14828: unixtimestamp() generates invalid SQL for non-constant argument
+- fixed bug #15056: tableInfo does not work with pgsql schemas (added support to
+  table schemas to Manager module)
 
 Thanks to Holger Schletz for all the above patches!
 

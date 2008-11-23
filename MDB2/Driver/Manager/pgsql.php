@@ -684,7 +684,12 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        list($schema, $table) = $this->splitTableSchema($table);
+
         $table = $db->quoteIdentifier($table, true);
+        if (!empty($schema)) {
+            $table = $db->quoteIdentifier($schema, true) . '.' .$table;
+        }
         $db->setLimit(1);
         $result2 = $db->query("SELECT * FROM $table");
         if (PEAR::isError($result2)) {
@@ -715,9 +720,19 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        list($schema, $table) = $this->splitTableSchema($table);
+
         $table = $db->quote($table, 'text');
-        $subquery = "SELECT indexrelid FROM pg_index, pg_class";
-        $subquery.= " WHERE pg_class.relname=$table AND pg_class.oid=pg_index.indrelid AND indisunique != 't' AND indisprimary != 't'";
+        $subquery = "SELECT indexrelid
+                       FROM pg_index
+                  LEFT JOIN pg_class ON pg_class.oid = pg_index.indrelid
+                  LEFT JOIN pg_namespace ON pg_class.relnamespace = pg_namespace.oid
+                      WHERE pg_class.relname = $table
+                        AND indisunique != 't'
+                        AND indisprimary != 't'";
+        if (!empty($schema)) {
+            $subquery .= ' AND pg_namespace.nspname = '.$db->quote($schema, 'text');
+        }
         $query = "SELECT relname FROM pg_class WHERE oid IN ($subquery)";
         $indexes = $db->queryCol($query, 'text');
         if (PEAR::isError($indexes)) {
@@ -757,7 +772,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         // is it an UNIQUE index?
         $query = 'SELECT relname
                     FROM pg_class
@@ -806,20 +821,32 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
+        list($schema, $table) = $this->splitTableSchema($table);
+
         $table = $db->quote($table, 'text');
         $query = 'SELECT conname
-                    FROM pg_constraint, pg_class
-                   WHERE pg_constraint.conrelid = pg_class.oid
-                     AND relname = '.$table.'
-                UNION DISTINCT
+                    FROM pg_constraint
+               LEFT JOIN pg_class ON pg_constraint.conrelid = pg_class.oid
+               LEFT JOIN pg_namespace ON pg_class.relnamespace = pg_namespace.oid
+                   WHERE relname = ' .$table;
+        if (!empty($schema)) {
+            $query .= ' AND pg_namespace.nspname = ' . $db->quote($schema, 'text');
+        }
+        $query .= '
+                   UNION DISTINCT
                   SELECT relname
                     FROM pg_class
                    WHERE oid IN (
                          SELECT indexrelid
-                           FROM pg_index, pg_class
+                           FROM pg_index
+                      LEFT JOIN pg_class ON pg_class.oid = pg_index.indrelid
+                      LEFT JOIN pg_namespace ON pg_class.relnamespace = pg_namespace.oid
                           WHERE pg_class.relname = '.$table.'
-                            AND pg_class.oid = pg_index.indrelid
-                            AND indisunique = \'t\')';
+                            AND indisunique = \'t\'';
+        if (!empty($schema)) {
+            $query .= ' AND pg_namespace.nspname = ' . $db->quote($schema, 'text');
+        }
+        $query .= ')';
         $constraints = $db->queryCol($query);
         if (PEAR::isError($constraints)) {
             return $constraints;
