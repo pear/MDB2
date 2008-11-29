@@ -3202,7 +3202,7 @@ class MDB2_Driver_Common extends PEAR
     function getIndexName($idx)
     {
         return sprintf($this->options['idxname_format'],
-            preg_replace('/[^a-z0-9_\$]/i', '_', $idx));
+            preg_replace('/[^a-z0-9_\-\$.]/i', '_', $idx));
     }
 
     // }}}
