@@ -349,6 +349,8 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
+        $name = $db->quoteIdentifier($name, true);
+
         if (!empty($changes['remove']) && is_array($changes['remove'])) {
             foreach ($changes['remove'] as $field_name => $field) {
                 $field_name = $db->quoteIdentifier($field_name, true);
@@ -417,7 +419,6 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             }
         }
 
-        $name = $db->quoteIdentifier($name, true);
         if (!empty($changes['name'])) {
             $change_name = $db->quoteIdentifier($changes['name'], true);
             $result = $db->exec("ALTER TABLE $name RENAME TO ".$change_name);
