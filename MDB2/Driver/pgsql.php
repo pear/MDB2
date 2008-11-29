@@ -136,6 +136,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                     => MDB2_ERROR_NOSUCHTABLE,
                 '/database .* does not exist/'
                     => MDB2_ERROR_NOT_FOUND,
+                '/constraint .* does not exist/'
+                    => MDB2_ERROR_NOT_FOUND,
                 '/index .* does not exist/'
                     => MDB2_ERROR_NOT_FOUND,
                 '/database .* already exists/i'
