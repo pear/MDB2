@@ -364,71 +364,71 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }
 
-        if (!empty($this->database_name)) {
-            if ($database_file !== ':memory:') {
-                if (!file_exists($database_file)) {
-                    if (!touch($database_file)) {
-                        return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                            'Could not create database file', __FUNCTION__);
-                    }
-                    if (!isset($this->dsn['mode'])
-                        || !is_numeric($this->dsn['mode'])
-                    ) {
-                        $mode = 0644;
-                    } else {
-                        $mode = octdec($this->dsn['mode']);
-                    }
-                    if (!chmod($database_file, $mode)) {
-                        return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                            'Could not be chmodded database file', __FUNCTION__);
-                    }
-                    if (!file_exists($database_file)) {
-                        return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                            'Could not be found database file', __FUNCTION__);
-                    }
-                }
-                if (!is_file($database_file)) {
-                    return $this->raiseError(MDB2_ERROR_INVALID, null, null,
-                            'Database is a directory name', __FUNCTION__);
-                }
-                if (!is_readable($database_file)) {
-                    return $this->raiseError(MDB2_ERROR_ACCESS_VIOLATION, null, null,
-                            'Could not read database file', __FUNCTION__);
-                }
-            }
-
-            $connect_function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
-            $php_errormsg = '';
-            if (version_compare('5.1.0', PHP_VERSION, '>')) {
-                @ini_set('track_errors', true);
-                $connection = @$connect_function($database_file);
-                @ini_restore('track_errors');
-            } else {
-                $connection = @$connect_function($database_file, 0666, $php_errormsg);
-            }
-            $this->_lasterror = $php_errormsg;
-            if (!$connection) {
-                return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
-                'unable to establish a connection', __FUNCTION__);
-            }
-
-            if ($this->fix_assoc_fields_names ||
-                $this->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES)
-            {
-                @sqlite_query("PRAGMA short_column_names = 1", $connection);
-                $this->fix_assoc_fields_names = true;
-            }
-
-            $this->connection = $connection;
-            $this->connected_dsn = $this->dsn;
-            $this->connected_database_name = $database_file;
-            $this->opened_persistent = $this->getoption('persistent');
-            $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
-        }
-        if (!$this->connection) {
+        if (empty($this->database_name)) {
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
             'unable to establish a connection', __FUNCTION__);
         }
+
+        if ($database_file !== ':memory:') {
+            if (!file_exists($database_file)) {
+                if (!touch($database_file)) {
+                    return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                        'Could not create database file', __FUNCTION__);
+                }
+                if (!isset($this->dsn['mode'])
+                    || !is_numeric($this->dsn['mode'])
+                ) {
+                    $mode = 0644;
+                } else {
+                    $mode = octdec($this->dsn['mode']);
+                }
+                if (!chmod($database_file, $mode)) {
+                    return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                        'Could not be chmodded database file', __FUNCTION__);
+                }
+                if (!file_exists($database_file)) {
+                    return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                        'Could not be found database file', __FUNCTION__);
+                }
+            }
+            if (!is_file($database_file)) {
+                return $this->raiseError(MDB2_ERROR_INVALID, null, null,
+                        'Database is a directory name', __FUNCTION__);
+            }
+            if (!is_readable($database_file)) {
+                return $this->raiseError(MDB2_ERROR_ACCESS_VIOLATION, null, null,
+                        'Could not read database file', __FUNCTION__);
+            }
+        }
+
+        $connect_function = ($this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open');
+        $php_errormsg = '';
+        if (version_compare('5.1.0', PHP_VERSION, '>')) {
+            @ini_set('track_errors', true);
+            $connection = @$connect_function($database_file);
+            @ini_restore('track_errors');
+        } else {
+            $connection = @$connect_function($database_file, 0666, $php_errormsg);
+        }
+        $this->_lasterror = $php_errormsg;
+        if (!$connection) {
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+            'unable to establish a connection', __FUNCTION__);
+        }
+
+        if ($this->fix_assoc_fields_names ||
+            $this->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES)
+        {
+            @sqlite_query("PRAGMA short_column_names = 1", $connection);
+            $this->fix_assoc_fields_names = true;
+        }
+
+        $this->connection = $connection;
+        $this->connected_dsn = $this->dsn;
+        $this->connected_database_name = $database_file;
+        $this->opened_persistent = $this->getoption('persistent');
+        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
+
         return MDB2_OK;
     }
 
