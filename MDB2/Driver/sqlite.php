@@ -412,6 +412,13 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                 'unable to establish a connection', __FUNCTION__);
             }
 
+            if ($this->fix_assoc_fields_names ||
+                $this->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES)
+            {
+                @sqlite_query("PRAGMA short_column_names = 1", $connection);
+                $this->fix_assoc_fields_names = true;
+            }
+
             $this->connection = $connection;
             $this->connected_dsn = $this->dsn;
             $this->connected_database_name = $database_file;
@@ -478,32 +485,6 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return false;
         }
         return parent::disconnect($force);
-    }
-
-    // }}}
-    // {{{ getConnection()
-
-    /**
-     * Returns a native connection
-     *
-     * @return  mixed   a valid MDB2 connection object,
-     *                  or a MDB2 error object on error
-     * @access  public
-     */
-    function getConnection()
-    {
-        $connection = parent::getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
-
-        $fix_assoc_fields_names = $this->options['portability'] & MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES;
-        if ($fix_assoc_fields_names !== $this->fix_assoc_fields_names) {
-            @sqlite_query("PRAGMA short_column_names = $fix_assoc_fields_names;", $connection);
-            $this->fix_assoc_fields_names = $fix_assoc_fields_names;
-        }
-
-        return $connection;
     }
 
     // }}}
