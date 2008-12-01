@@ -536,21 +536,25 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $this->disconnect(false);
         }
 
-        if (!empty($this->database_name)) {
-            $connection = $this->_doConnect($this->dsn['username'],
-                                            $this->dsn['password'],
-                                            $this->database_name,
-                                            $this->options['persistent']);
-            if (PEAR::isError($connection)) {
-                return $connection;
-            }
-            $this->connection =& $connection;
-            $this->connected_dsn = $this->dsn;
-            $this->connected_database_name = $database_file;
-            $this->opened_persistent = $this->options['persistent'];
-            $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
-            $this->supported['limit_queries'] = ($this->dbsyntax == 'firebird') ? true : 'emulated';
+        if (empty($this->database_name)) {
+            return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
+            'unable to establish a connection', __FUNCTION__);
         }
+
+        $connection = $this->_doConnect($this->dsn['username'],
+                                        $this->dsn['password'],
+                                        $this->database_name,
+                                        $this->options['persistent']);
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+        $this->connection =& $connection;
+        $this->connected_dsn = $this->dsn;
+        $this->connected_database_name = $database_file;
+        $this->opened_persistent = $this->options['persistent'];
+        $this->dbsyntax = $this->dsn['dbsyntax'] ? $this->dsn['dbsyntax'] : $this->phptype;
+        $this->supported['limit_queries'] = ($this->dbsyntax == 'firebird') ? true : 'emulated';
+
         return MDB2_OK;
     }
 
