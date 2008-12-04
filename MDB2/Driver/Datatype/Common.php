@@ -1126,15 +1126,6 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 return null;
             }
             return 'NULL';
-        } elseif (strlen(trim($value)) == 0) {
-            /**
-             * let's not modify what used to be there. If we have an
-             * empty string and no portability was mentionned we
-             * simply return an empty string. (The same one)
-             *
-             * Bug #13406
-             */
-            return $value;
         }
 
         if (is_null($type)) {
