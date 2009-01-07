@@ -629,6 +629,10 @@ END;
         if (!empty($changes['change']) && is_array($changes['change'])) {
             $fields = array();
             foreach ($changes['change'] as $field_name => $field) {
+                //fix error "column to be modified to NOT NULL is already NOT NULL" 
+                if (!array_key_exists('notnull', $field)) {
+                    unset($field['definition']['notnull']);
+                }
                 $fields[] = $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
             }
             $result = $db->exec("ALTER TABLE $name MODIFY (". implode(', ', $fields).')');
