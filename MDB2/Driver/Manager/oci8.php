@@ -629,7 +629,7 @@ END;
         if (!empty($changes['change']) && is_array($changes['change'])) {
             $fields = array();
             foreach ($changes['change'] as $field_name => $field) {
-                $fields[] = $field_name. ' ' . $db->getDeclaration($field['definition']['type'], '', $field['definition']);
+                $fields[] = $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
             }
             $result = $db->exec("ALTER TABLE $name MODIFY (". implode(', ', $fields).')');
             if (PEAR::isError($result)) {
