@@ -585,7 +585,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @param  boolean $force if the disconnect should be forced even if the
      *                        connection is opened persistently
      * @return mixed true on success, false if not connected and error
-     *                object on error
+     *               object on error
      * @access public
      */
     function disconnect($force = true)
@@ -970,7 +970,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function lastInsertID($table = null, $field = null)
     {
-        return $this->currID($table);
+        $seq = $table.(empty($field) ? '' : '_'.$field);
+        return $this->currID($seq);
     }
     
     // }}}
