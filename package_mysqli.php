@@ -3,15 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0b2';
+$version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
-- fixed bug #12117: disconnect() does not work as documented
-- fixed bug #13412: sometimes getTableConstraintDefinition() fails for FOREIGN KEYs
-- fixed bug #13581: wrong query in beginTransaction() for certain MySQL versions
-- fixed bug #13928: Invalid triggers created for 'ON UPDATE'
-- fixed bug #15051: Cannot create constraints with field length
-- add index on FK column(s) or a FK constraint cannot be created in some cases
 
 open todo items:
 - use a trigger to emulate setting default now()
@@ -38,7 +32,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b2');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'mysqli');
 
 $package->addRelease();

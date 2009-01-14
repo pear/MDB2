@@ -3,13 +3,9 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0b2';
+$version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
-- fixed bug #12117: disconnect() does not work as documented
-- fixed bug #13815: incomplete regexp in the Reverse module
-- fixed bug #13928: Invalid triggers created for 'ON UPDATE'
-- fixed bug #14302: Connection errors were not always returned
 
 note:
 open todo items:
@@ -37,7 +33,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('4.3.0');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b2');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'sqlite');
 
 $package->addRelease();

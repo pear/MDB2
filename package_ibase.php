@@ -3,12 +3,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0b2';
+$version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
-- fixed bug #12117: disconnect() does not work as documented
-- request #14639: automatically fetch CLOBs when retrieved with 'text' data type
-- getTableFieldDefinition() now returns the charset and collation of the field, if defined
+
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
@@ -32,7 +30,7 @@ $package->setPackageType('php');
 $package->clearDeps();
 $package->setPhpDep('5.0.4');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b2');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
 $package->addExtensionDep('required', 'interbase');
 
 $package->addRelease();
