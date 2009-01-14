@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_oci8</name>
  <channel>pear.php.net</channel>
  <summary>oci8 MDB2 driver</summary>
@@ -22,26 +22,21 @@
   <email>justinpatrin@php.net</email>
   <active>yes</active>
  </developer>
- <date>2008-03-15</date>
- <time>10:12:32</time>
+ <date>2009-01-14</date>
+ <time>16:04:31</time>
  <version>
-  <release>1.5.0b1</release>
-  <api>1.5.0b1</api>
+  <release>1.5.0b2</release>
+  <api>1.5.0b2</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- request #12528: added &apos;session_mode&apos; DSN parameter
-- request #12731: added truncateTable() in the Manager module
-- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
-- request #12800: added alterDatabase() in the Manager module
-- fixed bug #12924: correctly handle internal expected errors even with custom error handling
-- added standaloneQuery() and databaseExists()
-- better handling of NULL LOBs in execute()
-- request #13106: added unixtimestamp() in the Function module
-- a trigger is created to emulate the ON UPDATE action for FOREIGN KEY constraints.
+ <notes>- fixed bug #12117: disconnect() does not work as documented
+- fixed bug #14383: wrong replacement with prepared statements with LOB parameters
+  after the 9th position
+- request #14639: automatically fetch CLOBs when retrieved with &apos;text&apos; data type
 
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
@@ -106,7 +101,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b1</min>
+    <min>2.5.0b2</min>
    </package>
    <extension>
     <name>oci8</name>
@@ -115,6 +110,35 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0b2</release>
+    <api>1.5.0b2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2009-01-14</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #12117: disconnect() does not work as documented
+- fixed bug #14383: wrong replacement with prepared statements with LOB parameters
+  after the 9th position
+- request #14639: automatically fetch CLOBs when retrieved with &apos;text&apos; data type
+
+note:
+- please use the latest ext/oci8 version from pecl.php.net/oci8
+ (binaries are available from snaps.php.net and pecl4win.php.net)
+- by default this driver emulates the database concept other RDBMS have by
+  using the &quot;database&quot; option instead of &quot;username&quot; in the DSN as the username name.
+  This behaviour can be disabled by setting the &quot;emulate_database&quot; option to false.
+- the multi_query test failes because this is not supported by ext/oci8
+- the null LOB test failes because this is not supported by Oracle
+
+open todo items:
+- enable use of read() for LOBs to read a LOB in chunks
+- buffer LOBs when doing buffered queries</notes>
+  </release>
   <release>
    <version>
     <release>1.5.0b1</release>

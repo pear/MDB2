@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2</name>
  <channel>pear.php.net</channel>
  <extends>MDB</extends>
@@ -70,27 +70,30 @@ can be used to construct portable SQL statements:
   <email>afz@dev-code.com</email>
   <active>yes</active>
  </helper>
- <date>2008-03-15</date>
- <time>09:59:48</time>
+ <date>2009-01-14</date>
+ <time>15:36:59</time>
  <version>
-  <release>2.5.0b1</release>
-  <api>2.5.0b1</api>
+  <release>2.5.0b2</release>
+  <api>2.5.0b2</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- request #12731: added truncateTable() in the Manager module
-- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
-- request #12800: added alterDatabase() in the Manager module [afz]
-- fixed bug #12924: correctly handle internal expected errors even with custom error handling
-- fixed bug #12991: new error code in errorInfo() [afz]
-- added databaseExists() method [afz]
-- request #13106: added unixtimestamp() in the Function module
-- added max_identifiers_length option
-- fixed bug #15040: wrong phpdoc for execute() return value
- 
+ <notes>- fixed bug #12117: disconnect() does not work as documented
+- fixed bug #12912: replace() documentation
+- fixed bug #13811: _skipDelimitedStrings() fails on empty strings
+- fixed bug #13898: more tolerant check for &apos;new_link&apos; DSN option
+- request #13929: added &apos;default_fk_action_ondelete&apos; and &apos;default_fk_action_onupdate&apos;
+  options for default FOREIGN KEY constraints actions
+- fixed bug #14124: _skipDelimitedStrings() and prepare() fail with sql comments
+  inside quoted strings
+- fixed bug #14179: declaration of MDB2_Driver_Common::raiseError() must be
+  compatible with that of PEAR::raiseError()
+- fixed doc bug #14290: connect should mention the type of object returned
+- fixed bug #14831: $ignores in _skipDelimitedStrings() [patch by Aleksander Machniak]
+
 open todo items:
 - handle autoincrement fields in alterTable()
 - add length handling to LOB reverse engineering
@@ -294,42 +297,42 @@ open todo items:
    <subpackage>
     <name>MDB2_Driver_ibase</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0b1</min>
+    <min>1.5.0b2</min>
    </subpackage>
   </group>
   <group hint="MS SQL Server driver for MDB2" name="mssql">
    <subpackage>
     <name>MDB2_Driver_mssql</name>
     <channel>pear.php.net</channel>
-    <min>1.3.0b1</min>
+    <min>1.3.0b2</min>
    </subpackage>
   </group>
   <group hint="MySQL driver for MDB2" name="mysql">
    <subpackage>
     <name>MDB2_Driver_mysql</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0b1</min>
+    <min>1.5.0b2</min>
    </subpackage>
   </group>
   <group hint="MySQLi driver for MDB2" name="mysqli">
    <subpackage>
     <name>MDB2_Driver_mysqli</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0b1</min>
+    <min>1.5.0b2</min>
    </subpackage>
   </group>
   <group hint="Oracle driver for MDB2" name="oci8">
    <subpackage>
     <name>MDB2_Driver_oci8</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0b1</min>
+    <min>1.5.0b2</min>
    </subpackage>
   </group>
   <group hint="PostgreSQL driver for MDB2" name="pgsql">
    <subpackage>
     <name>MDB2_Driver_pgsql</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0b1</min>
+    <min>1.5.0b2</min>
    </subpackage>
   </group>
   <group hint="Querysim driver for MDB2" name="querysim">
@@ -343,12 +346,56 @@ open todo items:
    <subpackage>
     <name>MDB2_Driver_sqlite</name>
     <channel>pear.php.net</channel>
-    <min>1.5.0b1</min>
+    <min>1.5.0b2</min>
    </subpackage>
   </group>
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>2.5.0b2</release>
+    <api>2.5.0b2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2009-01-14</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #12117: disconnect() does not work as documented
+- fixed bug #12912: replace() documentation
+- fixed bug #13811: _skipDelimitedStrings() fails on empty strings
+- fixed bug #13898: more tolerant check for &apos;new_link&apos; DSN option
+- request #13929: added &apos;default_fk_action_ondelete&apos; and &apos;default_fk_action_onupdate&apos;
+  options for default FOREIGN KEY constraints actions
+- fixed bug #14124: _skipDelimitedStrings() and prepare() fail with sql comments
+  inside quoted strings
+- fixed bug #14179: declaration of MDB2_Driver_Common::raiseError() must be
+  compatible with that of PEAR::raiseError()
+- fixed doc bug #14290: connect should mention the type of object returned
+- fixed bug #14831: $ignores in _skipDelimitedStrings() [patch by Aleksander Machniak]
+
+open todo items:
+- handle autoincrement fields in alterTable()
+- add length handling to LOB reverse engineering
+- add EXPLAIN abstraction
+- add cursor support along the lines of PDO (Request #3660 etc.)
+- add PDO based drivers, especially a driver to support SQLite 3 (Request #6907)
+- add support to export/import in CSV format
+- add more functions to the Function module (MD5(), IFNULL(), etc.)
+- add support for database/table/row LOCKs
+- add support for CHECK (ENUM as possible mysql fallback) constraints
+- generate STATUS file from test suite results and allow users to submit test results
+- add support for full text index creation and querying
+- add tests to check if the RDBMS specific handling with portability options
+  disabled behaves as expected
+- handle implicit commits (like for DDL) in any affected driver (mysql, sqlite..)
+- add a getTableFieldsDefinitions() method to be used in tableInfo()
+- drop ILIKE from matchPattern() and instead add a second parameter to
+  handle case sensitivity with arbitrary operators
+- handle LOBs in buffered result sets (Request #8793)</notes>
+  </release>
   <release>
    <version>
     <release>2.5.0b1</release>

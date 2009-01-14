@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_sqlite</name>
  <channel>pear.php.net</channel>
  <summary>sqlite MDB2 driver</summary>
@@ -16,26 +16,21 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2008-03-15</date>
- <time>10:12:53</time>
+ <date>2009-01-14</date>
+ <time>16:05:06</time>
  <version>
-  <release>1.5.0b1</release>
-  <api>1.5.0b1</api>
+  <release>1.5.0b2</release>
+  <api>1.5.0b2</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- request #12731: added truncateTable() in the Manager module
-- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
-- fixed bug #12924: correctly handle internal expected errors even with custom error handling
-- added standaloneQuery() and databaseExists()
-- request #13106: added unixtimestamp() in the Function module
-- fixed bug #13201: better regexp in errorInfo()
-- fixed bug #13283: replace() doesn&apos;t respect quote_identifiers option
-- fixed bug #13303: PRIMARY keys are not always returned in listTableConstraints()
-  and in getTableConstraintDefinition()
+ <notes>- fixed bug #12117: disconnect() does not work as documented
+- fixed bug #13815: incomplete regexp in the Reverse module
+- fixed bug #13928: Invalid triggers created for &apos;ON UPDATE&apos;
+- fixed bug #14302: Connection errors were not always returned
 
 note:
 open todo items:
@@ -91,7 +86,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b1</min>
+    <min>2.5.0b2</min>
    </package>
    <extension>
     <name>sqlite</name>
@@ -100,6 +95,26 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0b2</release>
+    <api>1.5.0b2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2009-01-14</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #12117: disconnect() does not work as documented
+- fixed bug #13815: incomplete regexp in the Reverse module
+- fixed bug #13928: Invalid triggers created for &apos;ON UPDATE&apos;
+- fixed bug #14302: Connection errors were not always returned
+
+note:
+open todo items:
+- fix pattern escaping using GLOB instead of LIKE or create and register own implementation of LIKE</notes>
+  </release>
   <release>
    <version>
     <release>1.5.0b1</release>

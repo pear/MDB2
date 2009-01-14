@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mssql</name>
  <channel>pear.php.net</channel>
  <summary>mssql MDB2 driver</summary>
@@ -34,27 +34,20 @@
   <email>afz@dev-code.com</email>
   <active>yes</active>
  </helper>
- <date>2008-03-15</date>
- <time>10:07:41</time>
+ <date>2009-01-14</date>
+ <time>15:42:11</time>
  <version>
-  <release>1.3.0b1</release>
-  <api>1.3.0b1</api>
+  <release>1.3.0b2</release>
+  <api>1.3.0b2</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #12391: fixed lastInsertID() (thanks to Marius Toma)
-- fixed bug #12599: BLOB quoting incorrect (thanks to Ferdy Hanssen)
-- fixed bug #12697: MDB2_Driver_mssql fails to load with the sybase_ct extension
-- request #12731: added truncateTable() in the Manager module
-- request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
-- request #12800: added alterDatabase() in the Manager module [afz]
-- fixed bug #12924: correctly handle internal expected errors even with custom error handling
-- extended alterTable() support in the Manager module [afz]
-- added standaloneQuery() and databaseExists()
-- request #13106: added unixtimestamp() in the Function module
+ <notes>- fixed bug #11571: when using setLimit(), numRows() returns wrong values
+- fixed bug #12117: disconnect() does not work as documented
+- fixed bug #14019: MDB2 is not aware of MS-SQL &apos;smalldatetime&apos; type
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)</notes>
@@ -109,7 +102,7 @@ open todo items:
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b1</min>
+    <min>2.5.0b2</min>
    </package>
    <extension>
     <name>mssql</name>
@@ -118,6 +111,24 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.3.0b2</release>
+    <api>1.3.0b2</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2009-01-14</date>
+   <license>BSD License</license>
+   <notes>- fixed bug #11571: when using setLimit(), numRows() returns wrong values
+- fixed bug #12117: disconnect() does not work as documented
+- fixed bug #14019: MDB2 is not aware of MS-SQL &apos;smalldatetime&apos; type
+
+open todo items:
+- explore fast limit/offset emulation (Request #4544)</notes>
+  </release>
   <release>
    <version>
     <release>1.3.0b1</release>
