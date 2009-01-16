@@ -634,7 +634,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
         $query = "SET NAMES '".mysql_real_escape_string($charset, $connection)."'";
         if (!is_null($collation)) {
-            $query .= " COLLATE '".mysqli_real_escape_string($connection, $collation)."'";
+            $query .= " COLLATE '".mysql_real_escape_string($collation, $connection)."'";
         }
         return $this->_doQuery($query, true, $connection);
     }
