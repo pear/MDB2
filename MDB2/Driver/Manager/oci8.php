@@ -213,7 +213,6 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 'primary key for autoincrement PK could not be created', __FUNCTION__);
         }
 
-        $seq_name = $table.'_'.$name;
         if (is_null($start)) {
             $db->beginTransaction();
             $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $db->quoteIdentifier($table, true);
@@ -222,16 +221,16 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 return $start;
             }
             ++$start;
-            $result = $this->createSequence($seq_name, $start);
+            $result = $this->createSequence($table, $start);
             $db->commit();
         } else {
-            $result = $this->createSequence($seq_name, $start);
+            $result = $this->createSequence($table, $start);
         }
         if (PEAR::isError($result)) {
             return $db->raiseError($result, null, null,
                 'sequence for autoincrement PK could not be created', __FUNCTION__);
         }
-        $seq_name        = $db->getSequenceName($seq_name);
+        $seq_name        = $db->getSequenceName($table);
         $trigger_name    = $db->quoteIdentifier($table_uppercase . '_AI_PK', true);
         $seq_name_quoted = $db->quoteIdentifier($seq_name, true);
         $table = $db->quoteIdentifier($table, true);

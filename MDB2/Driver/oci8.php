@@ -958,9 +958,15 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function lastInsertID($table = null, $field = null)
     {
-        $seq = $table.(empty($field) ? '' : '_'.$field);
-        $sequence_name = $this->quoteIdentifier($this->getSequenceName($seq), true);
-        return $this->queryOne("SELECT $sequence_name.currval", 'integer');
+        $old_seq = $table.(empty($field) ? '' : '_'.$field);
+        $sequence_name = $this->quoteIdentifier($this->getSequenceName($table), true);
+        $result = $this->queryOne("SELECT $sequence_name.currval", 'integer');
+        if (PEAR::isError($result)) {
+            $sequence_name = $this->quoteIdentifier($this->getSequenceName($old_seq), true);
+            $result = $this->queryOne("SELECT $sequence_name.currval", 'integer');
+        }
+
+        return $result;
     }
 
     // }}}
