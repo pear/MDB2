@@ -339,6 +339,59 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
+    // {{{ matchPattern()
+
+    /**
+     * build a pattern matching string
+     *
+     * @access public
+     *
+     * @param array $pattern even keys are strings, odd are patterns (% and _)
+     * @param string $operator optional pattern operator (LIKE, ILIKE and maybe others in the future)
+     * @param string $field optional field name that is being matched against
+     *                  (might be required when emulating ILIKE)
+     *
+     * @return string SQL pattern
+     */
+    function matchPattern($pattern, $operator = null, $field = null)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $match = '';
+        if (!is_null($operator)) {
+            $field = is_null($field) ? '' : $field.' ';
+            $operator = strtoupper($operator);
+            switch ($operator) {
+            // case insensitive
+            case 'ILIKE':
+                $match = $field.'LIKE ';
+                break;
+            // case sensitive
+            case 'LIKE':
+                $match = $field.'LIKE ';
+                break;
+            default:
+                return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                    'not a supported operator type:'. $operator, __FUNCTION__);
+            }
+        }
+        $match.= "'";
+        foreach ($pattern as $key => $value) {
+            if ($key % 2) {
+                $match.= $value;
+            } else {
+                $match.= $db->escapePattern($db->escape($value));
+            }
+        }
+        $match.= "'";
+        $match.= $this->patternEscapeString();
+        return $match;
+    }
+
+    // }}}
     // {{{ _mapNativeDatatype()
 
     /**
