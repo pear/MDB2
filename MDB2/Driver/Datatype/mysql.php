@@ -360,9 +360,15 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             case 'ILIKE':
                 $match = $field.'LIKE ';
                 break;
+            case 'NOT ILIKE':
+                $match = $field.'NOT LIKE ';
+                break;
             // case sensitive
             case 'LIKE':
                 $match = $field.'LIKE BINARY ';
+                break;
+            case 'NOT LIKE':
+                $match = $field.'NOT LIKE BINARY ';
                 break;
             default:
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,

@@ -1699,9 +1699,20 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 $db->loadModule('Function', null, true);
                 $match = $db->function->lower($field).' LIKE ';
                 break;
+            case 'NOT ILIKE':
+                if (is_null($field)) {
+                    return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                        'case insensitive NOT ILIKE matching requires passing the field name', __FUNCTION__);
+                }
+                $db->loadModule('Function', null, true);
+                $match = $db->function->lower($field).' NOT ILIKE ';
+                break;
             // case sensitive
             case 'LIKE':
-                $match = is_null($field) ? 'LIKE ' : $field.' LIKE ';
+                $match = is_null($field) ? 'LIKE ' : ($field.' LIKE ');
+                break;
+            case 'NOT LIKE':
+                $match = is_null($field) ? 'NOT LIKE ' : ($field.' NOT LIKE ');
                 break;
             default:
                 return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
@@ -1713,7 +1724,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if ($key % 2) {
                 $match.= $value;
             } else {
-                if ($operator === 'ILIKE') {
+                if ($operator === 'ILIKE' || $operator === 'NOT ILIKE') {
                     $value = strtolower($value);
                 }
                 $escaped = $db->escape($value);
