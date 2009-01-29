@@ -1724,9 +1724,6 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if ($key % 2) {
                 $match.= $value;
             } else {
-                if ($operator === 'ILIKE' || $operator === 'NOT ILIKE') {
-                    $value = strtolower($value);
-                }
                 $escaped = $db->escape($value);
                 if (PEAR::isError($escaped)) {
                     return $escaped;
