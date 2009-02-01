@@ -715,11 +715,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $table = $db->quoteIdentifier($table, true);
+        $table = $db->quote($table, 'text');
         $columns = $db->queryCol("SELECT c.name
                                     FROM syscolumns c
                                LEFT JOIN sysobjects o ON c.id = o.id
-                                   WHERE o.name = '$table'");
+                                   WHERE o.name = $table");
         if (PEAR::isError($columns)) {
             return $columns;
         }
