@@ -994,12 +994,12 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $table = $db->quoteIdentifier($table, true);
+        $table = $db->quote($table, 'text');
 
         $query = "SELECT c.constraint_name
                     FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS c
                    WHERE c.constraint_catalog = DB_NAME()
-                     AND c.table_name = '$table'";
+                     AND c.table_name = $table";
         $constraints = $db->queryCol($query);
         if (PEAR::isError($constraints)) {
             return $constraints;
