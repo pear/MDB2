@@ -1617,6 +1617,7 @@ class MDB2_Statement_mysql extends MDB2_Statement_Common
                     return $this->db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                         'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);
                 }
+                $close = false;
                 $value = $this->values[$parameter];
                 $type = array_key_exists($parameter, $this->types) ? $this->types[$parameter] : null;
                 if (is_resource($value) || $type == 'clob' || $type == 'blob' && $this->db->options['lob_allow_url_include']) {
