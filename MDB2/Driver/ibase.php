@@ -649,7 +649,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             $result = $this->_affectedRows($connection, $result);
         }
 
-        @mysql_close($connection);
+        @ibase_close($connection);
         return $result;
     }
 

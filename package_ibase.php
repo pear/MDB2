@@ -7,7 +7,7 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed regression in lastInserID()
-
+- fixed bug #15971: typo in standaloneQuery() [elpaso]
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
