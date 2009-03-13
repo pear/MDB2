@@ -7,7 +7,7 @@ $version_release = 'XXX';
 $version_api = $version_release;
 $state = 'beta';
 $notes = <<<EOT
-
+- fixed bug #15912: MDB2::loadClass can return MDB2_OK without loading class
 
 open todo items:
 - handle autoincrement fields in alterTable()

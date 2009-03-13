@@ -343,6 +343,11 @@ class MDB2
                 $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null, $msg);
                 return $err;
             }
+            if (!MDB2::classExists($class_name)) {
+                $msg = "unable to load class '$class_name' from file '$file_name'";
+                $err =& MDB2::raiseError(MDB2_ERROR_NOT_FOUND, null, null, $msg);
+                return $err;
+            }
         }
         return MDB2_OK;
     }
