@@ -898,7 +898,9 @@ class MDB2
                 //"username/password@[//]host[:port][/service_name]"
                 //e.g. "scott/tiger@//mymachine:1521/oracle"
                 $proto_opts = $dsn;
-                $dsn = substr($proto_opts, strrpos($proto_opts, '/') + 1);
+                $pos = strrpos($proto_opts, '/');
+                $dsn = substr($proto_opts, $pos + 1);
+                $proto_opts = substr($proto_opts, 0, $pos);
             } elseif (strpos($dsn, '/') !== false) {
                 list($proto_opts, $dsn) = explode('/', $dsn, 2);
             } else {
@@ -936,7 +938,7 @@ class MDB2
                 }
                 foreach ($opts as $opt) {
                     list($key, $value) = explode('=', $opt);
-                    if (!isset($parsed[$key])) {
+                    if (false === $parsed[$key]) {
                         // don't allow params overwrite
                         $parsed[$key] = rawurldecode($value);
                     }

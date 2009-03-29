@@ -8,6 +8,8 @@ $version_api = $version_release;
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #15912: MDB2::loadClass can return MDB2_OK without loading class
+- fixed bug #16020: unable to set params via dsn string in parseDSN()
+- fixed unreported bug in parseDSN() and oracle's Easy Connect syntax
 
 open todo items:
 - handle autoincrement fields in alterTable()
