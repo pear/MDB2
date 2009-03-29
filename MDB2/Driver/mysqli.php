@@ -776,7 +776,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $result = mysqli_query($connection, $query);
         }
 
-        if (!$result) {
+        if (!$result && 0 !== mysqli_errno($connection)) {
             $err =& $this->raiseError(null, null, null,
                 'Could not execute statement', __FUNCTION__);
             return $err;

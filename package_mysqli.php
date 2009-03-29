@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #16003: incorrect check for error after mysqli_store_result
 
 open todo items:
 - use a trigger to emulate setting default now()

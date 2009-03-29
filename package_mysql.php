@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #15650: mysqli function used in setCharset()
+- fixed bug #16003: incorrect check for error after mysql_store_result
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
