@@ -430,11 +430,11 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             switch ($options['rw']) {
             case 'READ ONLY':
             case 'READ WRITE':
-                $rw = $options['wait'];
+                $rw = $options['rw'];
                 break;
             default:
                 return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-                    'wait option is not supported: '.$options['rw'], __FUNCTION__);
+                    'rw option is not supported: '.$options['rw'], __FUNCTION__);
             }
         }
 
