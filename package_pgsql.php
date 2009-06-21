@@ -6,8 +6,8 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
-
-Thanks to Holger Schletz for all the above patches!
+- fixed bug #16281: getTableFieldDefinition() does not recognize NULL defaults
+  with datatype [Holger Schletz]
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
