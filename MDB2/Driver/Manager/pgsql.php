@@ -409,7 +409,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                         return $result;
                     }
                 }
-                if (!empty($field['definition']['notnull'])) {
+                if (array_key_exists('notnull', $field['definition'])) {
                     $query = "ALTER $field_name ".($field['definition']['notnull'] ? 'SET' : 'DROP').' NOT NULL';
                     $result = $db->exec("ALTER TABLE $name $query");
                     if (PEAR::isError($result)) {
