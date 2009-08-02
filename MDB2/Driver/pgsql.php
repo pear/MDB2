@@ -452,6 +452,27 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
         }
 
+        // Enable extra compatibility settings on 8.2 and later
+        $version = pg_parameter_status($connection, 'server_version');
+        if ($version == false) {
+            return $this->raiseError(null, null, null,
+                'Unable to retrieve server version', __FUNCTION__);
+        }
+        $version = explode ('.', $version);
+        if (    $version['0'] > 8
+            || ($version['0'] == 8 && $version['1'] >= 2)
+        ) {
+            if (!@pg_query($connection, "SET SESSION STANDARD_CONFORMING_STRINGS = OFF")) {
+                return $this->raiseError(null, null, null,
+                    'Unable to set standard_conforming_strings to off', __FUNCTION__);
+            }
+
+            if (!@pg_query($connection, "SET SESSION ESCAPE_STRING_WARNING = OFF")) {
+                return $this->raiseError(null, null, null,
+                    'Unable to set escape_string_warning to off', __FUNCTION__);
+            }
+        }
+
         return $connection;
     }
 

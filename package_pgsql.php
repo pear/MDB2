@@ -9,6 +9,7 @@ $notes = <<<EOT
 - fixed bug #16281: getTableFieldDefinition() does not recognize NULL defaults
   with datatype [Holger Schletz]
 - fixed bug #16384: alterTable() does not remove NOT NULL constraints [Holger Schletz]
+- fixed bug #16405: Compatibility issues with escaped strings [hschletz]
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
