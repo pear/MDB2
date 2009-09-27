@@ -1031,6 +1031,12 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
+        // connect to get server capabilities (http://pear.php.net/bugs/16147)
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
         if ($this->options['emulate_prepared']
             || $this->supported['prepared_statements'] !== true
         ) {
@@ -1108,10 +1114,6 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             } else {
                 $position = $p_position;
             }
-        }
-        $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
         }
 
         if (!$is_manip) {

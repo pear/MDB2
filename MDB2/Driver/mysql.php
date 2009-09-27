@@ -1034,6 +1034,12 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
      */
     function &prepare($query, $types = null, $result_types = null, $lobs = array())
     {
+        // connect to get server capabilities (http://pear.php.net/bugs/16147)
+        $connection = $this->getConnection();
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
+
         if ($this->options['emulate_prepared']
             || $this->supported['prepared_statements'] !== true
         ) {
@@ -1112,10 +1118,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 $position = $p_position;
             }
         }
-        $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
-            return $connection;
-        }
+
         static $prep_statement_counter = 1;
         $statement_name = sprintf($this->options['statement_format'], $this->phptype, $prep_statement_counter++ . sha1(microtime() + mt_rand()));
         $statement_name = substr(strtolower($statement_name), 0, $this->options['max_identifiers_length']);

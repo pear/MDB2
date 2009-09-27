@@ -7,6 +7,7 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #16003: incorrect check for error after mysqli_store_result
+- fixed bug #16147: first prepared statement is emulated when using factory with mysql
 
 open todo items:
 - use a trigger to emulate setting default now()
