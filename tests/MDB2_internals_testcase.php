@@ -284,7 +284,7 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
     function test_getConnection()
     {
         $result = $this->db->getConnection();
-        $this->assertTrue(is_resource($result), 'getConnection');
+        $this->assertTrue(is_resource($result) || is_object($result), 'getConnection');
     }
 
     /**
