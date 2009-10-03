@@ -203,15 +203,36 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     }
 
     // }}}
+    // {{{ escape()
+
+    /**
+     * Quotes a string so it can be safely used in a query. It will quote
+     * the text so it can safely be used within a query.
+     *
+     * @param string $text             the input string to quote
+     * @param bool   $escape_wildcards flag
+     *
+     * @return string  quoted string
+     * @access public
+     */
+    function escape($text, $escape_wildcards = false)
+    {
+        $text = parent::escape($text, $escape_wildcards);
+        // http://pear.php.net/bugs/bug.php?id=16118
+        // http://support.microsoft.com/kb/164291
+        return preg_replace('/\\(\r\n|\r|\n)/', '\\\\$1', $text);
+    }
+
+    // }}}
     // {{{ beginTransaction()
 
     /**
      * Start a transaction or set a savepoint.
      *
-     * @param   string  name of a savepoint to set
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     * @param string $savepoint name of a savepoint to set
      *
-     * @access  public
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
     function beginTransaction($savepoint = null)
     {
@@ -247,9 +268,9 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      * auto-committing is disabled, otherwise it will fail. Therefore, a new
      * transaction is implicitly started after committing the pending changes.
      *
-     * @param   string  name of a savepoint to release
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     * @param string $savepoint name of a savepoint to release
      *
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access  public
      */
     function commit($savepoint = null)
@@ -280,10 +301,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      * auto-committing is disabled, otherwise it will fail. Therefore, a new
      * transaction is implicitly started after canceling the pending changes.
      *
-     * @param   string  name of a savepoint to rollback to
-     * @return  mixed   MDB2_OK on success, a MDB2 error on failure
+     * @param string $savepoint name of a savepoint to rollback to
      *
-     * @access  public
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
      */
     function rollback($savepoint = null)
     {
@@ -310,6 +331,10 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
 
     /**
      * do the grunt work of the connect
+     *
+     * @param string  $username
+     * @param string  $password
+     * @param boolean $persistent
      *
      * @return connection on success or MDB2 Error Object on failure
      * @access protected
