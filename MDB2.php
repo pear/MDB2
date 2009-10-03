@@ -938,7 +938,7 @@ class MDB2
                 }
                 foreach ($opts as $opt) {
                     list($key, $value) = explode('=', $opt);
-                    if (false === $parsed[$key]) {
+                    if (!array_key_exists($key, $parsed) || false === $parsed[$key]) {
                         // don't allow params overwrite
                         $parsed[$key] = rawurldecode($value);
                     }
