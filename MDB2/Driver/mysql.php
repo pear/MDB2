@@ -501,14 +501,14 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         }
 
         $params = array();
-        if ($this->dsn['protocol'] && $this->dsn['protocol'] == 'unix') {
-            $params[0] = ':' . $this->dsn['socket'];
+        $unix = ($this->dsn['protocol'] && $this->dsn['protocol'] == 'unix');
+        if (empty($this->dsn['hostspec'])) {
+            $this->dsn['hostspec'] = $unix ? '' : 'localhost';
+        }
+        if ($this->dsn['hostspec']) {
+            $params[0] = $this->dsn['hostspec'] . ($this->dsn['port'] ? ':' . $this->dsn['port'] : '');
         } else {
-            $params[0] = $this->dsn['hostspec'] ? $this->dsn['hostspec']
-                         : 'localhost';
-            if ($this->dsn['port']) {
-                $params[0].= ':' . $this->dsn['port'];
-            }
+            $params[0] = ':' . $this->dsn['socket'];
         }
         $params[] = $username ? $username : null;
         $params[] = $password ? $password : null;

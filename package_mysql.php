@@ -9,6 +9,7 @@ $notes = <<<EOT
 - fixed bug #15650: mysqli function used in setCharset()
 - fixed bug #16003: incorrect check for error after mysql_store_result
 - fixed bug #16147: first prepared statement is emulated when using factory with mysql
+- fixed bug #16669: hostspec is ignored when protocol is unix
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql
