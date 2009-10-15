@@ -350,7 +350,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             $this->dsn['hostspec'] ? $this->dsn['hostspec'] : 'localhost',
             $username ? $username : null,
             $password ? $password : null,
-        );
+            );
         if ($this->dsn['port']) {
             $params[0].= ((substr(PHP_OS, 0, 3) == 'WIN') ? ',' : ':').$this->dsn['port'];
         }
@@ -381,15 +381,21 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         }
         */
 
-       if ((bool)ini_get('mssql.datetimeconvert')) {
-           @ini_set('mssql.datetimeconvert', '0');
-       }
+        if ((bool)ini_get('mssql.datetimeconvert')) {
+            // his isn't the most elegant way of doing it but it prevents from
+            // breaking anything thus preserves BC. Bug #11849
+            if (isset($this->options['datetimeconvert']) && (bool)$this->options['datetimeconvert'] !== false) {
+                @ini_set('mssql.datetimeconvert', '1');
+            } else {
+                @ini_set('mssql.datetimeconvert', '0');
+            }
+        }
 
-       if (empty($this->dsn['disable_iso_date'])) {
-           @mssql_query('SET DATEFORMAT ymd', $connection);
-       }
+        if (empty($this->dsn['disable_iso_date'])) {
+            @mssql_query('SET DATEFORMAT ymd', $connection);
+        }
 
-       return $connection;
+        return $connection;
     }
 
     // }}}
