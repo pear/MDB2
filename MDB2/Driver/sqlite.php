@@ -1078,5 +1078,4 @@ class MDB2_Statement_sqlite extends MDB2_Statement_Common
 {
 
 }
-
 ?>
