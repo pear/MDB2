@@ -220,7 +220,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $text = parent::escape($text, $escape_wildcards);
         // http://pear.php.net/bugs/bug.php?id=16118
         // http://support.microsoft.com/kb/164291
-        return preg_replace('/\\(\r\n|\r|\n)/', '\\\\$1', $text);
+        return preg_replace("/\\\\(\r\n|\r|\n)/", '\\\\$1', $text);
     }
 
     // }}}
@@ -341,7 +341,11 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function _doConnect($username, $password, $persistent = false)
     {
-        if (!PEAR::loadExtension($this->phptype) && !PEAR::loadExtension('sybase_ct')) {
+        if (   !PEAR::loadExtension($this->phptype)
+            && !PEAR::loadExtension('sybase_ct')
+            && !PEAR::loadExtension('odbtp')
+            && !function_exists('mssql_connect')
+        ) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }
@@ -884,8 +888,9 @@ class MDB2_Result_mssql extends MDB2_Result_Common
     /**
      * Fetch a row and insert the data into an existing array.
      *
-     * @param int       $fetchmode  how the array data should be indexed
-     * @param int    $rownum    number of the row where the data can be found
+     * @param int $fetchmode  how the array data should be indexed
+     * @param int $rownum     number of the row where the data can be found
+     *
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
@@ -1070,7 +1075,8 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
     /**
      * Seek to a specific row in a result set
      *
-     * @param int    $rownum    number of the row where the data can be found
+     * @param int $rownum number of the row where the data can be found
+     *
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
@@ -1080,7 +1086,8 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
             if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (is_null($this->result)) {
                 return MDB2_OK;
             }
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
@@ -1132,8 +1139,8 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
         }
         if ($this->limit) {
             $rows -= $this->offset;
-            if ($rows > $this->limit) {
-                $rows = $this->limit;
+            if ($rows > $this->limit + 1) {
+                $rows = $this->limit + 1;
             }
             if ($rows < 0) {
                 $rows = 0;

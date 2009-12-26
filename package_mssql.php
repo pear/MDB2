@@ -7,6 +7,8 @@ $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #16118: escape doesn't take into account trailing backslashes [urkle]
+- request #16903: Add ability to use ODBTP extension [hedroom]
+- fixed numRows() with setLimit()
 
 open todo items:
 - explore fast limit/offset emulation (Request #4544)
