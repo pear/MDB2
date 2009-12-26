@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.7.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+ <name>MDB2_Driver_sqlsrv</name>
+ <channel>pear.php.net</channel>
+ <summary>sqlsrv MDB2 driver</summary>
+ <description>This is the MS SQL Server (native) MDB2 driver.</description>
+ <lead>
+  <name>Chris Pucci</name>
+  <user>chrisdpucci</user>
+  <email>a-cpucci@microsoft.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2009-12-26</date>
+ <time>14:18:41</time>
+ <version>
+  <release>1.0</release>
+  <api>1.0</api>
+ </version>
+ <stability>
+  <release>beta</release>
+  <api>beta</api>
+ </stability>
+ <license>BSD License</license>
+ <notes></notes>
+ <contents>
+  <dir baseinstalldir="/" name="/">
+   <dir name="MDB2">
+    <dir name="Driver">
+     <dir name="Datatype">
+      <file name="sqlsrv.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Datatype -->
+     <dir name="Function">
+      <file name="sqlsrv.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Function -->
+     <dir name="Manager">
+      <file name="sqlsrv.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Manager -->
+     <dir name="Native">
+      <file name="sqlsrv.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Native -->
+     <dir name="Reverse">
+      <file name="sqlsrv.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Reverse -->
+     <file name="sqlsrv.php" role="php">
+      <tasks:replace from="@package_version@" to="version" type="package-info" />
+     </file>
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
+   <dir name="tests">
+    <file name="MDB2_nonstandard_sqlsrv.php" role="test" />
+   </dir> <!-- /tests -->
+   <file name="package_sqlsrv.xml" role="data" />
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>4.3.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+   <package>
+    <name>MDB2</name>
+    <channel>pear.php.net</channel>
+    <min>2.5.0b1</min>
+   </package>
+   <extension>
+    <name>sqlsrv</name>
+   </extension>
+  </required>
+ </dependencies>
+ <phprelease />
+ <changelog>
+  <release>
+   <version>
+    <release>1.0</release>
+    <api>1.0</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2008-03-15</date>
+   <license>BSD License</license>
+   <notes></notes>
+  </release>
+ </changelog>
+</package>
