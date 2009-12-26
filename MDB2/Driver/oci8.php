@@ -151,6 +151,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     2291 => MDB2_ERROR_CONSTRAINT,
                     2292 => MDB2_ERROR_CONSTRAINT,
                     2449 => MDB2_ERROR_CONSTRAINT,
+                    4081 => MDB2_ERROR_ALREADY_EXISTS, //trigger already exists
                     24344 => MDB2_ERROR_SYNTAX, //success with compilation error
                 );
             }
@@ -397,16 +398,16 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
                 'unable to establish a connection', __FUNCTION__);
         }
-
-       if (empty($this->dsn['disable_iso_date'])) {
+        
+        if (empty($this->dsn['disable_iso_date'])) {
             $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
             $err =& $this->_doQuery($query, true, $connection);
             if (PEAR::isError($err)) {
                 $this->disconnect(false);
                 return $err;
             }
-       }
-
+        }
+        
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
         $err =& $this->_doQuery($query, true, $connection);
         if (PEAR::isError($err)) {
