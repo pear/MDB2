@@ -62,7 +62,7 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
         $result = strtok('.');
         $this->assertTrue(is_numeric($result), 'apiVersion');
         $result = strtok('.');
-        $this->assertTrue(is_numeric($result), 'apiVersion');
+        $this->assertRegExp('/\d+((b|rc)\d+)?/', $result);
     }
 
     /**
@@ -552,9 +552,9 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
      */
     function test_supports()
     {
-        $this->db->supports['testkey'] = true;
+        $this->db->supported['testkey'] = true;
         $this->assertTrue($this->db->supports('testkey'), 'supports');
-        unset($this->db->supports['testkey']);
+        unset($this->db->supported['testkey']);
     }
 
     /**
@@ -585,6 +585,7 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
      */
     function test_disconnect()
     {
+        $this->db->connect();
         $this->assertTrue($this->db->disconnect(), 'disconnect');
         $this->assertEquals(0, $this->db->connection, 'disconnect');
         $this->assertEquals(array(), $this->db->connected_dsn, 'disconnect');

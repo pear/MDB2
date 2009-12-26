@@ -64,9 +64,11 @@ END;';
     function checkTrigger($trigger_name, $table_name, $def) {
         parent::checkTrigger($trigger_name, $table_name, $def);
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
+        /*
         echo '<pre>';
         var_dump($this->trigger_body);
         var_dump($def['trigger_body']);
+        */
     }
 
     function dropTrigger($trigger_name, $table_name) {

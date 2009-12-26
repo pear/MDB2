@@ -58,17 +58,17 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
 
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+            $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
         $result = $this->db->extended->autoExecute('users', $data, MDB2_AUTOQUERY_INSERT, null, $this->fields);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error auto executing insert: '.$result->getMessage());
+            $this->fail('Error auto executing insert: '.$result->getMessage());
         }
 
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
         $result =& $this->db->query($select_query, $this->fields);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+            $this->fail('Error selecting from users: '.$result->getMessage());
         } else {
             $this->verifyFetchedValues($result, null, $data);
             $result->free();
@@ -77,7 +77,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $where = 'user_id = '.$this->db->quote($data['user_id'], 'integer');
         $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_SELECT, $where, null, true, $this->fields);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error auto executing select: '.$result->getMessage());
+            $this->fail('Error auto executing select: '.$result->getMessage());
         } else {
             $this->verifyFetchedValues($result, null, $data);
             $result->free();
@@ -86,7 +86,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $where = 'user_id = '.$this->db->quote($data['user_id'], 'integer');
         $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_SELECT, $where, null, true, MDB2_PREPARE_RESULT);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error auto executing select: '.$result->getMessage());
+            $this->fail('Error auto executing select: '.$result->getMessage());
         } else {
             $result->setResultTypes($this->fields);
             $this->verifyFetchedValues($result, null, $data);
@@ -99,13 +99,13 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $where = 'user_id = '.$this->db->quote($data['user_id'], 'integer');
         $result = $this->db->extended->autoExecute('users', $update_data, MDB2_AUTOQUERY_UPDATE, $where, $this->fields);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error auto executing insert: '.$result->getMessage());
+            $this->fail('Error auto executing insert: '.$result->getMessage());
         }
 
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
         $result =& $this->db->query($select_query, $this->fields);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+            $this->fail('Error selecting from users: '.$result->getMessage());
         } else {
             $this->verifyFetchedValues($result, null, $data);
             $result->free();
@@ -114,13 +114,13 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $where = array($where, 'user_name = '.$this->db->quote($data['user_name'], 'text'));
         $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_DELETE, $where, null);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error auto executing insert: '.$result->getMessage());
+            $this->fail('Error auto executing insert: '.$result->getMessage());
         }
 
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
         $result =& $this->db->query($select_query, $this->fields);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+            $this->fail('Error selecting from users: '.$result->getMessage());
         } else {
             $this->assertEquals(0, $result->numRows(), 'No rows were expected to be returned');
             $result->free();
@@ -136,7 +136,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
     {
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+            $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
 
         $data = $this->getSampleData(1234);
@@ -147,14 +147,14 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $stmt->free();
 
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: '.$result->getMessage());
         }
 
         //test getAssoc() with query parameters
         $query = 'SELECT user_id, user_name FROM users WHERE user_id=?';
         $result = $this->db->extended->getAssoc($query, array('integer', 'text'), array(1234), array('integer'));
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getAssoc(): '.$result->getMessage());
+            $this->fail('Error executing getAssoc(): '.$result->getMessage());
         }
         $this->assertTrue(array_key_exists($data['user_id'], $result), 'Unexpected returned key');
         $this->assertEquals($data['user_name'], $result[$data['user_id']], 'Unexpected returned value');
@@ -163,7 +163,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_id, user_name FROM users WHERE user_id=1234';
         $result = $this->db->extended->getAssoc($query, array('integer', 'text'));
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getAssoc(): '.$result->getMessage());
+            $this->fail('Error executing getAssoc(): '.$result->getMessage());
         } else {
             $this->assertTrue(array_key_exists($data['user_id'], $result), 'Unexpected returned key');
             $this->assertEquals($data['user_name'], $result[$data['user_id']], 'Unexpected returned value');
@@ -180,7 +180,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_id, user_name FROM users ORDER BY user_id';
         $values = $this->db->extended->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, true);
         if (PEAR::isError($values)) {
-            $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
+            $this->fail('Error executing getAssoc(): '.$values->getMessage());
         } else {
             $this->assertEquals(2, count($values), 'Error: incorrect number of returned rows');
             list($id, $value) = each($values);
@@ -196,7 +196,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_id, user_name FROM users ORDER BY user_id';
         $values = $this->db->extended->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
         if (PEAR::isError($values)) {
-            $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
+            $this->fail('Error executing getAssoc(): '.$values->getMessage());
         } else {
             //@todo: check if MDB2_FETCHMODE_ASSOC is behaving correctly in this case
             $this->assertEquals(2, count($values), 'Error: incorrect number of returned rows');
@@ -213,7 +213,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_password, user_id, user_name FROM users ORDER BY user_id';
         $values = $this->db->extended->getAssoc($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
         if (PEAR::isError($values)) {
-            $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
+            $this->fail('Error executing getAssoc(): '.$values->getMessage());
         } else {
             //the 2 values for user_password are equals, so they are collapsed in the same array
             $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
@@ -231,7 +231,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         //test $group=false with 3 fields
         $values = $this->db->extended->getAssoc($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, false);
         if (PEAR::isError($values)) {
-            $this->assertTrue(false, 'Error executing getAssoc(): '.$values->getMessage());
+            $this->fail('Error executing getAssoc(): '.$values->getMessage());
         } else {
             //the 2 values for user_password are equals, so the first record is overwritten
             $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
@@ -250,7 +250,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
     {
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+            $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
 
         $data = $this->getSampleData(1234);
@@ -261,14 +261,14 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $stmt->free();
 
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: '.$result->getMessage());
         }
 
         //test getOne() with query parameters
         $query = 'SELECT user_name FROM users WHERE user_id=?';
         $result = $this->db->extended->getOne($query, 'text', array(1234), array('integer'));
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getOne(): '.$result->getMessage());
+            $this->fail('Error executing getOne(): '.$result->getMessage());
         }
         $this->assertEquals($data['user_name'], $result, 'Unexpected returned value');
 
@@ -276,7 +276,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_name FROM users WHERE user_id=1234';
         $result = $this->db->extended->getOne($query, 'text');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getOne(): '.$result->getMessage());
+            $this->fail('Error executing getOne(): '.$result->getMessage());
         }
         $this->assertEquals($data['user_name'], $result, 'Unexpected returned value');
 
@@ -284,7 +284,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_id, user_name, approved FROM users WHERE user_id=1234';
         $result = $this->db->extended->getOne($query, 'text', null, null, 1); //get the 2nd column
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getOne(): '.$result->getMessage());
+            $this->fail('Error executing getOne(): '.$result->getMessage());
         }
         $this->assertEquals($data['user_name'], $result, 'Unexpected returned value');
     }
@@ -298,7 +298,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
     {
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+            $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
 
         $data = array(
@@ -309,11 +309,11 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data[0]));
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: '.$result->getMessage());
         }
         $result = $stmt->execute(array_values($data[1]));
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: '.$result->getMessage());
         }
         $stmt->free();
 
@@ -321,7 +321,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_name FROM users WHERE user_id>?';
         $result = $this->db->extended->getCol($query, 'text', array(1), array('integer'));
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getCol(): '.$result->getMessage());
+            $this->fail('Error executing getCol(): '.$result->getMessage());
         }
         $expected = array(
             $data[0]['user_name'],
@@ -333,7 +333,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_name FROM users';
         $result = $this->db->extended->getCol($query, 'text');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getCol(): '.$result->getMessage());
+            $this->fail('Error executing getCol(): '.$result->getMessage());
         }
         $this->assertEquals($expected, $result, 'Unexpected returned value');
 
@@ -341,7 +341,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_id, user_name, approved FROM users';
         $result = $this->db->extended->getCol($query, 'text', null, null, 1); //get the 2nd column
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getCol(): '.$result->getMessage());
+            $this->fail('Error executing getCol(): '.$result->getMessage());
         }
         $this->assertEquals($expected, $result, 'Unexpected returned value');
     }
@@ -355,7 +355,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
     {
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+            $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
 
         $data = $this->getSampleData(1234);
@@ -363,7 +363,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: '.$result->getMessage());
         }
         $stmt->free();
 
@@ -371,7 +371,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id=?';
         $result = $this->db->extended->getRow($query, array('integer', 'text', 'text'), array(1234), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getRow(): '.$result->getMessage());
+            $this->fail('Error executing getRow(): '.$result->getMessage());
         }
         $this->assertEquals($data['user_id'],       $result['user_id'],       'Unexpected returned value');
         $this->assertEquals($data['user_name'],     $result['user_name'],     'Unexpected returned value');
@@ -381,7 +381,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_id, user_name, user_password FROM users';
         $result = $this->db->extended->getRow($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getRow(): '.$result->getMessage());
+            $this->fail('Error executing getRow(): '.$result->getMessage());
         }
         $this->assertEquals($data['user_id'],       $result['user_id'],       'Unexpected returned value');
         $this->assertEquals($data['user_name'],     $result['user_name'],     'Unexpected returned value');
@@ -397,7 +397,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
     {
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+            $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
 
         $data = array();
@@ -409,7 +409,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
             if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+                $this->fail('Error executing prepared query: '.$result->getMessage());
             }
         }
         $stmt->free();
@@ -418,7 +418,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id > ? ORDER BY user_id';
         $values = $this->db->extended->getAll($query, array('integer', 'text', 'text'), array(2), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($values)) {
-            $this->assertTrue(false, 'Error fetching the result set: '.$values->getMessage());
+            $this->fail('Error fetching the result set: '.$values->getMessage());
         } else {
             $this->assertEquals(2, count($values), 'Error: incorrect number of returned rows');
             for ($i=0; $i<2; $i++) {
@@ -432,7 +432,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $query = 'SELECT user_id, user_name, user_password FROM users ORDER BY user_id';
         $values = $this->db->extended->getAll($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($values)) {
-            $this->assertTrue(false, 'Error fetching the result set: '.$values->getMessage());
+            $this->fail('Error fetching the result set: '.$values->getMessage());
         } else {
             $this->assertEquals($total_rows, count($values), 'Error: incorrect number of returned rows');
             for ($i=0; $i<$total_rows; $i++) {
@@ -452,7 +452,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
     {
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+            $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
 
         $data = array();
@@ -464,7 +464,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
             if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+                $this->fail('Error executing prepared query: '.$result->getMessage());
             }
         }
         $stmt->free();
@@ -475,11 +475,11 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         //test limitQuery() with offset = 0
         $result = $this->db->extended->limitQuery($query, $types, 2);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing limitQuery(): '.$result->getMessage());
+            $this->fail('Error executing limitQuery(): '.$result->getMessage());
         }
         $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($values)) {
-            $this->assertTrue(false, 'Error fetching the result set');
+            $this->fail('Error fetching the result set');
         } else {
             $this->assertEquals(2, count($values), 'Error: incorrect number of returned rows');
             for ($i=0; $i<2; $i++) {
@@ -493,11 +493,11 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         //test limitQuery() with offset > 0
         $result = $this->db->extended->limitQuery($query, $types, 3, 2);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing limitQuery(): '.$result->getMessage());
+            $this->fail('Error executing limitQuery(): '.$result->getMessage());
         }
         $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($values)) {
-            $this->assertTrue(false, 'Error fetching the result set');
+            $this->fail('Error fetching the result set');
         } else {
             $this->assertEquals(3, count($values), 'Error: incorrect number of returned rows');
             for ($i=0; $i<3; $i++) {
@@ -518,7 +518,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
     {
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+            $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
         
         $data = $this->getSampleData(1234);
@@ -527,13 +527,13 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         
         $result = $this->db->extended->execParam($query, array_values($data), $this->fields);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing execParam(): '.$result->getMessage());
+            $this->fail('Error executing execParam(): '.$result->getMessage());
         }
         
         $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id=?';
         $result = $this->db->extended->getRow($query, array('integer', 'text', 'text'), array(1234), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing getRow(): '.$result->getMessage());
+            $this->fail('Error executing getRow(): '.$result->getMessage());
         }
         $this->assertEquals($data['user_id'],       $result['user_id'],       'Unexpected returned value');
         $this->assertEquals($data['user_name'],     $result['user_name'],     'Unexpected returned value');
@@ -549,7 +549,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
     {
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error loading "Extended" module: '.$result->getMessage());
+            $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
 
         $data = array();
@@ -562,7 +562,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')');
         $result = $this->db->extended->executeMultiple($stmt, $data);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing executeMultiple(): '.$result->getMessage());
+            $this->fail('Error executing executeMultiple(): '.$result->getMessage());
         }
         $stmt->free();
         

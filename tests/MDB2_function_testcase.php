@@ -63,7 +63,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT 1 '.$functionTable_clause;
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error fetching from function table');
+            $this->fail('Error fetching from function table: '.$result->getMessage().' :: '.$result->getUserInfo());
         } else {
             $this->assertEquals('1', $result, 'Error fetching value from function table');
         }
@@ -90,7 +90,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
             $query = 'SELECT '.$now_clause . $functionTable_clause;
             $result = $this->db->queryOne($query, $type);
             if (PEAR::isError($result)) {
-                $this->assertFalse(true, 'Error getting '.$type);
+                $this->fail('Error getting '.$type);
             } else {
                 $this->assertRegExp($regexp, $result, 'Error: not a proper '.$type);
             }
@@ -114,14 +114,14 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $stmt->free();
 
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing prepared query'.$result->getMessage());
+            $this->fail('Error executing prepared query'.$result->getMessage());
         }
 
         $substring_clause = $this->db->function->substring('user_name', 1, 4);
         $query = 'SELECT '.$substring_clause .' FROM users';
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting substring');
+            $this->fail('Error getting substring');
         } else {
             $this->assertEquals('user', $result, 'Error: substrings not equals');
         }
@@ -130,7 +130,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$substring_clause .' FROM users';
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting substring');
+            $this->fail('Error getting substring');
         } else {
             $this->assertEquals('_', $result, 'Error: substrings not equals');
         }
@@ -140,7 +140,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$substring_clause .' FROM users';
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting substring');
+            $this->fail('Error getting substring');
         } else {
             $this->assertEquals('1234', $result, 'Error: substrings not equals');
         }
@@ -160,7 +160,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$concat_clause . $functionTable_clause;
         $result = $this->db->queryOne($query);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting concat');
+            $this->fail('Error getting concat');
         } else {
             $this->assertEquals('timestamp', $result, 'Error: could not concatenate "time+stamp"');
         }
@@ -180,7 +180,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$rand_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'float');
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting random value:'. $result->getMessage());
+            $this->fail('Error getting random value:'. $result->getMessage());
         } else {
             $this->assertTrue(($result >= 0 && $result <= 1), 'Error: could not get random value between 0 and 1: '.$result);
         }
@@ -200,7 +200,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$lower_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'text');
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting lower case value:'. $result->getMessage());
+            $this->fail('Error getting lower case value:'. $result->getMessage());
         } else {
             $this->assertTrue(($result === 'foo'), 'Error: could not lower case "FoO": '.$result);
         }
@@ -220,7 +220,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$upper_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'text');
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting upper case value:'. $result->getMessage());
+            $this->fail('Error getting upper case value:'. $result->getMessage());
         } else {
             $this->assertTrue(($result === 'FOO'), 'Error: could not upper case "FoO": '.$result);
         }
@@ -240,7 +240,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$length_clause . $functionTable_clause;
         $len = $this->db->queryOne($query, 'integer');
         if (PEAR::isError($len)) {
-            $this->assertFalse(true, 'Error getting upper case value:'. $len->getMessage());
+            $this->fail('Error getting upper case value:'. $len->getMessage());
         } else {
             $this->assertEquals(3, $len, 'Error: incorrect length for "foo" string: '.$len);
         }
@@ -258,7 +258,6 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $string  = $this->db->quote('so what');
         $search  = $this->db->quote('o');
         $replace = $this->db->quote('ay');
-        $replace_clause = $this->db->function->replace($string, $search, $replace);
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
         $replace_clause = $this->db->function->replace($string, $search, $replace);
@@ -272,7 +271,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$replace_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'text');
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting replaced value:'. $result->getMessage());
+            $this->fail('Error getting replaced value:'. $result->getMessage() . ' :: ' . $result->getUserInfo());
         } else {
             $this->assertEquals('say what', $result, 'Error: could not get replace string: '.$result);
         }
@@ -304,7 +303,7 @@ class MDB2_Function_TestCase extends MDB2_TestCase
         $query = 'SELECT '.$unixts_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'text');
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error getting UNIX timestamp:'. $result->getMessage() . ' :: ' . $result->getUserInfo());
+            $this->fail('Error getting UNIX timestamp:'. $result->getMessage() . ' :: ' . $result->getUserInfo());
         } else {
             $this->assertEquals($expected, $result, 'Error: could not get correct UNIX timestamp: '.$result);
         }

@@ -67,7 +67,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $result = $stmt->execute(array_values($data));
 
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing prepared query '.$result->getMessage());
+            $this->fail('Error executing prepared query '.$result->getMessage());
         }
 
         $stmt->free();
@@ -76,7 +76,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $result =& $this->db->query($query);
 
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+            $this->fail('Error selecting from users: '.$result->getMessage());
         }
 
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
@@ -86,7 +86,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
 
         $result =& $this->db->query('SELECT user_name, user_id, quota FROM users ORDER BY user_name');
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error selecting from users: '.$result->getMessage());
+            $this->fail('Error selecting from users: '.$result->getMessage());
         }
         $this->db->setFetchMode(MDB2_FETCHMODE_ORDERED);
 
@@ -128,7 +128,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $result =& $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
         if (PEAR::isError($col)) {
-            $this->assertTrue(false, 'Error when fetching column first first row as NULL: '.$col->getMessage());
+            $this->fail('Error when fetching column first first row as NULL: '.$col->getMessage());
         }
 
         $data['user_name'] = "user_1";
@@ -139,7 +139,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $result =& $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
         if (PEAR::isError($col)) {
-            $this->assertTrue(false, 'Error when fetching column: '.$col->getMessage());
+            $this->fail('Error when fetching column: '.$col->getMessage());
         }
 
         $data['user_name'] = null;
@@ -198,7 +198,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
             $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+                $this->fail('Error executing prepared query: '.$result->getMessage());
             }
         }
         $stmt->free();
@@ -210,7 +210,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
             if (PEAR::isError($row)) {
-                $this->assertTrue(false, 'Error fetching a row: '.$row->getMessage());
+                $this->fail('Error fetching a row: '.$row->getMessage());
             }
         }
         $result->free();
@@ -219,7 +219,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
             if (PEAR::isError($row)) {
-                $this->assertTrue(false, 'Error fetching a row: '.$row->getMessage());
+                $this->fail('Error fetching a row: '.$row->getMessage());
             }
         }
         $result->free();
@@ -240,7 +240,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
 
             $result = $stmt->execute(array_values($data[$row]));
             if (PEAR::isError($result)) {
-                $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
+                $this->fail('Error executing prepared query: '.$result->getMessage());
             }
         }
         $stmt->free();
@@ -278,7 +278,7 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
         $query = 'SELECT weight, user_name, user_id, quota, subscribed FROM users WHERE user_id = '.$row;
         $result =& $this->db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error executing query: '.$result->getMessage() .' - '. $result->getUserInfo());
+            $this->fail('Error executing query: '.$result->getMessage() .' - '. $result->getUserInfo());
         } else {
             $this->assertTrue(is_bool($result['subscribed']));
             $this->assertTrue(is_numeric($result['user_id']));

@@ -59,7 +59,7 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
             'port'     => '110',
             'socket'   => false,
             'database' => '/usr/db_file.db',
-            'mode'     => false,
+            'mode'     => '0644',
         );
         $original = 'phptype://username:password@protocol+hostspec:110//usr/db_file.db?mode=0644';
         $this->assertEquals($expected, MDB2::parseDSN($original));
@@ -125,10 +125,10 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
             'username' => 'scott',
             'password' => 'tiger',
             'protocol' => 'tcp',
-            'hostspec' => '//localhost/XE',
+            'hostspec' => '//localhost',
             'port'     => false,
             'socket'   => false,
-            'database' => false,
+            'database' => 'XE',
             'mode'     => false,
         );
         $this->assertEquals($expected, MDB2::parseDSN($original));
@@ -165,7 +165,7 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
             'port'     => false,
             'socket'   => false,
             'database' => '/full/unix/path/to/file.db',
-            'mode'     => false,
+            'mode'     => '0666',
         );
         $this->assertEquals($expected, MDB2::parseDSN($original));
     }
@@ -174,7 +174,7 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
     function testConnect() {
         $db =& MDB2::factory($this->dsn, $this->options);
         if (PEAR::isError($db)) {
-            $this->assertTrue(false, 'Connect failed bailing out - ' .$db->getMessage() . ' - ' .$db->getUserInfo());
+            $this->fail('Connect failed bailing out - ' .$db->getMessage() . ' - ' .$db->getUserInfo());
         }
         if (PEAR::isError($this->db)) {
             exit;
@@ -253,7 +253,7 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
         $result->free();
 
         if (PEAR::isError($err)) {
-            $this->assertTrue(false, 'Error testFetch: '.$err->getMessage().' - '.$err->getUserInfo());
+            $this->fail('Error testFetch: '.$err->getMessage().' - '.$err->getUserInfo());
         }
     }
 
@@ -290,13 +290,13 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
     function testGetServerVersion() {
         $server_info = $this->db->getServerVersion(true);
         if (PEAR::isError($server_info)) {
-            $this->assertTrue(false, 'Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
+            $this->fail('Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
         } else {
             $this->assertTrue(is_string($server_info), 'Error: Server info is not returned as a string: '. serialize($server_info));
         }
         $server_info = $this->db->getServerVersion();
         if (PEAR::isError($server_info)) {
-            $this->assertTrue(false, 'Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
+            $this->fail('Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
         } else {
             $this->assertTrue(is_array($server_info), 'Error: Server info is not returned as an array: '. serialize($server_info));
         }

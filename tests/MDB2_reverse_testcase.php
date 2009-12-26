@@ -225,8 +225,9 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         foreach ($this->constraints as $constraint_name => $constraint) {
             //$this->db->manager->dropConstraint($this->table, $constraint_name);
             $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
-            $this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
+            //$this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
             if (PEAR::isError($result)) {
+                $this->fail('Error creating constraint "'.$constraint_name.'": '.$result->getMessage(). ' :: '.$result->getUserInfo());
                 $failed1 = true;
                 break;
             }
@@ -298,8 +299,9 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         foreach ($this->constraints2 as $constraint_name => $constraint) {
             //$this->db->manager->dropConstraint($this->table, $constraint_name);
             $result = $this->db->manager->createConstraint($this->table2, $constraint_name, $constraint);
-            $this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
+            //$this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
             if (PEAR::isError($result)) {
+                $this->fail('Error creating constraint "'.$constraint_name.'": '.$result->getMessage(). ' :: '.$result->getUserInfo());
                 $failed2 = true;
                 break;
             }
@@ -319,13 +321,13 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
 
         $table_info = $this->db->reverse->tableInfo($this->table);
         if (PEAR::isError($table_info)) {
-            $this->assertTrue(false, 'Error in tableInfo(): '.$table_info->getMessage().' :: '.$table_info->getUserInfo());
+            $this->fail('Error in tableInfo(): '.$table_info->getMessage().' :: '.$table_info->getUserInfo());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
                 $this->assertEquals($this->table, $field_info['table'], 'the table name is not correct');
                 if (!array_key_exists(strtolower($field_info['name']), $this->fields)) {
-                    $this->assertTrue(false, 'Field names do not match ('.$field_info['name'].' is unknown)');
+                    $this->fail('Field names do not match ('.$field_info['name'].' is unknown)');
                 }
                 //expand test, for instance adding a check on types...
             }
@@ -338,7 +340,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $result = $this->db->query('SELECT * FROM '.$this->table);
         $table_info = $this->db->reverse->tableInfo($result);
         if (PEAR::isError($table_info)) {
-            $this->assertTrue(false, 'Error in tableInfo(): '.$table_info->getMessage().' :: '.$table_info->getUserInfo());
+            $this->fail('Error in tableInfo(): '.$table_info->getMessage().' :: '.$table_info->getUserInfo());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
@@ -348,7 +350,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                     $this->assertEquals($this->table, $field_info['table'], 'the table name is not correct');
                 }
                 if (!array_key_exists(strtolower($field_info['name']), $this->fields)) {
-                    $this->assertTrue(false, 'Field names do not match ('.$field_info['name'].' is unknown)');
+                    $this->fail('Field names do not match ('.$field_info['name'].' is unknown)');
                 }
                 //expand test, for instance adding a check on types...
             }
@@ -368,7 +370,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         //test integer not null
         $field_info = $this->db->reverse->getTableFieldDefinition($this->table, 'id');
         if (PEAR::isError($field_info)) {
-            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('integer', $field_info['type'], 'The field type is different from the expected one');
@@ -381,7 +383,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         //test blob
         $field_info = $this->db->reverse->getTableFieldDefinition('files', 'picture');
         if (PEAR::isError($field_info)) {
-            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage().' :: '.$field_info->getUserInfo());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage().' :: '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals($field_info['type'], 'blob', 'The field type is different from the expected one');
@@ -391,7 +393,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         //test varchar(100) not null
         $field_info = $this->db->reverse->getTableFieldDefinition('users', 'user_name');
         if (PEAR::isError($field_info)) {
-            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('text', $field_info['type'], 'The field type is different from the expected one');
@@ -404,7 +406,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         //test decimal
         $field_info = $this->db->reverse->getTableFieldDefinition('users', 'quota');
         if (PEAR::isError($field_info)) {
-            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('decimal', $field_info['type'], 'The field type is different from the expected one');
@@ -414,7 +416,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
 
         $field_info = $this->db->reverse->getTableFieldDefinition('users', 'user_name');
         if (PEAR::isError($field_info)) {
-            $this->assertTrue(false, 'Error in getTableFieldDefinition(): '.$field_info->getMessage());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('text', $field_info['type'], 'The field type is different from the expected one');
@@ -440,7 +442,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         foreach ($this->indices as $index_name => $index) {
             $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
             if (PEAR::isError($index_info)) {
-                $this->assertFalse(true, 'Error getting table index definition');
+                $this->fail('Error getting table index definition');
             } else {
                 $field_names = array_keys($index['fields']);
                 $this->assertEquals($field_names, array_keys($index_info['fields']), 'Error listing index fields');
@@ -451,7 +453,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $index_name = 'sometestindex';
         $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
         if (PEAR::isError($index_info)) {
-            $this->assertTrue(false, 'Error in getTableIndexDefinition(): '.$index_info->getMessage());
+            $this->fail('Error in getTableIndexDefinition(): '.$index_info->getMessage());
         } else {
             $this->assertEquals(1, count($index_info['fields']), 'The INDEX is not on one field unlike it was expected');
             $expected_fields = array_keys($this->indices[$index_name]['fields']);
@@ -464,7 +466,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $index_name = 'multipletestindex';
         $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
         if (PEAR::isError($index_info)) {
-            $this->assertTrue(false, 'Error in getTableIndexDefinition(): '.$index_info->getMessage());
+            $this->fail('Error in getTableIndexDefinition(): '.$index_info->getMessage());
         } else {
             $this->assertEquals(2, count($index_info['fields']), 'The INDEX is not on two fields unlike it was expected');
             $expected_fields = array_keys($this->indices[$index_name]['fields']);
@@ -512,7 +514,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
                 $result = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
             }
             if (PEAR::isError($result)) {
-                $this->assertFalse(true, 'Error getting table constraint definition ('.$constraint_name.')');
+                $this->fail('Error getting table constraint definition ('.$constraint_name.')');
             } else {
                 $constraint_names = array_keys($constraint['fields']);
                 $this->assertEquals($constraint_names, array_keys($result['fields']), 'Error listing constraint fields');
@@ -537,7 +539,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
             $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, 'primary');
         }
         if (PEAR::isError($constraint_info)) {
-            $this->assertTrue(false, 'Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
+            $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
         } else {
             $this->assertTrue($constraint_info['primary'], 'The field is not a PK unlike it was expected');
         }
@@ -546,7 +548,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $constraint_name = 'singleunique';
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
         if (PEAR::isError($constraint_info)) {
-            $this->assertTrue(false, 'Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
+            $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
         } else {
             $this->assertTrue($constraint_info['unique'], 'The field is not a PK unlike it was expected');
             $this->assertTrue(empty($constraint_info['primary']), 'The field is a PK unlike it was expected');
@@ -561,7 +563,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         $constraint_name = 'multipleunique';
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
         if (PEAR::isError($constraint_info)) {
-            $this->assertTrue(false, 'Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
+            $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
         } else {
             $this->assertTrue($constraint_info['unique'], 'The field is not a PK unlike it was expected');
             $this->assertTrue(empty($constraint_info['primary']), 'The field is a PK unlike it was expected');
@@ -577,7 +579,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         foreach (array_keys($this->constraints2) as $constraint_name) {
             $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table2, $constraint_name);
             if (PEAR::isError($constraint_info)) {
-                $this->assertTrue(false, 'Error in getTableConstraintDefinition():'. $constraint_info->getMessage());
+                $this->fail('Error in getTableConstraintDefinition():'. $constraint_info->getMessage());
             } else {
                 $this->_compareFKdefinitions($this->constraints2[$constraint_name], $constraint_info);
             }
@@ -642,20 +644,20 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         include_once 'MDB2_nonstandard.php';
         $nonstd =& MDB2_nonstandard::factory($this->db, $this);
         if (PEAR::isError($nonstd)) {
-            $this->assertTrue(false, 'Cannot create trigger: '.$nonstd->getMessage());
+            $this->fail('Cannot create trigger: '.$nonstd->getMessage());
             return;
         }
 
         $result = $nonstd->createTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Cannot create trigger: '.$result->getMessage());
+            $this->fail('Cannot create trigger: '.$result->getMessage());
             return;
         }
 
         //test
         $def = $this->db->reverse->getTriggerDefinition($trigger_name);
         if (PEAR::isError($def)) {
-            $this->assertTrue(false, 'getTriggerDefinition: '.$def->getMessage());
+            $this->fail('getTriggerDefinition: '.$def->getMessage());
         } else {
             $nonstd->checkTrigger($trigger_name, $this->table, $def);
         }
@@ -663,7 +665,7 @@ class MDB2_Reverse_TestCase extends MDB2_TestCase
         //cleanup
         $result = $nonstd->dropTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error dropping the trigger: '.$result->getMessage());
+            $this->fail('Error dropping the trigger: '.$result->getMessage());
             return;
         }
     }

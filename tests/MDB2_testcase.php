@@ -65,19 +65,23 @@ class MDB2_TestCase extends PHPUnit_TestCase {
         $this->dsn = $GLOBALS['dsn'];
         $this->options  = $GLOBALS['options'];
         $this->database = $GLOBALS['database'];
+        if ($this->dsn['phptype'] == 'oci8') {
+            //$this->database = 'XE';
+            $this->database = 'hr';
+        }
         $this->db =& MDB2::factory($this->dsn, $this->options);
         $this->db->setDatabase($this->database);
         $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
         $this->fields = array(
-            'user_name' => 'text',
+            'user_name'     => 'text',
             'user_password' => 'text',
-            'subscribed' => 'boolean',
-            'user_id' => 'integer',
-            'quota' => 'decimal',
-            'weight' => 'float',
-            'access_date' => 'date',
-            'access_time' => 'time',
-            'approved' => 'timestamp',
+            'subscribed'    => 'boolean',
+            'user_id'       => 'integer',
+            'quota'         => 'decimal',
+            'weight'        => 'float',
+            'access_date'   => 'date',
+            'access_time'   => 'time',
+            'approved'      => 'timestamp',
         );
         $this->clearTables();
     }
@@ -116,7 +120,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
         //$row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
         $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC, $rownum);
         if (!is_array($row)) {
-            $this->assertTrue(false, 'Error result row is not an array');
+            $this->fail('Error result row is not an array');
             return;
         }
         //reset($row);
@@ -154,13 +158,17 @@ class MDB2_TestCase extends PHPUnit_TestCase {
         ) {
             return true;
         }
-        $this->assertTrue(false, 'method '. $name.' not implemented in '.get_class($class));
+        $this->fail('method '. $name.' not implemented in '.get_class($class));
         return false;
     }
 
     function tableExists($table) {
         $this->db->loadModule('Manager', null, true);
         $tables = $this->db->manager->listTables();
+        if (PEAR::isError($tables)) {
+            $this->fail('Cannot list tables: '. $tables->getUserInfo());
+            return false;
+        }
         return in_array(strtolower($table), array_map('strtolower', $tables));
     }
 }

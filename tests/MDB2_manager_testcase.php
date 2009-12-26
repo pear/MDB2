@@ -143,7 +143,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $query.= ' VALUES (:somename, :somedescription)';
         $stmt =& $this->db->prepare($query, array('text', 'text'), MDB2_PREPARE_MANIP);
         if (PEAR::isError($stmt)) {
-            $this->assertFalse(true, 'Preparing insert');
+            $this->fail('Preparing insert');
             return;
         }
         $values = array(
@@ -154,7 +154,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         for ($i =0; $i < $rows; ++$i) {
             $result = $stmt->execute($values);
             if (PEAR::isError($result)) {
-                $this->assertFalse(true, 'Error executing autoincrementing insert number: '.$i);
+                $this->fail('Error executing autoincrementing insert number: '.$i);
                 return;
             }
         }
@@ -162,16 +162,16 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $query = 'SELECT id FROM '.$this->table;
         $data = $this->db->queryCol($query, 'integer');
         if (PEAR::isError($data)) {
-            $this->assertFalse(true, 'Error executing select: ' . $data->getMessage());
+            $this->fail('Error executing select: ' . $data->getMessage());
             return;
         }
-        for ($i =0; $i < $rows; ++$i) {
+        for ($i=0; $i<$rows; ++$i) {
             if (!isset($data[$i])) {
-                $this->assertFalse(true, 'Error in data returned by select');
+                $this->fail('Error in data returned by select');
                 return;
             }
             if ($data[$i] !== ($i+1)) {
-                $this->assertFalse(true, 'Error executing autoincrementing insert');
+                $this->fail('Error executing autoincrementing insert');
                 return;
             }
         }
@@ -227,7 +227,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $name = 'simpleindex';
         $result = $this->db->manager->createIndex($this->table, $name, $index);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error creating index');
+            $this->fail('Error creating index');
         } else {
             $result = $this->db->manager->dropIndex($this->table, $name);
             $this->assertFalse(PEAR::isError($result), 'Error dropping index');
@@ -254,7 +254,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $name = 'simpleindex';
         $result = $this->db->manager->createIndex($this->table, $name, $index);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error creating index');
+            $this->fail('Error creating index');
         } else {
             $indices = $this->db->manager->listTableIndexes($this->table);
             $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
@@ -339,7 +339,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $this->assertTrue(!PEAR::isError($constraints), 'Error listing table constraints');
         $constraint_name_idx = $this->db->getIndexName($constraint_name);
         $this->assertTrue(in_array($constraint_name_idx, $constraints) || in_array($constraint_name, $constraints), 'Error, FK constraint not found');
-
+        
         //now check that it is enforced...
 
         //insert a row in the primary table
@@ -421,7 +421,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $name = 'pkindex';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error creating primary index');
+            $this->fail('Error creating primary index');
         } else {
             $result = $this->db->manager->dropConstraint($this->table, $name, true);
             $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
@@ -437,7 +437,10 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         }
         $result = $this->db->manager->listDatabases();
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error listing databases ('.$result->getMessage().')');
+            if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
+                $this->markTestSkipped('listDatabases() not supported');
+            }
+            $this->fail('Error listing databases ('.$result->getMessage().')');
         } else {
             $this->assertTrue(in_array(strtolower($this->database), $result), 'Error listing databases');
         }
@@ -461,7 +464,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $name = 'uniqueindex';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error creating unique constraint');
+            $this->fail('Error creating unique constraint');
         } else {
             $constraints = $this->db->manager->listTableConstraints($this->table);
             $this->assertFalse(PEAR::isError($constraints), 'Error listing constraints');
@@ -538,11 +541,11 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $result = $this->db->manager->alterTable($this->table, $changes, true);
         $this->db->popExpect();
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Cannot alter table');
+            $this->fail('Cannot alter table: '.$result->getMessage().' :: '.$result->getUserInfo());
         } else {
             $result = $this->db->manager->alterTable($this->table, $changes, false);
             if (PEAR::isError($result)) {
-                $this->assertFalse(true, 'Error altering table');
+                $this->fail('Error altering table');
             } else {
                 $this->db->manager->dropTable($newer);
             }
@@ -598,12 +601,12 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             $result = $this->db->manager->alterTable($this->table, $changes, true);
             $this->db->popExpect();
             if (PEAR::isError($result)) {
-                $this->assertFalse(true, 'Cannot alter table: '.$type);
+                $this->fail('Cannot alter table: '.$type);
                 return;
             }
             $result = $this->db->manager->alterTable($this->table, $changes, false);
             if (PEAR::isError($result)) {
-                $this->assertFalse(true, 'Error altering table: '.$type);
+                $this->fail('Error altering table: '.$type);
             } else {
                 switch ($type) {
                 case 'add':
@@ -631,7 +634,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
                     if ($this->tableExists($newer)) {
                         $this->db->manager->dropTable($newer);
                     } else {
-                        $this->assertFalse(true, 'Error: table "'.$this->table.'" not renamed');
+                        $this->fail('Error: table "'.$this->table.'" not renamed');
                     }
                     break;
                 }
@@ -652,7 +655,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         $query.= ' VALUES (:id, :somename, :somedescription)';
         $stmt =& $this->db->prepare($query, array('integer', 'text', 'text'), MDB2_PREPARE_MANIP);
         if (PEAR::isError($stmt)) {
-            $this->assertFalse(true, 'Error preparing INSERT');
+            $this->fail('Error preparing INSERT');
             return;
         }
         $rows = 5;
@@ -664,26 +667,26 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             );
             $result = $stmt->execute($values);
             if (PEAR::isError($result)) {
-                $this->assertFalse(true, 'Error executing insert number: '.$i);
+                $this->fail('Error executing insert number: '.$i);
                 return;
             }
         }
         $stmt->free();
         $count = $this->db->queryOne('SELECT COUNT(*) FROM '.$this->table, 'integer');
         if (PEAR::isError($count)) {
-            $this->assertFalse(true, 'Error executing SELECT');
+            $this->fail('Error executing SELECT');
             return;
         }
         $this->assertEquals($rows, $count, 'Error: invalid number of rows returned');
 
         $result = $this->db->manager->truncateTable($this->table);
         if (PEAR::isError($result)) {
-            $this->assertFalse(true, 'Error truncating table');
+            $this->fail('Error truncating table');
         }
 
         $count = $this->db->queryOne('SELECT COUNT(*) FROM '.$this->table, 'integer');
         if (PEAR::isError($count)) {
-            $this->assertFalse(true, 'Error executing SELECT');
+            $this->fail('Error executing SELECT');
             return;
         }
         $this->assertEquals(0, $count, 'Error: invalid number of rows returned');
@@ -737,20 +740,20 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         include_once 'MDB2_nonstandard.php';
         $nonstd =& MDB2_nonstandard::factory($this->db, $this);
         if (PEAR::isError($nonstd)) {
-            $this->assertTrue(false, 'Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
+            $this->fail('Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
             return;
         }
 
         $result = $nonstd->createTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Cannot create trigger: '.$result->getMessage());
+            $this->fail('Cannot create trigger: '.$result->getMessage());
             return;
         }
 
         //test
         $triggers = $this->db->manager->listTableTriggers($this->table);
         if (PEAR::isError($triggers)) {
-            $this->assertTrue(false, 'Error listing the table triggers: '.$triggers->getMessage());
+            $this->fail('Error listing the table triggers: '.$triggers->getMessage());
         } else {
             $this->assertTrue(in_array($trigger_name, $triggers), 'Error: trigger not found');
             //check that only the triggers referencing the given table are returned
@@ -762,7 +765,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         //cleanup
         $result = $nonstd->dropTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error dropping the trigger: '.$result->getMessage());
+            $this->fail('Error dropping the trigger: '.$result->getMessage());
         }
     }
 
@@ -776,20 +779,23 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         include_once 'MDB2_nonstandard.php';
         $nonstd =& MDB2_nonstandard::factory($this->db, $this);
         if (PEAR::isError($nonstd)) {
-            $this->assertTrue(false, 'Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
+            $this->fail('Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
             return;
         }
 
         $result = $nonstd->createView($view_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Cannot create view: '.$result->getMessage());
+            $this->fail('Cannot create view: '.$result->getMessage());
             return;
         }
 
         //test
         $views = $this->db->manager->listTableViews($this->table);
         if (PEAR::isError($views)) {
-            $this->assertTrue(false, 'Error listing the table views: '.$views->getMessage());
+            if ($views->getCode() == MDB2_ERROR_UNSUPPORTED) {
+                $this->markTestSkipped('listDatabases() not supported');
+            }
+            $this->fail('Error listing the table views: '.$views->getMessage());
         } else {
             $this->assertTrue(in_array($view_name, $views), 'Error: view not found');
             //check that only the views referencing the given table are returned
@@ -801,7 +807,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         //cleanup
         $result = $nonstd->dropView($view_name);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error dropping the view: '.$result->getMessage());
+            $this->fail('Error dropping the view: '.$result->getMessage());
         }
     }
 
@@ -815,20 +821,20 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         include_once 'MDB2_nonstandard.php';
         $nonstd =& MDB2_nonstandard::factory($this->db, $this);
         if (PEAR::isError($nonstd)) {
-            $this->assertTrue(false, 'Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
+            $this->fail('Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
             return;
         }
 
         $result = $nonstd->createView($view_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Cannot create view: '.$result->getMessage());
+            $this->fail('Cannot create view: '.$result->getMessage());
             return;
         }
 
         //test
         $views = $this->db->manager->listViews();
         if (PEAR::isError($views)) {
-            $this->assertTrue(false, 'Error listing the views: '.$views->getMessage());
+            $this->fail('Error listing the views: '.$views->getMessage());
         } else {
             $this->assertTrue(in_array($view_name, $views), 'Error: view not found');
         }
@@ -836,7 +842,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         //cleanup
         $result = $nonstd->dropView($view_name);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error dropping the view: '.$result->getMessage());
+            $this->fail('Error dropping the view: '.$result->getMessage());
         }
     }
 
@@ -846,7 +852,10 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
     function testListUsers() {
         $users = $this->db->manager->listUsers();
         if (PEAR::isError($users)) {
-            $this->assertTrue(false, 'Error listing the users: '.$users->getMessage());
+            if ($users->getCode() == MDB2_ERROR_UNSUPPORTED) {
+                $this->markTestSkipped('listUsers() not supported');
+            }
+            $this->fail('Error listing the users: '.$users->getMessage());
         } else {
             $users = array_map('strtolower', $users);
             $this->assertTrue(in_array(strtolower($this->db->dsn['username']), $users), 'Error: user not found');
@@ -863,20 +872,27 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         include_once 'MDB2_nonstandard.php';
         $nonstd =& MDB2_nonstandard::factory($this->db, $this);
         if (PEAR::isError($nonstd)) {
-            $this->assertTrue(false, 'Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
+            $this->fail('Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
             return;
         }
 
+        $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
+        $this->db->expectError('*');
         $result = $nonstd->createFunction($function_name);
+        $this->db->popExpect();
+        $this->db->popErrorHandling();
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Cannot create function: '.$result->getMessage().' :: '.$result->getUserInfo());
+            if ($result->getCode() == MDB2_ERROR_NOT_CAPABLE) {
+                $this->markTestSkipped('createFunction() not supported');
+            }
+            $this->fail('Cannot create function: '.$result->getMessage().' :: '.$result->getUserInfo());
             return;
         }
 
         //test
         $functions = $this->db->manager->listFunctions();
         if (PEAR::isError($functions)) {
-            $this->assertTrue(false, 'Error listing the functions: '.$functions->getMessage());
+            $this->fail('Error listing the functions: '.$functions->getMessage());
         } else {
             $this->assertTrue(in_array($function_name, $functions), 'Error: function not found');
         }
@@ -884,10 +900,56 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         //cleanup
         $result = $nonstd->dropFunction($function_name);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error dropping the function: '.$result->getMessage());
+            $this->fail('Error dropping the function: '.$result->getMessage());
         }
     }
-
+    
+    /**
+     * Test createDatabase(), alterDatabase(), dropDatabase()
+     */
+    function testCrudDatabase() {
+        $name = 'newdb';
+        $options = array(
+            'charset' => 'UTF8',
+            'collation' => 'utf8_bin',
+        );
+        $changes = array(
+            'name' => 'newdbname',
+            'charset' => 'UTF8',
+        );
+        if ('pgsql' == substr($this->db->phptype, 0, 5)) {
+            $options['charset'] = 'WIN1252';
+        }
+        if ('mssql' == substr($this->db->phptype, 0, 5)) {
+            $options['collation'] = 'WIN1252';
+            $options['collation'] = 'Latin1_General_BIN';
+        }
+        $result = $this->db->manager->createDatabase($name, $options);
+        if (PEAR::isError($result)) {
+            //echo '<pre>'; print_r($result); echo '</pre>';
+            $this->fail('Error: cannot create database: ' . $result->getUserInfo());
+            return;
+        }
+        $result = $this->db->manager->alterDatabase($name, $changes);
+        if (PEAR::isError($result)) {
+            echo '<pre>'; print_r($result); echo '</pre>';
+            $this->fail('Error: cannot alter database');
+            return;
+        }
+        $dbs = $this->db->manager->listDatabases();
+        //echo '<pre>'; print_r($dbs); echo '</pre>';
+        if (in_array($changes['name'], $dbs)) {
+            $result = $this->db->manager->dropDatabase($changes['name']);
+        } else {
+            $this->fail('Error: database not renamed');
+            $result = $this->db->manager->dropDatabase($name);
+        }
+        if (PEAR::isError($result)) {
+            $this->fail('Error dropping database: '.$result->getMessage());
+        }
+        //echo '<pre>'; print_r($result); echo '</pre>';
+    }
+    
     /**
      * Test vacuum
      */
@@ -895,7 +957,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         //vacuum table
         $result = $this->db->manager->vacuum($this->table);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error: cannot vacuum table: ' . $result->getMessage());
+            $this->fail('Error: cannot vacuum table: ' . $result->getMessage());
         }
 
         //vacuum and analyze table
@@ -906,13 +968,13 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
         );
         $result = $this->db->manager->vacuum($this->table, $options);
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error: cannot vacuum table: ' . $result->getMessage());
+            $this->fail('Error: cannot vacuum table: ' . $result->getMessage());
         }
 
         //vacuum all tables
         $result = $this->db->manager->vacuum();
         if (PEAR::isError($result)) {
-            $this->assertTrue(false, 'Error: cannot vacuum table: ' . $result->getMessage());
+            $this->fail('Error: cannot vacuum table: ' . $result->getMessage());
         }
     }
 }

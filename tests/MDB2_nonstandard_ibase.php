@@ -66,7 +66,7 @@ END';
     }
 
     function createFunction($name) {
-        $query = 'CREATE PROCEDURE '.$name.'(N1 DECIMAL(6,2), N2 DECIMAL(6,2))
+        $query = 'CREATE OR ALTER PROCEDURE '.$name.'(N1 DECIMAL(6,2), N2 DECIMAL(6,2))
 RETURNS (
   res DECIMAL(6,2)
 )
