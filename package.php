@@ -11,7 +11,9 @@ $notes = <<<EOT
 - fixed bug #16020: unable to set params via dsn string in parseDSN()
 - fixed bug #16508: reusing var name + return by ref [rix0r]
 - fixed unreported bug in parseDSN() and oracle's Easy Connect syntax
+- PHP 5.3 compatibility fixes
 - added new sqlsrv driver (native SQL Server driver) [chrisdpucci]
+
 
 open todo items:
 - handle autoincrement fields in alterTable()
