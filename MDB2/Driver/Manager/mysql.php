@@ -1100,13 +1100,19 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                     $null_values[] = $table_fields[$i] .' = NULL';
                 }
                 $conditions2 = array();
-                for ($i=0; $i<count($referenced_fields); $i++) {
-                    $conditions2[]  = 'NEW.'.$referenced_fields[$i] .' <> OLD.'.$referenced_fields[$i];
+                if ('NO ACTION' != $fkdef['ondelete']) {
+                    // There is no NEW row in on DELETE trigger
+                    for ($i=0; $i<count($referenced_fields); $i++) {
+                        $conditions2[]  = 'NEW.'.$referenced_fields[$i] .' <> OLD.'.$referenced_fields[$i];
+                    }
                 }
-                $restrict_action .= implode(' AND ', $conditions).') IS NOT NULL'
-                                .' AND (' .implode(' OR ', $conditions2) .')'
-                                .' THEN CALL %s_ON_TABLE_'.$table.'_VIOLATES_FOREIGN_KEY_CONSTRAINT();'
-                                .' END IF;';
+
+                $restrict_action .= implode(' AND ', $conditions).') IS NOT NULL';
+                if (!empty($conditions2)) {
+                    $restrict_action .= ' AND (' .implode(' OR ', $conditions2) .')';
+                }
+                $restrict_action .= ' THEN CALL %s_ON_TABLE_'.$table.'_VIOLATES_FOREIGN_KEY_CONSTRAINT();'
+                                   .' END IF;';
 
                 $cascade_action_update = 'UPDATE '.$table_quoted.' SET '.implode(', ', $new_values) .' WHERE '.implode(' AND ', $conditions). ';';
                 $cascade_action_delete = 'DELETE FROM '.$table_quoted.' WHERE '.implode(' AND ', $conditions). ';';
