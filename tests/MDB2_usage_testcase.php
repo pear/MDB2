@@ -62,7 +62,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $stmt->free();
 
         if (PEAR::isError($result)) {
-            $this->fail('Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: '.$result->getMessage(). ' :: '.$result->getUserInfo());
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';

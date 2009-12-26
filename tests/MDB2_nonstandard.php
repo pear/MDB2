@@ -57,7 +57,7 @@ class MDB2_nonstandard {
         $classname = 'MDB2_nonstandard_'.$db->phptype;
         include_once $classname.'.php';
         if (class_exists($classname)) {
-            $obj =& new $classname();
+            $obj = new $classname();
             $obj->db =& $db;
             $obj->test =& $test;
             return $obj;

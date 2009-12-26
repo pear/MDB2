@@ -562,7 +562,7 @@ class MDB2_Extended_TestCase extends MDB2_TestCase
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')');
         $result = $this->db->extended->executeMultiple($stmt, $data);
         if (PEAR::isError($result)) {
-            $this->fail('Error executing executeMultiple(): '.$result->getMessage());
+            $this->fail('Error executing executeMultiple(): '.$result->getMessage().' :: '.$result->getUserInfo());
         }
         $stmt->free();
         

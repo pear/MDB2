@@ -855,7 +855,7 @@ class MDB2_Manager_TestCase extends MDB2_TestCase {
             if ($users->getCode() == MDB2_ERROR_UNSUPPORTED) {
                 $this->markTestSkipped('listUsers() not supported');
             }
-            $this->fail('Error listing the users: '.$users->getMessage());
+            $this->fail('Error listing the users: '.$users->getMessage().' :: '.$users->getUserInfo());
         } else {
             $users = array_map('strtolower', $users);
             $this->assertTrue(in_array(strtolower($this->db->dsn['username']), $users), 'Error: user not found');
