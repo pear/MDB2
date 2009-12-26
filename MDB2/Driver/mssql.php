@@ -951,7 +951,8 @@ class MDB2_Result_mssql extends MDB2_Result_Common
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {
-                $row = &new $object_class($row);
+                $rowObj = new $object_class($row);
+                $row = $rowObj;
             }
         }
         ++$this->rownum;

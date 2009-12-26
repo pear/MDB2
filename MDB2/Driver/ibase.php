@@ -1116,7 +1116,8 @@ class MDB2_Result_ibase extends MDB2_Result_Common
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {
-                $row = &new $object_class($row);
+                $rowObj = new $object_class($row);
+                $row = $rowObj;
             }
         }
         ++$this->rownum;
@@ -1341,7 +1342,8 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             if ($object_class == 'stdClass') {
                 $row = (object) $row;
             } else {
-                $row = &new $object_class($row);
+                $rowObj = new $object_class($row);
+                $row = $rowObj;
             }
         }
         ++$this->rownum;
