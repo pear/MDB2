@@ -1518,13 +1518,16 @@ class MDB2_Result_mysqli extends MDB2_Result_Common
      */
     function free()
     {
-        if (is_object($this->result) && $this->db->connection) {
-            $free = @mysqli_free_result($this->result);
-            if ($free === false) {
-                return $this->db->raiseError(null, null, null,
-                    'Could not free result', __FUNCTION__);
+        do {
+            if (is_object($this->result) && $this->db->connection) {
+                $free = @mysqli_free_result($this->result);
+                if ($free === false) {
+                    return $this->db->raiseError(null, null, null,
+                        'Could not free result', __FUNCTION__);
+                }
             }
-        }
+        } while ($this->result = $this->nextResult());
+
         $this->result = false;
         return MDB2_OK;
     }
