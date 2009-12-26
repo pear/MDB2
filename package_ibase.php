@@ -9,6 +9,7 @@ $notes = <<<EOT
 - fixed regression in lastInserID()
 - fixed bug #15971: typo in standaloneQuery() [elpaso]
 - fixed bug #16350: typo in setTransactionIsolation() [nilya]
+- fixed bug #16741: Manager::listTableIndexes and listTableContraints should check NULL or 0 [nilya]
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

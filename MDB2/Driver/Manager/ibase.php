@@ -541,7 +541,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 break;
             default:
                 return $db->raiseError(MDB2_ERROR_CANNOT_ALTER, null, null,
-                    'change type ' . $change_name . ' not yet supported', __FUNCTION__);
+                    'change type "' . $change_name . '" not yet supported', __FUNCTION__);
             }
         }
         if ($check) {
@@ -895,8 +895,8 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $query = "SELECT RDB\$INDEX_NAME
                     FROM RDB\$INDICES
                    WHERE UPPER(RDB\$RELATION_NAME)=$table
-                     AND (RDB\$SYSTEM_FLAG=0 OR RDB\$SYSTEM_FLAG IS NULL)
-                     AND RDB\$UNIQUE_FLAG IS NULL
+                     AND (RDB\$SYSTEM_FLAG IS NULL OR RDB\$SYSTEM_FLAG = 0)
+                     AND (RDB\$UNIQUE_FLAG IS NULL OR RDB\$UNIQUE_FLAG = 0)
                      AND RDB\$FOREIGN_KEY IS NULL";
         $indexes = $db->queryCol($query, 'text');
         if (PEAR::isError($indexes)) {
@@ -1008,7 +1008,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                     FROM RDB\$INDICES
                    WHERE UPPER(RDB\$RELATION_NAME)=$table
                      AND (
-                           RDB\$UNIQUE_FLAG IS NOT NULL
+                           (RDB\$UNIQUE_FLAG IS NOT NULL AND RDB\$UNIQUE_FLAG <> 0)
                         OR RDB\$FOREIGN_KEY IS NOT NULL
                      )";
         $constraints = $db->queryCol($query);
