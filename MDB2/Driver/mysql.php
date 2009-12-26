@@ -1571,6 +1571,8 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
         }
         return $rows;
     }
+    
+    // }}}
 }
 
 /**
