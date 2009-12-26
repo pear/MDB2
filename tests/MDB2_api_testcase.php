@@ -231,7 +231,9 @@ class MDB2_Api_TestCase extends MDB2_TestCase {
             return;
         }
         $result = $this->db->exec('UPDATE users SET user_name = user_name WHERE user_id = user_id');
-        $this->assertFalse(PEAR::isError($result), 'exec: $result returned is an error');
+        if (PEAR::isError($result)) {
+            $this->fail('exec: $result returned is an error: '.$result->getMessage().' :: '.$result->getUserInfo());
+        }
         $this->assertEquals(0, $result, 'exec: incorrect number of affected rows returned');
     }
 

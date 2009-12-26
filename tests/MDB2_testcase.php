@@ -57,10 +57,6 @@ class MDB2_TestCase extends PHPUnit_TestCase {
     // if the tables should be cleared in the setUp() and tearDown() methods
     var $clear_tables = true;
 
-    function MDB2_TestCase($name) {
-        $this->PHPUnit_TestCase($name);
-    }
-
     function setUp() {
         $this->dsn = $GLOBALS['dsn'];
         $this->options  = $GLOBALS['options'];
