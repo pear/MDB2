@@ -610,7 +610,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                    WHERE trg.tgrelid = tbl.oid';
         if (!is_null($table)) {
             $table = $db->quote(strtoupper($table), 'text');
-            $query .= " AND tbl.relname = $table";
+            $query .= " AND UPPER(tbl.relname) = $table";
         }
         $result = $db->queryCol($query);
         if (PEAR::isError($result)) {
