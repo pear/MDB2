@@ -1152,6 +1152,9 @@ END;
                 $sql_update .= ' END;';
                 $result = $db->exec($sql_update);
                 if (PEAR::isError($result)) {
+                    if ($result->getCode() === MDB2_ERROR_ALREADY_EXISTS) {
+                        return MDB2_OK;
+                    }
                     return $result;
                 }
             }
