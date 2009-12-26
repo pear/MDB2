@@ -633,7 +633,7 @@ class MDB2
     function isError($data, $code = null)
     {
         if (is_a($data, 'MDB2_Error')) {
-            if (is_null($code)) {
+            if (null === $code) {
                 return true;
             } elseif (is_string($code)) {
                 return $data->getMessage() === $code;
@@ -777,7 +777,7 @@ class MDB2
             );
         }
 
-        if (is_null($value)) {
+        if (null === $value) {
             return $errorMessages;
         }
 
@@ -1009,7 +1009,7 @@ class MDB2_Error extends PEAR_Error
     function MDB2_Error($code = MDB2_ERROR, $mode = PEAR_ERROR_RETURN,
               $level = E_USER_NOTICE, $debuginfo = null, $dummy = null)
     {
-        if (is_null($code)) {
+        if (null === $code) {
             $code = MDB2_ERROR;
         }
         $this->PEAR_Error('MDB2 Error: '.MDB2::errorMessage($code), $code,
@@ -1473,11 +1473,11 @@ class MDB2_Driver_Common extends PEAR
         if (PEAR::isError($code)) {
             // because we use the static PEAR::raiseError, our global
             // handler should be used if it is set
-            if (is_null($mode) && !empty($this->_default_error_mode)) {
+            if ((null === $mode) && !empty($this->_default_error_mode)) {
                 $mode    = $this->_default_error_mode;
                 $options = $this->_default_error_options;
             }
-            if (is_null($userinfo)) {
+            if (null === $userinfo) {
                 $userinfo = $code->getUserinfo();
             }
             $code = $code->getCode();
@@ -1490,13 +1490,13 @@ class MDB2_Driver_Common extends PEAR
             }
             $native_errno = $native_msg = null;
             list($code, $native_errno, $native_msg) = $this->errorInfo($code);
-            if (!is_null($native_errno) && $native_errno !== '') {
+            if ((null !== $native_errno) && $native_errno !== '') {
                 $userinfo.= "[Native code: $native_errno]\n";
             }
-            if (!is_null($native_msg) && $native_msg !== '') {
+            if ((null !== $native_msg) && $native_msg !== '') {
                 $userinfo.= "[Native message: ". strip_tags($native_msg) ."]\n";
             }
-            if (!is_null($method)) {
+            if (null !== $method) {
                 $userinfo = $method.': '.$userinfo;
             }
         }
@@ -1994,7 +1994,7 @@ class MDB2_Driver_Common extends PEAR
                 }
             }
         }
-        if (!is_null($module)) {
+        if (null !== $module) {
             return call_user_func_array(array(&$this->modules[$module], $method), $params);
         }
         trigger_error(sprintf('Call to undefined function: %s::%s().', get_class($this), $method), E_USER_ERROR);
@@ -2204,7 +2204,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function failNestedTransaction($error = null, $immediately = false)
     {
-        if (is_null($error)) {
+        if (null !== $error) {
             $error = $this->has_transaction_error ? $this->has_transaction_error : true;
         } elseif (!$error) {
             $error = true;
@@ -2722,7 +2722,7 @@ class MDB2_Driver_Common extends PEAR
                 'it was not specified a valid selected range row limit', __FUNCTION__);
         }
         $this->limit = $limit;
-        if (!is_null($offset)) {
+        if (null !== $offset) {
             $offset = (int)$offset;
             if ($offset < 0) {
                 return $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
@@ -2967,7 +2967,7 @@ class MDB2_Driver_Common extends PEAR
             } else {
                 break;
             }
-            if (is_null($placeholder_type)) {
+            if (null === $placeholder_type) {
                 $placeholder_type_guess = $query[$p_position];
             }
 
@@ -2981,7 +2981,7 @@ class MDB2_Driver_Common extends PEAR
             }
 
             if ($query[$position] == $placeholder_type_guess) {
-                if (is_null($placeholder_type)) {
+                if (null === $placeholder_type) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
                     if (!empty($types) && is_array($types)) {
@@ -3645,7 +3645,7 @@ class MDB2_Result_Common extends MDB2_Result
         }
 
         $shift_array = $rekey ? false : null;
-        if (!is_null($shift_array)) {
+        if (null !== $shift_array) {
             if (is_object($row)) {
                 $colnum = count(get_object_vars($row));
             } else {
@@ -3851,7 +3851,7 @@ class MDB2_Result_Common extends MDB2_Result
             $column = $column_names[$column];
         }
         $this->values[$column] =& $value;
-        if (!is_null($type)) {
+        if (null !== $type) {
             $this->types[$column] = $type;
         }
         return MDB2_OK;
@@ -4021,7 +4021,7 @@ class MDB2_Statement_Common
                 'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);
         }
         $this->values[$parameter] = $value;
-        if (!is_null($type)) {
+        if (null !== $type) {
             $this->types[$parameter] = $type;
         }
         return MDB2_OK;
@@ -4090,7 +4090,7 @@ class MDB2_Statement_Common
                 'Unable to bind to missing placeholder: '.$parameter, __FUNCTION__);
         }
         $this->values[$parameter] =& $value;
-        if (!is_null($type)) {
+        if (null !== $type) {
             $this->types[$parameter] = $type;
         }
         return MDB2_OK;
@@ -4143,7 +4143,7 @@ class MDB2_Statement_Common
      */
     function &execute($values = null, $result_class = true, $result_wrap_class = false)
     {
-        if (is_null($this->positions)) {
+        if (null === $this->positions) {
             return $this->db->raiseError(MDB2_ERROR, null, null,
                 'Prepared statement has already been freed', __FUNCTION__);
         }
@@ -4221,7 +4221,7 @@ class MDB2_Statement_Common
      */
     function free()
     {
-        if (is_null($this->positions)) {
+        if (null === $this->positions) {
             return $this->db->raiseError(MDB2_ERROR, null, null,
                 'Prepared statement has already been freed', __FUNCTION__);
         }
