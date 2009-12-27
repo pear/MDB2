@@ -1415,6 +1415,8 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->markTestSkipped('LOBs not supported');
         }
 
+        $this->db->setOption('lob_allow_url_include', true);
+
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
         $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), MDB2_PREPARE_MANIP);
 
@@ -1511,6 +1513,69 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         }
 
         $result->free();
+    }
+
+    /**
+     * Test for lob storage from and to files
+     */
+    function testQuoteLOBFilesNoUrlInclude() {
+        if (!$this->supported('LOBs')) {
+            $this->markTestSkipped('LOBs not supported');
+        }
+
+        $this->db->setOption('lob_allow_url_include', false);
+
+        $character_data_file = 'character_data';
+        $character_data_file_tmp = 'file://'.$character_data_file;
+        $file = fopen($character_data_file, 'w');
+        $this->assertTrue(((bool)$file), 'Error creating clob file to read from');
+        $character_data = '';
+        for ($code = 65; $code <= 80; $code++) {
+            $character_data.= chr($code);
+        }
+        $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
+        fclose($file);
+        chmod($character_data_file, 0777);
+
+        $expected = ($this->dsn['phptype'] == 'oci8') ? 'EMPTY_CLOB()' : "'".$character_data_file_tmp."'";
+        $quoted = $this->db->quote($character_data_file_tmp,  'clob');
+        $this->assertEquals($expected, $quoted);
+
+        $expected = ($this->dsn['phptype'] == 'oci8') ? 'EMPTY_BLOB()' : "'".$character_data_file_tmp."'";
+        $quoted = $this->db->quote($character_data_file_tmp,  'blob');
+        $this->assertEquals($expected, $quoted);
+    }
+
+    /**
+     * Test for lob storage from and to files
+     */
+    function testQuoteLOBFilesUrlInclude() {
+        if (!$this->supported('LOBs')) {
+            $this->markTestSkipped('LOBs not supported');
+        }
+
+        $this->db->setOption('lob_allow_url_include', true);
+
+        $character_data_file = 'character_data';
+        $character_data_file_tmp = 'file://'.$character_data_file;
+        $file = fopen($character_data_file, 'w');
+        $this->assertTrue(((bool)$file), 'Error creating clob file to read from');
+        $character_data = '';
+        for ($code = 65; $code <= 80; $code++) {
+            $character_data.= chr($code);
+        }
+        $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
+        fclose($file);
+        chmod($character_data_file, 0777);
+
+
+        $expected = ($this->dsn['phptype'] == 'oci8') ? 'EMPTY_CLOB()' : "'".$character_data."'";
+        $quoted = $this->db->quote($character_data_file_tmp,  'clob');
+        $this->assertEquals($expected, $quoted);
+
+        $expected = ($this->dsn['phptype'] == 'oci8') ? 'EMPTY_BLOB()' : "'".$character_data."'";
+        $quoted = $this->db->quote($character_data_file_tmp,  'blob');
+        $this->assertEquals($expected, $quoted);
     }
 
     /**
