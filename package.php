@@ -10,6 +10,7 @@ $notes = <<<EOT
 - fixed bug #15912: MDB2::loadClass can return MDB2_OK without loading class
 - fixed bug #16020: unable to set params via dsn string in parseDSN()
 - fixed bug #16508: reusing var name + return by ref [rix0r]
+- fixed bug #16727: quote(url, 'clob')) fetches URL even if lob_allow_url_include option is false
 - fixed unreported bug in parseDSN() and oracle's Easy Connect syntax
 - PHP 5.3 compatibility fixes
 - added new sqlsrv driver (native SQL Server driver) [chrisdpucci]

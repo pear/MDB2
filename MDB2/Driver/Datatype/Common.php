@@ -1288,9 +1288,15 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      */
     function _quoteLOB($value, $quote, $escape_wildcards)
     {
-        $value = $this->_readFile($value);
-        if (PEAR::isError($value)) {
-            return $value;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        if ($db->options['lob_allow_url_include']) {
+            $value = $this->_readFile($value);
+            if (PEAR::isError($value)) {
+                return $value;
+            }
         }
         return $this->_quoteText($value, $quote, $escape_wildcards);
     }

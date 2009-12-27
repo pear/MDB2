@@ -239,6 +239,16 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
      */
     function _quoteCLOB($value, $quote, $escape_wildcards)
     {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        if ($db->options['lob_allow_url_include']) {
+            $value = $this->_readFile($value);
+            if (PEAR::isError($value)) {
+                return $value;
+            }
+        }
         return $this->_quoteText($value, $quote, $escape_wildcards);
     }
 
@@ -261,11 +271,17 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (!$quote) {
             return $value;
         }
-        if (version_compare(PHP_VERSION, '5.2.0RC6', '>=')) {
-            $db =& $this->getDBInstance();
-            if (PEAR::isError($db)) {
-                return $db;
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        if ($db->options['lob_allow_url_include']) {
+            $value = $this->_readFile($value);
+            if (PEAR::isError($value)) {
+                return $value;
             }
+        }
+        if (version_compare(PHP_VERSION, '5.2.0RC6', '>=')) {
             $connection = $db->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
