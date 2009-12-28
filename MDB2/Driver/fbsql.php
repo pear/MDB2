@@ -116,7 +116,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
            $native_code = @fbsql_errno();
            $native_msg  = @fbsql_error();
        }
-        if (is_null($error)) {
+        if (null === $error) {
             static $ecode_map;
             if (empty($ecode_map)) {
                 $ecode_map = array(
@@ -159,10 +159,11 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
     function beginTransaction($savepoint = null)
     {
         $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'savepoints are not supported', __FUNCTION__);
-        } elseif ($this->in_transaction) {
+        }
+        if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
         if (!$this->destructor_registered && $this->opened_persistent) {
@@ -198,7 +199,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'savepoints are not supported', __FUNCTION__);
         }
@@ -236,7 +237,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'savepoints are not supported', __FUNCTION__);
         }
@@ -464,13 +465,13 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
             return $result;
         }
 
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
             }
         }
-        if (is_null($database_name)) {
+        if (null === $database_name) {
             $database_name = $this->database_name;
         }
 
@@ -509,7 +510,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
      */
     function _affectedRows($connection, $result = null)
     {
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -661,7 +662,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        if (!is_null($rownum)) {
+        if (null !== $rownum) {
             $seek = $this->seek($rownum);
             if (PEAR::isError($seek)) {
                 return $seek;
@@ -681,7 +682,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
            $row = @fbsql_fetch_row($this->result);
         }
         if (!$row) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
                 return $err;
@@ -753,11 +754,12 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
     function numCols()
     {
         $cols = @fbsql_num_fields($this->result);
-        if (is_null($cols)) {
-            if ($this->result === false) {
+        if (null === $cols) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return count($this->types);
             }
             return $this->db->raiseError(null, null, null,
@@ -777,10 +779,11 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
      */
     function nextResult()
     {
-        if ($this->result === false) {
+        if (false === $this->result) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'resultset has already been freed', __FUNCTION__);
-        } elseif (is_null($this->result)) {
+        }
+        if (null === $this->result) {
             return false;
         }
         return @fbsql_next_result($this->result);
@@ -799,7 +802,7 @@ class MDB2_Result_fbsql extends MDB2_Result_Common
     {
         if (is_resource($this->result) && $this->db->connection) {
             $free = @fbsql_free_result($this->result);
-            if ($free === false) {
+            if (false === $free) {
                 return $this->db->raiseError(null, null, null,
                     'Could not free result', __FUNCTION__);
             }
@@ -832,10 +835,11 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
     function seek($rownum = 0)
     {
         if ($this->rownum != ($rownum - 1) && !@fbsql_data_seek($this->result, $rownum)) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return MDB2_OK;
             }
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
@@ -875,11 +879,12 @@ class MDB2_BufferedResult_fbsql extends MDB2_Result_fbsql
     function numRows()
     {
         $rows = @fbsql_num_rows($this->result);
-        if (is_null($rows)) {
-            if ($this->result === false) {
+        if (null === $rows) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return 0;
             }
             return $this->db->raiseError(null, null, null,

@@ -113,7 +113,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function errorInfo($error = null, $connection = null)
     {
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->connection;
         }
 
@@ -126,7 +126,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             }
         }
         $native_msg = @mssql_get_last_message();
-        if (is_null($error)) {
+        if (null === $error) {
             static $ecode_map;
             if (empty($ecode_map)) {
                 $ecode_map = array(
@@ -237,14 +237,15 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function beginTransaction($savepoint = null)
     {
         $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             if (!$this->in_transaction) {
                 return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                     'savepoint cannot be released when changes are auto committed', __FUNCTION__);
             }
             $query = 'SAVE TRANSACTION '.$savepoint;
             return $this->_doQuery($query, true);
-        } elseif ($this->in_transaction) {
+        }
+        if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
         if (!$this->destructor_registered && $this->opened_persistent) {
@@ -280,7 +281,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             return MDB2_OK;
         }
 
@@ -313,7 +314,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             $query = 'ROLLBACK TRANSACTION '.$savepoint;
             return $this->_doQuery($query, true);
         }
@@ -590,13 +591,13 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
             return $result;
         }
 
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
             }
         }
-        if (is_null($database_name)) {
+        if (null === $database_name) {
             $database_name = $this->database_name;
         }
 
@@ -635,7 +636,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function _affectedRows($connection, $result = null)
     {
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -825,13 +826,13 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
     function lastInsertID($table = null, $field = null)
     {
         $server_info = $this->getServerVersion();
-        if (is_array($server_info) && !is_null($server_info['major'])
+        if (is_array($server_info) && (null !== $server_info['major'])
            && $server_info['major'] >= 8
         ) {
             $query = "SELECT IDENT_CURRENT('$table')";
         } else {
             $query = "SELECT @@IDENTITY";
-            if (!is_null($table)) {
+            if (null !== $table) {
                 $query .= ' FROM '.$this->quoteIdentifier($table, true);
             }
         }
@@ -900,7 +901,7 @@ class MDB2_Result_mssql extends MDB2_Result_Common
             $null = null;
             return $null;
         }
-        if (!is_null($rownum)) {
+        if (null !== $rownum) {
             $seek = $this->seek($rownum);
             if (PEAR::isError($seek)) {
                 return $seek;
@@ -920,7 +921,7 @@ class MDB2_Result_mssql extends MDB2_Result_Common
             $row = @mssql_fetch_row($this->result);
         }
         if (!$row) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
                 return $err;
@@ -1001,11 +1002,12 @@ class MDB2_Result_mssql extends MDB2_Result_Common
     function numCols()
     {
         $cols = @mssql_num_fields($this->result);
-        if (is_null($cols)) {
-            if ($this->result === false) {
+        if (null === $cols) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return count($this->types);
             }
             return $this->db->raiseError(null, null, null,
@@ -1025,10 +1027,11 @@ class MDB2_Result_mssql extends MDB2_Result_Common
      */
     function nextResult()
     {
-        if ($this->result === false) {
+        if (false === $this->result) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'resultset has already been freed', __FUNCTION__);
-        } elseif (is_null($this->result)) {
+        }
+        if (null === $this->result) {
             return false;
         }
         return @mssql_next_result($this->result);
@@ -1047,7 +1050,7 @@ class MDB2_Result_mssql extends MDB2_Result_Common
     {
         if (is_resource($this->result) && $this->db->connection) {
             $free = @mssql_free_result($this->result);
-            if ($free === false) {
+            if (false === $free) {
                 return $this->db->raiseError(null, null, null,
                     'Could not free result', __FUNCTION__);
             }
@@ -1084,11 +1087,11 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
     function seek($rownum = 0)
     {
         if ($this->rownum != ($rownum - 1) && !@mssql_data_seek($this->result, $rownum)) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
             }
-            if (is_null($this->result)) {
+            if (null === $this->result) {
                 return MDB2_OK;
             }
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
@@ -1128,11 +1131,12 @@ class MDB2_BufferedResult_mssql extends MDB2_Result_mssql
     function numRows()
     {
         $rows = @mssql_num_rows($this->result);
-        if (is_null($rows)) {
-            if ($this->result === false) {
+        if (null === $rows) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return 0;
             }
             return $this->db->raiseError(null, null, null,

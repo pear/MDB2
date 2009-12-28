@@ -71,7 +71,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
      */
     function _baseConvertResult($value, $type, $rtrim = true)
     {
-        if (is_null($value)) {
+        if (null === $value) {
             return null;
         }
         switch ($type) {
@@ -228,7 +228,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             if ($field['default'] === '') {
                 $field['default'] = 0;
             }
-            if (is_null($field['default'])) {
+            if (null === $field['default']) {
                 $default = ' DEFAULT (null)';
             } else {
                 $default = ' DEFAULT (' . $this->quote($field['default'], 'integer') . ')';
@@ -361,8 +361,8 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
         }
 
         $match = '';
-        if (!is_null($operator)) {
-            $field = is_null($field) ? '' : $field.' ';
+        if (null !== $operator) {
+            $field = (null === $field) ? '' : $field.' ';
             $operator = strtoupper($operator);
             switch ($operator) {
             // case insensitive

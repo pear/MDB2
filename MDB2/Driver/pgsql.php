@@ -236,14 +236,15 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     function beginTransaction($savepoint = null)
     {
         $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             if (!$this->in_transaction) {
                 return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                     'savepoint cannot be released when changes are auto committed', __FUNCTION__);
             }
             $query = 'SAVEPOINT '.$savepoint;
             return $this->_doQuery($query, true);
-        } elseif ($this->in_transaction) {
+        }
+        if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
         if (!$this->destructor_registered && $this->opened_persistent) {
@@ -279,7 +280,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             $query = 'RELEASE SAVEPOINT '.$savepoint;
             return $this->_doQuery($query, true);
         }
@@ -313,7 +314,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             $query = 'ROLLBACK TO SAVEPOINT '.$savepoint;
             return $this->_doQuery($query, true);
         }
@@ -532,7 +533,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function setCharset($charset, $connection = null)
     {
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -682,7 +683,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $result;
         }
 
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -720,7 +721,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
      */
     function _affectedRows($connection, $result = null)
     {
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -908,7 +909,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             } else {
                 break;
             }
-            if (is_null($placeholder_type)) {
+            if (null === $placeholder_type) {
                 $placeholder_type_guess = $query[$p_position];
             }
             
@@ -922,7 +923,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
 
             if ($query[$position] == $placeholder_type_guess) {
-                if (is_null($placeholder_type)) {
+                if (null === $placeholder_type) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
                     if (!empty($types) && is_array($types)) {
@@ -981,7 +982,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         static $prep_statement_counter = 1;
         $statement_name = sprintf($this->options['statement_format'], $this->phptype, $prep_statement_counter++ . sha1(microtime() + mt_rand()));
         $statement_name = substr(strtolower($statement_name), 0, $this->options['max_identifiers_length']);
-        if ($pgtypes === false) {
+        if (false === $pgtypes) {
             $result = @pg_prepare($connection, $statement_name, $query);
             if (!$result) {
                 $err =& $this->raiseError(null, null, null,
@@ -1165,7 +1166,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        if (!is_null($rownum)) {
+        if (null !== $rownum) {
             $seek = $this->seek($rownum);
             if (PEAR::isError($seek)) {
                 return $seek;
@@ -1185,7 +1186,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
             $row = @pg_fetch_row($this->result);
         }
         if (!$row) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
                 return $err;
@@ -1266,11 +1267,12 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
     function numCols()
     {
         $cols = @pg_num_fields($this->result);
-        if (is_null($cols)) {
-            if ($this->result === false) {
+        if (null === $cols) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return count($this->types);
             }
             return $this->db->raiseError(null, null, null,
@@ -1314,7 +1316,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
     {
         if (is_resource($this->result) && $this->db->connection) {
             $free = @pg_free_result($this->result);
-            if ($free === false) {
+            if (false === $free) {
                 return $this->db->raiseError(null, null, null,
                     'Could not free result', __FUNCTION__);
             }
@@ -1345,10 +1347,11 @@ class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
     function seek($rownum = 0)
     {
         if ($this->rownum != ($rownum - 1) && !@pg_result_seek($this->result, $rownum)) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return MDB2_OK;
             }
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
@@ -1388,11 +1391,12 @@ class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
     function numRows()
     {
         $rows = @pg_num_rows($this->result);
-        if (is_null($rows)) {
-            if ($this->result === false) {
+        if (null === $rows) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return 0;
             }
             return $this->db->raiseError(null, null, null,
@@ -1425,7 +1429,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
      */
     function &_execute($result_class = true, $result_wrap_class = false)
     {
-        if (is_null($this->statement)) {
+        if (null === $this->statement) {
             $result =& parent::_execute($result_class, $result_wrap_class);
             return $result;
         }
@@ -1521,13 +1525,13 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
      */
     function free()
     {
-        if (is_null($this->positions)) {
+        if (null === $this->positions) {
             return $this->db->raiseError(MDB2_ERROR, null, null,
                 'Prepared statement has already been freed', __FUNCTION__);
         }
         $result = MDB2_OK;
 
-        if (!is_null($this->statement)) {
+        if (null !== $this->statement) {
             $connection = $this->db->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;

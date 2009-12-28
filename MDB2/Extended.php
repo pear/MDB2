@@ -214,7 +214,7 @@ class MDB2_Extended extends MDB2_Module_Common
             }
         }
 
-        if ($where !== false && !is_null($where)) {
+        if ((false !== $where) && (null !== $where)) {
             if (is_array($where)) {
                 $where = implode(' AND ', $where);
             }

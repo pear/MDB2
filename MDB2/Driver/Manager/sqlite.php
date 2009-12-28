@@ -904,7 +904,7 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         }
 
         $query = "SELECT name FROM sqlite_master WHERE type='trigger' AND sql NOT NULL";
-        if (!is_null($table)) {
+        if (null !== $table) {
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
                 $query.= ' AND LOWER(tbl_name)='.$db->quote(strtolower($table), 'text');
             } else {

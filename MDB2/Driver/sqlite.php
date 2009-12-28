@@ -131,7 +131,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         // this hack to work around it, per bug #9599.
         $native_msg = preg_replace('/^sqlite[a-z_]+\(\)[^:]*: /', '', $native_msg);
 
-        if (is_null($error)) {
+        if (null === $error) {
             static $error_regexps;
             if (empty($error_regexps)) {
                 $error_regexps = array(
@@ -194,10 +194,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function beginTransaction($savepoint = null)
     {
         $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'savepoints are not supported', __FUNCTION__);
-        } elseif ($this->in_transaction) {
+        }
+        if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
         if (!$this->destructor_registered && $this->opened_persistent) {
@@ -234,7 +235,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'savepoints are not supported', __FUNCTION__);
         }
@@ -269,7 +270,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
                 'savepoints are not supported', __FUNCTION__);
         }
@@ -514,7 +515,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             return $result;
         }
 
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -560,7 +561,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      */
     function _affectedRows($connection, $result = null)
     {
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -875,7 +876,7 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        if (!is_null($rownum)) {
+        if (null !== $rownum) {
             $seek = $this->seek($rownum);
             if (PEAR::isError($seek)) {
                 return $seek;
@@ -895,7 +896,7 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
            $row = @sqlite_fetch_array($this->result, SQLITE_NUM);
         }
         if (!$row) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
                 return $err;
@@ -976,11 +977,12 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
     function numCols()
     {
         $cols = @sqlite_num_fields($this->result);
-        if (is_null($cols)) {
-            if ($this->result === false) {
+        if (null === $cols) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return count($this->types);
             }
             return $this->db->raiseError(null, null, null,
@@ -1011,10 +1013,11 @@ class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
     function seek($rownum = 0)
     {
         if (!@sqlite_seek($this->result, $rownum)) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return MDB2_OK;
             }
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null,
@@ -1054,11 +1057,12 @@ class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
     function numRows()
     {
         $rows = @sqlite_num_rows($this->result);
-        if (is_null($rows)) {
-            if ($this->result === false) {
+        if (null === $rows) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return 0;
             }
             return $this->db->raiseError(null, null, null,

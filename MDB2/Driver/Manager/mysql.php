@@ -222,7 +222,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                     $autoincrement = $fieldname;
                 }
             }
-            if (!is_null($autoincrement) && count($pk_fields) > 1) {
+            if ((null !== $autoincrement) && count($pk_fields) > 1) {
                 $options['primary'] = $pk_fields;
             } else {
                 // the PK constraint is on max one field => OK
@@ -235,7 +235,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             return $query;
         }
 
-        if (!is_null($autoincrement)) {
+        if (null !== $autoincrement) {
             // we have to remove the PK clause added by _getIntegerDeclaration()
             $query = str_replace('AUTO_INCREMENT PRIMARY KEY', 'AUTO_INCREMENT', $query);
         }
@@ -659,7 +659,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SHOW TRIGGERS';
-        if (!is_null($table)) {
+        if (null !== $table) {
             $table = $db->quote($table, 'text');
             $query .= " LIKE $table";
         }
@@ -691,7 +691,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $query = "SHOW /*!50002 FULL*/ TABLES";
-        if (!is_null($database)) {
+        if (null !== $database) {
             $query .= " FROM $database";
         }
         $query.= "/*!50002  WHERE Table_type = 'BASE TABLE'*/";
@@ -731,7 +731,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $query = 'SHOW FULL TABLES';
-        if (!is_null($database)) {
+        if (null !== $database) {
             $query.= " FROM $database";
         }
         $query.= " WHERE Table_type = 'VIEW'";
@@ -1413,7 +1413,7 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
         }
 
         $query = "SHOW TABLES";
-        if (!is_null($database)) {
+        if (null !== $database) {
             $query .= " FROM $database";
         }
         $table_names = $db->queryCol($query);

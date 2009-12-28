@@ -70,7 +70,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
      */
     function _baseConvertResult($value, $type, $rtrim = true)
     {
-        if (is_null($value)) {
+        if (null === $value) {
             return null;
         }
         switch ($type) {

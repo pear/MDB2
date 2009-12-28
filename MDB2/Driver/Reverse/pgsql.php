@@ -148,7 +148,7 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
         ) {
             $pattern = '/^\'(.*)\'::[\w ]+$/i';
             $default = $column['default'];#substr($column['adsrc'], 1, -1);
-            if (is_null($default) && $notnull) {
+            if ((null === $default) && $notnull) {
                 $default = '';
             } elseif (!empty($default) && preg_match($pattern, $default)) {
                 //remove data type cast
@@ -160,13 +160,13 @@ class MDB2_Driver_Reverse_pgsql extends MDB2_Driver_Reverse_Common
             $autoincrement = true;
         }
         $definition[0] = array('notnull' => $notnull, 'nativetype' => $column['type']);
-        if (!is_null($length)) {
+        if (null !== $length) {
             $definition[0]['length'] = $length;
         }
-        if (!is_null($unsigned)) {
+        if (null !== $unsigned) {
             $definition[0]['unsigned'] = $unsigned;
         }
-        if (!is_null($fixed)) {
+        if (null !== $fixed) {
             $definition[0]['fixed'] = $fixed;
         }
         if ($default !== false) {

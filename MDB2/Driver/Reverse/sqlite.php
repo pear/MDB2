@@ -201,7 +201,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                 $default = false;
                 if (array_key_exists('default', $column)) {
                     $default = $column['default'];
-                    if (is_null($default) && $notnull) {
+                    if ((null === $default) && $notnull) {
                         $default = '';
                     }
                 }
@@ -214,13 +214,13 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     'notnull' => $notnull,
                     'nativetype' => preg_replace('/^([a-z]+)[^a-z].*/i', '\\1', $column['type'])
                 );
-                if (!is_null($length)) {
+                if (null !== $length) {
                     $definition[0]['length'] = $length;
                 }
-                if (!is_null($unsigned)) {
+                if (null !== $unsigned) {
                     $definition[0]['unsigned'] = $unsigned;
                 }
-                if (!is_null($fixed)) {
+                if (null !== $fixed) {
                     $definition[0]['fixed'] = $fixed;
                 }
                 if ($default !== false) {

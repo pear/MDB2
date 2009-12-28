@@ -130,7 +130,7 @@ class MDB2_Driver_Function_sqlsrv extends MDB2_Driver_Function_Common
      */
     function substring($value, $position = 1, $length = null)
     {
-        if (!is_null($length)) {
+        if (null !== $length) {
             return "SUBSTRING($value, $position, $length)";
         }
         return "SUBSTRING($value, $position, LEN($value) - $position + 1)";

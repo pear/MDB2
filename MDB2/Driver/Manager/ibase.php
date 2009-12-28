@@ -140,7 +140,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
 
         $table_quoted = $db->quoteIdentifier($table, true);
-        if (is_null($start)) {
+        if (null === $start) {
             $db->beginTransaction();
             $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $table_quoted;
             $start = $this->db->queryOne($query, 'integer');
@@ -790,7 +790,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                     FROM RDB$TRIGGERS
                    WHERE (RDB$SYSTEM_FLAG IS NULL
                       OR RDB$SYSTEM_FLAG = 0)';
-        if (!is_null($table)) {
+        if (null !== $table) {
             $table = $db->quote(strtoupper($table), 'text');
             $query .= " AND UPPER(RDB\$RELATION_NAME)=$table";
         }

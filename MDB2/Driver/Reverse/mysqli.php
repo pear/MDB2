@@ -167,7 +167,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 $default = false;
                 if (array_key_exists('default', $column)) {
                     $default = $column['default'];
-                    if (is_null($default) && $notnull) {
+                    if ((null === $default) && $notnull) {
                         $default = '';
                     }
                 }
@@ -185,13 +185,13 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                     'notnull' => $notnull,
                     'nativetype' => preg_replace('/^([a-z]+)[^a-z].*/i', '\\1', $column['type'])
                 );
-                if (!is_null($length)) {
+                if (null !== $length) {
                     $definition[0]['length'] = $length;
                 }
-                if (!is_null($unsigned)) {
+                if (null !== $unsigned) {
                     $definition[0]['unsigned'] = $unsigned;
                 }
-                if (!is_null($fixed)) {
+                if (null !== $fixed) {
                     $definition[0]['fixed'] = $fixed;
                 }
                 if ($default !== false) {
@@ -200,7 +200,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                 if ($autoincrement !== false) {
                     $definition[0]['autoincrement'] = $autoincrement;
                 }
-                if (!is_null($collate)) {
+                if (null !== $collate) {
                     $definition[0]['collate'] = $collate;
                     $definition[0]['charset'] = $charset;
                 }
@@ -246,7 +246,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         $query = "SHOW INDEX FROM $table /*!50002 WHERE Key_name = %s */";
         $index_name_mdb2 = $db->getIndexName($index_name);
         $result = $db->queryRow(sprintf($query, $db->quote($index_name_mdb2)));
-        if (!PEAR::isError($result) && !is_null($result)) {
+        if (!PEAR::isError($result) && (null !== $result)) {
             // apply 'idxname_format' only if the query succeeded, otherwise
             // fallback to the given $index_name, without transformation
             $index_name = $index_name_mdb2;
@@ -323,7 +323,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         if (strtolower($constraint_name) != 'primary') {
             $constraint_name_mdb2 = $db->getIndexName($constraint_name);
             $result = $db->queryRow(sprintf($query, $db->quote($constraint_name_mdb2)));
-            if (!PEAR::isError($result) && !is_null($result)) {
+            if (!PEAR::isError($result) && (null !== $result)) {
                 // apply 'idxname_format' only if the query succeeded, otherwise
                 // fallback to the given $index_name, without transformation
                 $constraint_name = $constraint_name_mdb2;

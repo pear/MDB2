@@ -910,7 +910,7 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
                     FROM sysobjects o
                    WHERE xtype = 'TR'
                      AND OBJECTPROPERTY(o.id, 'IsMSShipped') = 0";
-        if (!is_null($table)) {
+        if (null !== $table) {
             $query .= " AND object_name(parent_obj) = $table";
         }
 

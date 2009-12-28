@@ -67,7 +67,7 @@ class MDB2_Driver_Datatype_sqlsrv extends MDB2_Driver_Datatype_Common
      */
     function _baseConvertResult($value, $type, $rtrim = true)
     {
-        if (is_null($value)) {
+        if (null === $value) {
             return null;
         }
         switch ($type) {
@@ -224,8 +224,8 @@ class MDB2_Driver_Datatype_sqlsrv extends MDB2_Driver_Datatype_Common
             if ($field['default'] === '') {
                 $field['default'] = 0;
             }
-            if (is_null($field['default'])) {
-                $default = ' DEFAULT (null)';
+            if (null === $field['default']) {
+                $default = ' DEFAULT (NULL)';
             } else {
                 $default = ' DEFAULT (' . $this->quote($field['default'], 'integer') . ')';
             }

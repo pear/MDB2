@@ -213,7 +213,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
                 'primary key for autoincrement PK could not be created', __FUNCTION__);
         }
 
-        if (is_null($start)) {
+        if (null === $start) {
             $db->beginTransaction();
             $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $db->quoteIdentifier($table, true);
             $start = $this->db->queryOne($query, 'integer');

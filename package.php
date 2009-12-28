@@ -13,6 +13,7 @@ $notes = <<<EOT
 - fixed bug #16727: quote(url, 'clob')) fetches URL even if lob_allow_url_include option is false
 - fixed unreported bug in parseDSN() and oracle's Easy Connect syntax
 - PHP 5.3 compatibility fixes
+- performance tweaks (reduced number of internal function calls)
 - added new sqlsrv driver (native SQL Server driver) [chrisdpucci]
 
 

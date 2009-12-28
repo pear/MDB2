@@ -112,17 +112,19 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
      */
     function errorInfo($error = null, $connection = null)
     {
-        if (is_null($connection)) {
-			if(!$this->connection) $this->connect();
+        if (null === $connection) {
+			if (!$this->connection) {
+                $this->connect();
+            }
             $connection = $this->connection;
         }
 
         $native_code = null;
-        $native_msg = null;
+        $native_msg  = null;
         if ($connection) {
 			$retErrors = sqlsrv_errors(SQLSRV_ERR_ALL);  
-			if($retErrors != null) {  
-				foreach($retErrors as $arrError) {  
+			if ($retErrors !== null) {
+				foreach ($retErrors as $arrError) {
 					$native_msg .= "SQLState: ".$arrError[ 'SQLSTATE']."\n";  
 					$native_msg .= "Error Code: ".$arrError[ 'code']."\n";  
 					$native_msg .= "Message: ".$arrError[ 'message']."\n";  
@@ -130,7 +132,7 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
 				}  
 			}			
         }
-        if (is_null($error)) {
+        if (null === $error) {
             static $ecode_map;
             if (empty($ecode_map)) {
                 $ecode_map = array(
@@ -220,14 +222,15 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
     function beginTransaction($savepoint = null)
     {
         $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             if (!$this->in_transaction) {
                 return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                     'savepoint cannot be released when changes are auto committed', __FUNCTION__);
             }
             $query = 'SAVE TRANSACTION '.$savepoint;
             return $this->_doQuery($query, true);
-        } elseif ($this->in_transaction) {
+        }
+        if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
         if (!$this->destructor_registered && $this->opened_persistent) {
@@ -262,7 +265,7 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             return MDB2_OK;
         }
 
@@ -294,7 +297,7 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             $query = 'ROLLBACK TRANSACTION '.$savepoint;
             return $this->_doQuery($query, true);
         }
@@ -324,10 +327,12 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
 
         $host = $this->dsn['hostspec'] ? $this->dsn['hostspec'] : '.\\SQLEXPRESS';
         $params = array(
-            'UID'=>$username ? $username : null,
-            'PWD'=>$password ? $password : null,
+            'UID' => $username ? $username : null,
+            'PWD' => $password ? $password : null,
         );
-		if($database) $params['Database'] = $database;
+		if ($database) {
+            $params['Database'] = $database;
+        }
 		
         if ($this->dsn['port'] && $this->dsn['port'] != 1433) {
             $host .= ','.$this->dsn['port'];
@@ -338,7 +343,9 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
                 'unable to establish a connection', __FUNCTION__, __FUNCTION__);
         }
-        if(!is_null($database)) $this->connected_database_name = $database;
+        if (null !== $database) {
+            $this->connected_database_name = $database;
+        }
 
         if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
@@ -408,11 +415,10 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
             return MDB2_ERROR_CONNECT_FAILED;
         }
 		$result = @sqlsrv_query($connection,'select name from master..sysdatabases where name = \''.strtolower($name).'\'');
-		if(@sqlsrv_fetch($result)) {
+		if (@sqlsrv_fetch($result)) {
 			return true;
-		} else {
-			return MDB2_ERROR_NOT_FOUND;
 		}
+        return MDB2_ERROR_NOT_FOUND;
     }
 
     // }}}
@@ -509,13 +515,13 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
             return $result;
         }
 
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
             }
         }
-        if (is_null($database_name)) {
+        if (null === $database_name) {
             $database_name = $this->database_name;
         }
 
@@ -555,8 +561,10 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
      */
     function _affectedRows($connection, $result = null)
     {
-	if(is_null($result)) $result = $this->result;
-	return sqlsrv_rows_affected($this->result);
+        if (null === $result) {
+            $result = $this->result;
+        }
+        return sqlsrv_rows_affected($this->result);
     }
 
     // }}}
@@ -646,11 +654,10 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
             }
             return false;
         }
-		if(@sqlsrv_fetch($tableExits)) {
+		if (@sqlsrv_fetch($tableExits)) {
 			return true;
-		} else {
-			return false;
 		}
+        return false;
     }
 
     // }}}
@@ -770,16 +777,16 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
         $this->limit = max(0, $limit - 1);
 		$this->cursor = 0;
 		$this->rows = array();
-		$this->numFields = sqlsrv_num_fields( $result);
-		$this->fieldMeta = sqlsrv_field_metadata( $result);
+		$this->numFields = sqlsrv_num_fields($result);
+		$this->fieldMeta = sqlsrv_field_metadata($result);
 		$this->numRowsAffected = sqlsrv_rows_affected($result);
-		while( $row = sqlsrv_fetch_array( $result, SQLSRV_FETCH_ASSOC)) {
-			if($row !== null) {
-				if($this->offset && $this->offset_count < $this->offset) {
+		while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
+			if ($row !== null) {
+				if ($this->offset && $this->offset_count < $this->offset) {
 					$this->offset_count++;
 					continue;
 				}
-				foreach($row as $k => $v) {
+				foreach ($row as $k => $v) {
 					if (is_object($v) && method_exists($v, 'format')) {//DateTime Object
 						$row[$k] = $v->format("Y-m-d H:i:s");
 					}
@@ -843,12 +850,14 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-	if(!$this->result) return $this->db->raiseError(MDB2_ERROR_INVALID, null, null, 'no valid statement given', __FUNCTION__);
+        if (!$this->result) {
+            return $this->db->raiseError(MDB2_ERROR_INVALID, null, null, 'no valid statement given', __FUNCTION__);
+        }
         if (($this->limit && $this->rownum >= $this->limit) || ($this->cursor >= $this->rowcnt || $this->rowcnt == 0)) {
             $null = null;
             return $null;
         }
-        if (!is_null($rownum)) {
+        if (null !== $rownum) {
             $seek = $this->seek($rownum);
             if (PEAR::isError($seek)) {
                 return $seek;
@@ -857,8 +866,8 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
 		
 		$row = false;
 		$arrNum = array();
-		if($fetchmode == MDB2_FETCHMODE_ORDERED || $fetchmode == MDB2_FETCHMODE_DEFAULT) {
-			foreach($this->rows[$this->cursor] as $key=>$value) {
+		if ($fetchmode == MDB2_FETCHMODE_ORDERED || $fetchmode == MDB2_FETCHMODE_DEFAULT) {
+			foreach ($this->rows[$this->cursor] as $key=>$value) {
 				$arrNum[] = $value;
 			}
 		}
@@ -875,7 +884,8 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
 		} 
 		$this->cursor++;
 		
-		/*if($fetchmode == MDB2_FETCHMODE_OBJECT) {
+		/*
+        if ($fetchmode == MDB2_FETCHMODE_OBJECT) {
 			$row = sqlsrv_fetch_object($this->result,$this->db->options['fetch_class']);
 		} else {
 		switch($fetchmode) {
@@ -887,7 +897,7 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
 		}
 			$row = sqlsrv_fetch_array($this->result,$fetchmode);
 		}
-		foreach($row as $key=>$value) {
+		foreach ($row as $key=>$value) {
 			if (is_object($value) && method_exists($value, 'format')) {//is DateTime object
 				$row[$key] = $value->format("Y-m-d H:i:s");
 			}
@@ -900,7 +910,7 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
             $row = array_change_key_case($row, $this->db->options['field_case']);
         }
         if (!$row) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
                 return $err;
@@ -944,9 +954,11 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
      */
     function _getColumnNames()
     {
-		if(!$this->result) return $this->db->raiseError(MDB2_ERROR_INVALID, null, null, 'no valid statement given', __FUNCTION__);
+		if (!$this->result) {
+            return $this->db->raiseError(MDB2_ERROR_INVALID, null, null, 'no valid statement given', __FUNCTION__);
+        }
         $columns = array();
-		foreach($this->fieldMeta as $col) {
+		foreach ($this->fieldMeta as $col) {
 			$columns[$col['Name']] = $col['Type'];
 		}
         if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -967,13 +979,16 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
      */
     function numCols()
     {
-	if(!$this->result) return $this->db->raiseError(MDB2_ERROR_INVALID, null, null, 'no valid statement given', __FUNCTION__);
+        if (!$this->result) {
+            return $this->db->raiseError(MDB2_ERROR_INVALID, null, null, 'no valid statement given', __FUNCTION__);
+        }
         $cols = $this->numFields;
         if (!$cols) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return count($this->types);
             }
             return $this->db->raiseError(null, null, null,
@@ -993,26 +1008,27 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
      */
     function nextResult()
     {
-        if ($this->result === false) {
+        if (false === $this->result) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'resultset has already been freed', __FUNCTION__);
-        } elseif (is_null($this->result)) {
+        }
+        if (null === $this->result)) {
             return false;
         }
         $ret = sqlsrv_next_result($this->result);
-		if($ret) {
+		if ($ret) {
 			$this->cursor = 0;
 			$this->rows = array();
-			$this->numFields = sqlsrv_num_fields( $this->result);
-			$this->fieldMeta = sqlsrv_field_metadata( $this->result);
+			$this->numFields = sqlsrv_num_fields($this->result);
+			$this->fieldMeta = sqlsrv_field_metadata($this->result);
 			$this->numRowsAffected = sqlsrv_rows_affected($this->result);
-			while( $row = sqlsrv_fetch_array( $this->result, SQLSRV_FETCH_ASSOC)) {
-				if($row !== null) {
-					if($this->offset && $this->offset_count < $this->offset) {
+			while ($row = sqlsrv_fetch_array($this->result, SQLSRV_FETCH_ASSOC)) {
+				if ($row !== null) {
+					if ($this->offset && $this->offset_count < $this->offset) {
 						$this->offset_count++;
 						continue;
 					}
-					foreach($row as $k => $v) {
+					foreach ($row as $k => $v) {
 						if (is_object($v) && method_exists($v, 'format')) {//DateTime Object
 							//$v->setTimezone(new DateTimeZone('GMT'));//TS_ISO_8601 with a trailing 'Z' is GMT
 							$row[$k] = $v->format("Y-m-d H:i:s");

@@ -146,19 +146,19 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             if ($default === 'NULL') {
                 $default = null;
             }
-            if (is_null($default) && $notnull) {
+            if ((null === $default) && $notnull) {
                 $default = '';
             }
         }
 
         $definition[0] = array('notnull' => $notnull, 'nativetype' => $column['type']);
-        if (!is_null($length)) {
+        if (null !== $length) {
             $definition[0]['length'] = $length;
         }
-        if (!is_null($unsigned)) {
+        if (null !== $unsigned) {
             $definition[0]['unsigned'] = $unsigned;
         }
-        if (!is_null($fixed)) {
+        if (null !== $fixed) {
             $definition[0]['fixed'] = $fixed;
         }
         if ($default !== false) {
@@ -242,7 +242,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         $indexnames = array_unique(array($db->getIndexName($index_name), $index_name));
         $i = 0;
         $row = null;
-        while (is_null($row) && array_key_exists($i, $indexnames)) {
+        while ((null === $row) && array_key_exists($i, $indexnames)) {
             $args = array(
                 $table,
                 strtoupper($table),
@@ -261,7 +261,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
             }
         	$i++;
         }
-        if (is_null($row)) {
+        if (null === $row) {
             return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 $index_name. ' is not an index on table '. $table_name, __FUNCTION__);
         }
@@ -271,7 +271,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         }
 
         $definition = array();
-        while (!is_null($row)) {
+        while (null !== $row) {
             $row = array_change_key_case($row, CASE_LOWER);
             $column_name = $row['column_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -365,7 +365,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
         $constraintnames = array_unique(array($db->getIndexName($constraint_name), $constraint_name));
         $c = 0;
         $row = null;
-        while (is_null($row) && array_key_exists($c, $constraintnames)) {
+        while ((null === $row) && array_key_exists($c, $constraintnames)) {
             $args = array(
                 $constraintnames[$c],
                 strtoupper($constraintnames[$c]),
@@ -413,7 +413,7 @@ class MDB2_Driver_Reverse_oci8 extends MDB2_Driver_Reverse_Common
 			}
 		}
         
-        while (!is_null($row)) {
+        while (null !== $row) {
             $row = array_change_key_case($row, CASE_LOWER);
             $column_name = $row['column_name'];
             if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {

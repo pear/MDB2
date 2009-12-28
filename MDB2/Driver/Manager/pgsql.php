@@ -608,7 +608,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
                     FROM pg_trigger trg,
                          pg_class tbl
                    WHERE trg.tgrelid = tbl.oid';
-        if (!is_null($table)) {
+        if (null !== $table) {
             $table = $db->quote(strtoupper($table), 'text');
             $query .= " AND UPPER(tbl.relname) = $table";
         }

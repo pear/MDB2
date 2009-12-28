@@ -196,7 +196,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
         list($types, $length, $unsigned, $fixed) = $mapped_datatype;
         $notnull = !empty($column['null_flag']);
         $default = $column['default_source'];
-        if (is_null($default) && $notnull) {
+        if ((null === $default) && $notnull) {
             $default = ($types[0] == 'integer') ? 0 : '';
         }
 
@@ -206,16 +206,16 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
             'charset'    => $column['charset'],
             'collation'  => $column['collation'],
         );
-        if (!is_null($length)) {
+        if (null !== $length) {
             $definition[0]['length'] = $length;
         }
-        if (!is_null($unsigned)) {
+        if (null !== $unsigned) {
             $definition[0]['unsigned'] = $unsigned;
         }
-        if (!is_null($fixed)) {
+        if (null !== $fixed) {
             $definition[0]['fixed'] = $fixed;
         }
-        if ($default !== false) {
+        if (false !== $default) {
             $definition[0]['default'] = $default;
         }
         foreach ($types as $key => $type) {
@@ -262,7 +262,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                 ORDER BY RDB\$INDEX_SEGMENTS.RDB\$FIELD_POSITION";
         $index_name_mdb2 = $db->quote(strtoupper($db->getIndexName($index_name)), 'text');
         $result = $db->queryRow(sprintf($query, $index_name_mdb2));
-        if (!PEAR::isError($result) && !is_null($result)) {
+        if (!PEAR::isError($result) && (null !== $result)) {
             // apply 'idxname_format' only if the query succeeded, otherwise
             // fallback to the given $index_name, without transformation
             $index_name = $index_name_mdb2;
@@ -354,7 +354,7 @@ class MDB2_Driver_Reverse_ibase extends MDB2_Driver_Reverse_Common
                 ORDER BY s.RDB\$FIELD_POSITION";
         $constraint_name_mdb2 = $db->quote(strtoupper($db->getIndexName($constraint_name)), 'text');
         $result = $db->queryRow(sprintf($query, $constraint_name_mdb2));
-        if (!PEAR::isError($result) && !is_null($result)) {
+        if (!PEAR::isError($result) && (null !== $result)) {
             // apply 'idxname_format' only if the query succeeded, otherwise
             // fallback to the given $index_name, without transformation
             $constraint_name = $constraint_name_mdb2;

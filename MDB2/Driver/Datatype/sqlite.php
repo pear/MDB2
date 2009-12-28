@@ -243,8 +243,8 @@ class MDB2_Driver_Datatype_sqlite extends MDB2_Driver_Datatype_Common
         }
 
         $match = '';
-        if (!is_null($operator)) {
-            $field = is_null($field) ? '' : $field.' ';
+        if (null !== $operator) {
+            $field = (null === $field) ? '' : $field.' ';
             $operator = strtoupper($operator);
             switch ($operator) {
             // case insensitive

@@ -166,7 +166,7 @@ class MDB2_Driver_Function_Common extends MDB2_Module_Common
      */
     function substring($value, $position = 1, $length = null)
     {
-        if (!is_null($length)) {
+        if (null !== $length) {
             return "SUBSTRING($value FROM $position FOR $length)";
         }
         return "SUBSTRING($value FROM $position)";

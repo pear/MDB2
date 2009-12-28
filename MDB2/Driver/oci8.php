@@ -127,7 +127,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         $native_code = $error_data['code'];
         $native_msg  = $error_data['message'];
-        if (is_null($error)) {
+        if (null === $error) {
             static $ecode_map;
             if (empty($ecode_map)) {
                 $ecode_map = array(
@@ -176,14 +176,15 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function beginTransaction($savepoint = null)
     {
         $this->debug('Starting transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             if (!$this->in_transaction) {
                 return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                     'savepoint cannot be released when changes are auto committed', __FUNCTION__);
             }
             $query = 'SAVEPOINT '.$savepoint;
             return $this->_doQuery($query, true);
-        } elseif ($this->in_transaction) {
+        }
+        if ($this->in_transaction) {
             return MDB2_OK;  //nothing to do
         }
         if (!$this->destructor_registered && $this->opened_persistent) {
@@ -216,7 +217,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'commit/release savepoint cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             return MDB2_OK;
         }
 
@@ -256,7 +257,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_INVALID, null, null,
                 'rollback cannot be done changes are auto committed', __FUNCTION__);
         }
-        if (!is_null($savepoint)) {
+        if (null !== $savepoint) {
             $query = 'ROLLBACK TO SAVEPOINT '.$savepoint;
             return $this->_doQuery($query, true);
         }
@@ -658,7 +659,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return null;
         }
 
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -701,7 +702,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      */
     function _affectedRows($connection, $result = null)
     {
-        if (is_null($connection)) {
+        if (null === $connection) {
             $connection = $this->getConnection();
             if (PEAR::isError($connection)) {
                 return $connection;
@@ -813,7 +814,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             } else {
                 break;
             }
-            if (is_null($placeholder_type)) {
+            if (null === $placeholder_type) {
                 $placeholder_type_guess = $query[$p_position];
             }
             
@@ -827,7 +828,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
 
             if ($query[$position] == $placeholder_type_guess) {
-                if (is_null($placeholder_type)) {
+                if (null === $placeholder_type) {
                     $placeholder_type = $query[$p_position];
                     $question = $colon = $placeholder_type;
                     if (!empty($types) && is_array($types)) {
@@ -1012,7 +1013,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        if (!is_null($rownum)) {
+        if (null !== $rownum) {
             $seek = $this->seek($rownum);
             if (PEAR::isError($seek)) {
                 return $seek;
@@ -1032,7 +1033,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
             @OCIFetchInto($this->result, $row, OCI_RETURN_NULLS);
         }
         if (!$row) {
-            if ($this->result === false) {
+            if (false === $this->result) {
                 $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
                 return $err;
@@ -1117,11 +1118,12 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     function numCols()
     {
         $cols = @OCINumCols($this->result);
-        if (is_null($cols)) {
-            if ($this->result === false) {
+        if (null === $cols) {
+            if (false === $this->result) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
-            } elseif (is_null($this->result)) {
+            }
+            if (null === $this->result) {
                 return count($this->types);
             }
             return $this->db->raiseError(null, null, null,
@@ -1146,7 +1148,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     {
         if (is_resource($this->result) && $this->db->connection) {
             $free = @OCIFreeCursor($this->result);
-            if ($free === false) {
+            if (false === $free) {
                 return $this->db->raiseError(null, null, null,
                     'Could not free result', __FUNCTION__);
             }
@@ -1182,7 +1184,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
     function _fillBuffer($rownum = null)
     {
         if (isset($this->buffer) && is_array($this->buffer)) {
-            if (is_null($rownum)) {
+            if (null === $rownum) {
                 if (!end($this->buffer)) {
                     return false;
                 }
@@ -1192,7 +1194,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
         }
 
         $row = true;
-        while ((is_null($rownum) || $this->buffer_rownum < $rownum)
+        while (((null === $rownum) || $this->buffer_rownum < $rownum)
             && ($row = @OCIFetchInto($this->result, $buffer, OCI_RETURN_NULLS))
         ) {
             ++$this->buffer_rownum;
@@ -1231,14 +1233,15 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-        if ($this->result === false) {
+        if (false === $this->result) {
             $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'resultset has already been freed', __FUNCTION__);
             return $err;
-        } elseif (is_null($this->result)) {
+        }
+        if (null === $this->result) {
             return null;
         }
-        if (!is_null($rownum)) {
+        if (null !== $rownum) {
             $seek = $this->seek($rownum);
             if (PEAR::isError($seek)) {
                 return $seek;
@@ -1303,7 +1306,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
      */
     function seek($rownum = 0)
     {
-        if ($this->result === false) {
+        if (false === $this->result) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'resultset has already been freed', __FUNCTION__);
         }
@@ -1322,10 +1325,11 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
      */
     function valid()
     {
-        if ($this->result === false) {
+        if (false === $this->result) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'resultset has already been freed', __FUNCTION__);
-        } elseif (is_null($this->result)) {
+        }
+        if (null === $this->result) {
             return true;
         }
         if ($this->_fillBuffer($this->rownum + 1)) {
@@ -1345,10 +1349,11 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
      */
     function numRows()
     {
-        if ($this->result === false) {
+        if (false === $this->result) {
             return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'resultset has already been freed', __FUNCTION__);
-        } elseif (is_null($this->result)) {
+        }
+        if (null === $this->result) {
             return 0;
         }
         $this->_fillBuffer();
@@ -1430,7 +1435,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
      */
     function &_execute($result_class = true, $result_wrap_class = false)
     {
-        if (is_null($this->statement)) {
+        if (null === $this->statement) {
             $result =& parent::_execute($result_class, $result_wrap_class);
             return $result;
         }
@@ -1479,7 +1484,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 // variable (i.e. if it has been bound more than once):
                 if (!is_a($this->values[$parameter], 'OCI-Lob')) {
                     $this->values[$parameter] = @OCINewDescriptor($connection, OCI_D_LOB);
-                    if ($this->values[$parameter] === false) {
+                    if (false === $this->values[$parameter]) {
                         $result = $this->db->raiseError(null, null, null,
                             'Unable to create descriptor for LOB in parameter: '.$parameter, __FUNCTION__);
                         break;
@@ -1496,7 +1501,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 // variable (i.e. if it has been bound more than once):
                 if (!is_a($this->values[$parameter], "OCI-Lob")) {
                     $this->values[$parameter] = @OCINewDescriptor($connection, OCI_D_FILE);
-                    if ($this->values[$parameter] === false) {
+                    if (false === $this->values[$parameter]) {
                         $result = $this->db->raiseError(null, null, null,
                             'Unable to create descriptor for BFILE in parameter: '.$parameter, __FUNCTION__);
                         break;
@@ -1512,7 +1517,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 // variable (i.e. if it has been bound more than once):
                 if (!is_a($this->values[$parameter], "OCI-Lob")) {
                     $this->values[$parameter] = @OCINewDescriptor($connection, OCI_D_ROWID);
-                    if ($this->values[$parameter] === false) {
+                    if (false === $this->values[$parameter]) {
                         $result = $this->db->raiseError(null, null, null,
                             'Unable to create descriptor for ROWID in parameter: '.$parameter, __FUNCTION__);
                         break;
@@ -1528,7 +1533,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 // variable (i.e. if it has been bound more than once):
                 if (!is_resource($this->values[$parameter]) || !get_resource_type($this->values[$parameter]) == "oci8 statement") {
                     $this->values[$parameter] = @OCINewCursor($connection);
-                    if ($this->values[$parameter] === false) {
+                    if (false === $this->values[$parameter]) {
                         $result = $this->db->raiseError(null, null, null,
                         'Unable to allocate cursor for parameter: '.$parameter, __FUNCTION__);
                     break;
@@ -1566,7 +1571,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
 
             if (!empty($lobs)) {
                 foreach ($lob_keys as $i) {
-                    if (!is_null($lobs[$i]['value']) && $lobs[$i]['value'] !== '') {
+                    if ((null !== $lobs[$i]['value']) && $lobs[$i]['value'] !== '') {
                         if (is_object($lobs[$i]['value'])) {
                             // Probably a NULL LOB
                             // @see http://bugs.php.net/bug.php?id=27485
@@ -1624,13 +1629,13 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
      */
     function free()
     {
-        if (is_null($this->positions)) {
+        if (null === $this->positions) {
             return $this->db->raiseError(MDB2_ERROR, null, null,
                 'Prepared statement has already been freed', __FUNCTION__);
         }
         $result = MDB2_OK;
 
-        if (!is_null($this->statement) && !@OCIFreeStatement($this->statement)) {
+        if ((null !== $this->statement) && !@OCIFreeStatement($this->statement)) {
             $result = $this->db->raiseError(null, null, null,
                 'Could not free statement', __FUNCTION__);
         }
