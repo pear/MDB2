@@ -566,6 +566,36 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->assertTrue($position != $new_pos, 'Error: the cursor position was not advanced');
         }
 
+        // bug 17039: http://pear.php.net/bugs/17039
+        $query = "SELECT 'a\'b:+c'";
+        $position = 0;
+        $p_position = strpos($query, ':');
+        $new_pos = $this->db->_skipDelimitedStrings($query, $position, $p_position);
+        $this->assertTrue($position != $new_pos, 'Error: the cursor position was not advanced');
+
+        // bug 16973: http://pear.php.net/bugs/16973
+        if ($this->db->supports('prepared_statements') != 'emulated') {
+            $this->db->expectError(MDB2_ERROR_SYNTAX);
+            $query = " select '?\\' ";
+            $stmt = $this->db->prepare($query);
+            $this->assertTrue(PEAR::isError($stmt), 'Expected Exception query with an unterminated text string specified');
+            $this->db->popExpect();
+
+            $query = " select 'a\\'?\\'' ";
+            $stmt = $this->db->prepare($query);
+            $this->assertFalse(PEAR::isError($stmt));
+
+            $query = " select concat('\\\\\\\\', ?) ";
+            $stmt = $this->db->prepare($query);
+            $this->assertFalse(PEAR::isError($stmt));
+
+            $this->db->expectError(MDB2_ERROR_SYNTAX);
+            $query = " select concat('\\\\\\\\\\', ?) ";
+            $stmt = $this->db->prepare($query);
+            $this->assertTrue(PEAR::isError($stmt), 'Expected Exception query with an unterminated text string specified');
+            $this->db->popExpect();
+        }
+
         //add some tests for named placeholders and for identifier_quoting
     }
 
