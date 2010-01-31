@@ -117,9 +117,17 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                         $default = '';
                     }
                 }
+                $definition[0] = array(
+                    'notnull' => $notnull,
+                    'nativetype' => preg_replace('/^([a-z]+)[^a-z].*/i', '\\1', $column['type'])
+                );
                 $autoincrement = false;
-                if (!empty($column['extra']) && $column['extra'] == 'auto_increment') {
-                    $autoincrement = true;
+                if (!empty($column['extra'])) {
+                    if ($column['extra'] == 'auto_increment') {
+                        $autoincrement = true;
+                    } else {
+                        $definition[0]['extra'] = $column['extra'];
+                    }
                 }
                 $collate = null;
                 if (!empty($column['collation'])) {
@@ -127,10 +135,6 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
                     $charset = preg_replace('/(.+?)(_.+)?/', '$1', $collate);
                 }
 
-                $definition[0] = array(
-                    'notnull' => $notnull,
-                    'nativetype' => preg_replace('/^([a-z]+)[^a-z].*/i', '\\1', $column['type'])
-                );
                 if (null !== $length) {
                     $definition[0]['length'] = $length;
                 }
@@ -512,11 +516,11 @@ class MDB2_Driver_Reverse_mysql extends MDB2_Driver_Reverse_Common
         $db->loadModule('Datatype', null, true);
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
-                'table' => $case_func(@mysql_field_table($resource, $i)),
-                'name'  => $case_func(@mysql_field_name($resource, $i)),
-                'type'  => @mysql_field_type($resource, $i),
-                'length'   => @mysql_field_len($resource, $i),
-                'flags' => @mysql_field_flags($resource, $i),
+                'table'  => $case_func(@mysql_field_table($resource, $i)),
+                'name'   => $case_func(@mysql_field_name($resource, $i)),
+                'type'   => @mysql_field_type($resource, $i),
+                'length' => @mysql_field_len($resource, $i),
+                'flags'  => @mysql_field_flags($resource, $i),
             );
             if ($res[$i]['type'] == 'string') {
                 $res[$i]['type'] = 'char';

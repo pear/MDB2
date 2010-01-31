@@ -171,9 +171,17 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                         $default = '';
                     }
                 }
+                $definition[0] = array(
+                    'notnull' => $notnull,
+                    'nativetype' => preg_replace('/^([a-z]+)[^a-z].*/i', '\\1', $column['type'])
+                );
                 $autoincrement = false;
-                if (!empty($column['extra']) && $column['extra'] == 'auto_increment') {
-                    $autoincrement = true;
+                if (!empty($column['extra'])) {
+                    if ($column['extra'] == 'auto_increment') {
+                        $autoincrement = true;
+                    } else {
+                        $definition[0]['extra'] = $column['extra'];
+                    }
                 }
                 $collate = null;
                 if (!empty($column['collation'])) {
@@ -181,10 +189,6 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                     $charset = preg_replace('/(.+?)(_.+)?/', '$1', $collate);
                 }
 
-                $definition[0] = array(
-                    'notnull' => $notnull,
-                    'nativetype' => preg_replace('/^([a-z]+)[^a-z].*/i', '\\1', $column['type'])
-                );
                 if (null !== $length) {
                     $definition[0]['length'] = $length;
                 }
