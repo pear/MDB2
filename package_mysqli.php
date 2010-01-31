@@ -8,6 +8,7 @@ $state = 'beta';
 $notes = <<<EOT
 - fixed bug #16003: incorrect check for error after mysqli_store_result
 - fixed bug #16147: first prepared statement is emulated when using factory with mysql
+- return ON UPDATE|DELETE action in getTableConstraintDefinition()
 - result->free() now works on multiple result sets
 - There is no NEW row in on DELETE trigger (fix error in FK constraint triggers)
 

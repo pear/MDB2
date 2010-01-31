@@ -11,6 +11,7 @@ $notes = <<<EOT
 - fixed bug #16147: first prepared statement is emulated when using factory with mysql
 - fixed bug #16669: hostspec is ignored when protocol is unix
 - There is no NEW row in on DELETE trigger (fix error in FK constraint triggers)
+- return ON UPDATE|DELETE action in getTableConstraintDefinition()
 
 note:
 - the multi_query test failes because this is not supported by ext/mysql

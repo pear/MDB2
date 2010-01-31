@@ -414,6 +414,12 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
+        //Use INFORMATION_SCHEMA instead?
+        //SELECT *
+        //  FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+        // WHERE CONSTRAINT_SCHEMA = '$dbname'
+        //   AND TABLE_NAME = '$table'
+        //   AND CONSTRAINT_NAME = '$constraint_name';
         $query = 'SHOW CREATE TABLE '. $db->escape($table);
         $constraint = $db->queryOne($query, 'text', 1);
         if (!PEAR::isError($constraint) && !empty($constraint)) {
@@ -426,10 +432,10 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
             }
             $constraint_name_original = $constraint_name;
             $constraint_name = $db->getIndexName($constraint_name);
-            $pattern = '/\bCONSTRAINT\s+'.$constraint_name.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^ ]+) \(([^\)]+)\)/i';
+            $pattern = '/\bCONSTRAINT\s+'.$constraint_name.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^\s]+) \(([^\)]+)\)(?: ON DELETE ([^\s]+))?(?: ON UPDATE ([^\s]+))?/i';
             if (!preg_match($pattern, str_replace('`', '', $constraint), $matches)) {
                 //fallback to original constraint name
-                $pattern = '/\bCONSTRAINT\s+'.$constraint_name_original.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^ ]+) \(([^\)]+)\)/i';
+                $pattern = '/\bCONSTRAINT\s+'.$constraint_name_original.'\s+FOREIGN KEY\s+\(([^\)]+)\) \bREFERENCES\b ([^\s]+) \(([^\)]+)\)(?: ON DELETE ([^\s]+))?(?: ON UPDATE ([^\s]+))?/i';
             }
             if (preg_match($pattern, str_replace('`', '', $constraint), $matches)) {
                 $definition['foreign'] = true;
@@ -451,8 +457,8 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
                         'position' => $colpos++
                     );
                 }
-                $definition['onupdate'] = 'NO ACTION';
-                $definition['ondelete'] = 'NO ACTION';
+                $definition['ondelete'] = empty($matches[4]) ? 'RESTRICT' : strtoupper($matches[4]);
+                $definition['onupdate'] = empty($matches[5]) ? 'RESTRICT' : strtoupper($matches[5]);
                 $definition['match']    = 'SIMPLE';
                 return $definition;
             }
