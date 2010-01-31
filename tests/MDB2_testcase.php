@@ -106,7 +106,7 @@ class MDB2_TestCase extends PHPUnit_TestCase {
 
     function supported($feature) {
         if (!$this->db->supports($feature)) {
-            $this->assertTrue(false, 'This database does not support '.$feature);
+            $this->fail('This database does not support '.$feature);
             return false;
         }
         return true;
