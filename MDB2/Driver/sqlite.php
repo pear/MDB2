@@ -295,12 +295,16 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
      *                  READ COMMITTED (prevents dirty reads)
      *                  REPEATABLE READ (prevents nonrepeatable reads)
      *                  SERIALIZABLE (prevents phantom reads)
+     * @param   array some transaction options:
+     *                  'wait' => 'WAIT' | 'NO WAIT'
+     *                  'rw'   => 'READ WRITE' | 'READ ONLY'
+     *
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      * @since   2.1.1
      */
-    function setTransactionIsolation($isolation)
+    function setTransactionIsolation($isolation, $options = array())
     {
         $this->debug('Setting transaction isolation level', __FUNCTION__, array('is_manip' => true));
         switch ($isolation) {
@@ -539,7 +543,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->_lasterror = $php_errormsg;
 
         if (!$result) {
-            $err =& $this->raiseError(null, null, null,
+            $code = null;
+            if (0 === strpos($this->_lasterror, 'no such table')) {
+                $code = MDB2_ERROR_NOSUCHTABLE;
+            }
+            $err =& $this->raiseError($code, null, null,
                 'Could not execute statement', __FUNCTION__);
             return $err;
         }
