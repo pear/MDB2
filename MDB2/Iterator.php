@@ -112,7 +112,7 @@ class MDB2_Iterator implements Iterator
      */
     public function current()
     {
-        if (is_null($this->row)) {
+        if (null === $this->row) {
             $row = $this->result->fetchRow($this->fetchmode);
             if (PEAR::isError($row)) {
                 $row = false;
