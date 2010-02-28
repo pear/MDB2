@@ -68,7 +68,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function createDatabase($name, $options = array())
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -119,7 +119,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         //disabled
         //return parent::alterDatabase($name, $options);
 
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -169,7 +169,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function dropDatabase($name)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -193,7 +193,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
      */
     function _makeAutoincrement($name, $table, $start = 1)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -277,7 +277,7 @@ END;
      */
     function _dropAutoincrement($table)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -407,7 +407,7 @@ END;
      */
     function createTable($name, $fields, $options = array())
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -436,7 +436,7 @@ END;
      */
     function dropTable($name)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -462,7 +462,7 @@ END;
      */
     function truncateTable($name)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -589,7 +589,7 @@ END;
      */
     function alterTable($name, $changes, $check)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -695,7 +695,7 @@ END;
         }
         $result->free();
         
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -725,7 +725,7 @@ END;
      */
     function listDatabases()
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -758,7 +758,7 @@ END;
      */
     function listUsers()
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -786,7 +786,7 @@ END;
      */
     function listViews($owner = null)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -818,7 +818,7 @@ END;
      */
     function listFunctions($owner = null)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -852,7 +852,7 @@ END;
      */
     function listTableTriggers($table = null)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -891,7 +891,7 @@ END;
      */
     function listTables($owner = null)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -923,7 +923,7 @@ END;
      */
     function listTableFields($table)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -964,7 +964,7 @@ END;
      */
     function listTableIndexes($table)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -1049,7 +1049,7 @@ END;
      */
     function dropConstraint($table, $name, $primary = false)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -1082,7 +1082,7 @@ END;
      */
     function _createFKTriggers($table, $foreign_keys)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -1177,7 +1177,7 @@ END;
      */
     function _dropFKTriggers($table, $fkname, $referenced_table)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -1212,7 +1212,7 @@ END;
      */
     function listTableConstraints($table)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -1254,7 +1254,7 @@ END;
      */
     function createSequence($seq_name, $start = 1)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -1278,7 +1278,7 @@ END;
      */
     function dropSequence($seq_name)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -1299,7 +1299,7 @@ END;
      */
     function listSequences($owner = null)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }

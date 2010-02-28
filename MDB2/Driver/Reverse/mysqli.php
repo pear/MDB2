@@ -123,7 +123,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      */
     function getTableFieldDefinition($table_name, $field_name)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -239,7 +239,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      */
     function getTableIndexDefinition($table_name, $index_name)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -314,7 +314,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      */
     function getTableConstraintDefinition($table_name, $constraint_name)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -414,7 +414,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      */
     function _getTableFKConstraintDefinition($table, $constraint_name, $definition)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -488,7 +488,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
      */
     function getTriggerDefinition($trigger)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -540,7 +540,7 @@ class MDB2_Driver_Reverse_mysqli extends MDB2_Driver_Reverse_Common
            return parent::tableInfo($result, $mode);
         }
 
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }

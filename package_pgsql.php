@@ -3,7 +3,7 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'XXX';
+$version = '1.5.0b3';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #16281: getTableFieldDefinition() does not recognize NULL defaults
@@ -22,7 +22,7 @@ $description = 'This is the PostgreSQL MDB2 driver.';
 $packagefile = './package_pgsql.xml';
 
 $options = array(
-    'filelistgenerator' => 'cvs',
+    'filelistgenerator' => 'svn',
     'changelogoldtonew' => false,
     'simpleoutput'      => true,
     'baseinstalldir'    => '/',
@@ -37,9 +37,9 @@ $package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
 $package->setPackageType('php');
 
 $package->clearDeps();
-$package->setPhpDep('4.3.0');
+$package->setPhpDep('5.0.4');
 $package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b3');
 $package->addExtensionDep('required', 'pgsql');
 
 $package->addRelease();

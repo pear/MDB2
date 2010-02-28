@@ -14,6 +14,7 @@ $notes = <<<EOT
 - fixed unreported bug in parseDSN() and oracle's Easy Connect syntax
 - fixed bug #16973 and #17039: Wrong _skipDelimitedStrings behavior with escaped quotes
 - fixed bug #16994: incompatible declaration of setTransactionIsolation() in some drivers
+- dropped PHP 4 support
 - PHP 5.3 compatibility fixes
 - performance tweaks (reduced number of internal function calls)
 - added new sqlsrv driver (native SQL Server driver) [chrisdpucci]
@@ -96,7 +97,7 @@ $package->setPackageType('php');
 $package->setExtends('MDB');
 
 $package->clearDeps();
-$package->setPhpDep('4.3.2');
+$package->setPhpDep('5.0.4');
 $package->setPearInstallerDep('1.4.0b1');
 $package->addPackageDepWithChannel('required', 'PEAR', 'pear.php.net', '1.3.6');
 

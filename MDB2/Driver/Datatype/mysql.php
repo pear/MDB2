@@ -116,7 +116,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
      */
     function getTypeDeclaration($field)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -219,7 +219,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
      */
     function _getIntegerDeclaration($name, $field)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -236,6 +236,9 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
 
         $notnull = empty($field['notnull']) ? '' : ' NOT NULL';
         $unsigned = empty($field['unsigned']) ? '' : ' UNSIGNED';
+        if (empty($default) && empty($notnull)) {
+            $default = ' DEFAULT NULL';
+        }
         $name = $db->quoteIdentifier($name, true);
         return $name.' '.$this->getTypeDeclaration($field).$unsigned.$default.$notnull.$autoinc;
     }
@@ -308,7 +311,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
      */
     function _getDecimalDeclaration($name, $field)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -346,7 +349,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
      */
     function matchPattern($pattern, $operator = null, $field = null)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -537,7 +540,7 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
             $length = null;
             break;
         default:
-            $db =& $this->getDBInstance();
+            $db = $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
             }

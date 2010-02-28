@@ -621,7 +621,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
     // }}}
     // {{{ standaloneQuery()
 
-   /**
+    /**
      * execute a query as DBA
      *
      * @param string $query the SQL query
@@ -631,7 +631,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &standaloneQuery($query, $types = null, $is_manip = false)
+    function standaloneQuery($query, $types = null, $is_manip = false)
     {
         $user = $this->options['DBA_username']? $this->options['DBA_username'] : $this->dsn['username'];
         $pass = $this->options['DBA_password']? $this->options['DBA_password'] : $this->dsn['password'];
@@ -645,7 +645,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
         
-        $result =& $this->_doQuery($query, $is_manip, $connection);
+        $result = $this->_doQuery($query, $is_manip, $connection);
         if (!PEAR::isError($result)) {
             $result = $this->_affectedRows($connection, $result);
         }
@@ -666,7 +666,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @return result or error object
      * @access protected
      */
-    function &_doQuery($query, $is_manip = false, $connection = null, $database_name = null)
+    function _doQuery($query, $is_manip = false, $connection = null, $database_name = null)
     {
         $this->last_query = $query;
         $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
@@ -692,7 +692,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $result = @ibase_query($connection, $query);
 
         if (false === $result) {
-            $err =& $this->raiseError(null, null, null,
+            $err = $this->raiseError(null, null, null,
                 'Could not execute statement', __FUNCTION__);
             return $err;
         }
@@ -818,11 +818,10 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      * @access public
      * @see bindParam, execute
      */
-    function &prepare($query, $types = null, $result_types = null, $lobs = array())
+    function prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         if ($this->options['emulate_prepared']) {
-            $obj =& parent::prepare($query, $types, $result_types, $lobs);
-            return $obj;
+            return parent::prepare($query, $types, $result_types, $lobs);
         }
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
         $offset = $this->offset;
@@ -874,7 +873,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                     $regexp = '/^.{'.($position+1).'}('.$this->options['bindname_format'].').*$/s';
                     $parameter = preg_replace($regexp, '\\1', $query);
                     if ($parameter === '') {
-                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        $err = $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter name must match "bindname_format" option', __FUNCTION__);
                         return $err;
                     }
@@ -894,7 +893,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
         $statement = @ibase_prepare($connection, $query);
         if (!$statement) {
-            $err =& $this->raiseError(null, null, null,
+            $err = $this->raiseError(null, null, null,
                 'Could not create statement', __FUNCTION__);
             return $err;
         }
@@ -1055,16 +1054,14 @@ class MDB2_Result_ibase extends MDB2_Result_Common
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
+    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (true === $this->result) {
             //query successfully executed, but without results...
-            $null = null;
-            return $null;
+            return null;
         }
         if (!$this->_skipLimitOffset()) {
-            $null = null;
-            return $null;
+            return null;
         }
         if (null !== $rownum) {
             $seek = $this->seek($rownum);
@@ -1087,12 +1084,11 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         }
         if (!$row) {
             if (false === $this->result) {
-                $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                $err = $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
                 return $err;
             }
-            $null = null;
-            return $null;
+            return null;
         }
         $mode = $this->db->options['portability'] & MDB2_PORTABILITY_EMPTY_TO_NULL;
         $rtrim = false;
@@ -1286,15 +1282,14 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
+    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (true === $this->result || (null === $this->result)) {
             //query successfully executed, but without results...
-            $null = null;
-            return $null;
+            return null;
         }
         if (false === $this->result) {
-            $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            $err = $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'resultset has already been freed', __FUNCTION__);
             return $err;
         }
@@ -1309,8 +1304,7 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_fillBuffer($target_rownum)) {
-            $null = null;
-            return $null;
+            return null;
         }
         $row = $this->buffer[$target_rownum];
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
@@ -1457,10 +1451,10 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
      *               a MDB2 error on failure
      * @access private
      */
-    function &_execute($result_class = true, $result_wrap_class = false)
+    function _execute($result_class = true, $result_wrap_class = false)
     {
         if (null === $this->statement) {
-            $result =& parent::_execute($result_class, $result_wrap_class);
+            $result = parent::_execute($result_class, $result_wrap_class);
             return $result;
         }
         $this->db->last_query = $this->query;
@@ -1492,7 +1486,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
 
         $result = @call_user_func_array('ibase_execute', $parameters);
         if (false === $result) {
-            $err =& $this->db->raiseError(null, null, null,
+            $err = $this->db->raiseError(null, null, null,
                 'Could not execute statement', __FUNCTION__);
             return $err;
         }
@@ -1502,7 +1496,7 @@ class MDB2_Statement_ibase extends MDB2_Statement_Common
             return $affected_rows;
         }
 
-        $result =& $this->db->_wrapResult($result, $this->result_types,
+        $result = $this->db->_wrapResult($result, $this->result_types,
             $result_class, $result_wrap_class, $this->limit, $this->offset);
         $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'when' => 'post', 'result' => $result));
         return $result;

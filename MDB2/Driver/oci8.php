@@ -463,7 +463,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if ($this->database_name) {
             if ($this->database_name != $this->connected_database_name) {
                 $query = 'ALTER SESSION SET CURRENT_SCHEMA = "' .strtoupper($this->database_name) .'"';
-                $result =& $this->_doQuery($query);
+                $result = $this->_doQuery($query);
                 if (PEAR::isError($result)) {
                     $err = $this->raiseError($result, null, null,
                         'Could not select the database: '.$this->database_name, __FUNCTION__);
@@ -504,7 +504,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
 
         $query = 'ALTER SESSION SET CURRENT_SCHEMA = "' .strtoupper($name) .'"';
-        $result =& $this->_doQuery($query, true, $connection, false);
+        $result = $this->_doQuery($query, true, $connection, false);
         if (PEAR::isError($result)) {
             if (!MDB2::isError($result, MDB2_ERROR_NOT_FOUND)) {
                 return $result;
@@ -574,7 +574,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @return mixed MDB2_OK on success, a MDB2 error on failure
      * @access public
      */
-    function &standaloneQuery($query, $types = null, $is_manip = false)
+    function standaloneQuery($query, $types = null, $is_manip = false)
     {
         $user = $this->options['DBA_username']? $this->options['DBA_username'] : $this->dsn['username'];
         $pass = $this->options['DBA_password']? $this->options['DBA_password'] : $this->dsn['password'];
@@ -588,12 +588,12 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
-        $result =& $this->_doQuery($query, $is_manip, $connection, false);
+        $result = $this->_doQuery($query, $is_manip, $connection, false);
         if (!PEAR::isError($result)) {
             if ($is_manip) {
                 $result = $this->_affectedRows($connection, $result);
             } else {
-                $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
+                $result = $this->_wrapResult($result, $types, true, false, $limit, $offset);
             }
         }
 
@@ -680,7 +680,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         $mode = $this->in_transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
         if (!@OCIExecute($result, $mode)) {
-            $err =& $this->raiseError($result, null, null,
+            $err = $this->raiseError($result, null, null,
                 'Could not execute statement', __FUNCTION__);
             return $err;
         }
@@ -782,11 +782,10 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
      * @access public
      * @see bindParam, execute
      */
-    function &prepare($query, $types = null, $result_types = null, $lobs = array())
+    function prepare($query, $types = null, $result_types = null, $lobs = array())
     {
         if ($this->options['emulate_prepared']) {
-            $obj =& parent::prepare($query, $types, $result_types, $lobs);
-            return $obj;
+            return parent::prepare($query, $types, $result_types, $lobs);
         }
         $is_manip = ($result_types === MDB2_PREPARE_MANIP);
         $offset = $this->offset;
@@ -851,7 +850,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                     $regexp = '/^.{'.($position+1).'}('.$this->options['bindname_format'].').*$/s';
                     $parameter = preg_replace($regexp, '\\1', $query);
                     if ($parameter === '') {
-                        $err =& $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
+                        $err = $this->raiseError(MDB2_ERROR_SYNTAX, null, null,
                             'named parameter name must match "bindname_format" option', __FUNCTION__);
                         return $err;
                     }
@@ -904,7 +903,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         }
         $statement = @OCIParse($connection, $query);
         if (!$statement) {
-            $err =& $this->raiseError(null, null, null,
+            $err = $this->raiseError(null, null, null,
                 'Could not create statement', __FUNCTION__);
             return $err;
         }
@@ -1015,7 +1014,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
+    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (null !== $rownum) {
             $seek = $this->seek($rownum);
@@ -1038,12 +1037,11 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
         }
         if (!$row) {
             if (false === $this->result) {
-                $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+                $err = $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                     'resultset has already been freed', __FUNCTION__);
                 return $err;
             }
-            $null = null;
-            return $null;
+            return null;
         }
         // remove additional column at the end
         if ($this->offset > 0) {
@@ -1235,10 +1233,10 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
      * @return int data array on success, a MDB2 error on failure
      * @access public
      */
-    function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
+    function fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
         if (false === $this->result) {
-            $err =& $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
+            $err = $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
                 'resultset has already been freed', __FUNCTION__);
             return $err;
         }
@@ -1256,8 +1254,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             $fetchmode = $this->db->fetchmode;
         }
         if (!$this->_fillBuffer($target_rownum)) {
-            $null = null;
-            return $null;
+            return null;
         }
         $row = $this->buffer[$target_rownum];
         if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
@@ -1437,11 +1434,10 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
      *               a MDB2 error on failure
      * @access private
      */
-    function &_execute($result_class = true, $result_wrap_class = false)
+    function _execute($result_class = true, $result_wrap_class = false)
     {
         if (null === $this->statement) {
-            $result =& parent::_execute($result_class, $result_wrap_class);
-            return $result;
+            return parent::_execute($result_class, $result_wrap_class);
         }
         $this->db->last_query = $this->query;
         $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'when' => 'pre', 'parameters' => $this->values));
@@ -1568,7 +1564,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         if (!PEAR::isError($result)) {
             $mode = (!empty($lobs) || $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
             if (!@OCIExecute($this->statement, $mode)) {
-                $err =& $this->db->raiseError($this->statement, null, null,
+                $err = $this->db->raiseError($this->statement, null, null,
                     'could not execute statement', __FUNCTION__);
                 return $err;
             }
@@ -1616,7 +1612,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             return $affected_rows;
         }
 
-        $result =& $this->db->_wrapResult($this->statement, $this->result_types,
+        $result = $this->db->_wrapResult($this->statement, $this->result_types,
             $result_class, $result_wrap_class, $this->limit, $this->offset);
         $this->db->debug($this->query, 'execute', array('is_manip' => $this->is_manip, 'when' => 'post', 'result' => $result));
         return $result;

@@ -74,7 +74,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         if (null === $value) {
             return null;
         }
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -164,7 +164,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function getTypeDeclaration($field)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -215,7 +215,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function _quoteLOB($value, $quote, $escape_wildcards)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -262,7 +262,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         if (empty($lob['handle'])) {
             $lob['handle'] = @ibase_blob_open($lob['resource']);
             if (!$lob['handle']) {
-                $db =& $this->getDBInstance();
+                $db = $this->getDBInstance();
                 if (PEAR::isError($db)) {
                     return $db;
                 }
@@ -293,7 +293,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         $data = @ibase_blob_get($lob['handle'], $length);
         if (!is_string($data)) {
-            $db =& $this->getDBInstance();
+            $db = $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
             }
@@ -334,7 +334,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
      */
     function patternEscapeString()
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
@@ -424,7 +424,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             $length = null;
             break;
         default:
-            $db =& $this->getDBInstance();
+            $db = $this->getDBInstance();
             if (PEAR::isError($db)) {
                 return $db;
             }

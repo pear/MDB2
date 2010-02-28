@@ -93,12 +93,12 @@ class MDB2_Driver_Function_ibase extends MDB2_Driver_Function_Common
      */
     function replace($str, $from_str, $to_str)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (PEAR::isError($db)) {
             return $db;
         }
 
-        $error =& $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        $error = $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'method not implemented', __FUNCTION__);
         return $error;
     }
