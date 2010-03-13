@@ -97,6 +97,23 @@ class MDB2_Driver_Function_pgsql extends MDB2_Driver_Function_Common
     }
 
     // }}}
+    // {{{ substring()
+
+    /**
+     * return string to call a function to get a substring inside an SQL statement
+     *
+     * @return string to call a function to get a substring
+     * @access public
+     */
+    function substring($value, $position = 1, $length = null)
+    {
+        if (null !== $length) {
+            return "SUBSTRING(CAST($value AS VARCHAR) FROM $position FOR $length)";
+        }
+        return "SUBSTRING(CAST($value AS VARCHAR) FROM $position)";
+    }
+
+    // }}}
     // {{{ random()
 
     /**
