@@ -607,6 +607,7 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
         if ($this->connected_server_info) {
             $server_info = $this->connected_server_info;
         } else {
+            $this->connect();
             $server_info = sqlsrv_server_info($this->connection);
         }
         // cache server_info
@@ -873,14 +874,19 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
 		}
 		switch($fetchmode) {
 			case MDB2_FETCHMODE_ASSOC:
-				$row = $this->rows[$this->cursor];	break;
+				$row = $this->rows[$this->cursor];
+                break;
 			case MDB2_FETCHMODE_ORDERED:
-				$row = $arrNum;	break;
+				$row = $arrNum;
+                break;
 			case MDB2_FETCHMODE_OBJECT:
-				$row = $this->array_to_obj($this->rows[$this->cursor],$o = new $this->db->options['fetch_class']); break;
+                $o = new $this->db->options['fetch_class'];
+				$row = $this->array_to_obj($this->rows[$this->cursor], $o);
+                break;
 			case MDB2_FETCHMODE_DEFAULT:
 			default:
-			$row = $this->rows[$this->cursor] + $arrNum; break;
+			$row = $this->rows[$this->cursor] + $arrNum;
+            break;
 		} 
 		$this->cursor++;
 		
@@ -957,8 +963,8 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null, 'no valid statement given', __FUNCTION__);
         }
         $columns = array();
-		foreach ($this->fieldMeta as $col) {
-			$columns[$col['Name']] = $col['Type'];
+		foreach ($this->fieldMeta as $n => $col) {
+			$columns[$col['Name']] = $n;
 		}
         if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $columns = array_change_key_case($columns, $this->db->options['field_case']);
