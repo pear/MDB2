@@ -1360,6 +1360,8 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
 	        }
         } elseif (!empty($definition['unique'])) {
 	        $query = "CREATE UNIQUE NONCLUSTERED INDEX $name ON $table";
+        } elseif (!empty($definition['foreign'])) {
+            $query = "ALTER TABLE $table ADD CONSTRAINT $name FOREIGN KEY";
         }
         $fields = array();
         foreach (array_keys($definition['fields']) as $field) {
@@ -1372,6 +1374,15 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
 			for($i=0;$i<count($fields);$i++) $fields[$i] .= ' is NOT NULL';
 			$query .= ' WHERE '. implode(' AND ', $fields);
 		}
+        if (!empty($definition['foreign'])) {
+            $query.= ' REFERENCES ' . $db->quoteIdentifier($definition['references']['table'], true);
+            $referenced_fields = array();
+            foreach (array_keys($definition['references']['fields']) as $field) {
+                $referenced_fields[] = $db->quoteIdentifier($field, true);
+            }
+            $query .= ' ('. implode(', ', $referenced_fields) . ')';
+            $query .= $this->_getAdvancedFKOptions($definition);
+        }
         return $db->exec($query);
     }
 
