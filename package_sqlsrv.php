@@ -6,7 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
-
+- Added SQLSRV_SQLTYPE_TIMESTAMP database attribute support [davidc] [genericbob]
 EOT;
 
 $description = 'This is the SQL Server MDB2 driver.';

@@ -427,6 +427,8 @@ class MDB2_Driver_Datatype_sqlsrv extends MDB2_Driver_Datatype_Common
         case SQLSRV_SQLTYPE_IMAGE:
         case 'varbinary':
         case SQLSRV_SQLTYPE_VARBINARY:
+        case 'timestamp':
+        case SQLSRV_SQLTYPE_TIMESTAMP:
             $type[] = 'blob';
             $length = null;
             break;
