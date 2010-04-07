@@ -472,6 +472,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             break;
         case 'image':
         case 'varbinary':
+        case 'timestamp':
             $type[] = 'blob';
             $length = null;
             break;
