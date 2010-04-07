@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = 'XXX';
 $state = 'beta';
 $notes = <<<EOT
+- Fixed bug #16612: Added the timestamp database attribute [genericbob]
 - fixed bug #16118: escape doesn't take into account trailing backslashes [urkle]
 - request #16903: Add ability to use ODBTP extension [hedroom]
 - fixed numRows() with setLimit()
