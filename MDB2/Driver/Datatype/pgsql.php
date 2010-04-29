@@ -246,7 +246,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $value = $this->_readFile($value);
+        $value = $this->_readFile($value, $db->options['lob_allow_url_include']);
         if (PEAR::isError($value)) {
             return $value;
         }
@@ -276,7 +276,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        $value = $this->_readFile($value);
+        $value = $this->_readFile($value, $db->options['lob_allow_url_include']);
         if (PEAR::isError($value)) {
             return $value;
         }
