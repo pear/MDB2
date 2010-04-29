@@ -1245,15 +1245,17 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
      *       a DBMS specific format.
      * @access protected
      */
-    function _readFile($value)
+    function _readFile($value, $allow_url_include = false)
     {
         $close = false;
         if (preg_match('/^(\w+:\/\/)(.*)$/', $value, $match)) {
             $close = true;
-            if ($match[1] == 'file://') {
+            if (strtolower($match[1]) == 'file://') {
                 $value = $match[2];
+                $value = @fopen($value, 'r');
+            } elseif ($allow_url_include) {
+                $value = @fopen($value, 'r');
             }
-            $value = @fopen($value, 'r');
         }
 
         if (is_resource($value)) {
@@ -1295,12 +1297,12 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        if ($db->options['lob_allow_url_include']) {
-            $value = $this->_readFile($value);
-            if (PEAR::isError($value)) {
-                return $value;
-            }
+
+        $value = $this->_readFile($value, $db->options['lob_allow_url_include']);
+        if (PEAR::isError($value)) {
+            return $value;
         }
+
         return $this->_quoteText($value, $quote, $escape_wildcards);
     }
 
