@@ -112,7 +112,7 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return MDB2_OK;
         }
 
-        $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true);
+        $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true) . $query;
         return $db->standaloneQuery($query, null, true);
     }
 
