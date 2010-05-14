@@ -100,13 +100,19 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
             return $db;
         }
 
-        $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true);
+        $query = '';
         if (!empty($options['name'])) {
             $query .= ' RENAME TO ' . $options['name'];
         }
         if (!empty($options['owner'])) {
             $query .= ' OWNER TO ' . $options['owner'];
         }
+
+        if (empty($query)) {
+            return MDB2_OK;
+        }
+
+        $query = 'ALTER DATABASE '. $db->quoteIdentifier($name, true);
         return $db->standaloneQuery($query, null, true);
     }
 
