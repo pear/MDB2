@@ -10,7 +10,7 @@ if (!defined('PATH_SEPARATOR')) {
 }
 ini_set('include_path', '..'.PATH_SEPARATOR.ini_get('include_path'));
 
-require_once 'PHPUnit.php';
+//require_once 'PHPUnit.php';
 require_once 'test_setup.php';
 require_once 'testUtils.php';
 
@@ -54,7 +54,7 @@ function checkAll(testcase)
 </head>
 <body>
 
-<form id="testchooseForm" name="testchooseForm" method="post" action="test.php">
+<form id="testchooseForm" name="testchooseForm" method="get" action="test.php">
 <?php
 echo($output);
 ?>

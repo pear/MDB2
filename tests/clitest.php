@@ -58,7 +58,7 @@
 */
 
 require_once 'test_setup.php';
-require_once 'PHPUnit.php';
+//require_once 'PHPUnit.php';
 require_once 'testUtils.php';
 require_once 'MDB2.php';
 require_once 'Console_TestListener.php';
@@ -109,7 +109,7 @@ foreach ($dbarray as $db) {
     $display_dsn = $dsn['phptype'] . "://" . $dsn['username'] . ":XXX@" . $dsn['hostspec'] . "/" . $database;
     echo "=== Start test of $display_dsn on ".PHP_VERSION." ===\n";
 
-    $suite = new PHPUnit_TestSuite();
+    $suite = new PHPUnit_Framework_TestSuite();
 
     foreach ($testcases as $testcase) {
         if (is_array($testmethods[$testcase])) {
@@ -120,11 +120,11 @@ foreach ($dbarray as $db) {
         }
     }
 
-    $result = new PHPUnit_TestResult;
+    $result = new PHPUnit_Framework_TestResult;
     $result->addListener(new Console_TestListener);
 
     $suite->run($result);
-    $count = $result->runCount();
+    $count = $result->count();
     $failed = $result->failureCount();
 
     echo "=== Summary: $failed failed assertions in $count tests ===\n\n";

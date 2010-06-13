@@ -56,13 +56,13 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
     function test_apiVersion()
     {
         $result = MDB2::apiVersion();
-        $this->assertNotNull($result, 'apiVersion');
+        $this->assertNotNull($result, 'apiVersion null: '.$result);
         $result = strtok($result, '.');
-        $this->assertTrue(is_numeric($result), 'apiVersion');
+        $this->assertTrue(is_numeric($result), 'apiVersion major: '.$result);
         $result = strtok('.');
-        $this->assertTrue(is_numeric($result), 'apiVersion');
+        $this->assertTrue(is_numeric($result), 'apiVersion minor: '.$result);
         $result = strtok('.');
-        $this->assertRegExp('/\d+((b|rc)\d+)?/', $result);
+        $this->assertRegExp('/\d+((b|a|pl|rc)\d+)?/', $result);
     }
 
     /**

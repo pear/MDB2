@@ -832,8 +832,9 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $this->db->loadModule('Manager', null, true);
 
         for ($start_value = 1; $start_value < 4; $start_value++) {
-            $sequence_name = "test_sequence_$start_value";
+            $sequence_name = "test_sequence_{$start_value}";
 
+            @$this->db->manager->dropSequence($sequence_name);
             $result = $this->db->manager->createSequence($sequence_name, $start_value);
             if (PEAR::isError($result)) {
                 $this->fail("Error creating sequence $sequence_name with start value $start_value: ".$result->getMessage());
@@ -1840,20 +1841,6 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->fail('Error selecting from users: '.$result->getMessage());
         }
         $this->assertEquals(rtrim($value), $result, '"MDB2_PORTABILITY_RTRIM = on" not working');
-
-        $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_RTRIM);
-        $value = ' ';
-        $query = 'INSERT INTO users (user_id, user_name) VALUES (2, ' . $this->db->quote($value, 'text') .')';
-        $res = $this->db->exec($query);
-        if (PEAR::isError($res)) {
-            $this->fail('Error executing query: '.$res->getMessage());
-        }
-        $query = 'SELECT user_name FROM users WHERE user_id = 2';
-        $result = $this->db->queryOne($query, array('text'));
-        if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users: '.$result->getMessage());
-        }
-        $this->assertEquals(0, strlen($result), '"MDB2_PORTABILITY_RTRIM = on" not working');
 
         if (!$this->supported('LOBs')) {
             return;

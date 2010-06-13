@@ -1,32 +1,34 @@
 <?php
-class Console_TestListener extends PHPUnit_TestListener {
-    function addError(&$test, &$t) {
-        $this->_errors += 1;
-        echo(" Error $this->_errors in ".$test->getName()." : $t\n");
+class Console_TestListener implements PHPUnit_Framework_TestListener {
+    public function addError(PHPUnit_Framework_Test $test, Exception $e, $time) {
+        printf("Error while running test '%s': %s.\n", $test->getName(), $e->getMessage());
     }
 
-    function addFailure(&$test, &$t) {
-        $this->_fails += 1;
-        if ($this->_fails == 1) {
-            echo("\n");
-        }
-        echo("Failure $this->_fails : $t\n");
+    public function addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e, $time) {
+        printf("Test '%s' failed.\n", $test->getName());
     }
 
-    function endTest(&$test) {
-        if ($this->_fails == 0 && $this->_errors == 0) {
-            echo(' Test passed');
-        } else {
-            echo("There were $this->_fails failures for ".$test->getName()."\n");
-            echo("There were $this->_errors errors for ".$test->getName()."\n");
-        }
-        echo("\n");
+    public function addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e, $time) {
+        printf("Test '%s' is incomplete.\n", $test->getName());
     }
 
-    function startTest(&$test) {
-        $this->_fails = 0;
-        $this->_errors = 0;
-        echo(get_class($test).' : Starting '.$test->getName().' ...');
+    public function addSkippedTest(PHPUnit_Framework_Test $test, Exception $e, $time) {
+        printf("Test '%s' has been skipped.\n", $test->getName());
+    }
+
+    public function startTest(PHPUnit_Framework_Test $test) {
+        printf("Test '%s' started.\n", $test->getName());
+    }
+
+    public function endTest(PHPUnit_Framework_Test $test, $time) {
+        printf("Test '%s' ended.\n", $test->getName());
+    }
+
+    public function startTestSuite(PHPUnit_Framework_TestSuite $suite) {
+        printf("TestSuite '%s' started.\n", $suite->getName());
+    }
+
+    public function endTestSuite(PHPUnit_Framework_TestSuite $suite) {
+        printf("TestSuite '%s' ended.\n", $suite->getName());
     }
 }
-?>

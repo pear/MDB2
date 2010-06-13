@@ -48,7 +48,7 @@
  */
 
 require_once 'test_setup.php';
-require_once 'PHPUnit.php';
+//require_once 'PHPUnit.php';
 require_once 'testUtils.php';
 require_once 'MDB2.php';
 require_once 'HTML_TestListener.php';
@@ -80,7 +80,7 @@ foreach ($testcases as $testcase) {
 
 $database = 'driver_test';
 
-$testmethods = !empty($_POST['testmethods']) ? $_POST['testmethods'] : null;
+$testmethods = !empty($_REQUEST['testmethods']) ? $_REQUEST['testmethods'] : null;
 
 if (!is_array($testmethods)) {
     foreach ($testcases as $testcase) {
@@ -106,7 +106,7 @@ foreach ($dbarray as $db) {
     echo "<div class=\"test\">\n";
     echo "<div class=\"title\">Testing $display_dsn on ".PHP_VERSION."</div>\n";
 
-    $suite = new PHPUnit_TestSuite();
+    $suite = new PHPUnit_Framework_TestSuite();
 
     foreach ($testcases as $testcase) {
         if (isset($testmethods[$testcase]) && is_array($testmethods[$testcase])) {
@@ -117,10 +117,10 @@ foreach ($dbarray as $db) {
         }
     }
 
-    $result = new PHPUnit_TestResult;
+    $result = new PHPUnit_Framework_TestResult;
     $result->addListener(new HTML_TestListener);
     $suite->run($result);
-    $count = $result->runCount();
+    $count = $result->count();
     $failed = $result->failureCount();
 
     echo "<div class=\"title\">Summary: $failed failed assertions in $count tests</div>\n";
