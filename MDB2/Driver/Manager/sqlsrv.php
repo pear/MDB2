@@ -1276,17 +1276,15 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
      *  - No identifier can contain ASCII 0 (0x00) or a byte with a value of 255.
      *  - Before MySQL 4.1, identifier quote characters should not be used in identifiers.
      *  - Database, table, and column names should not end with space characters.
-     *  - Database and table names cannot contain “/”, “\”, “.”, or characters that are not allowed in filenames.
+     *  - Database and table names cannot contain "/", "\", ".", or characters that are not allowed in filenames.
      *
      *  Table/Database name maximum length:
      *  - 64
      *
      * @param string $name table name to check
+     * @param string $entityType
+     *
      * @return true if name is correct and PEAR error on failure
-     *      *
-     * @param unknown_type $name
-     * @param unknown_type $entityType
-     * @return unknown
      */
     function _validateEntityName($name, $entityType)
     {
