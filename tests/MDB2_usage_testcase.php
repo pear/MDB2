@@ -1761,13 +1761,15 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
             $this->fail('Error executing prepared query: '.$result->getMessage());
         }
 
-        $row = $this->db->queryRow('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users WHERE user_password IS NULL', $this->fields);
+        $row = $this->db->queryRow('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users WHERE user_password IS NULL', $this->fields, MDB2_FETCHMODE_ORDERED);
 
         if (PEAR::isError($row)) {
             $this->fail('Error selecting from users'.$result->getMessage());
         }
 
-        $this->assertEquals(count($this->fields), count($row), "The query result returned a number of columns unlike ".count($this->fields) .' as expected');
+        $expected = count($this->fields);
+        $actual   = count($row);
+        $this->assertEquals($expected, $actual, "The query result returned a number of columns ({$actual}) unlike {$expected} as expected");
     }
 
     function testPortabilityOptions() {
