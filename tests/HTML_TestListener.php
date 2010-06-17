@@ -15,7 +15,7 @@ class HTML_TestListener implements PHPUnit_Framework_TestListener {
         if ($this->_fails == 1) {
             echo("\n<div class=\"failure\">");
         }
-        printf("Test '%s' failed : %s.<br />\n", $test->getName(), (string)$e);
+        printf("Test '%s' failed : %s.<br />\n<pre>%s</pre>\n", $test->getName(), htmlentities($e->getMessage()), (string)$e->getTraceAsString());
         //echo("Failure $this->_fails : $t<br>\n");
     }
 
