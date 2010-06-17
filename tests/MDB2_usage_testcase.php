@@ -1604,7 +1604,17 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
         $quoted = $this->db->quote($character_data_file_tmp,  'clob');
         $this->assertEquals($expected, $quoted);
 
-        $expected = ($this->dsn['phptype'] == 'oci8') ? 'EMPTY_BLOB()' : "'".$character_data."'";
+        switch ($this->dsn['phptype']) {
+            case 'oci8':
+                $expected = 'EMPTY_BLOB()';
+                break;
+            case 'sqlsrv':
+                $expected = "'0x".bin2hex($character_data)."'";
+                break;
+            default:
+                $expected = "'".$character_data."'";
+                break;
+        }
         $quoted = $this->db->quote($character_data_file_tmp,  'blob');
         $this->assertEquals($expected, $quoted);
     }
