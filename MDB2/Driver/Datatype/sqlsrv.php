@@ -330,8 +330,14 @@ class MDB2_Driver_Datatype_sqlsrv extends MDB2_Driver_Datatype_Common
         if (!$quote) {
             return $value;
         }
-        $value = '0x'.bin2hex($this->_readFile($value));
-        return $value;
+        $db = $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+        if ($db->options['lob_allow_url_include']) {
+            $value = '0x'.bin2hex($this->_readFile($value));
+        }
+        return "'".$value."'";
     }
 
     // }}}
