@@ -1100,19 +1100,17 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                     $null_values[] = $table_fields[$i] .' = NULL';
                 }
                 $conditions2 = array();
-                if ('NO ACTION' != $fkdef['ondelete']) {
-                    // There is no NEW row in on DELETE trigger
-                    for ($i=0; $i<count($referenced_fields); $i++) {
-                        $conditions2[]  = 'NEW.'.$referenced_fields[$i] .' <> OLD.'.$referenced_fields[$i];
-                    }
+                for ($i=0; $i<count($referenced_fields); $i++) {
+                    $conditions2[]  = 'NEW.'.$referenced_fields[$i] .' <> OLD.'.$referenced_fields[$i];
                 }
 
                 $restrict_action .= implode(' AND ', $conditions).') IS NOT NULL';
-                if (!empty($conditions2)) {
-                    $restrict_action .= ' AND (' .implode(' OR ', $conditions2) .')';
-                }
-                $restrict_action .= ' THEN CALL %s_ON_TABLE_'.$table.'_VIOLATES_FOREIGN_KEY_CONSTRAINT();'
+                $restrict_action2 = empty($conditions2) ? '' : ' AND (' .implode(' OR ', $conditions2) .')';
+                $restrict_action3 = ' THEN CALL %s_ON_TABLE_'.$table.'_VIOLATES_FOREIGN_KEY_CONSTRAINT();'
                                    .' END IF;';
+
+                $restrict_action_update = $restrict_action . $restrict_action2 . $restrict_action3;
+                $restrict_action_delete = $restrict_action . $restrict_action3; // There is no NEW row in on DELETE trigger
 
                 $cascade_action_update = 'UPDATE '.$table_quoted.' SET '.implode(', ', $new_values) .' WHERE '.implode(' AND ', $conditions). ';';
                 $cascade_action_delete = 'DELETE FROM '.$table_quoted.' WHERE '.implode(' AND ', $conditions). ';';
@@ -1143,9 +1141,9 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 } elseif ('SET DEFAULT' == $fkdef['onupdate']) {
                     $sql_update = sprintf($query, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update') . $setdefault_action;
                 } elseif ('NO ACTION' == $fkdef['onupdate']) {
-                    $sql_update = sprintf($query.$restrict_action, $trigger_names['pk_update'], 'AFTER UPDATE', 'update');
+                    $sql_update = sprintf($query.$restrict_action_update, $trigger_names['pk_update'], 'AFTER UPDATE', 'update');
                 } elseif ('RESTRICT' == $fkdef['onupdate']) {
-                    $sql_update = sprintf($query.$restrict_action, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update');
+                    $sql_update = sprintf($query.$restrict_action_update, $trigger_names['pk_update'], 'BEFORE UPDATE', 'update');
                 }
                 if ('CASCADE' == $fkdef['ondelete']) {
                     $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'BEFORE DELETE',  'delete') . $cascade_action_delete;
@@ -1154,9 +1152,9 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
                 } elseif ('SET DEFAULT' == $fkdef['ondelete']) {
                     $sql_delete = sprintf($query, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete') . $setdefault_action;
                 } elseif ('NO ACTION' == $fkdef['ondelete']) {
-                    $sql_delete = sprintf($query.$restrict_action, $trigger_names['pk_delete'], 'AFTER DELETE', 'delete');
+                    $sql_delete = sprintf($query.$restrict_action_delete, $trigger_names['pk_delete'], 'AFTER DELETE', 'delete');
                 } elseif ('RESTRICT' == $fkdef['ondelete']) {
-                    $sql_delete = sprintf($query.$restrict_action, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete');
+                    $sql_delete = sprintf($query.$restrict_action_delete, $trigger_names['pk_delete'], 'BEFORE DELETE', 'delete');
                 }
                 $sql_update .= ' SET FOREIGN_KEY_CHECKS = 1; END;';
                 $sql_delete .= ' SET FOREIGN_KEY_CHECKS = 1; END;';

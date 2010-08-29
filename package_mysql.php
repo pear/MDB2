@@ -11,7 +11,7 @@ $notes = <<<EOT
 - fixed bug #16147: first prepared statement is emulated when using factory with mysql
 - fixed bug #16669: hostspec is ignored when protocol is unix
 - fixed bug #17037: 'on update' not mentioned in tableInfo()
-- There is no NEW row in on DELETE trigger (fix error in FK constraint triggers)
+- fixed bug #17065: There is no NEW row in on DELETE trigger (fix error in FK constraint triggers)
 - return ON UPDATE|DELETE action in getTableConstraintDefinition()
 
 note:
