@@ -27,7 +27,9 @@
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes></notes>
+ <notes>
+First release.
+ </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
    <dir name="MDB2">

@@ -28,7 +28,7 @@
  </stability>
  <license>BSD License</license>
  <notes>
-	
+First release.
  </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
