@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_oci8</name>
  <channel>pear.php.net</channel>
  <summary>oci8 MDB2 driver</summary>
@@ -22,22 +22,18 @@
   <email>justinpatrin@php.net</email>
   <active>yes</active>
  </developer>
- <date>2009-01-14</date>
- <time>16:04:31</time>
+ <date>2010-08-29</date>
+ <time>12:48:44</time>
  <version>
-  <release>1.5.0b2</release>
-  <api>1.5.0b2</api>
+  <release>1.5.0b3</release>
+  <api>1.5.0b3</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #12117: disconnect() does not work as documented
-- fixed bug #14383: wrong replacement with prepared statements with LOB parameters
-  after the 9th position
-- request #14639: automatically fetch CLOBs when retrieved with &apos;text&apos; data type
-
+ <notes>
 note:
 - please use the latest ext/oci8 version from pecl.php.net/oci8
  (binaries are available from snaps.php.net and pecl4win.php.net)
@@ -49,59 +45,23 @@ note:
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
-- buffer LOBs when doing buffered queries</notes>
+- buffer LOBs when doing buffered queries
+ </notes>
  <contents>
-  <dir baseinstalldir="/" name="/">
-   <dir name="MDB2">
-    <dir name="Driver">
-     <dir name="Datatype">
-      <file name="oci8.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Datatype -->
-     <dir name="Function">
-      <file name="oci8.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Function -->
-     <dir name="Manager">
-      <file name="oci8.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Manager -->
-     <dir name="Native">
-      <file name="oci8.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Native -->
-     <dir name="Reverse">
-      <file name="oci8.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Reverse -->
-     <file name="oci8.php" role="php">
-      <tasks:replace from="@package_version@" to="version" type="package-info" />
-     </file>
-    </dir> <!-- /MDB2/Driver -->
-   </dir> <!-- /MDB2 -->
-   <dir name="tests">
-    <file name="MDB2_nonstandard_oci8.php" role="test" />
-   </dir> <!-- /tests -->
-   <file name="package_oci8.xml" role="data" />
-  </dir> <!-- / -->
+  <dir baseinstalldir="/" name="/" /> <!-- / -->
  </contents>
  <dependencies>
   <required>
    <php>
-    <min>4.3.0</min>
+    <min>5.3.0</min>
    </php>
    <pearinstaller>
-    <min>1.4.0b1</min>
+    <min>1.9.1</min>
    </pearinstaller>
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b2</min>
+    <min>1.5.0b3</min>
    </package>
    <extension>
     <name>oci8</name>
@@ -110,6 +70,32 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0b3</release>
+    <api>1.5.0b3</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2010-08-29</date>
+   <license>BSD License</license>
+   <notes>
+note:
+- please use the latest ext/oci8 version from pecl.php.net/oci8
+ (binaries are available from snaps.php.net and pecl4win.php.net)
+- by default this driver emulates the database concept other RDBMS have by
+  using the &quot;database&quot; option instead of &quot;username&quot; in the DSN as the username name.
+  This behaviour can be disabled by setting the &quot;emulate_database&quot; option to false.
+- the multi_query test failes because this is not supported by ext/oci8
+- the null LOB test failes because this is not supported by Oracle
+
+open todo items:
+- enable use of read() for LOBs to read a LOB in chunks
+- buffer LOBs when doing buffered queries
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.5.0b2</release>
@@ -121,7 +107,8 @@ open todo items:
    </stability>
    <date>2009-01-14</date>
    <license>BSD License</license>
-   <notes>- fixed bug #12117: disconnect() does not work as documented
+   <notes>
+- fixed bug #12117: disconnect() does not work as documented
 - fixed bug #14383: wrong replacement with prepared statements with LOB parameters
   after the 9th position
 - request #14639: automatically fetch CLOBs when retrieved with &apos;text&apos; data type
@@ -137,7 +124,8 @@ note:
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
-- buffer LOBs when doing buffered queries</notes>
+- buffer LOBs when doing buffered queries
+   </notes>
   </release>
   <release>
    <version>
@@ -150,7 +138,8 @@ open todo items:
    </stability>
    <date>2008-03-15</date>
    <license>BSD License</license>
-   <notes>- request #12528: added &apos;session_mode&apos; DSN parameter
+   <notes>
+- request #12528: added &apos;session_mode&apos; DSN parameter
 - request #12731: added truncateTable() in the Manager module
 - request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - request #12800: added alterDatabase() in the Manager module
@@ -171,7 +160,8 @@ note:
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
-- buffer LOBs when doing buffered queries</notes>
+- buffer LOBs when doing buffered queries
+   </notes>
   </release>
   <release>
    <version>
@@ -184,7 +174,8 @@ open todo items:
    </stability>
    <date>2007-12-06</date>
    <license>BSD License</license>
-   <notes>- fixed named parameter validation regexp in prepared queries
+   <notes>
+- fixed named parameter validation regexp in prepared queries
 - fixed bug #12552: _makeAutoincrement() not quoting the sequence name in the Manager module
 
 note:
@@ -198,7 +189,8 @@ note:
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
-- buffer LOBs when doing buffered queries</notes>
+- buffer LOBs when doing buffered queries
+   </notes>
   </release>
   <release>
    <version>
@@ -211,7 +203,8 @@ open todo items:
    </stability>
    <date>2007-10-28</date>
    <license>BSD License</license>
-   <notes>- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+   <notes>
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #10969: execute() does not bind reference variables (patch by Charles Woodcock)
 - request #11297: added support for &quot;owner.table&quot; notation in the Manager and Reverse modules
 - fixed bug #11428: propagate quote() errors with invalid data types
@@ -239,7 +232,8 @@ note:
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
-- buffer LOB&apos;s when doing buffered queries</notes>
+- buffer LOB&apos;s when doing buffered queries
+   </notes>
   </release>
   <release>
    <version>
@@ -252,7 +246,8 @@ open todo items:
    </stability>
    <date>2007-05-03</date>
    <license>BSD License</license>
-   <notes>- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+   <notes>
+- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
 - fixed bug #10618: query in listTableIndexes() in the Manager module missing parentheses
@@ -273,7 +268,8 @@ note:
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
-- buffer LOB&apos;s when doing buffered queries</notes>
+- buffer LOB&apos;s when doing buffered queries
+   </notes>
   </release>
   <release>
    <version>
@@ -286,7 +282,8 @@ open todo items:
    </stability>
    <date>2007-03-13</date>
    <license>BSD License</license>
-   <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
+   <notes>
+- propagate errors in getTableFieldDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module [experimental]
 - implemented guid() in the Function module [globally unique identifier]
 - added missing error codes (including the one reported in bug #9780)
@@ -316,7 +313,8 @@ note:
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
-- buffer LOB&apos;s when doing buffered queries</notes>
+- buffer LOB&apos;s when doing buffered queries
+   </notes>
   </release>
   <release>
    <version>
@@ -329,7 +327,8 @@ open todo items:
    </stability>
    <date>2006-11-03</date>
    <license>BSD License</license>
-   <notes>- fixed inheritance structure of convertResult()
+   <notes>
+- fixed inheritance structure of convertResult()
 - fixed several critical typos in tableInfo()
 - added support for new &apos;disable_iso_date&apos; date DSN option (Request #8739)
 - removed spurious 4th parameter of getDeclaration()
@@ -348,7 +347,8 @@ note:
 
 open todo items:
 - enable use of read() for LOBs to read a LOB in chunks
-- buffer LOB&apos;s when doing buffered queries</notes>
+- buffer LOB&apos;s when doing buffered queries
+   </notes>
   </release>
   <release>
    <version>
@@ -361,7 +361,8 @@ open todo items:
    </stability>
    <date>2006-09-03</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- flip positions property array in prepared statement objects to make it
+   <notes>
+- flip positions property array in prepared statement objects to make it
   possible to optionally use the same named placeholder in multiple places
   inside a single prepared statement
 
@@ -375,7 +376,8 @@ note:
 - the null LOB test failes because this is not supported by Oracle
 
 open todo items:
-- enable use of read() for LOBs to read a LOB in chunks</notes>
+- enable use of read() for LOBs to read a LOB in chunks
+   </notes>
   </release>
   <release>
    <version>
@@ -388,7 +390,8 @@ open todo items:
    </stability>
    <date>2006-08-21</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- return an error if a named placeholder name is used twice inside a single statement
+   <notes>
+- return an error if a named placeholder name is used twice inside a single statement
 - do not list empty contraints and indexes
 - added support for &apos;primary&apos; option in createTable()
 - do not set a default if type is a LOB (Request #8074)
@@ -405,7 +408,8 @@ note:
 - the null LOB test failes because this is not supported by Oracle
 
 open todo items:
-- enable use of read() for LOBs to read a LOB in chunks</notes>
+- enable use of read() for LOBs to read a LOB in chunks
+   </notes>
   </release>
   <release>
    <version>
@@ -418,7 +422,8 @@ open todo items:
    </stability>
    <date>2006-07-23</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added ability to escape wildcard characters in escape() and quote()
+   <notes>
+- added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
 - added savepoint support to beginTransaction(), commit() and rollback()
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
@@ -449,7 +454,8 @@ name. this behaviour can be disabled by setting the &quot;emulate_database&quot;
 to false.
 
 open todo items:
-- enable use of read() for LOBs to read a LOB in chunks</notes>
+- enable use of read() for LOBs to read a LOB in chunks
+   </notes>
   </release>
   <release>
    <version>
@@ -462,7 +468,8 @@ open todo items:
    </stability>
    <date>2006-06-15</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+   <notes>
+- added &quot;emulate_prepared&quot; option to force prepared statement emulation
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
 - use setCharset() in connect()/_doConnect()
@@ -485,7 +492,8 @@ note: please use the latest ext/oci8 version from pecl.php.net/oci8
 open todo items:
 - fix issues with testcreateautoincrementtable (error on sequence creation)
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
-- enable use of read() for LOBs to read a LOB in chunks</notes>
+- enable use of read() for LOBs to read a LOB in chunks
+   </notes>
   </release>
   <release>
    <version>
@@ -498,7 +506,8 @@ open todo items:
    </stability>
    <date>2006-05-14</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- explicitly set is_manip parameter to false for transaction debug calls
+   <notes>
+- explicitly set is_manip parameter to false for transaction debug calls
 - pass parameter array as debug() all with scope &quot;parameters&quot; in every execute()
   call (bug #4119)
 - typo fixes in phpdoc (thx Stoyan)
@@ -522,7 +531,8 @@ open todo items:
 
 open todo items:
 - fix issues with testcreateautoincrementtable (error on sequence creation)
-- ensure that all primary/unique/foreign key handling is only in the contraint methods</notes>
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+   </notes>
   </release>
   <release>
    <version>
@@ -535,7 +545,8 @@ open todo items:
    </stability>
    <date>2006-04-16</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- handle null as resource when disable_query option is enabled in result object
+   <notes>
+- handle null as resource when disable_query option is enabled in result object
 - added missing methods in the reverse and datatype module
 - aligned _modifyQuery() signature and phpdoc
 - shorten autoincrement emulation related identifiers (bug #7109)
@@ -557,7 +568,8 @@ open todo items:
 - fix issues with lobs (where the placeholder is not named like the field)
 - fix crash/issues in _makeAutoincrement()
 - there are still severe stability issues due to ext/oci8, especially on windows
-- ensure that all primary/unique/foreign key handling is only in the contraint methods</notes>
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+   </notes>
   </release>
   <release>
    <version>
@@ -570,7 +582,8 @@ open todo items:
    </stability>
    <date>2006-02-05</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added support for length in decimal columns
+   <notes>
+- added support for length in decimal columns
 - removed ugly hack for quote parameter in quote() since it was insufficient
   (escaping also needs to be prevented)
 - added support for out of order parameter binding in prepared queries
@@ -587,7 +600,8 @@ open todo items:
 - handle autoincremement fields in alterTable()
 - there are still a number of missing methods in the reverse and datatype module
 - there are still severe stability issues due to ext/oci8, especially on windows
-- ensure that all primary/unique/foreign key handling is only in the contraint methods</notes>
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+   </notes>
   </release>
   <release>
    <version>
@@ -600,7 +614,8 @@ open todo items:
    </stability>
    <date>2006-01-13</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+   <notes>
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 - since we do not store the last statement in mdb2 we cannot check it
   (maybe this needs to be ported more completely from DB)
 - fixed signature of executeStoredProc()
@@ -614,7 +629,8 @@ open todo items:
 - handle autoincremement fields in alterTable()
 - there are still a number of missing methods in the reverse and datatype module
 - there are still severe stability issues due to ext/oci8, especially on windows
-- ensure that all primary/unique/foreign key handling is only in the contraint methods</notes>
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+   </notes>
   </release>
   <release>
    <version>
@@ -627,13 +643,15 @@ open todo items:
    </stability>
    <date>2005-12-30</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- types can now always be keyed by name or by order
+   <notes>
+- types can now always be keyed by name or by order
 
 open todo items:
 - handle autoincremement fields in alterTable()
 - there are still a number of missing methods in the reverse and datatype module
 - there are still severe stability issues due to ext/oci8, especially on windows
-- ensure that all primary/unique/foreign key handling is only in the contraint methods</notes>
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+   </notes>
   </release>
   <release>
    <version>
@@ -646,7 +664,8 @@ open todo items:
    </stability>
    <date>2005-12-28</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed typo in _execute() that would lead to using the wrong types inside the result object
+   <notes>
+- fixed typo in _execute() that would lead to using the wrong types inside the result object
 - fixed typo in _execute() that lead to using the wrong ressource inside the result object
 - various fixes for alterTable()
 - fixed testNow()
@@ -655,7 +674,8 @@ open todo items:
 - handle autoincremement fields in alterTable()
 - there are still a number of missing methods in the reverse and datatype module
 - there are still severe stability issues due to ext/oci8, especially on windows
-- ensure that all primary/unique/foreign key handling is only in the contraint methods</notes>
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+   </notes>
   </release>
   <release>
    <version>
@@ -668,7 +688,8 @@ open todo items:
    </stability>
    <date>2005-12-21</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added listTableIndexes()
+   <notes>
+- added listTableIndexes()
 - fixed _dropAutoincrement()
 - use _dropAutoincrement() in dropTable()
 - support portability option in listTableIndexes()
@@ -694,7 +715,8 @@ open todo items:
 - handle autoincremement fields in alterTable()
 - there are still a number of missing methods in the reverse and datatype module
 - there are still severe stability issues due to ext/oci8, especially on windows
-- ensure that all primary/unique/foreign key handling is only in the contraint methods</notes>
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+   </notes>
   </release>
   <release>
    <version>
@@ -707,7 +729,8 @@ open todo items:
    </stability>
    <date>2005-10-10</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>Warning: this release features numerous BC breaks!
+   <notes>
+Warning: this release features numerous BC breaks!
 
 There have been considerable improvements to the datatype, manager and reverse
 modules. Furthermore preliminary support for auto increment and primary keys
@@ -736,7 +759,8 @@ column primary key on this field.
 open todo items:
 - code to be able to list primary contraints inside listTableIndexes()/dropIndex()
 - handle autoincremement fields in alterTable() and dropTable()
-- using LOBs have a tendency to crash apache (even with the uptodate PECL oci8 ext)</notes>
+- using LOBs have a tendency to crash apache (even with the uptodate PECL oci8 ext)
+   </notes>
   </release>
   <release>
    <version>
@@ -749,8 +773,10 @@ open todo items:
    </stability>
    <date>2005-06-10</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
-- fixed typo in _getTextDeclaration()</notes>
+   <notes>
+- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+- fixed typo in _getTextDeclaration()
+   </notes>
   </release>
  </changelog>
 </package>

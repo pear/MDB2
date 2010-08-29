@@ -17,7 +17,8 @@ $notes = <<<EOT
 - dropped PHP 4 support
 - PHP 5.3 compatibility fixes
 - performance tweaks (reduced number of internal function calls)
-- added new sqlsrv driver (native SQL Server driver) [chrisdpucci]
+- added new sqlsrv driver (native SQL Server driver) [Chris Pucci, Mike Ketcham]
+- added new ODBC experimental driver [pschellhaas]
 - Switched test suite to PHPUnit 3.5
 
 open todo items:
@@ -113,12 +114,16 @@ $package->addDependencyGroup('mysqli', 'MySQLi driver for MDB2');
 $package->addGroupPackageDepWithChannel('subpackage', 'mysqli', 'MDB2_Driver_mysqli', 'pear.php.net', '1.5.0b3');
 $package->addDependencyGroup('oci8', 'Oracle driver for MDB2');
 $package->addGroupPackageDepWithChannel('subpackage', 'oci8', 'MDB2_Driver_oci8', 'pear.php.net', '1.5.0b3');
+$package->addDependencyGroup('odbc', 'ODBC driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'odbc', 'MDB2_Driver_odbc', 'pear.php.net', '0.1.0');
 $package->addDependencyGroup('pgsql', 'PostgreSQL driver for MDB2');
 $package->addGroupPackageDepWithChannel('subpackage', 'pgsql', 'MDB2_Driver_pgsql', 'pear.php.net', '1.5.0b3');
 $package->addDependencyGroup('querysim', 'Querysim driver for MDB2');
 $package->addGroupPackageDepWithChannel('subpackage', 'querysim', 'MDB2_Driver_querysim', 'pear.php.net', '0.6.0');
 $package->addDependencyGroup('sqlite', 'SQLite2 driver for MDB2');
 $package->addGroupPackageDepWithChannel('subpackage', 'sqlite', 'MDB2_Driver_sqlite', 'pear.php.net', '1.5.0b3');
+$package->addDependencyGroup('sqlsrv', 'MS SQL Server driver for MDB2');
+$package->addGroupPackageDepWithChannel('subpackage', 'sqlsrv', 'MDB2_Driver_sqlsrv', 'pear.php.net', '1.5.0b3');
 
 $package->addRelease();
 $package->generateContents();

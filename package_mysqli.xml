@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mysqli</name>
  <channel>pear.php.net</channel>
  <summary>mysqli MDB2 driver</summary>
@@ -16,78 +16,44 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2009-01-14</date>
- <time>15:41:35</time>
+ <date>2010-08-29</date>
+ <time>12:47:59</time>
  <version>
-  <release>1.5.0b2</release>
-  <api>1.5.0b2</api>
+  <release>1.5.0b3</release>
+  <api>1.5.0b3</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #12117: disconnect() does not work as documented
-- fixed bug #13412: sometimes getTableConstraintDefinition() fails for FOREIGN KEYs
-- fixed bug #13581: wrong query in beginTransaction() for certain MySQL versions
-- fixed bug #13928: Invalid triggers created for &apos;ON UPDATE&apos;
-- fixed bug #15051: Cannot create constraints with field length
-- add index on FK column(s) or a FK constraint cannot be created in some cases
+ <notes>
+- fixed bug #16003: incorrect check for error after mysqli_store_result
+- fixed bug #16147: first prepared statement is emulated when using factory with mysql
+- fixed bug #17037: &apos;on update&apos; not mentioned in tableInfo()
+- fixed bug #17065: There is no NEW row in on DELETE trigger (fix error in FK constraint triggers)
+- fixed bug #17650: lastInsertId can not handle bigint, forces cast to integer [alexpw]
+- return ON UPDATE|DELETE action in getTableConstraintDefinition()
+- result-&gt;free() now works on multiple result sets
 
 open todo items:
-- use a trigger to emulate setting default now()</notes>
+- use a trigger to emulate setting default now()
+ </notes>
  <contents>
-  <dir baseinstalldir="/" name="/">
-   <dir name="MDB2">
-    <dir name="Driver">
-     <dir name="Datatype">
-      <file name="mysqli.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Datatype -->
-     <dir name="Function">
-      <file name="mysqli.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Function -->
-     <dir name="Manager">
-      <file name="mysqli.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Manager -->
-     <dir name="Native">
-      <file name="mysqli.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Native -->
-     <dir name="Reverse">
-      <file name="mysqli.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Reverse -->
-     <file name="mysqli.php" role="php">
-      <tasks:replace from="@package_version@" to="version" type="package-info" />
-     </file>
-    </dir> <!-- /MDB2/Driver -->
-   </dir> <!-- /MDB2 -->
-   <dir name="tests">
-    <file name="MDB2_nonstandard_mysqli.php" role="test" />
-   </dir> <!-- /tests -->
-   <file name="package_mysqli.xml" role="data" />
-  </dir> <!-- / -->
+  <dir baseinstalldir="/" name="/" /> <!-- / -->
  </contents>
  <dependencies>
   <required>
    <php>
-    <min>5.0.0</min>
+    <min>5.3.0</min>
    </php>
    <pearinstaller>
-    <min>1.4.0b1</min>
+    <min>1.9.1</min>
    </pearinstaller>
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b2</min>
+    <min>1.5.0b3</min>
    </package>
    <extension>
     <name>mysqli</name>
@@ -96,6 +62,30 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0b3</release>
+    <api>1.5.0b3</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2010-08-29</date>
+   <license>BSD License</license>
+   <notes>
+- fixed bug #16003: incorrect check for error after mysqli_store_result
+- fixed bug #16147: first prepared statement is emulated when using factory with mysql
+- fixed bug #17037: &apos;on update&apos; not mentioned in tableInfo()
+- fixed bug #17065: There is no NEW row in on DELETE trigger (fix error in FK constraint triggers)
+- fixed bug #17650: lastInsertId can not handle bigint, forces cast to integer [alexpw]
+- return ON UPDATE|DELETE action in getTableConstraintDefinition()
+- result-&gt;free() now works on multiple result sets
+
+open todo items:
+- use a trigger to emulate setting default now()
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.5.0b2</release>
@@ -107,7 +97,8 @@ open todo items:
    </stability>
    <date>2009-01-14</date>
    <license>BSD License</license>
-   <notes>- fixed bug #12117: disconnect() does not work as documented
+   <notes>
+- fixed bug #12117: disconnect() does not work as documented
 - fixed bug #13412: sometimes getTableConstraintDefinition() fails for FOREIGN KEYs
 - fixed bug #13581: wrong query in beginTransaction() for certain MySQL versions
 - fixed bug #13928: Invalid triggers created for &apos;ON UPDATE&apos;
@@ -115,7 +106,8 @@ open todo items:
 - add index on FK column(s) or a FK constraint cannot be created in some cases
 
 open todo items:
-- use a trigger to emulate setting default now()</notes>
+- use a trigger to emulate setting default now()
+   </notes>
   </release>
   <release>
    <version>
@@ -128,7 +120,8 @@ open todo items:
    </stability>
    <date>2008-03-15</date>
    <license>BSD License</license>
-   <notes>- fixed bug #11831: createTable() now supports tables with a multi-field PRIMARY KEY
+   <notes>
+- fixed bug #11831: createTable() now supports tables with a multi-field PRIMARY KEY
   where one field is defined as AUTO_INCREMENT
 - request #11204: support AUTO_INCREMENT for FLOAT data type and UNSIGNED option
   for FLOAT and DECIMAL data type [afz]
@@ -152,7 +145,8 @@ open todo items:
   the same table, only the first one will have the triggers created.
 
 open todo items:
-- use a trigger to emulate setting default now()</notes>
+- use a trigger to emulate setting default now()
+   </notes>
   </release>
   <release>
    <version>
@@ -165,11 +159,13 @@ open todo items:
    </stability>
    <date>2007-12-06</date>
    <license>BSD License</license>
-   <notes>- fixed bug #12516: error in FK constraint creation query
+   <notes>
+- fixed bug #12516: error in FK constraint creation query
 - request #12012: added charset/collation support in createDatabase()
 
 open todo items:
-- use a trigger to emulate setting default now()</notes>
+- use a trigger to emulate setting default now()
+   </notes>
   </release>
   <release>
    <version>
@@ -182,7 +178,8 @@ open todo items:
    </stability>
    <date>2007-10-28</date>
    <license>BSD License</license>
-   <notes>- fixed bug #10024: Added new option &apos;lob_allow_url_include&apos; (default false) to
+   <notes>
+- fixed bug #10024: Added new option &apos;lob_allow_url_include&apos; (default false) to
   [dis]allow inserting a LOB from an url (file, http, ...).
 - fixed bug #10986: Using more random statement names (request #11625)
 - fixed bug #11055: Using placeholders with := variable assignment fails [bekarau]
@@ -204,7 +201,8 @@ open todo items:
 - fixed bug #12336: supply default value for NOT NULL timestamp fields
 
 open todo items:
-- use a trigger to emulate setting default now()</notes>
+- use a trigger to emulate setting default now()
+   </notes>
   </release>
   <release>
    <version>
@@ -217,7 +215,8 @@ open todo items:
    </stability>
    <date>2007-05-03</date>
    <license>BSD License</license>
-   <notes>- fixed bug #10378: incorrect query rewrite in setLimit() when using &quot;FOR UPDATE&quot;
+   <notes>
+- fixed bug #10378: incorrect query rewrite in setLimit() when using &quot;FOR UPDATE&quot;
   or &quot;LOCK IN SHARE MODE&quot; (thanks to priyadi) or &quot;INTO OUTFILE&quot; or &quot;INTO DUMPFILE&quot;
 - fixed bug #10384: in setCharset(), use mysqli_real_escape_string() instead of
   mysql_real_escape_string()
@@ -230,7 +229,8 @@ open todo items:
 - fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 open todo items:
-- use a trigger to emulate setting default now()</notes>
+- use a trigger to emulate setting default now()
+   </notes>
   </release>
   <release>
    <version>
@@ -243,7 +243,8 @@ open todo items:
    </stability>
    <date>2007-03-13</date>
    <license>BSD License</license>
-   <notes>- fixed bug #9283: missing support for BINARY/VARBINARY data types (thanks to Tom Hendrikx)
+   <notes>
+- fixed bug #9283: missing support for BINARY/VARBINARY data types (thanks to Tom Hendrikx)
 - propagate errors in getTableFieldDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module (mysql &gt; 5.0.2) [experimental]
 - implemented listTableTriggers() in the Manager module (mysql &gt; 5.0.2)
@@ -266,7 +267,8 @@ open todo items:
 - phpdoc fixes
 
 open todo items:
-- use a trigger to emulate setting default now()</notes>
+- use a trigger to emulate setting default now()
+   </notes>
   </release>
   <release>
    <version>
@@ -279,14 +281,16 @@ open todo items:
    </stability>
    <date>2006-11-03</date>
    <license>BSD License</license>
-   <notes>- added charset and collation support to field declaration
+   <notes>
+- added charset and collation support to field declaration
 - fixed bug #9024: typo in error checking
 - fixed parameter order in charset setting fallback (Bug #8807)
 - fix typos in error handling in a few places (bug #9024)
 - typo fix in tableInfo (Bug #8925)
 - do not skip id generation in nextId() when creating a sequence on demand
   because this prevents lastInsertID() from working
-- migrated to package.xml version 2</notes>
+- migrated to package.xml version 2
+   </notes>
   </release>
   <release>
    <version>
@@ -299,10 +303,12 @@ open todo items:
    </stability>
    <date>2006-09-03</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed single quote handling inside non emulated prepared statements (Bug #8538)
+   <notes>
+- fixed single quote handling inside non emulated prepared statements (Bug #8538)
 - flip positions property array in prepared statement objects to make it
   possible to optionally use the same named placeholder in multiple places
-  inside a single prepared statement</notes>
+  inside a single prepared statement
+   </notes>
   </release>
   <release>
    <version>
@@ -315,7 +321,8 @@ open todo items:
    </stability>
    <date>2006-08-21</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
+   <notes>
+- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
   led to returning incorrect type values (Bug #8291)
 - quote identifiers in the reverse module when &apos;quote_identifiers&apos; is enabled (Bug #8309)
 - use version_compare() to fix complex version comparisons (Bug #8355)
@@ -331,7 +338,8 @@ open todo items:
   and you will get an error if the table type is not supported anyways
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
 - only call RELEASE SAVEPOINT if the server version if 5.0.3 or higher
-- increased MDB2 dependency too 2.2.1</notes>
+- increased MDB2 dependency too 2.2.1
+   </notes>
   </release>
   <release>
    <version>
@@ -344,7 +352,8 @@ open todo items:
    </stability>
    <date>2006-07-23</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added ability to escape wildcard characters in escape() and quote()
+   <notes>
+- added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
 - added savepoint support to beginTransaction(), commit() and rollback()
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
@@ -357,7 +366,8 @@ open todo items:
 - reworked tableInfo() to use a common implementation based on getTableFieldDefinition()
   when a table name is passed (Bug #8124)
 - fixed incorrect regex in mapNativeDatatype() (Bug #8256) (thx ioz at ionosfera dot com)
-- use old dsn when rolling back open transactions in disconnect()</notes>
+- use old dsn when rolling back open transactions in disconnect()
+   </notes>
   </release>
   <release>
    <version>
@@ -370,7 +380,8 @@ open todo items:
    </stability>
    <date>2006-06-15</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- tweaked handling of free() for prepared statements
+   <notes>
+- tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
 - removed use of addslashes() for BLOB quoting
   (this might result in SQL injection vulnerability)
@@ -389,7 +400,8 @@ open todo items:
   attempting to free a result set(Bug #7790)
 - fixed unbuffered query support
 - revert change that would prefer &apos;clob&apos; over &apos;text&apos; for TEXT fields
-  (this was breaking runtime instrospection)</notes>
+  (this was breaking runtime instrospection)
+   </notes>
   </release>
   <release>
    <version>
@@ -402,9 +414,11 @@ open todo items:
    </stability>
    <date>2006-05-22</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed unsigned handling and minor tweaks to type mapping in mapNativeDatatype()
+   <notes>
+- fixed unsigned handling and minor tweaks to type mapping in mapNativeDatatype()
 - use emulated prepared statements on mysql 4.0 or lower
-- added &quot;emulate_prepared&quot; option to force prepared statement emulation</notes>
+- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+   </notes>
   </release>
   <release>
    <version>
@@ -417,7 +431,8 @@ open todo items:
    </stability>
    <date>2006-05-14</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- optimized listTables() and listViews()
+   <notes>
+- optimized listTables() and listViews()
 - optimized show related queries
 - merged in some features and fixes from the mysql driver
 - explicitly set is_manip parameter to false for transaction debug calls
@@ -434,7 +449,8 @@ open todo items:
 - only use native prepared queries of mysql 4.1 or higher
 - added &apos;prepared_statements&apos; supported meta data setting
 - fixed issue with free() returning void
-- added missing supported parameter to prepare() signature</notes>
+- added missing supported parameter to prepare() signature
+   </notes>
   </release>
   <release>
    <version>
@@ -447,7 +463,8 @@ open todo items:
    </stability>
    <date>2006-04-16</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed length handling in tableInfo() (bug #6887)
+   <notes>
+- fixed length handling in tableInfo() (bug #6887)
 - aligned _modifyQuery() signature and phpdoc
 - added support for tabe options in createTable() (bug ##7079)
 - added optional database parameter to listTables() and listSequences()
@@ -460,7 +477,8 @@ open todo items:
 - added listViews() and hide views in listTables()
 
 open todo item:
-- use native prepared queries for prepared SELECT statements</notes>
+- use native prepared queries for prepared SELECT statements
+   </notes>
   </release>
   <release>
    <version>
@@ -473,10 +491,12 @@ open todo item:
    </stability>
    <date>2006-02-09</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- handle null as resource when disable_query option is enabled in result object
+   <notes>
+- handle null as resource when disable_query option is enabled in result object
 
 open todo item:
-- use native prepared queries for prepared SELECT statements</notes>
+- use native prepared queries for prepared SELECT statements
+   </notes>
   </release>
   <release>
    <version>
@@ -489,7 +509,8 @@ open todo item:
    </stability>
    <date>2006-02-05</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- typo fix in getTableConstraintDefinition() (bug #6487)
+   <notes>
+- typo fix in getTableConstraintDefinition() (bug #6487)
 - added support for length in integer and decimal columns
 - removed ugly hack for quote parameter in quote() since it was insufficient
   (escaping also needs to be prevented)
@@ -503,7 +524,8 @@ open todo item:
 - support an arbitrary number of arguments in concat()
 
 open todo item:
-- use native prepared queries for prepared SELECT statements</notes>
+- use native prepared queries for prepared SELECT statements
+   </notes>
   </release>
   <release>
    <version>
@@ -516,7 +538,8 @@ open todo item:
    </stability>
    <date>2006-01-13</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+   <notes>
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 - properly handle PRIMARY keys in listTableConstraints()
 - apply _isIndexName() on non primary keys in getTableConstraintDefinition()
 - initial implementation of multi_query option (bug #6418)
@@ -532,7 +555,8 @@ open todo item:
   returns a boolean if no formatting was applied when the new &quot;check&quot; parameter is set to true
 
 open todo item:
-- use native prepared queries for prepared SELECT statements</notes>
+- use native prepared queries for prepared SELECT statements
+   </notes>
   </release>
   <release>
    <version>
@@ -545,11 +569,13 @@ open todo item:
    </stability>
    <date>2005-12-30</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- moved state to beta
+   <notes>
+- moved state to beta
 - fixed typo in sub select detection
 
 open todo item:
-- use native prepared queries for prepared SELECT statements</notes>
+- use native prepared queries for prepared SELECT statements
+   </notes>
   </release>
   <release>
    <version>
@@ -562,11 +588,13 @@ open todo item:
    </stability>
    <date>2005-12-28</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- use emulated prepared queries for non manip prepared queries
+   <notes>
+- use emulated prepared queries for non manip prepared queries
 - proper quote new table name in alterTable()
 
 open todo item:
-- use native prepared queries for prepared SELECT statements</notes>
+- use native prepared queries for prepared SELECT statements
+   </notes>
   </release>
   <release>
    <version>
@@ -579,7 +607,8 @@ open todo item:
    </stability>
    <date>2005-12-21</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- do not fix case in listUsers()
+   <notes>
+- do not fix case in listUsers()
 - unified case fixing in the list*() methods
 - fixed change and rename in alterTable()
 - primary key must be called primary
@@ -608,7 +637,8 @@ open todo item:
 - added getServerVersion() and use it to determine sub select support
 - unified array structure in mapNativeDatatype() *BC BREAK*
 - added &apos;mdbtype&apos; to tableInfo() output that is generated from mapNativeDatatype()
-- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*</notes>
+- changed &apos;len&apos; to &apos;length&apos; in tableInfo() output *BC BREAK*
+   </notes>
   </release>
   <release>
    <version>
@@ -621,7 +651,8 @@ open todo item:
    </stability>
    <date>2005-10-10</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>Warning: this release features numerous BC breaks!
+   <notes>
+Warning: this release features numerous BC breaks!
 
 There have been considerable improvements to the datatype, manager and reverse
 modules. Furthermore preliminary support for auto increment and primary keys
@@ -652,7 +683,8 @@ column primary key on this field.
 - tweaked getTableFieldDefinition() in reverse module
 
 open todo items:
-- fixed LOB support</notes>
+- fixed LOB support
+   </notes>
   </release>
  </changelog>
 </package>

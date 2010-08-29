@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_sqlite</name>
  <channel>pear.php.net</channel>
  <summary>sqlite MDB2 driver</summary>
@@ -16,77 +16,39 @@
   <email>l.alberton@quipo.it</email>
   <active>yes</active>
  </lead>
- <date>2009-01-14</date>
- <time>16:05:06</time>
+ <date>2010-08-29</date>
+ <time>12:51:04</time>
  <version>
-  <release>1.5.0b2</release>
-  <api>1.5.0b2</api>
+  <release>1.5.0b3</release>
+  <api>1.5.0b3</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #12117: disconnect() does not work as documented
-- fixed bug #13815: incomplete regexp in the Reverse module
-- fixed bug #13928: Invalid triggers created for &apos;ON UPDATE&apos;
-- fixed bug #14302: Connection errors were not always returned
+ <notes>
+- fixed bug #16275: split() is deprecated in PHP 5.3
 
 note:
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create and register own implementation of LIKE</notes>
+- fix pattern escaping using GLOB instead of LIKE or create and register own implementation of LIKE
+ </notes>
  <contents>
-  <dir baseinstalldir="/" name="/">
-   <dir name="MDB2">
-    <dir name="Driver">
-     <dir name="Datatype">
-      <file name="sqlite.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Datatype -->
-     <dir name="Function">
-      <file name="sqlite.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Function -->
-     <dir name="Manager">
-      <file name="sqlite.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Manager -->
-     <dir name="Native">
-      <file name="sqlite.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Native -->
-     <dir name="Reverse">
-      <file name="sqlite.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Reverse -->
-     <file name="sqlite.php" role="php">
-      <tasks:replace from="@package_version@" to="version" type="package-info" />
-     </file>
-    </dir> <!-- /MDB2/Driver -->
-   </dir> <!-- /MDB2 -->
-   <dir name="tests">
-    <file name="MDB2_nonstandard_sqlite.php" role="test" />
-   </dir> <!-- /tests -->
-   <file name="package_sqlite.xml" role="data" />
-  </dir> <!-- / -->
+  <dir baseinstalldir="/" name="/" /> <!-- / -->
  </contents>
  <dependencies>
   <required>
    <php>
-    <min>4.3.0</min>
+    <min>5.3.0</min>
    </php>
    <pearinstaller>
-    <min>1.4.0b1</min>
+    <min>1.9.1</min>
    </pearinstaller>
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b2</min>
+    <min>2.5.0b3</min>
    </package>
    <extension>
     <name>sqlite</name>
@@ -95,6 +57,25 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0b3</release>
+    <api>1.5.0b3</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2010-08-29</date>
+   <license>BSD License</license>
+   <notes>
+- fixed bug #16275: split() is deprecated in PHP 5.3
+
+note:
+open todo items:
+- fix pattern escaping using GLOB instead of LIKE or create and register own implementation of LIKE
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.5.0b2</release>
@@ -106,14 +87,16 @@ open todo items:
    </stability>
    <date>2009-01-14</date>
    <license>BSD License</license>
-   <notes>- fixed bug #12117: disconnect() does not work as documented
+   <notes>
+- fixed bug #12117: disconnect() does not work as documented
 - fixed bug #13815: incomplete regexp in the Reverse module
 - fixed bug #13928: Invalid triggers created for &apos;ON UPDATE&apos;
 - fixed bug #14302: Connection errors were not always returned
 
 note:
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create and register own implementation of LIKE</notes>
+- fix pattern escaping using GLOB instead of LIKE or create and register own implementation of LIKE
+   </notes>
   </release>
   <release>
    <version>
@@ -126,7 +109,8 @@ open todo items:
    </stability>
    <date>2008-03-15</date>
    <license>BSD License</license>
-   <notes>- request #12731: added truncateTable() in the Manager module
+   <notes>
+- request #12731: added truncateTable() in the Manager module
 - request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - fixed bug #12924: correctly handle internal expected errors even with custom error handling
 - added standaloneQuery() and databaseExists()
@@ -138,7 +122,8 @@ open todo items:
 
 note:
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
+   </notes>
   </release>
   <release>
    <version>
@@ -151,7 +136,8 @@ open todo items:
    </stability>
    <date>2007-12-06</date>
    <license>BSD License</license>
-   <notes>- fixed bug #12105: new error message in the SQLite driver (patch by Adam Ashley)
+   <notes>
+- fixed bug #12105: new error message in the SQLite driver (patch by Adam Ashley)
 - fixed bug #12145: missing optional spaces in regexp in _getTableColumns() in the
   Reverse module
 - request #12012: added charset support in createDatabase() and collation support
@@ -159,7 +145,8 @@ open todo items:
 
 note:
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
+   </notes>
   </release>
   <release>
    <version>
@@ -172,7 +159,8 @@ open todo items:
    </stability>
    <date>2007-10-28</date>
    <license>BSD License</license>
-   <notes>- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+   <notes>
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
   (on FK creation, some triggers are automatically created to enforce the FK constraint)
 - in listTableConstraints() in the Reverse module, also search in table definition
   for PRIMARY KEYs and FOREIGN KEYs
@@ -186,7 +174,8 @@ open todo items:
 
 note:
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
+   </notes>
   </release>
   <release>
    <version>
@@ -199,14 +188,16 @@ open todo items:
    </stability>
    <date>2007-05-03</date>
    <license>BSD License</license>
-   <notes>- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+   <notes>
+- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
 - fixed bug #10895: setLimit() does not work properly when a subquery uses LIMIT
 
 note:
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
+   </notes>
   </release>
   <release>
    <version>
@@ -219,7 +210,8 @@ open todo items:
    </stability>
    <date>2007-03-13</date>
    <license>BSD License</license>
-   <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
+   <notes>
+- propagate errors in getTableFieldDefinition() in the Reverse module
 - fixed bug #9895: Error mapping broken since 5.2.0
 - implemented a fallback mechanism within getTableIndexDefinition() and
   getTableConstraintDefinition() in the Reverse module to ignore the &apos;idxname_format&apos;
@@ -238,7 +230,8 @@ open todo items:
 
 note:
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
+   </notes>
   </release>
   <release>
    <version>
@@ -251,7 +244,8 @@ open todo items:
    </stability>
    <date>2006-11-03</date>
    <license>BSD License</license>
-   <notes>note:
+   <notes>
+note:
 - this driver only supports SQLite version 2.x databases
 - the replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
@@ -264,7 +258,8 @@ open todo items:
 - migrated to package.xml version 2
 
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
+   </notes>
   </release>
   <release>
    <version>
@@ -277,7 +272,8 @@ open todo items:
    </stability>
    <date>2006-08-21</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
+   <notes>
+- fixed issue in tableInfo() that originates in getTableFieldDefinition() which
   led to returning incorrect type values (Bug #8291)
 - added support for NULL columns in getTableFieldDefinition()
 - added full support for alterTable() via emulation
@@ -301,7 +297,8 @@ note:
 - the pattern escaping test fails because this is not supported by SQLite
 
 open todo items:
-- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE</notes>
+- fix pattern escaping using GLOB instead of LIKE or create an register own implementation of LIKE
+   </notes>
   </release>
   <release>
    <version>
@@ -314,7 +311,8 @@ open todo items:
    </stability>
    <date>2006-07-23</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added setTransactionIsolation()
+   <notes>
+- added setTransactionIsolation()
 - MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
 - added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
@@ -338,7 +336,8 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced</notes>
+  value when no existing data was replaced
+   </notes>
   </release>
   <release>
    <version>
@@ -351,7 +350,8 @@ open todo items:
    </stability>
    <date>2006-06-15</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed unsigned handling in mapNativeDatatype()
+   <notes>
+- fixed unsigned handling in mapNativeDatatype()
 - use setCharset() in connect()/_doConnect()
 - generalized quoteIdentifier() with a property
 - fixed warning in replace() if type is not set (Bug #7740)
@@ -367,7 +367,8 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced</notes>
+  value when no existing data was replaced
+   </notes>
   </release>
   <release>
    <version>
@@ -380,7 +381,8 @@ open todo items:
    </stability>
    <date>2006-05-14</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- explicitly set is_manip parameter to false for transaction debug calls
+   <notes>
+- explicitly set is_manip parameter to false for transaction debug calls
 - added ability to hint that a constraint is a primary key in dropConstraint()
 - typo fixes in phpdoc (thx Stoyan)
 - added support for fixed and variable types for &apos;text&apos; in declarations,
@@ -394,7 +396,8 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced</notes>
+  value when no existing data was replaced
+   </notes>
   </release>
   <release>
    <version>
@@ -407,7 +410,8 @@ open todo items:
    </stability>
    <date>2006-04-16</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- aligned _modifyQuery() signature and phpdoc
+   <notes>
+- aligned _modifyQuery() signature and phpdoc
 - fix bug sqlite:///:memory: trys to open file (bug #6599)
 - added &apos;result_introspection&apos; supported metadata support
 - properly quote table names in tableInfo() (related to bug #6573)
@@ -424,7 +428,8 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced</notes>
+  value when no existing data was replaced
+   </notes>
   </release>
   <release>
    <version>
@@ -437,7 +442,8 @@ open todo items:
    </stability>
    <date>2006-02-09</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- use PRAGMA short_column_names = 1/0 for MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES handling
+   <notes>
+- use PRAGMA short_column_names = 1/0 for MDB2_PORTABILITY_FIX_ASSOC_FIELD_NAMES handling
 - handle null as resource when disable_query option is enabled in result object
 
 open todo items:
@@ -445,7 +451,8 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced</notes>
+  value when no existing data was replaced
+   </notes>
   </release>
   <release>
    <version>
@@ -458,7 +465,8 @@ open todo items:
    </stability>
    <date>2006-02-05</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- datatype &apos;clob&apos; missing in mapNativeDatatype() (bug #6490)
+   <notes>
+- datatype &apos;clob&apos; missing in mapNativeDatatype() (bug #6490)
 - removed bogus result-&gt;free() (bug #6491)
 - added support for length in integer and decimal columns
 - improved regexp for column reverse engineering
@@ -474,7 +482,8 @@ open todo items:
   primary keys to existing tables
 - the alter table tests fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced</notes>
+  value when no existing data was replaced
+   </notes>
   </release>
   <release>
    <version>
@@ -487,7 +496,8 @@ open todo items:
    </stability>
    <date>2006-01-13</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+   <notes>
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 - fixed handling of autoincrement and unsigned in Reverse and Datatype module
 - tweaked handling of the native error message
 - typo fixes in error handling of nextResult() and numRows() calls
@@ -502,7 +512,8 @@ open todo items:
   primary keys to existing tables
 - the alter table test fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced</notes>
+  value when no existing data was replaced
+   </notes>
   </release>
   <release>
    <version>
@@ -515,14 +526,16 @@ open todo items:
    </stability>
    <date>2005-12-30</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed handling of autoincrement in the datatype module
+   <notes>
+- fixed handling of autoincrement in the datatype module
 
 open todo items:
 - a number of the manager test cases fail because sqlite does not support adding
   primary keys to existing tables
 - the alter table test fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced</notes>
+  value when no existing data was replaced
+   </notes>
   </release>
   <release>
    <version>
@@ -535,7 +548,8 @@ open todo items:
    </stability>
    <date>2005-12-28</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed now() and substring()
+   <notes>
+- fixed now() and substring()
 - disabled &quot;add&quot; and &quot;rename&quot; in alterTable() sqlite 2.x as they are not supported
 - fixed bug in regexp inside _getTableColumns()
 - added mapping for boolean into mapNativeDatatype()
@@ -546,7 +560,8 @@ open todo items:
   primary keys to existing tables
 - the alter table test fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
-  value when no existing data was replaced</notes>
+  value when no existing data was replaced
+   </notes>
   </release>
   <release>
    <version>
@@ -559,7 +574,8 @@ open todo items:
    </stability>
    <date>2005-12-21</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- do not fix case in listUsers()
+   <notes>
+- do not fix case in listUsers()
 - unified case fixing in the list*() methods
 - support sorting order in createIndex()
 - tweaked lob and text handling in mapNativeDatatype()
@@ -592,7 +608,8 @@ open todo items:
 - the alter table test fails because this is unsupported in sqlite2
 - the test replace test fails because sqlite reports an incorrect affected rows
   value when no existing data was replaced
-- the testnow and testsubstring tests fail</notes>
+- the testnow and testsubstring tests fail
+   </notes>
   </release>
   <release>
    <version>
@@ -605,7 +622,9 @@ open todo items:
    </stability>
    <date>2005-06-10</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- increased php dependency to 4.3.0 due to the usage of the streams API since beta5</notes>
+   <notes>
+- increased php dependency to 4.3.0 due to the usage of the streams API since beta5
+   </notes>
   </release>
   <release>
    <version>
@@ -618,7 +637,8 @@ open todo items:
    </stability>
    <date>2005-04-29</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>first unbundled release from MDB2 core
+   <notes>
+first unbundled release from MDB2 core
 
 - cosmetic fixes to _getDatabaseFile()
 - dont just check for isset() for boolean values in order to support
@@ -626,7 +646,8 @@ open todo items:
 - ensure SQL injection protection in all _quote() methods (was missing in
   some decimal, float, time, date and timestamp implementations)
 - check if database_name is empty to determine if to connect in connect()
-- Warning: there are some serious issues on php5 HEAD on windows</notes>
+- Warning: there are some serious issues on php5 HEAD on windows
+   </notes>
   </release>
  </changelog>
 </package>

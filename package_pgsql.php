@@ -37,8 +37,8 @@ $package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
 $package->setPackageType('php');
 
 $package->clearDeps();
-$package->setPhpDep('5.0.4');
-$package->setPearInstallerDep('1.4.0b1');
+$package->setPhpDep('5.3.0');
+$package->setPearInstallerDep('1.9.1');
 $package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b3');
 $package->addExtensionDep('required', 'pgsql');
 

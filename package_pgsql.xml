@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_pgsql</name>
  <channel>pear.php.net</channel>
  <summary>pgsql MDB2 driver</summary>
@@ -28,33 +28,29 @@
   <email>afz@dev-code.com</email>
   <active>yes</active>
  </helper>
- <date>2008-03-15</date>
- <time>10:11:53</time>
+ <date>2010-08-29</date>
+ <time>12:50:36</time>
  <version>
-  <release>1.5.0b2</release>
-  <api>1.5.0b2</api>
+  <release>1.5.0b3</release>
+  <api>1.5.0b3</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #12117: disconnect() does not work as documented
-- fixed bug #13481: getTableConstraintDefinition() may return incomplete results
-- fixed bug #13877: UNIQUE index not always recognized as constraint
-- fixed bug #14292: alterTable() cannot change column type when no implicit cast is defined
-- fixed bug #14510: getTableFieldDefinition() does not unquote defaults
-- fixed bug #14828: unixtimestamp() generates invalid SQL for non-constant argument
-- fixed bug #15056: tableInfo does not work with pgsql schemas (added support to
-  table schemas to Manager module)
-
-Thanks to Holger Schletz for all the above patches!
+ <notes>
+- fixed bug #16281: getTableFieldDefinition() does not recognize NULL defaults
+  with datatype [Holger Schletz]
+- fixed bug #16384: alterTable() does not remove NOT NULL constraints [Holger Schletz]
+- fixed bug #16405: Compatibility issues with escaped strings [hschletz]
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
 - add option to use unnamed prepared statements
-  (see http://www.postgresql.org/docs/current/static/protocol-flow.html Extended Query)</notes>
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)
+ </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
    <dir name="MDB2">
@@ -98,15 +94,15 @@ open todo items:
  <dependencies>
   <required>
    <php>
-    <min>4.3.0</min>
+    <min>5.3.0</min>
    </php>
    <pearinstaller>
-    <min>1.4.0b1</min>
+    <min>1.9.1</min>
    </pearinstaller>
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b2</min>
+    <min>2.5.0b3</min>
    </package>
    <extension>
     <name>pgsql</name>
@@ -115,6 +111,30 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0b3</release>
+    <api>1.5.0b3</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2010-08-29</date>
+   <license>BSD License</license>
+   <notes>
+- fixed bug #16281: getTableFieldDefinition() does not recognize NULL defaults
+  with datatype [Holger Schletz]
+- fixed bug #16384: alterTable() does not remove NOT NULL constraints [Holger Schletz]
+- fixed bug #16405: Compatibility issues with escaped strings [hschletz]
+
+open todo items:
+- enable pg_execute() once issues with bytea column are resolved
+- use pg_result_error_field() to handle localized error messages (Request #7059)
+- add option to use unnamed prepared statements
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.5.0b2</release>
@@ -126,7 +146,8 @@ open todo items:
    </stability>
    <date>2009-01-14</date>
    <license>BSD License</license>
-   <notes>- fixed bug #12117: disconnect() does not work as documented
+   <notes>
+- fixed bug #12117: disconnect() does not work as documented
 - fixed bug #13481: getTableConstraintDefinition() may return incomplete results
 - fixed bug #13877: UNIQUE index not always recognized as constraint
 - fixed bug #14292: alterTable() cannot change column type when no implicit cast is defined
@@ -141,7 +162,8 @@ open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
 - add option to use unnamed prepared statements
-  (see http://www.postgresql.org/docs/current/static/protocol-flow.html Extended Query)</notes>
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html Extended Query)
+   </notes>
   </release>
   <release>
    <version>
@@ -154,7 +176,8 @@ open todo items:
    </stability>
    <date>2008-03-15</date>
    <license>BSD License</license>
-   <notes>- request #12731: added truncateTable() in the Manager module
+   <notes>
+- request #12731: added truncateTable() in the Manager module
 - request #12732: added vacuum() in the Manager module for OPTIMIZE/VACUUM TABLE abstraction
 - request #12800: added alterDatabase() in the Manager module
 - fixed bug #12846: missing escape in getSequenceName() on PostgreSQL 8.2.4
@@ -174,7 +197,8 @@ open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
 - add option to use unnamed prepared statements
-  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)
+   </notes>
   </release>
   <release>
    <version>
@@ -187,7 +211,8 @@ open todo items:
    </stability>
    <date>2007-12-06</date>
    <license>BSD License</license>
-   <notes>- fixed bug #12376: getTableConstraintDefinition() in the Reverse module
+   <notes>
+- fixed bug #12376: getTableConstraintDefinition() in the Reverse module
   uses incorrect column number in certain cases (thanks to Dennis Birne)
 - request #12338: added &apos;disable_smart_seqname&apos; option to make improved
   getSequenceName() behaviour optional (thanks to Dennis Birne) (@see bug #9106)
@@ -197,7 +222,8 @@ open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
 - add option to use unnamed prepared statements
-  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)
+   </notes>
   </release>
   <release>
    <version>
@@ -210,7 +236,8 @@ open todo items:
    </stability>
    <date>2007-10-28</date>
    <license>BSD License</license>
-   <notes>- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+   <notes>
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #10986: Using more random statement names (request #11625)
 - request #11297: added support for &quot;schema.table&quot; (or &quot;owner.table&quot;) notation
   in the Reverse module (related to bug #11207)
@@ -233,7 +260,8 @@ open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
 - add option to use unnamed prepared statements
-  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)
+   </notes>
   </release>
   <release>
    <version>
@@ -246,7 +274,8 @@ open todo items:
    </stability>
    <date>2007-05-03</date>
    <license>BSD License</license>
-   <notes>- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+   <notes>
+- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - more accurate field size information in getTableFieldDefinition() in the
   Reverse module
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
@@ -258,7 +287,8 @@ open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
 - add option to use unnamed prepared statements
-  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)
+   </notes>
   </release>
   <release>
    <version>
@@ -271,7 +301,8 @@ open todo items:
    </stability>
    <date>2007-03-13</date>
    <license>BSD License</license>
-   <notes>- propagate errors in getTableFieldDefinition() in the Reverse module
+   <notes>
+- propagate errors in getTableFieldDefinition() in the Reverse module
 - implemented getTriggerDefinition() in the Reverse module [experimental]
 - implemented listTableTriggers() in the Manager module
 - don&apos;t show catalog views in listViews() in the Manager module
@@ -288,7 +319,8 @@ open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
 - add option to use unnamed prepared statements
-  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)
+   </notes>
   </release>
   <release>
    <version>
@@ -301,7 +333,8 @@ open todo items:
    </stability>
    <date>2006-11-03</date>
    <license>BSD License</license>
-   <notes>- fixed _modifyQuery() for manipulation queries
+   <notes>
+- fixed _modifyQuery() for manipulation queries
 - fixed inheritance structure of convertResult()
 - added support for new &apos;disable_iso_date&apos; date DSN option (Request #8739)
 - added support for getting the table name in tableInfo()
@@ -314,7 +347,8 @@ open todo items:
 - enable pg_execute() once issues with bytea column are resolved
 - use pg_result_error_field() to handle localized error messages (Request #7059)
 - add option to use unnamed prepared statements
-  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)</notes>
+  (see http://www.postgresql.org/docs/current/static/protocol-flow.html &quot;Extended Query&quot;)
+   </notes>
   </release>
   <release>
    <version>
@@ -327,13 +361,15 @@ open todo items:
    </stability>
    <date>2006-09-03</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- flip positions property array in prepared statement objects to make it
+   <notes>
+- flip positions property array in prepared statement objects to make it
   possible to optionally use the same named placeholder in multiple places
   inside a single prepared statement
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
-- use pg_result_error_field() to handle localized error messages (Request #7059)</notes>
+- use pg_result_error_field() to handle localized error messages (Request #7059)
+   </notes>
   </release>
   <release>
    <version>
@@ -346,7 +382,8 @@ open todo items:
    </stability>
    <date>2006-08-21</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- return an error if a named placeholder name is used twice inside a single statement
+   <notes>
+- return an error if a named placeholder name is used twice inside a single statement
 - do not list empty contraints and indexes
 - do not set a default if type is a LOB (Request #8074)
 - fixed handling return values when disable_query is set in _doQuery() and _execute()
@@ -354,7 +391,8 @@ open todo items:
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
-- use pg_result_error_field() to handle localized error messages (Request #7059)</notes>
+- use pg_result_error_field() to handle localized error messages (Request #7059)
+   </notes>
   </release>
   <release>
    <version>
@@ -367,7 +405,8 @@ open todo items:
    </stability>
    <date>2006-07-23</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- performance tweaks for pg_prepare() enabled installations
+   <notes>
+- performance tweaks for pg_prepare() enabled installations
 - MDB2_PORTABILITY_RTRIM ignored by driver (Bug #8239)
 - added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
@@ -387,7 +426,8 @@ open todo items:
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
-- use pg_result_error_field() to handle localized error messages (Request #7059)</notes>
+- use pg_result_error_field() to handle localized error messages (Request #7059)
+   </notes>
   </release>
   <release>
    <version>
@@ -400,7 +440,8 @@ open todo items:
    </stability>
    <date>2006-06-15</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added setCharset()
+   <notes>
+- added setCharset()
 - use setCharset() in connect()/_doConnect()
 - generalized quoteIdentifier() with a property
 - switched most array_key_exists() calls to !empty() to improve readability and performance
@@ -417,7 +458,8 @@ open todo items:
   (this was breaking runtime instrospection)
 
 open todo items:
-- enable pg_execute() once issues with bytea column are resolved</notes>
+- enable pg_execute() once issues with bytea column are resolved
+   </notes>
   </release>
   <release>
    <version>
@@ -430,10 +472,12 @@ open todo items:
    </stability>
    <date>2006-05-24</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>SECURITY FIX (http://www.postgresql.org/docs/techdocs.50)
+   <notes>
+SECURITY FIX (http://www.postgresql.org/docs/techdocs.50)
 - use pg_escape_string()
 - use &quot;&apos;&quot; as the escape character
-- limit fetch to 1 row in listTableFields()</notes>
+- limit fetch to 1 row in listTableFields()
+   </notes>
   </release>
   <release>
    <version>
@@ -446,10 +490,12 @@ open todo items:
    </stability>
    <date>2006-05-23</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added &quot;emulate_prepared&quot; option to force prepared statement emulation
+   <notes>
+- added &quot;emulate_prepared&quot; option to force prepared statement emulation
 - tweaked handling of free() for prepared statements
 - return error if a prepared statement is attempted to be freed twice
-- fixed notice when using prepare() without placeholders</notes>
+- fixed notice when using prepare() without placeholders
+   </notes>
   </release>
   <release>
    <version>
@@ -462,7 +508,8 @@ open todo items:
    </stability>
    <date>2006-05-14</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added listTableViews() (request #6773)
+   <notes>
+- added listTableViews() (request #6773)
 - explicitly set is_manip parameter to false for transaction debug calls
 - pass parameter array as debug() all with scope &quot;parameters&quot; in every execute()
   call (bug #4119)
@@ -477,7 +524,8 @@ open todo items:
 - typo fix ressource/resource in LOB array
 - added missing supported parameter to prepare() signature
 - properly handle explicit error codes in errorInfo()
-- moved from OID to TEXT and BYTEA (OID handling was broken, its also deprecated)</notes>
+- moved from OID to TEXT and BYTEA (OID handling was broken, its also deprecated)
+   </notes>
   </release>
   <release>
    <version>
@@ -490,12 +538,14 @@ open todo items:
    </stability>
    <date>2006-02-09</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- handle null as resource when disable_query option is enabled in result object
+   <notes>
+- handle null as resource when disable_query option is enabled in result object
 
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
+   </notes>
   </release>
   <release>
    <version>
@@ -508,7 +558,8 @@ open todo items:
    </stability>
    <date>2006-02-05</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added support for length in integer and decimal columns
+   <notes>
+- added support for length in integer and decimal columns
 - removed ugly hack for quote parameter in quote() since it was insufficient
   (escaping also needs to be prevented)
 - added support for out of order parameter binding in prepared queries
@@ -519,7 +570,8 @@ open todo items:
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
+   </notes>
   </release>
   <release>
    <version>
@@ -532,7 +584,8 @@ open todo items:
    </stability>
    <date>2006-01-13</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
+   <notes>
+- explicitly pass if the module is phptype specific in all loadModule calls (bug #6226)
 - fixed signature of executeStoredProc()
 - typo fixes in error handling of nextResult() and numRows() calls
 - _fixIndexName() now just attempts to remove possible formatting
@@ -544,7 +597,8 @@ open todo items:
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
+   </notes>
   </release>
   <release>
    <version>
@@ -557,12 +611,14 @@ open todo items:
    </stability>
    <date>2005-12-30</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- types can now always be keyed by name or by order
+   <notes>
+- types can now always be keyed by name or by order
 
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
+   </notes>
   </release>
   <release>
    <version>
@@ -575,7 +631,8 @@ open todo items:
    </stability>
    <date>2005-12-28</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- fixed datatype conversion for &quot;time&quot; values
+   <notes>
+- fixed datatype conversion for &quot;time&quot; values
 - fixed getTableFieldDefinition() default handling (though still a bit shaky)
 - reverse module: ensure that parameters in queries are properly quoted
 - fixed bug in alterTable() where &quot;rename&quot; would be skipped if no other alteration is done
@@ -588,7 +645,8 @@ open todo items:
 open todo items:
 - considering migrating away from OID&apos;s to bytea, since this is encourage
   since version 8 and is also what PDO expects, however there is no streaming
-  API for bytea columns .. this needs to be done using manually chunked reads/writes</notes>
+  API for bytea columns .. this needs to be done using manually chunked reads/writes
+   </notes>
   </release>
   <release>
    <version>
@@ -601,7 +659,8 @@ open todo items:
    </stability>
    <date>2005-12-21</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- do not fix case in listUsers()
+   <notes>
+- do not fix case in listUsers()
 - unified case fixing in the list*() methods
 - tweaked text handling in mapNativeDatatype()
 - use getConnection() to access connection property
@@ -630,7 +689,8 @@ open todo items:
 - implement native prepared queries
 - migrate away from OID&apos;s to bytea, since this is encourage since version 8
   and is also what PDO expects
-- testgettablefielddefinition and testnow test cases fail</notes>
+- testgettablefielddefinition and testnow test cases fail
+   </notes>
   </release>
   <release>
    <version>
@@ -643,7 +703,8 @@ open todo items:
    </stability>
    <date>2005-10-10</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>Warning: this release features numerous BC breaks!
+   <notes>
+Warning: this release features numerous BC breaks!
 
 There have been considerable improvements to the datatype, manager and reverse
 modules. Furthermore preliminary support for auto increment and primary keys
@@ -672,7 +733,8 @@ column primary key on this field.
 - fixed alterTable() signature
 
 open todo items:
-- implement native prepared queries</notes>
+- implement native prepared queries
+   </notes>
   </release>
  </changelog>
 </package>

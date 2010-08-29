@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>MDB2_Driver_mssql</name>
  <channel>pear.php.net</channel>
  <summary>mssql MDB2 driver</summary>
@@ -34,75 +34,41 @@
   <email>afz@dev-code.com</email>
   <active>yes</active>
  </helper>
- <date>2009-01-14</date>
- <time>15:42:11</time>
+ <date>2010-08-29</date>
+ <time>12:46:42</time>
  <version>
-  <release>1.3.0b2</release>
-  <api>1.3.0b2</api>
+  <release>1.5.0b3</release>
+  <api>1.5.0b3</api>
  </version>
  <stability>
   <release>beta</release>
   <api>beta</api>
  </stability>
  <license>BSD License</license>
- <notes>- fixed bug #11571: when using setLimit(), numRows() returns wrong values
-- fixed bug #12117: disconnect() does not work as documented
-- fixed bug #14019: MDB2 is not aware of MS-SQL &apos;smalldatetime&apos; type
+ <notes>
+- Fixed bug #16612: Added the timestamp database attribute [genericbob]
+- fixed bug #16118: escape doesn&apos;t take into account trailing backslashes [urkle]
+- request #16903: Add ability to use ODBTP extension [hedroom]
+- fixed numRows() with setLimit()
 
 open todo items:
-- explore fast limit/offset emulation (Request #4544)</notes>
+- explore fast limit/offset emulation (Request #4544)
+ </notes>
  <contents>
-  <dir baseinstalldir="/" name="/">
-   <dir name="MDB2">
-    <dir name="Driver">
-     <dir name="Datatype">
-      <file name="mssql.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Datatype -->
-     <dir name="Function">
-      <file name="mssql.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Function -->
-     <dir name="Manager">
-      <file name="mssql.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Manager -->
-     <dir name="Native">
-      <file name="mssql.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Native -->
-     <dir name="Reverse">
-      <file name="mssql.php" role="php">
-       <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
-     </dir> <!-- /MDB2/Driver/Reverse -->
-     <file name="mssql.php" role="php">
-      <tasks:replace from="@package_version@" to="version" type="package-info" />
-     </file>
-    </dir> <!-- /MDB2/Driver -->
-   </dir> <!-- /MDB2 -->
-   <dir name="tests">
-    <file name="MDB2_nonstandard_mssql.php" role="test" />
-   </dir> <!-- /tests -->
-   <file name="package_mssql.xml" role="data" />
-  </dir> <!-- / -->
+  <dir baseinstalldir="/" name="/" /> <!-- / -->
  </contents>
  <dependencies>
   <required>
    <php>
-    <min>4.3.0</min>
+    <min>5.3.0</min>
    </php>
    <pearinstaller>
-    <min>1.4.0b1</min>
+    <min>1.9.1</min>
    </pearinstaller>
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b2</min>
+    <min>2.5.0b3</min>
    </package>
    <extension>
     <name>mssql</name>
@@ -111,6 +77,27 @@ open todo items:
  </dependencies>
  <phprelease />
  <changelog>
+  <release>
+   <version>
+    <release>1.5.0b3</release>
+    <api>1.5.0b3</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2010-08-29</date>
+   <license>BSD License</license>
+   <notes>
+- Fixed bug #16612: Added the timestamp database attribute [genericbob]
+- fixed bug #16118: escape doesn&apos;t take into account trailing backslashes [urkle]
+- request #16903: Add ability to use ODBTP extension [hedroom]
+- fixed numRows() with setLimit()
+
+open todo items:
+- explore fast limit/offset emulation (Request #4544)
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.3.0b2</release>
@@ -122,12 +109,14 @@ open todo items:
    </stability>
    <date>2009-01-14</date>
    <license>BSD License</license>
-   <notes>- fixed bug #11571: when using setLimit(), numRows() returns wrong values
+   <notes>
+- fixed bug #11571: when using setLimit(), numRows() returns wrong values
 - fixed bug #12117: disconnect() does not work as documented
 - fixed bug #14019: MDB2 is not aware of MS-SQL &apos;smalldatetime&apos; type
 
 open todo items:
-- explore fast limit/offset emulation (Request #4544)</notes>
+- explore fast limit/offset emulation (Request #4544)
+   </notes>
   </release>
   <release>
    <version>
@@ -140,7 +129,8 @@ open todo items:
    </stability>
    <date>2008-03-15</date>
    <license>BSD License</license>
-   <notes>- fixed bug #12391: fixed lastInsertID() (thanks to Marius Toma)
+   <notes>
+- fixed bug #12391: fixed lastInsertID() (thanks to Marius Toma)
 - fixed bug #12599: BLOB quoting incorrect (thanks to Ferdy Hanssen)
 - fixed bug #12697: MDB2_Driver_mssql fails to load with the sybase_ct extension
 - request #12731: added truncateTable() in the Manager module
@@ -152,7 +142,8 @@ open todo items:
 - request #13106: added unixtimestamp() in the Function module
 
 open todo items:
-- explore fast limit/offset emulation (Request #4544)</notes>
+- explore fast limit/offset emulation (Request #4544)
+   </notes>
   </release>
   <release>
    <version>
@@ -165,12 +156,14 @@ open todo items:
    </stability>
    <date>2007-12-06</date>
    <license>BSD License</license>
-   <notes>- fixed bug #11571: when using setLimit(), numRows() returns wrong values
+   <notes>
+- fixed bug #11571: when using setLimit(), numRows() returns wrong values
 - request #12012: added collation support in createDatabase() and in createTable()
   for table fields
 
 open todo items:
-- explore fast limit/offset emulation (Request #4544)</notes>
+- explore fast limit/offset emulation (Request #4544)
+   </notes>
   </release>
   <release>
    <version>
@@ -183,7 +176,8 @@ open todo items:
    </stability>
    <date>2007-10-28</date>
    <license>BSD License</license>
-   <notes>- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
+   <notes>
+- initial support for FOREIGN KEY and CHECK constraints in the Reverse and Manager modules
 - fixed bug #9735, #11175, #11228: two instances fail to keep different databases selected
 - request #11297: added support for &quot;schema.table&quot; notation in the Reverse module
 - request #11445: added support for unicode datatypes (nchar, nvarchar, ntext)
@@ -198,7 +192,8 @@ open todo items:
   as first option
 
 open todo items:
-- explore fast limit/offset emulation (Request #4544)</notes>
+- explore fast limit/offset emulation (Request #4544)
+   </notes>
   </release>
   <release>
    <version>
@@ -211,12 +206,14 @@ open todo items:
    </stability>
    <date>2007-05-03</date>
    <license>BSD License</license>
-   <notes>- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
+   <notes>
+- return length as &quot;precision,scale&quot; for NUMERIC and DECIMAL fields in mapNativeDatatype()
 - in getTableIndexDefinition() and getTableConstraintDefinition() in the Reverse
   module, also return the field position in the index/constraint
 
 open todo items:
-- explore fast limit/offset emulation (Request #4544)</notes>
+- explore fast limit/offset emulation (Request #4544)
+   </notes>
   </release>
   <release>
    <version>
@@ -229,7 +226,8 @@ open todo items:
    </stability>
    <date>2007-03-13</date>
    <license>BSD License</license>
-   <notes>- added ability to escape wildcard characters in escape() and quote()
+   <notes>
+- added ability to escape wildcard characters in escape() and quote()
 - added setTransactionIsolation()
 - added savepoint support to beginTransaction(), commit() and rollback()
 - added debug() call at the end of a query/prepare/execute calling (Request #7933)
@@ -279,7 +277,8 @@ open todo items:
 - phpdoc fixes
 
 open todo items:
-- explore fast limit/offset emulation (Request #4544)</notes>
+- explore fast limit/offset emulation (Request #4544)
+   </notes>
   </release>
   <release>
    <version>
@@ -292,11 +291,13 @@ open todo items:
    </stability>
    <date>2007-01-10</date>
    <license>BSD License</license>
-   <notes>- removed mysql_select_db and used mssql_select_db
+   <notes>
+- removed mysql_select_db and used mssql_select_db
 
 
 open todo items:
-- explore fast limit/offset emulation (Request #4544)</notes>
+- explore fast limit/offset emulation (Request #4544)
+   </notes>
   </release>
   <release>
    <version>
@@ -309,7 +310,8 @@ open todo items:
    </stability>
    <date>2006-06-15</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added the listTableTriggers() method to the Manager.
+   <notes>
+- added the listTableTriggers() method to the Manager.
 - added the listViews() method to the Manager.
 - aligned _modifyQuery() signature and phpdoc
 - added the map datatype patch for (bug #6863)
@@ -347,7 +349,8 @@ open todo items:
 - use SCOPE_IDENTITY() when version &gt;= 8 (SQL Server 2000) otherwise fallback to
   @@IDENTITY to retrieve last inserted value (bug #7291)
 - implement getServerVersion()
-- removed bogus but unharmful code from mapNativeDatatype()</notes>
+- removed bogus but unharmful code from mapNativeDatatype()
+   </notes>
   </release>
   <release>
    <version>
@@ -360,7 +363,8 @@ open todo items:
    </stability>
    <date>2006-04-16</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- added the listTableTriggers() method to the Manager.
+   <notes>
+- added the listTableTriggers() method to the Manager.
 - added the listViews() method to the Manager.
 - aligned _modifyQuery() signature and phpdoc
 - added the map datatype patch for (bug #6863)
@@ -372,7 +376,8 @@ open todo items:
 - use parent::disconnect() in disconnect()
 - added support for length in integer reverse engineering
 - some fixes regarding boolean reverse engineering
-- protect against sql injection in the reverse and manager module</notes>
+- protect against sql injection in the reverse and manager module
+   </notes>
   </release>
   <release>
    <version>
@@ -385,7 +390,8 @@ open todo items:
    </stability>
    <date>2006-02-09</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- unified case fixing in the list*() methods
+   <notes>
+- unified case fixing in the list*() methods
 - use getConnection() to access connection property
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
@@ -419,7 +425,8 @@ open todo items:
 open todo items:
 - add missing index/contraint methods to the manager and reverse module methods
 - ensure that all primary/unique/foreign key handling is only in the contraint methods
-- fix alterTable()</notes>
+- fix alterTable()
+   </notes>
   </release>
   <release>
    <version>
@@ -432,7 +439,8 @@ open todo items:
    </stability>
    <date>2005-12-18</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>- unified case fixing in the list*() methods
+   <notes>
+- unified case fixing in the list*() methods
 - use getConnection() to access connection property
 - split index and constraint handling
 - quote identifiers where possible inside the manager methods depending on
@@ -452,7 +460,8 @@ open todo items:
 
 open todo items:
 - added missing index/contraint methods to the manager and reverse module methods
-- ensure that all primary/unique/foreign key handling is only in the contraint methods</notes>
+- ensure that all primary/unique/foreign key handling is only in the contraint methods
+   </notes>
   </release>
   <release>
    <version>
@@ -465,7 +474,8 @@ open todo items:
    </stability>
    <date>2005-10-10</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>Warning: this release features numerous BC breaks!
+   <notes>
+Warning: this release features numerous BC breaks!
 
 There have been considerable improvements to the datatype, manager and reverse
 modules. Furthermore preliminary support for auto increment and primary keys
@@ -494,7 +504,8 @@ column primary key on this field.
 - return 0 for manipulation queries when disable_query is enabled
 
 open todo items:
-- added missing createIndex() method</notes>
+- added missing createIndex() method
+   </notes>
   </release>
   <release>
    <version>
@@ -507,14 +518,16 @@ open todo items:
    </stability>
    <date>2005-04-29</date>
    <license uri="http://www.example.com">BSD License</license>
-   <notes>first unbundled release from MDB2 core
+   <notes>
+first unbundled release from MDB2 core
 
 - dont just check for isset() for boolean values in order to support
   setting them false as well (bug #4373)
 - ensure SQL injection protection in all _quote() methods (was missing in
   some decimal, float, time, date and timestamp implementations)
 - typo fixes in constructor
-- Warning: this release is untested</notes>
+- Warning: this release is untested
+   </notes>
   </release>
  </changelog>
 </package>

@@ -10,11 +10,17 @@
   <email>mail@pschellhaas.de</email>
   <active>yes</active>
  </lead>
+ <lead>
+  <name>Lorenzo Alberton</name>
+  <user>quipo</user>
+  <email>l.alberton@quipo.it</email>
+  <active>yes</active>
+ </lead>
  <date>2010-07-27</date>
  <time>15:39:06</time>
  <version>
-  <release>0.0.1</release>
-  <api>0.0.1</api>
+  <release>0.1.0</release>
+  <api>0.1.0</api>
  </version>
  <stability>
   <release>alpha</release>
@@ -54,15 +60,15 @@
  <dependencies>
   <required>
    <php>
-    <min>5.0.2</min>
+    <min>5.3.0</min>
    </php>
    <pearinstaller>
-    <min>1.4.0</min>
+    <min>1.9.1</min>
    </pearinstaller>
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b2</min>
+    <min>2.5.0b3</min>
    </package>
   </required>
  </dependencies>

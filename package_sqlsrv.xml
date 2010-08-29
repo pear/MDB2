@@ -10,11 +10,17 @@
   <email>a-cpucci@microsoft.com</email>
   <active>yes</active>
  </lead>
- <date>2009-12-26</date>
- <time>14:18:41</time>
+ <lead>
+  <name>Lorenzo Alberton</name>
+  <user>quipo</user>
+  <email>l.alberton@quipo.it</email>
+  <active>yes</active>
+ </lead>
+ <date>2010-09-29</date>
+ <time>13:18:41</time>
  <version>
-  <release>1.0</release>
-  <api>1.0</api>
+  <release>1.5.0b3</release>
+  <api>1.5.0b3</api>
  </version>
  <stability>
   <release>beta</release>
@@ -65,15 +71,15 @@
  <dependencies>
   <required>
    <php>
-    <min>4.3.0</min>
+    <min>5.3.0</min>
    </php>
    <pearinstaller>
-    <min>1.4.0b1</min>
+    <min>1.9.1</min>
    </pearinstaller>
    <package>
     <name>MDB2</name>
     <channel>pear.php.net</channel>
-    <min>2.5.0b1</min>
+    <min>2.5.0b3</min>
    </package>
    <extension>
     <name>sqlsrv</name>
@@ -84,14 +90,14 @@
  <changelog>
   <release>
    <version>
-    <release>1.0</release>
-    <api>1.0</api>
+    <release>1.5.0b3</release>
+    <api>1.5.0b3</api>
    </version>
    <stability>
     <release>beta</release>
     <api>beta</api>
    </stability>
-   <date>2008-03-15</date>
+   <date>2010-09-29</date>
    <license>BSD License</license>
    <notes></notes>
   </release>

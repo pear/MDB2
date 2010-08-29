@@ -3,7 +3,7 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = 'XXX';
+$version = '1.5.0b3';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #16003: incorrect check for error after mysqli_store_result
@@ -37,9 +37,9 @@ $package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
 $package->setPackageType('php');
 
 $package->clearDeps();
-$package->setPhpDep('5.0.4');
-$package->setPearInstallerDep('1.4.0b1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', 'XXX');
+$package->setPhpDep('5.3.0');
+$package->setPearInstallerDep('1.9.1');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '1.5.0b3');
 $package->addExtensionDep('required', 'mysqli');
 
 $package->addRelease();
