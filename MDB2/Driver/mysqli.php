@@ -1325,7 +1325,8 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
     function lastInsertID($table = null, $field = null)
     {
         // not using mysql_insert_id() due to http://pear.php.net/bugs/bug.php?id=8051
-        return $this->queryOne('SELECT LAST_INSERT_ID()', 'integer');
+        // not casting to integer to handle BIGINT http://pear.php.net/bugs/bug.php?id=17650
+        return $this->queryOne('SELECT LAST_INSERT_ID()');
     }
 
     // }}}

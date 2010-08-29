@@ -10,6 +10,7 @@ $notes = <<<EOT
 - fixed bug #16147: first prepared statement is emulated when using factory with mysql
 - fixed bug #17037: 'on update' not mentioned in tableInfo()
 - fixed bug #17065: There is no NEW row in on DELETE trigger (fix error in FK constraint triggers)
+- fixed bug #17650: lastInsertId can not handle bigint, forces cast to integer [alexpw]
 - return ON UPDATE|DELETE action in getTableConstraintDefinition()
 - result->free() now works on multiple result sets
 
