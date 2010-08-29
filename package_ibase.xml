@@ -35,7 +35,44 @@
 - fixed bug #17676: use connection resource when fetching LOBs [renskiy]
  </notes>
  <contents>
-  <dir baseinstalldir="/" name="/" /> <!-- / -->
+  <dir baseinstalldir="/" name="/">
+   <dir name="MDB2">
+    <dir name="Driver">
+     <dir name="Datatype">
+      <file name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Datatype -->
+     <dir name="Function">
+      <file name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Function -->
+     <dir name="Manager">
+      <file name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Manager -->
+     <dir name="Native">
+      <file name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Native -->
+     <dir name="Reverse">
+      <file name="ibase.php" role="php">
+       <tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+     </dir> <!-- /MDB2/Driver/Reverse -->
+     <file name="ibase.php" role="php">
+      <tasks:replace from="@package_version@" to="version" type="package-info" />
+     </file>
+    </dir> <!-- /MDB2/Driver -->
+   </dir> <!-- /MDB2 -->
+   <dir name="tests">
+    <file name="MDB2_nonstandard_ibase.php" role="test" />
+   </dir> <!-- /tests -->
+   <file name="package_ibase.xml" role="data" />
+  </dir> <!-- / -->
  </contents>
  <dependencies>
   <required>
