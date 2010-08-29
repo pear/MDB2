@@ -10,6 +10,7 @@ $notes = <<<EOT
 - fixed bug #15971: typo in standaloneQuery() [elpaso]
 - fixed bug #16350: typo in setTransactionIsolation() [nilya]
 - fixed bug #16741: Manager::listTableIndexes and listTableContraints should check NULL or 0 [nilya]
+- fixed bug #17676: use connection resource when fetching LOBs [renskiy]
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';

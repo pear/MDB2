@@ -78,10 +78,13 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         if (PEAR::isError($db)) {
             return $db;
         }
+        if (PEAR::isError($connection)) {
+            return $connection;
+        }
 
         switch ($type) {
         case 'text':
-            $blob_info = @ibase_blob_info($value);
+            $blob_info = @ibase_blob_info($connection, $value);
             if (is_array($blob_info) && $blob_info['length'] > 0) {
                 //LOB => fetch into variable
                 $clob = $this->_baseConvertResult($value, 'clob', $rtrim);
@@ -260,7 +263,15 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _retrieveLOB(&$lob)
     {
         if (empty($lob['handle'])) {
-            $lob['handle'] = @ibase_blob_open($lob['resource']);
+            $db = $this->getDBInstance();
+            if (PEAR::isError($db)) {
+                return $db;
+            }
+            $connection = $db->getConnection();
+            if (PEAR::isError($connection)) {
+                return $connection;
+            }
+            $lob['handle'] = @ibase_blob_open($connection, $lob['resource']);
             if (!$lob['handle']) {
                 $db = $this->getDBInstance();
                 if (PEAR::isError($db)) {
