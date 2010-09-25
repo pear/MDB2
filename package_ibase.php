@@ -3,14 +3,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0b3';
+$version = '1.5.0b4';
 $state = 'beta';
 $notes = <<<EOT
-- fixed regression in lastInserID()
-- fixed bug #15971: typo in standaloneQuery() [elpaso]
-- fixed bug #16350: typo in setTransactionIsolation() [nilya]
-- fixed bug #16741: Manager::listTableIndexes and listTableContraints should check NULL or 0 [nilya]
-- fixed bug #17676: use connection resource when fetching LOBs [renskiy]
+
 EOT;
 
 $description = 'This is the Interbase/Firebird MDB2 driver.';
@@ -32,9 +28,9 @@ $package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
 $package->setPackageType('php');
 
 $package->clearDeps();
-$package->setPhpDep('5.3.0');
+$package->setPhpDep('5.2.0');
 $package->setPearInstallerDep('1.9.1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b3');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '2.5.0b4');
 $package->addExtensionDep('required', 'interbase');
 
 $package->addRelease();

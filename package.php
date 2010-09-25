@@ -3,23 +3,10 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version_release = '2.5.0b3';
+$version_release = '2.5.0b4';
 $version_api = $version_release;
 $state = 'beta';
 $notes = <<<EOT
-- fixed bug #15912: MDB2::loadClass can return MDB2_OK without loading class
-- fixed bug #16020: unable to set params via dsn string in parseDSN()
-- fixed bug #16508: reusing var name + return by ref [rix0r]
-- fixed bug #16727: quote(url, 'clob')) fetches URL even if lob_allow_url_include option is false
-- fixed unreported bug in parseDSN() and oracle's Easy Connect syntax
-- fixed bug #16973 and #17039: Wrong _skipDelimitedStrings behavior with escaped quotes
-- fixed bug #16994: incompatible declaration of setTransactionIsolation() in some drivers
-- dropped PHP 4 support
-- PHP 5.3 compatibility fixes
-- performance tweaks (reduced number of internal function calls)
-- added new sqlsrv driver (native SQL Server driver) [Chris Pucci, Mike Ketcham]
-- added new ODBC experimental driver [pschellhaas]
-- Switched test suite to PHPUnit 3.5
 
 open todo items:
 - handle autoincrement fields in alterTable()
@@ -98,7 +85,7 @@ $package->setPackageType('php');
 $package->setExtends('MDB');
 
 $package->clearDeps();
-$package->setPhpDep('5.3.0');
+$package->setPhpDep('5.2.0');
 $package->setPearInstallerDep('1.9.1');
 $package->addPackageDepWithChannel('required', 'PEAR', 'pear.php.net', '1.3.6');
 

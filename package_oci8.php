@@ -3,7 +3,7 @@
 require_once 'PEAR/PackageFileManager2.php';
 PEAR::setErrorHandling(PEAR_ERROR_DIE);
 
-$version = '1.5.0b3';
+$version = '1.5.0b4';
 $state = 'beta';
 $notes = <<<EOT
 
@@ -40,9 +40,9 @@ $package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
 $package->setPackageType('php');
 
 $package->clearDeps();
-$package->setPhpDep('5.3.0');
+$package->setPhpDep('5.2.0');
 $package->setPearInstallerDep('1.9.1');
-$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '1.5.0b3');
+$package->addPackageDepWithChannel('required', 'MDB2', 'pear.php.net', '1.5.0b4');
 $package->addExtensionDep('required', 'oci8');
 
 $package->addRelease();
