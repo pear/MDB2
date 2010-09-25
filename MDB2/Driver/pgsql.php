@@ -959,17 +959,18 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                         $pgtypes[] = 'text';
                     }
                 }
-                if (($key_parameter = array_search($name, $positions))) {
-                    $next_parameter = 1;
-                    foreach ($positions as $key => $value) {
-                        if ($key_parameter == $key) {
-                            break;
-                        }
-                        ++$next_parameter;
-                    }
+                if (($key_parameter = array_search($name, $positions)) !== false) {
+                    //$next_parameter = 1;
+                    $parameter = $key_parameter + 1;
+                    //foreach ($positions as $key => $value) {
+                    //    if ($key_parameter == $key) {
+                    //        break;
+                    //    }
+                    //    ++$next_parameter;
+                    //}
                 } else {
                     ++$parameter;
-                    $next_parameter = $parameter;
+                    //$next_parameter = $parameter;
                     $positions[] = $name;
                 }
                 $query = substr_replace($query, '$'.$parameter, $position, $length);

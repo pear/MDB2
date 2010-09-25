@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = '1.5.0b4';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #17890: Improper use of array_search in prepare function [fletcherj]
 
 open todo items:
 - enable pg_execute() once issues with bytea column are resolved
