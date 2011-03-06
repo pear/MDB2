@@ -118,7 +118,7 @@ function datatype_test_callback(&$db, $method, $aParameters)
  *                       fields. Always bull in this case, as this custom test
  *                       type is not textual.
  */
-function nativetype_test_callback(&$db, $aFields)
+function nativetype_test_callback($db, $aFields)
 {
     // Prepare the type array
     $aType = array();
@@ -701,7 +701,7 @@ class MDB2_Datatype_TestCase extends MDB2_TestCase
         $field = array('type' => 'integer');
         $result = $this->db->datatype->getDeclaration($type, $name, $field);
         $actual_type = $this->db->phptype == 'sqlite' ? 'INTEGER' : 'INT';
-        $default = $this->db->phptype == 'mssql' ? ' NULL' : '';
+        $default = $this->db->phptype == 'mssql' ? ' NULL' : ' DEFAULT NULL';
         $this->assertEquals('column '.$actual_type.$default, $result, 'getDeclaration');
 
         // Test with a custom datatype
