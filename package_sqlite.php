@@ -7,6 +7,7 @@ $version = '1.5.0b4';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #16275: split() is deprecated in PHP 5.3
+- request #18316: Add TINYINT to list of coltypes in MDB2_Driver_Reverse_sqlite [brotherli]
 
 note:
 open todo items:
