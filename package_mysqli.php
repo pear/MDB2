@@ -7,6 +7,7 @@ $version = '1.5.0b4';
 $state = 'beta';
 $notes = <<<EOT
 - fixed bug #17892: removed debug message [pdt256]
+- request #18068: mapNativeDatatype() returns decimal places also for 'float' mdb2type
 
 open todo items:
 - use a trigger to emulate setting default now()

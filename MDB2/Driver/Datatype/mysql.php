@@ -179,7 +179,15 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
         case 'timestamp':
             return 'DATETIME';
         case 'float':
-            return 'DOUBLE';
+            $l = '';
+            if (!empty($field['length'])) {
+                $l = '(' . $field['length'];
+                if (!empty($field['scale'])) {
+                    $l .= ',' . $field['scale'];
+                }
+                $l .= ')';
+            }
+            return 'DOUBLE' . $l;
         case 'decimal':
             $length = !empty($field['length']) ? $field['length'] : 18;
             $scale = !empty($field['scale']) ? $field['scale'] : $db->options['decimal_places'];
@@ -513,6 +521,9 @@ class MDB2_Driver_Datatype_mysql extends MDB2_Driver_Datatype_Common
         case 'real':
             $type[] = 'float';
             $unsigned = preg_match('/ unsigned/i', $field['type']);
+            if ($decimal !== false) {
+                $length = $length.','.$decimal;
+            }
             break;
         case 'unknown':
         case 'decimal':
