@@ -89,6 +89,35 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
     }
 
     // }}}
+    // {{{ getDeclaration()
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to declare
+     * of the given type
+     *
+     * @param string $type  type to which the value should be converted to
+     * @param string $name  name the field to be declared.
+     * @param string $field definition of the field
+     *
+     * @return string DBMS-specific SQL code portion that should be used to
+     *                declare the specified field.
+     * @access public
+     */
+    function getDeclaration($type, $name, $field)
+    {
+        // MySQL DDL syntax forbids combining NOT NULL with DEFAULT NULL.
+        // To get a default of NULL for NOT NULL columns, omit it.
+        if (   isset($field['notnull'])
+            && !empty($field['notnull'])
+            && array_key_exists('default', $field) // do not use isset() here!
+            && null === $field['default']
+        ) {
+            unset($field['default']);
+        }
+        return parent::getDeclaration($type, $name, $field);
+    }
+
+    // }}}
     // {{{ getTypeDeclaration()
 
     /**

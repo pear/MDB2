@@ -6,6 +6,7 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = '1.5.0b4';
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #18057: Result of getDeclaration() can have invalid syntax [hschletz]
 - request #18068: mapNativeDatatype() returns decimal places also for 'float' mdb2type
 
 note:
