@@ -286,6 +286,23 @@ class MDB2_Bugs_TestCase extends MDB2_TestCase {
             $this->assertFalse(is_bool($result['user_name']));
         }
     }
+
+    /**
+     * Type introspection breaks with associative arrays if names are identical
+     * @see http://pear.php.net/bugs/bug.php?id=18203
+     */
+    function testBug18203() {
+        $res = $this->db->query("SELECT 1 as id, 2 as id, 'foo' as title", true);
+        if (PEAR::isError($res)) {
+            $this->fail($res->getMessage());
+        }
+        $record = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
+        $expected = array(
+            'id'    => 2,
+            'title' => 'foo'
+        );
+        $this->assertEquals($expected, $record);
+    }
 }
 
 ?>
