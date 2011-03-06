@@ -7,6 +7,7 @@ $version = '1.5.0b4';
 $state = 'beta';
 $notes = <<<EOT
 - Added SQLSRV_SQLTYPE_TIMESTAMP database attribute support [davidc] [genericbob]
+- Fixed bug #17413: Infinite loop on connection error
 EOT;
 
 $description = 'This is the SQL Server MDB2 driver.';
