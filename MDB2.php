@@ -690,7 +690,7 @@ class MDB2
      *
      * @access  public
      */
-    function errorMessage($value = null)
+    static function errorMessage($value = null)
     {
         static $errorMessages;
 
@@ -2581,8 +2581,10 @@ class MDB2_Driver_Common extends PEAR
                     return $tableInfo;
                 }
                 $types = array();
+                $types_assoc = array();
                 foreach ($tableInfo as $field) {
                     $types[] = $field['mdb2type'];
+                    $types_assoc[$field['name']] = $field['mdb2type'];
                 }
             } else {
                 $types = null;
@@ -2609,6 +2611,13 @@ class MDB2_Driver_Common extends PEAR
             }
             if (!empty($types)) {
                 $err = $result->setResultTypes($types);
+                if (PEAR::isError($err)) {
+                    $result->free();
+                    return $err;
+                }
+            }
+            if (!empty($types_assoc)) {
+                $err = $result->setResultTypesAssoc($types_assoc);
                 if (PEAR::isError($err)) {
                     $result->free();
                     return $err;
@@ -3383,15 +3392,16 @@ class MDB2_Result_Common extends MDB2_Result
 {
     // {{{ Variables (Properties)
 
-    var $db;
-    var $result;
-    var $rownum = -1;
-    var $types = array();
-    var $values = array();
-    var $offset;
-    var $offset_count = 0;
-    var $limit;
-    var $column_names;
+    protected $db;
+    protected $result;
+    protected $rownum = -1;
+    protected $types = array();
+    protected $types_assoc = array();
+    protected $values = array();
+    protected $offset;
+    protected $offset_count = 0;
+    protected $limit;
+    protected $column_names;
 
     // }}}
     // {{{ constructor: function __construct($db, &$result, $limit = 0, $offset = 0)

@@ -7,6 +7,8 @@ $version_release = '2.5.0b4';
 $version_api = $version_release;
 $state = 'beta';
 $notes = <<<EOT
+- fixed bug #18203: Type introspection breaks with associative arrays if names are identical
+  (patch by Peter Bex)
 
 open todo items:
 - handle autoincrement fields in alterTable()
