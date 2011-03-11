@@ -56,8 +56,8 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
     var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => "'", 'escape_pattern' => false);
 
     var $identifier_quoting = array('start' => '[', 'end' => ']', 'escape' => ']');
-	
-	var $connection = null;
+    
+    var $connection = null;
 
     // }}}
     // {{{ constructor
@@ -119,15 +119,15 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
         $native_code = null;
         $native_msg  = null;
         if ($connection) {
-			$retErrors = sqlsrv_errors(SQLSRV_ERR_ALL);  
-			if ($retErrors !== null) {
-				foreach ($retErrors as $arrError) {
-					$native_msg .= "SQLState: ".$arrError[ 'SQLSTATE']."\n";  
-					$native_msg .= "Error Code: ".$arrError[ 'code']."\n";  
-					$native_msg .= "Message: ".$arrError[ 'message']."\n";  
-					$native_code = $arrError[ 'code'];
-				}  
-			}			
+            $retErrors = sqlsrv_errors(SQLSRV_ERR_ALL);  
+            if ($retErrors !== null) {
+                foreach ($retErrors as $arrError) {
+                    $native_msg .= "SQLState: ".$arrError[ 'SQLSTATE']."\n";  
+                    $native_msg .= "Error Code: ".$arrError[ 'code']."\n";  
+                    $native_msg .= "Message: ".$arrError[ 'message']."\n";  
+                    $native_code = $arrError[ 'code'];
+                }  
+            }
         }
         if (null === $error) {
             static $ecode_map;
@@ -327,10 +327,10 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
             'UID' => $username ? $username : null,
             'PWD' => $password ? $password : null,
         );
-		if ($database) {
+        if ($database) {
             $params['Database'] = $database;
         }
-		
+        
         if ($this->dsn['port'] && $this->dsn['port'] != 1433) {
             $host .= ','.$this->dsn['port'];
         }
@@ -411,10 +411,10 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
         if (PEAR::isError($connection)) {
             return MDB2_ERROR_CONNECT_FAILED;
         }
-		$result = @sqlsrv_query($connection,'select name from master..sysdatabases where name = \''.strtolower($name).'\'');
-		if (@sqlsrv_fetch($result)) {
-			return true;
-		}
+        $result = @sqlsrv_query($connection,'select name from master..sysdatabases where name = \''.strtolower($name).'\'');
+        if (@sqlsrv_fetch($result)) {
+            return true;
+        }
         return MDB2_ERROR_NOT_FOUND;
     }
 
@@ -523,17 +523,17 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
         }
 
         if ($database_name && $database_name != $this->connected_database_name) {
-			$connection = $this->_doConnect($this->dsn['username'],$this->dsn['password'],$database_name);
-			if (PEAR::isError($connection)) {
-				$err = $this->raiseError(null, null, null,
-					'Could not select the database: '.$database_name, __FUNCTION__);
-				return $err;
-			}
-			$this->connected_database_name = $database_name;
+            $connection = $this->_doConnect($this->dsn['username'],$this->dsn['password'],$database_name);
+            if (PEAR::isError($connection)) {
+                $err = $this->raiseError(null, null, null,
+                    'Could not select the database: '.$database_name, __FUNCTION__);
+                return $err;
+            }
+            $this->connected_database_name = $database_name;
         }
 
-	$query = preg_replace('/DATE_FORMAT\((MIN\()?([\w|.]*)(\))?\\Q, \'%Y-%m-%d\')\E/i','CONVERT(varchar(10),$1$2$3,120)',$query); 
-	$query = preg_replace('/DATE_FORMAT\(([\w|.]*)\, \'\%Y\-\%m\-\%d %H\:00\:00\'\)/i','CONVERT(varchar(13),$1,120)+\':00:00\'',$query); 
+    $query = preg_replace('/DATE_FORMAT\((MIN\()?([\w|.]*)(\))?\\Q, \'%Y-%m-%d\')\E/i','CONVERT(varchar(10),$1$2$3,120)',$query); 
+    $query = preg_replace('/DATE_FORMAT\(([\w|.]*)\, \'\%Y\-\%m\-\%d %H\:00\:00\'\)/i','CONVERT(varchar(13),$1,120)+\':00:00\'',$query); 
         $result = @sqlsrv_query($connection,$query);
         if (!$result) {
             $err = $this->raiseError(null, null, null,
@@ -609,7 +609,7 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
         }
         // cache server_info
         $this->connected_server_info = $server_info;
-		$version = $server_info['SQLServerVersion'];
+        $version = $server_info['SQLServerVersion'];
         if (!$native) {
             if (preg_match('/(\d+)\.(\d+)\.(\d+)/', $version, $tmp)) {
                 $version = array(
@@ -652,9 +652,9 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
             }
             return false;
         }
-		if (@sqlsrv_fetch($tableExits)) {
-			return true;
-		}
+        if (@sqlsrv_fetch($tableExits)) {
+            return true;
+        }
         return false;
     }
 
@@ -773,27 +773,27 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
         $this->result = $result;
         $this->offset = $offset;
         $this->limit = max(0, $limit - 1);
-		$this->cursor = 0;
-		$this->rows = array();
-		$this->numFields = sqlsrv_num_fields($result);
-		$this->fieldMeta = sqlsrv_field_metadata($result);
-		$this->numRowsAffected = sqlsrv_rows_affected($result);
-		while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
-			if ($row !== null) {
-				if ($this->offset && $this->offset_count < $this->offset) {
-					$this->offset_count++;
-					continue;
-				}
-				foreach ($row as $k => $v) {
-					if (is_object($v) && method_exists($v, 'format')) {
+        $this->cursor = 0;
+        $this->rows = array();
+        $this->numFields = sqlsrv_num_fields($result);
+        $this->fieldMeta = sqlsrv_field_metadata($result);
+        $this->numRowsAffected = sqlsrv_rows_affected($result);
+        while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
+            if ($row !== null) {
+                if ($this->offset && $this->offset_count < $this->offset) {
+                    $this->offset_count++;
+                    continue;
+                }
+                foreach ($row as $k => $v) {
+                    if (is_object($v) && method_exists($v, 'format')) {
                         //DateTime Object
-						$row[$k] = $v->format('Y-m-d H:i:s');
-					}
-				}
-				$this->rows[] = $row; //read results into memory, cursors are not supported
-			}
-		}
-		$this->rowcnt = count($this->rows);
+                        $row[$k] = $v->format('Y-m-d H:i:s');
+                    }
+                }
+                $this->rows[] = $row; //read results into memory, cursors are not supported
+            }
+        }
+        $this->rowcnt = count($this->rows);
     }
 
     // }}}
@@ -826,17 +826,17 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
     }*/
 
     // }}}
-	function array_to_obj($array, &$obj) {
-		foreach ($array as $key => $value) {
-			if (is_array($value)) {
-				$obj->$key = new stdClass();
-				array_to_obj($value, $obj->$key);
-			} else {
-				$obj->$key = $value;
-			}
-		}
-		return $obj;
-	} 
+    function array_to_obj($array, &$obj) {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $obj->$key = new stdClass();
+                array_to_obj($value, $obj->$key);
+            } else {
+                $obj->$key = $value;
+            }
+        }
+        return $obj;
+    } 
     // {{{ fetchRow()
 
     /**
@@ -861,51 +861,51 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
                 return $seek;
             }
         }
-		
-		$row = false;
-		$arrNum = array();
-		if ($fetchmode == MDB2_FETCHMODE_ORDERED || $fetchmode == MDB2_FETCHMODE_DEFAULT) {
-			foreach ($this->rows[$this->cursor] as $key=>$value) {
-				$arrNum[] = $value;
-			}
-		}
-		switch($fetchmode) {
-			case MDB2_FETCHMODE_ASSOC:
-				$row = $this->rows[$this->cursor];
+
+        $row = false;
+        $arrNum = array();
+        if ($fetchmode == MDB2_FETCHMODE_ORDERED || $fetchmode == MDB2_FETCHMODE_DEFAULT) {
+            foreach ($this->rows[$this->cursor] as $key=>$value) {
+                $arrNum[] = $value;
+            }
+        }
+        switch($fetchmode) {
+            case MDB2_FETCHMODE_ASSOC:
+                $row = $this->rows[$this->cursor];
                 break;
-			case MDB2_FETCHMODE_ORDERED:
-				$row = $arrNum;
+            case MDB2_FETCHMODE_ORDERED:
+                $row = $arrNum;
                 break;
-			case MDB2_FETCHMODE_OBJECT:
+            case MDB2_FETCHMODE_OBJECT:
                 $o = new $this->db->options['fetch_class'];
-				$row = $this->array_to_obj($this->rows[$this->cursor], $o);
+                $row = $this->array_to_obj($this->rows[$this->cursor], $o);
                 break;
-			case MDB2_FETCHMODE_DEFAULT:
-			default:
-			$row = $this->rows[$this->cursor] + $arrNum;
+            case MDB2_FETCHMODE_DEFAULT:
+            default:
+            $row = $this->rows[$this->cursor] + $arrNum;
             break;
-		} 
-		$this->cursor++;
-		
-		/*
+        } 
+        $this->cursor++;
+
+        /*
         if ($fetchmode == MDB2_FETCHMODE_OBJECT) {
-			$row = sqlsrv_fetch_object($this->result,$this->db->options['fetch_class']);
-		} else {
-		switch($fetchmode) {
-			case MDB2_FETCHMODE_ASSOC: $fetchmode = SQLSRV_FETCH_ASSOC; break;
-			case MDB2_FETCHMODE_ORDERED: $fetchmode = SQLSRV_FETCH_NUMERIC; break;
-			case MDB2_FETCHMODE_DEFAULT: 
-			default: 
-				$fetchmode = SQLSRV_FETCH_BOTH;
-		}
-			$row = sqlsrv_fetch_array($this->result,$fetchmode);
-		}
-		foreach ($row as $key=>$value) {
-			if (is_object($value) && method_exists($value, 'format')) {//is DateTime object
-				$row[$key] = $value->format("Y-m-d H:i:s");
-			}
-		}*/
-		
+            $row = sqlsrv_fetch_object($this->result,$this->db->options['fetch_class']);
+        } else {
+        switch($fetchmode) {
+            case MDB2_FETCHMODE_ASSOC: $fetchmode = SQLSRV_FETCH_ASSOC; break;
+            case MDB2_FETCHMODE_ORDERED: $fetchmode = SQLSRV_FETCH_NUMERIC; break;
+            case MDB2_FETCHMODE_DEFAULT: 
+            default: 
+                $fetchmode = SQLSRV_FETCH_BOTH;
+        }
+            $row = sqlsrv_fetch_array($this->result,$fetchmode);
+        }
+        foreach ($row as $key=>$value) {
+            if (is_object($value) && method_exists($value, 'format')) {//is DateTime object
+                $row[$key] = $value->format("Y-m-d H:i:s");
+            }
+        }*/
+
         /*if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->db->fetchmode;
         }*/
@@ -958,13 +958,13 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
      */
     function _getColumnNames()
     {
-		if (!$this->result) {
+        if (!$this->result) {
             return $this->db->raiseError(MDB2_ERROR_INVALID, null, null, 'no valid statement given', __FUNCTION__);
         }
         $columns = array();
-		foreach ($this->fieldMeta as $n => $col) {
-			$columns[$col['Name']] = $n;
-		}
+        foreach ($this->fieldMeta as $n => $col) {
+            $columns[$col['Name']] = $n;
+        }
         if ($this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
             $columns = array_change_key_case($columns, $this->db->options['field_case']);
         }
@@ -1020,30 +1020,30 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
             return false;
         }
         $ret = sqlsrv_next_result($this->result);
-		if ($ret) {
-			$this->cursor = 0;
-			$this->rows = array();
-			$this->numFields = sqlsrv_num_fields($this->result);
-			$this->fieldMeta = sqlsrv_field_metadata($this->result);
-			$this->numRowsAffected = sqlsrv_rows_affected($this->result);
-			while ($row = sqlsrv_fetch_array($this->result, SQLSRV_FETCH_ASSOC)) {
-				if ($row !== null) {
-					if ($this->offset && $this->offset_count < $this->offset) {
-						$this->offset_count++;
-						continue;
-					}
-					foreach ($row as $k => $v) {
-						if (is_object($v) && method_exists($v, 'format')) {//DateTime Object
-							//$v->setTimezone(new DateTimeZone('GMT'));//TS_ISO_8601 with a trailing 'Z' is GMT
-							$row[$k] = $v->format("Y-m-d H:i:s");
-						}
-					}
-					$this->rows[] = $row;//read results into memory, cursors are not supported
-				}
-			}
-			$this->rowcnt = count($this->rows);		
-		}
-		return $ret;
+        if ($ret) {
+            $this->cursor = 0;
+            $this->rows = array();
+            $this->numFields = sqlsrv_num_fields($this->result);
+            $this->fieldMeta = sqlsrv_field_metadata($this->result);
+            $this->numRowsAffected = sqlsrv_rows_affected($this->result);
+            while ($row = sqlsrv_fetch_array($this->result, SQLSRV_FETCH_ASSOC)) {
+                if ($row !== null) {
+                    if ($this->offset && $this->offset_count < $this->offset) {
+                        $this->offset_count++;
+                        continue;
+                    }
+                    foreach ($row as $k => $v) {
+                        if (is_object($v) && method_exists($v, 'format')) {//DateTime Object
+                            //$v->setTimezone(new DateTimeZone('GMT'));//TS_ISO_8601 with a trailing 'Z' is GMT
+                            $row[$k] = $v->format("Y-m-d H:i:s");
+                        }
+                    }
+                    $this->rows[] = $row;//read results into memory, cursors are not supported
+                }
+            }
+            $this->rowcnt = count($this->rows);
+        }
+        return $ret;
     }
 
     // }}}
