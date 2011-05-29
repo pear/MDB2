@@ -622,6 +622,7 @@ class MDB2_Driver_Datatype_mysqli extends MDB2_Driver_Datatype_Common
         }
 
         switch ($type) {
+            case 'boolean':
             case 'integer':
                 return 'i';
             case 'float':
