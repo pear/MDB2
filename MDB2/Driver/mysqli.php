@@ -57,21 +57,30 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
 {
     // {{{ properties
 
-    var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => '\\', 'escape_pattern' => '\\');
+    public $string_quoting = array(
+        'start'  => "'",
+        'end'    => "'",
+        'escape' => '\\',
+        'escape_pattern' => '\\',
+    );
 
-    var $identifier_quoting = array('start' => '`', 'end' => '`', 'escape' => '`');
+    public $identifier_quoting = array(
+        'start'  => '`',
+        'end'    => '`',
+        'escape' => '`',
+    );
 
-    var $sql_comments = array(
+    protected $sql_comments = array(
         array('start' => '-- ', 'end' => "\n", 'escape' => false),
         array('start' => '#', 'end' => "\n", 'escape' => false),
         array('start' => '/*', 'end' => '*/', 'escape' => false),
     );
 
-    var $server_capabilities_checked = false;
+    protected $server_capabilities_checked = false;
 
-    var $start_transaction = false;
+    protected $start_transaction = false;
 
-    var $varchar_max_length = 255;
+    protected $varchar_max_length = 255;
 
     // }}}
     // {{{ constructor
@@ -1758,7 +1767,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
                 $query.= ' USING @'.implode(', @', array_values($this->positions));
             } else {
                 $result = call_user_func_array('mysqli_stmt_bind_param', $parameters);
-                if (true !== $result) {
+                if (false === $result) {
                     $err = $this->db->raiseError(null, null, null,
                         'Unable to bind parameters', __FUNCTION__);
                     return $err;
