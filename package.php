@@ -9,6 +9,7 @@ $state = 'beta';
 $notes = <<<EOT
 - fixed bug #18203: Type introspection breaks with associative arrays if names are identical
   (patch by Peter Bex)
+- small performance tweaks
 
 open todo items:
 - handle autoincrement fields in alterTable()
