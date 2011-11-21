@@ -1,7 +1,4 @@
 <?php
-// {{{ error reporting
-error_reporting(E_ERROR);
-// }}}
 // {{{ DSN Constants
 /**
  * Constants used in PackageName_MDB2
