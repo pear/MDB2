@@ -84,7 +84,7 @@ class MDB2_Internals_TestCase extends MDB2_TestCase {
         // Suppress handling of PEAR errors while testing next case
         PEAR::pushErrorHandling(null);
         $result = MDB2::loadClass('null', false);
-        $this->assertTrue(is_a($result, 'pear_error'), 'loadClass');
+        $this->assertTrue(is_object($result) && is_a($result, 'pear_error'), 'loadClass');
         PEAR::popErrorHandling();
     }
 

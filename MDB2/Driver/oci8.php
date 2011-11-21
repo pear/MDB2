@@ -1208,7 +1208,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
             }
             if (empty($this->types)) {
                 foreach (array_keys($buffer) as $key) {
-                    if (is_a($buffer[$key], 'oci-lob')) {
+                    if (is_object($buffer[$key]) && is_a($buffer[$key], 'oci-lob')) {
                         $buffer[$key] = $buffer[$key]->load();
                     }
                 }
@@ -1470,7 +1470,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     while (!feof($fp)) {
                         $this->values[$parameter] .= fread($fp, 8192);
                     }
-                } elseif (is_a($this->values[$parameter], 'OCI-Lob')) {
+                } elseif (is_object($this->values[$parameter]) && is_a($this->values[$parameter], 'OCI-Lob')) {
                     //do nothing
                 } elseif ($this->db->getOption('lob_allow_url_include')
                           && preg_match('/^(\w+:\/\/)(.*)$/', $this->values[$parameter], $match)
@@ -1484,7 +1484,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 $lobs[$i]['descriptor'] =& $this->values[$parameter];
                 // Test to see if descriptor has already been created for this
                 // variable (i.e. if it has been bound more than once):
-                if (!is_a($this->values[$parameter], 'OCI-Lob')) {
+                if (!(is_object($this->values[$parameter]) && is_a($this->values[$parameter], 'OCI-Lob'))) {
                     $this->values[$parameter] = @OCINewDescriptor($connection, OCI_D_LOB);
                     if (false === $this->values[$parameter]) {
                         $result = $this->db->raiseError(null, null, null,
@@ -1501,7 +1501,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             } else if ($type == OCI_B_BFILE) {
                 // Test to see if descriptor has already been created for this
                 // variable (i.e. if it has been bound more than once):
-                if (!is_a($this->values[$parameter], "OCI-Lob")) {
+                if (!(is_object($this->values[$parameter]) && is_a($this->values[$parameter], "OCI-Lob"))) {
                     $this->values[$parameter] = @OCINewDescriptor($connection, OCI_D_FILE);
                     if (false === $this->values[$parameter]) {
                         $result = $this->db->raiseError(null, null, null,

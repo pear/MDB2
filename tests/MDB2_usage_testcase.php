@@ -1423,7 +1423,7 @@ class MDB2_Usage_TestCase extends MDB2_TestCase {
                     while ($row = $result->fetchRow(MDB2_FETCHMODE_ASSOC)) {
                         foreach (array('document' => 'clob', 'picture' => 'blob') as $field => $type) {
                             $lob = $row[$field];
-                            if (is_a($lob, 'oci-lob')) {
+                            if (is_object($lob) && is_a($lob, 'oci-lob')) {
                                 $lob = $lob->load();
                             } elseif (is_resource($lob)) {
                                 $lob = fread($lob, 1000);

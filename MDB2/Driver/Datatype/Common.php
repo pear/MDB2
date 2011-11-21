@@ -1386,7 +1386,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if (PEAR::isError($db)) {
                 return $db;
             }
-            if (isset($db->function) && is_a($db->function, 'MDB2_Driver_Function_Common')) {
+            if (isset($db->function) && is_object($this->function) && is_a($db->function, 'MDB2_Driver_Function_Common')) {
                 return $db->function->now('date');
             }
             return 'CURRENT_DATE';
@@ -1415,7 +1415,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if (PEAR::isError($db)) {
                 return $db;
             }
-            if (isset($db->function) && is_a($db->function, 'MDB2_Driver_Function_Common')) {
+            if (isset($db->function) && is_object($this->function) && is_a($db->function, 'MDB2_Driver_Function_Common')) {
                 return $db->function->now('timestamp');
             }
             return 'CURRENT_TIMESTAMP';
@@ -1444,7 +1444,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
             if (PEAR::isError($db)) {
                 return $db;
             }
-            if (isset($db->function) && is_a($db->function, 'MDB2_Driver_Function_Common')) {
+            if (isset($db->function) && is_object($this->function) && is_a($db->function, 'MDB2_Driver_Function_Common')) {
                 return $db->function->now('time');
             }
             return 'CURRENT_TIME';
