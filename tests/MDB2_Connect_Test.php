@@ -15,22 +15,14 @@ class MDB2_Connect_Test
     function __construct()
     {
         require_once 'MDB2.php';
-        require_once 'config.php';
-
-        $this->_dsn = array(
-                'phptype'  => DSN_PHPTYPE,
-                'username' => DSN_USERNAME,
-                'password' => DSN_PASSWORD,
-                'hostspec' => DSN_HOSTNAME,
-                'database' => DSN_DATABASE,
-        );
-
+        require_once dirname(__FILE__) . '/config.php';
+        $this->_dsn = unserialize(MDB2_DSN);
     }
     // }}}
     // {{{ PHP4 constructor..
     function MDB2_Connect_Test()
     {
-        $this->__construct($connect);
+        $this->__construct();
     }
     // }}}
     // {{{ connect

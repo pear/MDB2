@@ -3,8 +3,8 @@ MDB2: Basic connectivity
 --FILE--
 <?php
 
-require_once 'MDB2_Connect_Test.php';
-require_once 'config.php';
+require_once dirname(__FILE__) . '/MDB2_Connect_Test.php';
+require_once dirname(__FILE__) . '/config.php';
 
 if (! ($dbc =& new MDB2_Connect_Test(true)))
 {
@@ -16,11 +16,7 @@ if (PEAR::isError($e)) {
     print $e->getMessage() . "\n";
 }
 
-die();
-
-
-?>
 echo 'Success!';
-
+?>
 --EXPECT--
 Success!
