@@ -10,7 +10,9 @@ define ('DSN_HOSTNAME', 'hostname');
 define ('DSN_DATABASE', 'databasename');
 // }}}
 
-//uncomment the following to run tests in a checkout
-//set_include_path(dirname(dirname(__FILE__)).DIRECTORY_SEPARATOR.get_include_path());
-
-?>
+if ('@php_dir@' == '@'.'php_dir'.'@') {
+    // This package hasn't been installed.
+    // Adjust path to ensure includes find files in working directory.
+    set_include_path(dirname(dirname(__FILE__))
+        . PATH_SEPARATOR . get_include_path());
+}
