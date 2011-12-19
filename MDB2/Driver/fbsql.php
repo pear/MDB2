@@ -428,7 +428,7 @@ class MDB2_Driver_fbsql extends MDB2_Driver_Common
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
-        
+
         $result =& $this->_doQuery($query, $is_manip, $connection, $this->database_name);
         if (!PEAR::isError($result)) {
             $result = $this->_affectedRows($connection, $result);

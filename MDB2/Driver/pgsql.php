@@ -381,7 +381,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }
-        
+
         if ($database_name == '') {
             $database_name = 'template1';
         }
@@ -764,10 +764,10 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
         return $query;
     }
-    
+
     // }}}
     // {{{ _modifyManipQuery()
-    
+
     /**
      * Changes a manip query string for various DBMS specific reasons
      *
@@ -915,7 +915,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             if (null === $placeholder_type) {
                 $placeholder_type_guess = $query[$p_position];
             }
-            
+
             $new_pos = $this->_skipDelimitedStrings($query, $position, $p_position);
             if (PEAR::isError($new_pos)) {
                 return $new_pos;

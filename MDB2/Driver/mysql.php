@@ -126,7 +126,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
 
     // }}}
     // {{{ _reCheckSupportedOptions()
-    
+
     /**
      * If the user changes certain options, other capabilities may depend
      * on the new settings, so we need to check them (again).
@@ -745,7 +745,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
-        
+
         $result = $this->_doQuery($query, $is_manip, $connection, $this->database_name);
         if (!PEAR::isError($result)) {
             $result = $this->_affectedRows($connection, $result);
@@ -958,7 +958,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             $this->supported['triggers'] = false;
             $this->start_transaction = false;
             $this->varchar_max_length = 255;
-            
+
             $server_info = $this->getServerVersion();
             if (is_array($server_info)) {
                 $server_version = $server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'];
@@ -996,7 +996,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
     // {{{ function _skipUserDefinedVariable($query, $position)
 
     /**
-     * Utility method, used by prepare() to avoid misinterpreting MySQL user 
+     * Utility method, used by prepare() to avoid misinterpreting MySQL user
      * defined variables (SELECT @x:=5) for placeholders.
      * Check if the placeholder is a false positive, i.e. if it is an user defined
      * variable instead. If so, skip it and advance the position, otherwise
@@ -1090,7 +1090,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
             if (is_null($placeholder_type)) {
                 $placeholder_type_guess = $query[$p_position];
             }
-            
+
             $new_pos = $this->_skipDelimitedStrings($query, $position, $p_position);
             if (PEAR::isError($new_pos)) {
                 return $new_pos;
@@ -1099,7 +1099,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
                 $position = $new_pos;
                 continue; //evaluate again starting from the new position
             }
-            
+
             //make sure this is not part of an user defined variable
             $new_pos = $this->_skipUserDefinedVariable($query, $position);
             if ($new_pos != $position) {
@@ -1586,7 +1586,7 @@ class MDB2_BufferedResult_mysql extends MDB2_Result_mysql
         }
         return $rows;
     }
-    
+
     // }}}
 }
 

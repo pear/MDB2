@@ -644,7 +644,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
-        
+
         $result = $this->_doQuery($query, $is_manip, $connection);
         if (!PEAR::isError($result)) {
             $result = $this->_affectedRows($connection, $result);
@@ -854,7 +854,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
             if (null === $placeholder_type) {
                 $placeholder_type_guess = $query[$p_position];
             }
-            
+
             $new_pos = $this->_skipDelimitedStrings($query, $position, $p_position);
             if (PEAR::isError($new_pos)) {
                 return $new_pos;
@@ -863,7 +863,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
                 $position = $new_pos;
                 continue; //evaluate again starting from the new position
             }
-            
+
             if ($query[$position] == $placeholder_type_guess) {
                 if (null === $placeholder_type) {
                     $placeholder_type = $query[$p_position];
@@ -973,7 +973,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         //$seq = $table.(empty($field) ? '' : '_'.$field);
         return $this->currID($table);
     }
-    
+
     // }}}
     // {{{ currID()
 

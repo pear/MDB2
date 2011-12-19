@@ -403,7 +403,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
                 'unable to establish a connection', __FUNCTION__);
         }
-        
+
         if (empty($this->dsn['disable_iso_date'])) {
             $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
             $err =& $this->_doQuery($query, true, $connection);
@@ -412,7 +412,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                 return $err;
             }
         }
-        
+
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
         $err =& $this->_doQuery($query, true, $connection);
         if (PEAR::isError($err)) {
@@ -820,7 +820,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             if (null === $placeholder_type) {
                 $placeholder_type_guess = $query[$p_position];
             }
-            
+
             $new_pos = $this->_skipDelimitedStrings($query, $position, $p_position);
             if (PEAR::isError($new_pos)) {
                 return $new_pos;

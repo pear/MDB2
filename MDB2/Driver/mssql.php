@@ -554,7 +554,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
-        
+
         $result = $this->_doQuery($query, $is_manip, $connection, $this->database_name);
         if (!PEAR::isError($result)) {
             $result = $this->_affectedRows($connection, $result);
@@ -759,7 +759,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
         $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $this->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        
+
         $seq_val = $this->_checkSequence($sequence_name);
 
         if ($seq_val) {
@@ -786,7 +786,7 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
                      * exists, then we get the last inserted id if it does.
                      *
                      * In theory, $seq_name should be created otherwise there would
-                     * have been an error thrown somewhere up there.. 
+                     * have been an error thrown somewhere up there..
                      *
                      * @todo confirm
                      */

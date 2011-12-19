@@ -309,13 +309,13 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
 
 
         $connect_function = $persistent ? 'odbc_pconnect' : 'odbc_connect';
-		
-		
+
+
 	$params = array($this->database_name,$this->dsn[username],$this->dsn[password]);
         $connection = @call_user_func_array($connect_function, $params);
-		
+
         if ($connection <= 0) {
-        	
+
             return $this->raiseError(MDB2_ERROR_CONNECT_FAILED, null, null,
                 'unable to establish a connection', __FUNCTION__, __FUNCTION__);
         }
@@ -497,7 +497,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
-        
+
         $result =& $this->_doQuery($query, $is_manip, $connection, $this->database_name);
         if (!PEAR::isError($result)) {
             $result = $this->_affectedRows($connection, $result);
@@ -554,7 +554,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
                     return $err;
                 }
                 */
-				
+
                 $this->connected_database_name = $database_name;
             }
         }
@@ -707,7 +707,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         $seqcol_name = $this->quoteIdentifier($this->options['seqcol_name'], true);
         $this->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->expectError(MDB2_ERROR_NOSUCHTABLE);
-        
+
         $seq_val = $this->_checkSequence($sequence_name);
 
         if ($seq_val) {
@@ -734,7 +734,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
                      * exists, then we get the last inserted id if it does.
                      *
                      * In theory, $seq_name should be created otherwise there would
-                     * have been an error thrown somewhere up there.. 
+                     * have been an error thrown somewhere up there..
                      *
                      * @todo confirm
                      */
@@ -844,7 +844,7 @@ class MDB2_Result_odbc extends MDB2_Result_Common
      */
     function &fetchRow($fetchmode = MDB2_FETCHMODE_DEFAULT, $rownum = null)
     {
-    	
+
         if (!$this->_skipLimitOffset()) {
             $null = null;
             return $null;
@@ -860,7 +860,7 @@ class MDB2_Result_odbc extends MDB2_Result_Common
         }
         if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
             $row = odbc_fetch_assoc($this->result);
-			
+
             if (is_array($row)
                 && $this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
             ) {
@@ -868,8 +868,8 @@ class MDB2_Result_odbc extends MDB2_Result_Common
             }
         } else {
             $row = odbc_fetch_row_wrapper($this->result);
-			
-			
+
+
         }
         if (!$row) {
             if ($this->result === false) {
@@ -1079,17 +1079,17 @@ class MDB2_BufferedResult_odbc extends MDB2_Result_odbc
     function numRows()
     {
         $rows = odbc_num_rows($this->result);
-		
+
 		// Hack the Planet
 		$count = 0;
 		while ($row = odbc_fetch_row($this->result)) {
 			$count++;
 		}
-		@odbc_fetch_row($this->result, 0); 
+		@odbc_fetch_row($this->result, 0);
 		if($count >= 0) {
 			$rows = $count;
 		}
-		
+
         if (is_null($rows)) {
             if ($this->result === false) {
                 return $this->db->raiseError(MDB2_ERROR_NEED_MORE_DATA, null, null,
