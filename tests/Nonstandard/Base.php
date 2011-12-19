@@ -43,8 +43,6 @@
 //
 // $Id$
 
-require_once dirname(__DIR__) . '/autoload.inc';
-
 class Nonstandard_Base {
     /**
      * @var MDB2_Driver_Common

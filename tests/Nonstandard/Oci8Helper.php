@@ -43,8 +43,6 @@
 //
 // $Id$
 
-require_once dirname(__DIR__) . '/autoload.inc';
-
 class Nonstandard_Oci8Helper extends Nonstandard_Base {
 
     public $trigger_body = '';

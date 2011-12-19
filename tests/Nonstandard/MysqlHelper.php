@@ -43,8 +43,6 @@
 //
 // $Id$
 
-require_once dirname(__DIR__) . '/autoload.inc';
-
 class Nonstandard_MysqlHelper extends Nonstandard_Base {
 
     public $trigger_body = '';

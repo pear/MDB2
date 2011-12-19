@@ -43,8 +43,6 @@
 //
 // $Id: MDB2_nonstandard_sqlsrv.php,v 1.2 2007/03/04 21:27:44 quipo Exp $
 
-require_once dirname(__DIR__) . '/autoload.inc';
-
 class Nonstandard_SqlsrvHelper extends Nonstandard_Base {
 
     public $trigger_body = '';
