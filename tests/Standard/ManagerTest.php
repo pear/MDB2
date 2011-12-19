@@ -185,7 +185,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $query = 'SELECT id FROM '.$this->table;
         $data = $this->db->queryCol($query, 'integer');
         if (PEAR::isError($data)) {
-            $this->fail('Error executing select: ' . $data->getMessage());
+            $this->fail('Error executing select: ' . $data->getUserInfo());
             return;
         }
         for ($i=0; $i<$rows; ++$i) {
@@ -491,7 +491,7 @@ class Standard_ManagerTest extends Standard_Abstract {
             {
                 $this->markTestSkipped('Test user lacks permission to list databases');
             }
-            $this->fail('Error listing databases ('.$result->getMessage().')');
+            $this->fail('Error listing databases ('.$result->getUserInfo().')');
         } else {
             $this->assertTrue(in_array(strtolower($this->database), $result), 'Error listing databases');
         }
@@ -598,7 +598,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $result = $this->db->manager->alterTable($this->table, $changes, true);
         $this->db->popExpect();
         if (PEAR::isError($result)) {
-            $this->fail('Cannot alter table: '.$result->getMessage().' :: '.$result->getUserInfo());
+            $this->fail('Cannot alter table: '.$result->getUserInfo().' :: '.$result->getUserInfo());
         } else {
             $result = $this->db->manager->alterTable($this->table, $changes, false);
             if (PEAR::isError($result)) {
@@ -816,14 +816,14 @@ class Standard_ManagerTest extends Standard_Abstract {
 
         $result = $this->nonstd->createTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->fail('Cannot create trigger: '.$result->getMessage());
+            $this->fail('Cannot create trigger: '.$result->getUserInfo());
             return;
         }
 
         //test
         $triggers = $this->db->manager->listTableTriggers($this->table);
         if (PEAR::isError($triggers)) {
-            $this->fail('Error listing the table triggers: '.$triggers->getMessage());
+            $this->fail('Error listing the table triggers: '.$triggers->getUserInfo());
         } else {
             $this->assertTrue(in_array($trigger_name, $triggers), 'Error: trigger not found');
             //check that only the triggers referencing the given table are returned
@@ -835,7 +835,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         //cleanup
         $result = $this->nonstd->dropTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->fail('Error dropping the trigger: '.$result->getMessage());
+            $this->fail('Error dropping the trigger: '.$result->getUserInfo());
         }
     }
 
@@ -858,7 +858,7 @@ class Standard_ManagerTest extends Standard_Abstract {
 
         $result = $this->nonstd->createView($view_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->fail('Cannot create view: '.$result->getMessage());
+            $this->fail('Cannot create view: '.$result->getUserInfo());
             return;
         }
 
@@ -868,7 +868,7 @@ class Standard_ManagerTest extends Standard_Abstract {
             if ($views->getCode() == MDB2_ERROR_UNSUPPORTED) {
                 $this->markTestSkipped('listDatabases() not supported');
             }
-            $this->fail('Error listing the table views: '.$views->getMessage());
+            $this->fail('Error listing the table views: '.$views->getUserInfo());
         } else {
             $this->assertTrue(in_array($view_name, $views), 'Error: view not found');
             //check that only the views referencing the given table are returned
@@ -880,7 +880,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         //cleanup
         $result = $this->nonstd->dropView($view_name);
         if (PEAR::isError($result)) {
-            $this->fail('Error dropping the view: '.$result->getMessage());
+            $this->fail('Error dropping the view: '.$result->getUserInfo());
         }
     }
 
@@ -903,14 +903,14 @@ class Standard_ManagerTest extends Standard_Abstract {
 
         $result = $this->nonstd->createView($view_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->fail('Cannot create view: '.$result->getMessage());
+            $this->fail('Cannot create view: '.$result->getUserInfo());
             return;
         }
 
         //test
         $views = $this->db->manager->listViews();
         if (PEAR::isError($views)) {
-            $this->fail('Error listing the views: '.$views->getMessage());
+            $this->fail('Error listing the views: '.$views->getUserInfo());
         } else {
             $this->assertTrue(in_array($view_name, $views), 'Error: view not found');
         }
@@ -918,7 +918,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         //cleanup
         $result = $this->nonstd->dropView($view_name);
         if (PEAR::isError($result)) {
-            $this->fail('Error dropping the view: '.$result->getMessage());
+            $this->fail('Error dropping the view: '.$result->getUserInfo());
         }
     }
 
@@ -939,7 +939,7 @@ class Standard_ManagerTest extends Standard_Abstract {
             {
                 $this->markTestSkipped('Test user lacks permission to list users');
             }
-            $this->fail('Error listing the users: '.$users->getMessage().' :: '.$users->getUserInfo());
+            $this->fail('Error listing the users: '.$users->getUserInfo().' :: '.$users->getUserInfo());
         } else {
             $users = array_map('strtolower', $users);
             $this->assertTrue(in_array(strtolower($this->db->dsn['username']), $users), 'Error: user not found');
@@ -977,7 +977,7 @@ class Standard_ManagerTest extends Standard_Abstract {
             {
                 $this->markTestSkipped('Test user lacks permission to list functions');
             }
-            $this->fail('Cannot create function: '.$result->getMessage().' :: '.$result->getUserInfo());
+            $this->fail('Cannot create function: '.$result->getUserInfo().' :: '.$result->getUserInfo());
             return;
         }
 
@@ -989,7 +989,7 @@ class Standard_ManagerTest extends Standard_Abstract {
             {
                 $this->markTestSkipped('Test user lacks permission to list functions');
             }
-            $this->fail('Error listing the functions: '.$functions->getMessage());
+            $this->fail('Error listing the functions: '.$functions->getUserInfo());
         } else {
             $this->assertTrue(in_array($function_name, $functions), 'Error: function not found');
         }
@@ -997,7 +997,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         //cleanup
         $result = $this->nonstd->dropFunction($function_name);
         if (PEAR::isError($result)) {
-            $this->fail('Error dropping the function: '.$result->getMessage());
+            $this->fail('Error dropping the function: '.$result->getUserInfo());
         }
     }
 
@@ -1085,7 +1085,7 @@ class Standard_ManagerTest extends Standard_Abstract {
 
         $result = $this->db->manager->dropDatabase($rename);
         if (PEAR::isError($result)) {
-            $this->fail('Error dropping database: '.$result->getMessage());
+            $this->fail('Error dropping database: '.$result->getUserInfo());
         }
     }
 
@@ -1099,7 +1099,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         //vacuum table
         $result = $this->db->manager->vacuum($this->table);
         if (PEAR::isError($result)) {
-            $this->fail('Error: cannot vacuum table: ' . $result->getMessage());
+            $this->fail('Error: cannot vacuum table: ' . $result->getUserInfo());
         }
 
         //vacuum and analyze table
@@ -1110,13 +1110,13 @@ class Standard_ManagerTest extends Standard_Abstract {
         );
         $result = $this->db->manager->vacuum($this->table, $options);
         if (PEAR::isError($result)) {
-            $this->fail('Error: cannot vacuum table: ' . $result->getMessage());
+            $this->fail('Error: cannot vacuum table: ' . $result->getUserInfo());
         }
 
         //vacuum all tables
         $result = $this->db->manager->vacuum();
         if (PEAR::isError($result)) {
-            $this->fail('Error: cannot vacuum table: ' . $result->getMessage());
+            $this->fail('Error: cannot vacuum table: ' . $result->getUserInfo());
         }
     }
 }
