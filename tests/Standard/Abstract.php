@@ -146,10 +146,10 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
     }
 
     public function tearDown() {
-        $this->clearTables();
         if (!$this->db || PEAR::isError($this->db)) {
             return;
         }
+        $this->clearTables();
         $this->db->disconnect();
         $this->db->popExpect();
         unset($this->db);
@@ -160,12 +160,8 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         if (!$this->clear_tables) {
             return;
         }
-        if (PEAR::isError($this->db->exec('DELETE FROM users'))) {
-            $this->assertTrue(false, 'Error deleting from table users');
-        }
-        if (PEAR::isError($this->db->exec('DELETE FROM files'))) {
-            $this->assertTrue(false, 'Error deleting from table users');
-        }
+        $this->db->exec('DELETE FROM users');
+        $this->db->exec('DELETE FROM files');
     }
 
     public function supported($feature) {

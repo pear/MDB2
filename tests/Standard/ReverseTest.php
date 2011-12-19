@@ -161,18 +161,16 @@ class Standard_ReverseTest extends Standard_Abstract
     }
 
     public function tearDown() {
+        if (!$this->db || PEAR::isError($this->db)) {
+            return;
+        }
         if ($this->tableExists($this->table2)) {
             $this->db->manager->dropTable($this->table2);
         }
         if ($this->tableExists($this->table)) {
             $this->db->manager->dropTable($this->table);
         }
-        $this->db->popExpect();
-        unset($this->dsn);
-        if (!PEAR::isError($this->db->manager)) {
-            $this->db->disconnect();
-        }
-        unset($this->db);
+        parent::tearDown();
     }
 
     public function setUpIndices()

@@ -196,15 +196,13 @@ class Standard_DatatypeTest extends Standard_Abstract
      * The teardown method to clean up the testing environment.
      */
     public function tearDown() {
+        if (!$this->db || PEAR::isError($this->db)) {
+            return;
+        }
         if ($this->tableExists($this->table)) {
             $this->db->manager->dropTable($this->table);
         }
-        $this->db->popExpect();
-        unset($this->dsn);
-        if (!PEAR::isError($this->db->manager)) {
-            $this->db->disconnect();
-        }
-        unset($this->db);
+        parent::tearDown();
     }
 
     /**

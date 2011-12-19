@@ -105,16 +105,14 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     public function tearDown() {
+        if (!$this->db || PEAR::isError($this->db)) {
+            return;
+        }
         if ($this->tableExists($this->table)) {
             $result = $this->db->manager->dropTable($this->table);
             $this->assertFalse(PEAR::isError($result), 'Error dropping table');
         }
-        $this->db->popExpect();
-        unset($this->dsn);
-        if (!PEAR::isError($this->db->manager)) {
-            $this->db->disconnect();
-        }
-        unset($this->db);
+        parent::tearDown();
     }
 
     /**
