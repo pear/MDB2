@@ -63,21 +63,24 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
         if (PEAR::isError($result)) {
-            $this->fail('Error executing prepared query: '.$result->getMessage(). ' :: '.$result->getUserInfo());
+            $this->fail('Error executing prepared query: ' . $result->getUserInfo());
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->query($query, $this->fields);
-
+        $result = $this->db->query($query, $this->fields);
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users: ' . $result->getUserInfo());
         }
 
         $this->verifyFetchedValues($result, 0, $data);
+        $result->free();
     }
 
     /**
@@ -97,13 +100,17 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                @$stmt->free();
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
         }
 
@@ -111,14 +118,13 @@ class Standard_UsageTest extends Standard_Abstract {
 
         foreach ($this->fields as $field => $type) {
             for ($row = 0; $row < $total_rows; $row++) {
-                $result =& $this->db->query('SELECT '.$field.' FROM users WHERE user_id='.$row, $type);
+                $result = $this->db->query('SELECT '.$field.' FROM users WHERE user_id='.$row, $type);
                 $value = $result->fetchOne();
+                $result->free();
                 if (PEAR::isError($value)) {
                     $this->fail('Error fetching row '.$row.' for field '.$field.' of type '.$type);
-                } else {
-                    $this->assertEquals(strval($data[$row][$field]), strval(trim($value)), 'the query field '.$field.' of type '.$type.' for row '.$row);
-                    $result->free();
                 }
+                $this->assertEquals(strval($data[$row][$field]), strval(trim($value)), 'the query field '.$field.' of type '.$type.' for row '.$row);
             }
         }
     }
@@ -138,13 +144,16 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
-
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                @$stmt->free();
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
         }
 
@@ -161,30 +170,28 @@ class Standard_UsageTest extends Standard_Abstract {
         }
 
         $query = 'SELECT user_name, user_id FROM users ORDER BY user_name';
-        $result =& $this->db->query($query, array('text', 'integer'));
+        $result = $this->db->query($query, array('text', 'integer'));
         if (PEAR::isError($result)) {
-            $this->fail('Error during query: '.$result->getMessage());
+            $this->fail('Error during query: ' . $result->getUserInfo());
         }
         $values = $result->fetchCol(0);
+        $result->free();
         if (PEAR::isError($values)) {
             $this->fail('Error fetching first column');
-        } else {
-            $this->assertEquals($first_col, $values);
         }
-        $result->free();
+        $this->assertEquals($first_col, $values);
 
         $query = 'SELECT user_name, user_id FROM users ORDER BY user_name';
-        $result =& $this->db->query($query, array('text', 'integer'));
+        $result = $this->db->query($query, array('text', 'integer'));
         if (PEAR::isError($result)) {
-            $this->fail('Error during query: '.$result->getMessage());
+            $this->fail('Error during query: ' . $result->getUserInfo());
         }
         $values = $result->fetchCol(1);
+        $result->free();
         if (PEAR::isError($values)) {
             $this->fail('Error fetching second column');
-        } else {
-            $this->assertEquals($second_col, $values);
         }
-        $result->free();
+        $this->assertEquals($second_col, $values);
     }
 
     /**
@@ -202,105 +209,102 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
-
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                @$stmt->free();
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
         }
-        $fields = array_keys($data[0]);
-        $query = 'SELECT '. implode (', ', $fields). ' FROM users ORDER BY user_name';
-
         $stmt->free();
 
-        $result =& $this->db->query($query, $this->fields);
+        $fields = array_keys($data[0]);
+        $query = 'SELECT '. implode (', ', $fields). ' FROM users ORDER BY user_name';
+        $result = $this->db->query($query, $this->fields);
         if (PEAR::isError($result)) {
-            $this->fail('Error during query: ' .$result->getMessage());
+            $this->fail('Error during query: '  . $result->getUserInfo());
         }
         $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC);
+        $result->free();
         if (PEAR::isError($values)) {
             $this->fail('Error fetching the result set');
-        } else {
-            for ($i=0; $i<$total_rows; $i++) {
-                foreach ($data[$i] as $key => $val) {
-                    $this->assertEquals(strval($val), strval($values[$i][$key]), 'Row #'.$i.' ['.$key.']');
-                }
+        }
+        for ($i=0; $i<$total_rows; $i++) {
+            foreach ($data[$i] as $key => $val) {
+                $this->assertEquals(strval($val), strval($values[$i][$key]), 'Row #'.$i.' ['.$key.']');
             }
         }
-        $result->free();
 
         //test $rekey=true
-        $result =& $this->db->query('SELECT user_id, user_name FROM users ORDER BY user_id', $this->fields);
+        $result = $this->db->query('SELECT user_id, user_name FROM users ORDER BY user_id', $this->fields);
         if (PEAR::isError($result)) {
-            $this->fail('Error during query: '.$result->getMessage());
+            $this->fail('Error during query: ' . $result->getUserInfo());
         }
         $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC, true);
+        $result->free();
         if (PEAR::isError($values)) {
             $this->fail('Error fetching the result set');
-        } else {
-            for ($i=0; $i<$total_rows; $i++) {
-                list($id, $name) = each($values);
-                $this->assertEquals($data[$i]['user_id'],   $id,   'Row #'.$i.' ["user_id"]');
-                $this->assertEquals($data[$i]['user_name'], $name, 'Row #'.$i.' ["user_name"]');
-            }
         }
-        $result->free();
+        for ($i=0; $i<$total_rows; $i++) {
+            list($id, $name) = each($values);
+            $this->assertEquals($data[$i]['user_id'],   $id,   'Row #'.$i.' ["user_id"]');
+            $this->assertEquals($data[$i]['user_name'], $name, 'Row #'.$i.' ["user_name"]');
+        }
 
 
         //test $rekey=true, $force_array=true
-        $result =& $this->db->query('SELECT user_id, user_name FROM users ORDER BY user_id', $this->fields);
+        $result = $this->db->query('SELECT user_id, user_name FROM users ORDER BY user_id', $this->fields);
         if (PEAR::isError($result)) {
-            $this->fail('Error during query: '.$result->getMessage());
+            $this->fail('Error during query: ' . $result->getUserInfo());
         }
         $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC, true, true);
+        $result->free();
         if (PEAR::isError($values)) {
             $this->fail('Error fetching the result set');
-        } else {
-            for ($i=0; $i<$total_rows; $i++) {
-                list($id, $value) = each($values);
-                $this->assertEquals($data[$i]['user_id'],   $id,                 'Row #'.$i.' ["user_id"]');
-                $this->assertEquals($data[$i]['user_name'], $value['user_name'], 'Row #'.$i.' ["user_name"]');
-            }
         }
-        $result->free();
+        for ($i=0; $i<$total_rows; $i++) {
+            list($id, $value) = each($values);
+            $this->assertEquals($data[$i]['user_id'],   $id,                 'Row #'.$i.' ["user_id"]');
+            $this->assertEquals($data[$i]['user_name'], $value['user_name'], 'Row #'.$i.' ["user_name"]');
+        }
 
         //test $rekey=true, $force_array=true, $group=true
-        $result =& $this->db->query('SELECT user_password, user_name FROM users ORDER BY user_name', $this->fields);
+        $result = $this->db->query('SELECT user_password, user_name FROM users ORDER BY user_name', $this->fields);
         if (PEAR::isError($result)) {
-            $this->fail('Error during query: '.$result->getMessage());
+            $this->fail('Error during query: ' . $result->getUserInfo());
         }
         $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC, true, true, true);
+        $result->free();
         if (PEAR::isError($values)) {
             $this->fail('Error fetching the result set');
-        } else {
-            //all the records have the same user_password value
-            $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
-            $values = $values[$data[0]['user_password']];
-            for ($i=0; $i<$total_rows; $i++) {
-                $this->assertEquals($data[$i]['user_name'], $values[$i]['user_name'], 'Row #'.$i.' ["user_name"]');
-            }
         }
-        $result->free();
+        //all the records have the same user_password value
+        $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
+        $values = $values[$data[0]['user_password']];
+        for ($i=0; $i<$total_rows; $i++) {
+            $this->assertEquals($data[$i]['user_name'], $values[$i]['user_name'], 'Row #'.$i.' ["user_name"]');
+        }
 
         //test $rekey=true, $force_array=true, $group=false (with non unique key)
-        $result =& $this->db->query('SELECT user_password, user_name FROM users ORDER BY user_name', $this->fields);
+        $result = $this->db->query('SELECT user_password, user_name FROM users ORDER BY user_name', $this->fields);
         if (PEAR::isError($result)) {
-            $this->fail('Error during query: '.$result->getMessage());
+            $this->fail('Error during query: ' . $result->getUserInfo());
         }
         $values = $result->fetchAll(MDB2_FETCHMODE_ASSOC, true, true, false);
+        $result->free();
         if (PEAR::isError($values)) {
             $this->fail('Error fetching the result set');
-        } else {
-            //all the records have the same user_password value, they are overwritten
-            $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
-            $key = $data[0]['user_password'];
-            $this->assertEquals(1, count($values[$key]), 'Error: incorrect number of returned rows');
-            $this->assertEquals($data[4]['user_name'], $values[$key]['user_name']);
         }
-        $result->free();
+        //all the records have the same user_password value, they are overwritten
+        $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
+        $key = $data[0]['user_password'];
+        $this->assertEquals(1, count($values[$key]), 'Error: incorrect number of returned rows');
+        $this->assertEquals($data[4]['user_name'], $values[$key]['user_name']);
     }
 
     /**
@@ -319,13 +323,17 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                @$stmt->free();
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
         }
 
@@ -336,9 +344,8 @@ class Standard_UsageTest extends Standard_Abstract {
         $value = $this->db->queryRow($query, array($this->fields['user_name']), MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($value)) {
             $this->fail('Error fetching the result set');
-        } else {
-            $this->assertTrue(!empty($value['user_name']), 'Error fetching the associative result set from join');
         }
+        $this->assertTrue(!empty($value['user_name']), 'Error fetching the associative result set from join');
     }
 
     /**
@@ -364,13 +371,17 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                @$stmt->free();
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
         }
 
@@ -380,22 +391,20 @@ class Standard_UsageTest extends Standard_Abstract {
         for ($row = 0; $row < $total_rows; $row++) {
             $query.= 'SELECT user_name FROM users WHERE user_id='.$row.';';
         }
-        $result =& $this->db->query($query, 'text');
+        $result = $this->db->query($query, 'text');
 
         for ($row = 0; $row < $total_rows; $row++) {
             $value = $result->fetchOne();
             if (PEAR::isError($value)) {
                 $this->fail('Error fetching row '.$row);
-            } else {
-                $this->assertEquals(strval($data[$row]['user_name']), strval(trim($value)), 'the query field username of type "text" for row '.$row);
             }
+            $this->assertEquals(strval($data[$row]['user_name']), strval(trim($value)), 'the query field username of type "text" for row '.$row);
             if (PEAR::isError($result->nextResult())) {
                 $this->fail('Error moving result pointer');
             }
         }
 
         $result->free();
-        $this->db->setOption('multi_query', $multi_query_orig);
     }
 
     /**
@@ -423,6 +432,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (?, ?, ?)";
         $stmt = $this->db->prepare($query, array('text', 'text', 'integer'), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $text = $data[0]['user_name'];
         $question = $data[0]['user_password'];
@@ -435,7 +447,8 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $result = $stmt->execute();
         if (PEAR::isError($result)) {
-            $this->assertTrue(true, 'Could not execute prepared query with question mark placeholders. Error: '.$error);
+            @$stmt->free();
+            $this->fail('Could not execute prepared query with question mark placeholders. Error: ' . $result->getUserInfo());
         }
 
         $text = $data[1]['user_name'];
@@ -443,16 +456,16 @@ class Standard_UsageTest extends Standard_Abstract {
         $userid = $data[1]['user_id'];
 
         $result = $stmt->execute();
-        if (PEAR::isError($result)) {
-            $this->assertTrue(true, 'Could not execute prepared query with bound parameters. Error: '.$error);
-        }
         $stmt->free();
+        if (PEAR::isError($result)) {
+            $this->fail('Could not execute prepared query with bound parameters. Error: ' . $result->getUserInfo());
+        }
         $this->clearTables();
 
         $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (:text, :question, :userid)";
         $stmt = $this->db->prepare($query, array('text', 'text', 'integer'), MDB2_PREPARE_MANIP);
         if (PEAR::isError($stmt)) {
-            $this->fail('Error preparing query: ' . $stmt->getMessage. ' :: '.$stmt->getUserInfo());
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
         }
 
         $stmt->bindValue('text', $data[0]['user_name']);
@@ -460,111 +473,132 @@ class Standard_UsageTest extends Standard_Abstract {
         $stmt->bindValue('userid', $data[0]['user_id']);
 
         $result = $stmt->execute();
-        if (PEAR::isError($result)) {
-            $this->assertTrue(true, 'Could not execute prepared query with named placeholders. Error: '.$error);
-        }
         $stmt->free();
+        if (PEAR::isError($result)) {
+            $this->fail('Could not execute prepared query with named placeholders. Error: ' . $result->getUserInfo());
+        }
 
         $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (".$this->db->quote($data[1]['user_name'], 'text').", :question, :userid)";
         $stmt = $this->db->prepare($query, array('text', 'integer'), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $stmt->bindValue('question', $data[1]['user_password']);
         $stmt->bindValue('userid', $data[1]['user_id']);
 
         $result = $stmt->execute();
-        if (PEAR::isError($result)) {
-            $this->assertTrue(true, 'Could not execute prepared query with named placeholders and a quoted text value in front. Error: '.$result->getMessage());
-        }
         $stmt->free();
+        if (PEAR::isError($result)) {
+            $this->fail('Could not execute prepared query with named placeholders and a quoted text value in front. Error: ' . $result->getUserInfo());
+        }
 
         $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_id=:user_id';
         $stmt = $this->db->prepare($query, array('integer'), array('text', 'text', 'integer'));
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
         foreach ($data as $row_data) {
-            $result =& $stmt->execute(array('user_id' => $row_data['user_id']));
+            $result = $stmt->execute(array('user_id' => $row_data['user_id']));
             if (PEAR::isError($result)) {
-                $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared. Error: '.$result->getUserinfo());
-                break;
+                @$stmt->free();
+                $this->fail('Could not execute prepared. Error: '.$result->getUserinfo());
             }
             $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
             if (!is_array($row)) {
+                @$result->free();
+                @$stmt->free();
                 $this->fail('Prepared SELECT failed');
-            } else {
-                $diff = (array)array_diff($row, $row_data);
-                $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
             }
+            $diff = (array)array_diff($row, $row_data);
+            $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
         }
+        $result->free();
         $stmt->free();
 
         $row_data = reset($data);
         $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_id='.$this->db->quote($row_data['user_id'], 'integer');
         $stmt = $this->db->prepare($query, null, array('text', 'text', 'integer'));
-        $result =& $stmt->execute(array());
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
+        $result = $stmt->execute(array());
+        $stmt->free();
         if (PEAR::isError($result)) {
-            $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared statement with no placeholders. Error: '.$result->getUserinfo());
-            break;
+            $this->fail('Could not execute prepared statement with no placeholders. Error: '.$result->getUserinfo());
         }
         $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
         if (!is_array($row)) {
+            @$result->free();
             $this->fail('Prepared SELECT failed');
-        } else {
-            $diff = (array)array_diff($row, $row_data);
-            $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
         }
+        $diff = (array)array_diff($row, $row_data);
+        $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
         $stmt->free();
 
         $row_data = reset($data);
         $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_name='.$this->db->quote($row_data['user_name'], 'text').' AND user_id = ? AND user_password='.$this->db->quote($row_data['user_password'], 'text');
         $stmt = $this->db->prepare($query, array('integer'), array('text', 'text', 'integer'));
-        $result =& $stmt->execute(array($row_data['user_id']));
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
+        $result = $stmt->execute(array($row_data['user_id']));
+        $stmt->free();
         if (PEAR::isError($result)) {
-            $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared with quoted text fields around a placeholder. Error: '.$result->getUserinfo());
-            break;
+            $this->fail('Could not execute prepared with quoted text fields around a placeholder. Error: '.$result->getUserinfo());
         }
         $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+        $result->free();
         if (!is_array($row)) {
             $this->fail('Prepared SELECT failed');
-        } else {
-            $diff = (array)array_diff($row, $row_data);
-            $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
         }
-        $stmt->free();
+        $diff = (array)array_diff($row, $row_data);
+        $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
 
         foreach ($this->db->sql_comments as $comment) {
             $query = 'SELECT user_name, user_password, user_id FROM users WHERE '.$comment['start'].' maps to class::foo() '.$comment['end'].' user_name=:username';
             $row_data = reset($data);
             $stmt = $this->db->prepare($query, array('text'), array('text', 'text', 'integer'));
-            $result =& $stmt->execute(array('username' => $row_data['user_name']));
+            if (PEAR::isError($stmt)) {
+                $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+            }
+            $result = $stmt->execute(array('username' => $row_data['user_name']));
+            $stmt->free();
             if (PEAR::isError($result)) {
-                $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared where a name parameter is contained in an SQL comment ('.$comment['start'].'). Error: '.$result->getUserinfo());
-                break;
+                $this->fail('Could not execute prepared where a name parameter is contained in an SQL comment ('.$comment['start'].'). Error: '.$result->getUserinfo());
             }
             $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+            $result->free();
             if (!is_array($row)) {
                 $this->fail('Prepared SELECT failed');
-            } else {
-                $diff = (array)array_diff($row, $row_data);
-                $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
             }
-            $stmt->free();
+            $diff = (array)array_diff($row, $row_data);
+            $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
         }
 
         $row_data = reset($data);
         $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_name=:username OR user_password=:username';
         $stmt = $this->db->prepare($query, array('text'), array('text', 'text', 'integer'));
-        $result =& $stmt->execute(array('username' => $row_data['user_name']));
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
+        $result = $stmt->execute(array('username' => $row_data['user_name']));
+        $stmt->free();
         if (PEAR::isError($result)) {
-            $this->assertTrue(!PEAR::isError($result), 'Could not execute prepared where the same named parameter is used twice. Error: '.$result->getUserinfo());
-            break;
+            $this->fail('Could not execute prepared where the same named parameter is used twice. Error: '.$result->getUserinfo());
         }
         $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC);
+        $result->free();
         if (!is_array($row)) {
             $this->fail('Prepared SELECT failed');
-        } else {
-            $diff = (array)array_diff($row, $row_data);
-            $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
         }
-        $stmt->free();
+        $diff = (array)array_diff($row, $row_data);
+        $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
     }
+
+
+// TODO:  go through rest of file fixing order of execution & freeing resources.
+
 
     /**
      * Test _skipDelimitedStrings(), used by prepare()
@@ -648,19 +682,22 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
         if (PEAR::isError($result)) {
-            $this->fail('Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: ' . $result->getUserInfo());
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->query($query, $this->fields);
+        $result = $this->db->query($query, $this->fields);
 
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users: ' . $result->getUserInfo());
         }
 
         $numcols = $result->numCols();
@@ -712,15 +749,13 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->clearTables();
 
             $result = $this->db->exec("INSERT INTO users (user_name,user_password,user_id) VALUES ($value,$value,0)");
-
             if (PEAR::isError($result)) {
-                $this->fail('Error executing insert query: '.$result->getMessage());
+                $this->fail('Error executing insert query: ' . $result->getUserInfo());
             }
 
-            $result =& $this->db->query('SELECT user_name,user_password FROM users', array('text', 'text'));
-
+            $result = $this->db->query('SELECT user_name,user_password FROM users', array('text', 'text'));
             if (PEAR::isError($result)) {
-                $this->fail('Error executing select query: '.$result->getMessage());
+                $this->fail('Error executing select query: ' . $result->getUserInfo());
             }
 
             if ($is_null) {
@@ -730,35 +765,34 @@ class Standard_UsageTest extends Standard_Abstract {
             }
 
             $row = $result->fetchRow();
+            $result->free();
             $this->assertTrue((is_null($row[0]) == $is_null), $error_message);
             $this->assertTrue((is_null($row[1]) == $is_null), $error_message);
-
-            $result->free();
         }
 
         $methods = array('fetchOne', 'fetchRow');
 
         foreach ($methods as $method) {
-            $result =& $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            $result = $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
             $value = $result->$method();
             if (PEAR::isError($value)) {
                 $this->fail('Error fetching non existent row');
             } else {
-                $this->assertNull($value, 'selecting non existent row with "'.$method.'()" did not return NULL');
                 $result->free();
+                $this->assertNull($value, 'selecting non existent row with "'.$method.'()" did not return NULL');
             }
         }
 
         $methods = array('fetchCol', 'fetchAll');
 
         foreach ($methods as $method) {
-            $result =& $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            $result = $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
             $value = $result->$method();
             if (PEAR::isError($value)) {
                 $this->fail('Error fetching non existent row');
             } else {
-                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existent row with "'.$method.'()" did not return empty array');
                 $result->free();
+                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existent row with "'.$method.'()" did not return empty array');
             }
         }
 
@@ -769,8 +803,8 @@ class Standard_UsageTest extends Standard_Abstract {
             if (PEAR::isError($value)) {
                 $this->fail('Error fetching non existent row');
             } else {
-                $this->assertNull($value, 'selecting non existent row with "'.$method.'()" did not return NULL');
                 $result->free();
+                $this->assertNull($value, 'selecting non existent row with "'.$method.'()" did not return NULL');
             }
         }
 
@@ -781,8 +815,8 @@ class Standard_UsageTest extends Standard_Abstract {
             if (PEAR::isError($value)) {
                 $this->fail('Error fetching non existent row');
             } else {
-                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existent row with "'.$method.'()" did not return empty array');
                 $result->free();
+                $this->assertTrue((is_array($value) && empty($value)), 'selecting non existent row with "'.$method.'()" did not return empty array');
             }
         }
     }
@@ -806,13 +840,16 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
         }
 
@@ -823,10 +860,10 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->db->setLimit($rows, $start_row);
 
             $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name';
-            $result =& $this->db->query($query, $this->fields);
+            $result = $this->db->query($query, $this->fields);
 
             if (PEAR::isError($result)) {
-                $this->fail('Error executing select query: '.$result->getMessage());
+                $this->fail('Error executing select query: ' . $result->getUserInfo());
             }
 
             for ($row = 0; $row < $rows && ($row + $start_row < $total_rows); $row++) {
@@ -843,10 +880,10 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->db->setLimit($rows, $start_row);
 
             $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name';
-            $result =& $this->db->query($query, $this->fields);
+            $result = $this->db->query($query, $this->fields);
 
             if (PEAR::isError($result)) {
-                $this->fail('Error executing select query: '.$result->getMessage());
+                $this->fail('Error executing select query: ' . $result->getUserInfo());
             }
 
             $result_rows = $result->numRows();
@@ -886,7 +923,7 @@ class Standard_UsageTest extends Standard_Abstract {
             @$this->db->manager->dropSequence($sequence_name);
             $result = $this->db->manager->createSequence($sequence_name, $start_value);
             if (PEAR::isError($result)) {
-                $this->fail("Error creating sequence $sequence_name with start value $start_value: ".$result->getMessage());
+                $this->fail("Error creating sequence $sequence_name with start value $start_value: " . $result->getUserInfo());
             } else {
                 for ($sequence_value = $start_value; $sequence_value < ($start_value + 4); $sequence_value++) {
                     $value = $this->db->nextID($sequence_name, false);
@@ -897,7 +934,7 @@ class Standard_UsageTest extends Standard_Abstract {
                 $result = $this->db->manager->dropSequence($sequence_name);
 
                 if (PEAR::isError($result)) {
-                    $this->fail("Error dropping sequence $sequence_name : ".$result->getMessage());
+                    $this->fail("Error dropping sequence $sequence_name : " . $result->getUserInfo());
                 }
             }
         }
@@ -914,7 +951,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $value = $this->db->nextID($sequence_name);
 
             if (PEAR::isError($result)) {
-                $this->fail("Error creating with ondemand sequence: ".$result->getMessage());
+                $this->fail("Error creating with ondemand sequence: " . $result->getUserInfo());
             } else {
                 $this->assertEquals($sequence_value, $value, "Error in ondemand sequences. The returned sequence value is not expected value");
             }
@@ -922,7 +959,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $result = $this->db->manager->dropSequence($sequence_name);
         if (PEAR::isError($result)) {
-            $this->fail("Error dropping sequence $sequence_name : ".$result->getMessage());
+            $this->fail("Error dropping sequence $sequence_name : " . $result->getUserInfo());
         }
 
         // Test currId()
@@ -935,21 +972,19 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail("Error getting the current value of sequence $sequence_name : ".$curr->getMessage());
         } else {
             if ($next != $curr) {
-                if ($next+1 == $curr) {
-                    $this->fail("Warning: currID() is using nextID() instead of a native implementation");
-                } else {
+                if ($next+1 != $curr) {
                     $this->assertEquals($next, $curr, "return value if currID() does not match the previous call to nextID()");
                 }
             }
         }
         $result = $this->db->manager->dropSequence($sequence_name);
         if (PEAR::isError($result)) {
-            $this->fail("Error dropping sequence $sequence_name : ".$result->getMessage());
+            $this->fail("Error dropping sequence $sequence_name : " . $result->getUserInfo());
         }
 
         // Test lastInsertid()
         if (!$this->db->supports('new_link')) {
-           return;
+           $this->markTestSkipped('Driver does not support new link.');
         }
 
         $sequence_name = 'test_lastinsertid';
@@ -970,7 +1005,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
         $result = $this->db->manager->dropSequence($sequence_name);
         if (PEAR::isError($result)) {
-            $this->fail("Error dropping sequence $sequence_name : ".$result->getMessage());
+            $this->fail("Error dropping sequence $sequence_name : " . $result->getUserInfo());
         }
     }
 
@@ -1036,19 +1071,15 @@ class Standard_UsageTest extends Standard_Abstract {
         if (PEAR::isError($result)) {
             $this->fail('Replace failed');
         }
-
         if ($this->db->supports('affected_rows')) {
-            $affected_rows = $result;
             $this->assertEquals(1, $result, "replacing a row in an empty table returned incorrect value");
-        } else {
-            $this->fail('"affected_rows" is not supported');
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->query($query, $this->fields);
+        $result = $this->db->query($query, $this->fields);
 
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users' . $result->getUserInfo());
         }
 
         $this->verifyFetchedValues($result, 0, $data);
@@ -1073,10 +1104,10 @@ class Standard_UsageTest extends Standard_Abstract {
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->query($query, $this->fields);
+        $result = $this->db->query($query, $this->fields);
 
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users' . $result->getUserInfo());
         }
 
         $this->verifyFetchedValues($result, 0, $data);
@@ -1103,13 +1134,16 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
 
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
 
             $this->assertEquals(1, $result, "Inserting the row $row returned incorrect affected row count");
@@ -1119,6 +1153,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'UPDATE users SET user_password=? WHERE user_id < ?';
         $stmt = $this->db->prepare($query, array('text', 'integer'), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         for ($row = 0; $row < $total_rows; $row++) {
             $password = "pass_$row";
@@ -1130,7 +1167,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $result = $stmt->execute();
 
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
 
             $this->assertEquals($row, $result, "Updating the $row rows returned incorrect affected row count");
@@ -1140,6 +1177,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'DELETE FROM users WHERE user_id >= ?';
         $stmt = $this->db->prepare($query, array('integer'), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $row = intval($total_rows / 2);
         $stmt->bindParam(0, $row);
@@ -1149,7 +1189,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $result = $stmt->execute();
 
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
 
             $this->assertEquals(($total_rows - $row), $result, 'Deleting rows returned incorrect affected row count');
@@ -1177,15 +1217,18 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $result = $stmt->execute(array_values($data));
         $this->db->rollback();
         $stmt->free();
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->query($query);
+        $result = $this->db->query($query);
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users ' . $result->getUserInfo());
         }
         $this->assertTrue(!$result->valid(), 'Transaction rollback did not revert the row that was inserted');
         $result->free();
@@ -1209,15 +1252,18 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $result = $stmt->execute(array_values($data));
         $this->db->commit();
         $stmt->free();
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->query($query);
+        $result = $this->db->query($query);
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users ' . $result->getUserInfo());
         }
         $this->assertTrue($result->valid(), 'Transaction commit did not make permanent the row that was inserted');
         $result->free();
@@ -1240,16 +1286,16 @@ class Standard_UsageTest extends Standard_Abstract {
         $this->db->beginTransaction();
         $result = $this->db->exec('DELETE FROM users');
         if (PEAR::isError($result)) {
-            $this->fail('Error deleting from users'.$result->getMessage());
+            $this->fail('Error deleting from users: ' . $result->getUserInfo());
             $this->db->rollback();
         } else {
             $this->db->commit();
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->query($query);
+        $result = $this->db->query($query);
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users: ' . $result->getUserInfo());
         }
 
         $this->assertTrue(!$result->valid(), 'Transaction end with implicit commit when re-enabling auto-commit did not make permanent the rows that were deleted');
@@ -1277,6 +1323,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $result = $stmt->execute(array_values($data[1]));
 
@@ -1287,18 +1336,18 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $result = $this->db->completeNestedTransaction();
         if (PEAR::isError($result)) {
-            $this->fail('Inner transaction was not committed: '.$result->getMessage());
+            $this->fail('Inner transaction was not committed: ' . $result->getUserInfo());
         }
 
         $result = $this->db->completeNestedTransaction();
         if (PEAR::isError($result)) {
-            $this->fail('Outer transaction was not committed: '.$result->getMessage());
+            $this->fail('Outer transaction was not committed: ' . $result->getUserInfo());
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->query($query);
+        $result = $this->db->query($query);
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users: ' . $result->getUserInfo());
         }
         $this->assertTrue($result->valid(), 'Transaction commit did not make permanent the row that was inserted');
         $result->free();
@@ -1327,37 +1376,40 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $result = $stmt->execute(array_values($data[1]));
         if (PEAR::isError($result)) {
-            $this->fail('Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: ' . $result->getUserInfo());
         }
 
         $result = $this->db->beginTransaction($savepoint);
         if (PEAR::isError($result)) {
-            $this->fail('Error setting savepoint: '.$result->getMessage());
+            $this->fail('Error setting savepoint: ' . $result->getUserInfo());
         }
 
         $result = $stmt->execute(array_values($data[2]));
         if (PEAR::isError($result)) {
-            $this->fail('Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: ' . $result->getUserInfo());
         }
         $stmt->free();
 
         $result = $this->db->rollback($savepoint);
         if (PEAR::isError($result)) {
-            $this->fail('Error rolling back to savepoint: '.$result->getMessage());
+            $this->fail('Error rolling back to savepoint: ' . $result->getUserInfo());
         }
 
         $result = $this->db->commit();
         if (PEAR::isError($result)) {
-            $this->fail('Transaction not committed: '.$result->getMessage());
+            $this->fail('Transaction not committed: ' . $result->getUserInfo());
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
         $result = $this->db->queryAll($query);
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users' . $result->getUserInfo());
         }
         $rows_inserted = count($result);
         $this->assertEquals(1, $rows_inserted, 'Error during transaction, invalid number of records inserted');
@@ -1366,15 +1418,15 @@ class Standard_UsageTest extends Standard_Abstract {
         $this->db->beginTransaction();
         $result = $this->db->beginTransaction($savepoint);
         if (PEAR::isError($result)) {
-            $this->fail('Error setting savepoint: '.$result->getMessage());
+            $this->fail('Error setting savepoint: ' . $result->getUserInfo());
         }
         $result = $this->db->commit($savepoint);
         if (PEAR::isError($result)) {
-            $this->fail('Error setting savepoint: '.$result->getMessage());
+            $this->fail('Error setting savepoint: ' . $result->getUserInfo());
         }
         $result = $this->db->commit();
         if (PEAR::isError($result)) {
-            $this->fail('Transaction not committed: '.$result->getMessage());
+            $this->fail('Transaction not committed: ' . $result->getUserInfo());
         }
     }
 
@@ -1422,9 +1474,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
-        $result =& $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from files'.$result->getMessage());
+            $this->fail('Error selecting from files' . $result->getUserInfo());
         }
 
         $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
@@ -1476,6 +1528,10 @@ class Standard_UsageTest extends Standard_Abstract {
         for ($i = 20; $i < 30; ++$i) {
             $query = 'INSERT INTO files (ID, document, picture) VALUES (?, ?, ?)';
             $stmt = $this->db->prepare($query, array('integer', 'clob', 'blob'), MDB2_PREPARE_MANIP, array(1 => 'document', 2 => 'picture'));
+            if (PEAR::isError($stmt)) {
+                $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+            }
+
             $character_lob = $binary_lob = $i;
             $stmt->bindValue(1, $character_lob);
             $stmt->bindValue(2, $binary_lob);
@@ -1492,9 +1548,9 @@ class Standard_UsageTest extends Standard_Abstract {
         foreach (array(true, false) as $buffered) {
             $this->db->setOption('result_buffering', $buffered);
             $msgPost = ' with result_buffering = '.($buffered ? 'true' : 'false');
-            $result =& $this->db->query('SELECT id, document, picture FROM files WHERE id >= 20 AND id <= 30 ORDER BY id ASC', array('integer', 'clob', 'blob'));
+            $result = $this->db->query('SELECT id, document, picture FROM files WHERE id >= 20 AND id <= 30 ORDER BY id ASC', array('integer', 'clob', 'blob'));
             if (PEAR::isError($result)) {
-                $this->fail('Error selecting from files'.$msgPost.$result->getMessage());
+                $this->fail('Error selecting from files ' . $msgPost . ': ' . $result->getMessage());
             } else {
                 if ($buffered) {
                     $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon'.$msgPost);
@@ -1575,6 +1631,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
         $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $character_data_file_tmp = 'file://'.$character_data_file;
         $stmt->bindParam('document', $character_data_file_tmp);
@@ -1582,7 +1641,10 @@ class Standard_UsageTest extends Standard_Abstract {
         $stmt->bindParam('picture', $binary_data_file_tmp);
 
         $result = $stmt->execute();
-        $this->assertTrue(!PEAR::isError($result), 'Error executing prepared query - inserting LOB from files');
+        if (PEAR::isError($result)) {
+            @$stmt->free();
+            $this->fail('Error executing prepared query - inserting LOB from files: ' . $result->getUserInfo());
+        }
 
         $stmt->free();
         @unlink($character_data_file);
@@ -1590,9 +1652,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
 
         // Query the newly created record.
-        $result =& $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from files'.$result->getMessage());
+            $this->fail('Error selecting from files: ' . $result->getUserInfo());
         }
         $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
         $row = $result->fetchRow();
@@ -1758,19 +1820,24 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
         $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $null = null;
         $stmt->bindParam('document', $null);
         $stmt->bindParam('picture', $null);
 
         $result = $stmt->execute();
-        $this->assertTrue(!PEAR::isError($result), 'Error executing prepared query - inserting NULL lobs');
-
+        if (PEAR::isError($result)) {
+            @$stmt->free();
+            $this->fail('Error executing prepared query - inserting NULL lobs: ' . $result->getUserInfo());
+        }
         $stmt->free();
 
-        $result =& $this->db->query('SELECT document, picture FROM files', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM files', array('clob', 'blob'));
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from files'.$result->getMessage());
+            $this->fail('Error selecting from files: ' . $result->getUserInfo());
         }
 
         $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
@@ -1794,6 +1861,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1, ?, ?)';
         $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $character_lob = '';
         $binary_lob = '';
@@ -1820,6 +1890,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'UPDATE files SET document = ?, picture = ? WHERE ID = 1';
         $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $character_lob = '';
         $binary_lob = '';
@@ -1844,9 +1917,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
-        $result =& $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from files'.$result->getMessage());
+            $this->fail('Error selecting from files: ' . $result->getUserInfo());
         }
 
         $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
@@ -1902,17 +1975,21 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
+
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
         if (PEAR::isError($result)) {
-            $this->fail('Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: ' . $result->getUserInfo());
         }
 
         $row = $this->db->queryRow('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users WHERE user_password IS NULL', $this->fields, MDB2_FETCHMODE_ORDERED);
 
         if (PEAR::isError($row)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users: ' . $result->getUserInfo());
         }
 
         $expected = count($this->fields);
@@ -1930,11 +2007,15 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
+
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
             $result = $stmt->execute(array_values($data[$row]));
             if (PEAR::isError($result)) {
-                $this->fail('Error executing prepared query: '.$result->getMessage());
+                $this->fail('Error executing prepared query: ' . $result->getUserInfo());
             }
         }
         $stmt->free();
@@ -1954,13 +2035,17 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = $this->getSampleData(1234);
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
+
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->queryRow($query, $this->fields, MDB2_FETCHMODE_ASSOC);
+        $result = $this->db->queryRow($query, $this->fields, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users: ' . $result->getUserInfo());
         }
         $field = reset($fields);
         foreach (array_keys($result) as $fieldname) {
@@ -1970,9 +2055,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $this->db->setOption('field_case', CASE_LOWER);
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $result =& $this->db->queryRow($query, $this->fields, MDB2_FETCHMODE_ASSOC);
+        $result = $this->db->queryRow($query, $this->fields, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users'.$result->getMessage());
+            $this->fail('Error selecting from users: ' . $result->getUserInfo());
         }
         $field = reset($fields);
         foreach (array_keys($result) as $fieldname) {
@@ -1991,7 +2076,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $query = 'SELECT user_password FROM users WHERE user_id = 1';
         $result = $this->db->queryOne($query, array('text'));
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from users: '.$result->getMessage());
+            $this->fail('Error selecting from users: ' . $result->getUserInfo());
         }
         $this->assertEquals(rtrim($value), $result, '"MDB2_PORTABILITY_RTRIM = on" not working');
 
@@ -2001,6 +2086,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO files (ID, document, picture) VALUES (1, ?, ?)';
         $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
 
         $character_lob = '';
         $binary_lob = '';
@@ -2025,9 +2113,9 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
-        $result =& $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
         if (PEAR::isError($result)) {
-            $this->fail('Error selecting from files'.$result->getMessage());
+            $this->fail('Error selecting from files: ' . $result->getUserInfo());
         }
 
         $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
@@ -2074,10 +2162,14 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        if (PEAR::isError($stmt)) {
+            $this->fail('Error preparing query: ' . $stmt->getUserInfo());
+        }
+
         $data = $this->getSampleData(1);
         $result = $stmt->execute(array_values($data));
         if (PEAR::isError($result)) {
-            $this->fail('Error executing prepared query: '.$result->getMessage());
+            $this->fail('Error executing prepared query: ' . $result->getUserInfo());
         }
         $stmt->free();
 
