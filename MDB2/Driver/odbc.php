@@ -892,7 +892,7 @@ class MDB2_Result_odbc extends MDB2_Result_Common
         if ($mode) {
             $this->db->_fixResultArrayValues($row, $mode);
         }
-        if (!($fetchmode == MDB2_FETCHMODE_ASSOC) && !empty($this->types)) {
+        if (($fetchmode != MDB2_FETCHMODE_ASSOC) && !empty($this->types)) {
             $row = $this->db->datatype->convertResultRow($this->types, $row, $rtrim);
         } elseif (($fetchmode == MDB2_FETCHMODE_ASSOC) && !empty($this->types_assoc)) {
             $row = $this->db->datatype->convertResultRow($this->types_assoc, $row, $rtrim);
