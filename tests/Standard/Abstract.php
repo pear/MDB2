@@ -97,6 +97,14 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
     public $options;
 
 
+    /**
+     * Override PHPUnit's default behavior so authentication data doesn't
+     * get broadcasted
+     */
+    protected function getDataSetAsString() {
+        return parent::getDataSetAsString(false);
+    }
+
     public static function setUpBeforeClass() {
         $dsns = unserialize(MDB2_TEST_SERIALIZED_DSNS);
         self::$dsns = $dsns;
@@ -145,6 +153,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         $this->db->popExpect();
         unset($this->db);
     }
+
 
     public function clearTables() {
         if (!$this->clear_tables) {
