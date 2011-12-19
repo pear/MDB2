@@ -1099,8 +1099,16 @@ class Standard_UsageTest extends Standard_Abstract {
         if (PEAR::isError($result)) {
             $this->fail('Replace failed');
         }
+
         if ($this->db->supports('affected_rows')) {
-            $this->assertEquals(2, $result, "replacing a row returned incorrect result");
+            switch ($this->db->phptype) {
+                case 'sqlite':
+                    $expect = 1;
+                    break;
+                default:
+                    $expect = 2;
+            }
+            $this->assertEquals($expect, $result, "replacing a row returned incorrect result");
         }
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
