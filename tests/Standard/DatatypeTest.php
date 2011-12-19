@@ -604,19 +604,23 @@ class Standard_DatatypeTest extends Standard_Abstract
             }
         }
 
-        $query = 'SELECT user_name FROM users WHERE '.$this->db->datatype->matchPattern(array('F', '%'), 'LIKE', 'user_name');
+        $query = 'SELECT user_name FROM users WHERE '
+            . $this->db->datatype->matchPattern(array('F', '%'), 'LIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
         $this->assertEquals(2, count($values), "case sensitive search was expected to return 2 rows but returned: ".count($values));
 
-        $query = 'SELECT user_name FROM users WHERE '.$this->db->datatype->matchPattern(array('foo'), 'ILIKE', 'user_name');
+        $query = 'SELECT user_name FROM users WHERE '
+            . $this->db->datatype->matchPattern(array('foo'), 'ILIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
         $this->assertEquals(3, count($values), "case insensitive search was expected to return 3 rows but returned: ".count($values));
 
-        $query = 'SELECT user_name FROM users WHERE '.$this->db->datatype->matchPattern(array(1 => '_', 'o', '%'), 'LIKE', 'user_name');
+        $query = 'SELECT user_name FROM users WHERE '
+            . $this->db->datatype->matchPattern(array(1 => '_', 'o', '%'), 'LIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
         $this->assertEquals(2, count($values), "case sensitive search was expected to return 2 rows but returned: ".count($values));
 
-        $query = 'SELECT user_name FROM users WHERE '.$this->db->datatype->matchPattern(array(1 => '_', 'o', '%'), 'ILIKE', 'user_name');
+        $query = 'SELECT user_name FROM users WHERE '
+            . $this->db->datatype->matchPattern(array(1 => '_', 'o', '%'), 'ILIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
         $this->assertEquals(3, count($values), "case insensitive search was expected to return 3 rows but returned: ".count($values));
     }
