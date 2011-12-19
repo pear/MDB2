@@ -960,6 +960,11 @@ class Standard_ManagerTest extends Standard_Abstract {
             if ($result->getCode() == MDB2_ERROR_NOT_CAPABLE) {
                 $this->markTestSkipped('createFunction() not supported');
             }
+            if ($users->getCode() == MDB2_ERROR_NO_PERMISSION
+                || $users->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            {
+                $this->markTestSkipped('Test user lacks permission to list functions');
+            }
             $this->fail('Cannot create function: '.$result->getMessage().' :: '.$result->getUserInfo());
             return;
         }
