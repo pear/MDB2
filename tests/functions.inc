@@ -101,7 +101,6 @@ function mdb2_test_db_object_provider() {
                 $ci,
             );
 
-            // Building schema here so will work with SQLite :memory:.
             build_schema($ci);
         }
     }
