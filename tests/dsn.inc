@@ -55,7 +55,7 @@ $skip = array(
 $dsns = array();
 
 if (!empty($_ENV['FBSQL_TEST_USER']) && !in_array('fbsql', $skip)
-    && extension_loaded('fbsql'))
+    && is_driver_available('fbsql') && extension_loaded('fbsql'))
 {
     $dsns['fbsql'] = array(
         'dsn' => array(
@@ -73,7 +73,7 @@ if (!empty($_ENV['FBSQL_TEST_USER']) && !in_array('fbsql', $skip)
 }
 
 if (!empty($_ENV['IBASE_TEST_USER']) && !in_array('ibase', $skip)
-    && extension_loaded('interbase'))
+    && is_driver_available('ibase') && extension_loaded('interbase'))
 {
     $dsns['ibase'] = array(
         'dsn' => array(
@@ -103,7 +103,7 @@ if (!empty($_ENV['IBASE_TEST_USER']) && !in_array('ibase', $skip)
 }
 
 if (!empty($_ENV['MSSQL_TEST_USER']) && !in_array('mssql', $skip)
-    && function_exists('mssql_connect'))
+    && is_driver_available('mssql') && function_exists('mssql_connect'))
 {
     $dsns['mssql'] = array(
         'dsn' => array(
@@ -124,7 +124,7 @@ if (!empty($_ENV['MSSQL_TEST_USER']) && !in_array('mssql', $skip)
 }
 
 if (!empty($_ENV['MYSQL_TEST_USER']) && !in_array('mysql', $skip)
-    && extension_loaded('mysql'))
+    && is_driver_available('mysql') && extension_loaded('mysql'))
 {
     $dsns['mysql'] = array(
         'dsn' => array(
@@ -153,7 +153,7 @@ if (!empty($_ENV['MYSQL_TEST_USER']) && !in_array('mysql', $skip)
 }
 
 if (!empty($_ENV['MYSQL_TEST_USER']) && !in_array('mysqli', $skip)
-    && extension_loaded('mysqli'))
+    && is_driver_available('mysqli') && extension_loaded('mysqli'))
 {
     $dsns['mysqli'] = array(
         'dsn' => array(
@@ -178,7 +178,7 @@ if (!empty($_ENV['MYSQL_TEST_USER']) && !in_array('mysqli', $skip)
 }
 
 if (!empty($_ENV['OCI8_TEST_USER']) && !in_array('oci8', $skip)
-    && extension_loaded('oci8'))
+    && is_driver_available('oci8') && extension_loaded('oci8'))
 {
     $dsns['oci8'] = array(
         'dsn' => array(
@@ -207,7 +207,7 @@ if (!empty($_ENV['OCI8_TEST_USER']) && !in_array('oci8', $skip)
 }
 
 if (!empty($_ENV['PGSQL_TEST_USER']) && !in_array('pgsql', $skip)
-    && extension_loaded('pgsql'))
+    && is_driver_available('pgsql') && extension_loaded('pgsql'))
 {
     $dsns['pgsql'] = array(
         'dsn' => array(
@@ -248,7 +248,10 @@ if (!empty($_ENV['PGSQL_TEST_USER']) && !in_array('pgsql', $skip)
     );
 }
 
-if (!in_array('sqlite', $skip) && extension_loaded('sqlite')) {
+// SQLite is different.  Runs using :memory: table even if variable is not set.
+if (!in_array('sqlite', $skip)
+    && is_driver_available('sqlite') && extension_loaded('sqlite'))
+{
     if (empty($_ENV['SQLITE_TEST_DB'])) {
         $dsns['sqlite'] = array(
             'dsn' => array(
@@ -270,7 +273,9 @@ if (!in_array('sqlite', $skip) && extension_loaded('sqlite')) {
     }
 }
 
-if (!empty($_ENV['SQLSRV_TEST_USER']) && extension_loaded('sqlsrv')) {
+if (!empty($_ENV['SQLSRV_TEST_USER']) && !in_array('sqlsrv', $skip)
+    && is_driver_available('sqlsrv') && extension_loaded('sqlsrv'))
+{
     $dsns['sqlsrv'] = array(
         'dsn' => array(
             'phptype' => 'sqlsrv',
@@ -297,8 +302,3 @@ if (!defined('MDB2_TEST_SERIALIZED_DSNS')) {
      */
     define('MDB2_TEST_SERIALIZED_DSNS', serialize($dsns));
 }
-
-/**
- * Gather our functions.
- */
-require_once 'functions.inc';

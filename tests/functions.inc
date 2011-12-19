@@ -79,6 +79,20 @@ function build_schema($ci) {
 }
 
 /**
+ * Determines if the desired MDB2_Driver class is available IN THE LOCATION
+ * WE ARE TESTING
+ *
+ * Because there's not much point in testing some other installation.
+ *
+ * @param string $phptype  the "phptype" of the driver we're looking for
+ * @return bool
+ * @uses MDB2_TEST_MDB2_PATH  to determine the path
+ */
+function is_driver_available($phptype) {
+    return file_exists(MDB2_TEST_MDB2_PATH . "/MDB2/Driver/$phptype.php");
+}
+
+/**
  * Produces a multi-diemnsional array containing the connection information
  * for each DBMS to be tested
  *

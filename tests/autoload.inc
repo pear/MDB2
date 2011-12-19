@@ -20,6 +20,10 @@ if ('@php_dir@' == '@'.'php_dir'.'@') {
 } else {
     $dirs['mdb2'] = '@php_dir@';
 }
+/**
+ * Path to the MDB2 files we are testing
+ */
+define('MDB2_TEST_MDB2_PATH', $dirs['mdb2']);
 
 // Determine if a current version of PHPUnit is installed.
 try {
@@ -67,6 +71,11 @@ spl_autoload_register('mdb2_test_autoload');
  * Line up PHPUnit's autoloader.
  */
 require_once 'PHPUnit/Autoload.php';
+
+/**
+ * Gather our functions.
+ */
+require_once 'functions.inc';
 
 /**
  * Gather our database connection information.
