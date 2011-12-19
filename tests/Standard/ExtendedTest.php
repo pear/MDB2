@@ -584,7 +584,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $stmt->free();
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
-        $values = $this->db->queryAll($query, $this->fields, MDB2_FETCHMODE_ORDERED);
+        $values = $this->db->queryAll($query, array_values($this->fields), MDB2_FETCHMODE_ORDERED);
 
         $n_fields = count($this->fields);
         for ($i=0; $i<$total_rows; $i++) {
