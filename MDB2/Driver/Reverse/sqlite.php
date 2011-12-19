@@ -128,6 +128,8 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
                     $default = null;
                 }
                 $columns[$j]['default'] = $default;
+            } else {
+                $columns[$j]['default'] = null;
             }
             if (isset($matches[7]) && strlen($matches[7])) {
                 $columns[$j]['notnull'] = ($matches[7] === ' NOT NULL');
@@ -160,7 +162,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         list($schema, $table) = $this->splitTableSchema($table_name);
 
         $result = $db->loadModule('Datatype', null, true);
@@ -262,7 +264,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         list($schema, $table) = $this->splitTableSchema($table_name);
 
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
@@ -345,7 +347,7 @@ class MDB2_Driver_Reverse_sqlite extends MDB2_Driver_Reverse_Common
         if (PEAR::isError($db)) {
             return $db;
         }
-        
+
         list($schema, $table) = $this->splitTableSchema($table_name);
 
         $query = "SELECT sql FROM sqlite_master WHERE type='index' AND ";
