@@ -166,7 +166,6 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
 
     public function supported($feature) {
         if (!$this->db->supports($feature)) {
-            $this->fail('This database does not support '.$feature);
             return false;
         }
         return true;
