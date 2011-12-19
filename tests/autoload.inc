@@ -18,7 +18,7 @@ if ('@php_dir@' == '@'.'php_dir'.'@') {
     // This package hasn't been installed, use parent of this dir.
     $dirs['mdb2'] = realpath((dirname(__DIR__)));
 } else {
-    $dirs['mdb2'] = '@php_dir';
+    $dirs['mdb2'] = '@php_dir@';
 }
 
 // Determine if a current version of PHPUnit is installed.
