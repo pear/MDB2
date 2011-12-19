@@ -303,10 +303,10 @@ class Standard_BugsTest extends Standard_Abstract {
         if (PEAR::isError($result)) {
             $this->fail('Error executing query: '.$result->getMessage() .' - '. $result->getUserInfo());
         } else {
-            $this->assertTrue(is_bool($result['subscribed']));
-            $this->assertTrue(is_numeric($result['user_id']));
-            $this->assertTrue(is_float($result['weight']));
-            $this->assertFalse(is_bool($result['user_name']));
+            $this->assertInternalType('boolean', $result['subscribed']);
+            $this->assertInternalType('numeric', $result['user_id']);
+            $this->assertInternalType('float', $result['weight']);
+            $this->assertInternalType('string', $result['user_name']);
         }
     }
 
