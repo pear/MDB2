@@ -1533,11 +1533,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->markTestSkipped('LOBs not supported');
         }
 
-        $this->db->setOption('lob_allow_url_include', true);
-
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
-        $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), MDB2_PREPARE_MANIP);
-
+        // Create character data file.
         $character_data_file = 'character_data';
         $file = fopen($character_data_file, 'w');
         $this->assertTrue(((bool)$file), 'Error creating clob file to read from');
@@ -1551,6 +1547,7 @@ class Standard_UsageTest extends Standard_Abstract {
         fclose($file);
         chmod($character_data_file, 0777);
 
+        // Create binary data file.
         $binary_data_file = 'binary_data';
         $file = fopen($binary_data_file, 'wb');
         $this->assertTrue(((bool)$file), 'Error creating blob file to read from');
@@ -1564,6 +1561,14 @@ class Standard_UsageTest extends Standard_Abstract {
         fclose($file);
         chmod($binary_data_file, 0777);
 
+
+        // Insert data files into database.
+
+        $this->db->setOption('lob_allow_url_include', true);
+
+        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
+        $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), MDB2_PREPARE_MANIP);
+
         $character_data_file_tmp = 'file://'.$character_data_file;
         $stmt->bindParam('document', $character_data_file_tmp);
         $binary_data_file_tmp = 'file://'.$binary_data_file;
@@ -1574,13 +1579,16 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
+
+        // Query the newly created record.
         $result =& $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
         if (PEAR::isError($result)) {
             $this->fail('Error selecting from files'.$result->getMessage());
         }
-
         $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
 
+
+        // Mess around with the CLOB.
         $row = $result->fetchRow();
         $clob = $row[0];
         if (!PEAR::isError($clob) && is_resource($clob)) {
@@ -1606,9 +1614,11 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Error creating character LOB in a file');
         }
 
+
+        // Mess around with the BLOB.
         $blob = $row[1];
         if (!PEAR::isError($blob) && is_resource($blob)) {
-            unlink($binary_data_file);
+            @unlink($binary_data_file);
             $res = $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
             $this->db->datatype->destroyLOB($blob);
 
@@ -1630,7 +1640,11 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Error creating binary LOB in a file');
         }
 
+
+        // Clean up.
         $result->free();
+        @unlink($character_data_file);
+        @unlink($binary_data_file);
     }
 
     /**
@@ -1666,6 +1680,8 @@ class Standard_UsageTest extends Standard_Abstract {
         $expected = ($this->dsn['phptype'] == 'oci8') ? 'EMPTY_BLOB()' : "'".$character_data_file_tmp."'";
         $quoted = $this->db->quote($character_data_file_tmp,  'blob');
         $this->assertEquals($expected, $quoted);
+
+        @unlink($character_data_file);
     }
 
     /**
@@ -1712,6 +1728,8 @@ class Standard_UsageTest extends Standard_Abstract {
         }
         $quoted = $this->db->quote($character_data_file_tmp,  'blob');
         $this->assertEquals($expected, $quoted);
+
+        @unlink($character_data_file);
     }
 
     /**
@@ -1752,7 +1770,9 @@ class Standard_UsageTest extends Standard_Abstract {
         $result->free();
     }
 
-    /** @dataProvider provider */
+    /**
+     * @dataProvider provider
+     */
     public function testLOBUpdate($ci) {
         $this->manualSetUp($ci);
 
