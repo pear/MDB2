@@ -3630,7 +3630,7 @@ class MDB2_Result_Common extends MDB2_Result
                     $key = reset($arr);
                     unset($row->{$key});
                 } else {
-                    if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
+                    if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
                         $key = reset($row);
                         unset($row[key($row)]);
                     } else {
@@ -3646,7 +3646,7 @@ class MDB2_Result_Common extends MDB2_Result
                     $all[$key] = $row;
                 }
             } while (($row = $this->fetchRow($fetchmode)));
-        } elseif ($fetchmode & MDB2_FETCHMODE_FLIPPED) {
+        } elseif ($fetchmode == MDB2_FETCHMODE_FLIPPED) {
             do {
                 foreach ($row as $key => $val) {
                     $all[$key][] = $val;

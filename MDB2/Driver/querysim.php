@@ -640,7 +640,7 @@ class MDB2_Result_querysim extends MDB2_Result_Common
         }
         $row = $this->result[1][$target_rownum];
         // make row associative
-        if ($fetchmode & MDB2_FETCHMODE_ASSOC) {
+        if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
             $column_names = $this->getColumnNames();
             foreach ($column_names as $name => $i) {
                 $column_names[$name] = $row[$i];
