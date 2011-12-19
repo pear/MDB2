@@ -2627,18 +2627,7 @@ class MDB2_Driver_Common extends PEAR
                 }
             } else {
                 $types = null;
-                $types_assoc = null;
             }
-        } elseif (is_array($types)) {
-            $types_assoc = $types;
-            foreach ($types as $key => $value) {
-                if (is_numeric($key)) {
-                    $types_assoc = null;
-                    break;
-                }
-            }
-        } else {
-            $types_assoc = null;
         }
 
         if ($result_class === true) {
@@ -2667,7 +2656,7 @@ class MDB2_Driver_Common extends PEAR
                 }
             }
             if (!empty($types_assoc)) {
-                $err = $result->setResultTypes($types_assoc, MDB2_FETCHMODE_ASSOC);
+                $err = $result->setResultTypes($types_assoc);
                 if (PEAR::isError($err)) {
                     $result->free();
                     return $err;
@@ -3486,14 +3475,12 @@ class MDB2_Result_Common extends MDB2_Result
      *       in the result set, the remaining columns are assumed to be of the
      *       type text. Currently, the types clob and blob are not fully
      *       supported.
-     * @param   int     submit MDB2_FETCHMODE_ASSOC if $types is an
-     *       associative array
      *
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      */
-    function setResultTypes($types, $fetchmode = null)
+    function setResultTypes($types)
     {
         $load = $this->db->loadModule('Datatype', null, true);
         if (PEAR::isError($load)) {
@@ -3503,10 +3490,12 @@ class MDB2_Result_Common extends MDB2_Result
         if (PEAR::isError($types)) {
             return $types;
         }
-        if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
-            $this->types_assoc = $types;
-        } else {
-            $this->types = $types;
+        foreach ($types as $key => $value) {
+            if (is_numeric($key)) {
+                $this->types[$key] = $value;
+            } else {
+                $this->types_assoc[$key] = $value;
+            }
         }
         return MDB2_OK;
     }
