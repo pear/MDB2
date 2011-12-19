@@ -531,7 +531,7 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
 
     // }}}
     // {{{ _getCharsetFieldDeclaration()
-    
+
     /**
      * Obtain DBMS specific SQL code portion needed to set the CHARACTER SET
      * of a field declaration to be used in statements like CREATE TABLE.
