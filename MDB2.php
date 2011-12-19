@@ -2597,7 +2597,18 @@ class MDB2_Driver_Common extends PEAR
                 }
             } else {
                 $types = null;
+                $types_assoc = null;
             }
+        } elseif (is_array($types)) {
+            $types_assoc = $types;
+            foreach ($types as $key => $value) {
+                if (is_numeric($key)) {
+                    $types_assoc = null;
+                    break;
+                }
+            }
+        } else {
+            $types_assoc = null;
         }
 
         if ($result_class === true) {
