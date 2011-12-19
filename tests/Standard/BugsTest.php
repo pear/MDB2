@@ -329,4 +329,40 @@ class Standard_BugsTest extends Standard_Abstract {
         );
         $this->assertEquals($expected, $record);
     }
+
+    /**
+     * Call to a member function seek() on a non-object
+     * @see https://pear.php.net/bugs/bug.php?id=18978
+     * @dataProvider provider
+     */
+    public function testBug18978($ci) {
+        $this->manualSetUp($ci);
+
+        $data = $this->populateUserData(3);
+        $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
+        MDB2::loadFile('Iterator');
+
+        // This was test in bug.
+        $res = $this->db->query('SELECT * FROM users', true, true, 'MDB2_BufferedIterator');
+        if (PEAR::isError($res)) {
+            $this->fail($res->getUserInfo());
+        }
+        foreach($res as $key => $row) {
+            $this->assertEquals($data[$key - 1]['user_name'], $row['user_name']);
+        }
+        $res->free();
+
+        // Making sure direct instantiation works as well.
+        $res = $this->db->query('SELECT * FROM users');
+        $i = new MDB2_Iterator($res, MDB2_FETCHMODE_ASSOC);
+        $i->seek(1);
+        $row = $i->current();
+        $this->assertEquals($data[1]['user_name'], $row['user_name']);
+        unset($i);
+        $res->free();
+
+        // Make sure constructor type checking works.
+        $this->setExpectedException('PHPUnit_Framework_Error', 'must be an instance of MDB2_Result_Common');
+        $i = new MDB2_Iterator('foo');
+    }
 }
