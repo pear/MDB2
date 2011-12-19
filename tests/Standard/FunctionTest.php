@@ -54,9 +54,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test functionTable()
+     * @dataProvider provider
      */
-    public function testFunctionTable()
-    {
+    public function testFunctionTable($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'functionTable')) {
             return;
         }
@@ -73,9 +75,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test now()
+     * @dataProvider provider
      */
-    public function testNow()
-    {
+    public function testNow($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'now')) {
             return;
         }
@@ -101,9 +105,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test substring()
+     * @dataProvider provider
      */
-    public function testSubstring()
-    {
+    public function testSubstring($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'substring')) {
             return;
         }
@@ -150,9 +156,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test concat()
+     * @dataProvider provider
      */
-    public function testConcat()
-    {
+    public function testConcat($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'concat')) {
             return;
         }
@@ -170,9 +178,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test random()
+     * @dataProvider provider
      */
-    public function testRandom()
-    {
+    public function testRandom($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'random')) {
             return;
         }
@@ -190,9 +200,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test lower()
+     * @dataProvider provider
      */
-    public function testLower()
-    {
+    public function testLower($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'lower')) {
             return;
         }
@@ -210,9 +222,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test upper()
+     * @dataProvider provider
      */
-    public function testUpper()
-    {
+    public function testUpper($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'upper')) {
             return;
         }
@@ -230,9 +244,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test length()
+     * @dataProvider provider
      */
-    public function testLenght()
-    {
+    public function testLenght($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'length')) {
             return;
         }
@@ -250,9 +266,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test replace()
+     * @dataProvider provider
      */
-    public function testReplace()
-    {
+    public function testReplace($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'replace')) {
             return;
         }
@@ -281,9 +299,11 @@ class Standard_FunctionTest extends Standard_Abstract
 
     /**
      * Test unixtimestamp()
+     * @dataProvider provider
      */
-    public function testUnixtimestamp()
-    {
+    public function testUnixtimestamp($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->function, 'unixtimestamp')) {
             return;
         }

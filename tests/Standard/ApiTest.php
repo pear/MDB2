@@ -48,7 +48,12 @@ require_once dirname(__DIR__) . '/autoload.inc';
 class Standard_ApiTest extends Standard_Abstract {
     public $clear_tables = false;
 
-    public function testParseDSN() {
+    /**
+     * @dataProvider provider
+     */
+    public function testParseDSN($mdb) {
+        $this->manualSetUp($mdb);
+
         $expected = array (
             'phptype'  => 'phptype',
             'dbsyntax' => 'phptype',
@@ -171,7 +176,12 @@ class Standard_ApiTest extends Standard_Abstract {
     }
 
     //test stuff in common.php
-    public function testConnect() {
+    /**
+     * @dataProvider provider
+     */
+    public function testConnect($mdb) {
+        $this->manualSetUp($mdb);
+
         $db =& MDB2::factory($this->dsn, $this->options);
         if (PEAR::isError($db)) {
             $this->fail('Connect failed bailing out - ' .$db->getMessage() . ' - ' .$db->getUserInfo());
@@ -181,7 +191,12 @@ class Standard_ApiTest extends Standard_Abstract {
         }
     }
 
-    public function testGetOption() {
+    /**
+     * @dataProvider provider
+     */
+    public function testGetOption($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db, 'getOption')) {
             return;
         }
@@ -189,7 +204,12 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->assertEquals($option, $this->db->options['persistent']);
     }
 
-    public function testSetOption() {
+    /**
+     * @dataProvider provider
+     */
+    public function testSetOption($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db, 'setOption')) {
             return;
         }
@@ -199,7 +219,12 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->db->setOption('persistent', $option);
     }
 
-    public function testLoadModule() {
+    /**
+     * @dataProvider provider
+     */
+    public function testLoadModule($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db, 'loadModule')) {
             return;
         }
@@ -207,17 +232,24 @@ class Standard_ApiTest extends Standard_Abstract {
     }
 
     // test of the driver
-    // helper function so that we don't have to write out a query a million times
+    /**
+     * A helper that executes a simple SELECT query
+     * @return mixed  the query result on success, false on failure
+     */
     public function standardQuery() {
         $query = 'SELECT * FROM users';
-        // run the query and get a result handler
         if (!PEAR::isError($this->db)) {
             return $this->db->query($query);
         }
         return false;
     }
 
-    public function testQuery() {
+    /**
+     * @dataProvider provider
+     */
+    public function testQuery($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db, 'query')) {
             return;
         }
@@ -226,7 +258,12 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->assertTrue(MDB2::isResultCommon($result), 'query: $result returned is not a resource');
     }
 
-    public function testExec() {
+    /**
+     * @dataProvider provider
+     */
+    public function testExec($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db, 'exec')) {
             return;
         }
@@ -237,7 +274,12 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->assertEquals(0, $result, 'exec: incorrect number of affected rows returned');
     }
 
-    public function testPrepare() {
+    /**
+     * @dataProvider provider
+     */
+    public function testPrepare($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db, 'prepare')) {
             return;
         }
@@ -246,7 +288,12 @@ class Standard_ApiTest extends Standard_Abstract {
         $stmt->free();
     }
 
-    public function testFetchRow() {
+    /**
+     * @dataProvider provider
+     */
+    public function testFetchRow($mdb) {
+        $this->manualSetUp($mdb);
+
         $result = $this->standardQuery();
         if (!$this->methodExists($result, 'fetchRow')) {
             return;
@@ -259,7 +306,12 @@ class Standard_ApiTest extends Standard_Abstract {
         }
     }
 
-    public function testNumRows() {
+    /**
+     * @dataProvider provider
+     */
+    public function testNumRows($mdb) {
+        $this->manualSetUp($mdb);
+
         $result = $this->standardQuery();
         if (!$this->methodExists($result, 'numRows')) {
             return;
@@ -269,7 +321,12 @@ class Standard_ApiTest extends Standard_Abstract {
         $result->free();
     }
 
-    public function testNumCols() {
+    /**
+     * @dataProvider provider
+     */
+    public function testNumCols($mdb) {
+        $this->manualSetUp($mdb);
+
         $result = $this->standardQuery();
         if (!$this->methodExists($result, 'numCols')) {
             return;
@@ -279,7 +336,12 @@ class Standard_ApiTest extends Standard_Abstract {
         $result->free();
     }
 
-    public function testSingleton() {
+    /**
+     * @dataProvider provider
+     */
+    public function testSingleton($mdb) {
+        $this->manualSetUp($mdb);
+
         $db =& MDB2::singleton();
         $this->assertTrue(MDB2::isConnection($db));
 
@@ -289,7 +351,12 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->assertTrue($db->db_index != $this->db->db_index);
     }
 
-    public function testGetServerVersion() {
+    /**
+     * @dataProvider provider
+     */
+    public function testGetServerVersion($mdb) {
+        $this->manualSetUp($mdb);
+
         $server_info = $this->db->getServerVersion(true);
         if (PEAR::isError($server_info)) {
             $this->fail('Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
@@ -304,7 +371,12 @@ class Standard_ApiTest extends Standard_Abstract {
         }
     }
 
-    public function testQuoteIdentifier() {
+    /**
+     * @dataProvider provider
+     */
+    public function testQuoteIdentifier($mdb) {
+        $this->manualSetUp($mdb);
+
         if ($this->db->phptype != 'ibase') {
             $start = $this->db->identifier_quoting['start'];
             $end = $this->db->identifier_quoting['end'];

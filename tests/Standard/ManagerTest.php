@@ -100,8 +100,11 @@ class Standard_ManagerTest extends Standard_Abstract {
 
     /**
      * Create a sample table, test the new fields, and drop it.
+     * @dataProvider provider
      */
-    public function testCreateTable() {
+    public function testCreateTable($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'createTable')) {
             return;
         }
@@ -115,8 +118,11 @@ class Standard_ManagerTest extends Standard_Abstract {
 
     /**
      * Create a sample table, test the new fields, and drop it.
+     * @dataProvider provider
      */
-    public function testCreateAutoIncrementTable() {
+    public function testCreateAutoIncrementTable($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'createTable')) {
             return;
         }
@@ -178,9 +184,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testListTableFields() {
+    public function testListTableFields($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'listTableFields')) {
             return;
         }
@@ -192,9 +200,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testCreateIndex() {
+    public function testCreateIndex($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'createIndex')) {
             return;
         }
@@ -211,9 +221,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testDropIndex() {
+    public function testDropIndex($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'dropIndex')) {
             return;
         }
@@ -238,9 +250,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testListIndexes() {
+    public function testListIndexes($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'listTableIndexes')) {
             return;
         }
@@ -263,9 +277,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testCreatePrimaryKey() {
+    public function testCreatePrimaryKey($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
@@ -283,9 +299,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testCreateUniqueConstraint() {
+    public function testCreateUniqueConstraint($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
@@ -303,9 +321,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testCreateForeignKeyConstraint() {
+    public function testCreateForeignKeyConstraint($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
@@ -339,7 +359,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $this->assertTrue(!PEAR::isError($constraints), 'Error listing table constraints');
         $constraint_name_idx = $this->db->getIndexName($constraint_name);
         $this->assertTrue(in_array($constraint_name_idx, $constraints) || in_array($constraint_name, $constraints), 'Error, FK constraint not found');
-        
+
         //now check that it is enforced...
 
         //insert a row in the primary table
@@ -404,9 +424,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testDropPrimaryKey() {
+    public function testDropPrimaryKey($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'dropConstraint')) {
             return;
         }
@@ -429,9 +451,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testListDatabases() {
+    public function testListDatabases($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'listDatabases')) {
             return;
         }
@@ -447,9 +471,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testListConstraints() {
+    public function testListConstraints($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'listTableConstraints')) {
             return;
         }
@@ -473,9 +499,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testListTables() {
+    public function testListTables($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'listTables')) {
             return;
         }
@@ -483,9 +511,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testAlterTable() {
+    public function testAlterTable($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'alterTable')) {
             return;
         }
@@ -553,9 +583,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testAlterTable2() {
+    public function testAlterTable2($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'alterTable')) {
             return;
         }
@@ -643,9 +675,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testTruncateTable() {
+    public function testTruncateTable($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'truncateTable')) {
             return;
         }
@@ -693,9 +727,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testDropTable() {
+    public function testDropTable($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'dropTable')) {
             return;
         }
@@ -704,9 +740,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testListTablesNoTable() {
+    public function testListTablesNoTable($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'listTables')) {
             return;
         }
@@ -715,9 +753,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
-     *
+     * @dataProvider provider
      */
-    public function testSequences() {
+    public function testSequences($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->manager, 'createSequence')) {
             return;
         }
@@ -732,8 +772,11 @@ class Standard_ManagerTest extends Standard_Abstract {
 
     /**
      * Test listTableTriggers($table)
+     * @dataProvider provider
      */
-    public function testListTableTriggers() {
+    public function testListTableTriggers($mdb) {
+        $this->manualSetUp($mdb);
+
         //setup
         $trigger_name = 'test_newtrigger';
 
@@ -771,8 +814,11 @@ class Standard_ManagerTest extends Standard_Abstract {
 
     /**
      * Test listTableViews($table)
+     * @dataProvider provider
      */
-    public function testListTableViews() {
+    public function testListTableViews($mdb) {
+        $this->manualSetUp($mdb);
+
         //setup
         $view_name = 'test_newview';
 
@@ -813,8 +859,11 @@ class Standard_ManagerTest extends Standard_Abstract {
 
     /**
      * Test listViews()
+     * @dataProvider provider
      */
-    public function testListViews() {
+    public function testListViews($mdb) {
+        $this->manualSetUp($mdb);
+
         //setup
         $view_name = 'test_brandnewview';
 
@@ -848,8 +897,11 @@ class Standard_ManagerTest extends Standard_Abstract {
 
     /**
      * Test listUsers()
+     * @dataProvider provider
      */
-    public function testListUsers() {
+    public function testListUsers($mdb) {
+        $this->manualSetUp($mdb);
+
         $users = $this->db->manager->listUsers();
         if (PEAR::isError($users)) {
             if ($users->getCode() == MDB2_ERROR_UNSUPPORTED) {
@@ -864,8 +916,11 @@ class Standard_ManagerTest extends Standard_Abstract {
 
     /**
      * Test listFunctions()
+     * @dataProvider provider
      */
-    public function testListFunctions() {
+    public function testListFunctions($mdb) {
+        $this->manualSetUp($mdb);
+
         //setup
         $function_name = 'test_add';
 
@@ -903,11 +958,14 @@ class Standard_ManagerTest extends Standard_Abstract {
             $this->fail('Error dropping the function: '.$result->getMessage());
         }
     }
-    
+
     /**
      * Test createDatabase(), alterDatabase(), dropDatabase()
+     * @dataProvider provider
      */
-    public function testCrudDatabase() {
+    public function testCrudDatabase($mdb) {
+        $this->manualSetUp($mdb);
+
         $name = 'newdb';
         $options = array(
             'charset' => 'UTF8',
@@ -949,11 +1007,14 @@ class Standard_ManagerTest extends Standard_Abstract {
         }
         //echo '<pre>'; print_r($result); echo '</pre>';
     }
-    
+
     /**
      * Test vacuum
+     * @dataProvider provider
      */
-    public function testVacuum() {
+    public function testVacuum($mdb) {
+        $this->manualSetUp($mdb);
+
         //vacuum table
         $result = $this->db->manager->vacuum($this->table);
         if (PEAR::isError($result)) {

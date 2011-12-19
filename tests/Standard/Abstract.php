@@ -44,31 +44,41 @@
 // $Id$
 
 abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
-    //contains the dsn of the database we are testing
-    public $dsn;
-    //contains the options that should be used during testing
-    public $options;
-    //contains the name of the database we are testing
-    public $database;
-    //contains the MDB2 object of the db once we have connected
-    public $db;
-    // contains field names from the test table
-    public $fields;
-    // if the tables should be cleared in the setUp() and tearDown() methods
-    public $clear_tables = true;
+    /**
+     * Should the tables be cleared in the setUp() and tearDown() methods?
+     * @var bool
+     */
+    protected $clear_tables = true;
 
-    public function setUp() {
-        $this->dsn = $GLOBALS['dsn'];
-        $this->options  = $GLOBALS['options'];
-        $this->database = $GLOBALS['database'];
-        if ($this->dsn['phptype'] == 'oci8') {
-            //$this->database = 'XE';
-            $this->database = 'hr';
-        }
-        $this->db =& MDB2::factory($this->dsn, $this->options);
-        $this->db->setDatabase($this->database);
-        $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
-        $this->fields = array(
+    /**
+     * The database name currently being tested
+     * @var string
+     */
+    public $database;
+
+    /**
+     * The MDB2 object being currently tested
+     * @var MDB2_Driver_Common
+     */
+    public $db;
+
+    /**
+     * The DSN of the database that is currently being tested
+     * @var array
+     */
+    public $dsn;
+
+    /**
+     * The unserialized value of MDB2_TEST_SERIALIZED_DSNS
+     * @var array
+     */
+    protected static $dsns;
+
+    /**
+     * Field names of the test table
+     * @var array
+     */
+    public $fields = array(
             'user_name'     => 'text',
             'user_password' => 'text',
             'subscribed'    => 'boolean',
@@ -78,17 +88,58 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
             'access_date'   => 'date',
             'access_time'   => 'time',
             'approved'      => 'timestamp',
-        );
+    );
+
+    /**
+     * Options to use on the current database run
+     * @var array
+     */
+    public $options;
+
+
+    public static function setUpBeforeClass() {
+        $dsns = unserialize(MDB2_TEST_SERIALIZED_DSNS);
+        self::$dsns = $dsns;
+    }
+
+    /**
+     * A PHPUnit dataProvider callback to supply the MDB2 objects for testing
+     * @uses mdb2_test_db_object_provider()
+     * @return array  the MDB2_Driver_Common objects to test against
+     */
+    public function provider() {
+        return mdb2_test_db_object_provider();
+    }
+
+    /**
+     * Establishes the class properties for each test
+     *
+     * Can not use setUp() because we are using a dataProvider to get multiple
+     * MDB2 objects per test.
+     *
+     * @param MDB2_Driver_Common $db
+     */
+    protected function manualSetUp($db) {
+        $dsn = $db->getDSN('array');
+        $phptype = $dsn['phptype'];
+
+        $this->db = $db;
+        $this->dsn = self::$dsns[$phptype]['dsn'];
+        $this->options = self::$dsns[$phptype]['options'];
+        $this->database = $this->dsn['database'];
+
+        $this->db->setDatabase($this->database);
+        $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
         $this->clearTables();
     }
 
     public function tearDown() {
         $this->clearTables();
-        $this->db->popExpect();
-        unset($this->dsn);
-        if (!PEAR::isError($this->db)) {
-            $this->db->disconnect();
+        if (!$this->db || PEAR::isError($this->db)) {
+            return;
         }
+        $this->db->disconnect();
+        $this->db->popExpect();
         unset($this->db);
     }
 

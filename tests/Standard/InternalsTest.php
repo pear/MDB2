@@ -52,9 +52,11 @@ class Standard_InternalsTest extends Standard_Abstract {
 
     /**
      * Tests that the MDB2::apiVersion() method returns an API version number.
+     * @dataProvider provider
      */
-    public function test_apiVersion()
-    {
+    public function test_apiVersion($mdb) {
+        $this->manualSetUp($mdb);
+
         $result = MDB2::apiVersion();
         $this->assertNotNull($result, 'apiVersion null: '.$result);
         $result = strtok($result, '.');
@@ -68,18 +70,22 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::classExists() method correctly tests for
      * existence of a class.
+     * @dataProvider provider
      */
-    public function test_classExists()
-    {
+    public function test_classExists($mdb) {
+        $this->manualSetUp($mdb);
+
         $this->assertFalse(MDB2::classExists('null'), 'classExists');
         $this->assertTrue(MDB2::classExists('MDB2'), 'classExists');
     }
 
     /**
      * Tests that the MDB2::loadClass() method correctly loads classes.
+     * @dataProvider provider
      */
-    public function test_loadClass()
-    {
+    public function test_loadClass($mdb) {
+        $this->manualSetUp($mdb);
+
         $this->assertTrue(MDB2::loadClass('MDB2', false), 'loadClass');
         // Suppress handling of PEAR errors while testing next case
         PEAR::pushErrorHandling(null);
@@ -91,9 +97,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::factory() method correctly connects to a
      * database.
+     * @dataProvider provider
      */
-    public function test_factory()
-    {
+    public function test_factory($mdb) {
+        $this->manualSetUp($mdb);
+
         $db =& MDB2::factory($this->dsn);
         $this->assertTrue(MDB2::isConnection($db), 'factory');
         // Suppress handling of PEAR errors while preparing the
@@ -107,9 +115,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::loadFile() method returns the expected
      * filename.
+     * @dataProvider provider
      */
-    public function test_loadFile()
-    {
+    public function test_loadFile($mdb) {
+        $this->manualSetUp($mdb);
+
         $filename = 'Extended';
         $this->assertEquals('MDB2'.DIRECTORY_SEPARATOR.$filename.'.php', MDB2::loadFile($filename), 'loadFile');
     }
@@ -117,9 +127,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::isConnection() method correctly reports
      * connections.
+     * @dataProvider provider
      */
-    public function test_isConnection()
-    {
+    public function test_isConnection($mdb) {
+        $this->manualSetUp($mdb);
+
         $this->assertTrue(MDB2::isConnection($this->db), 'isConnection');
         $this->assertFalse(MDB2::isConnection(null), 'isConnection');
     }
@@ -127,9 +139,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::isResult() method correctly identifies
      * results.
+     * @dataProvider provider
      */
-    public function test_isResult()
-    {
+    public function test_isResult($mdb) {
+        $this->manualSetUp($mdb);
+
         $obj = new MDB2_Result();
         $this->assertTrue(MDB2::isResult($obj), 'isResult');
         $obj = null;
@@ -139,9 +153,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::isResultCommon() method correctly identifies
      * common results.
+     * @dataProvider provider
      */
-    public function test_isResultCommon()
-    {
+    public function test_isResultCommon($mdb) {
+        $this->manualSetUp($mdb);
+
         $result = null;
         $obj = new MDB2_Result_Common($this->db, $result);
         $this->assertTrue(MDB2::isResultCommon($obj), 'isResultCommon');
@@ -151,9 +167,11 @@ class Standard_InternalsTest extends Standard_Abstract {
 
     /**
      * Tests that the MDB2::parseDSN() method works.
+     * @dataProvider provider
      */
-    public function test_parseDSN()
-    {
+    public function test_parseDSN($mdb) {
+        $this->manualSetUp($mdb);
+
         $dsn = $this->dsn;
         $result = MDB2::parseDSN($dsn);
         $this->assertEquals($dsn['phptype'],$result['dbsyntax'],'parseDSN');
@@ -199,9 +217,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::fileExists() method correctly identifies
      * existing/non-existing files.
+     * @dataProvider provider
      */
-    public function test_fileExists()
-    {
+    public function test_fileExists($mdb) {
+        $this->manualSetUp($mdb);
+
         $this->assertTrue(MDB2::fileExists('PEAR.php'), 'fileExists');
         $this->assertFalse(MDB2::fileExists('itIsHopedThatNoOneHasAFileWithThisName.php'), 'fileExists');
     }
@@ -209,9 +229,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::__toString() method returns the expected
      * string result.
+     * @dataProvider provider
      */
-    public function test__toString()
-    {
+    public function test__toString($mdb) {
+        $this->manualSetUp($mdb);
+
         $expected = "MDB2_Driver_{$this->dsn['phptype']}: (phptype = {$this->dsn['phptype']}, dbsyntax = {$this->db->dbsyntax})";
         if (version_compare(PHP_VERSION, "5.0.0", "<")) {
             $expected = strtolower($expected);
@@ -222,9 +244,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::setFetchMode() method correctly sets the
      * fetch mode.
+     * @dataProvider provider
      */
-    public function test_setFetchMode()
-    {
+    public function test_setFetchMode($mdb) {
+        $this->manualSetUp($mdb);
+
         $tmp = $this->db->fetchmode;
         $this->db->setFetchMode(MDB2_FETCHMODE_OBJECT);
         $this->assertEquals('stdClass', $this->db->options['fetch_class'], 'setFetchMode');
@@ -237,9 +261,11 @@ class Standard_InternalsTest extends Standard_Abstract {
 
     /**
      * Tests that the MDB2::escape() method correctly escapes strings.
+     * @dataProvider provider
      */
-    public function test_escape()
-    {
+    public function test_escape($mdb) {
+        $this->manualSetUp($mdb);
+
         $tmp = $this->db->string_quoting;
         $this->string_quoting['escape'] = '\\';
         $this->string_quoting['end'] = '"';
@@ -250,9 +276,11 @@ class Standard_InternalsTest extends Standard_Abstract {
 
     /**
      * Tests that the MDB2::quoteIdentifier() method correctly quotes strings.
+     * @dataProvider provider
      */
-    public function test_quoteIdentifier()
-    {
+    public function test_quoteIdentifier($mdb) {
+        $this->manualSetUp($mdb);
+
         if ($this->db->phptype == 'ibase') {
             return;
         }
@@ -268,9 +296,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::getAsKeyword() method correctly returns
      * the set "as" keyword.
+     * @dataProvider provider
      */
-    public function test_getAsKeyword()
-    {
+    public function test_getAsKeyword($mdb) {
+        $this->manualSetUp($mdb);
+
         $tmp = $this->db->as_keyword;
         $this->db->as_keyword = 'ALIAS';
         $this->assertEquals('ALIAS', $this->db->getAsKeyword(), 'getAsKeyword');
@@ -280,9 +310,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::getConnection() method correctly returns
      * a database resource.
+     * @dataProvider provider
      */
-    public function test_getConnection()
-    {
+    public function test_getConnection($mdb) {
+        $this->manualSetUp($mdb);
+
         $result = $this->db->getConnection();
         $this->assertTrue(is_resource($result) || is_object($result), 'getConnection');
     }
@@ -293,6 +325,7 @@ class Standard_InternalsTest extends Standard_Abstract {
      *
      * @access private
      * @return array The array of "row" data.
+     * @dataProvider provider
      */
     public function _fetchRowData()
     {
@@ -310,6 +343,7 @@ class Standard_InternalsTest extends Standard_Abstract {
      *
      * @access private
      * @param array $row The result of the call to MDB2::_fixResultArrayValues().
+     * @dataProvider provider
      */
     public function _fixResultArrayValues_Test_EmptyToNull($row)
     {
@@ -324,6 +358,7 @@ class Standard_InternalsTest extends Standard_Abstract {
      *
      * @access private
      * @param array $row The result of the call to MDB2::_fixResultArrayValues().
+     * @dataProvider provider
      */
     public function _fixResultArrayValues_Test_Rtrim($row)
     {
@@ -338,6 +373,7 @@ class Standard_InternalsTest extends Standard_Abstract {
      *
      * @access private
      * @param array $row The result of the call to MDB2::_fixResultArrayValues().
+     * @dataProvider provider
      */
     public function _fixResultArrayValues_Test_FixAssocFieldNames($row)
     {
@@ -348,9 +384,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::_fixResultArrayValues() method fixes array
      * values when used with various $mode parameters.
+     * @dataProvider provider
      */
-    public function test__fixResultArrayValues()
-    {
+    public function test__fixResultArrayValues($mdb) {
+        $this->manualSetUp($mdb);
+
         $mode = MDB2_PORTABILITY_EMPTY_TO_NULL;
         $row = $this->_fetchRowData();
         $this->db->_fixResultArrayValues($row, $mode);
@@ -396,9 +434,11 @@ class Standard_InternalsTest extends Standard_Abstract {
      * Tests that the MDB2::transaction() method returns expected values
      * when starting or rolling back a transaction, and for testing if
      * the connection is in a transaction.
+     * @dataProvider provider
      */
-    public function test_transaction()
-    {
+    public function test_transaction($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->db->supports('transactions'))
         {
             $this->assertTrue($this->db->beginTransaction(), 'transaction');
@@ -421,9 +461,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::setDatabase() and MDB2::getDatabase() methods
      * correctly set and get the database name.
+     * @dataProvider provider
      */
-    public function test_setGetDatabase()
-    {
+    public function test_setGetDatabase($mdb) {
+        $this->manualSetUp($mdb);
+
         $old_name = $this->db->database_name;
         $this->assertEquals($old_name, $this->db->setDatabase('test_database'), 'setDatabase');
         $this->assertEquals('test_database', $this->db->database_name, 'setDatabase');
@@ -433,9 +475,11 @@ class Standard_InternalsTest extends Standard_Abstract {
 
     /**
      * Tests that the MDB2::setDSN() method correctly sets the DSN.
+     * @dataProvider provider
      */
-    public function test_setDSN()
-    {
+    public function test_setDSN($mdb) {
+        $this->manualSetUp($mdb);
+
         $dsn = "mydbms://myname:mypassword@localhost";
         $result = $this->db->setDSN($dsn);
         $dsn_set = $this->db->dsn;
@@ -453,9 +497,11 @@ class Standard_InternalsTest extends Standard_Abstract {
 
     /**
      * Tests that the MDB2::getDSN() method correctly gets the DSN.
+     * @dataProvider provider
      */
-    public function test_getDSN()
-    {
+    public function test_getDSN($mdb) {
+        $this->manualSetUp($mdb);
+
         $dsn_set = "mydbms://myname:mypassword@localhost";
         $result = $this->db->setDSN($dsn_set);
         $dsn_get = $this->db->getDSN();
@@ -476,9 +522,11 @@ class Standard_InternalsTest extends Standard_Abstract {
 
     /**
      * Tests that the 'new_link' DSN option is read correctly
+     * @dataProvider provider
      */
-    public function test_isNewLinkSet()
-    {
+    public function test_isNewLinkSet($mdb) {
+        $this->manualSetUp($mdb);
+
         $dsn = array(
             'phptype'  => 'mydbms',
             'host'     => 'localhost',
@@ -533,9 +581,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::setLimit() method correctly sets the limit
      * and offset values.
+     * @dataProvider provider
      */
-    public function test_setLimit()
-    {
+    public function test_setLimit($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->db->supports('limit_queries'))
         {
             $this->db->limit = null;
@@ -549,9 +599,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::supports() method correctly finds keys
      * in the "supports" array.
+     * @dataProvider provider
      */
-    public function test_supports()
-    {
+    public function test_supports($mdb) {
+        $this->manualSetUp($mdb);
+
         $this->db->supported['testkey'] = true;
         $this->assertTrue($this->db->supports('testkey'), 'supports');
         unset($this->db->supported['testkey']);
@@ -560,9 +612,11 @@ class Standard_InternalsTest extends Standard_Abstract {
     /**
      * Tests that the MDB2::getSequenceName() method correctly gets
      * sequence names.
+     * @dataProvider provider
      */
-    public function test_getSequenceName()
-    {
+    public function test_getSequenceName($mdb) {
+        $this->manualSetUp($mdb);
+
         $tmp = $this->db->options['seqname_format'];
         $this->db->options['seqname_format'] = '%s_seq';
         $this->assertEquals('test_seq', strtolower($this->db->getSequenceName('test')), 'getSequenceName');
@@ -571,9 +625,11 @@ class Standard_InternalsTest extends Standard_Abstract {
 
     /**
      * Tests that the MDB2::getIndexName() method correctly gets index names.
+     * @dataProvider provider
      */
-    public function test_getIndexName()
-    {
+    public function test_getIndexName($mdb) {
+        $this->manualSetUp($mdb);
+
         $tmp = $this->db->options['idxname_format'];
         $this->db->options['idxname_format'] = 'idx_%s';
         $this->assertEquals('idx_test', $this->db->getIndexName('test'), 'getIndexName');
@@ -582,9 +638,11 @@ class Standard_InternalsTest extends Standard_Abstract {
 
     /**
      * Tests that the MDB2::disconnect() method correctly disconnects.
+     * @dataProvider provider
      */
-    public function test_disconnect()
-    {
+    public function test_disconnect($mdb) {
+        $this->manualSetUp($mdb);
+
         $this->db->connect();
         $this->assertTrue($this->db->disconnect(), 'disconnect');
         $this->assertEquals(0, $this->db->connection, 'disconnect');
@@ -595,12 +653,15 @@ class Standard_InternalsTest extends Standard_Abstract {
         $this->assertNull($this->db->in_transaction, 'disconnect');
         $this->assertNull($this->db->nested_transaction_counter, 'disconnect');
     }
-    
+
     /**
      * Test that the MDB2::_skipDelimitedStrings() method correctly recognizes
      * parameter placeholders from quoted strings
+     * @dataProvider provider
      */
-    public function test_skipDelimitedStrings() {
+    public function test_skipDelimitedStrings($mdb) {
+        $this->manualSetUp($mdb);
+
         $query = "UPDATE tbl SET fld='' WHERE fld2=:param AND fld3=':fakeparam' AND fld3=:param2";
         $this->assertEquals(0, $this->db->_skipDelimitedStrings($query, 0, 0));
         $this->assertEquals(18, $this->db->_skipDelimitedStrings($query, 18, 19));

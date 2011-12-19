@@ -47,9 +47,11 @@ require_once dirname(__DIR__) . '/autoload.inc';
 
 class Standard_BugsTest extends Standard_Abstract {
     /**
-     *
+     * @dataProvider provider
      */
-    public function testFetchModeBug() {
+    public function testFetchModeBug($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = array();
 
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
@@ -97,8 +99,11 @@ class Standard_BugsTest extends Standard_Abstract {
 
     /**
      * @see http://bugs.php.net/bug.php?id=22328
+     * @dataProvider provider
      */
-    public function testBug22328() {
+    public function testBug22328($mdb) {
+        $this->manualSetUp($mdb);
+
         $result =& $this->db->query('SELECT * FROM users');
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
         $result2 = $this->db->query('SELECT * FROM foo');
@@ -110,8 +115,11 @@ class Standard_BugsTest extends Standard_Abstract {
 
     /**
      * @see http://pear.php.net/bugs/bug.php?id=670
+     * @dataProvider provider
      */
-    public function testBug670() {
+    public function testBug670($mdb) {
+        $this->manualSetUp($mdb);
+
         $data['user_name'] = null;
         $data['user_password'] = 'somepass';
         $data['subscribed'] = true;
@@ -149,8 +157,11 @@ class Standard_BugsTest extends Standard_Abstract {
 
     /**
      * @see http://pear.php.net/bugs/bug.php?id=681
+     * @dataProvider provider
      */
-    public function testBug681() {
+    public function testBug681($mdb) {
+        $this->manualSetUp($mdb);
+
         $result =& $this->db->query('SELECT * FROM users WHERE 1=0');
 
         $numrows = $result->numRows();
@@ -170,8 +181,11 @@ class Standard_BugsTest extends Standard_Abstract {
 
     /**
      * @see http://pear.php.net/bugs/bug.php?id=718
+     * @dataProvider provider
      */
-    public function testBug718() {
+    public function testBug718($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = $this->getSampleData(1);
 
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
@@ -185,8 +199,11 @@ class Standard_BugsTest extends Standard_Abstract {
 
     /**
      * @see http://pear.php.net/bugs/bug.php?id=946
+     * @dataProvider provider
      */
-    public function testBug946() {
+    public function testBug946($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = array();
         $total_rows = 5;
 
@@ -227,8 +244,11 @@ class Standard_BugsTest extends Standard_Abstract {
 
     /**
      * @see http://pear.php.net/bugs/bug.php?id=3146
+     * @dataProvider provider
      */
-    public function testBug3146() {
+    public function testBug3146($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = array();
         $total_rows = 5;
 
@@ -261,8 +281,11 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      * Strong typing query result misbehaves when $n_columns > $n_types
      * @see http://pear.php.net/bugs/bug.php?id=9502
+     * @dataProvider provider
      */
-    public function testBug9502() {
+    public function testBug9502($mdb) {
+        $this->manualSetUp($mdb);
+
         $row = 5;
         $data = $this->getSampleData($row);
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
@@ -274,7 +297,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $types['subscribed'] = $this->fields['subscribed'];
         $types['user_name']  = $this->fields['user_name'];
         $types['weight']     = $this->fields['weight'];
-        
+
         $query = 'SELECT weight, user_name, user_id, quota, subscribed FROM users WHERE user_id = '.$row;
         $result =& $this->db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
         if (PEAR::isError($result)) {
@@ -290,8 +313,11 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      * Type introspection breaks with associative arrays if names are identical
      * @see http://pear.php.net/bugs/bug.php?id=18203
+     * @dataProvider provider
      */
-    public function testBug18203() {
+    public function testBug18203($mdb) {
+        $this->manualSetUp($mdb);
+
         $res = $this->db->query("SELECT 1 as id, 2 as id, 'foo' as title", true);
         if (PEAR::isError($res)) {
             $this->fail($res->getMessage());

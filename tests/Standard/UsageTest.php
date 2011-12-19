@@ -52,8 +52,12 @@ class Standard_UsageTest extends Standard_Abstract {
      * This tests typed data storage and retrieval by executing a single
      * prepared query and then selecting the data back from the database
      * and comparing the results
+     *
+     * @dataProvider provider
      */
-    public function testStorage() {
+    public function testStorage($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = $this->getSampleData(1234);
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
@@ -81,8 +85,12 @@ class Standard_UsageTest extends Standard_Abstract {
      * This test bulk fetching of result data by using a prepared query to
      * insert an number of rows of data and then retrieving the data columns
      * one by one
+     *
+     * @dataProvider provider
      */
-    public function testFetchOne() {
+    public function testFetchOne($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = array();
         $total_rows = 5;
 
@@ -118,8 +126,12 @@ class Standard_UsageTest extends Standard_Abstract {
      * Test fetchCol()
      *
      * Test fetching a column of result data. Two different columns are retrieved
+     *
+     * @dataProvider provider
      */
-    public function testFetchCol() {
+    public function testFetchCol($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = array();
         $total_rows = 5;
 
@@ -178,8 +190,12 @@ class Standard_UsageTest extends Standard_Abstract {
      * Test fetchAll()
      *
      * Test fetching an entire result set in one shot.
+     *
+     * @dataProvider provider
      */
-    public function testFetchAll() {
+    public function testFetchAll($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = array();
         $total_rows = 5;
 
@@ -214,7 +230,7 @@ class Standard_UsageTest extends Standard_Abstract {
             }
         }
         $result->free();
-        
+
         //test $rekey=true
         $result =& $this->db->query('SELECT user_id, user_name FROM users ORDER BY user_id', $this->fields);
         if (PEAR::isError($result)) {
@@ -291,8 +307,12 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * Test fetching results using different fetch modes
      * NOTE: several tests still missing
+     *
+     * @dataProvider provider
      */
-    public function testFetchModes() {
+    public function testFetchModes($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = array();
         $total_rows = 5;
 
@@ -325,8 +345,12 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * This test attempts to send multiple queries at once using the multi_query
      * option and then retrieves each result.
+     *
+     * @dataProvider provider
      */
-    public function testMultiQuery() {
+    public function testMultiQuery($mdb) {
+        $this->manualSetUp($mdb);
+
         $multi_query_orig = $this->db->getOption('multi_query');
         if (PEAR::isError($multi_query_orig) && ($multi_query_orig->getCode() == MDB2_ERROR_UNSUPPORTED)) {
             $this->markTestSkipped('Multi query not supported');
@@ -377,8 +401,12 @@ class Standard_UsageTest extends Standard_Abstract {
      * Test prepared queries
      *
      * Tests prepared queries, making sure they correctly deal with ?, !, and '
+     *
+     * @dataProvider provider
      */
-    public function testPreparedQueries() {
+    public function testPreparedQueries($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = array(
             array(
                 'user_name' => 'Sure!',
@@ -518,7 +546,7 @@ class Standard_UsageTest extends Standard_Abstract {
             }
             $stmt->free();
         }
-        
+
         $row_data = reset($data);
         $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_name=:username OR user_password=:username';
         $stmt = $this->db->prepare($query, array('text'), array('text', 'text', 'integer'));
@@ -542,8 +570,12 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * If the placeholder is contained within a delimited string, it must be skipped,
      * and the cursor position must be advanced
+     *
+     * @dataProvider provider
      */
-    public function testSkipDelimitedStrings() {
+    public function testSkipDelimitedStrings($mdb) {
+        $this->manualSetUp($mdb);
+
         //test correct placeholder
         $query = 'SELECT what FROM tbl WHERE x = ?';
         $position = 0;
@@ -605,8 +637,12 @@ class Standard_UsageTest extends Standard_Abstract {
      * This tests the result metadata by executing a prepared query and
      * select the data, and checking the result contains the correct
      * number of columns and that the column names are in the correct order
+     *
+     * @dataProvider provider
      */
-    public function testMetadata() {
+    public function testMetadata($mdb) {
+        $this->manualSetUp($mdb);
+
         $data = $this->getSampleData(1234);
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
@@ -643,8 +679,12 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * This tests null storage and retrieval by successively inserting,
      * selecting, and testing a number of null / not null values
+     *
+     * @dataProvider provider
      */
-    public function testNulls() {
+    public function testNulls($mdb) {
+        $this->manualSetUp($mdb);
+
         $portability = $this->db->getOption('portability');
         if ($portability & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $nullisempty = true;
@@ -750,8 +790,12 @@ class Standard_UsageTest extends Standard_Abstract {
      * Test paged queries
      *
      * Test the use of setLimit to return paged queries
+     *
+     * @dataProvider provider
      */
-    public function testRanges() {
+    public function testRanges($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('limit_queries')) {
             $this->markTestSkipped('LIMIT not supported');
         }
@@ -823,8 +867,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Test the handling of sequences
+     *
+     * @dataProvider provider
      */
-    public function testSequences() {
+    public function testSequences($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('sequences')) {
            $this->markTestSkipped('SEQUENCEs not supported');
         }
@@ -929,8 +977,12 @@ class Standard_UsageTest extends Standard_Abstract {
      * Test replace query
      *
      * The replace method emulates the replace query of mysql
+     *
+     * @dataProvider provider
      */
-    public function testReplace() {
+    public function testReplace($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('replace')) {
             $this->markTestSkipped('REPLACE not supported');
         }
@@ -1035,8 +1087,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Test affected rows methods
+     *
+     * @dataProvider provider
      */
-    public function testAffectedRows() {
+    public function testAffectedRows($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('affected_rows')) {
             $this->markTestSkipped('Affected rows not supported');
         }
@@ -1104,8 +1160,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Testing transaction support - Test ROLLBACK
+     *
+     * @dataProvider provider
      */
-    public function testTransactionsRollback() {
+    public function testTransactionsRollback($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
         }
@@ -1132,8 +1192,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Testing transaction support - Test COMMIT
+     *
+     * @dataProvider provider
      */
-    public function testTransactionsCommit() {
+    public function testTransactionsCommit($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
         }
@@ -1160,9 +1224,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Testing transaction support - Test COMMIT and ROLLBACK
+     *
+     * @dataProvider provider
      */
-    public function testTransactionsBoth()
-    {
+    public function testTransactionsBoth($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
         }
@@ -1190,8 +1257,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Testing emulated nested transaction support
+     *
+     * @dataProvider provider
      */
-    public function testNestedTransactions() {
+    public function testNestedTransactions($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
         }
@@ -1234,8 +1305,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Testing savepoints
+     *
+     * @dataProvider provider
      */
-    public function testSavepoint() {
+    public function testSavepoint($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('savepoints')) {
             $this->markTestSkipped('SAVEPOINTs not supported');
         }
@@ -1307,8 +1382,12 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * N.B. for the mssql driver: if this test fails, use an higher limit in these
      * two php.ini settings: "mssql.textlimit" and "mssql.textsize"
+     *
+     * @dataProvider provider
      */
-    public function testLOBStorage() {
+    public function testLOBStorage($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1383,8 +1462,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Test LOB reading of multiple records both buffered and unbuffered. See bug #8793 for why this must be tested.
+     *
+     * @dataProvider provider
      */
-    public function testLOBRead() {
+    public function testLOBRead($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1440,8 +1523,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Test for lob storage from and to files
+     *
+     * @dataProvider provider
      */
-    public function testLOBFiles() {
+    public function testLOBFiles($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1548,8 +1635,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Test for lob storage from and to files
+     *
+     * @dataProvider provider
      */
-    public function testQuoteLOBFilesNoUrlInclude() {
+    public function testQuoteLOBFilesNoUrlInclude($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1579,8 +1670,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Test for lob storage from and to files
+     *
+     * @dataProvider provider
      */
-    public function testQuoteLOBFilesUrlInclude() {
+    public function testQuoteLOBFilesUrlInclude($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1621,8 +1716,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Test handling of lob nulls
+     *
+     * @dataProvider provider
      */
-    public function testLOBNulls() {
+    public function testLOBNulls($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1653,7 +1752,10 @@ class Standard_UsageTest extends Standard_Abstract {
         $result->free();
     }
 
-    public function testLOBUpdate() {
+    /** @dataProvider provider */
+    public function testLOBUpdate($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1755,8 +1857,12 @@ class Standard_UsageTest extends Standard_Abstract {
      * This tests the result metadata by executing a prepared query and
      * select the data, and checking the result contains the correct
      * number of columns and that the column names are in the correct order
+     *
+     * @dataProvider provider
      */
-    public function testConvertEmpty2Null() {
+    public function testConvertEmpty2Null($mdb) {
+        $this->manualSetUp($mdb);
+
 #$this->db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL);
 
         $data = $this->getSampleData(1234);
@@ -1782,7 +1888,10 @@ class Standard_UsageTest extends Standard_Abstract {
         $this->assertEquals($expected, $actual, "The query result returned a number of columns ({$actual}) unlike {$expected} as expected");
     }
 
-    public function testPortabilityOptions() {
+    /** @dataProvider provider */
+    public function testPortabilityOptions($mdb) {
+        $this->manualSetUp($mdb);
+
         // MDB2_PORTABILITY_DELETE_COUNT
         $data = array();
         $total_rows = 5;
@@ -1925,9 +2034,13 @@ class Standard_UsageTest extends Standard_Abstract {
 
     /**
      * Test getAsKeyword()
+     *
+     * @dataProvider provider
      */
-    public function testgetAsKeyword()
+    public function testgetAsKeyword($mdb)
     {
+        $this->manualSetUp($mdb);
+
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $data = $this->getSampleData(1);

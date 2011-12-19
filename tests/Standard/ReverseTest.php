@@ -312,9 +312,11 @@ class Standard_ReverseTest extends Standard_Abstract
 
     /**
      * Test tableInfo('table_name')
+     * @dataProvider provider
      */
-    public function testTableInfo()
-    {
+    public function testTableInfo($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->reverse, 'tableInfo')) {
             return;
         }
@@ -360,9 +362,11 @@ class Standard_ReverseTest extends Standard_Abstract
 
     /**
      * Test getTableFieldDefinition($table, $field_name)
+     * @dataProvider provider
      */
-    public function testGetTableFieldDefinition()
-    {
+    public function testGetTableFieldDefinition($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->reverse, 'getTableFieldDefinition')) {
             return;
         }
@@ -429,9 +433,11 @@ class Standard_ReverseTest extends Standard_Abstract
 
     /**
      * Test getTableIndexDefinition($table, $index_name)
+     * @dataProvider provider
      */
-    public function testGetTableIndexDefinition()
-    {
+    public function testGetTableIndexDefinition($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->reverse, 'getTableIndexDefinition')) {
             return;
         }
@@ -492,9 +498,11 @@ class Standard_ReverseTest extends Standard_Abstract
 
     /**
      * Test testGetTableConstraintDefinition($table, $constraint_name)
+     * @dataProvider provider
      */
-    public function testGetTableConstraintDefinition()
-    {
+    public function testGetTableConstraintDefinition($mdb) {
+        $this->manualSetUp($mdb);
+
         if (!$this->methodExists($this->db->reverse, 'getTableConstraintDefinition')) {
             return;
         }
@@ -593,6 +601,7 @@ class Standard_ReverseTest extends Standard_Abstract
      * one used to create the constraint, but not all the DBMS support all the
      * parameters, so check the common base and do some generic checks for the
      * other patameters.
+     * @dataProvider provider
      */
     public function _compareFKdefinitions($expected, $actual) {
         //ideal case: all the parameters are supported by all the DBMS:
@@ -613,8 +622,11 @@ class Standard_ReverseTest extends Standard_Abstract
 
     /**
      * Test getSequenceDefinition($sequence)
+     * @dataProvider provider
      */
-    public function testGetSequenceDefinition() {
+    public function testGetSequenceDefinition($mdb) {
+        $this->manualSetUp($mdb);
+
         //setup
         $this->db->loadModule('Manager', null, true);
         $sequence = 'test_sequence';
@@ -636,8 +648,11 @@ class Standard_ReverseTest extends Standard_Abstract
 
     /**
      * Test getTriggerDefinition($trigger)
+     * @dataProvider provider
      */
-    public function testGetTriggerDefinition() {
+    public function testGetTriggerDefinition($mdb) {
+        $this->manualSetUp($mdb);
+
         //setup
         $trigger_name = 'test_trigger';
 
