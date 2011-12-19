@@ -861,10 +861,13 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
                 return $seek;
             }
         }
+        if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
+            $fetchmode = $this->db->fetchmode;
+        }
 
         $row = false;
         $arrNum = array();
-        if ($fetchmode == MDB2_FETCHMODE_ORDERED || $fetchmode == MDB2_FETCHMODE_DEFAULT) {
+        if ($fetchmode == MDB2_FETCHMODE_ORDERED) {
             foreach ($this->rows[$this->cursor] as $key=>$value) {
                 $arrNum[] = $value;
             }
@@ -880,10 +883,6 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
                 $o = new $this->db->options['fetch_class'];
                 $row = $this->array_to_obj($this->rows[$this->cursor], $o);
                 break;
-            case MDB2_FETCHMODE_DEFAULT:
-            default:
-            $row = $this->rows[$this->cursor] + $arrNum;
-            break;
         }
         $this->cursor++;
 
