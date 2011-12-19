@@ -1008,13 +1008,24 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testCrudDatabase($ci) {
         $this->manualSetUp($ci);
 
-        $name = 'newdb';
+        $name = 'mdb2_test_newdb';
+        $rename = $name . '_renamed';
+        $unlink = false;
+        switch ($this->db->phptype) {
+            case 'sqlite':
+                $name = tempnam(sys_get_temp_dir(), $name);
+                $rename = $name . '_renamed';
+                unlink($name);
+                $unlink = true;
+                break;
+        }
+
         $options = array(
             'charset' => 'UTF8',
             'collation' => 'utf8_bin',
         );
         $changes = array(
-            'name' => 'newdbname',
+            'name' => $rename,
             'charset' => 'UTF8',
         );
         if ('pgsql' == substr($this->db->phptype, 0, 5)) {
@@ -1024,35 +1035,58 @@ class Standard_ManagerTest extends Standard_Abstract {
             $options['collation'] = 'WIN1252';
             $options['collation'] = 'Latin1_General_BIN';
         }
+
+        $action = 'create database';
         $result = $this->db->manager->createDatabase($name, $options);
         if (PEAR::isError($result)) {
-            if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
-                || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
+                $this->markTestSkipped("This driver does not support $action");
+            } elseif ($result->getCode() == MDB2_ERROR_NO_PERMISSION
+                      || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
             {
-                $this->markTestSkipped('Test user lacks permission to create database');
+                $this->markTestSkipped("Test user lacks permission to $action");
             }
-            //echo '<pre>'; print_r($result); echo '</pre>';
-            $this->fail('Error: cannot create database: ' . $result->getUserInfo());
-            return;
+            $this->fail("Error: cannot $action: " . $result->getUserInfo());
         }
+
+        $action = 'alter database';
         $result = $this->db->manager->alterDatabase($name, $changes);
         if (PEAR::isError($result)) {
-            echo '<pre>'; print_r($result); echo '</pre>';
-            $this->fail('Error: cannot alter database');
-            return;
+            $this->db->manager->dropDatabase($name);
+            if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
+                $this->markTestSkipped("This driver does not support $action");
+            } elseif ($result->getCode() == MDB2_ERROR_NO_PERMISSION
+                      || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            {
+                $this->markTestSkipped("Test user lacks permission to $action");
+            }
+            $this->fail("Error: cannot $action: " . $result->getUserInfo());
         }
-        $dbs = $this->db->manager->listDatabases();
-        //echo '<pre>'; print_r($dbs); echo '</pre>';
-        if (in_array($changes['name'], $dbs)) {
-            $result = $this->db->manager->dropDatabase($changes['name']);
-        } else {
-            $this->fail('Error: database not renamed');
-            $result = $this->db->manager->dropDatabase($name);
+
+        $action = 'list databases';
+        $result = $this->db->manager->listDatabases();
+        if (MDB2::isError($result)) {
+            $result = $this->db->manager->dropDatabase($rename);
+            $this->db->manager->dropDatabase($name);
+            if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
+                $this->markTestSkipped("This driver does not support $action");
+            } elseif ($result->getCode() == MDB2_ERROR_NO_PERMISSION
+                      || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            {
+                $this->markTestSkipped("Test user lacks permission to $action");
+            }
+            $this->fail("Error: cannot $action: " . $result->getUserInfo());
         }
+
+        if (!in_array($rename, $result)) {
+            $this->db->manager->dropDatabase($name);
+            $this->fail('Error: could not find renamed database');
+        }
+
+        $result = $this->db->manager->dropDatabase($rename);
         if (PEAR::isError($result)) {
             $this->fail('Error dropping database: '.$result->getMessage());
         }
-        //echo '<pre>'; print_r($result); echo '</pre>';
     }
 
     /**
