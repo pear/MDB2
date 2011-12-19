@@ -6,13 +6,14 @@ The test suite runs for every DBMS available for which you have supplied
 
 Requirements
 ------------
-The tests use PHPUnit 3.6, see www.phpunit.de for more information.
+The tests use PHPUnit 3.6.  See www.phpunit.de for more information.
 
 
 The Test Database
 -----------------
-The test suite automatically builds the objects needed for the test suite.
-But if it is necessary to create the objects manually, run:
+The test suite automatically builds the needed objects.  But if it is
+necessary to create the objects manually, follow the instructions in
+dsn.inc, then run:
 
     php import.schema.php 
 
