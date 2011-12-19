@@ -70,6 +70,18 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         'escape' => '`',
     );
 
+    /**
+     * The ouptut of mysqli_errno() in _doQuery(), if any.
+     * @var integer
+     */
+    protected $_query_errno;
+
+    /**
+     * The ouptut of mysqli_error() in _doQuery(), if any.
+     * @var string
+     */
+    protected $_query_error;
+
     public $sql_comments = array(
         array('start' => '-- ', 'end' => "\n", 'escape' => false),
         array('start' => '#', 'end' => "\n", 'escape' => false),
@@ -191,7 +203,10 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
      */
     function errorInfo($error = null)
     {
-        if ($this->connection) {
+        if ($this->_query_errno) {
+            $native_code = $this->_query_errno;
+            $native_msg  = $this->_query_error;
+        } elseif ($this->connection) {
             $native_code = @mysqli_errno($this->connection);
             $native_msg  = @mysqli_error($this->connection);
         } else {
@@ -790,10 +805,15 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $result = mysqli_query($connection, $query);
         }
 
-        if (!$result && 0 !== mysqli_errno($connection)) {
-            $err = $this->raiseError(null, null, null,
-                'Could not execute statement', __FUNCTION__);
-            return $err;
+        if (!$result) {
+            // Store now because standaloneQuery throws off $this->connection.
+            $this->_query_errno = mysqli_errno($connection);
+            if (0 !== $this->_query_errno) {
+                $this->_query_error = mysqli_error($connection);
+                $err = $this->raiseError(null, null, null,
+                    'Could not execute statement', __FUNCTION__);
+                return $err;
+            }
         }
 
         if ($this->options['multi_query']) {
