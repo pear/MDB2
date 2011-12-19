@@ -141,6 +141,10 @@ if (!empty($_ENV['MYSQL_TEST_USER']) && !in_array('mysql', $skip)
 
             'socket' => empty($_ENV['MYSQL_TEST_SOCKET'])
                     ? null : $_ENV['MYSQL_TEST_SOCKET'],
+
+            // Hack for MDB2's silly connect method logic.
+            'protocol' => empty($_ENV['MYSQL_TEST_SOCKET'])
+                    ? null : 'unix',
         ),
         'options' => array(
             'use_transactions' => true
