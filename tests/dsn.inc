@@ -40,15 +40,15 @@
 
 // See description in the docblock, above.
 $skip = array(
-    // 'fbsql',
-    // 'ibase',
-    // 'mssql',
-    // 'mysql',
-    // 'mysqli',
-    // 'oci8',
-    // 'pgsql',
-    // 'sqlite',
-    // 'sqlsrv',
+//    'fbsql',
+//    'ibase',
+//    'mssql',
+//    'mysql',
+//    'mysqli',
+//    'oci8',
+//    'pgsql',
+//    'sqlite',
+//    'sqlsrv',
 );
 
 
