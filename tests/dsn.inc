@@ -248,7 +248,7 @@ if (!empty($_ENV['PGSQL_TEST_USER']) && !in_array('pgsql', $skip)
     );
 }
 
-if (!in_array('fbsql', $skip) && extension_loaded('sqlite')) {
+if (!in_array('sqlite', $skip) && extension_loaded('sqlite')) {
     if (empty($_ENV['SQLITE_TEST_DB'])) {
         $dsns['sqlite'] = array(
             'dsn' => array(
