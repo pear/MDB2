@@ -191,85 +191,41 @@ open todo items:
     </file>
    </dir> <!-- /MDB2 -->
    <dir name="tests">
-    <file name="basic.phpt" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="clitest.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="config.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
+    <file name="AllTests.php" role="test" />
+    <file name="Debug.php" role="test" />
+    <file name="README" role="test" />
+    <file name="autoload.inc" role="test">
      <tasks:replace from="@php_dir@" to="php_dir" type="pear-config" />
     </file>
-    <file name="Console_TestListener.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="driver_test.schema.xml" role="test" />
-    <file name="HTML_TestListener.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
+    <file name="dsn.inc" role="test" />
+    <file name="functions.inc" role="test" />
     <file name="import.schema.php" role="test" />
-    <file name="MDB2_api_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_bugs_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_Connect_Test.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_datatype_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_extended_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_function_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_internals_testcase.php" role="test" />
-    <file name="MDB2_manager_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_native_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_nonstandard.php" role="test" />
-    <file name="MDB2_nonstandard_ibase.php" role="test" />
-    <file name="MDB2_nonstandard_mssql.php" role="test" />
-    <file name="MDB2_nonstandard_mysql.php" role="test" />
-    <file name="MDB2_nonstandard_mysqli.php" role="test" />
-    <file name="MDB2_nonstandard_oci8.php" role="test" />
-    <file name="MDB2_nonstandard_pgsql.php" role="test" />
-    <file name="MDB2_nonstandard_sqlite.php" role="test" />
-    <file name="MDB2_nonstandard_sqlsrv.php" role="test" />
-    <file name="MDB2_reverse_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="MDB2_usage_testcase.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="README" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="test.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="testchoose.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="tests.css" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="testUtils.php" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
-    <file name="test_setup.php.dist" role="test">
-     <tasks:replace from="@package_version@" to="version" type="package-info" />
-    </file>
+    <file name="querysim.csv" role="test" />
+    <file name="querysim_test.php" role="test" />
+    <file name="schema.xml" role="test" />
+    <dir name="Nonstandard">
+     <file name="Base.php" role="test" />
+     <file name="IbaseHelper.php" role="test" />
+     <file name="MssqlHelper.php" role="test" />
+     <file name="MysqlHelper.php" role="test" />
+     <file name="MysqliHelper.php" role="test" />
+     <file name="Oci8Helper.php" role="test" />
+     <file name="PgsqlHelper.php" role="test" />
+     <file name="SqliteHelper.php" role="test" />
+     <file name="SqlservHelper.php" role="test" />
+    </dir> <!-- /tests/Nonstandard -->
+    <dir name="Standard">
+     <file name="Abstract.php" role="test" />
+     <file name="ApiTest.php" role="test" />
+     <file name="BugsTest.php" role="test" />
+     <file name="DatatypeTest.php" role="test" />
+     <file name="ExtendedTest.php" role="test" />
+     <file name="FunctionTest.php" role="test" />
+     <file name="InternalsTest.php" role="test" />
+     <file name="ManagerTest.php" role="test" />
+     <file name="ReverseTest.php" role="test" />
+     <file name="UsageTest.php" role="test" />
+    </dir> <!-- /tests/Standard -->
    </dir> <!-- /tests -->
    <file name="LICENSE" role="data" />
    <file name="MDB2.php" role="php">
