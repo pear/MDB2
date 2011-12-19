@@ -139,7 +139,10 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
 
         $this->db->setDatabase($this->database);
         if ($this->database == ':memory:') {
+            // Disable messages from other packages while building schema.
+            $prior = error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED);
             build_schema($this->db);
+            error_reporting($prior);
         }
         $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
         $this->clearTables();

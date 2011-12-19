@@ -115,7 +115,10 @@ function mdb2_test_db_object_provider() {
                 $ci,
             );
 
+            // Disable messages from other packages while building schema.
+            $prior = error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED);
             build_schema($ci);
+            error_reporting($prior);
         }
     }
 
