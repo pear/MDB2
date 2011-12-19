@@ -50,8 +50,15 @@ class Standard_ManagerTest extends Standard_Abstract {
     //test table name (it is dynamically created/dropped)
     public $table = 'newtable';
 
-    public function setUp() {
-        parent::setUp();
+    /**
+     * Can not use setUp() because we are using a dataProvider to get multiple
+     * MDB2 objects per test.
+     *
+     * @param MDB2_Driver_Common $db
+     */
+    protected function manualSetUp($mdb) {
+        parent::manualSetUp($mdb);
+
         $this->db->loadModule('Manager', null, true);
         $this->fields = array(
             'id' => array(
