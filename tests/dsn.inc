@@ -298,4 +298,7 @@ if (!defined('MDB2_TEST_SERIALIZED_DSNS')) {
     define('MDB2_TEST_SERIALIZED_DSNS', serialize($dsns));
 }
 
+/**
+ * Gather our functions.
+ */
 require_once 'functions.inc';

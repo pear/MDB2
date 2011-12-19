@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * A manual test for the querysim driver
+ *
+ * @package MDB2
+ * @category Database
+ * @author Lukas Smith <lsmith@php.net>
+ */
+
+/**
+ * Establish the test suite's environment.
+ */
 require_once __DIR__ . '/autoload.inc';
 
 $dsn = 'querysim';
