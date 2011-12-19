@@ -142,9 +142,9 @@ function nativetype_test_callback($db, $aFields)
 class Standard_DatatypeTest extends Standard_Abstract
 {
     // Test table name (it is dynamically created/dropped)
-    var $table = 'datatypetable';
+    public $table = 'datatypetable';
 
-    function setUp() {
+    public function setUp() {
         parent::setUp();
         $this->db->loadModule('Manager', null, true);
         $this->fields = array(
@@ -185,7 +185,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * The teardown method to clean up the testing environment.
      */
-    function tearDown() {
+    public function tearDown() {
         if ($this->tableExists($this->table)) {
             $this->db->manager->dropTable($this->table);
         }
@@ -203,7 +203,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * @param array $names list of field names
      * @return array $types list of matching field types
      */
-    function getFieldTypes($names) {
+    public function getFieldTypes($names) {
         $types = array();
         foreach ($names as $name) {
             foreach ($this->fields as $fieldname => $field) {
@@ -220,7 +220,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      *
      * @param array $values associative array (name => value)
      */
-    function insertValues($values) {
+    public function insertValues($values) {
         $types = $this->getFieldTypes(array_keys($values));
 
         $result = $this->db->exec('DELETE FROM '.$this->table);
@@ -248,7 +248,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * Select the inserted row from the db and check the inserted values
      * @param array $values associative array (name => value) of inserted data
      */
-    function selectAndCheck($values) {
+    public function selectAndCheck($values) {
         $types = $this->getFieldTypes(array_keys($values));
 
         $query = 'SELECT '. implode (', ', array_keys($values)). ' FROM '.$this->table;
@@ -261,7 +261,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Test the TEXT datatype for incorrect conversions
      */
-    function testTextDataType($emulate_prepared = false) {
+    public function testTextDataType($emulate_prepared = false) {
         if ($emulate_prepared) {
             $this->db->setOption('emulate_prepared', true);
         }
@@ -283,7 +283,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Test the DECIMAL datatype for incorrect conversions
      */
-    function testDecimalDataType($emulate_prepared = false) {
+    public function testDecimalDataType($emulate_prepared = false) {
         if ($emulate_prepared) {
             $this->db->setOption('emulate_prepared', true);
         }
@@ -344,7 +344,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Test the FLOAT datatype for incorrect conversions
      */
-    function testFloatDataType($emulate_prepared = false) {
+    public function testFloatDataType($emulate_prepared = false) {
         if ($emulate_prepared) {
             $this->db->setOption('emulate_prepared', true);
         }
@@ -419,7 +419,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Test the BOOLEAN datatype for incorrect conversions
      */
-    function testBooleanDataType($emulate_prepared = false) {
+    public function testBooleanDataType($emulate_prepared = false) {
         if ($emulate_prepared) {
             $this->db->setOption('emulate_prepared', true);
         }
@@ -445,7 +445,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Test the DATE datatype for incorrect conversions
      */
-    function testDateDataType($emulate_prepared = false) {
+    public function testDateDataType($emulate_prepared = false) {
         if ($emulate_prepared) {
             $this->db->setOption('emulate_prepared', true);
         }
@@ -467,7 +467,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Test the TIME datatype for incorrect conversions
      */
-    function testTimeDataType($emulate_prepared = false) {
+    public function testTimeDataType($emulate_prepared = false) {
         if ($emulate_prepared) {
             $this->db->setOption('emulate_prepared', true);
         }
@@ -489,7 +489,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Test the TIMESTAMP datatype for incorrect conversions
      */
-    function testTimestampDataType($emulate_prepared = false) {
+    public function testTimestampDataType($emulate_prepared = false) {
         if ($emulate_prepared) {
             $this->db->setOption('emulate_prepared', true);
         }
@@ -511,7 +511,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Tests escaping of text values with special characters
      */
-    function testEscapeSequences() {
+    public function testEscapeSequences() {
         $test_strings = array(
             "'",
             "\"",
@@ -549,7 +549,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Tests escaping of text pattern strings with special characters
      */
-    function testPatternSequences() {
+    public function testPatternSequences() {
         $test_strings = array(
             "Foo",
             "FOO",
@@ -586,7 +586,7 @@ class Standard_DatatypeTest extends Standard_Abstract
     /**
      * Tests escaping of text pattern strings with special characters
      */
-    function testEscapePatternSequences() {
+    public function testEscapePatternSequences() {
         if (!$this->supported('pattern_escaping')) {
             return;
         }
@@ -642,7 +642,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * A method to test that the MDB2_Driver_Datatype_Common::getValidTypes()
      * method returns the correct data array.
      */
-    function testGetValidTypes()
+    public function testGetValidTypes()
     {
         $this->db->loadModule('Datatype', null, true);
         // Test with just the default MDB2 datatypes.
@@ -668,7 +668,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * A method to test that the MDB2_Driver_Datatype_Common::convertResult()
      * method returns correctly converted column data.
      */
-    function testConvertResult()
+    public function testConvertResult()
     {
         $this->db->loadModule('Datatype', null, true);
         // Test with an MDB2 datatype, eg. "text"
@@ -692,7 +692,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * A method to test that the MDB2_Driver_Datatype_Common::getDeclaration()
      * method returns correctly formatted SQL for declaring columns.
      */
-    function testGetDeclaration()
+    public function testGetDeclaration()
     {
         $this->db->loadModule('Datatype', null, true);
         // Test with an MDB2 datatype, eg. "integer"
@@ -747,7 +747,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * A method to test that the MDB2_Driver_Datatype_Common::compareDefinition()
      * method
      */
-    function testCompareDefinition()
+    public function testCompareDefinition()
     {
         // Test with an MDB2 datatype, eg. "text"
         $aPrevious = array(
@@ -782,7 +782,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * A method to test that the MDB2_Driver_Datatype_Common::quote()
      * method returns correctly quoted column data.
      */
-    function testQuote()
+    public function testQuote()
     {
         $this->db->loadModule('Datatype', null, true);
         // Test with an MDB2 datatype, eg. "text"
@@ -806,7 +806,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * A method to test that the MDB2_Driver_Datatype_Common::mapPrepareDatatype()
      * method returns the correct data type.
      */
-    function testMapPrepareDatatype()
+    public function testMapPrepareDatatype()
     {
         $this->db->loadModule('Datatype', null, true);
         // Test with an MDB2 datatype, eg. "text"
@@ -831,7 +831,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * A method to test that the MDB2_Driver_Datatype_Common::mapNativeDatatype()
      * method returns the correct MDB2 datatype from a given nativetype.
      */
-    function testMapNativeDatatype()
+    public function testMapNativeDatatype()
     {
         $this->db->loadModule('Datatype', null, true);
         // Test with an common nativetype, eg. "text"
@@ -881,5 +881,3 @@ class Standard_DatatypeTest extends Standard_Abstract
         unset($this->db->options['nativetype_map_callback']);
     }
 }
-
-?>

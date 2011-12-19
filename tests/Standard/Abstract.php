@@ -45,19 +45,19 @@
 
 abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
     //contains the dsn of the database we are testing
-    var $dsn;
+    public $dsn;
     //contains the options that should be used during testing
-    var $options;
+    public $options;
     //contains the name of the database we are testing
-    var $database;
+    public $database;
     //contains the MDB2 object of the db once we have connected
-    var $db;
+    public $db;
     // contains field names from the test table
-    var $fields;
+    public $fields;
     // if the tables should be cleared in the setUp() and tearDown() methods
-    var $clear_tables = true;
+    public $clear_tables = true;
 
-    function setUp() {
+    public function setUp() {
         $this->dsn = $GLOBALS['dsn'];
         $this->options  = $GLOBALS['options'];
         $this->database = $GLOBALS['database'];
@@ -82,7 +82,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         $this->clearTables();
     }
 
-    function tearDown() {
+    public function tearDown() {
         $this->clearTables();
         $this->db->popExpect();
         unset($this->dsn);
@@ -92,7 +92,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         unset($this->db);
     }
 
-    function clearTables() {
+    public function clearTables() {
         if (!$this->clear_tables) {
             return;
         }
@@ -104,7 +104,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         }
     }
 
-    function supported($feature) {
+    public function supported($feature) {
         if (!$this->db->supports($feature)) {
             $this->fail('This database does not support '.$feature);
             return false;
@@ -112,7 +112,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         return true;
     }
 
-    function verifyFetchedValues(&$result, $rownum, $data) {
+    public function verifyFetchedValues(&$result, $rownum, $data) {
         //$row = $result->fetchRow(MDB2_FETCHMODE_DEFAULT, $rownum);
         $row = $result->fetchRow(MDB2_FETCHMODE_ASSOC, $rownum);
         if (!is_array($row)) {
@@ -134,7 +134,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         }
     }
 
-    function getSampleData($row = 1) {
+    public function getSampleData($row = 1) {
         $data = array();
         $data['user_name']     = 'user_' . $row;
         $data['user_password'] = 'somepass';
@@ -148,7 +148,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         return $data;
     }
 
-    function methodExists(&$class, $name) {
+    public function methodExists(&$class, $name) {
         if (is_object($class)
             && in_array(strtolower($name), array_map('strtolower', get_class_methods($class)))
         ) {
@@ -158,7 +158,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         return false;
     }
 
-    function tableExists($table) {
+    public function tableExists($table) {
         $this->db->loadModule('Manager', null, true);
         $tables = $this->db->manager->listTables();
         if (PEAR::isError($tables)) {
@@ -168,5 +168,3 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         return in_array(strtolower($table), array_map('strtolower', $tables));
     }
 }
-
-?>

@@ -47,9 +47,9 @@ require_once dirname(__DIR__) . '/autoload.inc';
 
 class Nonstandard_MysqlTest extends Nonstandard_Abstract {
 
-    var $trigger_body = '';
+    public $trigger_body = '';
 
-    function createTrigger($trigger_name, $table_name) {
+    public function createTrigger($trigger_name, $table_name) {
         $this->trigger_body = 'BEGIN
   UPDATE '. $table_name .' SET somedescription = OLD.somename WHERE id = NEW.id;
 END';
@@ -58,20 +58,18 @@ END';
         return $this->db->exec($query);
     }
 
-    function checkTrigger($trigger_name, $table_name, $def) {
+    public function checkTrigger($trigger_name, $table_name, $def) {
         parent::checkTrigger($trigger_name, $table_name, $def);
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
     }
 
-    function dropTrigger($trigger_name, $table_name) {
+    public function dropTrigger($trigger_name, $table_name) {
         return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
 
-    function createFunction($name) {
+    public function createFunction($name) {
         $query = 'CREATE FUNCTION '.$name.'(a INT, b INT) RETURNS INT
 RETURN a + b;';
         return $this->db->exec($query);
     }
 }
-
-?>

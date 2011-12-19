@@ -45,9 +45,9 @@
 
 class Nonstandard_PgsqlTest extends Nonstandard_Abstract {
 
-    var $trigger_body = '';
+    public $trigger_body = '';
 
-    function createTrigger($trigger_name, $table_name) {
+    public function createTrigger($trigger_name, $table_name) {
         $this->trigger_body = 'EXECUTE PROCEDURE '.$trigger_name.'_func();';
         $table_name = $this->db->quoteIdentifier($table_name);
         $sql = 'CREATE OR REPLACE FUNCTION '.$trigger_name.'_func() RETURNS trigger AS \'
@@ -68,16 +68,16 @@ class Nonstandard_PgsqlTest extends Nonstandard_Abstract {
         return $this->db->exec($query);
     }
 
-    function checkTrigger($trigger_name, $table_name, $def) {
+    public function checkTrigger($trigger_name, $table_name, $def) {
         parent::checkTrigger($trigger_name, $table_name, $def);
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
     }
 
-    function dropTrigger($trigger_name, $table_name) {
+    public function dropTrigger($trigger_name, $table_name) {
         return $this->db->exec('DROP TRIGGER '.$trigger_name .' ON '. $table_name);
     }
 
-    function createFunction($name) {
+    public function createFunction($name) {
         $query = "CREATE FUNCTION $name (Decimal(6,2), Decimal(6,2)) RETURNS Decimal(6,2)
 AS 'select $1 + $2;'
 LANGUAGE SQL
@@ -86,9 +86,7 @@ RETURNS NULL ON NULL INPUT";
         return $this->db->exec($query);
     }
 
-    function dropFunction($name) {
+    public function dropFunction($name) {
         return $this->db->exec('DROP FUNCTION '.$name.' (Decimal(6,2), Decimal(6,2))');
     }
 }
-
-?>

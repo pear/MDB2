@@ -49,7 +49,7 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      *
      */
-    function testFetchModeBug() {
+    public function testFetchModeBug() {
         $data = array();
 
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
@@ -98,7 +98,7 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      * @see http://bugs.php.net/bug.php?id=22328
      */
-    function testBug22328() {
+    public function testBug22328() {
         $result =& $this->db->query('SELECT * FROM users');
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
         $result2 = $this->db->query('SELECT * FROM foo');
@@ -111,7 +111,7 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      * @see http://pear.php.net/bugs/bug.php?id=670
      */
-    function testBug670() {
+    public function testBug670() {
         $data['user_name'] = null;
         $data['user_password'] = 'somepass';
         $data['subscribed'] = true;
@@ -150,7 +150,7 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      * @see http://pear.php.net/bugs/bug.php?id=681
      */
-    function testBug681() {
+    public function testBug681() {
         $result =& $this->db->query('SELECT * FROM users WHERE 1=0');
 
         $numrows = $result->numRows();
@@ -171,7 +171,7 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      * @see http://pear.php.net/bugs/bug.php?id=718
      */
-    function testBug718() {
+    public function testBug718() {
         $data = $this->getSampleData(1);
 
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
@@ -186,7 +186,7 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      * @see http://pear.php.net/bugs/bug.php?id=946
      */
-    function testBug946() {
+    public function testBug946() {
         $data = array();
         $total_rows = 5;
 
@@ -228,7 +228,7 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      * @see http://pear.php.net/bugs/bug.php?id=3146
      */
-    function testBug3146() {
+    public function testBug3146() {
         $data = array();
         $total_rows = 5;
 
@@ -262,7 +262,7 @@ class Standard_BugsTest extends Standard_Abstract {
      * Strong typing query result misbehaves when $n_columns > $n_types
      * @see http://pear.php.net/bugs/bug.php?id=9502
      */
-    function testBug9502() {
+    public function testBug9502() {
         $row = 5;
         $data = $this->getSampleData($row);
         $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
@@ -291,7 +291,7 @@ class Standard_BugsTest extends Standard_Abstract {
      * Type introspection breaks with associative arrays if names are identical
      * @see http://pear.php.net/bugs/bug.php?id=18203
      */
-    function testBug18203() {
+    public function testBug18203() {
         $res = $this->db->query("SELECT 1 as id, 2 as id, 'foo' as title", true);
         if (PEAR::isError($res)) {
             $this->fail($res->getMessage());
@@ -304,5 +304,3 @@ class Standard_BugsTest extends Standard_Abstract {
         $this->assertEquals($expected, $record);
     }
 }
-
-?>

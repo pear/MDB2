@@ -46,9 +46,9 @@
 require_once dirname(__DIR__) . '/autoload.inc';
 
 class Standard_ApiTest extends Standard_Abstract {
-    var $clear_tables = false;
+    public $clear_tables = false;
 
-    function testParseDSN() {
+    public function testParseDSN() {
         $expected = array (
             'phptype'  => 'phptype',
             'dbsyntax' => 'phptype',
@@ -171,7 +171,7 @@ class Standard_ApiTest extends Standard_Abstract {
     }
 
     //test stuff in common.php
-    function testConnect() {
+    public function testConnect() {
         $db =& MDB2::factory($this->dsn, $this->options);
         if (PEAR::isError($db)) {
             $this->fail('Connect failed bailing out - ' .$db->getMessage() . ' - ' .$db->getUserInfo());
@@ -181,7 +181,7 @@ class Standard_ApiTest extends Standard_Abstract {
         }
     }
 
-    function testGetOption() {
+    public function testGetOption() {
         if (!$this->methodExists($this->db, 'getOption')) {
             return;
         }
@@ -189,7 +189,7 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->assertEquals($option, $this->db->options['persistent']);
     }
 
-    function testSetOption() {
+    public function testSetOption() {
         if (!$this->methodExists($this->db, 'setOption')) {
             return;
         }
@@ -199,7 +199,7 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->db->setOption('persistent', $option);
     }
 
-    function testLoadModule() {
+    public function testLoadModule() {
         if (!$this->methodExists($this->db, 'loadModule')) {
             return;
         }
@@ -208,7 +208,7 @@ class Standard_ApiTest extends Standard_Abstract {
 
     // test of the driver
     // helper function so that we don't have to write out a query a million times
-    function standardQuery() {
+    public function standardQuery() {
         $query = 'SELECT * FROM users';
         // run the query and get a result handler
         if (!PEAR::isError($this->db)) {
@@ -217,7 +217,7 @@ class Standard_ApiTest extends Standard_Abstract {
         return false;
     }
 
-    function testQuery() {
+    public function testQuery() {
         if (!$this->methodExists($this->db, 'query')) {
             return;
         }
@@ -226,7 +226,7 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->assertTrue(MDB2::isResultCommon($result), 'query: $result returned is not a resource');
     }
 
-    function testExec() {
+    public function testExec() {
         if (!$this->methodExists($this->db, 'exec')) {
             return;
         }
@@ -237,7 +237,7 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->assertEquals(0, $result, 'exec: incorrect number of affected rows returned');
     }
 
-    function testPrepare() {
+    public function testPrepare() {
         if (!$this->methodExists($this->db, 'prepare')) {
             return;
         }
@@ -246,7 +246,7 @@ class Standard_ApiTest extends Standard_Abstract {
         $stmt->free();
     }
 
-    function testFetchRow() {
+    public function testFetchRow() {
         $result = $this->standardQuery();
         if (!$this->methodExists($result, 'fetchRow')) {
             return;
@@ -259,7 +259,7 @@ class Standard_ApiTest extends Standard_Abstract {
         }
     }
 
-    function testNumRows() {
+    public function testNumRows() {
         $result = $this->standardQuery();
         if (!$this->methodExists($result, 'numRows')) {
             return;
@@ -269,7 +269,7 @@ class Standard_ApiTest extends Standard_Abstract {
         $result->free();
     }
 
-    function testNumCols() {
+    public function testNumCols() {
         $result = $this->standardQuery();
         if (!$this->methodExists($result, 'numCols')) {
             return;
@@ -279,7 +279,7 @@ class Standard_ApiTest extends Standard_Abstract {
         $result->free();
     }
 
-    function testSingleton() {
+    public function testSingleton() {
         $db =& MDB2::singleton();
         $this->assertTrue(MDB2::isConnection($db));
 
@@ -289,7 +289,7 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->assertTrue($db->db_index != $this->db->db_index);
     }
 
-    function testGetServerVersion() {
+    public function testGetServerVersion() {
         $server_info = $this->db->getServerVersion(true);
         if (PEAR::isError($server_info)) {
             $this->fail('Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
@@ -304,7 +304,7 @@ class Standard_ApiTest extends Standard_Abstract {
         }
     }
 
-    function testQuoteIdentifier() {
+    public function testQuoteIdentifier() {
         if ($this->db->phptype != 'ibase') {
             $start = $this->db->identifier_quoting['start'];
             $end = $this->db->identifier_quoting['end'];
@@ -319,5 +319,3 @@ class Standard_ApiTest extends Standard_Abstract {
         }
     }
 }
-
-?>

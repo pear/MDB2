@@ -53,7 +53,7 @@ class Standard_UsageTest extends Standard_Abstract {
      * prepared query and then selecting the data back from the database
      * and comparing the results
      */
-    function testStorage() {
+    public function testStorage() {
         $data = $this->getSampleData(1234);
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
@@ -82,7 +82,7 @@ class Standard_UsageTest extends Standard_Abstract {
      * insert an number of rows of data and then retrieving the data columns
      * one by one
      */
-    function testFetchOne() {
+    public function testFetchOne() {
         $data = array();
         $total_rows = 5;
 
@@ -119,7 +119,7 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * Test fetching a column of result data. Two different columns are retrieved
      */
-    function testFetchCol() {
+    public function testFetchCol() {
         $data = array();
         $total_rows = 5;
 
@@ -179,7 +179,7 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * Test fetching an entire result set in one shot.
      */
-    function testFetchAll() {
+    public function testFetchAll() {
         $data = array();
         $total_rows = 5;
 
@@ -292,7 +292,7 @@ class Standard_UsageTest extends Standard_Abstract {
      * Test fetching results using different fetch modes
      * NOTE: several tests still missing
      */
-    function testFetchModes() {
+    public function testFetchModes() {
         $data = array();
         $total_rows = 5;
 
@@ -326,7 +326,7 @@ class Standard_UsageTest extends Standard_Abstract {
      * This test attempts to send multiple queries at once using the multi_query
      * option and then retrieves each result.
      */
-    function testMultiQuery() {
+    public function testMultiQuery() {
         $multi_query_orig = $this->db->getOption('multi_query');
         if (PEAR::isError($multi_query_orig) && ($multi_query_orig->getCode() == MDB2_ERROR_UNSUPPORTED)) {
             $this->markTestSkipped('Multi query not supported');
@@ -378,7 +378,7 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * Tests prepared queries, making sure they correctly deal with ?, !, and '
      */
-    function testPreparedQueries() {
+    public function testPreparedQueries() {
         $data = array(
             array(
                 'user_name' => 'Sure!',
@@ -543,7 +543,7 @@ class Standard_UsageTest extends Standard_Abstract {
      * If the placeholder is contained within a delimited string, it must be skipped,
      * and the cursor position must be advanced
      */
-    function testSkipDelimitedStrings() {
+    public function testSkipDelimitedStrings() {
         //test correct placeholder
         $query = 'SELECT what FROM tbl WHERE x = ?';
         $position = 0;
@@ -606,7 +606,7 @@ class Standard_UsageTest extends Standard_Abstract {
      * select the data, and checking the result contains the correct
      * number of columns and that the column names are in the correct order
      */
-    function testMetadata() {
+    public function testMetadata() {
         $data = $this->getSampleData(1234);
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
@@ -644,7 +644,7 @@ class Standard_UsageTest extends Standard_Abstract {
      * This tests null storage and retrieval by successively inserting,
      * selecting, and testing a number of null / not null values
      */
-    function testNulls() {
+    public function testNulls() {
         $portability = $this->db->getOption('portability');
         if ($portability & MDB2_PORTABILITY_EMPTY_TO_NULL) {
             $nullisempty = true;
@@ -751,7 +751,7 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * Test the use of setLimit to return paged queries
      */
-    function testRanges() {
+    public function testRanges() {
         if (!$this->supported('limit_queries')) {
             $this->markTestSkipped('LIMIT not supported');
         }
@@ -824,7 +824,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Test the handling of sequences
      */
-    function testSequences() {
+    public function testSequences() {
         if (!$this->supported('sequences')) {
            $this->markTestSkipped('SEQUENCEs not supported');
         }
@@ -930,7 +930,7 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * The replace method emulates the replace query of mysql
      */
-    function testReplace() {
+    public function testReplace() {
         if (!$this->supported('replace')) {
             $this->markTestSkipped('REPLACE not supported');
         }
@@ -1036,7 +1036,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Test affected rows methods
      */
-    function testAffectedRows() {
+    public function testAffectedRows() {
         if (!$this->supported('affected_rows')) {
             $this->markTestSkipped('Affected rows not supported');
         }
@@ -1105,7 +1105,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Testing transaction support - Test ROLLBACK
      */
-    function testTransactionsRollback() {
+    public function testTransactionsRollback() {
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
         }
@@ -1133,7 +1133,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Testing transaction support - Test COMMIT
      */
-    function testTransactionsCommit() {
+    public function testTransactionsCommit() {
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
         }
@@ -1161,7 +1161,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Testing transaction support - Test COMMIT and ROLLBACK
      */
-    function testTransactionsBoth()
+    public function testTransactionsBoth()
     {
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
@@ -1191,7 +1191,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Testing emulated nested transaction support
      */
-    function testNestedTransactions() {
+    public function testNestedTransactions() {
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
         }
@@ -1235,7 +1235,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Testing savepoints
      */
-    function testSavepoint() {
+    public function testSavepoint() {
         if (!$this->supported('savepoints')) {
             $this->markTestSkipped('SAVEPOINTs not supported');
         }
@@ -1308,7 +1308,7 @@ class Standard_UsageTest extends Standard_Abstract {
      * N.B. for the mssql driver: if this test fails, use an higher limit in these
      * two php.ini settings: "mssql.textlimit" and "mssql.textsize"
      */
-    function testLOBStorage() {
+    public function testLOBStorage() {
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1384,7 +1384,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Test LOB reading of multiple records both buffered and unbuffered. See bug #8793 for why this must be tested.
      */
-    function testLOBRead() {
+    public function testLOBRead() {
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1441,7 +1441,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Test for lob storage from and to files
      */
-    function testLOBFiles() {
+    public function testLOBFiles() {
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1549,7 +1549,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Test for lob storage from and to files
      */
-    function testQuoteLOBFilesNoUrlInclude() {
+    public function testQuoteLOBFilesNoUrlInclude() {
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1580,7 +1580,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Test for lob storage from and to files
      */
-    function testQuoteLOBFilesUrlInclude() {
+    public function testQuoteLOBFilesUrlInclude() {
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1622,7 +1622,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Test handling of lob nulls
      */
-    function testLOBNulls() {
+    public function testLOBNulls() {
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1653,7 +1653,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $result->free();
     }
 
-    function testLOBUpdate() {
+    public function testLOBUpdate() {
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
         }
@@ -1756,7 +1756,7 @@ class Standard_UsageTest extends Standard_Abstract {
      * select the data, and checking the result contains the correct
      * number of columns and that the column names are in the correct order
      */
-    function testConvertEmpty2Null() {
+    public function testConvertEmpty2Null() {
 #$this->db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL);
 
         $data = $this->getSampleData(1234);
@@ -1782,7 +1782,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $this->assertEquals($expected, $actual, "The query result returned a number of columns ({$actual}) unlike {$expected} as expected");
     }
 
-    function testPortabilityOptions() {
+    public function testPortabilityOptions() {
         // MDB2_PORTABILITY_DELETE_COUNT
         $data = array();
         $total_rows = 5;
@@ -1926,7 +1926,7 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Test getAsKeyword()
      */
-    function testgetAsKeyword()
+    public function testgetAsKeyword()
     {
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
@@ -1946,5 +1946,3 @@ class Standard_UsageTest extends Standard_Abstract {
         }
     }
 }
-
-?>

@@ -47,10 +47,10 @@ require_once dirname(__DIR__) . '/autoload.inc';
 
 class Nonstandard_Oci8Test extends Nonstandard_Abstract {
 
-    var $trigger_body = '';
-    var $when_clause = 'new.id > 0';
+    public $trigger_body = '';
+    public $when_clause = 'new.id > 0';
 
-    function createTrigger($trigger_name, $table_name) {
+    public function createTrigger($trigger_name, $table_name) {
         $this->trigger_body = 'BEGIN INSERT INTO '.$table_name
             .' (id, somename, somedescription) VALUES'
             .' (:new.id+1, :new.somename, :new.somedescription); END '. $trigger_name .';';
@@ -61,17 +61,17 @@ class Nonstandard_Oci8Test extends Nonstandard_Abstract {
         return $this->db->exec($query);
     }
 
-    function checkTrigger($trigger_name, $table_name, $def) {
+    public function checkTrigger($trigger_name, $table_name, $def) {
         parent::checkTrigger($trigger_name, $table_name, $def);
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
         $this->test->assertEquals($this->when_clause, $def['when_clause']);
     }
 
-    function dropTrigger($trigger_name, $table_name) {
+    public function dropTrigger($trigger_name, $table_name) {
         return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
 
-    function createFunction($name) {
+    public function createFunction($name) {
         $query = 'CREATE FUNCTION '.$name.'(a IN INT, b IN INT)
 RETURN INT AS
 BEGIN
@@ -80,5 +80,3 @@ END;';
         return $this->db->exec($query);
     }
 }
-
-?>

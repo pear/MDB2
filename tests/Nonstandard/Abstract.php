@@ -47,15 +47,15 @@ require_once dirname(__DIR__) . '/autoload.inc';
 
 abstract class Nonstandard_Abstract {
     //contains the MDB2 object of the db once we have connected
-    var $db;
+    public $db;
     
     //contains the PHPUnit_TestCase object
-    var $test;
+    public $test;
     
     /**
      * Returns a driver-specific object
      */
-    function factory($db, $test) {
+    public function factory($db, $test) {
         $classname = 'MDB2_nonstandard_'.$db->phptype;
         include_once $classname.'.php';
         if (class_exists($classname)) {
@@ -71,7 +71,7 @@ abstract class Nonstandard_Abstract {
     /**
      * Create a TRIGGER
      */
-    function createTrigger($trigger_name, $table_name) {
+    public function createTrigger($trigger_name, $table_name) {
         return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
             'not capable', __FUNCTION__);
     }
@@ -79,7 +79,7 @@ abstract class Nonstandard_Abstract {
     /**
      * Check if getTriggerDefinition() returns the correct definition for the trigger
      */
-    function checkTrigger($trigger_name, $table_name, $def) {
+    public function checkTrigger($trigger_name, $table_name, $def) {
         $this->test->assertEquals(strtoupper($trigger_name), strtoupper($def['trigger_name']), 'Error getting trigger definition (name)');
         $this->test->assertEquals(strtoupper($table_name),  strtoupper($def['table_name']),   'Error getting trigger definition (table)');
         $this->test->assertEquals('AFTER',  $def['trigger_type'], 'Error getting trigger definition (type)');
@@ -92,7 +92,7 @@ abstract class Nonstandard_Abstract {
     /**
      * Drop a TRIGGER
      */
-    function dropTrigger($trigger_name, $table_name) {
+    public function dropTrigger($trigger_name, $table_name) {
         return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
             'not capable', __FUNCTION__);
     }
@@ -100,7 +100,7 @@ abstract class Nonstandard_Abstract {
     /**
      * Create a VIEW
      */
-    function createView($view_name, $table_name) {
+    public function createView($view_name, $table_name) {
         $query = 'CREATE VIEW '. $this->db->quoteIdentifier($view_name, true)
                 .' (id) AS SELECT id FROM '
                 . $this->db->quoteIdentifier($table_name, true) .' WHERE id > 1';
@@ -110,14 +110,14 @@ abstract class Nonstandard_Abstract {
     /**
      * Drop a VIEW
      */
-    function dropView($view_name) {
+    public function dropView($view_name) {
         return $this->db->exec('DROP VIEW '.$view_name);
     }
 
     /**
      * Create a FUNCTION
      */
-    function createFunction($name) {
+    public function createFunction($name) {
         return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
             'not capable', __FUNCTION__);
     }
@@ -125,8 +125,7 @@ abstract class Nonstandard_Abstract {
     /**
      * Drop a FUNCTION
      */
-    function dropFunction($name) {
+    public function dropFunction($name) {
         return $this->db->exec('DROP FUNCTION '.$name);
     }
 }
-?>

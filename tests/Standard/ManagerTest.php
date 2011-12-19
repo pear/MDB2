@@ -48,9 +48,9 @@ require_once dirname(__DIR__) . '/autoload.inc';
 
 class Standard_ManagerTest extends Standard_Abstract {
     //test table name (it is dynamically created/dropped)
-    var $table = 'newtable';
+    public $table = 'newtable';
 
-    function setUp() {
+    public function setUp() {
         parent::setUp();
         $this->db->loadModule('Manager', null, true);
         $this->fields = array(
@@ -85,7 +85,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         }
     }
 
-    function tearDown() {
+    public function tearDown() {
         if ($this->tableExists($this->table)) {
             $result = $this->db->manager->dropTable($this->table);
             $this->assertFalse(PEAR::isError($result), 'Error dropping table');
@@ -101,7 +101,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * Create a sample table, test the new fields, and drop it.
      */
-    function testCreateTable() {
+    public function testCreateTable() {
         if (!$this->methodExists($this->db->manager, 'createTable')) {
             return;
         }
@@ -116,7 +116,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * Create a sample table, test the new fields, and drop it.
      */
-    function testCreateAutoIncrementTable() {
+    public function testCreateAutoIncrementTable() {
         if (!$this->methodExists($this->db->manager, 'createTable')) {
             return;
         }
@@ -180,7 +180,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testListTableFields() {
+    public function testListTableFields() {
         if (!$this->methodExists($this->db->manager, 'listTableFields')) {
             return;
         }
@@ -194,7 +194,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testCreateIndex() {
+    public function testCreateIndex() {
         if (!$this->methodExists($this->db->manager, 'createIndex')) {
             return;
         }
@@ -213,7 +213,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testDropIndex() {
+    public function testDropIndex() {
         if (!$this->methodExists($this->db->manager, 'dropIndex')) {
             return;
         }
@@ -240,7 +240,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testListIndexes() {
+    public function testListIndexes() {
         if (!$this->methodExists($this->db->manager, 'listTableIndexes')) {
             return;
         }
@@ -265,7 +265,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testCreatePrimaryKey() {
+    public function testCreatePrimaryKey() {
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
@@ -285,7 +285,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testCreateUniqueConstraint() {
+    public function testCreateUniqueConstraint() {
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
@@ -305,7 +305,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testCreateForeignKeyConstraint() {
+    public function testCreateForeignKeyConstraint() {
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
         }
@@ -406,7 +406,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testDropPrimaryKey() {
+    public function testDropPrimaryKey() {
         if (!$this->methodExists($this->db->manager, 'dropConstraint')) {
             return;
         }
@@ -431,7 +431,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testListDatabases() {
+    public function testListDatabases() {
         if (!$this->methodExists($this->db->manager, 'listDatabases')) {
             return;
         }
@@ -449,7 +449,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testListConstraints() {
+    public function testListConstraints() {
         if (!$this->methodExists($this->db->manager, 'listTableConstraints')) {
             return;
         }
@@ -475,7 +475,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testListTables() {
+    public function testListTables() {
         if (!$this->methodExists($this->db->manager, 'listTables')) {
             return;
         }
@@ -485,7 +485,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testAlterTable() {
+    public function testAlterTable() {
         if (!$this->methodExists($this->db->manager, 'alterTable')) {
             return;
         }
@@ -555,7 +555,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testAlterTable2() {
+    public function testAlterTable2() {
         if (!$this->methodExists($this->db->manager, 'alterTable')) {
             return;
         }
@@ -645,7 +645,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testTruncateTable() {
+    public function testTruncateTable() {
         if (!$this->methodExists($this->db->manager, 'truncateTable')) {
             return;
         }
@@ -695,7 +695,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testDropTable() {
+    public function testDropTable() {
         if (!$this->methodExists($this->db->manager, 'dropTable')) {
             return;
         }
@@ -706,7 +706,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testListTablesNoTable() {
+    public function testListTablesNoTable() {
         if (!$this->methodExists($this->db->manager, 'listTables')) {
             return;
         }
@@ -717,7 +717,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      *
      */
-    function testSequences() {
+    public function testSequences() {
         if (!$this->methodExists($this->db->manager, 'createSequence')) {
             return;
         }
@@ -733,7 +733,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * Test listTableTriggers($table)
      */
-    function testListTableTriggers() {
+    public function testListTableTriggers() {
         //setup
         $trigger_name = 'test_newtrigger';
 
@@ -772,7 +772,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * Test listTableViews($table)
      */
-    function testListTableViews() {
+    public function testListTableViews() {
         //setup
         $view_name = 'test_newview';
 
@@ -814,7 +814,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * Test listViews()
      */
-    function testListViews() {
+    public function testListViews() {
         //setup
         $view_name = 'test_brandnewview';
 
@@ -849,7 +849,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * Test listUsers()
      */
-    function testListUsers() {
+    public function testListUsers() {
         $users = $this->db->manager->listUsers();
         if (PEAR::isError($users)) {
             if ($users->getCode() == MDB2_ERROR_UNSUPPORTED) {
@@ -865,7 +865,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * Test listFunctions()
      */
-    function testListFunctions() {
+    public function testListFunctions() {
         //setup
         $function_name = 'test_add';
 
@@ -907,7 +907,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * Test createDatabase(), alterDatabase(), dropDatabase()
      */
-    function testCrudDatabase() {
+    public function testCrudDatabase() {
         $name = 'newdb';
         $options = array(
             'charset' => 'UTF8',
@@ -953,7 +953,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * Test vacuum
      */
-    function testVacuum() {
+    public function testVacuum() {
         //vacuum table
         $result = $this->db->manager->vacuum($this->table);
         if (PEAR::isError($result)) {
@@ -978,4 +978,3 @@ class Standard_ManagerTest extends Standard_Abstract {
         }
     }
 }
-?>

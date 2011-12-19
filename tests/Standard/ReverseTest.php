@@ -48,17 +48,17 @@ require_once dirname(__DIR__) . '/autoload.inc';
 class Standard_ReverseTest extends Standard_Abstract
 {
     //test table name (it is dynamically created/dropped)
-    var $table       = 'testtable';
-    var $fields      = array();
-    var $indices     = array();
-    var $constraints = array();
+    public $table       = 'testtable';
+    public $fields      = array();
+    public $indices     = array();
+    public $constraints = array();
 
-    var $table2      = 'testtable2';
-    var $fields2      = array();
-    var $indices2     = array();
-    var $constraints2 = array();
+    public $table2      = 'testtable2';
+    public $fields2      = array();
+    public $indices2     = array();
+    public $constraints2 = array();
 
-    function setUp() {
+    public function setUp() {
         parent::setUp();
         $this->db->loadModule('Reverse', null, true);
         $this->db->loadModule('Manager', null, true);
@@ -141,7 +141,7 @@ class Standard_ReverseTest extends Standard_Abstract
         }
     }
 
-    function tearDown() {
+    public function tearDown() {
         if ($this->tableExists($this->table2)) {
             $this->db->manager->dropTable($this->table2);
         }
@@ -156,7 +156,7 @@ class Standard_ReverseTest extends Standard_Abstract
         unset($this->db);
     }
 
-    function setUpIndices()
+    public function setUpIndices()
     {
         //Indices definition
         $this->indices = array(
@@ -189,7 +189,7 @@ class Standard_ReverseTest extends Standard_Abstract
         return PEAR::isError($result);
     }
 
-    function setUpConstraints()
+    public function setUpConstraints()
     {
         //Constraints definition
         $this->constraints = array(
@@ -313,7 +313,7 @@ class Standard_ReverseTest extends Standard_Abstract
     /**
      * Test tableInfo('table_name')
      */
-    function testTableInfo()
+    public function testTableInfo()
     {
         if (!$this->methodExists($this->db->reverse, 'tableInfo')) {
             return;
@@ -361,7 +361,7 @@ class Standard_ReverseTest extends Standard_Abstract
     /**
      * Test getTableFieldDefinition($table, $field_name)
      */
-    function testGetTableFieldDefinition()
+    public function testGetTableFieldDefinition()
     {
         if (!$this->methodExists($this->db->reverse, 'getTableFieldDefinition')) {
             return;
@@ -430,7 +430,7 @@ class Standard_ReverseTest extends Standard_Abstract
     /**
      * Test getTableIndexDefinition($table, $index_name)
      */
-    function testGetTableIndexDefinition()
+    public function testGetTableIndexDefinition()
     {
         if (!$this->methodExists($this->db->reverse, 'getTableIndexDefinition')) {
             return;
@@ -493,7 +493,7 @@ class Standard_ReverseTest extends Standard_Abstract
     /**
      * Test testGetTableConstraintDefinition($table, $constraint_name)
      */
-    function testGetTableConstraintDefinition()
+    public function testGetTableConstraintDefinition()
     {
         if (!$this->methodExists($this->db->reverse, 'getTableConstraintDefinition')) {
             return;
@@ -594,7 +594,7 @@ class Standard_ReverseTest extends Standard_Abstract
      * parameters, so check the common base and do some generic checks for the
      * other patameters.
      */
-    function _compareFKdefinitions($expected, $actual) {
+    public function _compareFKdefinitions($expected, $actual) {
         //ideal case: all the parameters are supported by all the DBMS:
         //$this->assertEquals($expected, $actual);
 
@@ -614,7 +614,7 @@ class Standard_ReverseTest extends Standard_Abstract
     /**
      * Test getSequenceDefinition($sequence)
      */
-    function testGetSequenceDefinition() {
+    public function testGetSequenceDefinition() {
         //setup
         $this->db->loadModule('Manager', null, true);
         $sequence = 'test_sequence';
@@ -637,7 +637,7 @@ class Standard_ReverseTest extends Standard_Abstract
     /**
      * Test getTriggerDefinition($trigger)
      */
-    function testGetTriggerDefinition() {
+    public function testGetTriggerDefinition() {
         //setup
         $trigger_name = 'test_trigger';
 
@@ -670,4 +670,3 @@ class Standard_ReverseTest extends Standard_Abstract
         }
     }
 }
-?>

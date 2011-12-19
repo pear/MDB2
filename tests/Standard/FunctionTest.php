@@ -47,7 +47,7 @@ require_once dirname(__DIR__) . '/autoload.inc';
 
 class Standard_FunctionTest extends Standard_Abstract
 {
-    function setUp() {
+    public function setUp() {
         parent::setUp();
         $this->db->loadModule('Function', null, true);
     }
@@ -55,7 +55,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test functionTable()
      */
-    function testFunctionTable()
+    public function testFunctionTable()
     {
         if (!$this->methodExists($this->db->function, 'functionTable')) {
             return;
@@ -74,7 +74,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test now()
      */
-    function testNow()
+    public function testNow()
     {
         if (!$this->methodExists($this->db->function, 'now')) {
             return;
@@ -102,7 +102,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test substring()
      */
-    function testSubstring()
+    public function testSubstring()
     {
         if (!$this->methodExists($this->db->function, 'substring')) {
             return;
@@ -151,7 +151,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test concat()
      */
-    function testConcat()
+    public function testConcat()
     {
         if (!$this->methodExists($this->db->function, 'concat')) {
             return;
@@ -171,7 +171,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test random()
      */
-    function testRandom()
+    public function testRandom()
     {
         if (!$this->methodExists($this->db->function, 'random')) {
             return;
@@ -191,7 +191,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test lower()
      */
-    function testLower()
+    public function testLower()
     {
         if (!$this->methodExists($this->db->function, 'lower')) {
             return;
@@ -211,7 +211,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test upper()
      */
-    function testUpper()
+    public function testUpper()
     {
         if (!$this->methodExists($this->db->function, 'upper')) {
             return;
@@ -231,7 +231,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test length()
      */
-    function testLenght()
+    public function testLenght()
     {
         if (!$this->methodExists($this->db->function, 'length')) {
             return;
@@ -251,7 +251,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test replace()
      */
-    function testReplace()
+    public function testReplace()
     {
         if (!$this->methodExists($this->db->function, 'replace')) {
             return;
@@ -282,7 +282,7 @@ class Standard_FunctionTest extends Standard_Abstract
     /**
      * Test unixtimestamp()
      */
-    function testUnixtimestamp()
+    public function testUnixtimestamp()
     {
         if (!$this->methodExists($this->db->function, 'unixtimestamp')) {
             return;
@@ -311,4 +311,3 @@ class Standard_FunctionTest extends Standard_Abstract
         }
     }
 }
-?>
