@@ -996,6 +996,36 @@ class MDB2_Driver_Common extends PEAR
     // {{{ Variables (Properties)
 
     /**
+     * @var MDB2_Driver_Datatype_Common
+     */
+    public $datatype;
+
+    /**
+     * @var MDB2_Extended
+     */
+    public $extended;
+
+    /**
+     * @var MDB2_Driver_Function_Common
+     */
+    public $function;
+
+    /**
+     * @var MDB2_Driver_Manager_Common
+     */
+    public $manager;
+
+    /**
+     * @var MDB2_Driver_Native_Commonn
+     */
+    public $native;
+
+    /**
+     * @var MDB2_Driver_Reverse_Common
+     */
+    public $reverse;
+
+    /**
      * index of the MDB2 object within the $GLOBALS['_MDB2_databases'] array
      * @var     int
      * @access  public
