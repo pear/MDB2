@@ -480,6 +480,11 @@ class Standard_ManagerTest extends Standard_Abstract {
             if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
                 $this->markTestSkipped('listDatabases() not supported');
             }
+            if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
+                || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            {
+                $this->markTestSkipped('Test user lacks permission to list databases');
+            }
             $this->fail('Error listing databases ('.$result->getMessage().')');
         } else {
             $this->assertTrue(in_array(strtolower($this->database), $result), 'Error listing databases');
@@ -914,6 +919,11 @@ class Standard_ManagerTest extends Standard_Abstract {
             if ($users->getCode() == MDB2_ERROR_UNSUPPORTED) {
                 $this->markTestSkipped('listUsers() not supported');
             }
+            if ($users->getCode() == MDB2_ERROR_NO_PERMISSION
+                || $users->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            {
+                $this->markTestSkipped('Test user lacks permission to list users');
+            }
             $this->fail('Error listing the users: '.$users->getMessage().' :: '.$users->getUserInfo());
         } else {
             $users = array_map('strtolower', $users);
@@ -959,6 +969,11 @@ class Standard_ManagerTest extends Standard_Abstract {
         //cleanup
         $result = $this->nonstd->dropFunction($function_name);
         if (PEAR::isError($result)) {
+            if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
+                || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            {
+                $this->markTestSkipped('Test user lacks permission to drop function');
+            }
             $this->fail('Error dropping the function: '.$result->getMessage());
         }
     }
@@ -988,6 +1003,11 @@ class Standard_ManagerTest extends Standard_Abstract {
         }
         $result = $this->db->manager->createDatabase($name, $options);
         if (PEAR::isError($result)) {
+            if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
+                || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            {
+                $this->markTestSkipped('Test user lacks permission to create database');
+            }
             //echo '<pre>'; print_r($result); echo '</pre>';
             $this->fail('Error: cannot create database: ' . $result->getUserInfo());
             return;
