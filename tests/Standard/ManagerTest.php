@@ -837,12 +837,15 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testListTableViews($mdb) {
         $this->manualSetUp($mdb);
 
-        //setup
-        $view_name = 'test_newview';
-
         if (!$this->nonstd) {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
+
+        //setup
+        $view_name = 'test_newview';
+
+        // Make sure the view is gone before trying to create it again.
+        $result = $this->nonstd->dropView($view_name);
 
         $result = $this->nonstd->createView($view_name, $this->table);
         if (PEAR::isError($result)) {
@@ -938,12 +941,15 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testListFunctions($mdb) {
         $this->manualSetUp($mdb);
 
-        //setup
-        $function_name = 'test_add';
-
         if (!$this->nonstd) {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
+
+        //setup
+        $function_name = 'test_add';
+
+        // Make sure function is gone before trying to create it again.
+        $result = $this->nonstd->dropFunction($function_name);
 
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->db->expectError('*');
