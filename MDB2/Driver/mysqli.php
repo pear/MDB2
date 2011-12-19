@@ -725,7 +725,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
         $limit = $this->limit;
         $this->offset = $this->limit = 0;
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
-        
+
         $result = $this->_doQuery($query, $is_manip, $connection, $this->database_name);
         if (!PEAR::isError($result)) {
             $result = $this->_affectedRows($connection, $result);
@@ -960,7 +960,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             $server_info = $this->getServerVersion();
             if (is_array($server_info)) {
                 $server_version = $server_info['major'].'.'.$server_info['minor'].'.'.$server_info['patch'];
-            
+
                 if (!version_compare($server_version, '4.1.0', '<')) {
                     $this->supported['sub_selects'] = true;
                     $this->supported['prepared_statements'] = true;
@@ -1088,7 +1088,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
             if (null === $placeholder_type) {
                 $placeholder_type_guess = $query[$p_position];
             }
-            
+
             $new_pos = $this->_skipDelimitedStrings($query, $position, $p_position);
             if (PEAR::isError($new_pos)) {
                 return $new_pos;
@@ -1097,7 +1097,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 $position = $new_pos;
                 continue; //evaluate again starting from the new position
             }
-            
+
             //make sure this is not part of an user defined variable
             $new_pos = $this->_skipUserDefinedVariable($query, $position);
             if ($new_pos != $position) {
