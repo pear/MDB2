@@ -983,6 +983,11 @@ class Standard_ManagerTest extends Standard_Abstract {
         //test
         $functions = $this->db->manager->listFunctions();
         if (PEAR::isError($functions)) {
+            if ($functions->getCode() == MDB2_ERROR_NO_PERMISSION
+                || $functions->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            {
+                $this->markTestSkipped('Test user lacks permission to list functions');
+            }
             $this->fail('Error listing the functions: '.$functions->getMessage());
         } else {
             $this->assertTrue(in_array($function_name, $functions), 'Error: function not found');
@@ -991,11 +996,6 @@ class Standard_ManagerTest extends Standard_Abstract {
         //cleanup
         $result = $this->nonstd->dropFunction($function_name);
         if (PEAR::isError($result)) {
-            if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
-                || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
-            {
-                $this->markTestSkipped('Test user lacks permission to drop function');
-            }
             $this->fail('Error dropping the function: '.$result->getMessage());
         }
     }
