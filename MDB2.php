@@ -2626,7 +2626,7 @@ class MDB2_Driver_Common extends PEAR
                 }
             }
             if (!empty($types_assoc)) {
-                $err = $result->setResultTypesAssoc($types_assoc);
+                $err = $result->setResultTypes($types_assoc, MDB2_FETCHMODE_ASSOC);
                 if (PEAR::isError($err)) {
                     $result->free();
                     return $err;
@@ -3445,12 +3445,14 @@ class MDB2_Result_Common extends MDB2_Result
      *       in the result set, the remaining columns are assumed to be of the
      *       type text. Currently, the types clob and blob are not fully
      *       supported.
+     * @param   int     submit MDB2_FETCHMODE_ASSOC if $types is an
+     *       associative array
      *
      * @return  mixed   MDB2_OK on success, a MDB2 error on failure
      *
      * @access  public
      */
-    function setResultTypes($types)
+    function setResultTypes($types, $fetchmode = null)
     {
         $load = $this->db->loadModule('Datatype', null, true);
         if (PEAR::isError($load)) {
@@ -3460,7 +3462,11 @@ class MDB2_Result_Common extends MDB2_Result
         if (PEAR::isError($types)) {
             return $types;
         }
-        $this->types = $types;
+        if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
+            $this->types_assoc = $types;
+        } else {
+            $this->types = $types;
+        }
         return MDB2_OK;
     }
 
