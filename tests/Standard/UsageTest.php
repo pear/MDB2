@@ -38,7 +38,8 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Paul Cooper <pgc@ucecom.com>                                 |
+// | Authors: Paul Cooper <pgc@ucecom.com>                                |
+// |          Daniel Convissor <danielc@php.net>                          |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -1534,7 +1535,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
 
         // Create character data file.
-        $character_data_file = 'character_data';
+        $character_data_file = tempnam(sys_get_temp_dir(), 'mdb2_clob_data_');
         $file = fopen($character_data_file, 'w');
         $this->assertTrue(((bool)$file), 'Error creating clob file to read from');
         $character_data = '';
@@ -1543,12 +1544,15 @@ class Standard_UsageTest extends Standard_Abstract {
                 $character_data.= chr($code);
             }
         }
-        $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
+        if (fwrite($file, $character_data, strlen($character_data)) != strlen($character_data)) {
+            @fclose($file);
+            @unlink($character_data_file);
+            $this->fail('Error writing to clob file: ' . $character_data_file);
+        }
         fclose($file);
-        chmod($character_data_file, 0777);
 
         // Create binary data file.
-        $binary_data_file = 'binary_data';
+        $binary_data_file = tempnam(sys_get_temp_dir(), 'mdb2_blob_data_');
         $file = fopen($binary_data_file, 'wb');
         $this->assertTrue(((bool)$file), 'Error creating blob file to read from');
         $binary_data = '';
@@ -1557,9 +1561,12 @@ class Standard_UsageTest extends Standard_Abstract {
                 $binary_data.= chr($code);
             }
         }
-        $this->assertTrue((fwrite($file, $binary_data, strlen($binary_data)) == strlen($binary_data)), 'Error creating blob file to read from');
+        if (fwrite($file, $binary_data, strlen($binary_data)) != strlen($binary_data)) {
+            @fclose($file);
+            @unlink($binary_data_file);
+            $this->fail('Error writing to blob file: ' . $binary_data_file);
+        }
         fclose($file);
-        chmod($binary_data_file, 0777);
 
 
         // Insert data files into database.
@@ -1578,6 +1585,8 @@ class Standard_UsageTest extends Standard_Abstract {
         $this->assertTrue(!PEAR::isError($result), 'Error executing prepared query - inserting LOB from files');
 
         $stmt->free();
+        @unlink($character_data_file);
+        @unlink($binary_data_file);
 
 
         // Query the newly created record.
@@ -1586,65 +1595,55 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Error selecting from files'.$result->getMessage());
         }
         $this->assertTrue($result->valid(), 'The query result seem to have reached the end of result too soon.');
-
-
-        // Mess around with the CLOB.
         $row = $result->fetchRow();
+
         $clob = $row[0];
-        if (!PEAR::isError($clob) && is_resource($clob)) {
-            @unlink($character_data_file);
-            $res = $this->db->datatype->writeLOBToFile($clob, $character_data_file);
-            $this->db->datatype->destroyLOB($clob);
-
-            if (PEAR::isError($res)) {
-                $this->fail('Error writing character LOB in a file');
-            } else {
-                $file = fopen($character_data_file, 'r');
-                $this->assertTrue((bool)$file, "Error opening character data file: $character_data_file");
-                $value = '';
-                while (!feof($file)) {
-                    $value.= fread($file, 8192);
-                }
-                $this->assertEquals('string', gettype($value), "Could not read from character LOB file: $character_data_file");
-                fclose($file);
-
-                $this->assertEquals($character_data, $value, "retrieved character LOB value is different from what was stored");
-            }
-        } else {
-            $this->fail('Error creating character LOB in a file');
+        if (PEAR::isError($clob) || !is_resource($clob)) {
+            $result->free();
+            $this->fail('Error reading CLOB from database.');
         }
 
-
-        // Mess around with the BLOB.
         $blob = $row[1];
-        if (!PEAR::isError($blob) && is_resource($blob)) {
-            @unlink($binary_data_file);
-            $res = $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
-            $this->db->datatype->destroyLOB($blob);
-
-            if (PEAR::isError($res)) {
-                $this->fail('Error writing binary LOB in a file');
-            } else {
-                $file = fopen($binary_data_file, 'rb');
-                $this->assertTrue((bool)$file, "Error opening binary data file: $binary_data_file");
-                $value = '';
-                while (!feof($file)) {
-                    $value.= fread($file, 8192);
-                }
-                $this->assertEquals('string', gettype($value), "Could not read from binary LOB file: $binary_data_file");
-                fclose($file);
-
-                $this->assertEquals($binary_data, $value, "retrieved binary LOB value is different from what was stored");
-            }
-        } else {
-            $this->fail('Error creating binary LOB in a file');
+        if (PEAR::isError($blob) || !is_resource($blob)) {
+            $result->free();
+            $this->fail('Error reading BLOB from database.');
         }
+
+
+        // Write CLOB to file and verify file contents.
+        $res = $this->db->datatype->writeLOBToFile($clob, $character_data_file);
+        $this->db->datatype->destroyLOB($clob);
+        if (PEAR::isError($res)) {
+            @unlink($character_data_file);
+            $this->fail('Error writing CLOB to file.');
+        }
+
+        $value = file_get_contents($character_data_file);
+        @unlink($character_data_file);
+        if (false === $value) {
+            $this->fail("Error opening CLOB file: $character_data_file");
+        }
+        $this->assertEquals($character_data, $value, "retrieved character LOB value is different from what was stored");
+
+
+        // Write BLOB to file and verify file contents.
+        $res = $this->db->datatype->writeLOBToFile($blob, $binary_data_file);
+        $this->db->datatype->destroyLOB($blob);
+        if (PEAR::isError($res)) {
+            @unlink($binary_data_file);
+            $this->fail('Error writing BLOB to file.');
+        }
+
+        $value = file_get_contents($binary_data_file);
+        @unlink($binary_data_file);
+        if (false === $value) {
+            $this->fail("Error opening BLOB file: $binary_data_file");
+        }
+        $this->assertEquals($binary_data, $value, "retrieved binary LOB value is different from what was stored");
 
 
         // Clean up.
         $result->free();
-        @unlink($character_data_file);
-        @unlink($binary_data_file);
     }
 
     /**
@@ -1661,7 +1660,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $this->db->setOption('lob_allow_url_include', false);
 
-        $character_data_file = 'character_data';
+        $character_data_file = tempnam(sys_get_temp_dir(), 'mdb2_clob_data_');
         $character_data_file_tmp = 'file://'.$character_data_file;
         $file = fopen($character_data_file, 'w');
         $this->assertTrue(((bool)$file), 'Error creating clob file to read from');
@@ -1669,17 +1668,28 @@ class Standard_UsageTest extends Standard_Abstract {
         for ($code = 65; $code <= 80; $code++) {
             $character_data.= chr($code);
         }
-        $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
+        if (fwrite($file, $character_data, strlen($character_data)) != strlen($character_data)) {
+            @fclose($file);
+            @unlink($character_data_file);
+            $this->fail('Error writing to clob file: ' . $character_data_file);
+        }
         fclose($file);
-        chmod($character_data_file, 0777);
 
         $expected = ($this->dsn['phptype'] == 'oci8') ? 'EMPTY_CLOB()' : "'".$character_data_file_tmp."'";
         $quoted = $this->db->quote($character_data_file_tmp,  'clob');
-        $this->assertEquals($expected, $quoted);
+        if ($expected != $quoted) {
+            // Wipe out file before test fails and rest of method gets skipped.
+            @unlink($character_data_file);
+        }
+        $this->assertEquals($expected, $quoted, 'clob data did not match');
 
         $expected = ($this->dsn['phptype'] == 'oci8') ? 'EMPTY_BLOB()' : "'".$character_data_file_tmp."'";
         $quoted = $this->db->quote($character_data_file_tmp,  'blob');
-        $this->assertEquals($expected, $quoted);
+        if ($expected != $quoted) {
+            // Wipe out file before test fails and rest of method gets skipped.
+            @unlink($character_data_file);
+        }
+        $this->assertEquals($expected, $quoted, 'blob data did not match');
 
         @unlink($character_data_file);
     }
@@ -1698,7 +1708,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $this->db->setOption('lob_allow_url_include', true);
 
-        $character_data_file = 'character_data';
+        $character_data_file = tempnam(sys_get_temp_dir(), 'mdb2_clob_data_');
         $character_data_file_tmp = 'file://'.$character_data_file;
         $file = fopen($character_data_file, 'w');
         $this->assertTrue(((bool)$file), 'Error creating clob file to read from');
@@ -1706,10 +1716,12 @@ class Standard_UsageTest extends Standard_Abstract {
         for ($code = 65; $code <= 80; $code++) {
             $character_data.= chr($code);
         }
-        $this->assertTrue((fwrite($file, $character_data, strlen($character_data)) == strlen($character_data)), 'Error creating clob file to read from');
+        if (fwrite($file, $character_data, strlen($character_data)) != strlen($character_data)) {
+            @fclose($file);
+            @unlink($character_data_file);
+            $this->fail('Error writing to clob file: ' . $character_data_file);
+        }
         fclose($file);
-        chmod($character_data_file, 0777);
-
 
         $expected = ($this->dsn['phptype'] == 'oci8') ? 'EMPTY_CLOB()' : "'".$character_data."'";
         $quoted = $this->db->quote($character_data_file_tmp,  'clob');
