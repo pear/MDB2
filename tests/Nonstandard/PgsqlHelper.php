@@ -48,6 +48,9 @@ class Nonstandard_PgsqlHelper extends Nonstandard_Base {
     public $trigger_body = '';
 
     public function createTrigger($trigger_name, $table_name) {
+        // Ensure plpgsql is loaded.
+        $res = $this->db->exec('CREATE LANGUAGE plpgsql');
+
         $this->trigger_body = 'EXECUTE PROCEDURE '.$trigger_name.'_func();';
         $table_name = $this->db->quoteIdentifier($table_name);
         $sql = 'CREATE OR REPLACE FUNCTION '.$trigger_name.'_func() RETURNS trigger AS \'
@@ -62,7 +65,7 @@ class Nonstandard_PgsqlHelper extends Nonstandard_Base {
         if (PEAR::isError($res)) {
             return $res;
         }
-    
+
         $query = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
                   FOR EACH ROW ' .$this->trigger_body;
         return $this->db->exec($query);
