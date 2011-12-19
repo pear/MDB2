@@ -244,7 +244,7 @@ class Standard_ReverseTest extends Standard_Abstract
             $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
             //$this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
             if (PEAR::isError($result)) {
-                $this->fail('Error creating constraint "'.$constraint_name.'": '.$result->getMessage(). ' :: '.$result->getUserInfo());
+                $this->fail('Error creating constraint "'.$constraint_name.'": '.$result->getUserInfo(). ' :: '.$result->getUserInfo());
                 $failed1 = true;
                 break;
             }
@@ -318,7 +318,7 @@ class Standard_ReverseTest extends Standard_Abstract
             $result = $this->db->manager->createConstraint($this->table2, $constraint_name, $constraint);
             //$this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
             if (PEAR::isError($result)) {
-                $this->fail('Error creating constraint "'.$constraint_name.'": '.$result->getMessage(). ' :: '.$result->getUserInfo());
+                $this->fail('Error creating constraint "'.$constraint_name.'": '.$result->getUserInfo(). ' :: '.$result->getUserInfo());
                 $failed2 = true;
                 break;
             }
@@ -340,7 +340,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         $table_info = $this->db->reverse->tableInfo($this->table);
         if (PEAR::isError($table_info)) {
-            $this->fail('Error in tableInfo(): '.$table_info->getMessage().' :: '.$table_info->getUserInfo());
+            $this->fail('Error in tableInfo(): '.$table_info->getUserInfo().' :: '.$table_info->getUserInfo());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
@@ -359,7 +359,7 @@ class Standard_ReverseTest extends Standard_Abstract
         $result = $this->db->query('SELECT * FROM '.$this->table);
         $table_info = $this->db->reverse->tableInfo($result);
         if (PEAR::isError($table_info)) {
-            $this->fail('Error in tableInfo(): '.$table_info->getMessage().' :: '.$table_info->getUserInfo());
+            $this->fail('Error in tableInfo(): '.$table_info->getUserInfo().' :: '.$table_info->getUserInfo());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
             foreach ($table_info as $field_info) {
@@ -391,7 +391,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test integer not null
         $field_info = $this->db->reverse->getTableFieldDefinition($this->table, 'id');
         if (PEAR::isError($field_info)) {
-            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('integer', $field_info['type'], 'The field type is different from the expected one');
@@ -404,7 +404,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test blob
         $field_info = $this->db->reverse->getTableFieldDefinition('files', 'picture');
         if (PEAR::isError($field_info)) {
-            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage().' :: '.$field_info->getUserInfo());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo().' :: '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals($field_info['type'], 'blob', 'The field type is different from the expected one');
@@ -414,7 +414,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test varchar(100) not null
         $field_info = $this->db->reverse->getTableFieldDefinition('users', 'user_name');
         if (PEAR::isError($field_info)) {
-            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('text', $field_info['type'], 'The field type is different from the expected one');
@@ -427,7 +427,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test decimal
         $field_info = $this->db->reverse->getTableFieldDefinition('users', 'quota');
         if (PEAR::isError($field_info)) {
-            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('decimal', $field_info['type'], 'The field type is different from the expected one');
@@ -437,7 +437,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         $field_info = $this->db->reverse->getTableFieldDefinition('users', 'user_name');
         if (PEAR::isError($field_info)) {
-            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getMessage());
+            $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
             $this->assertEquals('text', $field_info['type'], 'The field type is different from the expected one');
@@ -476,7 +476,7 @@ class Standard_ReverseTest extends Standard_Abstract
         $index_name = 'sometestindex';
         $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
         if (PEAR::isError($index_info)) {
-            $this->fail('Error in getTableIndexDefinition(): '.$index_info->getMessage());
+            $this->fail('Error in getTableIndexDefinition(): '.$index_info->getUserInfo());
         } else {
             $this->assertEquals(1, count($index_info['fields']), 'The INDEX is not on one field unlike it was expected');
             $expected_fields = array_keys($this->indices[$index_name]['fields']);
@@ -489,7 +489,7 @@ class Standard_ReverseTest extends Standard_Abstract
         $index_name = 'multipletestindex';
         $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
         if (PEAR::isError($index_info)) {
-            $this->fail('Error in getTableIndexDefinition(): '.$index_info->getMessage());
+            $this->fail('Error in getTableIndexDefinition(): '.$index_info->getUserInfo());
         } else {
             $this->assertEquals(2, count($index_info['fields']), 'The INDEX is not on two fields unlike it was expected');
             $expected_fields = array_keys($this->indices[$index_name]['fields']);
@@ -564,7 +564,7 @@ class Standard_ReverseTest extends Standard_Abstract
             $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, 'primary');
         }
         if (PEAR::isError($constraint_info)) {
-            $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
+            $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getUserInfo());
         } else {
             $this->assertTrue($constraint_info['primary'], 'The field is not a PK unlike it was expected');
         }
@@ -573,7 +573,7 @@ class Standard_ReverseTest extends Standard_Abstract
         $constraint_name = 'singleunique';
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
         if (PEAR::isError($constraint_info)) {
-            $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
+            $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getUserInfo());
         } else {
             $this->assertTrue($constraint_info['unique'], 'The field is not a PK unlike it was expected');
             $this->assertTrue(empty($constraint_info['primary']), 'The field is a PK unlike it was expected');
@@ -588,7 +588,7 @@ class Standard_ReverseTest extends Standard_Abstract
         $constraint_name = 'multipleunique';
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
         if (PEAR::isError($constraint_info)) {
-            $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getMessage());
+            $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getUserInfo());
         } else {
             $this->assertTrue($constraint_info['unique'], 'The field is not a PK unlike it was expected');
             $this->assertTrue(empty($constraint_info['primary']), 'The field is a PK unlike it was expected');
@@ -604,7 +604,7 @@ class Standard_ReverseTest extends Standard_Abstract
         foreach (array_keys($this->constraints2) as $constraint_name) {
             $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table2, $constraint_name);
             if (PEAR::isError($constraint_info)) {
-                $this->fail('Error in getTableConstraintDefinition():'. $constraint_info->getMessage());
+                $this->fail('Error in getTableConstraintDefinition():'. $constraint_info->getUserInfo());
             } else {
                 $this->_compareFKdefinitions($this->constraints2[$constraint_name], $constraint_info);
             }
@@ -679,14 +679,14 @@ class Standard_ReverseTest extends Standard_Abstract
 
         $result = $this->nonstd->createTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->fail('Cannot create trigger: '.$result->getMessage());
+            $this->fail('Cannot create trigger: '.$result->getUserInfo());
             return;
         }
 
         //test
         $def = $this->db->reverse->getTriggerDefinition($trigger_name);
         if (PEAR::isError($def)) {
-            $this->fail('getTriggerDefinition: '.$def->getMessage());
+            $this->fail('getTriggerDefinition: '.$def->getUserInfo());
         } else {
             $this->nonstd->checkTrigger($trigger_name, $this->table, $def);
         }
@@ -694,7 +694,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //cleanup
         $result = $this->nonstd->dropTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
-            $this->fail('Error dropping the trigger: '.$result->getMessage());
+            $this->fail('Error dropping the trigger: '.$result->getUserInfo());
             return;
         }
     }
