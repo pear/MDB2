@@ -619,6 +619,8 @@ class Standard_DatatypeTest extends Standard_Abstract
         $values = $this->db->queryCol($query, 'text');
         $this->assertEquals($case_sensitive_expect, count($values), "case sensitive search was expected to return 2 rows but returned: ".count($values));
 
+        // NOTE: if this test fails on mysql, it's due to table/field having
+        // binary collation.
         $query = 'SELECT user_name FROM users WHERE '
             . $this->db->datatype->matchPattern(array('foo'), 'ILIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');

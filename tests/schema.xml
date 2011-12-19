@@ -4,6 +4,9 @@
  <name><variable>name</variable></name>
  <create><variable>create</variable></create>
 
+ <!-- Using charset to avoid MySQL case sensitivity in LIKE tests -->
+ <charset>ascii</charset>
+
  <table>
   <name>users</name>
   <declaration>
