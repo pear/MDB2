@@ -58,6 +58,10 @@ class Standard_InternalsTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         $result = MDB2::apiVersion();
+        if ('@'.'package_version'.'@' == '@package_version@') {
+            $this->assertEquals('@'.'package_version'.'@', $result);
+            return;
+        }
         $this->assertNotNull($result, 'apiVersion null: '.$result);
         $result = strtok($result, '.');
         $this->assertTrue(is_numeric($result), 'apiVersion major: '.$result);
@@ -235,6 +239,11 @@ class Standard_InternalsTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         $expected = "MDB2_Driver_{$this->dsn['phptype']}: (phptype = {$this->dsn['phptype']}, dbsyntax = {$this->db->dbsyntax})";
+        switch ($this->db->phptype) {
+            case 'sqlite':
+                $expected .= ' [connected]';
+                break;
+        }
         if (version_compare(PHP_VERSION, "5.0.0", "<")) {
             $expected = strtolower($expected);
         }

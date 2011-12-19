@@ -221,7 +221,9 @@ open todo items:
      <file name="DatatypeTest.php" role="test" />
      <file name="ExtendedTest.php" role="test" />
      <file name="FunctionTest.php" role="test" />
-     <file name="InternalsTest.php" role="test" />
+     <file name="InternalsTest.php" role="test">
+      <tasks:replace from="@package_version@" to="version" type="package-info" />
+     </file>
      <file name="ManagerTest.php" role="test" />
      <file name="ReverseTest.php" role="test" />
      <file name="UsageTest.php" role="test" />
