@@ -42,15 +42,15 @@ class AllTests {
         PHPUnit_TextUI_TestRunner::run(self::suite());
     }
 
-	public static function suite() {
-		$suite = new PHPUnit_Framework_TestSuite('MDB2 Unit Tests');
+    public static function suite() {
+        $suite = new PHPUnit_Framework_TestSuite('MDB2 Unit Tests');
 
         $dir = new RecursiveDirectoryIterator(__DIR__ . '/Standard',
                 FilesystemIterator::SKIP_DOTS);
         $suite->addTestFiles($dir);
 
-		return $suite;
-	}
+        return $suite;
+    }
 }
 
 if ($call_main) {
