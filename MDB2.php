@@ -1081,10 +1081,10 @@ class MDB2_Driver_Common extends PEAR
 
     /**
      * Array of supported options that can be passed to the MDB2 instance.
-     * 
+     *
      * The options can be set during object creation, using
-     * MDB2::connect(), MDB2::factory() or MDB2::singleton(). The options can 
-     * also be set after the object is created, using MDB2::setOptions() or 
+     * MDB2::connect(), MDB2::factory() or MDB2::singleton(). The options can
+     * also be set after the object is created, using MDB2::setOptions() or
      * MDB2_Driver_Common::setOption().
      * The list of available option includes:
      * <ul>
@@ -1399,7 +1399,7 @@ class MDB2_Driver_Common extends PEAR
      * callbacks etc.  Basically a wrapper for PEAR::raiseError
      * without the message string.
      *
-     * @param mixed  $code     integer error code, or a PEAR error object (all 
+     * @param mixed  $code     integer error code, or a PEAR error object (all
      *                         other parameters are ignored if this parameter is
      *                         an object
      * @param int    $mode     error mode, see PEAR_Error docs
@@ -2899,7 +2899,7 @@ class MDB2_Driver_Common extends PEAR
      *                        MDB2_PREPARE_MANIP the query is handled as a manipulation query
      * @param   mixed   key (field) value (parameter) pair for all lob placeholders
      *
-     * @return  mixed   resource handle for the prepared query on success, 
+     * @return  mixed   resource handle for the prepared query on success,
      *                  a MDB2 error on failure
      *
      * @access  public
@@ -2995,7 +2995,7 @@ class MDB2_Driver_Common extends PEAR
 
     // }}}
     // {{{ function _skipDelimitedStrings($query, $position, $p_position)
-    
+
     /**
      * Utility method, used by prepare() to avoid replacing placeholders within delimited strings.
      * Check if the placeholder is contained within a delimited string.
@@ -3017,7 +3017,7 @@ class MDB2_Driver_Common extends PEAR
         $ignores[] = $this->string_quoting;
         $ignores[] = $this->identifier_quoting;
         $ignores = array_merge($ignores, $this->sql_comments);
-        
+
         foreach ($ignores as $ignore) {
             if (!empty($ignore['start'])) {
                 if (is_int($start_quote = strpos($query, $ignore['start'], $position)) && $start_quote < $p_position) {
@@ -3046,7 +3046,7 @@ class MDB2_Driver_Common extends PEAR
         }
         return $position;
     }
-    
+
     // }}}
     // {{{ function quote($value, $type = null, $quote = true)
 
