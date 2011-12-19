@@ -524,7 +524,7 @@ class Standard_ReverseTest extends Standard_Abstract
             $result = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
             $this->db->popExpect();
             if (PEAR::isError($result) && isset($constraint['primary']) && $constraint['primary']) {
-                echo 'Error reading primary constraint, trying with name "primary" instead .. ';
+                $this->fail('Error reading primary constraint, trying with name "primary" instead .. ');
                 $constraint_name = 'primary';
                 $result = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
             }
@@ -550,7 +550,7 @@ class Standard_ReverseTest extends Standard_Abstract
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, 'pkfield');
         $this->db->popExpect();
         if (PEAR::isError($constraint_info)) {
-            echo 'Error reading primary constraint, trying with name "primary" instead .. ';
+            $this->fail('Error reading primary constraint, trying with name "primary" instead .. ');
             $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, 'primary');
         }
         if (PEAR::isError($constraint_info)) {
