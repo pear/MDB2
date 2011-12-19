@@ -11,7 +11,8 @@
 /**
  * Builds the tables used by the test suite.
  *
- * @param array $ci  an associative array with two elements.  The "dsn"
+ * @param array|MDB2_Driver_Common $ci  either a MDB2_Driver_Common object or
+ *                   an associative array with two elements.  The "dsn"
  *                   element must contain an array of DSN information.
  *                   The "options" element must be an array of connection
  *                   options.
@@ -19,16 +20,30 @@
 function build_schema($ci) {
     $file = __DIR__ . '/schema.xml';
 
-    if (!is_array($ci['dsn'])) {
-        die('$ci["dsn"] must use the array DSN format.' . "\n");
-    }
+    if (is_object($ci)) {
+        if (! $ci instanceof MDB2_Driver_Common) {
+            die("Must be a MDB2_Driver_Common object.\n");
+        }
+        $db = $ci;
+        $database = $ci->getDatabase();
+        $phptype = $ci->phptype;
+        $original_options = $ci->options;
+    } else {
+        if (!is_array($ci['dsn'])) {
+            die('$ci["dsn"] must use the array DSN format.' . "\n");
+        }
+        $db = $ci['dsn'];
+        $database = $db['database'];
+        $phptype = $db['phptype'];
 
-    if (!array_key_exists('options', $ci)) {
-        die('$ci["options"] is missing.' . "\n");
+        if (!array_key_exists('options', $ci)) {
+            die('$ci["options"] is missing.' . "\n");
+        }
+        $original_options = $ci['options'];
     }
 
     $variables = array(
-        'name'   => $ci['dsn']['database'],
+        'name'   => $database,
         'create' => true,
     );
 
@@ -40,11 +55,11 @@ function build_schema($ci) {
         'force_defaults'   => false,
         'portability'      => false
     );
-    $options = array_merge($options, $ci['options']);
+    $options = array_merge($options, $original_options);
 
-    $err_base = 'TEST SCHEMA BUILD ERROR FOR ' . $ci['dsn']['phptype'] . ': ';
+    $err_base = "TEST SCHEMA BUILD ERROR FOR $phptype: ";
 
-    $schema = MDB2_Schema::factory($ci['dsn'], $options);
+    $schema = MDB2_Schema::factory($db, $options);
     if (PEAR::isError($schema)) {
         die($err_base . $schema->getMessage() . ' '
             . $schema->getUserInfo() . "\n");

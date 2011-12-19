@@ -129,6 +129,9 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         $this->database = $this->db->getDatabase();
 
         $this->db->setDatabase($this->database);
+        if ($this->database == ':memory:') {
+            build_schema($this->db);
+        }
         $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
         $this->clearTables();
     }
