@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<!--
-     driver_test.schema
-
-     @(#) $Header: /home/svn/phpsvn_tmp/cvsrepo/pear/packages/MDB2/tests/driver_test.schema.xml,v 1.2 2008-03-02 16:11:27 quipo Exp $
-
--->
-
 <database>
 
  <name><variable>name</variable></name>
  <create><variable>create</variable></create>
- 
 
  <table>
   <name>users</name>
@@ -31,7 +23,7 @@
    </index>
   </declaration>
  </table>
- 
+
  <table>
   <name>files</name>
   <declaration>

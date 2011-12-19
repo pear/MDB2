@@ -9,6 +9,51 @@
  */
 
 /**
+ * Builds the tables used by the test suite.
+ *
+ * @param MDB2_Driver_Common $db
+ * @param string $phptype
+ */
+function build_schema(MDB2_Driver_Common $db, $phptype) {
+    $file = __DIR__ . '/schema.xml';
+
+    $variables = array(
+        'name'   => $db->getDatabase(),
+        'create' => true,
+    );
+
+    $options = array(
+        'log_line_break'   => '<br />',
+        'idxname_format'   => '%s',
+        'debug'            => true,
+        'quote_identifier' => true,
+        'force_defaults'   => false,
+        'portability'      => false
+    );
+    $options = array_merge($options, $db->options);
+
+    $err_base = "TEST SCHEMA BUILD ERROR FOR $phptype: ";
+
+    $schema = MDB2_Schema::factory($db, $options);
+    if (PEAR::isError($schema)) {
+        die($err_base . $schema->getMessage() . ' '
+            . $schema->getUserInfo() . "\n");
+    }
+
+    $definition = $schema->parseDatabaseDefinitionFile($file, $variables, true, true);
+    if (PEAR::isError($definition)) {
+        die($err_base . $definition->getMessage() . ' - '
+            . $definition->getUserInfo() . "\n");
+    } else {
+        $operation = $schema->createDatabase($definition);
+        if (PEAR::isError($operation)) {
+            die($err_base . $operation->getMessage() . ' '
+                . $operation->getUserInfo() . "\n");
+        }
+    }
+}
+
+/**
  * Produces a multi-diemnsional array containing instantiated MDB2 objects
  * for each DSN defined
  *
@@ -27,9 +72,13 @@ function mdb2_test_db_object_provider() {
             if (PEAR::isError($db)) {
                 continue;
             }
+
             $dbs[$driver] = array(
                 $db,
             );
+
+            // Building schema here so will work with SQLite :memory:.
+            build_schema($db, $driver);
         }
     }
 
