@@ -51,13 +51,22 @@ class Standard_ManagerTest extends Standard_Abstract {
     public $table = 'newtable';
 
     /**
+     * The non-standard helper
+     * @var Nonstandard_Base
+     */
+    protected $nonstd;
+
+
+    /**
      * Can not use setUp() because we are using a dataProvider to get multiple
      * MDB2 objects per test.
      *
-     * @param MDB2_Driver_Common $db
+     * @param MDB2_Driver_Common $mdb
      */
     protected function manualSetUp($mdb) {
         parent::manualSetUp($mdb);
+
+        $this->nonstd = Nonstandard_Base::factory($this->db, $this);
 
         $this->db->loadModule('Manager', null, true);
         $this->fields = array(
@@ -787,14 +796,11 @@ class Standard_ManagerTest extends Standard_Abstract {
         //setup
         $trigger_name = 'test_newtrigger';
 
-        include_once 'MDB2_nonstandard.php';
-        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
-        if (PEAR::isError($nonstd)) {
-            $this->fail('Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
-            return;
+        if (!$this->nonstd) {
+            $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
 
-        $result = $nonstd->createTrigger($trigger_name, $this->table);
+        $result = $this->nonstd->createTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
             $this->fail('Cannot create trigger: '.$result->getMessage());
             return;
@@ -813,7 +819,7 @@ class Standard_ManagerTest extends Standard_Abstract {
 
 
         //cleanup
-        $result = $nonstd->dropTrigger($trigger_name, $this->table);
+        $result = $this->nonstd->dropTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
             $this->fail('Error dropping the trigger: '.$result->getMessage());
         }
@@ -829,14 +835,11 @@ class Standard_ManagerTest extends Standard_Abstract {
         //setup
         $view_name = 'test_newview';
 
-        include_once 'MDB2_nonstandard.php';
-        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
-        if (PEAR::isError($nonstd)) {
-            $this->fail('Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
-            return;
+        if (!$this->nonstd) {
+            $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
 
-        $result = $nonstd->createView($view_name, $this->table);
+        $result = $this->nonstd->createView($view_name, $this->table);
         if (PEAR::isError($result)) {
             $this->fail('Cannot create view: '.$result->getMessage());
             return;
@@ -858,7 +861,7 @@ class Standard_ManagerTest extends Standard_Abstract {
 
 
         //cleanup
-        $result = $nonstd->dropView($view_name);
+        $result = $this->nonstd->dropView($view_name);
         if (PEAR::isError($result)) {
             $this->fail('Error dropping the view: '.$result->getMessage());
         }
@@ -874,14 +877,11 @@ class Standard_ManagerTest extends Standard_Abstract {
         //setup
         $view_name = 'test_brandnewview';
 
-        include_once 'MDB2_nonstandard.php';
-        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
-        if (PEAR::isError($nonstd)) {
-            $this->fail('Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
-            return;
+        if (!$this->nonstd) {
+            $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
 
-        $result = $nonstd->createView($view_name, $this->table);
+        $result = $this->nonstd->createView($view_name, $this->table);
         if (PEAR::isError($result)) {
             $this->fail('Cannot create view: '.$result->getMessage());
             return;
@@ -896,7 +896,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         }
 
         //cleanup
-        $result = $nonstd->dropView($view_name);
+        $result = $this->nonstd->dropView($view_name);
         if (PEAR::isError($result)) {
             $this->fail('Error dropping the view: '.$result->getMessage());
         }
@@ -931,16 +931,13 @@ class Standard_ManagerTest extends Standard_Abstract {
         //setup
         $function_name = 'test_add';
 
-        include_once 'MDB2_nonstandard.php';
-        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
-        if (PEAR::isError($nonstd)) {
-            $this->fail('Cannot instanciate MDB2_nonstandard object: '.$nonstd->getMessage());
-            return;
+        if (!$this->nonstd) {
+            $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
 
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->db->expectError('*');
-        $result = $nonstd->createFunction($function_name);
+        $result = $this->nonstd->createFunction($function_name);
         $this->db->popExpect();
         $this->db->popErrorHandling();
         if (PEAR::isError($result)) {
@@ -960,7 +957,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         }
 
         //cleanup
-        $result = $nonstd->dropFunction($function_name);
+        $result = $this->nonstd->dropFunction($function_name);
         if (PEAR::isError($result)) {
             $this->fail('Error dropping the function: '.$result->getMessage());
         }

@@ -59,13 +59,22 @@ class Standard_ReverseTest extends Standard_Abstract
     public $constraints2 = array();
 
     /**
+     * The non-standard helper
+     * @var Nonstandard_Base
+     */
+    protected $nonstd;
+
+
+    /**
      * Can not use setUp() because we are using a dataProvider to get multiple
      * MDB2 objects per test.
      *
-     * @param MDB2_Driver_Common $db
+     * @param MDB2_Driver_Common $mdb
      */
     protected function manualSetUp($mdb) {
         parent::manualSetUp($mdb);
+
+        $this->nonstd = Nonstandard_Base::factory($this->db, $this);
 
         $this->db->loadModule('Reverse', null, true);
         $this->db->loadModule('Manager', null, true);
@@ -663,14 +672,11 @@ class Standard_ReverseTest extends Standard_Abstract
         //setup
         $trigger_name = 'test_trigger';
 
-        include_once 'MDB2_nonstandard.php';
-        $nonstd =& MDB2_nonstandard::factory($this->db, $this);
-        if (PEAR::isError($nonstd)) {
-            $this->fail('Cannot create trigger: '.$nonstd->getMessage());
-            return;
+        if (!$this->nonstd) {
+            $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
 
-        $result = $nonstd->createTrigger($trigger_name, $this->table);
+        $result = $this->nonstd->createTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
             $this->fail('Cannot create trigger: '.$result->getMessage());
             return;
@@ -681,11 +687,11 @@ class Standard_ReverseTest extends Standard_Abstract
         if (PEAR::isError($def)) {
             $this->fail('getTriggerDefinition: '.$def->getMessage());
         } else {
-            $nonstd->checkTrigger($trigger_name, $this->table, $def);
+            $this->nonstd->checkTrigger($trigger_name, $this->table, $def);
         }
 
         //cleanup
-        $result = $nonstd->dropTrigger($trigger_name, $this->table);
+        $result = $this->nonstd->dropTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
             $this->fail('Error dropping the trigger: '.$result->getMessage());
             return;

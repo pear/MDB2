@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2006-2007 Lorenzo Alberton                             |
+// | Copyright (c) 2006 Lorenzo Alberton                                  |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -45,87 +45,46 @@
 
 require_once dirname(__DIR__) . '/autoload.inc';
 
-abstract class Nonstandard_Abstract {
-    //contains the MDB2 object of the db once we have connected
-    public $db;
-    
-    //contains the PHPUnit_TestCase object
-    public $test;
-    
-    /**
-     * Returns a driver-specific object
-     */
-    public function factory($db, $test) {
-        $classname = 'MDB2_nonstandard_'.$db->phptype;
-        include_once $classname.'.php';
-        if (class_exists($classname)) {
-            $obj = new $classname();
-            $obj->db =& $db;
-            $obj->test =& $test;
-            return $obj;
-        }
-        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
-            'not capable', __FUNCTION__);
-    }
+class Nonstandard_MssqlHelper extends Nonstandard_Base {
 
-    /**
-     * Create a TRIGGER
-     */
+    public $trigger_body = '';
+
     public function createTrigger($trigger_name, $table_name) {
-        return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
-            'not capable', __FUNCTION__);
+        $this->trigger_body = 'CREATE TRIGGER '. $trigger_name .' ON '. $table_name .'
+FOR UPDATE AS
+DECLARE @oldName VARCHAR(100)
+DECLARE @newId INTEGER
+SELECT @oldName = (SELECT somename FROM Deleted)
+SELECT @newId = (SELECT id FROM Inserted)
+BEGIN
+  UPDATE '. $table_name .' SET somedescription = @oldName WHERE id = @newId;
+END;';
+
+        return $this->db->exec($this->trigger_body);
     }
 
-    /**
-     * Check if getTriggerDefinition() returns the correct definition for the trigger
-     */
     public function checkTrigger($trigger_name, $table_name, $def) {
-        $this->test->assertEquals(strtoupper($trigger_name), strtoupper($def['trigger_name']), 'Error getting trigger definition (name)');
-        $this->test->assertEquals(strtoupper($table_name),  strtoupper($def['table_name']),   'Error getting trigger definition (table)');
-        $this->test->assertEquals('AFTER',  $def['trigger_type'], 'Error getting trigger definition (type)');
-        $this->test->assertEquals('UPDATE', $def['trigger_event'], 'Error getting trigger definition (event)');
-        $this->test->assertTrue(is_string($def['trigger_body']), 'Error getting trigger definition (body)');
-        $this->test->assertTrue($def['trigger_enabled'], 'Error getting trigger definition (enabled)');
-        //$this->test->assertTrue(empty($def['trigger_comment']),  'Error getting trigger definition (comment)');
+        parent::checkTrigger($trigger_name, $table_name, $def);
+        $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
+        /*
+        echo '<pre>';
+        var_dump($this->trigger_body);
+        var_dump($def['trigger_body']);
+        */
     }
 
-    /**
-     * Drop a TRIGGER
-     */
     public function dropTrigger($trigger_name, $table_name) {
-        return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
-            'not capable', __FUNCTION__);
+        return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
     
-    /**
-     * Create a VIEW
-     */
-    public function createView($view_name, $table_name) {
-        $query = 'CREATE VIEW '. $this->db->quoteIdentifier($view_name, true)
-                .' (id) AS SELECT id FROM '
-                . $this->db->quoteIdentifier($table_name, true) .' WHERE id > 1';
-        return $this->db->exec($query);
-    }
-
-    /**
-     * Drop a VIEW
-     */
-    public function dropView($view_name) {
-        return $this->db->exec('DROP VIEW '.$view_name);
-    }
-
-    /**
-     * Create a FUNCTION
-     */
     public function createFunction($name) {
-        return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
-            'not capable', __FUNCTION__);
-    }
-
-    /**
-     * Drop a FUNCTION
-     */
-    public function dropFunction($name) {
-        return $this->db->exec('DROP FUNCTION '.$name);
+        $query = 'CREATE FUNCTION '.$name.'(@Number1 Decimal(6,2), @Number2 Decimal(6,2))
+RETURNS Decimal(6,2)
+BEGIN
+    DECLARE @Result Decimal(6,2)
+    SET @Result = @Number1 + @Number2
+    RETURN @Result
+END';
+        return $this->db->exec($query);
     }
 }

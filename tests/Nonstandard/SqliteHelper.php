@@ -45,38 +45,31 @@
 
 require_once dirname(__DIR__) . '/autoload.inc';
 
-class Nonstandard_Oci8Test extends Nonstandard_Abstract {
+class Nonstandard_SqliteHelper extends Nonstandard_Base {
 
     public $trigger_body = '';
-    public $when_clause = 'new.id > 0';
 
     public function createTrigger($trigger_name, $table_name) {
-        $this->trigger_body = 'BEGIN INSERT INTO '.$table_name
-            .' (id, somename, somedescription) VALUES'
-            .' (:new.id+1, :new.somename, :new.somedescription); END '. $trigger_name .';';
-        $query = 'CREATE OR REPLACE TRIGGER '. $trigger_name
-                .' AFTER UPDATE ON '. $table_name
-                .' FOR EACH ROW WHEN ('.$this->when_clause.') '
-                . $this->trigger_body;
-        return $this->db->exec($query);
+        $this->trigger_body = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
+BEGIN
+    UPDATE '. $table_name .' SET somedescription = new.somename WHERE id = old.id;
+END';
+        return $this->db->standaloneQuery($this->trigger_body);
     }
 
     public function checkTrigger($trigger_name, $table_name, $def) {
         parent::checkTrigger($trigger_name, $table_name, $def);
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
-        $this->test->assertEquals($this->when_clause, $def['when_clause']);
     }
 
     public function dropTrigger($trigger_name, $table_name) {
-        return $this->db->exec('DROP TRIGGER '.$trigger_name);
+        return $this->db->standaloneQuery('DROP TRIGGER '.$trigger_name);
     }
-
-    public function createFunction($name) {
-        $query = 'CREATE FUNCTION '.$name.'(a IN INT, b IN INT)
-RETURN INT AS
-BEGIN
-    RETURN a + b;
-END;';
+    
+    public function createView($view_name, $table_name) {
+        $query = 'CREATE VIEW '. $this->db->quoteIdentifier($view_name, true)
+                .' AS SELECT id FROM '
+                . $this->db->quoteIdentifier($table_name, true) .' WHERE id > 1';
         return $this->db->exec($query);
     }
 }

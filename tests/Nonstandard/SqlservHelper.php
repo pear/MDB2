@@ -45,7 +45,7 @@
 
 require_once dirname(__DIR__) . '/autoload.inc';
 
-class Nonstandard_SqlsrvTest extends Nonstandard_Abstract {
+class Nonstandard_SqlsrvHelper extends Nonstandard_Base {
 
     public $trigger_body = '';
 

@@ -43,50 +43,40 @@
 //
 // $Id$
 
-class Nonstandard_PgsqlTest extends Nonstandard_Abstract {
+require_once dirname(__DIR__) . '/autoload.inc';
+
+class Nonstandard_Oci8Helper extends Nonstandard_Base {
 
     public $trigger_body = '';
+    public $when_clause = 'new.id > 0';
 
     public function createTrigger($trigger_name, $table_name) {
-        $this->trigger_body = 'EXECUTE PROCEDURE '.$trigger_name.'_func();';
-        $table_name = $this->db->quoteIdentifier($table_name);
-        $sql = 'CREATE OR REPLACE FUNCTION '.$trigger_name.'_func() RETURNS trigger AS \'
-                DECLARE
-                    id_number INTEGER;
-                BEGIN
-                    SELECT INTO id_number id FROM '. $table_name .' WHERE id = NEW.id;
-                    RETURN NEW;
-                END;
-                \' LANGUAGE \'plpgsql\';';
-        $res = $this->db->exec($sql);
-        if (PEAR::isError($res)) {
-            return $res;
-        }
-    
-        $query = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
-                  FOR EACH ROW ' .$this->trigger_body;
+        $this->trigger_body = 'BEGIN INSERT INTO '.$table_name
+            .' (id, somename, somedescription) VALUES'
+            .' (:new.id+1, :new.somename, :new.somedescription); END '. $trigger_name .';';
+        $query = 'CREATE OR REPLACE TRIGGER '. $trigger_name
+                .' AFTER UPDATE ON '. $table_name
+                .' FOR EACH ROW WHEN ('.$this->when_clause.') '
+                . $this->trigger_body;
         return $this->db->exec($query);
     }
 
     public function checkTrigger($trigger_name, $table_name, $def) {
         parent::checkTrigger($trigger_name, $table_name, $def);
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
+        $this->test->assertEquals($this->when_clause, $def['when_clause']);
     }
 
     public function dropTrigger($trigger_name, $table_name) {
-        return $this->db->exec('DROP TRIGGER '.$trigger_name .' ON '. $table_name);
+        return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
 
     public function createFunction($name) {
-        $query = "CREATE FUNCTION $name (Decimal(6,2), Decimal(6,2)) RETURNS Decimal(6,2)
-AS 'select $1 + $2;'
-LANGUAGE SQL
-IMMUTABLE
-RETURNS NULL ON NULL INPUT";
+        $query = 'CREATE FUNCTION '.$name.'(a IN INT, b IN INT)
+RETURN INT AS
+BEGIN
+    RETURN a + b;
+END;';
         return $this->db->exec($query);
-    }
-
-    public function dropFunction($name) {
-        return $this->db->exec('DROP FUNCTION '.$name.' (Decimal(6,2), Decimal(6,2))');
     }
 }
