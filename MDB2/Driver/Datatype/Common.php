@@ -519,9 +519,6 @@ class MDB2_Driver_Datatype_Common extends MDB2_Module_Common
                 $default = ' DEFAULT ' . $this->quote($field['default'], $field['type']);
             }
         }
-        if (empty($default) && empty($notnull)) {
-            $default = ' DEFAULT NULL';
-        }
 
         $collation = empty($field['collation']) ? '' :
             ' '.$this->_getCollationFieldDeclaration($field['collation']);
