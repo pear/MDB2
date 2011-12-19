@@ -727,7 +727,14 @@ class Standard_DatatypeTest extends Standard_Abstract
         $value = 'text';
         $type = 'test';
         $result = $this->db->datatype->convertResult($value, $type);
-        $this->assertEquals('datatype_test_callback::convertresult', $result, 'mapPrepareDatatype');
+
+        // Do this to avoid memory exhaustion by PHPUnit.
+        if (MDB2::isError($result)) {
+            $this->fail($result->getUserInfo());
+        } else {
+            $this->assertEquals('datatype_test_callback::convertresult', $result, 'mapPrepareDatatype');
+        }
+
         unset($this->db->options['datatype_map']);
         unset($this->db->options['datatype_map_callback']);
     }
@@ -748,7 +755,13 @@ class Standard_DatatypeTest extends Standard_Abstract
         $result = $this->db->datatype->getDeclaration($type, $name, $field);
         $actual_type = $this->db->phptype == 'sqlite' ? 'INTEGER' : 'INT';
         $default = $this->db->phptype == 'mssql' ? ' NULL' : ' DEFAULT NULL';
-        $this->assertEquals('column '.$actual_type.$default, $result, 'getDeclaration');
+
+        // Do this to avoid memory exhaustion by PHPUnit.
+        if (MDB2::isError($result)) {
+            $this->fail($result->getUserInfo());
+        } else {
+            $this->assertEquals('column '.$actual_type.$default, $result, 'getDeclaration');
+        }
 
         // Test with a custom datatype
         $this->db->setOption('datatype_map', array('test' => 'test'));
@@ -757,7 +770,13 @@ class Standard_DatatypeTest extends Standard_Abstract
         $type = 'test';
         $field = array('type' => 'test');
         $result = $this->db->datatype->getDeclaration($type, $name, $field);
-        $this->assertEquals('datatype_test_callback::getdeclaration', $result, 'getDeclaration');
+
+        // Do this to avoid memory exhaustion by PHPUnit.
+        if (MDB2::isError($result)) {
+            $this->fail($result->getUserInfo());
+        } else {
+            $this->assertEquals('datatype_test_callback::getdeclaration', $result, 'getDeclaration');
+        }
 
         // Test with a custom datatype without datatype_map_callback function #1
         $name = 'address';
@@ -768,7 +787,14 @@ class Standard_DatatypeTest extends Standard_Abstract
             'notnull' => 'true'
         );
         $this->db->setOption('datatype_map', array($name => $type));
-        $result = $this->db->datatype->getDeclaration($field['type'], $field['name'], $field);
+
+        // Do this to avoid memory exhaustion by PHPUnit.
+        if (MDB2::isError($result)) {
+            $this->fail($result->getUserInfo());
+        } else {
+            $result = $this->db->datatype->getDeclaration($field['type'], $field['name'], $field);
+        }
+
         $notnull = ' NOT NULL';
         $expected = $field['name'].' '.$this->db->datatype->getTypeDeclaration(array('type' => $type)).$notnull;
         $this->assertEquals($expected, $result);
@@ -781,7 +807,14 @@ class Standard_DatatypeTest extends Standard_Abstract
             'type' => 'address',
         );
         $this->db->setOption('datatype_map', array($name => $type));
-        $result = $this->db->datatype->getDeclaration($field['type'], $field['name'], $field);
+
+        // Do this to avoid memory exhaustion by PHPUnit.
+        if (MDB2::isError($result)) {
+            $this->fail($result->getUserInfo());
+        } else {
+            $result = $this->db->datatype->getDeclaration($field['type'], $field['name'], $field);
+        }
+
         $default = $this->db->phptype == 'mssql' ? ' NULL' : '';
         $expected = $field['name'].' '.$this->db->datatype->getTypeDeclaration(array('type' => $type)).$default;
         $this->assertEquals($expected, $result);
@@ -821,7 +854,14 @@ class Standard_DatatypeTest extends Standard_Abstract
             'type'   => 'test'
         );
         $result = $this->db->datatype->compareDefinition($aCurrent, $aPrevious);
-        $this->assertEquals('datatype_test_callback::comparedefinition', $result, 'compareDefinition');
+
+        // Do this to avoid memory exhaustion by PHPUnit.
+        if (MDB2::isError($result)) {
+            $this->fail($result->getUserInfo());
+        } else {
+            $this->assertEquals('datatype_test_callback::comparedefinition', $result, 'compareDefinition');
+        }
+
         unset($this->db->options['datatype_map']);
         unset($this->db->options['datatype_map_callback']);
     }
@@ -847,7 +887,14 @@ class Standard_DatatypeTest extends Standard_Abstract
         $value = 'text';
         $type = 'test';
         $result = $this->db->datatype->quote($value, $type);
-        $this->assertEquals('datatype_test_callback::quote', $result, 'quote');
+
+        // Do this to avoid memory exhaustion by PHPUnit.
+        if (MDB2::isError($result)) {
+            $this->fail($result->getUserInfo());
+        } else {
+            $this->assertEquals('datatype_test_callback::quote', $result, 'quote');
+        }
+
         unset($this->db->options['datatype_map']);
         unset($this->db->options['datatype_map_callback']);
     }
