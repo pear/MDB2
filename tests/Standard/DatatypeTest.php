@@ -43,7 +43,7 @@
 //
 // $Id$
 
-require_once 'MDB2_testcase.php';
+require_once dirname(__DIR__) . '/autoload.inc';
 
 /**
  * A test callback function to be used in the test class below for
@@ -139,7 +139,7 @@ function nativetype_test_callback($db, $aFields)
     return array($aType, $length, $unsigned, $fixed);
 }
 
-class MDB2_Datatype_TestCase extends MDB2_TestCase
+class Standard_DatatypeTest extends Standard_Abstract
 {
     // Test table name (it is dynamically created/dropped)
     var $table = 'datatypetable';

@@ -43,7 +43,9 @@
 //
 // $Id$
 
-class MDB2_Function_TestCase extends MDB2_TestCase
+require_once dirname(__DIR__) . '/autoload.inc';
+
+class Standard_FunctionTest extends Standard_Abstract
 {
     function setUp() {
         parent::setUp();

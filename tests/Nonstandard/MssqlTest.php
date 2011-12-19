@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2006-2007 Lorenzo Alberton                             |
+// | Copyright (c) 2006 Lorenzo Alberton                                  |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -43,47 +43,49 @@
 //
 // $Id$
 
-class MDB2_nonstandard_ibase extends MDB2_nonstandard {
+require_once dirname(__DIR__) . '/autoload.inc';
 
-    var $trigger_body = 'AS
-BEGIN
-  NEW.somedescription = OLD.somename;
-END';
+class Nonstandard_MssqlTest extends Nonstandard_Abstract {
+
+    var $trigger_body = '';
 
     function createTrigger($trigger_name, $table_name) {
-        $query = 'CREATE OR ALTER TRIGGER '. $trigger_name .' FOR '. $table_name .'
-                  AFTER UPDATE '. $this->trigger_body .';';
-        return $this->db->exec($query);
+        $this->trigger_body = 'CREATE TRIGGER '. $trigger_name .' ON '. $table_name .'
+FOR UPDATE AS
+DECLARE @oldName VARCHAR(100)
+DECLARE @newId INTEGER
+SELECT @oldName = (SELECT somename FROM Deleted)
+SELECT @newId = (SELECT id FROM Inserted)
+BEGIN
+  UPDATE '. $table_name .' SET somedescription = @oldName WHERE id = @newId;
+END;';
+
+        return $this->db->exec($this->trigger_body);
     }
 
     function checkTrigger($trigger_name, $table_name, $def) {
         parent::checkTrigger($trigger_name, $table_name, $def);
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
+        /*
+        echo '<pre>';
+        var_dump($this->trigger_body);
+        var_dump($def['trigger_body']);
+        */
     }
 
     function dropTrigger($trigger_name, $table_name) {
         return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
-
+    
     function createFunction($name) {
-        $query = 'CREATE OR ALTER PROCEDURE '.$name.'(N1 DECIMAL(6,2), N2 DECIMAL(6,2))
-RETURNS (
-  res DECIMAL(6,2)
-)
-AS
+        $query = 'CREATE FUNCTION '.$name.'(@Number1 Decimal(6,2), @Number2 Decimal(6,2))
+RETURNS Decimal(6,2)
 BEGIN
-  FOR
-    SELECT (:N1 + :N2) FROM RDB$DATABASE INTO :res
-  DO
-    BEGIN
-      SUSPEND;
-    END
+    DECLARE @Result Decimal(6,2)
+    SET @Result = @Number1 + @Number2
+    RETURN @Result
 END';
         return $this->db->exec($query);
-    }
-
-    function dropFunction($name) {
-        return $this->db->exec('DROP PROCEDURE '.$name);
     }
 }
 

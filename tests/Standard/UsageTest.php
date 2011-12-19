@@ -43,9 +43,9 @@
 //
 // $Id$
 
-require_once 'MDB2_testcase.php';
+require_once dirname(__DIR__) . '/autoload.inc';
 
-class MDB2_Usage_TestCase extends MDB2_TestCase {
+class Standard_UsageTest extends Standard_Abstract {
     /**
      * Test typed data storage and retrieval
      *

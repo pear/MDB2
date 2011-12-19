@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------+
 // | PHP versions 4 and 5                                                 |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2006-2007 Lorenzo Alberton                             |
+// | Copyright (c) 2006 Lorenzo Alberton                                  |
 // | All rights reserved.                                                 |
 // +----------------------------------------------------------------------+
 // | MDB2 is a merge of PEAR DB and Metabases that provides a unified DB  |
@@ -41,40 +41,48 @@
 // | Author: Lorenzo Alberton <l.alberton@quipo.it>                       |
 // +----------------------------------------------------------------------+
 //
-// $Id$
+// $Id: MDB2_nonstandard_sqlsrv.php,v 1.2 2007/03/04 21:27:44 quipo Exp $
 
-class MDB2_nonstandard_oci8 extends MDB2_nonstandard {
+require_once dirname(__DIR__) . '/autoload.inc';
+
+class Nonstandard_SqlsrvTest extends Nonstandard_Abstract {
 
     var $trigger_body = '';
-    var $when_clause = 'new.id > 0';
 
     function createTrigger($trigger_name, $table_name) {
-        $this->trigger_body = 'BEGIN INSERT INTO '.$table_name
-            .' (id, somename, somedescription) VALUES'
-            .' (:new.id+1, :new.somename, :new.somedescription); END '. $trigger_name .';';
-        $query = 'CREATE OR REPLACE TRIGGER '. $trigger_name
-                .' AFTER UPDATE ON '. $table_name
-                .' FOR EACH ROW WHEN ('.$this->when_clause.') '
-                . $this->trigger_body;
-        return $this->db->exec($query);
+        $this->trigger_body = 'CREATE TRIGGER '. $trigger_name .' ON '. $table_name .'
+FOR UPDATE AS
+DECLARE @oldName VARCHAR(100)
+DECLARE @newId INTEGER
+SELECT @oldName = (SELECT somename FROM Deleted)
+SELECT @newId = (SELECT id FROM Inserted)
+BEGIN
+  UPDATE '. $table_name .' SET somedescription = @oldName WHERE id = @newId;
+END;';
+
+        return $this->db->exec($this->trigger_body);
     }
 
     function checkTrigger($trigger_name, $table_name, $def) {
         parent::checkTrigger($trigger_name, $table_name, $def);
         $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
-        $this->test->assertEquals($this->when_clause, $def['when_clause']);
+        echo '<pre>';
+        var_dump($this->trigger_body);
+        var_dump($def['trigger_body']);
     }
 
     function dropTrigger($trigger_name, $table_name) {
         return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
-
+    
     function createFunction($name) {
-        $query = 'CREATE FUNCTION '.$name.'(a IN INT, b IN INT)
-RETURN INT AS
+        $query = 'CREATE FUNCTION '.$name.'(@Number1 Decimal(6,2), @Number2 Decimal(6,2))
+RETURNS Decimal(6,2)
 BEGIN
-    RETURN a + b;
-END;';
+    DECLARE @Result Decimal(6,2)
+    SET @Result = @Number1 + @Number2
+    RETURN @Result
+END';
         return $this->db->exec($query);
     }
 }

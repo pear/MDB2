@@ -44,9 +44,9 @@
 //
 // $Id$
 
-require_once 'MDB2_testcase.php';
+require_once dirname(__DIR__) . '/autoload.inc';
 
-class MDB2_Internals_TestCase extends MDB2_TestCase {
+class Standard_InternalsTest extends Standard_Abstract {
 
     var $clear_tables = false;
 

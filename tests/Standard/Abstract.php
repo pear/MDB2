@@ -43,7 +43,7 @@
 //
 // $Id$
 
-class MDB2_TestCase extends PHPUnit_Framework_TestCase {
+abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
     //contains the dsn of the database we are testing
     var $dsn;
     //contains the options that should be used during testing

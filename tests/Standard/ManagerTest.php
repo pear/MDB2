@@ -44,9 +44,9 @@
 //
 // $Id$
 
-require_once 'MDB2_testcase.php';
+require_once dirname(__DIR__) . '/autoload.inc';
 
-class MDB2_Manager_TestCase extends MDB2_TestCase {
+class Standard_ManagerTest extends Standard_Abstract {
     //test table name (it is dynamically created/dropped)
     var $table = 'newtable';
 

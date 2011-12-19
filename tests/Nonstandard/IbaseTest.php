@@ -43,28 +43,18 @@
 //
 // $Id$
 
-class MDB2_nonstandard_pgsql extends MDB2_nonstandard {
+require_once dirname(__DIR__) . '/autoload.inc';
 
-    var $trigger_body = '';
+class Nonstandard_IbaseTest extends Nonstandard_Abstract {
+
+    var $trigger_body = 'AS
+BEGIN
+  NEW.somedescription = OLD.somename;
+END';
 
     function createTrigger($trigger_name, $table_name) {
-        $this->trigger_body = 'EXECUTE PROCEDURE '.$trigger_name.'_func();';
-        $table_name = $this->db->quoteIdentifier($table_name);
-        $sql = 'CREATE OR REPLACE FUNCTION '.$trigger_name.'_func() RETURNS trigger AS \'
-                DECLARE
-                    id_number INTEGER;
-                BEGIN
-                    SELECT INTO id_number id FROM '. $table_name .' WHERE id = NEW.id;
-                    RETURN NEW;
-                END;
-                \' LANGUAGE \'plpgsql\';';
-        $res = $this->db->exec($sql);
-        if (PEAR::isError($res)) {
-            return $res;
-        }
-    
-        $query = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
-                  FOR EACH ROW ' .$this->trigger_body;
+        $query = 'CREATE OR ALTER TRIGGER '. $trigger_name .' FOR '. $table_name .'
+                  AFTER UPDATE '. $this->trigger_body .';';
         return $this->db->exec($query);
     }
 
@@ -74,20 +64,28 @@ class MDB2_nonstandard_pgsql extends MDB2_nonstandard {
     }
 
     function dropTrigger($trigger_name, $table_name) {
-        return $this->db->exec('DROP TRIGGER '.$trigger_name .' ON '. $table_name);
+        return $this->db->exec('DROP TRIGGER '.$trigger_name);
     }
 
     function createFunction($name) {
-        $query = "CREATE FUNCTION $name (Decimal(6,2), Decimal(6,2)) RETURNS Decimal(6,2)
-AS 'select $1 + $2;'
-LANGUAGE SQL
-IMMUTABLE
-RETURNS NULL ON NULL INPUT";
+        $query = 'CREATE OR ALTER PROCEDURE '.$name.'(N1 DECIMAL(6,2), N2 DECIMAL(6,2))
+RETURNS (
+  res DECIMAL(6,2)
+)
+AS
+BEGIN
+  FOR
+    SELECT (:N1 + :N2) FROM RDB$DATABASE INTO :res
+  DO
+    BEGIN
+      SUSPEND;
+    END
+END';
         return $this->db->exec($query);
     }
 
     function dropFunction($name) {
-        return $this->db->exec('DROP FUNCTION '.$name.' (Decimal(6,2), Decimal(6,2))');
+        return $this->db->exec('DROP PROCEDURE '.$name);
     }
 }
 

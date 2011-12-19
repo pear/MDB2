@@ -43,33 +43,90 @@
 //
 // $Id$
 
-class MDB2_nonstandard_mysql extends MDB2_nonstandard {
+require_once dirname(__DIR__) . '/autoload.inc';
 
-    var $trigger_body = '';
+abstract class Nonstandard_Abstract {
+    //contains the MDB2 object of the db once we have connected
+    var $db;
+    
+    //contains the PHPUnit_TestCase object
+    var $test;
+    
+    /**
+     * Returns a driver-specific object
+     */
+    function factory($db, $test) {
+        $classname = 'MDB2_nonstandard_'.$db->phptype;
+        include_once $classname.'.php';
+        if (class_exists($classname)) {
+            $obj = new $classname();
+            $obj->db =& $db;
+            $obj->test =& $test;
+            return $obj;
+        }
+        return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+            'not capable', __FUNCTION__);
+    }
 
+    /**
+     * Create a TRIGGER
+     */
     function createTrigger($trigger_name, $table_name) {
-        $this->trigger_body = 'BEGIN
-  UPDATE '. $table_name .' SET somedescription = OLD.somename WHERE id = NEW.id;
-END';
-        $query = 'CREATE TRIGGER '. $trigger_name .' AFTER UPDATE ON '. $table_name .'
-                  FOR EACH ROW '. $this->trigger_body .';';
-        return $this->db->exec($query);
+        return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+            'not capable', __FUNCTION__);
     }
 
+    /**
+     * Check if getTriggerDefinition() returns the correct definition for the trigger
+     */
     function checkTrigger($trigger_name, $table_name, $def) {
-        parent::checkTrigger($trigger_name, $table_name, $def);
-        $this->test->assertEquals($this->trigger_body, $def['trigger_body']);
+        $this->test->assertEquals(strtoupper($trigger_name), strtoupper($def['trigger_name']), 'Error getting trigger definition (name)');
+        $this->test->assertEquals(strtoupper($table_name),  strtoupper($def['table_name']),   'Error getting trigger definition (table)');
+        $this->test->assertEquals('AFTER',  $def['trigger_type'], 'Error getting trigger definition (type)');
+        $this->test->assertEquals('UPDATE', $def['trigger_event'], 'Error getting trigger definition (event)');
+        $this->test->assertTrue(is_string($def['trigger_body']), 'Error getting trigger definition (body)');
+        $this->test->assertTrue($def['trigger_enabled'], 'Error getting trigger definition (enabled)');
+        //$this->test->assertTrue(empty($def['trigger_comment']),  'Error getting trigger definition (comment)');
     }
 
+    /**
+     * Drop a TRIGGER
+     */
     function dropTrigger($trigger_name, $table_name) {
-        return $this->db->exec('DROP TRIGGER '.$trigger_name);
+        return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+            'not capable', __FUNCTION__);
+    }
+    
+    /**
+     * Create a VIEW
+     */
+    function createView($view_name, $table_name) {
+        $query = 'CREATE VIEW '. $this->db->quoteIdentifier($view_name, true)
+                .' (id) AS SELECT id FROM '
+                . $this->db->quoteIdentifier($table_name, true) .' WHERE id > 1';
+        return $this->db->exec($query);
     }
 
+    /**
+     * Drop a VIEW
+     */
+    function dropView($view_name) {
+        return $this->db->exec('DROP VIEW '.$view_name);
+    }
+
+    /**
+     * Create a FUNCTION
+     */
     function createFunction($name) {
-        $query = 'CREATE FUNCTION '.$name.'(a INT, b INT) RETURNS INT
-RETURN a + b;';
-        return $this->db->exec($query);
+        return $this->db->raiseError(MDB2_ERROR_NOT_CAPABLE, null, null,
+            'not capable', __FUNCTION__);
+    }
+
+    /**
+     * Drop a FUNCTION
+     */
+    function dropFunction($name) {
+        return $this->db->exec('DROP FUNCTION '.$name);
     }
 }
-
 ?>
