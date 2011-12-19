@@ -1202,7 +1202,7 @@ class MDB2_Driver_Common extends PEAR
      * @var     array
      * @access  protected
      */
-    protected $sql_comments = array(
+    public $sql_comments = array(
         array('start' => '--', 'end' => "\n", 'escape' => false),
         array('start' => '/*', 'end' => '*/', 'escape' => false),
     );

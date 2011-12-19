@@ -70,7 +70,7 @@ class MDB2_Driver_mysql extends MDB2_Driver_Common
         'escape' => '`',
     );
 
-    protected $sql_comments = array(
+    public $sql_comments = array(
         array('start' => '-- ', 'end' => "\n", 'escape' => false),
         array('start' => '#', 'end' => "\n", 'escape' => false),
         array('start' => '/*', 'end' => '*/', 'escape' => false),
