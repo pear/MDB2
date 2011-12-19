@@ -102,7 +102,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
      * Override PHPUnit's default behavior so authentication data doesn't
      * get broadcasted
      */
-    protected function getDataSetAsString() {
+    protected function getDataSetAsString($strict = true) {
         return parent::getDataSetAsString(false);
     }
 
