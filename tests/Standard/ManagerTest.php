@@ -366,7 +366,12 @@ class Standard_ManagerTest extends Standard_Abstract {
             'onupdate' => 'CASCADE',
             'ondelete' => 'CASCADE',
         );
+
         $constraint_name = 'fkconstraint';
+
+        // Make sure the constraint is gone before trying to create it again.
+        $result = $this->db->manager->dropConstraint($this->table, $constraint_name);
+
         $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
         $this->assertFalse(PEAR::isError($result), 'Error creating FOREIGN KEY constraint');
 
@@ -798,12 +803,15 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testListTableTriggers($mdb) {
         $this->manualSetUp($mdb);
 
-        //setup
-        $trigger_name = 'test_newtrigger';
-
         if (!$this->nonstd) {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
+
+        //setup
+        $trigger_name = 'test_newtrigger';
+
+        // Make sure the trigger is gone before trying to create it again.
+        $result = $this->nonstd->dropTrigger($trigger_name, $this->table);
 
         $result = $this->nonstd->createTrigger($trigger_name, $this->table);
         if (PEAR::isError($result)) {
@@ -882,12 +890,15 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testListViews($mdb) {
         $this->manualSetUp($mdb);
 
-        //setup
-        $view_name = 'test_brandnewview';
-
         if (!$this->nonstd) {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
+
+        //setup
+        $view_name = 'test_brandnewview';
+
+        // Make sure the view is gone before trying to create it again.
+        $result = $this->nonstd->dropView($view_name);
 
         $result = $this->nonstd->createView($view_name, $this->table);
         if (PEAR::isError($result)) {
