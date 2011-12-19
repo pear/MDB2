@@ -588,6 +588,16 @@ class Standard_DatatypeTest extends Standard_Abstract
     public function testPatternSequences($ci) {
         $this->manualSetUp($ci);
 
+        switch ($this->db->phptype) {
+            case 'sqlite':
+                // LIKE and GLOB are not case sensitive for ASCII.
+                // http://www.sqlite.org/lang_expr.html#like
+                $case_sensitive_expect = 3;
+                break;
+            default:
+                $case_sensitive_expect = 2;
+        }
+
         $test_strings = array(
             "Foo",
             "FOO",
@@ -607,7 +617,7 @@ class Standard_DatatypeTest extends Standard_Abstract
         $query = 'SELECT user_name FROM users WHERE '
             . $this->db->datatype->matchPattern(array('F', '%'), 'LIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
-        $this->assertEquals(2, count($values), "case sensitive search was expected to return 2 rows but returned: ".count($values));
+        $this->assertEquals($case_sensitive_expect, count($values), "case sensitive search was expected to return 2 rows but returned: ".count($values));
 
         $query = 'SELECT user_name FROM users WHERE '
             . $this->db->datatype->matchPattern(array('foo'), 'ILIKE', 'user_name');
@@ -617,7 +627,7 @@ class Standard_DatatypeTest extends Standard_Abstract
         $query = 'SELECT user_name FROM users WHERE '
             . $this->db->datatype->matchPattern(array(1 => '_', 'o', '%'), 'LIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
-        $this->assertEquals(2, count($values), "case sensitive search was expected to return 2 rows but returned: ".count($values));
+        $this->assertEquals($case_sensitive_expect, count($values), "case sensitive search was expected to return 2 rows but returned: ".count($values));
 
         $query = 'SELECT user_name FROM users WHERE '
             . $this->db->datatype->matchPattern(array(1 => '_', 'o', '%'), 'ILIKE', 'user_name');
