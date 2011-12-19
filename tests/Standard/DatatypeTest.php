@@ -55,7 +55,7 @@ require_once dirname(__DIR__) . '/autoload.inc';
  *                           the callback function was called from. One of
  *                           "getValidTypes", "convertResult", "getDeclaration",
  *                           "compareDefinition", "quote" and "mapPrepareDatatype".
- *                           See {@link MDB2_Driver_Datatype_Common} for the 
+ *                           See {@link MDB2_Driver_Datatype_Common} for the
  *                           details of what each method does.
  * @param array $aParameters An array of parameters, being the parameters that
  *                           were passed to the method calling the callback
