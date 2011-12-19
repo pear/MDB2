@@ -213,6 +213,44 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         return $data;
     }
 
+    /**
+     * Populates the user table with some data and then returns the data for
+     * later comparison
+     *
+     * @param int $rows  the number for rows to insert
+     * @return array  a multi-dimensional associative array of the data inserted
+     */
+    public function populateUserData($rows = 1) {
+        $result = $this->db->loadModule('Extended');
+        if (PEAR::isError($result)) {
+            $this->fail('populateUserData() problem loading module: ' . $result->getUserInfo());
+        }
+
+        $this->db->loadModule('Extended');
+        $stmt = $this->db->extended->autoPrepare('users',
+            array_keys($this->fields),
+            MDB2_AUTOQUERY_INSERT, null, $this->fields);
+
+        if (PEAR::isError($stmt)) {
+            $this->fail('populateUserData() problem preparing statement: ' . $stmt->getUserInfo());
+        }
+
+        $data_save = array();
+        $data_return = array();
+        for ($i = 0; $i < $rows; $i++) {
+            $row = $this->getSampleData($i);
+            $data_save[] = array_values($row);
+            $data_return[] = $row;
+        }
+
+        $result = $this->db->extended->executeMultiple($stmt, $data_save);
+        if (PEAR::isError($result)) {
+            $this->fail('populateUserData() problem inserting the data: ' . $result->getUserInfo());
+        }
+
+        return $data_return;
+    }
+
     public function methodExists(&$class, $name) {
         if (is_object($class)
             && in_array(strtolower($name), array_map('strtolower', get_class_methods($class)))
