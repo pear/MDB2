@@ -47,8 +47,15 @@ require_once dirname(__DIR__) . '/autoload.inc';
 
 class Standard_FunctionTest extends Standard_Abstract
 {
-    public function setUp() {
-        parent::setUp();
+    /**
+     * Can not use setUp() because we are using a dataProvider to get multiple
+     * MDB2 objects per test.
+     *
+     * @param MDB2_Driver_Common $db
+     */
+    protected function manualSetUp($mdb) {
+        parent::manualSetUp($mdb);
+
         $this->db->loadModule('Function', null, true);
     }
 

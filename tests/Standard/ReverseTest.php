@@ -58,8 +58,15 @@ class Standard_ReverseTest extends Standard_Abstract
     public $indices2     = array();
     public $constraints2 = array();
 
-    public function setUp() {
-        parent::setUp();
+    /**
+     * Can not use setUp() because we are using a dataProvider to get multiple
+     * MDB2 objects per test.
+     *
+     * @param MDB2_Driver_Common $db
+     */
+    protected function manualSetUp($mdb) {
+        parent::manualSetUp($mdb);
+
         $this->db->loadModule('Reverse', null, true);
         $this->db->loadModule('Manager', null, true);
 
