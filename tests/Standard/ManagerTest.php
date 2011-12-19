@@ -61,10 +61,13 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Can not use setUp() because we are using a dataProvider to get multiple
      * MDB2 objects per test.
      *
-     * @param MDB2_Driver_Common $mdb
+     * @param array $ci  an associative array with two elements.  The "dsn"
+     *                   element must contain an array of DSN information.
+     *                   The "options" element must be an array of connection
+     *                   options.
      */
-    protected function manualSetUp($mdb) {
-        parent::manualSetUp($mdb);
+    protected function manualSetUp($ci) {
+        parent::manualSetUp($ci);
 
         $this->nonstd = Nonstandard_Base::factory($this->db, $this);
 
@@ -118,8 +121,8 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Create a sample table, test the new fields, and drop it.
      * @dataProvider provider
      */
-    public function testCreateTable($mdb) {
-        $this->manualSetUp($mdb);
+    public function testCreateTable($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'createTable')) {
             return;
@@ -136,8 +139,8 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Create a sample table, test the new fields, and drop it.
      * @dataProvider provider
      */
-    public function testCreateAutoIncrementTable($mdb) {
-        $this->manualSetUp($mdb);
+    public function testCreateAutoIncrementTable($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'createTable')) {
             return;
@@ -202,8 +205,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testListTableFields($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListTableFields($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'listTableFields')) {
             return;
@@ -218,8 +221,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testCreateIndex($mdb) {
-        $this->manualSetUp($mdb);
+    public function testCreateIndex($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'createIndex')) {
             return;
@@ -239,8 +242,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testDropIndex($mdb) {
-        $this->manualSetUp($mdb);
+    public function testDropIndex($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'dropIndex')) {
             return;
@@ -268,8 +271,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testListIndexes($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListIndexes($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'listTableIndexes')) {
             return;
@@ -295,8 +298,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testCreatePrimaryKey($mdb) {
-        $this->manualSetUp($mdb);
+    public function testCreatePrimaryKey($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
@@ -317,8 +320,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testCreateUniqueConstraint($mdb) {
-        $this->manualSetUp($mdb);
+    public function testCreateUniqueConstraint($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
@@ -339,8 +342,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testCreateForeignKeyConstraint($mdb) {
-        $this->manualSetUp($mdb);
+    public function testCreateForeignKeyConstraint($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
             return;
@@ -447,8 +450,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testDropPrimaryKey($mdb) {
-        $this->manualSetUp($mdb);
+    public function testDropPrimaryKey($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'dropConstraint')) {
             return;
@@ -474,8 +477,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testListDatabases($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListDatabases($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'listDatabases')) {
             return;
@@ -499,8 +502,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testListConstraints($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListConstraints($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'listTableConstraints')) {
             return;
@@ -527,8 +530,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testListTables($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListTables($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'listTables')) {
             return;
@@ -539,8 +542,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testAlterTable($mdb) {
-        $this->manualSetUp($mdb);
+    public function testAlterTable($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'alterTable')) {
             return;
@@ -611,8 +614,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testAlterTable2($mdb) {
-        $this->manualSetUp($mdb);
+    public function testAlterTable2($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'alterTable')) {
             return;
@@ -703,8 +706,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testTruncateTable($mdb) {
-        $this->manualSetUp($mdb);
+    public function testTruncateTable($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'truncateTable')) {
             return;
@@ -755,8 +758,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testDropTable($mdb) {
-        $this->manualSetUp($mdb);
+    public function testDropTable($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'dropTable')) {
             return;
@@ -768,8 +771,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testListTablesNoTable($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListTablesNoTable($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'listTables')) {
             return;
@@ -781,8 +784,8 @@ class Standard_ManagerTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testSequences($mdb) {
-        $this->manualSetUp($mdb);
+    public function testSequences($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'createSequence')) {
             return;
@@ -800,8 +803,8 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Test listTableTriggers($table)
      * @dataProvider provider
      */
-    public function testListTableTriggers($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListTableTriggers($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->nonstd) {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
@@ -842,8 +845,8 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Test listTableViews($table)
      * @dataProvider provider
      */
-    public function testListTableViews($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListTableViews($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->nonstd) {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
@@ -887,8 +890,8 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Test listViews()
      * @dataProvider provider
      */
-    public function testListViews($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListViews($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->nonstd) {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
@@ -925,8 +928,8 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Test listUsers()
      * @dataProvider provider
      */
-    public function testListUsers($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListUsers($ci) {
+        $this->manualSetUp($ci);
 
         $users = $this->db->manager->listUsers();
         if (PEAR::isError($users)) {
@@ -949,8 +952,8 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Test listFunctions()
      * @dataProvider provider
      */
-    public function testListFunctions($mdb) {
-        $this->manualSetUp($mdb);
+    public function testListFunctions($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->nonstd) {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
@@ -1004,8 +1007,8 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Test createDatabase(), alterDatabase(), dropDatabase()
      * @dataProvider provider
      */
-    public function testCrudDatabase($mdb) {
-        $this->manualSetUp($mdb);
+    public function testCrudDatabase($ci) {
+        $this->manualSetUp($ci);
 
         $name = 'newdb';
         $options = array(
@@ -1058,8 +1061,8 @@ class Standard_ManagerTest extends Standard_Abstract {
      * Test vacuum
      * @dataProvider provider
      */
-    public function testVacuum($mdb) {
-        $this->manualSetUp($mdb);
+    public function testVacuum($ci) {
+        $this->manualSetUp($ci);
 
         //vacuum table
         $result = $this->db->manager->vacuum($this->table);

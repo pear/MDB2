@@ -51,8 +51,8 @@ class Standard_ExtendedTest extends Standard_Abstract
     /**
      * @dataProvider provider
      */
-    public function testAutoExecute($mdb) {
-        $this->manualSetUp($mdb);
+    public function testAutoExecute($ci) {
+        $this->manualSetUp($ci);
 
         $data = $this->getSampleData();
         $select_query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
@@ -134,8 +134,8 @@ class Standard_ExtendedTest extends Standard_Abstract
      * Test fetching two columns from a resultset. Return them as (key,value) pairs.
      * @dataProvider provider
      */
-    public function testGetAssoc($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetAssoc($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
@@ -250,8 +250,8 @@ class Standard_ExtendedTest extends Standard_Abstract
      * Test fetching a single value
      * @dataProvider provider
      */
-    public function testGetOne($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetOne($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
@@ -300,8 +300,8 @@ class Standard_ExtendedTest extends Standard_Abstract
      * Test fetching a column of result data.
      * @dataProvider provider
      */
-    public function testGetCol($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetCol($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
@@ -359,8 +359,8 @@ class Standard_ExtendedTest extends Standard_Abstract
      * Test fetching a row of result data.
      * @dataProvider provider
      */
-    public function testGetRow($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetRow($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
@@ -403,8 +403,8 @@ class Standard_ExtendedTest extends Standard_Abstract
      * Test fetching result data all at once.
      * @dataProvider provider
      */
-    public function testGetAll($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetAll($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
@@ -460,8 +460,8 @@ class Standard_ExtendedTest extends Standard_Abstract
      * Test fetching a limited resultset.
      * @dataProvider provider
      */
-    public function testLimitQuery($mdb) {
-        $this->manualSetUp($mdb);
+    public function testLimitQuery($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
@@ -528,8 +528,8 @@ class Standard_ExtendedTest extends Standard_Abstract
      * Test executing a query with parameters
      * @dataProvider provider
      */
-    public function testExecParam($mdb) {
-        $this->manualSetUp($mdb);
+    public function testExecParam($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {
@@ -561,8 +561,8 @@ class Standard_ExtendedTest extends Standard_Abstract
      * Test executing multiple prepared queries
      * @dataProvider provider
      */
-    public function testExecuteMultiple($mdb) {
-        $this->manualSetUp($mdb);
+    public function testExecuteMultiple($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->db->loadModule('Extended');
         if (PEAR::isError($result)) {

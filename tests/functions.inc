@@ -11,14 +11,24 @@
 /**
  * Builds the tables used by the test suite.
  *
- * @param MDB2_Driver_Common $db
- * @param string $phptype
+ * @param array $ci  an associative array with two elements.  The "dsn"
+ *                   element must contain an array of DSN information.
+ *                   The "options" element must be an array of connection
+ *                   options.
  */
-function build_schema(MDB2_Driver_Common $db, $phptype) {
+function build_schema($ci) {
     $file = __DIR__ . '/schema.xml';
 
+    if (!is_array($ci['dsn'])) {
+        die('$ci["dsn"] must use the array DSN format.' . "\n");
+    }
+
+    if (!array_key_exists('options', $ci)) {
+        die('$ci["options"] is missing.' . "\n");
+    }
+
     $variables = array(
-        'name'   => $db->getDatabase(),
+        'name'   => $ci['dsn']['database'],
         'create' => true,
     );
 
@@ -30,11 +40,11 @@ function build_schema(MDB2_Driver_Common $db, $phptype) {
         'force_defaults'   => false,
         'portability'      => false
     );
-    $options = array_merge($options, $db->options);
+    $options = array_merge($options, $ci['options']);
 
-    $err_base = "TEST SCHEMA BUILD ERROR FOR $phptype: ";
+    $err_base = 'TEST SCHEMA BUILD ERROR FOR ' . $ci['dsn']['phptype'] . ': ';
 
-    $schema = MDB2_Schema::factory($db, $options);
+    $schema = MDB2_Schema::factory($ci['dsn'], $options);
     if (PEAR::isError($schema)) {
         die($err_base . $schema->getMessage() . ' '
             . $schema->getUserInfo() . "\n");
@@ -54,8 +64,12 @@ function build_schema(MDB2_Driver_Common $db, $phptype) {
 }
 
 /**
- * Produces a multi-diemnsional array containing instantiated MDB2 objects
- * for each DSN defined
+ * Produces a multi-diemnsional array containing the connection information
+ * for each DBMS to be tested
+ *
+ * The connection information for each DBMS is an associative array with two
+ * elements.  The "dsn" element must contain an array of DSN information.
+ * The "options" element must be an array of connection options.
  *
  * Used by Standard_Abstract::provider()
  *
@@ -67,18 +81,13 @@ function mdb2_test_db_object_provider() {
     if (!isset($dbs)) {
         $dsns = unserialize(MDB2_TEST_SERIALIZED_DSNS);
         $dbs = array();
-        foreach ($dsns as $driver => $data) {
-            $db = MDB2::factory($data['dsn'], $data['options']);
-            if (PEAR::isError($db)) {
-                continue;
-            }
-
+        foreach ($dsns as $driver => $ci) {
             $dbs[$driver] = array(
-                $db,
+                $ci,
             );
 
             // Building schema here so will work with SQLite :memory:.
-            build_schema($db, $driver);
+            build_schema($ci);
         }
     }
 

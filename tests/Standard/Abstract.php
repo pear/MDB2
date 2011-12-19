@@ -117,16 +117,16 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
      * Can not use setUp() because we are using a dataProvider to get multiple
      * MDB2 objects per test.
      *
-     * @param MDB2_Driver_Common $db
+     * @param array $ci  an associative array with two elements.  The "dsn"
+     *                   element must contain an array of DSN information.
+     *                   The "options" element must be an array of connection
+     *                   options.
      */
-    protected function manualSetUp($db) {
-        $dsn = $db->getDSN('array');
-        $phptype = $dsn['phptype'];
-
-        $this->db = $db;
-        $this->dsn = self::$dsns[$phptype]['dsn'];
-        $this->options = self::$dsns[$phptype]['options'];
-        $this->database = $this->dsn['database'];
+    protected function manualSetUp($ci) {
+        $this->db = MDB2::factory($ci['dsn'], $ci['options']);
+        $this->dsn = self::$dsns[$this->db->phptype]['dsn'];
+        $this->options = self::$dsns[$this->db->phptype]['options'];
+        $this->database = $this->db->getDatabase();
 
         $this->db->setDatabase($this->database);
         $this->db->expectError(MDB2_ERROR_UNSUPPORTED);

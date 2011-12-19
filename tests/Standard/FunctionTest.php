@@ -51,10 +51,13 @@ class Standard_FunctionTest extends Standard_Abstract
      * Can not use setUp() because we are using a dataProvider to get multiple
      * MDB2 objects per test.
      *
-     * @param MDB2_Driver_Common $db
+     * @param array $ci  an associative array with two elements.  The "dsn"
+     *                   element must contain an array of DSN information.
+     *                   The "options" element must be an array of connection
+     *                   options.
      */
-    protected function manualSetUp($mdb) {
-        parent::manualSetUp($mdb);
+    protected function manualSetUp($ci) {
+        parent::manualSetUp($ci);
 
         $this->db->loadModule('Function', null, true);
     }
@@ -63,8 +66,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test functionTable()
      * @dataProvider provider
      */
-    public function testFunctionTable($mdb) {
-        $this->manualSetUp($mdb);
+    public function testFunctionTable($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'functionTable')) {
             return;
@@ -84,8 +87,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test now()
      * @dataProvider provider
      */
-    public function testNow($mdb) {
-        $this->manualSetUp($mdb);
+    public function testNow($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'now')) {
             return;
@@ -114,8 +117,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test substring()
      * @dataProvider provider
      */
-    public function testSubstring($mdb) {
-        $this->manualSetUp($mdb);
+    public function testSubstring($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'substring')) {
             return;
@@ -165,8 +168,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test concat()
      * @dataProvider provider
      */
-    public function testConcat($mdb) {
-        $this->manualSetUp($mdb);
+    public function testConcat($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'concat')) {
             return;
@@ -187,8 +190,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test random()
      * @dataProvider provider
      */
-    public function testRandom($mdb) {
-        $this->manualSetUp($mdb);
+    public function testRandom($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'random')) {
             return;
@@ -209,8 +212,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test lower()
      * @dataProvider provider
      */
-    public function testLower($mdb) {
-        $this->manualSetUp($mdb);
+    public function testLower($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'lower')) {
             return;
@@ -231,8 +234,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test upper()
      * @dataProvider provider
      */
-    public function testUpper($mdb) {
-        $this->manualSetUp($mdb);
+    public function testUpper($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'upper')) {
             return;
@@ -253,8 +256,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test length()
      * @dataProvider provider
      */
-    public function testLenght($mdb) {
-        $this->manualSetUp($mdb);
+    public function testLenght($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'length')) {
             return;
@@ -275,8 +278,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test replace()
      * @dataProvider provider
      */
-    public function testReplace($mdb) {
-        $this->manualSetUp($mdb);
+    public function testReplace($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'replace')) {
             return;
@@ -308,8 +311,8 @@ class Standard_FunctionTest extends Standard_Abstract
      * Test unixtimestamp()
      * @dataProvider provider
      */
-    public function testUnixtimestamp($mdb) {
-        $this->manualSetUp($mdb);
+    public function testUnixtimestamp($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'unixtimestamp')) {
             return;

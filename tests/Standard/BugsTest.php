@@ -49,8 +49,8 @@ class Standard_BugsTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testFetchModeBug($mdb) {
-        $this->manualSetUp($mdb);
+    public function testFetchModeBug($ci) {
+        $this->manualSetUp($ci);
 
         $data = array();
 
@@ -101,8 +101,8 @@ class Standard_BugsTest extends Standard_Abstract {
      * @see http://bugs.php.net/bug.php?id=22328
      * @dataProvider provider
      */
-    public function testBug22328($mdb) {
-        $this->manualSetUp($mdb);
+    public function testBug22328($ci) {
+        $this->manualSetUp($ci);
 
         $result =& $this->db->query('SELECT * FROM users');
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
@@ -117,8 +117,8 @@ class Standard_BugsTest extends Standard_Abstract {
      * @see http://pear.php.net/bugs/bug.php?id=670
      * @dataProvider provider
      */
-    public function testBug670($mdb) {
-        $this->manualSetUp($mdb);
+    public function testBug670($ci) {
+        $this->manualSetUp($ci);
 
         $data['user_name'] = null;
         $data['user_password'] = 'somepass';
@@ -159,8 +159,8 @@ class Standard_BugsTest extends Standard_Abstract {
      * @see http://pear.php.net/bugs/bug.php?id=681
      * @dataProvider provider
      */
-    public function testBug681($mdb) {
-        $this->manualSetUp($mdb);
+    public function testBug681($ci) {
+        $this->manualSetUp($ci);
 
         $result =& $this->db->query('SELECT * FROM users WHERE 1=0');
 
@@ -183,8 +183,8 @@ class Standard_BugsTest extends Standard_Abstract {
      * @see http://pear.php.net/bugs/bug.php?id=718
      * @dataProvider provider
      */
-    public function testBug718($mdb) {
-        $this->manualSetUp($mdb);
+    public function testBug718($ci) {
+        $this->manualSetUp($ci);
 
         $data = $this->getSampleData(1);
 
@@ -201,8 +201,8 @@ class Standard_BugsTest extends Standard_Abstract {
      * @see http://pear.php.net/bugs/bug.php?id=946
      * @dataProvider provider
      */
-    public function testBug946($mdb) {
-        $this->manualSetUp($mdb);
+    public function testBug946($ci) {
+        $this->manualSetUp($ci);
 
         $data = array();
         $total_rows = 5;
@@ -246,8 +246,8 @@ class Standard_BugsTest extends Standard_Abstract {
      * @see http://pear.php.net/bugs/bug.php?id=3146
      * @dataProvider provider
      */
-    public function testBug3146($mdb) {
-        $this->manualSetUp($mdb);
+    public function testBug3146($ci) {
+        $this->manualSetUp($ci);
 
         $data = array();
         $total_rows = 5;
@@ -283,8 +283,8 @@ class Standard_BugsTest extends Standard_Abstract {
      * @see http://pear.php.net/bugs/bug.php?id=9502
      * @dataProvider provider
      */
-    public function testBug9502($mdb) {
-        $this->manualSetUp($mdb);
+    public function testBug9502($ci) {
+        $this->manualSetUp($ci);
 
         $row = 5;
         $data = $this->getSampleData($row);
@@ -315,8 +315,8 @@ class Standard_BugsTest extends Standard_Abstract {
      * @see http://pear.php.net/bugs/bug.php?id=18203
      * @dataProvider provider
      */
-    public function testBug18203($mdb) {
-        $this->manualSetUp($mdb);
+    public function testBug18203($ci) {
+        $this->manualSetUp($ci);
 
         $res = $this->db->query("SELECT 1 as id, 2 as id, 'foo' as title", true);
         if (PEAR::isError($res)) {

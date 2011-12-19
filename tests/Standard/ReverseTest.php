@@ -69,10 +69,13 @@ class Standard_ReverseTest extends Standard_Abstract
      * Can not use setUp() because we are using a dataProvider to get multiple
      * MDB2 objects per test.
      *
-     * @param MDB2_Driver_Common $mdb
+     * @param array $ci  an associative array with two elements.  The "dsn"
+     *                   element must contain an array of DSN information.
+     *                   The "options" element must be an array of connection
+     *                   options.
      */
-    protected function manualSetUp($mdb) {
-        parent::manualSetUp($mdb);
+    protected function manualSetUp($ci) {
+        parent::manualSetUp($ci);
 
         $this->nonstd = Nonstandard_Base::factory($this->db, $this);
 
@@ -330,8 +333,8 @@ class Standard_ReverseTest extends Standard_Abstract
      * Test tableInfo('table_name')
      * @dataProvider provider
      */
-    public function testTableInfo($mdb) {
-        $this->manualSetUp($mdb);
+    public function testTableInfo($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->reverse, 'tableInfo')) {
             return;
@@ -380,8 +383,8 @@ class Standard_ReverseTest extends Standard_Abstract
      * Test getTableFieldDefinition($table, $field_name)
      * @dataProvider provider
      */
-    public function testGetTableFieldDefinition($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetTableFieldDefinition($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->reverse, 'getTableFieldDefinition')) {
             return;
@@ -451,8 +454,8 @@ class Standard_ReverseTest extends Standard_Abstract
      * Test getTableIndexDefinition($table, $index_name)
      * @dataProvider provider
      */
-    public function testGetTableIndexDefinition($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetTableIndexDefinition($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->reverse, 'getTableIndexDefinition')) {
             return;
@@ -516,8 +519,8 @@ class Standard_ReverseTest extends Standard_Abstract
      * Test testGetTableConstraintDefinition($table, $constraint_name)
      * @dataProvider provider
      */
-    public function testGetTableConstraintDefinition($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetTableConstraintDefinition($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->reverse, 'getTableConstraintDefinition')) {
             return;
@@ -640,8 +643,8 @@ class Standard_ReverseTest extends Standard_Abstract
      * Test getSequenceDefinition($sequence)
      * @dataProvider provider
      */
-    public function testGetSequenceDefinition($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetSequenceDefinition($ci) {
+        $this->manualSetUp($ci);
 
         //setup
         $this->db->loadModule('Manager', null, true);
@@ -666,8 +669,8 @@ class Standard_ReverseTest extends Standard_Abstract
      * Test getTriggerDefinition($trigger)
      * @dataProvider provider
      */
-    public function testGetTriggerDefinition($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetTriggerDefinition($ci) {
+        $this->manualSetUp($ci);
 
         //setup
         $trigger_name = 'test_trigger';

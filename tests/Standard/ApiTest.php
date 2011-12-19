@@ -51,8 +51,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testParseDSN($mdb) {
-        $this->manualSetUp($mdb);
+    public function testParseDSN($ci) {
+        $this->manualSetUp($ci);
 
         $expected = array (
             'phptype'  => 'phptype',
@@ -179,8 +179,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testConnect($mdb) {
-        $this->manualSetUp($mdb);
+    public function testConnect($ci) {
+        $this->manualSetUp($ci);
 
         $db =& MDB2::factory($this->dsn, $this->options);
         if (PEAR::isError($db)) {
@@ -194,8 +194,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testGetOption($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetOption($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db, 'getOption')) {
             return;
@@ -207,8 +207,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testSetOption($mdb) {
-        $this->manualSetUp($mdb);
+    public function testSetOption($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db, 'setOption')) {
             return;
@@ -222,8 +222,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testLoadModule($mdb) {
-        $this->manualSetUp($mdb);
+    public function testLoadModule($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db, 'loadModule')) {
             return;
@@ -247,8 +247,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testQuery($mdb) {
-        $this->manualSetUp($mdb);
+    public function testQuery($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db, 'query')) {
             return;
@@ -261,8 +261,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testExec($mdb) {
-        $this->manualSetUp($mdb);
+    public function testExec($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db, 'exec')) {
             return;
@@ -277,8 +277,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testPrepare($mdb) {
-        $this->manualSetUp($mdb);
+    public function testPrepare($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db, 'prepare')) {
             return;
@@ -291,8 +291,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testFetchRow($mdb) {
-        $this->manualSetUp($mdb);
+    public function testFetchRow($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->standardQuery();
         if (!$this->methodExists($result, 'fetchRow')) {
@@ -309,8 +309,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testNumRows($mdb) {
-        $this->manualSetUp($mdb);
+    public function testNumRows($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->standardQuery();
         if (!$this->methodExists($result, 'numRows')) {
@@ -324,8 +324,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testNumCols($mdb) {
-        $this->manualSetUp($mdb);
+    public function testNumCols($ci) {
+        $this->manualSetUp($ci);
 
         $result = $this->standardQuery();
         if (!$this->methodExists($result, 'numCols')) {
@@ -339,8 +339,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testSingleton($mdb) {
-        $this->manualSetUp($mdb);
+    public function testSingleton($ci) {
+        $this->manualSetUp($ci);
 
         $db =& MDB2::singleton();
         $this->assertTrue(MDB2::isConnection($db));
@@ -354,8 +354,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testGetServerVersion($mdb) {
-        $this->manualSetUp($mdb);
+    public function testGetServerVersion($ci) {
+        $this->manualSetUp($ci);
 
         $server_info = $this->db->getServerVersion(true);
         if (PEAR::isError($server_info)) {
@@ -374,8 +374,8 @@ class Standard_ApiTest extends Standard_Abstract {
     /**
      * @dataProvider provider
      */
-    public function testQuoteIdentifier($mdb) {
-        $this->manualSetUp($mdb);
+    public function testQuoteIdentifier($ci) {
+        $this->manualSetUp($ci);
 
         if ($this->db->phptype != 'ibase') {
             $start = $this->db->identifier_quoting['start'];

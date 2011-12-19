@@ -55,8 +55,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testStorage($mdb) {
-        $this->manualSetUp($mdb);
+    public function testStorage($ci) {
+        $this->manualSetUp($ci);
 
         $data = $this->getSampleData(1234);
 
@@ -88,8 +88,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testFetchOne($mdb) {
-        $this->manualSetUp($mdb);
+    public function testFetchOne($ci) {
+        $this->manualSetUp($ci);
 
         $data = array();
         $total_rows = 5;
@@ -129,8 +129,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testFetchCol($mdb) {
-        $this->manualSetUp($mdb);
+    public function testFetchCol($ci) {
+        $this->manualSetUp($ci);
 
         $data = array();
         $total_rows = 5;
@@ -193,8 +193,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testFetchAll($mdb) {
-        $this->manualSetUp($mdb);
+    public function testFetchAll($ci) {
+        $this->manualSetUp($ci);
 
         $data = array();
         $total_rows = 5;
@@ -310,8 +310,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testFetchModes($mdb) {
-        $this->manualSetUp($mdb);
+    public function testFetchModes($ci) {
+        $this->manualSetUp($ci);
 
         $data = array();
         $total_rows = 5;
@@ -348,8 +348,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testMultiQuery($mdb) {
-        $this->manualSetUp($mdb);
+    public function testMultiQuery($ci) {
+        $this->manualSetUp($ci);
 
         $multi_query_orig = $this->db->getOption('multi_query');
         if (PEAR::isError($multi_query_orig) && ($multi_query_orig->getCode() == MDB2_ERROR_UNSUPPORTED)) {
@@ -404,8 +404,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testPreparedQueries($mdb) {
-        $this->manualSetUp($mdb);
+    public function testPreparedQueries($ci) {
+        $this->manualSetUp($ci);
 
         $data = array(
             array(
@@ -573,8 +573,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testSkipDelimitedStrings($mdb) {
-        $this->manualSetUp($mdb);
+    public function testSkipDelimitedStrings($ci) {
+        $this->manualSetUp($ci);
 
         //test correct placeholder
         $query = 'SELECT what FROM tbl WHERE x = ?';
@@ -640,8 +640,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testMetadata($mdb) {
-        $this->manualSetUp($mdb);
+    public function testMetadata($ci) {
+        $this->manualSetUp($ci);
 
         $data = $this->getSampleData(1234);
 
@@ -682,8 +682,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testNulls($mdb) {
-        $this->manualSetUp($mdb);
+    public function testNulls($ci) {
+        $this->manualSetUp($ci);
 
         $portability = $this->db->getOption('portability');
         if ($portability & MDB2_PORTABILITY_EMPTY_TO_NULL) {
@@ -793,8 +793,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testRanges($mdb) {
-        $this->manualSetUp($mdb);
+    public function testRanges($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('limit_queries')) {
             $this->markTestSkipped('LIMIT not supported');
@@ -870,8 +870,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testSequences($mdb) {
-        $this->manualSetUp($mdb);
+    public function testSequences($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('sequences')) {
            $this->markTestSkipped('SEQUENCEs not supported');
@@ -980,8 +980,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testReplace($mdb) {
-        $this->manualSetUp($mdb);
+    public function testReplace($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('replace')) {
             $this->markTestSkipped('REPLACE not supported');
@@ -1090,8 +1090,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testAffectedRows($mdb) {
-        $this->manualSetUp($mdb);
+    public function testAffectedRows($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('affected_rows')) {
             $this->markTestSkipped('Affected rows not supported');
@@ -1163,8 +1163,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testTransactionsRollback($mdb) {
-        $this->manualSetUp($mdb);
+    public function testTransactionsRollback($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
@@ -1195,8 +1195,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testTransactionsCommit($mdb) {
-        $this->manualSetUp($mdb);
+    public function testTransactionsCommit($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
@@ -1227,8 +1227,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testTransactionsBoth($mdb) {
-        $this->manualSetUp($mdb);
+    public function testTransactionsBoth($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
@@ -1260,8 +1260,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testNestedTransactions($mdb) {
-        $this->manualSetUp($mdb);
+    public function testNestedTransactions($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('transactions')) {
             $this->markTestSkipped('Transactions not supported');
@@ -1308,8 +1308,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testSavepoint($mdb) {
-        $this->manualSetUp($mdb);
+    public function testSavepoint($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('savepoints')) {
             $this->markTestSkipped('SAVEPOINTs not supported');
@@ -1385,8 +1385,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testLOBStorage($mdb) {
-        $this->manualSetUp($mdb);
+    public function testLOBStorage($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
@@ -1465,8 +1465,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testLOBRead($mdb) {
-        $this->manualSetUp($mdb);
+    public function testLOBRead($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
@@ -1526,8 +1526,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testLOBFiles($mdb) {
-        $this->manualSetUp($mdb);
+    public function testLOBFiles($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
@@ -1638,8 +1638,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testQuoteLOBFilesNoUrlInclude($mdb) {
-        $this->manualSetUp($mdb);
+    public function testQuoteLOBFilesNoUrlInclude($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
@@ -1673,8 +1673,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testQuoteLOBFilesUrlInclude($mdb) {
-        $this->manualSetUp($mdb);
+    public function testQuoteLOBFilesUrlInclude($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
@@ -1719,8 +1719,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testLOBNulls($mdb) {
-        $this->manualSetUp($mdb);
+    public function testLOBNulls($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
@@ -1753,8 +1753,8 @@ class Standard_UsageTest extends Standard_Abstract {
     }
 
     /** @dataProvider provider */
-    public function testLOBUpdate($mdb) {
-        $this->manualSetUp($mdb);
+    public function testLOBUpdate($ci) {
+        $this->manualSetUp($ci);
 
         if (!$this->supported('LOBs')) {
             $this->markTestSkipped('LOBs not supported');
@@ -1860,8 +1860,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testConvertEmpty2Null($mdb) {
-        $this->manualSetUp($mdb);
+    public function testConvertEmpty2Null($ci) {
+        $this->manualSetUp($ci);
 
 #$this->db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL);
 
@@ -1889,8 +1889,8 @@ class Standard_UsageTest extends Standard_Abstract {
     }
 
     /** @dataProvider provider */
-    public function testPortabilityOptions($mdb) {
-        $this->manualSetUp($mdb);
+    public function testPortabilityOptions($ci) {
+        $this->manualSetUp($ci);
 
         // MDB2_PORTABILITY_DELETE_COUNT
         $data = array();
@@ -2037,9 +2037,8 @@ class Standard_UsageTest extends Standard_Abstract {
      *
      * @dataProvider provider
      */
-    public function testgetAsKeyword($mdb)
-    {
-        $this->manualSetUp($mdb);
+    public function testgetAsKeyword($ci) {
+        $this->manualSetUp($ci);
 
         $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
