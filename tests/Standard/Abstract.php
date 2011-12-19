@@ -38,7 +38,8 @@
 // | WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE          |
 // | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
-// | Author: Paul Cooper <pgc@ucecom.com>                                 |
+// | Authors: Paul Cooper <pgc@ucecom.com>                                |
+// |          Daniel Convissor <danielc@php.net>                          |
 // +----------------------------------------------------------------------+
 //
 // $Id$
