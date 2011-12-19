@@ -220,7 +220,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         } else {
             //the 2 values for user_password are equals, so they are collapsed in the same array
             $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
-            $values = $values[0];
+            $values = array_shift($values);
             //there are 2 records
             $this->assertEquals(2, count($values), 'Error: incorrect number of returned rows');
             $value = array_shift($values);
@@ -238,7 +238,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         } else {
             //the 2 values for user_password are equals, so the first record is overwritten
             $this->assertEquals(1, count($values), 'Error: incorrect number of returned rows');
-            $values = $values[0];
+            $values = array_shift($values);
             $this->assertEquals($data2['user_id'],   $value['user_id'], 'Unexpected returned value');
             $this->assertEquals($data2['user_name'], $value['user_name'], 'Unexpected returned value');
         }
