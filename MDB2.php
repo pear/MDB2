@@ -2648,6 +2648,7 @@ class MDB2_Driver_Common extends PEAR
                     'result class is not extended from MDB2_Result_Common', __FUNCTION__);
                 return $err;
             }
+
             if (!empty($types)) {
                 $err = $result->setResultTypes($types);
                 if (PEAR::isError($err)) {
@@ -2662,19 +2663,23 @@ class MDB2_Driver_Common extends PEAR
                     return $err;
                 }
             }
-        }
-        if ($result_wrap_class === true) {
-            $result_wrap_class = $this->options['result_wrap_class'];
-        }
-        if ($result_wrap_class) {
-            if (!MDB2::classExists($result_wrap_class)) {
-                $err = $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
-                    'result wrap class does not exist '.$result_wrap_class, __FUNCTION__);
-                return $err;
+
+            if ($result_wrap_class === true) {
+                $result_wrap_class = $this->options['result_wrap_class'];
             }
-            $result = new $result_wrap_class($result, $this->fetchmode);
+            if ($result_wrap_class) {
+                if (!MDB2::classExists($result_wrap_class)) {
+                    $err = $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
+                        'result wrap class does not exist '.$result_wrap_class, __FUNCTION__);
+                    return $err;
+                }
+                $result = new $result_wrap_class($result, $this->fetchmode);
+            }
+
+            return $result;
         }
-        return $result;
+
+        return $result_resource;
     }
 
     // }}}
