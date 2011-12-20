@@ -319,6 +319,8 @@ class Standard_FunctionTest extends Standard_Abstract
         }
 
         $datetime = '2008-01-01 00:00:00';
+        $expected = 1199163600;
+
         $quoted_dt = $this->db->quote($datetime, 'timestamp');
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->db->expectError(MDB2_ERROR_UNSUPPORTED);
@@ -329,15 +331,12 @@ class Standard_FunctionTest extends Standard_Abstract
             return;
         }
 
-        $expected = strtotime($datetime);
-
         $functionTable_clause = $this->db->function->functionTable();
         $query = 'SELECT '.$unixts_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'text');
         if (PEAR::isError($result)) {
-            $this->fail('Error getting UNIX timestamp:'. $result->getMessage() . ' :: ' . $result->getUserInfo());
-        } else {
-            $this->assertEquals($expected, $result, 'Error: could not get correct UNIX timestamp: '.$result);
+            $this->fail('Error getting UNIX timestamp: ' . $result->getUserInfo());
         }
+        $this->assertEquals($expected, $result);
     }
 }
