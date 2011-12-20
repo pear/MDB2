@@ -365,4 +365,122 @@ class Standard_BugsTest extends Standard_Abstract {
         $this->setExpectedException('PHPUnit_Framework_Error', 'must be an instance of MDB2_Result_Common');
         $i = new MDB2_Iterator('foo');
     }
+
+    /**
+     * Make setOption('result_wrap_class') work without convoluted query() calls
+     * @see https://pear.php.net/bugs/bug.php?id=16970
+     * @dataProvider provider
+     */
+    public function testRequest16970($ci) {
+        $this->manualSetUp($ci);
+
+        $data = $this->populateUserData(1);
+        $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
+        MDB2::loadFile('Iterator');
+
+        switch ($this->db->phptype) {
+            case 'mysqli':
+                $expect = 'mysqli_result';
+                break;
+            default:
+                $expect = 'resource';
+        }
+
+        // Regular behavior.
+
+        $res = $this->db->query('SELECT * FROM users');
+        $this->assertInstanceOf('MDB2_Result_Common', $res);
+
+        $res = $this->db->query('SELECT * FROM users', null, true);
+        $this->assertInstanceOf('MDB2_Result_Common', $res);
+
+        $res = $this->db->query('SELECT * FROM users', null, false);
+        if ($expect == 'resource') {
+            $this->assertInternalType('resource', $res);
+        } else {
+            $this->assertInstanceOf($expect, $res);
+        }
+
+        $res = $this->db->query('SELECT * FROM users', null, true, true);
+        $this->assertInstanceOf('MDB2_Result_Common', $res);
+
+        $res = $this->db->query('SELECT * FROM users', null, true, false);
+        $this->assertInstanceOf('MDB2_Result_Common', $res);
+
+        $res = $this->db->query('SELECT * FROM users', null, true, 'MDB2_BufferedIterator');
+        $this->assertEquals('MDB2_BufferedIterator', get_class($res));
+
+        // Setting third parameter to false forces raw results to be returned.
+
+        $res = $this->db->query('SELECT * FROM users', null, false, true);
+        if ($expect == 'resource') {
+            $this->assertInternalType('resource', $res);
+        } else {
+            $this->assertInstanceOf($expect, $res);
+        }
+
+        $res = $this->db->query('SELECT * FROM users', null, false, false);
+        if ($expect == 'resource') {
+            $this->assertInternalType('resource', $res);
+        } else {
+            $this->assertInstanceOf($expect, $res);
+        }
+
+        $res = $this->db->query('SELECT * FROM users', null, false, 'MDB2_BufferedIterator');
+        if ($expect == 'resource') {
+            $this->assertInternalType('resource', $res);
+        } else {
+            $this->assertInstanceOf($expect, $res);
+        }
+
+
+        // Utilize a default result wrap class.
+
+        $this->db->setOption('result_wrap_class', 'MDB2_Iterator');
+
+        $res = $this->db->query('SELECT * FROM users');
+        $this->assertEquals('MDB2_Iterator', get_class($res));
+
+        $res = $this->db->query('SELECT * FROM users', null, true);
+        $this->assertEquals('MDB2_Iterator', get_class($res));
+
+        $res = $this->db->query('SELECT * FROM users', null, false);
+        if ($expect == 'resource') {
+            $this->assertInternalType('resource', $res);
+        } else {
+            $this->assertInstanceOf($expect, $res);
+        }
+
+        $res = $this->db->query('SELECT * FROM users', null, true, true);
+        $this->assertEquals('MDB2_Iterator', get_class($res));
+
+        $res = $this->db->query('SELECT * FROM users', null, true, false);
+        $this->assertInstanceOf('MDB2_Result_Common', $res);
+
+        $res = $this->db->query('SELECT * FROM users', null, true, 'MDB2_BufferedIterator');
+        $this->assertEquals('MDB2_BufferedIterator', get_class($res));
+
+        // Setting third parameter to false forces raw results to be returned.
+
+        $res = $this->db->query('SELECT * FROM users', null, false, true);
+        if ($expect == 'resource') {
+            $this->assertInternalType('resource', $res);
+        } else {
+            $this->assertInstanceOf($expect, $res);
+        }
+
+        $res = $this->db->query('SELECT * FROM users', null, false, false);
+        if ($expect == 'resource') {
+            $this->assertInternalType('resource', $res);
+        } else {
+            $this->assertInstanceOf($expect, $res);
+        }
+
+        $res = $this->db->query('SELECT * FROM users', null, false, 'MDB2_BufferedIterator');
+        if ($expect == 'resource') {
+            $this->assertInternalType('resource', $res);
+        } else {
+            $this->assertInstanceOf($expect, $res);
+        }
+    }
 }

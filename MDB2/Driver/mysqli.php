@@ -1701,7 +1701,7 @@ class MDB2_Statement_mysqli extends MDB2_Statement_Common
      *               a MDB2 error on failure
      * @access private
      */
-    function _execute($result_class = true, $result_wrap_class = false)
+    function _execute($result_class = true, $result_wrap_class = true)
     {
         if (null === $this->statement) {
             $result = parent::_execute($result_class, $result_wrap_class);

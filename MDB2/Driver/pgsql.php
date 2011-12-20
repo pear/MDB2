@@ -652,7 +652,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             if ($is_manip) {
                 $result =  $this->_affectedRows($connection, $result);
             } else {
-                $result =& $this->_wrapResult($result, $types, true, false, $limit, $offset);
+                $result =& $this->_wrapResult($result, $types, true, true, $limit, $offset);
             }
         }
 
@@ -1432,7 +1432,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
      *               a MDB2 error on failure
      * @access private
      */
-    function _execute($result_class = true, $result_wrap_class = false)
+    function _execute($result_class = true, $result_wrap_class = true)
     {
         if (null === $this->statement) {
             return parent::_execute($result_class, $result_wrap_class);

@@ -2449,7 +2449,7 @@ class MDB2_Driver_Common extends PEAR
             $affected_rows =  $this->_affectedRows($connection, $result);
             return $affected_rows;
         }
-        $result = $this->_wrapResult($result, $types, true, false, $limit, $offset);
+        $result = $this->_wrapResult($result, $types, true, true, $limit, $offset);
         return $result;
     }
 
@@ -2570,7 +2570,7 @@ class MDB2_Driver_Common extends PEAR
      *
      * @access  public
      */
-    function query($query, $types = null, $result_class = true, $result_wrap_class = false)
+    function query($query, $types = null, $result_class = true, $result_wrap_class = true)
     {
         $offset = $this->offset;
         $limit = $this->limit;
@@ -2610,7 +2610,7 @@ class MDB2_Driver_Common extends PEAR
      * @access  protected
      */
     function _wrapResult($result_resource, $types = array(), $result_class = true,
-        $result_wrap_class = false, $limit = null, $offset = null)
+        $result_wrap_class = true, $limit = null, $offset = null)
     {
         if ($types === true) {
             if ($this->supports('result_introspection')) {
