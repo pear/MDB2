@@ -124,6 +124,7 @@ $package->setAPIStability($state);
 $package->setNotes($notes);
 $package->setDescription($description);
 $package->addGlobalReplacement('package-info', '@package_version@', 'version');
+$package->addReplacement('tests/autoload.inc', 'pear-config', '@php_dir@', 'php_dir');
 
 if (isset($_GET['make']) || (isset($_SERVER['argv']) && @$_SERVER['argv'][1] == 'make')) {
     $package->writePackageFile();
