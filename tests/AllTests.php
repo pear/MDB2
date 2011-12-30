@@ -45,8 +45,7 @@ class AllTests {
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('MDB2 Unit Tests');
 
-        $dir = new RecursiveDirectoryIterator(__DIR__ . '/Standard',
-                FilesystemIterator::SKIP_DOTS);
+        $dir = new GlobIterator(__DIR__ . '/Standard/*Test.php');
         $suite->addTestFiles($dir);
 
         return $suite;
