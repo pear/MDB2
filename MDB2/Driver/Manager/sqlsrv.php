@@ -304,7 +304,11 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
             return $result;
         }
 
-        return $db->exec('EXEC NSVacuum '.$timeout);
+        $result = $db->exec('EXEC NSVacuum '.$timeout);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

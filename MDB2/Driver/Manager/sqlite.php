@@ -436,7 +436,11 @@ class MDB2_Driver_Manager_sqlite extends MDB2_Driver_Manager_Common
         if (!empty($table)) {
             $query .= ' '.$db->quoteIdentifier($table, true);
         }
-        return $db->exec($query);
+        $result = $db->exec($query);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}
