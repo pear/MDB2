@@ -832,7 +832,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             }
         }
         $query .= ' ('. implode(', ', $fields) . ')';
-        return $db->exec($query);
+        $result = $db->exec($query);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

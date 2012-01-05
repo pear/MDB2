@@ -871,7 +871,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $query .= ' ('.implode(', ', $fields) . ')';
         $result = $db->exec($query);
         $this->_silentCommit();
-        return $result;
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}
