@@ -787,7 +787,11 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         $name = $db->quoteIdentifier($db->getIndexName($name), true);
-        return $db->exec("DROP INDEX $name");
+        $result = $db->exec("DROP INDEX $name");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

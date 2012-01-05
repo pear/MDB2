@@ -978,7 +978,11 @@ class MDB2_Driver_Manager_mssql extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table, true);
         $name = $db->quoteIdentifier($db->getIndexName($name), true);
-        return $db->exec("DROP INDEX $table.$name");
+        $result = $db->exec("DROP INDEX $table.$name");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

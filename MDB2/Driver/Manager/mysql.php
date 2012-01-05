@@ -862,7 +862,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         $table = $db->quoteIdentifier($table, true);
         $name = $db->quoteIdentifier($db->getIndexName($name), true);
-        return $db->exec("DROP INDEX $name ON $table");
+        $result = $db->exec("DROP INDEX $name ON $table");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}
