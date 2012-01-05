@@ -601,8 +601,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
 
         $name = $db->quoteIdentifier($name, true);
         $result = $db->exec("ALTER TABLE $name $query");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
         $this->_silentCommit();
-        return $result;
+        return MDB2_OK;
     }
 
     // }}}
