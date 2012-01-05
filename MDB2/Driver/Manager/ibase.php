@@ -870,10 +870,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         $query .= ' ('.implode(', ', $fields) . ')';
         $result = $db->exec($query);
-        $this->_silentCommit();
         if (MDB2::isError($result)) {
             return $result;
         }
+        $this->_silentCommit();
         return MDB2_OK;
     }
 
@@ -985,10 +985,10 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $query .= $this->_getAdvancedFKOptions($definition);
         }
         $result = $db->exec($query);
-        $this->_silentCommit();
         if (MDB2::isError($result)) {
             return $result;
         }
+        $this->_silentCommit();
         return MDB2_OK;
     }
 
