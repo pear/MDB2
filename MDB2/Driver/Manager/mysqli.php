@@ -327,7 +327,11 @@ class MDB2_Driver_Manager_mysqli extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name, true);
-        return $db->exec("TRUNCATE TABLE $name");
+        $result = $db->exec("TRUNCATE TABLE $name");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

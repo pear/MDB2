@@ -471,7 +471,11 @@ END;
         }
 
         $name = $db->quoteIdentifier($name, true);
-        return $db->exec("TRUNCATE TABLE $name");
+        $result = $db->exec("TRUNCATE TABLE $name");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

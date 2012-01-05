@@ -411,7 +411,11 @@ class MDB2_Driver_Manager_Common extends MDB2_Module_Common
         }
 
         $name = $db->quoteIdentifier($name, true);
-        return $db->exec("DELETE FROM $name");
+        $result = $db->exec("DELETE FROM $name");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}
