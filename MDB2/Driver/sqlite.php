@@ -142,6 +142,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
                     '/is not unique/' => MDB2_ERROR_CONSTRAINT,
                     '/columns .* are not unique/i' => MDB2_ERROR_CONSTRAINT,
                     '/uniqueness constraint failed/' => MDB2_ERROR_CONSTRAINT,
+                    '/violates .*constraint/' => MDB2_ERROR_CONSTRAINT,
                     '/may not be NULL/' => MDB2_ERROR_CONSTRAINT_NOT_NULL,
                     '/^no such column:/' => MDB2_ERROR_NOSUCHFIELD,
                     '/no column named/' => MDB2_ERROR_NOSUCHFIELD,
