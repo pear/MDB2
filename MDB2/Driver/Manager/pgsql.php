@@ -801,11 +801,19 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         if (in_array($name, $unique)) {
-            return $db->exec('DROP INDEX '.$db->quoteIdentifier($name, true));
+            $result = $db->exec('DROP INDEX '.$db->quoteIdentifier($name, true));
+            if (MDB2::isError($result)) {
+                return $result;
+            }
+            return MDB2_OK;
         }
         $idxname = $db->getIndexName($name);
         if (in_array($idxname, $unique)) {
-            return $db->exec('DROP INDEX '.$db->quoteIdentifier($idxname, true));
+            $result = $db->exec('DROP INDEX '.$db->quoteIdentifier($idxname, true));
+            if (MDB2::isError($result)) {
+                return $result;
+            }
+            return MDB2_OK;
         }
         return $db->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
             $name . ' is not an existing constraint for table ' . $table, __FUNCTION__);

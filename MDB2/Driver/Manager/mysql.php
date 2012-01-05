@@ -1015,7 +1015,11 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
 
         if ($primary || strtolower($name) == 'primary') {
             $query = 'ALTER TABLE '. $db->quoteIdentifier($table, true) .' DROP PRIMARY KEY';
-            return $db->exec($query);
+            $result = $db->exec($query);
+            if (MDB2::isError($result)) {
+                return $result;
+            }
+            return MDB2_OK;
         }
 
         //is it a FK constraint? If so, also delete the associated triggers
@@ -1031,13 +1035,21 @@ class MDB2_Driver_Manager_mysql extends MDB2_Driver_Manager_Common
             $table = $db->quoteIdentifier($table, true);
             $name = $db->quoteIdentifier($db->getIndexName($name), true);
             $query = "ALTER TABLE $table DROP FOREIGN KEY $name";
-            return $db->exec($query);
+            $result = $db->exec($query);
+            if (MDB2::isError($result)) {
+                return $result;
+            }
+            return MDB2_OK;
         }
 
         $table = $db->quoteIdentifier($table, true);
         $name = $db->quoteIdentifier($db->getIndexName($name), true);
         $query = "ALTER TABLE $table DROP INDEX $name";
-        return $db->exec($query);
+        $result = $db->exec($query);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}
