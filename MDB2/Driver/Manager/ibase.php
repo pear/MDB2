@@ -1083,7 +1083,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $sequence_name = $db->getSequenceName($seq_name);
         $sequence_name = $db->quote($sequence_name, 'text');
         $query = "DELETE FROM RDB\$GENERATORS WHERE UPPER(RDB\$GENERATOR_NAME)=$sequence_name";
-        return $db->exec($query);
+        $result = $db->exec($query);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

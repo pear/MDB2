@@ -1284,7 +1284,11 @@ END;
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
-        return $db->exec("DROP SEQUENCE $sequence_name");
+        $result = $db->exec("DROP SEQUENCE $sequence_name");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}
