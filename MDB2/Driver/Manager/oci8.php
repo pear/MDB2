@@ -444,6 +444,9 @@ END;
         $result = $this->_dropAutoincrement($name);
         if (!PEAR::isError($result)) {
             $result = parent::dropTable($name);
+            if (MDB2::isError($result)) {
+                return $result;
+            }
         }
         $db->completeNestedTransaction();
         return $result;

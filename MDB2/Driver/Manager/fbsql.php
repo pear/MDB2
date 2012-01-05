@@ -120,7 +120,11 @@ class MDB2_Driver_Manager_fbsql extends MDB2_Driver_Manager_Common
         }
 
         $name = $db->quoteIdentifier($name, true);
-        return $db->exec("DROP TABLE $name CASCADE");
+        $result = $db->exec("DROP TABLE $name CASCADE");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

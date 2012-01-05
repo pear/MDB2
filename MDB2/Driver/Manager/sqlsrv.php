@@ -161,7 +161,11 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
             return $db;
         }
         $name = $db->quoteIdentifier($name, true);
-        return $db->exec("IF EXISTS (SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='$name') DROP TABLE $name");
+        $result = $db->exec("IF EXISTS (SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='$name') DROP TABLE $name");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}	

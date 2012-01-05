@@ -399,6 +399,9 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             return $result;
         }
         $result = parent::dropTable($name);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
         $this->_silentCommit();
         return $result;
     }
