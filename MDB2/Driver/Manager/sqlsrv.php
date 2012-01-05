@@ -1385,7 +1385,11 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
             $query .= ' ('. implode(', ', $referenced_fields) . ')';
             $query .= $this->_getAdvancedFKOptions($definition);
         }
-        return $db->exec($query);
+        $result = $db->exec($query);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}
