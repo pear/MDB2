@@ -175,6 +175,41 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Checks if a result is an MDB2 error and calls the
+     * appropriate PHPUnit method if it is
+     *
+     * + MDB2_ERROR_UNSUPPORTED: markTestSkipped(not supported)
+     * + MDB2_ERROR_NOT_CAPABLE: markTestSkipped(not supported)
+     * + MDB2_ERROR_NO_PERMISSION: markTestSkipped(lacks permission)
+     * + MDB2_ERROR_ACCESS_VIOLATION: markTestSkipped(lacks permission)
+     * + Other errors: fail(error details)
+     *
+     * NOTE: calling PHPUnit's skip and fail methods causes the current
+     * test to halt execution, so no conditional statements or other error
+     * handling are needed by this method or the test methods calling this
+     * method.
+     *
+     * @param mixed $result   the query result to inspect
+     * @param string $action  a description of what is being checked
+     * @return void
+     */
+    public function checkResultForErrors($result, $action)
+    {
+        if (MDB2::isError($result)) {
+            if ($result->getCode() == MDB2_ERROR_UNSUPPORTED
+                || $result->getCode() == MDB2_ERROR_NOT_CAPABLE) {
+                $this->markTestSkipped("$action not supported");
+            }
+            if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
+                || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
+            {
+                $this->markTestSkipped("User lacks permission to $action");
+            }
+            $this->fail("$action ERROR: ".$result->getUserInfo());
+        }
+    }
+
+    /**
      * @param MDB2_Result_Common $result  the query result to check
      * @param type $rownum  the row in the $result to check
      * @param type $data  the expected data
@@ -257,7 +292,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         ) {
             return true;
         }
-        $this->fail('method '. $name.' not implemented in '.get_class($class));
+        //$this->fail('method '. $name.' not implemented in '.get_class($class));
         return false;
     }
 
@@ -265,7 +300,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         $this->db->loadModule('Manager', null, true);
         $tables = $this->db->manager->listTables();
         if (PEAR::isError($tables)) {
-            $this->fail('Cannot list tables: '. $tables->getUserInfo());
+            //$this->fail('Cannot list tables: '. $tables->getUserInfo());
             return false;
         }
         return in_array(strtolower($table), array_map('strtolower', $tables));

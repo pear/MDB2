@@ -99,8 +99,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         }
         if (!$this->tableExists($this->table)) {
             $result = $this->db->manager->createTable($this->table, $this->fields, $options);
-            $this->assertFalse(PEAR::isError($result), 'Error creating table');
-            $this->assertEquals(MDB2_OK, $result, 'Invalid return value for createTable()');
+            $this->checkResultForErrors($result, 'createTable');
         }
     }
 
@@ -109,28 +108,58 @@ class Standard_ManagerTest extends Standard_Abstract {
             return;
         }
         if ($this->tableExists($this->table)) {
-            $result = $this->db->manager->dropTable($this->table);
-            $this->assertFalse(PEAR::isError($result), 'Error dropping table');
+            $this->db->manager->dropTable($this->table);
         }
         parent::tearDown();
     }
 
     /**
-     * Create a sample table, test the new fields, and drop it.
+     * @covers MDB2_Driver_Manager_Common::createTable()
+     * @covers MDB2_Driver_Manager_Common::listTables()
+     * @covers MDB2_Driver_Manager_Common::dropTable()
      * @dataProvider provider
      */
-    public function testCreateTable($ci) {
+    public function testTableActions($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->methodExists($this->db->manager, 'createTable')) {
-            return;
-        }
-        if ($this->tableExists($this->table)) {
+        // Make sure it doesn't exist before trying to create it.
+        if ($this->methodExists($this->db->manager, 'dropTable')) {
             $this->db->manager->dropTable($this->table);
+        } else {
+            $this->db->exec("DROP TABLE $this->table");
         }
 
+        $action = 'createTable';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
+        }
         $result = $this->db->manager->createTable($this->table, $this->fields);
-        $this->assertFalse(PEAR::isError($result), 'Error creating table');
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        $action = 'listTables';
+        if ($this->methodExists($this->db->manager, $action)) {
+            $result = $this->db->manager->listTables();
+            $this->checkResultForErrors($result, $action);
+            $this->assertContains($this->table, $result,
+                    "Result of $action() does not contain expected value");
+        }
+
+        $action = 'dropTable';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->db->exec("DROP TABLE $this->table");
+            $this->markTestSkipped("Driver lacks $action() method");
+        }
+        $result = $this->db->manager->dropTable($this->table);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        // Check that it's actually gone.
+        if ($this->tableExists($this->table)) {
+            $this->fail("dropTable() passed but the table still exists");
+        }
     }
 
     /**
@@ -141,7 +170,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'createTable')) {
-            return;
+            $this->markTestSkipped("Driver lacks createTable() method");
         }
         if ($this->tableExists($this->table)) {
             $this->db->manager->dropTable($this->table);
@@ -156,19 +185,20 @@ class Standard_ManagerTest extends Standard_Abstract {
             $this->db->manager->dropSequence($seq_name);
         }
 
+        $action = 'createTable';
         $fields = $this->fields;
         $fields['id']['autoincrement'] = true;
         $result = $this->db->manager->createTable($this->table, $fields);
-        $this->assertFalse(PEAR::isError($result), 'Error creating table');
-        $this->assertEquals(MDB2_OK, $result, 'Error creating table: unexpected return value');
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
         $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table, true);
         $query.= ' (somename, somedescription)';
         $query.= ' VALUES (:somename, :somedescription)';
         $stmt =& $this->db->prepare($query, array('text', 'text'), MDB2_PREPARE_MANIP);
-        if (PEAR::isError($stmt)) {
-            $this->fail('Preparing insert');
-            return;
-        }
+        $this->checkResultForErrors($stmt, 'prepare');
+
         $values = array(
             'somename' => 'foo',
             'somedescription' => 'bar',
@@ -176,26 +206,19 @@ class Standard_ManagerTest extends Standard_Abstract {
         $rows = 5;
         for ($i =0; $i < $rows; ++$i) {
             $result = $stmt->execute($values);
-            if (PEAR::isError($result)) {
-                $this->fail('Error executing autoincrementing insert number: '.$i);
-                return;
-            }
+            $this->checkResultForErrors($result, 'execute');
         }
         $stmt->free();
+
         $query = 'SELECT id FROM '.$this->table;
         $data = $this->db->queryCol($query, 'integer');
-        if (PEAR::isError($data)) {
-            $this->fail('Error executing select: ' . $data->getUserInfo());
-            return;
-        }
+        $this->checkResultForErrors($data, 'queryCol');
         for ($i=0; $i<$rows; ++$i) {
             if (!isset($data[$i])) {
                 $this->fail('Error in data returned by select');
-                return;
             }
             if ($data[$i] !== ($i+1)) {
                 $this->fail('Error executing autoincrementing insert');
-                return;
             }
         }
     }
@@ -207,7 +230,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'listTableFields')) {
-            return;
+            $this->markTestSkipped("Driver lacks listTableFields() method");
         }
         $this->assertEquals(
             array_keys($this->fields),
@@ -217,14 +240,14 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
+     * @covers MDB2_Driver_Manager_Common::createIndex()
+     * @covers MDB2_Driver_Manager_Common::listTableIndexes()
+     * @covers MDB2_Driver_Manager_Common::dropIndex()
      * @dataProvider provider
      */
-    public function testCreateIndex($ci) {
+    public function testIndexActions($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->methodExists($this->db->manager, 'createIndex')) {
-            return;
-        }
         $index = array(
             'fields' => array(
                 'somename' => array(
@@ -233,63 +256,40 @@ class Standard_ManagerTest extends Standard_Abstract {
             ),
         );
         $name = 'simpleindex';
-        $result = $this->db->manager->createIndex($this->table, $name, $index);
-        $this->assertFalse(PEAR::isError($result), 'Error creating index');
-    }
 
-    /**
-     * @dataProvider provider
-     */
-    public function testDropIndex($ci) {
-        $this->manualSetUp($ci);
-
-        if (!$this->methodExists($this->db->manager, 'dropIndex')) {
-            return;
+        $action = 'createIndex';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
         }
-        $index = array(
-            'fields' => array(
-                'somename' => array(
-                    'sorting' => 'ascending',
-                ),
-            ),
-        );
-        $name = 'simpleindex';
         $result = $this->db->manager->createIndex($this->table, $name, $index);
-        if (PEAR::isError($result)) {
-            $this->fail('Error creating index');
-        } else {
-            $result = $this->db->manager->dropIndex($this->table, $name);
-            $this->assertFalse(PEAR::isError($result), 'Error dropping index');
-            $indices = $this->db->manager->listTableIndexes($this->table);
-            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-            $this->assertFalse(in_array($name, $indices), 'Error dropping index');
-        }
-    }
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
 
-    /**
-     * @dataProvider provider
-     */
-    public function testListIndexes($ci) {
-        $this->manualSetUp($ci);
-
-        if (!$this->methodExists($this->db->manager, 'listTableIndexes')) {
-            return;
+        $action = 'listTableIndexes';
+        if ($this->methodExists($this->db->manager, $action)) {
+            $result = $this->db->manager->listTableIndexes($this->table);
+            $this->checkResultForErrors($result, $action);
+            $this->assertContains($name, $result,
+                    "Result of $action() does not contain expected value");
         }
-        $index = array(
-            'fields' => array(
-                'somename' => array(
-                    'sorting' => 'ascending',
-                ),
-            ),
-        );
-        $name = 'simpleindex';
-        $result = $this->db->manager->createIndex($this->table, $name, $index);
-        if (PEAR::isError($result)) {
-            $this->fail('Error creating index');
-        } else {
-            $indices = $this->db->manager->listTableIndexes($this->table);
-            $this->assertFalse(PEAR::isError($indices), 'Error listing indices');
-            $this->assertTrue(in_array($name, $indices), 'Error listing indices');
+
+        $action = 'dropIndex';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
+        }
+        $result = $this->db->manager->dropIndex($this->table, $name);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        // Check that it's actually gone.
+        $action = 'listTableIndexes';
+        if ($this->methodExists($this->db->manager, $action)) {
+            $result = $this->db->manager->listTableIndexes($this->table);
+            $this->checkResultForErrors($result, $action);
+            $this->assertNotContains($name, $result,
+                    "dropIndex() passed but the index is still there");
         }
     }
 
@@ -300,7 +300,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'createConstraint')) {
-            return;
+            $this->markTestSkipped("Driver lacks createConstraint() method");
         }
         $constraint = array(
             'fields' => array(
@@ -311,30 +311,65 @@ class Standard_ManagerTest extends Standard_Abstract {
             'primary' => true,
         );
         $name = 'pkindex';
+
+        $action = 'createConstraint';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
+        }
         $result = $this->db->manager->createConstraint($this->table, $name, $constraint);
-        $this->assertFalse(PEAR::isError($result), 'Error creating primary key constraint');
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
     }
 
     /**
+     * @covers MDB2_Driver_Manager_Common::createConstraint()
+     * @covers MDB2_Driver_Manager_Common::listTableConstraints()
+     * @covers MDB2_Driver_Manager_Common::dropConstraint()
      * @dataProvider provider
      */
-    public function testCreateUniqueConstraint($ci) {
+    public function testConstraintActions($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->methodExists($this->db->manager, 'createConstraint')) {
-            return;
-        }
         $constraint = array(
             'fields' => array(
-                'somename' => array(
+                'id' => array(
                     'sorting' => 'ascending',
                 ),
             ),
             'unique' => true,
         );
         $name = 'uniqueindex';
+
+        $action = 'createConstraint';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
+        }
+        // Make sure it doesn't exist before trying to create it.
+        $this->db->manager->dropConstraint($this->table, $name);
         $result = $this->db->manager->createConstraint($this->table, $name, $constraint);
-        $this->assertFalse(PEAR::isError($result), 'Error creating unique constraint');
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        $action = 'listTableConstraints';
+        $result = $this->db->manager->listTableConstraints($this->table);
+        $this->checkResultForErrors($result, $action);
+        $this->assertContains($name, $result,
+                "Result of $action() does not contain expected value");
+
+        $action = 'dropConstraint';
+        $result = $this->db->manager->dropConstraint($this->table, $name);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        // Check that it's actually gone.
+        $action = 'listTableConstraints';
+        $result = $this->db->manager->listTableConstraints($this->table);
+        $this->checkResultForErrors($result, $action);
+        $this->assertNotContains($name, $result,
+                "dropConstraint() passed but the constraint is still there");
     }
 
     /**
@@ -343,9 +378,6 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testCreateForeignKeyConstraint($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->methodExists($this->db->manager, 'createConstraint')) {
-            return;
-        }
         $constraint = array(
             'fields' => array(
                 'id' => array(
@@ -368,32 +400,41 @@ class Standard_ManagerTest extends Standard_Abstract {
             'ondelete' => 'CASCADE',
         );
 
-        $constraint_name = 'fkconstraint';
+        $name = 'fkconstraint';
 
-        // Make sure the constraint is gone before trying to create it again.
-        $result = $this->db->manager->dropConstraint($this->table, $constraint_name);
+        $action = 'createConstraint';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
+        }
+        // Make sure it doesn't exist before trying to create it.
+        $this->db->manager->dropConstraint($this->table, $name);
+        $result = $this->db->manager->createConstraint($this->table, $name, $constraint);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
 
-        $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
-        $this->assertFalse(PEAR::isError($result), 'Error creating FOREIGN KEY constraint');
+        $action = 'listTableConstraints';
+        $result = $this->db->manager->listTableConstraints($this->table);
+        $this->checkResultForErrors($result, $action);
+        $name_idx = $this->db->getIndexName($name);
+        $this->checkResultForErrors($name_idx, 'getIndexName');
+        $this->assertTrue(in_array($name_idx, $result)
+                || in_array($name, $result),
+                "Result of $action() does not contain expected value");
 
-        //see if it was created successfully
-        $constraints = $this->db->manager->listTableConstraints($this->table);
-        $this->assertTrue(!PEAR::isError($constraints), 'Error listing table constraints');
-        $constraint_name_idx = $this->db->getIndexName($constraint_name);
-        $this->assertTrue(in_array($constraint_name_idx, $constraints) || in_array($constraint_name, $constraints), 'Error, FK constraint not found');
 
         //now check that it is enforced...
 
         //insert a row in the primary table
         $result = $this->db->exec('INSERT INTO users (user_id) VALUES (1)');
-        $this->assertTrue(!PEAR::isError($result), 'Insert failed');
+        $this->checkResultForErrors($result, 'exec');
 
         //insert a row in the FK table with an id that references
         //the newly inserted row on the primary table: should not fail
         $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table, true)
                 .' ('.$this->db->quoteIdentifier('id', true).') VALUES (1)';
         $result = $this->db->exec($query);
-        $this->assertTrue(!PEAR::isError($result), 'Insert failed');
+        $this->checkResultForErrors($result, 'exec');
 
         //try to insert a row into the FK table with an id that does not
         //exist in the primary table: should fail
@@ -404,7 +445,11 @@ class Standard_ManagerTest extends Standard_Abstract {
         $result = $this->db->exec($query);
         $this->db->popExpect();
         $this->db->popErrorHandling();
-        $this->assertTrue(PEAR::isError($result), 'Foreign Key constraint is not enforced for INSERT query');
+        $this->assertInstanceOf('MDB2_Error', $result,
+                'Foreign Key constraint was not enforced for INSERT query');
+        $this->assertEquals(MDB2_ERROR_CONSTRAINT, $result->getCode(),
+                "Wrong error code. See full output for clues.\n"
+                . $result->getUserInfo());
 
         //try to update the first row of the FK table with an id that does not
         //exist in the primary table: should fail
@@ -414,7 +459,11 @@ class Standard_ManagerTest extends Standard_Abstract {
         $this->db->expectError('*');
         $result = $this->db->exec($query);
         $this->db->popExpect();
-        $this->assertTrue(PEAR::isError($result), 'Foreign Key constraint is not enforced for UPDATE query');
+        $this->assertInstanceOf('MDB2_Error', $result,
+                'Foreign Key constraint was not enforced for UPDATE query');
+        $this->assertEquals(MDB2_ERROR_CONSTRAINT, $result->getCode(),
+                "Wrong error code. See full output for clues.\n"
+                . $result->getUserInfo());
 
         $numrows_query = 'SELECT COUNT(*) FROM '. $this->db->quoteIdentifier($this->table, true);
         $numrows = $this->db->queryOne($numrows_query, 'integer');
@@ -423,7 +472,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         //update the PK value of the primary table: the new value should be
         //propagated to the FK table (ON UPDATE CASCADE)
         $result = $this->db->exec('UPDATE users SET user_id = 2');
-        $this->assertTrue(!PEAR::isError($result), 'Update failed');
+        $this->checkResultForErrors($result, 'exec');
 
         $numrows = $this->db->queryOne($numrows_query, 'integer');
         $this->assertEquals(1, $numrows, 'Invalid number of rows in the FK table');
@@ -435,14 +484,17 @@ class Standard_ManagerTest extends Standard_Abstract {
         //delete the row of the primary table: the row in the FK table should be
         //deleted automatically (ON DELETE CASCADE)
         $result = $this->db->exec('DELETE FROM users');
-        $this->assertTrue(!PEAR::isError($result), 'Delete failed');
+        $this->checkResultForErrors($result, 'exec');
 
         $numrows = $this->db->queryOne($numrows_query, 'integer');
         $this->assertEquals(0, $numrows, 'Invalid number of rows in the FK table (CASCADE failed)');
 
-        //cleanup
-        $result = $this->db->manager->dropConstraint($this->table, $constraint_name);
-        $this->assertTrue(!PEAR::isError($result), 'Error dropping the constraint');
+
+        $action = 'dropConstraint';
+        $result = $this->db->manager->dropConstraint($this->table, $name);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
     }
 
     /**
@@ -452,7 +504,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'dropConstraint')) {
-            return;
+            $this->markTestSkipped("Driver lacks dropConstraint() method");
         }
         $index = array(
             'fields' => array(
@@ -463,13 +515,18 @@ class Standard_ManagerTest extends Standard_Abstract {
             'primary' => true,
         );
         $name = 'pkindex';
+
+        $action = 'createConstraint';
         $result = $this->db->manager->createConstraint($this->table, $name, $index);
-        if (PEAR::isError($result)) {
-            $this->fail('Error creating primary index');
-        } else {
-            $result = $this->db->manager->dropConstraint($this->table, $name, true);
-            $this->assertFalse(PEAR::isError($result), 'Error dropping primary key index');
-        }
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        $action = 'dropConstraint';
+        $result = $this->db->manager->dropConstraint($this->table, $name, true);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
     }
 
     /**
@@ -478,63 +535,13 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testListDatabases($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->methodExists($this->db->manager, 'listDatabases')) {
-            return;
+        $action = 'listDatabases';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
         }
         $result = $this->db->manager->listDatabases();
-        if (PEAR::isError($result)) {
-            if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
-                $this->markTestSkipped('listDatabases() not supported');
-            }
-            if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
-                || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
-            {
-                $this->markTestSkipped('Test user lacks permission to list databases');
-            }
-            $this->fail('Error listing databases ('.$result->getUserInfo().')');
-        } else {
-            $this->assertTrue(in_array(strtolower($this->database), $result), 'Error listing databases');
-        }
-    }
-
-    /**
-     * @dataProvider provider
-     */
-    public function testListConstraints($ci) {
-        $this->manualSetUp($ci);
-
-        if (!$this->methodExists($this->db->manager, 'listTableConstraints')) {
-            return;
-        }
-        $index = array(
-            'fields' => array(
-                'id' => array(
-                    'sorting' => 'ascending',
-                ),
-            ),
-            'unique' => true,
-        );
-        $name = 'uniqueindex';
-        $result = $this->db->manager->createConstraint($this->table, $name, $index);
-        if (PEAR::isError($result)) {
-            $this->fail('Error creating unique constraint');
-        } else {
-            $constraints = $this->db->manager->listTableConstraints($this->table);
-            $this->assertFalse(PEAR::isError($constraints), 'Error listing constraints');
-            $this->assertTrue(in_array($name, $constraints), 'Error listing unique key index');
-        }
-    }
-
-    /**
-     * @dataProvider provider
-     */
-    public function testListTables($ci) {
-        $this->manualSetUp($ci);
-
-        if (!$this->methodExists($this->db->manager, 'listTables')) {
-            return;
-        }
-        $this->assertTrue($this->tableExists($this->table), 'Error listing tables');
+        $this->checkResultForErrors($result, $action);
+        $this->assertTrue(in_array(strtolower($this->database), $result), 'Error listing databases');
     }
 
     /**
@@ -543,9 +550,6 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testAlterTable($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->methodExists($this->db->manager, 'alterTable')) {
-            return;
-        }
         $newer = 'newertable';
         if ($this->tableExists($newer)) {
             $this->db->manager->dropTable($newer);
@@ -594,19 +598,21 @@ class Standard_ManagerTest extends Standard_Abstract {
             'name' => $newer,
         );
 
+        $action = 'alterTable';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
+        }
         $this->db->expectError(MDB2_ERROR_CANNOT_ALTER);
         $result = $this->db->manager->alterTable($this->table, $changes, true);
         $this->db->popExpect();
-        if (PEAR::isError($result)) {
-            $this->fail('Cannot alter table: '.$result->getUserInfo().' :: '.$result->getUserInfo());
-        } else {
-            $result = $this->db->manager->alterTable($this->table, $changes, false);
-            if (PEAR::isError($result)) {
-                $this->fail('Error altering table');
-            } else {
-                $this->db->manager->dropTable($newer);
-            }
-        }
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        $result = $this->db->manager->alterTable($this->table, $changes, false);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
     }
 
     /**
@@ -615,9 +621,6 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testAlterTable2($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->methodExists($this->db->manager, 'alterTable')) {
-            return;
-        }
         $newer = 'newertable2';
         if ($this->tableExists($newer)) {
             $this->db->manager->dropTable($newer);
@@ -654,39 +657,53 @@ class Standard_ManagerTest extends Standard_Abstract {
             'name' => $newer,
         );
 
+        $action = 'alterTable';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
+        }
+
         foreach ($changes_all as $type => $change) {
             $changes = array($type => $change);
             $this->db->expectError(MDB2_ERROR_CANNOT_ALTER);
             $result = $this->db->manager->alterTable($this->table, $changes, true);
             $this->db->popExpect();
-            if (PEAR::isError($result)) {
-                $this->fail('Cannot alter table: '.$type);
-                return;
-            }
+            $this->checkResultForErrors($result, $action);
+            $this->assertEquals(MDB2_OK, $result,
+                    "$action did not return MDB2_OK");
+
             $result = $this->db->manager->alterTable($this->table, $changes, false);
-            if (PEAR::isError($result)) {
-                $this->fail('Error altering table: '.$type);
-            } else {
-                switch ($type) {
+            $this->checkResultForErrors($result, $action);
+            $this->assertEquals(MDB2_OK, $result,
+                    "$action did not return MDB2_OK");
+
+            switch ($type) {
                 case 'add':
                     $altered_table_fields = $this->db->manager->listTableFields($this->table);
+                    $this->checkResultForErrors($altered_table_fields, 'listTableFields');
                     foreach ($change as $newfield => $dummy) {
-                        $this->assertTrue(in_array($newfield, $altered_table_fields), 'Error: new field "'.$newfield.'" not added');
+                        $this->assertContains($newfield, $altered_table_fields,
+                                "Field '$newfield' was not added");
                     }
                     break;
                 case 'rename':
                     $altered_table_fields = $this->db->manager->listTableFields($this->table);
+                    $this->checkResultForErrors($altered_table_fields, 'listTableFields');
                     foreach ($change as $oldfield => $newfield) {
-                        $this->assertFalse(in_array($oldfield, $altered_table_fields), 'Error: field "'.$oldfield.'" not renamed');
-                        $this->assertTrue(in_array($newfield['name'], $altered_table_fields), 'Error: field "'.$oldfield.'" not renamed correctly');
+                        $this->assertNotContains($oldfield, $altered_table_fields,
+                                "Field '$oldfield' was not renamed");
+
+                        $this->assertContains($newfield['name'], $altered_table_fields,
+                                "While '$oldfield' is gone, '{$newfield['name']}' is not there");
                     }
                     break;
                 case 'change':
                     break;
                 case 'remove':
                     $altered_table_fields = $this->db->manager->listTableFields($this->table);
+                    $this->checkResultForErrors($altered_table_fields, 'listTableFields');
                     foreach ($change as $newfield => $dummy) {
-                        $this->assertFalse(in_array($newfield, $altered_table_fields), 'Error: field "'.$newfield.'" not removed');
+                        $this->assertNotContains($newfield, $altered_table_fields,
+                                "Field '$oldfield' was not removed");
                     }
                     break;
                 case 'name':
@@ -696,7 +713,6 @@ class Standard_ManagerTest extends Standard_Abstract {
                         $this->fail('Error: table "'.$this->table.'" not renamed');
                     }
                     break;
-                }
             }
         }
     }
@@ -708,17 +724,15 @@ class Standard_ManagerTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'truncateTable')) {
-            return;
+            $this->markTestSkipped("Driver lacks truncateTable() method");
         }
 
         $query = 'INSERT INTO '.$this->table;
         $query.= ' (id, somename, somedescription)';
         $query.= ' VALUES (:id, :somename, :somedescription)';
         $stmt =& $this->db->prepare($query, array('integer', 'text', 'text'), MDB2_PREPARE_MANIP);
-        if (PEAR::isError($stmt)) {
-            $this->fail('Error preparing INSERT');
-            return;
-        }
+        $this->checkResultForErrors($stmt, 'prepare');
+
         $rows = 5;
         for ($i=1; $i<=$rows; ++$i) {
             $values = array(
@@ -727,43 +741,22 @@ class Standard_ManagerTest extends Standard_Abstract {
                 'somedescription' => 'bar'.$i,
             );
             $result = $stmt->execute($values);
-            if (PEAR::isError($result)) {
-                $this->fail('Error executing insert number: '.$i);
-                return;
-            }
+            $this->checkResultForErrors($result, 'execute');
         }
         $stmt->free();
         $count = $this->db->queryOne('SELECT COUNT(*) FROM '.$this->table, 'integer');
-        if (PEAR::isError($count)) {
-            $this->fail('Error executing SELECT');
-            return;
-        }
+        $this->checkResultForErrors($count, 'queryOne');
         $this->assertEquals($rows, $count, 'Error: invalid number of rows returned');
 
+        $action = 'truncateTable';
         $result = $this->db->manager->truncateTable($this->table);
-        if (PEAR::isError($result)) {
-            $this->fail('Error truncating table');
-        }
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
 
         $count = $this->db->queryOne('SELECT COUNT(*) FROM '.$this->table, 'integer');
-        if (PEAR::isError($count)) {
-            $this->fail('Error executing SELECT');
-            return;
-        }
+        $this->checkResultForErrors($count, 'queryOne');
         $this->assertEquals(0, $count, 'Error: invalid number of rows returned');
-    }
-
-    /**
-     * @dataProvider provider
-     */
-    public function testDropTable($ci) {
-        $this->manualSetUp($ci);
-
-        if (!$this->methodExists($this->db->manager, 'dropTable')) {
-            return;
-        }
-        $result = $this->db->manager->dropTable($this->table);
-        $this->assertFalse(PEAR::isError($result), 'Error dropping table');
     }
 
     /**
@@ -773,32 +766,56 @@ class Standard_ManagerTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->manager, 'listTables')) {
-            return;
+            $this->markTestSkipped("Driver lacks listTables() method");
         }
         $result = $this->db->manager->dropTable($this->table);
         $this->assertFalse($this->tableExists($this->table), 'Error listing tables');
     }
 
     /**
+     * @covers MDB2_Driver_Manager_Common::createSequence()
+     * @covers MDB2_Driver_Manager_Common::listSequences()
+     * @covers MDB2_Driver_Manager_Common::dropSequence()
      * @dataProvider provider
      */
     public function testSequences($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->methodExists($this->db->manager, 'createSequence')) {
-            return;
+        $name = 'testsequence';
+
+        $action = 'createSequence';
+        if (!$this->methodExists($this->db->manager, $action)) {
+            $this->markTestSkipped("Driver lacks $action() method");
         }
-        $seq_name = 'testsequence';
-        $result = $this->db->manager->createSequence($seq_name);
-        $this->assertFalse(PEAR::isError($result), 'Error creating a sequence');
-        $this->assertTrue(in_array($seq_name, $this->db->manager->listSequences()), 'Error listing sequences');
-        $result = $this->db->manager->dropSequence($seq_name);
-        $this->assertFalse(PEAR::isError($result), 'Error dropping a sequence');
-        $this->assertFalse(in_array($seq_name, $this->db->manager->listSequences()), 'Error listing sequences');
+        // Make sure it doesn't exist before trying to create it.
+        $this->db->manager->dropSequence($name);
+        $result = $this->db->manager->createSequence($name);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        $action = 'listSequences';
+        $result = $this->db->manager->listSequences();
+        $this->checkResultForErrors($result, $action);
+        $this->assertContains($name, $result,
+                "Result of $action() does not contain expected value");
+
+        $action = 'dropSequence';
+        $result = $this->db->manager->dropSequence($name);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        // Check that it's actually gone.
+        $action = 'listSequences';
+        $result = $this->db->manager->listSequences();
+        $this->checkResultForErrors($result, $action);
+        $this->assertNotContains($name, $result,
+                "dropSequence() passed but the sequence is still there");
     }
 
     /**
-     * Test listTableTriggers($table)
+     * @covers MDB2_Driver_Manager_Common::listTableTriggers()
      * @dataProvider provider
      */
     public function testListTableTriggers($ci) {
@@ -808,39 +825,41 @@ class Standard_ManagerTest extends Standard_Abstract {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
 
-        //setup
-        $trigger_name = 'test_newtrigger';
+        $name = 'test_newtrigger';
 
-        // Make sure the trigger is gone before trying to create it again.
-        $result = $this->nonstd->dropTrigger($trigger_name, $this->table);
-
-        $result = $this->nonstd->createTrigger($trigger_name, $this->table);
-        if (PEAR::isError($result)) {
-            $this->fail('Cannot create trigger: '.$result->getUserInfo());
-            return;
-        }
-
-        //test
-        $triggers = $this->db->manager->listTableTriggers($this->table);
-        if (PEAR::isError($triggers)) {
-            $this->fail('Error listing the table triggers: '.$triggers->getUserInfo());
-        } else {
-            $this->assertTrue(in_array($trigger_name, $triggers), 'Error: trigger not found');
-            //check that only the triggers referencing the given table are returned
-            $triggers = $this->db->manager->listTableTriggers('fake_table');
-            $this->assertFalse(in_array($trigger_name, $triggers), 'Error: trigger found');
-        }
+        /*
+         * Have test suite helper functions setup the environment.
+         */
+        $this->nonstd->dropTrigger($name, $this->table);
+        $result = $this->nonstd->createTrigger($name, $this->table);
+        $this->checkResultForErrors($result, 'create trigger helper');
 
 
-        //cleanup
-        $result = $this->nonstd->dropTrigger($trigger_name, $this->table);
-        if (PEAR::isError($result)) {
-            $this->fail('Error dropping the trigger: '.$result->getUserInfo());
-        }
+        /*
+         * The actual tests.
+         */
+        $action = 'listTableTriggers';
+        $result = $this->db->manager->listTableTriggers($this->table);
+        $this->checkResultForErrors($result, $action);
+        $this->assertContains($name, $result,
+                "Result of $action() does not contain expected value");
+
+        $action = 'listTableTriggers on non-existant table';
+        $result = $this->db->manager->listTableTriggers('fake_table');
+        $this->checkResultForErrors($result, $action);
+        $this->assertNotContains($name, $result,
+                "$action should not contain this view");
+
+
+        /*
+         * Have test suite helper functions clean up the environment.
+         */
+        $result = $this->nonstd->dropTrigger($name, $this->table);
+        $this->checkResultForErrors($result, 'drop trigger helper');
     }
 
     /**
-     * Test listTableViews($table)
+     * @covers MDB2_Driver_Manager_Common::listTableViews()
      * @dataProvider provider
      */
     public function testListTableViews($ci) {
@@ -850,76 +869,37 @@ class Standard_ManagerTest extends Standard_Abstract {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
 
-        //setup
-        $view_name = 'test_newview';
+        $name = 'test_newview';
 
-        // Make sure the view is gone before trying to create it again.
-        $result = $this->nonstd->dropView($view_name);
-
-        $result = $this->nonstd->createView($view_name, $this->table);
-        if (PEAR::isError($result)) {
-            $this->fail('Cannot create view: '.$result->getUserInfo());
-            return;
-        }
-
-        //test
-        $views = $this->db->manager->listTableViews($this->table);
-        if (PEAR::isError($views)) {
-            if ($views->getCode() == MDB2_ERROR_UNSUPPORTED) {
-                $this->markTestSkipped('listDatabases() not supported');
-            }
-            $this->fail('Error listing the table views: '.$views->getUserInfo());
-        } else {
-            $this->assertTrue(in_array($view_name, $views), 'Error: view not found');
-            //check that only the views referencing the given table are returned
-            $views = $this->db->manager->listTableViews('fake_table');
-            $this->assertFalse(in_array($view_name, $views), 'Error: view found');
-        }
+        /*
+         * Have test suite helper functions setup the environment.
+         */
+        $this->nonstd->dropView($name);
+        $result = $this->nonstd->createView($name, $this->table);
+        $this->checkResultForErrors($result, 'create view helper');
 
 
-        //cleanup
-        $result = $this->nonstd->dropView($view_name);
-        if (PEAR::isError($result)) {
-            $this->fail('Error dropping the view: '.$result->getUserInfo());
-        }
-    }
+        /*
+         * The actual tests.
+         */
+        $action = 'listTableViews';
+        $result = $this->db->manager->listTableViews($this->table);
+        $this->checkResultForErrors($result, $action);
+        $this->assertContains($name, $result,
+                "Result of $action() does not contain expected value");
 
-    /**
-     * Test listViews()
-     * @dataProvider provider
-     */
-    public function testListViews($ci) {
-        $this->manualSetUp($ci);
+        $action = 'listTableViews on non-existant table';
+        $result = $this->db->manager->listTableViews('fake_table');
+        $this->checkResultForErrors($result, $action);
+        $this->assertNotContains($name, $result,
+                "$action should not contain this view");
 
-        if (!$this->nonstd) {
-            $this->markTestSkipped('No Nonstandard Helper for this phptype.');
-        }
 
-        //setup
-        $view_name = 'test_brandnewview';
-
-        // Make sure the view is gone before trying to create it again.
-        $result = $this->nonstd->dropView($view_name);
-
-        $result = $this->nonstd->createView($view_name, $this->table);
-        if (PEAR::isError($result)) {
-            $this->fail('Cannot create view: '.$result->getUserInfo());
-            return;
-        }
-
-        //test
-        $views = $this->db->manager->listViews();
-        if (PEAR::isError($views)) {
-            $this->fail('Error listing the views: '.$views->getUserInfo());
-        } else {
-            $this->assertTrue(in_array($view_name, $views), 'Error: view not found');
-        }
-
-        //cleanup
-        $result = $this->nonstd->dropView($view_name);
-        if (PEAR::isError($result)) {
-            $this->fail('Error dropping the view: '.$result->getUserInfo());
-        }
+        /*
+         * Have test suite helper functions clean up the environment.
+         */
+        $result = $this->nonstd->dropView($name);
+        $this->checkResultForErrors($result, 'drop view helper');
     }
 
     /**
@@ -929,80 +909,61 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testListUsers($ci) {
         $this->manualSetUp($ci);
 
-        $users = $this->db->manager->listUsers();
-        if (PEAR::isError($users)) {
-            if ($users->getCode() == MDB2_ERROR_UNSUPPORTED) {
-                $this->markTestSkipped('listUsers() not supported');
-            }
-            if ($users->getCode() == MDB2_ERROR_NO_PERMISSION
-                || $users->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
-            {
-                $this->markTestSkipped('Test user lacks permission to list users');
-            }
-            $this->fail('Error listing the users: '.$users->getUserInfo().' :: '.$users->getUserInfo());
-        } else {
-            $users = array_map('strtolower', $users);
-            $this->assertTrue(in_array(strtolower($this->db->dsn['username']), $users), 'Error: user not found');
-        }
+        $action = 'listUsers';
+        $result = $this->db->manager->listUsers();
+        $this->checkResultForErrors($result, $action);
+        $result = array_map('strtolower', $result);
+        $this->assertContains(strtolower($this->db->dsn['username']), $result,
+                "Result of $action() does not contain expected value");
     }
 
     /**
-     * Test listFunctions()
+     * @covers MDB2_Driver_Manager_Common::listFunctions()
      * @dataProvider provider
      */
-    public function testListFunctions($ci) {
+    public function testFunctionActions($ci) {
         $this->manualSetUp($ci);
 
         if (!$this->nonstd) {
             $this->markTestSkipped('No Nonstandard Helper for this phptype.');
         }
 
-        //setup
-        $function_name = 'test_add';
+        $name = 'test_add';
 
-        // Make sure function is gone before trying to create it again.
-        $result = $this->nonstd->dropFunction($function_name);
-
+        /*
+         * Have test suite helper functions setup the environment.
+         */
+        $this->nonstd->dropFunction($name);
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
         $this->db->expectError('*');
-        $result = $this->nonstd->createFunction($function_name);
+        $result = $this->nonstd->createFunction($name);
         $this->db->popExpect();
         $this->db->popErrorHandling();
-        if (PEAR::isError($result)) {
-            if ($result->getCode() == MDB2_ERROR_NOT_CAPABLE) {
-                $this->markTestSkipped('createFunction() not supported');
-            }
-            if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
-                || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
-            {
-                $this->markTestSkipped('Test user lacks permission to list functions');
-            }
-            $this->fail('Cannot create function: '.$result->getUserInfo().' :: '.$result->getUserInfo());
-            return;
-        }
+        $this->checkResultForErrors($result, 'crete function helper');
 
-        //test
-        $functions = $this->db->manager->listFunctions();
-        if (PEAR::isError($functions)) {
-            if ($functions->getCode() == MDB2_ERROR_NO_PERMISSION
-                || $functions->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
-            {
-                $this->markTestSkipped('Test user lacks permission to list functions');
-            }
-            $this->fail('Error listing the functions: '.$functions->getUserInfo());
-        } else {
-            $this->assertTrue(in_array($function_name, $functions), 'Error: function not found');
-        }
 
-        //cleanup
-        $result = $this->nonstd->dropFunction($function_name);
-        if (PEAR::isError($result)) {
-            $this->fail('Error dropping the function: '.$result->getUserInfo());
-        }
+        /*
+         * The actual tests.
+         */
+        $action = 'listFunctions';
+        $result = $this->db->manager->listFunctions();
+        $this->checkResultForErrors($result, $action);
+        $this->assertContains($name, $result,
+                "Result of $action() does not contain expected value");
+
+
+        /*
+         * Have test suite helper functions clean up the environment.
+         */
+        $result = $this->nonstd->dropFunction($name);
+        $this->checkResultForErrors($result, 'drop function helper');
     }
 
     /**
-     * Test createDatabase(), alterDatabase(), dropDatabase()
+     * @covers MDB2_Driver_Manager_Common::createDatabase()
+     * @covers MDB2_Driver_Manager_Common::alterDatabase()
+     * @covers MDB2_Driver_Manager_Common::listDatabases()
+     * @covers MDB2_Driver_Manager_Common::dropDatabase()
      * @dataProvider provider
      */
     public function testCrudDatabase($ci) {
@@ -1036,57 +997,44 @@ class Standard_ManagerTest extends Standard_Abstract {
             $options['collation'] = 'Latin1_General_BIN';
         }
 
-        $action = 'create database';
+        $action = 'createDatabase';
         $result = $this->db->manager->createDatabase($name, $options);
-        if (PEAR::isError($result)) {
-            if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
-                $this->markTestSkipped("This driver does not support $action");
-            } elseif ($result->getCode() == MDB2_ERROR_NO_PERMISSION
-                      || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
-            {
-                $this->markTestSkipped("Test user lacks permission to $action");
-            }
-            $this->fail("Error: cannot $action: " . $result->getUserInfo());
-        }
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
 
-        $action = 'alter database';
-        $result = $this->db->manager->alterDatabase($name, $changes);
-        if (PEAR::isError($result)) {
-            $this->db->manager->dropDatabase($name);
-            if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
-                $this->markTestSkipped("This driver does not support $action");
-            } elseif ($result->getCode() == MDB2_ERROR_NO_PERMISSION
-                      || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
-            {
-                $this->markTestSkipped("Test user lacks permission to $action");
-            }
-            $this->fail("Error: cannot $action: " . $result->getUserInfo());
-        }
-
-        $action = 'list databases';
+        $action = 'listDatabases';
         $result = $this->db->manager->listDatabases();
-        if (MDB2::isError($result)) {
-            $result = $this->db->manager->dropDatabase($rename);
-            $this->db->manager->dropDatabase($name);
-            if ($result->getCode() == MDB2_ERROR_UNSUPPORTED) {
-                $this->markTestSkipped("This driver does not support $action");
-            } elseif ($result->getCode() == MDB2_ERROR_NO_PERMISSION
-                      || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
-            {
-                $this->markTestSkipped("Test user lacks permission to $action");
-            }
-            $this->fail("Error: cannot $action: " . $result->getUserInfo());
-        }
+        $this->checkResultForErrors($result, $action);
+        $this->assertContains($name, $result,
+                "Result of $action() does not contain expected value");
 
+        $action = 'alterDatabase';
+        $result = $this->db->manager->alterDatabase($name, $changes);
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        $action = 'listDatabases';
+        $result = $this->db->manager->listDatabases();
+        $this->checkResultForErrors($result, $action);
         if (!in_array($rename, $result)) {
             $this->db->manager->dropDatabase($name);
             $this->fail('Error: could not find renamed database');
         }
 
+        $action = 'dropDatabase';
         $result = $this->db->manager->dropDatabase($rename);
-        if (PEAR::isError($result)) {
-            $this->fail('Error dropping database: '.$result->getUserInfo());
-        }
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
+
+        // Check that it's actually gone.
+        $action = 'listDatabases';
+        $result = $this->db->manager->listDatabases();
+        $this->checkResultForErrors($result, $action);
+        $this->assertNotContains($rename, $result,
+                "dropDatabase() passed but the database is still there");
     }
 
     /**
@@ -1096,27 +1044,27 @@ class Standard_ManagerTest extends Standard_Abstract {
     public function testVacuum($ci) {
         $this->manualSetUp($ci);
 
-        //vacuum table
+        $action = 'vacuum table';
         $result = $this->db->manager->vacuum($this->table);
-        if (PEAR::isError($result)) {
-            $this->fail('Error: cannot vacuum table: ' . $result->getUserInfo());
-        }
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
 
-        //vacuum and analyze table
+        $action = 'vacuum and analyze table';
         $options = array(
             'analyze' => true,
             'full'    => true,
             'freeze'  => true,
         );
         $result = $this->db->manager->vacuum($this->table, $options);
-        if (PEAR::isError($result)) {
-            $this->fail('Error: cannot vacuum table: ' . $result->getUserInfo());
-        }
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
 
-        //vacuum all tables
+        $action = 'vacuum all tables';
         $result = $this->db->manager->vacuum();
-        if (PEAR::isError($result)) {
-            $this->fail('Error: cannot vacuum table: ' . $result->getUserInfo());
-        }
+        $this->checkResultForErrors($result, $action);
+        $this->assertEquals(MDB2_OK, $result,
+                "$action did not return MDB2_OK");
     }
 }
