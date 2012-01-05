@@ -894,8 +894,12 @@ class MDB2_Driver_Manager_pgsql extends MDB2_Driver_Manager_Common
         }
 
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
-        return $db->exec("CREATE SEQUENCE $sequence_name INCREMENT 1".
+        $result = $db->exec("CREATE SEQUENCE $sequence_name INCREMENT 1".
             ($start < 1 ? " MINVALUE $start" : '')." START $start");
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

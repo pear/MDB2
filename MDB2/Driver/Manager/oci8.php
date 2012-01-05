@@ -1262,7 +1262,11 @@ END;
         $sequence_name = $db->quoteIdentifier($db->getSequenceName($seq_name), true);
         $query = "CREATE SEQUENCE $sequence_name START WITH $start INCREMENT BY 1 NOCACHE";
         $query.= ($start < 1 ? " MINVALUE $start" : '');
-        return $db->exec($query);
+        $result = $db->exec($query);
+        if (MDB2::isError($result)) {
+            return $result;
+        }
+        return MDB2_OK;
     }
 
     // }}}

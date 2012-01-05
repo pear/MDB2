@@ -1059,7 +1059,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                     'Could not setup sequence start value and then it was not possible to drop it', __FUNCTION__);
             }
         }
-        return $result;
+        return MDB2_OK;
     }
 
     // }}}
