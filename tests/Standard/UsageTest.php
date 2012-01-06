@@ -1441,7 +1441,11 @@ class Standard_UsageTest extends Standard_Abstract {
     /**
      * Testing LOB storage
      *
-     * N.B. for the mssql driver: if this test fails, use an higher limit in these
+     * MYSQL NOTE:  If this test fails with native code 1210,
+     * "Incorrect arguments to mysqld_stmt_execute" upgrade to MySQL 5.1.57.
+     * If that's not an option, set "general_log = 1" in my.cnf.
+     *
+     * MSSQL NOTE:  If this test fails, use an higher limit in these
      * two php.ini settings: "mssql.textlimit" and "mssql.textsize"
      *
      * @dataProvider provider
