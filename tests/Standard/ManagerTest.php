@@ -373,6 +373,11 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     /**
+     * MYSQL NOTE:  If this test fails with native code 1005
+     * "Can't create table './peartest/#sql-540_2c871.frm' (errno: 150)"
+     * that means your server's default storage engine is MyISAM.
+     * Edit my.cnf to have "default-storage-engine = InnoDB"
+     *
      * @dataProvider provider
      */
     public function testCreateForeignKeyConstraint($ci) {
