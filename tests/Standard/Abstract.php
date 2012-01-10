@@ -112,9 +112,9 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * A PHPUnit dataProvider callback to supply the MDB2 objects for testing
+     * A PHPUnit dataProvider callback to supply the connection info for tests
      * @uses mdb2_test_db_object_provider()
-     * @return array  the MDB2_Driver_Common objects to test against
+     * @return array  the $dsn and $options information for MDB2::factory()
      */
     public function provider() {
         return mdb2_test_db_object_provider();
