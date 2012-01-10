@@ -133,6 +133,9 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
      */
     protected function manualSetUp($ci) {
         $this->db = MDB2::factory($ci['dsn'], $ci['options']);
+        if (MDB2::isError($this->db)) {
+            $this->markTestSkipped($this->db->getMessage());
+        }
         $this->dsn = self::$dsns[$this->db->phptype]['dsn'];
         $this->options = self::$dsns[$this->db->phptype]['options'];
         $this->database = $this->db->getDatabase();
