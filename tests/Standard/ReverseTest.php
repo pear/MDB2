@@ -161,7 +161,7 @@ class Standard_ReverseTest extends Standard_Abstract
     }
 
     public function tearDown() {
-        if (!$this->db || PEAR::isError($this->db)) {
+        if (!$this->db || MDB2::isError($this->db)) {
             return;
         }
         if ($this->tableExists($this->table2)) {
@@ -198,12 +198,12 @@ class Standard_ReverseTest extends Standard_Abstract
         );
         foreach ($this->indices as $index_name => $index) {
             $result = $this->db->manager->createIndex($this->table, $index_name, $index);
-            $this->assertFalse(PEAR::isError($result), 'Error creating index: '.$index_name);
-            if (PEAR::isError($result)) {
+            $this->assertFalse(MDB2::isError($result), 'Error creating index: '.$index_name);
+            if (MDB2::isError($result)) {
                 break;
             }
         }
-        return PEAR::isError($result);
+        return MDB2::isError($result);
     }
 
     public function setUpConstraints()
@@ -242,8 +242,8 @@ class Standard_ReverseTest extends Standard_Abstract
         foreach ($this->constraints as $constraint_name => $constraint) {
             //$this->db->manager->dropConstraint($this->table, $constraint_name);
             $result = $this->db->manager->createConstraint($this->table, $constraint_name, $constraint);
-            //$this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
-            if (PEAR::isError($result)) {
+            //$this->assertFalse(MDB2::isError($result), 'Error creating constraint: '.$constraint_name);
+            if (MDB2::isError($result)) {
                 $this->fail('Error creating constraint "'.$constraint_name.'": '.$result->getUserInfo(). ' :: '.$result->getUserInfo());
                 $failed1 = true;
                 break;
@@ -316,8 +316,8 @@ class Standard_ReverseTest extends Standard_Abstract
         foreach ($this->constraints2 as $constraint_name => $constraint) {
             //$this->db->manager->dropConstraint($this->table, $constraint_name);
             $result = $this->db->manager->createConstraint($this->table2, $constraint_name, $constraint);
-            //$this->assertFalse(PEAR::isError($result), 'Error creating constraint: '.$constraint_name);
-            if (PEAR::isError($result)) {
+            //$this->assertFalse(MDB2::isError($result), 'Error creating constraint: '.$constraint_name);
+            if (MDB2::isError($result)) {
                 $this->fail('Error creating constraint "'.$constraint_name.'": '.$result->getUserInfo(). ' :: '.$result->getUserInfo());
                 $failed2 = true;
                 break;
@@ -339,7 +339,7 @@ class Standard_ReverseTest extends Standard_Abstract
         }
 
         $table_info = $this->db->reverse->tableInfo($this->table);
-        if (PEAR::isError($table_info)) {
+        if (MDB2::isError($table_info)) {
             $this->fail('Error getting tableInfo(): '.$table_info->getUserInfo());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
@@ -358,7 +358,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         $result = $this->db->query('SELECT * FROM '.$this->table);
         $table_info = $this->db->reverse->tableInfo($result);
-        if (PEAR::isError($table_info)) {
+        if (MDB2::isError($table_info)) {
             $this->fail('Error getting tableInfo(): '.$table_info->getUserInfo());
         } else {
             $this->assertEquals(count($this->fields), count($table_info), 'The number of fields retrieved is different from the expected one');
@@ -390,7 +390,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         //test integer not null
         $field_info = $this->db->reverse->getTableFieldDefinition($this->table, 'id');
-        if (PEAR::isError($field_info)) {
+        if (MDB2::isError($field_info)) {
             $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
@@ -403,7 +403,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         //test blob
         $field_info = $this->db->reverse->getTableFieldDefinition('files', 'picture');
-        if (PEAR::isError($field_info)) {
+        if (MDB2::isError($field_info)) {
             $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
@@ -413,7 +413,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         //test varchar(100) not null
         $field_info = $this->db->reverse->getTableFieldDefinition('users', 'user_name');
-        if (PEAR::isError($field_info)) {
+        if (MDB2::isError($field_info)) {
             $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
@@ -426,7 +426,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         //test decimal
         $field_info = $this->db->reverse->getTableFieldDefinition('users', 'quota');
-        if (PEAR::isError($field_info)) {
+        if (MDB2::isError($field_info)) {
             $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
@@ -436,7 +436,7 @@ class Standard_ReverseTest extends Standard_Abstract
         }
 
         $field_info = $this->db->reverse->getTableFieldDefinition('users', 'user_name');
-        if (PEAR::isError($field_info)) {
+        if (MDB2::isError($field_info)) {
             $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
             $field_info = array_shift($field_info);
@@ -464,7 +464,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test index names
         foreach ($this->indices as $index_name => $index) {
             $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
-            if (PEAR::isError($index_info)) {
+            if (MDB2::isError($index_info)) {
                 $this->fail('Error getting table index definition');
             } else {
                 $field_names = array_keys($index['fields']);
@@ -475,7 +475,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test INDEX
         $index_name = 'sometestindex';
         $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
-        if (PEAR::isError($index_info)) {
+        if (MDB2::isError($index_info)) {
             $this->fail('Error in getTableIndexDefinition(): '.$index_info->getUserInfo());
         } else {
             $this->assertEquals(1, count($index_info['fields']), 'The INDEX is not on one field unlike it was expected');
@@ -488,7 +488,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test INDEX on MULTIPLE FIELDS
         $index_name = 'multipletestindex';
         $index_info = $this->db->reverse->getTableIndexDefinition($this->table, $index_name);
-        if (PEAR::isError($index_info)) {
+        if (MDB2::isError($index_info)) {
             $this->fail('Error in getTableIndexDefinition(): '.$index_info->getUserInfo());
         } else {
             $this->assertEquals(2, count($index_info['fields']), 'The INDEX is not on two fields unlike it was expected');
@@ -506,7 +506,7 @@ class Standard_ReverseTest extends Standard_Abstract
         foreach (array_keys($this->constraints) as $constraint_name) {
             $this->db->expectError(MDB2_ERROR_NOT_FOUND);
             $result = $this->db->reverse->getTableIndexDefinition($this->table, $constraint_name);
-            $this->assertTrue(PEAR::isError($result), 'Error listing index definition, this is a CONSTRAINT');
+            $this->assertTrue(MDB2::isError($result), 'Error listing index definition, this is a CONSTRAINT');
         }
 
         //test index created WITHOUT using MDB2 (i.e. without the "_idx" suffix)
@@ -544,7 +544,7 @@ class Standard_ReverseTest extends Standard_Abstract
                 $constraint_name = 'primary';
             }
             $result = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->fail('Error getting table constraint definition ('.$constraint_name.')');
             } else {
                 $constraint_names = array_keys($constraint['fields']);
@@ -558,7 +558,7 @@ class Standard_ReverseTest extends Standard_Abstract
             $this->db->expectError(MDB2_ERROR_NOT_FOUND);
             $result = $this->db->reverse->getTableConstraintDefinition($this->table, $index_name);
             $this->db->popExpect();
-            $this->assertTrue(PEAR::isError($result), 'Error listing constraint definition, this is a normal INDEX');
+            $this->assertTrue(MDB2::isError($result), 'Error listing constraint definition, this is a normal INDEX');
         }
 
         //test PK
@@ -568,7 +568,7 @@ class Standard_ReverseTest extends Standard_Abstract
             $constraint_name = 'pkfield';
         }
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
-        if (PEAR::isError($constraint_info)) {
+        if (MDB2::isError($constraint_info)) {
             $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getUserInfo());
         } else {
             $this->assertTrue($constraint_info['primary'], 'The field is not a PK unlike it was expected');
@@ -577,7 +577,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test UNIQUE
         $constraint_name = 'singleunique';
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
-        if (PEAR::isError($constraint_info)) {
+        if (MDB2::isError($constraint_info)) {
             $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getUserInfo());
         } else {
             $this->assertTrue($constraint_info['unique'], 'The field is not a PK unlike it was expected');
@@ -592,7 +592,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test UNIQUE on MULTIPLE FIELDS
         $constraint_name = 'multipleunique';
         $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table, $constraint_name);
-        if (PEAR::isError($constraint_info)) {
+        if (MDB2::isError($constraint_info)) {
             $this->fail('Error in getTableConstraintDefinition(): '.$constraint_info->getUserInfo());
         } else {
             $this->assertTrue($constraint_info['unique'], 'The field is not a PK unlike it was expected');
@@ -608,7 +608,7 @@ class Standard_ReverseTest extends Standard_Abstract
         //test FOREIGN KEYs
         foreach (array_keys($this->constraints2) as $constraint_name) {
             $constraint_info = $this->db->reverse->getTableConstraintDefinition($this->table2, $constraint_name);
-            if (PEAR::isError($constraint_info)) {
+            if (MDB2::isError($constraint_info)) {
                 $this->fail('Error in getTableConstraintDefinition():'. $constraint_info->getUserInfo());
             } else {
                 $this->_compareFKdefinitions($this->constraints2[$constraint_name], $constraint_info);
@@ -656,7 +656,7 @@ class Standard_ReverseTest extends Standard_Abstract
         if (!in_array($sequence, $sequences)) {
             $result = $this->db->manager->createSequence($sequence);
             $action = 'create sequence';
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
                     || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
                 {
@@ -673,7 +673,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         //cleanup
         $result = $this->db->manager->dropSequence($sequence);
-        $this->assertFalse(PEAR::isError($result), 'Error dropping a sequence');
+        $this->assertFalse(MDB2::isError($result), 'Error dropping a sequence');
     }
 
     /**
@@ -692,7 +692,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         $action = 'create trigger';
         $result = $this->nonstd->createTrigger($trigger_name, $this->table);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             if ($result->getCode() == MDB2_ERROR_NO_PERMISSION
                 || $result->getCode() == MDB2_ERROR_ACCESS_VIOLATION)
             {
@@ -703,7 +703,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         //test
         $def = $this->db->reverse->getTriggerDefinition($trigger_name);
-        if (PEAR::isError($def)) {
+        if (MDB2::isError($def)) {
             $this->fail('getTriggerDefinition: '.$def->getUserInfo());
         } else {
             $this->nonstd->checkTrigger($trigger_name, $this->table, $def);
@@ -711,7 +711,7 @@ class Standard_ReverseTest extends Standard_Abstract
 
         //cleanup
         $result = $this->nonstd->dropTrigger($trigger_name, $this->table);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error dropping the trigger: '.$result->getUserInfo());
         }
     }

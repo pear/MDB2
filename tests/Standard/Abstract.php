@@ -152,7 +152,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
     }
 
     public function tearDown() {
-        if (!$this->db || PEAR::isError($this->db)) {
+        if (!$this->db || MDB2::isError($this->db)) {
             return;
         }
         $this->clearTables();
@@ -260,7 +260,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
      */
     public function populateUserData($rows = 1) {
         $result = $this->db->loadModule('Extended');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('populateUserData() problem loading module: ' . $result->getUserInfo());
         }
 
@@ -269,7 +269,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
             array_keys($this->fields),
             MDB2_AUTOQUERY_INSERT, null, $this->fields);
 
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             $this->fail('populateUserData() problem preparing statement: ' . $stmt->getUserInfo());
         }
 
@@ -282,7 +282,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         }
 
         $result = $this->db->extended->executeMultiple($stmt, $data_save);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('populateUserData() problem inserting the data: ' . $result->getUserInfo());
         }
 
@@ -302,7 +302,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
     public function tableExists($table) {
         $this->db->loadModule('Manager', null, true);
         $tables = $this->db->manager->listTables();
-        if (PEAR::isError($tables)) {
+        if (MDB2::isError($tables)) {
             //$this->fail('Cannot list tables: '. $tables->getUserInfo());
             return false;
         }

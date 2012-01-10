@@ -62,7 +62,7 @@ class Nonstandard_PgsqlHelper extends Nonstandard_Base {
                 END;
                 \' LANGUAGE \'plpgsql\';';
         $res = $this->db->exec($sql);
-        if (PEAR::isError($res)) {
+        if (MDB2::isError($res)) {
             return $res;
         }
 

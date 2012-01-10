@@ -60,18 +60,18 @@ function build_schema($ci) {
     $err_base = "TEST SCHEMA BUILD ERROR FOR $phptype: ";
 
     $schema = MDB2_Schema::factory($db, $options);
-    if (PEAR::isError($schema)) {
+    if (MDB2::isError($schema)) {
         die($err_base . $schema->getMessage() . ' '
             . $schema->getUserInfo() . "\n");
     }
 
     $definition = $schema->parseDatabaseDefinitionFile($file, $variables, true, true);
-    if (PEAR::isError($definition)) {
+    if (MDB2::isError($definition)) {
         die($err_base . $definition->getMessage() . ' - '
             . $definition->getUserInfo() . "\n");
     } else {
         $operation = $schema->createDatabase($definition);
-        if (PEAR::isError($operation)) {
+        if (MDB2::isError($operation)) {
             die($err_base . $operation->getMessage() . ' '
                 . $operation->getUserInfo() . "\n");
         }

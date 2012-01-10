@@ -104,7 +104,7 @@ class Standard_ManagerTest extends Standard_Abstract {
     }
 
     public function tearDown() {
-        if (!$this->db || PEAR::isError($this->db)) {
+        if (!$this->db || MDB2::isError($this->db)) {
             return;
         }
         if ($this->tableExists($this->table)) {

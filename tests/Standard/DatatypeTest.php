@@ -196,7 +196,7 @@ class Standard_DatatypeTest extends Standard_Abstract
      * The teardown method to clean up the testing environment.
      */
     public function tearDown() {
-        if (!$this->db || PEAR::isError($this->db)) {
+        if (!$this->db || MDB2::isError($this->db)) {
             return;
         }
         if ($this->tableExists($this->table)) {
@@ -234,7 +234,7 @@ class Standard_DatatypeTest extends Standard_Abstract
         $types = $this->getFieldTypes(array_keys($values));
 
         $result = $this->db->exec('DELETE FROM '.$this->table);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error emptying table: '.$result->getMessage());
         }
 
@@ -244,11 +244,11 @@ class Standard_DatatypeTest extends Standard_Abstract
             implode(', ', array_fill(0, count($values), '?'))
         );
         $stmt = $this->db->prepare($query, array_values($types), MDB2_PREPARE_MANIP);
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             $this->assertTrue(false, 'Error creating prepared query: '.$stmt->getMessage());
         }
         $result = $stmt->execute(array_values($values));
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->assertTrue(false, 'Error executing prepared query: '.$result->getMessage());
         }
         $stmt->free();
@@ -566,14 +566,14 @@ class Standard_DatatypeTest extends Standard_Abstract
             $query = "INSERT INTO users (user_name,user_id) VALUES ($value, $key)";
             $result = $this->db->exec($query);
 
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
             }
 
             $query = 'SELECT user_name FROM users WHERE user_id = '.$key;
             $value = $this->db->queryOne($query, 'text');
 
-            if (PEAR::isError($value)) {
+            if (MDB2::isError($value)) {
                 $this->assertTrue(false, 'Error executing select query'.$value->getMessage());
             }
 
@@ -609,7 +609,7 @@ class Standard_DatatypeTest extends Standard_Abstract
             $value = $this->db->quote($string, 'text');
             $query = "INSERT INTO users (user_name,user_id) VALUES ($value, $key)";
             $result = $this->db->exec($query);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
             }
         }
@@ -672,13 +672,13 @@ class Standard_DatatypeTest extends Standard_Abstract
             $value = $this->db->quote($string, 'text');
             $query = "INSERT INTO users (user_name,user_id) VALUES ($value, $key)";
             $result = $this->db->exec($query);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
             }
 
             $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->quote($string, 'text', true, true);
             $value = $this->db->queryOne($query, 'text');
-            if (PEAR::isError($value)) {
+            if (MDB2::isError($value)) {
                 $this->assertTrue(false, 'Error executing select query'.$value->getMessage());
             }
 
@@ -965,7 +965,7 @@ class Standard_DatatypeTest extends Standard_Abstract
             $expected_length = 4;
         }
         $result = $this->db->datatype->mapNativeDatatype($field);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->assertTrue(false, 'mapNativeDatatype: '.$result->getUserInfo());
         } else {
             $this->assertTrue(is_array($result), 'mapNativeDatatype');

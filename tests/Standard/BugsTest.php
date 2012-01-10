@@ -68,7 +68,7 @@ class Standard_BugsTest extends Standard_Abstract {
 
         $result = $stmt->execute(array_values($data));
 
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error executing prepared query '.$result->getMessage());
         }
 
@@ -77,7 +77,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name';
         $result =& $this->db->query($query);
 
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: '.$result->getMessage());
         }
 
@@ -87,7 +87,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $this->assertEquals($firstRow['user_name'], $data['user_name'], 'The data returned does not match that expected');
 
         $result =& $this->db->query('SELECT user_name, user_id, quota FROM users ORDER BY user_name');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: '.$result->getMessage());
         }
         $this->db->setFetchMode(MDB2_FETCHMODE_ORDERED);
@@ -110,7 +110,7 @@ class Standard_BugsTest extends Standard_Abstract {
 
         $data = $result->fetchRow();
         $this->db->popErrorHandling();
-        $this->assertFalse(PEAR::isError($data), 'Error messages for a query affect result reading of other queries');
+        $this->assertFalse(MDB2::isError($data), 'Error messages for a query affect result reading of other queries');
     }
 
     /**
@@ -135,7 +135,7 @@ class Standard_BugsTest extends Standard_Abstract {
 
         $result =& $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
-        if (PEAR::isError($col)) {
+        if (MDB2::isError($col)) {
             $this->fail('Error when fetching column first first row as NULL: '.$col->getMessage());
         }
 
@@ -146,7 +146,7 @@ class Standard_BugsTest extends Standard_Abstract {
 
         $result =& $this->db->query('SELECT user_name FROM users');
         $col = $result->fetchCol('user_name');
-        if (PEAR::isError($col)) {
+        if (MDB2::isError($col)) {
             $this->fail('Error when fetching column: '.$col->getMessage());
         }
 
@@ -214,7 +214,7 @@ class Standard_BugsTest extends Standard_Abstract {
 
             $result = $stmt->execute(array_values($data[$row]));
 
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->fail('Error executing prepared query: '.$result->getMessage());
             }
         }
@@ -226,7 +226,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $result =& $this->db->query($query);
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
-            if (PEAR::isError($row)) {
+            if (MDB2::isError($row)) {
                 $this->fail('Error fetching a row: '.$row->getMessage());
             }
         }
@@ -235,7 +235,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $result =& $this->db->query($query);
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
-            if (PEAR::isError($row)) {
+            if (MDB2::isError($row)) {
                 $this->fail('Error fetching a row: '.$row->getMessage());
             }
         }
@@ -259,7 +259,7 @@ class Standard_BugsTest extends Standard_Abstract {
             $data[$row] = $this->getSampleData($row);
 
             $result = $stmt->execute(array_values($data[$row]));
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->fail('Error executing prepared query: '.$result->getMessage());
             }
         }
@@ -300,7 +300,7 @@ class Standard_BugsTest extends Standard_Abstract {
 
         $query = 'SELECT weight, user_name, user_id, quota, subscribed FROM users WHERE user_id = '.$row;
         $result =& $this->db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error executing query: '.$result->getMessage() .' - '. $result->getUserInfo());
         } else {
             $this->assertInternalType('boolean', $result['subscribed']);
@@ -319,7 +319,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         $res = $this->db->query("SELECT 1 as id, 2 as id, 'foo' as title", true);
-        if (PEAR::isError($res)) {
+        if (MDB2::isError($res)) {
             $this->fail($res->getMessage());
         }
         $record = $res->fetchRow(MDB2_FETCHMODE_ASSOC);
@@ -344,7 +344,7 @@ class Standard_BugsTest extends Standard_Abstract {
 
         // This was test in bug.
         $res = $this->db->query('SELECT * FROM users', true, true, 'MDB2_BufferedIterator');
-        if (PEAR::isError($res)) {
+        if (MDB2::isError($res)) {
             $this->fail($res->getUserInfo());
         }
         foreach($res as $key => $row) {

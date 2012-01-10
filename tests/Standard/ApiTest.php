@@ -183,10 +183,10 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         $db =& MDB2::factory($this->dsn, $this->options);
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             $this->fail('Connect failed bailing out - ' .$db->getMessage() . ' - ' .$db->getUserInfo());
         }
-        if (PEAR::isError($this->db)) {
+        if (MDB2::isError($this->db)) {
             exit;
         }
     }
@@ -228,7 +228,7 @@ class Standard_ApiTest extends Standard_Abstract {
         if (!$this->methodExists($this->db, 'loadModule')) {
             return;
         }
-        $this->assertTrue(!PEAR::isError($this->db->loadModule('Manager', null, true)));
+        $this->assertTrue(!MDB2::isError($this->db->loadModule('Manager', null, true)));
     }
 
     // test of the driver
@@ -238,7 +238,7 @@ class Standard_ApiTest extends Standard_Abstract {
      */
     public function standardQuery() {
         $query = 'SELECT * FROM users';
-        if (!PEAR::isError($this->db)) {
+        if (!MDB2::isError($this->db)) {
             return $this->db->query($query);
         }
         return false;
@@ -268,7 +268,7 @@ class Standard_ApiTest extends Standard_Abstract {
             return;
         }
         $result = $this->db->exec('UPDATE users SET user_name = user_name WHERE user_id = user_id');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('exec: $result returned is an error: '.$result->getMessage().' :: '.$result->getUserInfo());
         }
         $this->assertEquals(0, $result, 'exec: incorrect number of affected rows returned');
@@ -301,7 +301,7 @@ class Standard_ApiTest extends Standard_Abstract {
         $err = $result->fetchRow();
         $result->free();
 
-        if (PEAR::isError($err)) {
+        if (MDB2::isError($err)) {
             $this->fail('Error testFetch: '.$err->getMessage().' - '.$err->getUserInfo());
         }
     }
@@ -317,7 +317,7 @@ class Standard_ApiTest extends Standard_Abstract {
             return;
         }
         $numrows = $result->numRows();
-        $this->assertTrue(!PEAR::isError($numrows) && is_int($numrows));
+        $this->assertTrue(!MDB2::isError($numrows) && is_int($numrows));
         $result->free();
     }
 
@@ -332,7 +332,7 @@ class Standard_ApiTest extends Standard_Abstract {
             return;
         }
         $numcols = $result->numCols();
-        $this->assertTrue(!PEAR::isError($numcols) && $numcols > 0);
+        $this->assertTrue(!MDB2::isError($numcols) && $numcols > 0);
         $result->free();
     }
 
@@ -358,13 +358,13 @@ class Standard_ApiTest extends Standard_Abstract {
         $this->manualSetUp($ci);
 
         $server_info = $this->db->getServerVersion(true);
-        if (PEAR::isError($server_info)) {
+        if (MDB2::isError($server_info)) {
             $this->fail('Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
         } else {
             $this->assertTrue(is_string($server_info), 'Error: Server info is not returned as a string: '. serialize($server_info));
         }
         $server_info = $this->db->getServerVersion();
-        if (PEAR::isError($server_info)) {
+        if (MDB2::isError($server_info)) {
             $this->fail('Error: '.$server_info->getMessage().' - '.$server_info->getUserInfo());
         } else {
             $this->assertTrue(is_array($server_info), 'Error: Server info is not returned as an array: '. serialize($server_info));

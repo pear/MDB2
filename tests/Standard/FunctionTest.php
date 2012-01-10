@@ -76,7 +76,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $functionTable_clause = $this->db->function->functionTable();
         $query = 'SELECT 1 '.$functionTable_clause;
         $result = $this->db->queryOne($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error fetching from function table: '.$result->getMessage().' :: '.$result->getUserInfo());
         } else {
             $this->assertEquals('1', $result, 'Error fetching value from function table');
@@ -105,7 +105,7 @@ class Standard_FunctionTest extends Standard_Abstract
             $now_clause = $this->db->function->now($type);
             $query = 'SELECT '.$now_clause . $functionTable_clause;
             $result = $this->db->queryOne($query, $type);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->fail('Error getting '.$type);
             } else {
                 $this->assertRegExp($regexp, $result, 'Error: not a proper '.$type);
@@ -131,14 +131,14 @@ class Standard_FunctionTest extends Standard_Abstract
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error executing prepared query'.$result->getMessage());
         }
 
         $substring_clause = $this->db->function->substring('user_name', 1, 4);
         $query = 'SELECT '.$substring_clause .' FROM users';
         $result = $this->db->queryOne($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error getting substring');
         } else {
             $this->assertEquals('user', $result, 'Error: substrings not equals');
@@ -147,7 +147,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $substring_clause = $this->db->function->substring('user_name', 5, 1);
         $query = 'SELECT '.$substring_clause .' FROM users';
         $result = $this->db->queryOne($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error getting substring');
         } else {
             $this->assertEquals('_', $result, 'Error: substrings not equals');
@@ -157,7 +157,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $substring_clause = $this->db->function->substring('user_name', 6);
         $query = 'SELECT '.$substring_clause .' FROM users';
         $result = $this->db->queryOne($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error getting substring');
         } else {
             $this->assertEquals('1234', $result, 'Error: substrings not equals');
@@ -179,7 +179,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $concat_clause = $this->db->function->concat($this->db->quote('time', 'text'), $this->db->quote('stamp', 'text'));
         $query = 'SELECT '.$concat_clause . $functionTable_clause;
         $result = $this->db->queryOne($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error getting concat');
         } else {
             $this->assertEquals('timestamp', $result, 'Error: could not concatenate "time+stamp"');
@@ -201,7 +201,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $functionTable_clause = $this->db->function->functionTable();
         $query = 'SELECT '.$rand_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'float');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error getting random value:'. $result->getMessage());
         } else {
             $this->assertTrue(($result >= 0 && $result <= 1), 'Error: could not get random value between 0 and 1: '.$result);
@@ -223,7 +223,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $functionTable_clause = $this->db->function->functionTable();
         $query = 'SELECT '.$lower_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'text');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error getting lower case value:'. $result->getMessage());
         } else {
             $this->assertTrue(($result === 'foo'), 'Error: could not lower case "FoO": '.$result);
@@ -245,7 +245,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $functionTable_clause = $this->db->function->functionTable();
         $query = 'SELECT '.$upper_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'text');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error getting upper case value:'. $result->getMessage());
         } else {
             $this->assertTrue(($result === 'FOO'), 'Error: could not upper case "FoO": '.$result);
@@ -267,7 +267,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $functionTable_clause = $this->db->function->functionTable();
         $query = 'SELECT '.$length_clause . $functionTable_clause;
         $len = $this->db->queryOne($query, 'integer');
-        if (PEAR::isError($len)) {
+        if (MDB2::isError($len)) {
             $this->fail('Error getting upper case value:'. $len->getMessage());
         } else {
             $this->assertEquals(3, $len, 'Error: incorrect length for "foo" string: '.$len);
@@ -293,14 +293,14 @@ class Standard_FunctionTest extends Standard_Abstract
         $replace_clause = $this->db->function->replace($string, $search, $replace);
         $this->db->popExpect();
         $this->db->popErrorHandling();
-        if (PEAR::isError($replace_clause) && $replace_clause->getCode() == MDB2_ERROR_UNSUPPORTED) {
+        if (MDB2::isError($replace_clause) && $replace_clause->getCode() == MDB2_ERROR_UNSUPPORTED) {
             return;
         }
 
         $functionTable_clause = $this->db->function->functionTable();
         $query = 'SELECT '.$replace_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'text');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error getting replaced value:'. $result->getMessage() . ' :: ' . $result->getUserInfo());
         } else {
             $this->assertEquals('say what', $result, 'Error: could not get replace string: '.$result);
@@ -327,14 +327,14 @@ class Standard_FunctionTest extends Standard_Abstract
         $unixts_clause = $this->db->function->unixtimestamp($quoted_dt);
         $this->db->popExpect();
         $this->db->popErrorHandling();
-        if (PEAR::isError($unixts_clause) && $unixts_clause->getCode() == MDB2_ERROR_UNSUPPORTED) {
+        if (MDB2::isError($unixts_clause) && $unixts_clause->getCode() == MDB2_ERROR_UNSUPPORTED) {
             return;
         }
 
         $functionTable_clause = $this->db->function->functionTable();
         $query = 'SELECT '.$unixts_clause . $functionTable_clause;
         $result = $this->db->queryOne($query, 'text');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $this->fail('Error getting UNIX timestamp: ' . $result->getUserInfo());
         }
         $this->assertEquals($expected, $result);
