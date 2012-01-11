@@ -402,7 +402,7 @@ class Standard_ReverseTest extends Standard_Abstract
         }
 
         //test blob
-        $field_info = $this->db->reverse->getTableFieldDefinition('files', 'picture');
+        $field_info = $this->db->reverse->getTableFieldDefinition($this->table_files, 'picture');
         if (MDB2::isError($field_info)) {
             $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
@@ -412,7 +412,7 @@ class Standard_ReverseTest extends Standard_Abstract
         }
 
         //test varchar(100) not null
-        $field_info = $this->db->reverse->getTableFieldDefinition('users', 'user_name');
+        $field_info = $this->db->reverse->getTableFieldDefinition($this->table_users, 'user_name');
         if (MDB2::isError($field_info)) {
             $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
@@ -425,7 +425,7 @@ class Standard_ReverseTest extends Standard_Abstract
         }
 
         //test decimal
-        $field_info = $this->db->reverse->getTableFieldDefinition('users', 'quota');
+        $field_info = $this->db->reverse->getTableFieldDefinition($this->table_users, 'quota');
         if (MDB2::isError($field_info)) {
             $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {
@@ -435,7 +435,7 @@ class Standard_ReverseTest extends Standard_Abstract
             $this->assertEquals($expected_length, $field_info['length'], 'The field length is different from the expected one');
         }
 
-        $field_info = $this->db->reverse->getTableFieldDefinition('users', 'user_name');
+        $field_info = $this->db->reverse->getTableFieldDefinition($this->table_users, 'user_name');
         if (MDB2::isError($field_info)) {
             $this->fail('Error in getTableFieldDefinition(): '.$field_info->getUserInfo());
         } else {

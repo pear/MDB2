@@ -125,7 +125,7 @@ class Standard_FunctionTest extends Standard_Abstract
         }
         $data = $this->getSampleData(1234);
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
 
         $result = $stmt->execute(array_values($data));
@@ -136,7 +136,7 @@ class Standard_FunctionTest extends Standard_Abstract
         }
 
         $substring_clause = $this->db->function->substring('user_name', 1, 4);
-        $query = 'SELECT '.$substring_clause .' FROM users';
+        $query = 'SELECT '.$substring_clause .' FROM ' . $this->table_users;
         $result = $this->db->queryOne($query);
         if (MDB2::isError($result)) {
             $this->fail('Error getting substring');
@@ -145,7 +145,7 @@ class Standard_FunctionTest extends Standard_Abstract
         }
 
         $substring_clause = $this->db->function->substring('user_name', 5, 1);
-        $query = 'SELECT '.$substring_clause .' FROM users';
+        $query = 'SELECT '.$substring_clause .' FROM ' . $this->table_users;
         $result = $this->db->queryOne($query);
         if (MDB2::isError($result)) {
             $this->fail('Error getting substring');
@@ -155,7 +155,7 @@ class Standard_FunctionTest extends Standard_Abstract
 
         //test NULL 2nd parameter
         $substring_clause = $this->db->function->substring('user_name', 6);
-        $query = 'SELECT '.$substring_clause .' FROM users';
+        $query = 'SELECT '.$substring_clause .' FROM ' . $this->table_users;
         $result = $this->db->queryOne($query);
         if (MDB2::isError($result)) {
             $this->fail('Error getting substring');

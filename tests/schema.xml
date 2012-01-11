@@ -8,7 +8,7 @@
  <charset>ascii</charset>
 
  <table>
-  <name>users</name>
+  <name>mdb2_users</name>
   <declaration>
    <field> <name>user_name</name>     <type>text</type>      <length>12</length> <fixed>false</fixed>  </field>
    <field> <name>user_password</name> <type>text</type>      <length>8</length>  <fixed>true</fixed>   </field>
@@ -28,7 +28,7 @@
  </table>
 
  <table>
-  <name>files</name>
+  <name>mdb2_files</name>
   <declaration>
    <field> <name>id</name>       <type>integer</type> <default>0</default> <notnull>1</notnull> </field>
    <field> <name>document</name> <type>clob</type>                                              </field>

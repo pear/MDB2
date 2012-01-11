@@ -97,6 +97,16 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
      */
     public $options;
 
+    /**
+     * @var string  the name of the users table
+     */
+    public $table_users = 'mdb2_users';
+
+    /**
+     * @var string  the name of the file table
+     */
+    public $table_files = 'mdb2_files';
+
 
     /**
      * Override PHPUnit's default behavior so authentication data doesn't
@@ -166,8 +176,8 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         if (!$this->clear_tables) {
             return;
         }
-        $this->db->exec('DELETE FROM users');
-        $this->db->exec('DELETE FROM files');
+        $this->db->exec('DELETE FROM ' . $this->table_users);
+        $this->db->exec('DELETE FROM ' . $this->table_files);
     }
 
     public function supported($feature) {
@@ -265,7 +275,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         }
 
         $this->db->loadModule('Extended');
-        $stmt = $this->db->extended->autoPrepare('users',
+        $stmt = $this->db->extended->autoPrepare($this->table_users,
             array_keys($this->fields),
             MDB2_AUTOQUERY_INSERT, null, $this->fields);
 

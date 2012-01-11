@@ -61,7 +61,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $data = $this->getSampleData(1234);
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -73,7 +73,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Error executing prepared query: ' . $result->getUserInfo());
         }
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->query($query, $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: ' . $result->getUserInfo());
@@ -98,7 +98,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = array();
         $total_rows = 5;
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -118,7 +118,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         foreach ($this->fields as $field => $type) {
             for ($row = 0; $row < $total_rows; $row++) {
-                $result = $this->db->query('SELECT '.$field.' FROM users WHERE user_id='.$row, $type);
+                $result = $this->db->query('SELECT '.$field.' FROM ' . $this->table_users . ' WHERE user_id='.$row, $type);
                 $value = $result->fetchOne();
                 $result->free();
                 if (MDB2::isError($value)) {
@@ -142,7 +142,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = array();
         $total_rows = 5;
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -169,7 +169,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $second_col[$row] = $row;
         }
 
-        $query = 'SELECT user_name, user_id FROM users ORDER BY user_name';
+        $query = 'SELECT user_name, user_id FROM ' . $this->table_users . ' ORDER BY user_name';
         $result = $this->db->query($query, array('text', 'integer'));
         if (MDB2::isError($result)) {
             $this->fail('Error during query: ' . $result->getUserInfo());
@@ -181,7 +181,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
         $this->assertEquals($first_col, $values);
 
-        $query = 'SELECT user_name, user_id FROM users ORDER BY user_name';
+        $query = 'SELECT user_name, user_id FROM ' . $this->table_users . ' ORDER BY user_name';
         $result = $this->db->query($query, array('text', 'integer'));
         if (MDB2::isError($result)) {
             $this->fail('Error during query: ' . $result->getUserInfo());
@@ -207,7 +207,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = array();
         $total_rows = 5;
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -224,7 +224,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $stmt->free();
 
         $fields = array_keys($data[0]);
-        $query = 'SELECT '. implode (', ', $fields). ' FROM users ORDER BY user_name';
+        $query = 'SELECT '. implode (', ', $fields). ' FROM ' . $this->table_users . ' ORDER BY user_name';
         $result = $this->db->query($query, $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error during query: '  . $result->getUserInfo());
@@ -241,7 +241,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
 
         //test $rekey=true
-        $result = $this->db->query('SELECT user_id, user_name FROM users ORDER BY user_id', $this->fields);
+        $result = $this->db->query('SELECT user_id, user_name FROM ' . $this->table_users . ' ORDER BY user_id', $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error during query: ' . $result->getUserInfo());
         }
@@ -258,7 +258,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
 
         //test $rekey=true, $force_array=true
-        $result = $this->db->query('SELECT user_id, user_name FROM users ORDER BY user_id', $this->fields);
+        $result = $this->db->query('SELECT user_id, user_name FROM ' . $this->table_users . ' ORDER BY user_id', $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error during query: ' . $result->getUserInfo());
         }
@@ -274,7 +274,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
 
         //test $rekey=true, $force_array=true, $group=true
-        $result = $this->db->query('SELECT user_password, user_name FROM users ORDER BY user_name', $this->fields);
+        $result = $this->db->query('SELECT user_password, user_name FROM ' . $this->table_users . ' ORDER BY user_name', $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error during query: ' . $result->getUserInfo());
         }
@@ -291,7 +291,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
 
         //test $rekey=true, $force_array=true, $group=false (with non unique key)
-        $result = $this->db->query('SELECT user_password, user_name FROM users ORDER BY user_name', $this->fields);
+        $result = $this->db->query('SELECT user_password, user_name FROM ' . $this->table_users . ' ORDER BY user_name', $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error during query: ' . $result->getUserInfo());
         }
@@ -321,7 +321,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = array();
         $total_rows = 5;
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -340,7 +340,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $stmt->free();
 
         // test ASSOC
-        $query = 'SELECT A.user_name FROM users A, users B WHERE A.user_id = B.user_id';
+        $query = 'SELECT A.user_name FROM ' . $this->table_users . ' A, ' . $this->table_users . ' B WHERE A.user_id = B.user_id';
         $value = $this->db->queryRow($query, array($this->fields['user_name']), MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($value)) {
             $this->fail('Error fetching the result set');
@@ -369,7 +369,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = array();
         $total_rows = 5;
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -389,7 +389,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $query = '';
         for ($row = 0; $row < $total_rows; $row++) {
-            $query.= 'SELECT user_name FROM users WHERE user_id='.$row.';';
+            $query.= 'SELECT user_name FROM ' . $this->table_users . ' WHERE user_id='.$row.';';
         }
         $result = $this->db->query($query, 'text');
 
@@ -430,7 +430,7 @@ class Standard_UsageTest extends Standard_Abstract {
             ),
         );
 
-        $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (?, ?, ?)";
+        $query = "INSERT INTO $this->table_users (user_name, user_password, user_id) VALUES (?, ?, ?)";
         $stmt = $this->db->prepare($query, array('text', 'text', 'integer'), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -462,7 +462,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
         $this->clearTables();
 
-        $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (:text, :question, :userid)";
+        $query = "INSERT INTO $this->table_users (user_name, user_password, user_id) VALUES (:text, :question, :userid)";
         $stmt = $this->db->prepare($query, array('text', 'text', 'integer'), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -478,7 +478,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Could not execute prepared query with named placeholders. Error: ' . $result->getUserInfo());
         }
 
-        $query = "INSERT INTO users (user_name, user_password, user_id) VALUES (".$this->db->quote($data[1]['user_name'], 'text').", :question, :userid)";
+        $query = "INSERT INTO $this->table_users (user_name, user_password, user_id) VALUES (".$this->db->quote($data[1]['user_name'], 'text').", :question, :userid)";
         $stmt = $this->db->prepare($query, array('text', 'integer'), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -493,7 +493,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Could not execute prepared query with named placeholders and a quoted text value in front. Error: ' . $result->getUserInfo());
         }
 
-        $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_id=:user_id';
+        $query = 'SELECT user_name, user_password, user_id FROM ' . $this->table_users . ' WHERE user_id=:user_id';
         $stmt = $this->db->prepare($query, array('integer'), array('text', 'text', 'integer'));
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -517,7 +517,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $stmt->free();
 
         $row_data = reset($data);
-        $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_id='.$this->db->quote($row_data['user_id'], 'integer');
+        $query = 'SELECT user_name, user_password, user_id FROM ' . $this->table_users . ' WHERE user_id='.$this->db->quote($row_data['user_id'], 'integer');
         $stmt = $this->db->prepare($query, null, array('text', 'text', 'integer'));
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -537,7 +537,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $stmt->free();
 
         $row_data = reset($data);
-        $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_name='.$this->db->quote($row_data['user_name'], 'text').' AND user_id = ? AND user_password='.$this->db->quote($row_data['user_password'], 'text');
+        $query = 'SELECT user_name, user_password, user_id FROM ' . $this->table_users . ' WHERE user_name='.$this->db->quote($row_data['user_name'], 'text').' AND user_id = ? AND user_password='.$this->db->quote($row_data['user_password'], 'text');
         $stmt = $this->db->prepare($query, array('integer'), array('text', 'text', 'integer'));
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -556,7 +556,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $this->assertTrue(empty($diff), 'Prepared SELECT failed for fields: '.implode(', ', array_keys($diff)));
 
         foreach ($this->db->sql_comments as $comment) {
-            $query = 'SELECT user_name, user_password, user_id FROM users WHERE '.$comment['start'].' maps to class::foo() '.$comment['end'].' user_name=:username';
+            $query = 'SELECT user_name, user_password, user_id FROM ' . $this->table_users . ' WHERE '.$comment['start'].' maps to class::foo() '.$comment['end'].' user_name=:username';
             $row_data = reset($data);
             $stmt = $this->db->prepare($query, array('text'), array('text', 'text', 'integer'));
             if (MDB2::isError($stmt)) {
@@ -577,7 +577,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
 
         $row_data = reset($data);
-        $query = 'SELECT user_name, user_password, user_id FROM users WHERE user_name=:username OR user_password=:username';
+        $query = 'SELECT user_name, user_password, user_id FROM ' . $this->table_users . ' WHERE user_name=:username OR user_password=:username';
         $stmt = $this->db->prepare($query, array('text'), array('text', 'text', 'integer'));
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -680,7 +680,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $data = $this->getSampleData(1234);
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -693,7 +693,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Error executing prepared query: ' . $result->getUserInfo());
         }
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->query($query, $this->fields);
 
         if (MDB2::isError($result)) {
@@ -748,12 +748,12 @@ class Standard_UsageTest extends Standard_Abstract {
 
             $this->clearTables();
 
-            $result = $this->db->exec("INSERT INTO users (user_name,user_password,user_id) VALUES ($value,$value,0)");
+            $result = $this->db->exec("INSERT INTO $this->table_users (user_name,user_password,user_id) VALUES ($value,$value,0)");
             if (MDB2::isError($result)) {
                 $this->fail('Error executing insert query: ' . $result->getUserInfo());
             }
 
-            $result = $this->db->query('SELECT user_name,user_password FROM users', array('text', 'text'));
+            $result = $this->db->query('SELECT user_name,user_password FROM ' . $this->table_users, array('text', 'text'));
             if (MDB2::isError($result)) {
                 $this->fail('Error executing select query: ' . $result->getUserInfo());
             }
@@ -773,7 +773,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $methods = array('fetchOne', 'fetchRow');
 
         foreach ($methods as $method) {
-            $result = $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            $result = $this->db->query('SELECT user_name FROM ' . $this->table_users . ' WHERE user_id=123', array('text'));
             $value = $result->$method();
             if (MDB2::isError($value)) {
                 $this->fail('Error fetching non existent row');
@@ -786,7 +786,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $methods = array('fetchCol', 'fetchAll');
 
         foreach ($methods as $method) {
-            $result = $this->db->query('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            $result = $this->db->query('SELECT user_name FROM ' . $this->table_users . ' WHERE user_id=123', array('text'));
             $value = $result->$method();
             if (MDB2::isError($value)) {
                 $this->fail('Error fetching non existent row');
@@ -799,7 +799,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $methods = array('queryOne', 'queryRow');
 
         foreach ($methods as $method) {
-            $value = $this->db->$method('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            $value = $this->db->$method('SELECT user_name FROM ' . $this->table_users . ' WHERE user_id=123', array('text'));
             if (MDB2::isError($value)) {
                 $this->fail('Error fetching non existent row');
             } else {
@@ -811,7 +811,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $methods = array('queryCol', 'queryAll');
 
         foreach ($methods as $method) {
-            $value = $this->db->$method('SELECT user_name FROM users WHERE user_id=123', array('text'));
+            $value = $this->db->$method('SELECT user_name FROM ' . $this->table_users . ' WHERE user_id=123', array('text'));
             if (MDB2::isError($value)) {
                 $this->fail('Error fetching non existent row');
             } else {
@@ -838,7 +838,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = array();
         $total_rows = 5;
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -859,7 +859,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
             $this->db->setLimit($rows, $start_row);
 
-            $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name';
+            $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users . ' ORDER BY user_name';
             $result = $this->db->query($query, $this->fields);
 
             if (MDB2::isError($result)) {
@@ -879,7 +879,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
             $this->db->setLimit($rows, $start_row);
 
-            $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users ORDER BY user_name';
+            $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users . ' ORDER BY user_name';
             $result = $this->db->query($query, $this->fields);
 
             if (MDB2::isError($result)) {
@@ -1066,7 +1066,7 @@ class Standard_UsageTest extends Standard_Abstract {
             )
         );
 
-        $result = $this->db->replace('users', $fields);
+        $result = $this->db->replace($this->table_users, $fields);
 
         if (MDB2::isError($result)) {
             $this->fail('Replace failed');
@@ -1075,7 +1075,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->assertEquals(1, $result, "replacing a row in an empty table returned incorrect value");
         }
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->query($query, $this->fields);
 
         if (MDB2::isError($result)) {
@@ -1094,7 +1094,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $fields['access_time']['value']   = $data['access_time']   = MDB2_Date::mdbTime();
         $fields['approved']['value']      = $data['approved']      = MDB2_Date::mdbNow();
 
-        $result = $this->db->replace('users', $fields);
+        $result = $this->db->replace($this->table_users, $fields);
 
         if (MDB2::isError($result)) {
             $this->fail('Replace failed');
@@ -1111,7 +1111,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->assertEquals($expect, $result, "replacing a row returned incorrect result");
         }
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->query($query, $this->fields);
 
         if (MDB2::isError($result)) {
@@ -1140,7 +1140,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = array();
         $total_rows = 7;
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1159,7 +1159,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
-        $query = 'UPDATE users SET user_password=? WHERE user_id < ?';
+        $query = 'UPDATE ' . $this->table_users . ' SET user_password=? WHERE user_id < ?';
         $stmt = $this->db->prepare($query, array('text', 'integer'), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1183,7 +1183,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
-        $query = 'DELETE FROM users WHERE user_id >= ?';
+        $query = 'DELETE FROM ' . $this->table_users . ' WHERE user_id >= ?';
         $stmt = $this->db->prepare($query, array('integer'), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1223,7 +1223,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $this->db->beginTransaction();
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1233,7 +1233,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $this->db->rollback();
         $stmt->free();
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->query($query);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users ' . $result->getUserInfo());
@@ -1258,7 +1258,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $this->db->beginTransaction();
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1268,7 +1268,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $this->db->commit();
         $stmt->free();
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->query($query);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users ' . $result->getUserInfo());
@@ -1292,7 +1292,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = $this->getSampleData(0);
 
         $this->db->beginTransaction();
-        $result = $this->db->exec('DELETE FROM users');
+        $result = $this->db->exec('DELETE FROM ' . $this->table_users);
         if (MDB2::isError($result)) {
             $this->fail('Error deleting from users: ' . $result->getUserInfo());
             $this->db->rollback();
@@ -1300,7 +1300,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->db->commit();
         }
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->query($query);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: ' . $result->getUserInfo());
@@ -1329,7 +1329,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $this->db->beginNestedTransaction();
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1352,7 +1352,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Outer transaction was not committed: ' . $result->getUserInfo());
         }
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->query($query);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: ' . $result->getUserInfo());
@@ -1382,7 +1382,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $this->db->beginTransaction();
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1414,7 +1414,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Transaction not committed: ' . $result->getUserInfo());
         }
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->queryAll($query);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users' . $result->getUserInfo());
@@ -1457,7 +1457,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->markTestSkipped('LOBs not supported');
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, ?, ?)';
+        $query = 'INSERT INTO ' . $this->table_files . ' (ID, document, picture) VALUES (1, ?, ?)';
         $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
         if (MDB2::isError($stmt)) {
             $this->fail('Failed prepared statement to insert LOB values: '.$stmt->getUserInfo());
@@ -1486,7 +1486,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
-        $result = $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM ' . $this->table_files . ' WHERE id = 1', array('clob', 'blob'));
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from files' . $result->getUserInfo());
         }
@@ -1538,7 +1538,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
 
         for ($i = 20; $i < 30; ++$i) {
-            $query = 'INSERT INTO files (ID, document, picture) VALUES (?, ?, ?)';
+            $query = 'INSERT INTO ' . $this->table_files . ' (ID, document, picture) VALUES (?, ?, ?)';
             $stmt = $this->db->prepare($query, array('integer', 'clob', 'blob'), MDB2_PREPARE_MANIP, array(1 => 'document', 2 => 'picture'));
             if (MDB2::isError($stmt)) {
                 $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1560,7 +1560,7 @@ class Standard_UsageTest extends Standard_Abstract {
         foreach (array(true, false) as $buffered) {
             $this->db->setOption('result_buffering', $buffered);
             $msgPost = ' with result_buffering = '.($buffered ? 'true' : 'false');
-            $result = $this->db->query('SELECT id, document, picture FROM files WHERE id >= 20 AND id <= 30 ORDER BY id ASC', array('integer', 'clob', 'blob'));
+            $result = $this->db->query('SELECT id, document, picture FROM ' . $this->table_files . ' WHERE id >= 20 AND id <= 30 ORDER BY id ASC', array('integer', 'clob', 'blob'));
             if (MDB2::isError($result)) {
                 $this->fail('Error selecting from files ' . $msgPost . ': ' . $result->getMessage());
             } else {
@@ -1641,7 +1641,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $this->db->setOption('lob_allow_url_include', true);
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
+        $query = 'INSERT INTO ' . $this->table_files . ' (ID, document, picture) VALUES (1, :document, :picture)';
         $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1664,7 +1664,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
 
         // Query the newly created record.
-        $result = $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM ' . $this->table_files . ' WHERE id = 1', array('clob', 'blob'));
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from files: ' . $result->getUserInfo());
         }
@@ -1830,7 +1830,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->markTestSkipped('LOBs not supported');
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, :document, :picture)';
+        $query = 'INSERT INTO ' . $this->table_files . ' (ID, document, picture) VALUES (1, :document, :picture)';
         $stmt = $this->db->prepare($query, array('document' => 'clob', 'picture' => 'blob'), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1847,7 +1847,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
         $stmt->free();
 
-        $result = $this->db->query('SELECT document, picture FROM files', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM ' . $this->table_files, array('clob', 'blob'));
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from files: ' . $result->getUserInfo());
         }
@@ -1871,7 +1871,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->markTestSkipped('LOBs not supported');
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, ?, ?)';
+        $query = 'INSERT INTO ' . $this->table_files . ' (ID, document, picture) VALUES (1, ?, ?)';
         $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1900,7 +1900,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
-        $query = 'UPDATE files SET document = ?, picture = ? WHERE ID = 1';
+        $query = 'UPDATE ' . $this->table_files . ' SET document = ?, picture = ? WHERE ID = 1';
         $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1929,7 +1929,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
-        $result = $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM ' . $this->table_files . ' WHERE id = 1', array('clob', 'blob'));
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from files: ' . $result->getUserInfo());
         }
@@ -1985,7 +1985,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = $this->getSampleData(1234);
         $data['user_password'] = '';
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -1998,7 +1998,7 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Error executing prepared query: ' . $result->getUserInfo());
         }
 
-        $row = $this->db->queryRow('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users WHERE user_password IS NULL', $this->fields, MDB2_FETCHMODE_ORDERED);
+        $row = $this->db->queryRow('SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users . ' WHERE user_password IS NULL', $this->fields, MDB2_FETCHMODE_ORDERED);
 
         if (MDB2::isError($row)) {
             $this->fail('Error selecting from users: ' . $result->getUserInfo());
@@ -2017,7 +2017,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $data = array();
         $total_rows = 5;
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -2033,7 +2033,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $stmt->free();
 
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_DELETE_COUNT);
-        $affected_rows = $this->db->exec('DELETE FROM users');
+        $affected_rows = $this->db->exec('DELETE FROM ' . $this->table_users);
         if (MDB2::isError($affected_rows)) {
             $this->fail('Error executing query: '.$affected_rows->getMessage());
         }
@@ -2045,7 +2045,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $this->db->setOption('field_case', CASE_UPPER);
 
         $data = $this->getSampleData(1234);
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -2054,7 +2054,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->queryRow($query, $this->fields, MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: ' . $result->getUserInfo());
@@ -2066,7 +2066,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
 
         $this->db->setOption('field_case', CASE_LOWER);
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $result = $this->db->queryRow($query, $this->fields, MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: ' . $result->getUserInfo());
@@ -2080,12 +2080,12 @@ class Standard_UsageTest extends Standard_Abstract {
         // MDB2_PORTABILITY_RTRIM
         $this->db->setOption('portability', MDB2_PORTABILITY_NONE | MDB2_PORTABILITY_RTRIM);
         $value = 'rtrim   ';
-        $query = 'INSERT INTO users (user_id, user_password) VALUES (1, ' . $this->db->quote($value, 'text') .')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (user_id, user_password) VALUES (1, ' . $this->db->quote($value, 'text') .')';
         $res = $this->db->exec($query);
         if (MDB2::isError($res)) {
             $this->fail('Error executing query: '.$res->getMessage());
         }
-        $query = 'SELECT user_password FROM users WHERE user_id = 1';
+        $query = 'SELECT user_password FROM ' . $this->table_users . ' WHERE user_id = 1';
         $result = $this->db->queryOne($query, array('text'));
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: ' . $result->getUserInfo());
@@ -2096,7 +2096,7 @@ class Standard_UsageTest extends Standard_Abstract {
             return;
         }
 
-        $query = 'INSERT INTO files (ID, document, picture) VALUES (1, ?, ?)';
+        $query = 'INSERT INTO ' . $this->table_files . ' (ID, document, picture) VALUES (1, ?, ?)';
         $stmt = $this->db->prepare($query, array('clob', 'blob'), MDB2_PREPARE_MANIP, array('document', 'picture'));
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -2125,7 +2125,7 @@ class Standard_UsageTest extends Standard_Abstract {
 
         $stmt->free();
 
-        $result = $this->db->query('SELECT document, picture FROM files WHERE id = 1', array('clob', 'blob'));
+        $result = $this->db->query('SELECT document, picture FROM ' . $this->table_files . ' WHERE id = 1', array('clob', 'blob'));
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from files: ' . $result->getUserInfo());
         }
@@ -2172,7 +2172,7 @@ class Standard_UsageTest extends Standard_Abstract {
     public function testgetAsKeyword($ci) {
         $this->manualSetUp($ci);
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         if (MDB2::isError($stmt)) {
             $this->fail('Error preparing query: ' . $stmt->getUserInfo());
@@ -2185,7 +2185,7 @@ class Standard_UsageTest extends Standard_Abstract {
         }
         $stmt->free();
 
-        $query = 'SELECT user_id'.$this->db->getAsKeyword().'foo FROM users';
+        $query = 'SELECT user_id'.$this->db->getAsKeyword().'foo FROM ' . $this->table_users;
         $result = $this->db->queryRow($query, array('integer'), MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($result)) {
             $this->fail('Error getting alias column: '. $result->getMessage());

@@ -40,6 +40,7 @@
 // +----------------------------------------------------------------------+
 // | Authors: Paul Cooper <pgc@ucecom.com>                                |
 // |          Lorenzo Alberton <l dot alberton at quipo dot it>           |
+// |          Daniel Convissor <danielc@php.net>                          |
 // +----------------------------------------------------------------------+
 //
 // $Id$
@@ -391,7 +392,7 @@ class Standard_ManagerTest extends Standard_Abstract {
             ),
             'foreign' => true,
             'references' => array(
-                'table' => 'users',
+                'table' => $this->table_users,
                 'fields' => array(
                     'user_id' => array(
                         'position' => 1,
@@ -431,7 +432,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         //now check that it is enforced...
 
         //insert a row in the primary table
-        $result = $this->db->exec('INSERT INTO users (user_id) VALUES (1)');
+        $result = $this->db->exec('INSERT INTO ' . $this->table_users . ' (user_id) VALUES (1)');
         $this->checkResultForErrors($result, 'exec');
 
         //insert a row in the FK table with an id that references
@@ -476,7 +477,7 @@ class Standard_ManagerTest extends Standard_Abstract {
 
         //update the PK value of the primary table: the new value should be
         //propagated to the FK table (ON UPDATE CASCADE)
-        $result = $this->db->exec('UPDATE users SET user_id = 2');
+        $result = $this->db->exec('UPDATE ' . $this->table_users . ' SET user_id = 2');
         $this->checkResultForErrors($result, 'exec');
 
         $numrows = $this->db->queryOne($numrows_query, 'integer');
@@ -488,7 +489,7 @@ class Standard_ManagerTest extends Standard_Abstract {
 
         //delete the row of the primary table: the row in the FK table should be
         //deleted automatically (ON DELETE CASCADE)
-        $result = $this->db->exec('DELETE FROM users');
+        $result = $this->db->exec('DELETE FROM ' . $this->table_users);
         $this->checkResultForErrors($result, 'exec');
 
         $numrows = $this->db->queryOne($numrows_query, 'integer');

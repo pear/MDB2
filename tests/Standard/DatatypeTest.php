@@ -563,14 +563,14 @@ class Standard_DatatypeTest extends Standard_Abstract
         $this->clearTables();
         foreach($test_strings as $key => $string) {
             $value = $this->db->quote($string, 'text');
-            $query = "INSERT INTO users (user_name,user_id) VALUES ($value, $key)";
+            $query = "INSERT INTO $this->table_users (user_name,user_id) VALUES ($value, $key)";
             $result = $this->db->exec($query);
 
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
             }
 
-            $query = 'SELECT user_name FROM users WHERE user_id = '.$key;
+            $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE user_id = '.$key;
             $value = $this->db->queryOne($query, 'text');
 
             if (MDB2::isError($value)) {
@@ -607,31 +607,31 @@ class Standard_DatatypeTest extends Standard_Abstract
         $this->clearTables();
         foreach($test_strings as $key => $string) {
             $value = $this->db->quote($string, 'text');
-            $query = "INSERT INTO users (user_name,user_id) VALUES ($value, $key)";
+            $query = "INSERT INTO $this->table_users (user_name,user_id) VALUES ($value, $key)";
             $result = $this->db->exec($query);
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
             }
         }
 
-        $query = 'SELECT user_name FROM users WHERE '
+        $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE '
             . $this->db->datatype->matchPattern(array('F', '%'), 'LIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
         $this->assertEquals($case_sensitive_expect, count($values), "case sensitive search was expected to return 2 rows but returned: ".count($values));
 
         // NOTE: if this test fails on mysql, it's due to table/field having
         // binary collation.
-        $query = 'SELECT user_name FROM users WHERE '
+        $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE '
             . $this->db->datatype->matchPattern(array('foo'), 'ILIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
         $this->assertEquals(3, count($values), "case insensitive search was expected to return 3 rows but returned: ".count($values));
 
-        $query = 'SELECT user_name FROM users WHERE '
+        $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE '
             . $this->db->datatype->matchPattern(array(1 => '_', 'o', '%'), 'LIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
         $this->assertEquals($case_sensitive_expect, count($values), "case sensitive search was expected to return 2 rows but returned: ".count($values));
 
-        $query = 'SELECT user_name FROM users WHERE '
+        $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE '
             . $this->db->datatype->matchPattern(array(1 => '_', 'o', '%'), 'ILIKE', 'user_name');
         $values = $this->db->queryCol($query, 'text');
         $this->assertEquals(3, count($values), "case insensitive search was expected to return 3 rows but returned: ".count($values));
@@ -670,13 +670,13 @@ class Standard_DatatypeTest extends Standard_Abstract
         $this->clearTables();
         foreach($test_strings as $key => $string) {
             $value = $this->db->quote($string, 'text');
-            $query = "INSERT INTO users (user_name,user_id) VALUES ($value, $key)";
+            $query = "INSERT INTO $this->table_users (user_name,user_id) VALUES ($value, $key)";
             $result = $this->db->exec($query);
             if (MDB2::isError($result)) {
                 $this->assertTrue(false, 'Error executing insert query'.$result->getMessage());
             }
 
-            $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->quote($string, 'text', true, true);
+            $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE user_name LIKE '.$this->db->quote($string, 'text', true, true);
             $value = $this->db->queryOne($query, 'text');
             if (MDB2::isError($value)) {
                 $this->assertTrue(false, 'Error executing select query'.$value->getMessage());
@@ -686,11 +686,11 @@ class Standard_DatatypeTest extends Standard_Abstract
         }
 
         $this->db->loadModule('Datatype', null, true);
-        $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->datatype->matchPattern(array('Foo%', '_', '23'));
+        $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE user_name LIKE '.$this->db->datatype->matchPattern(array('Foo%', '_', '23'));
         $value = $this->db->queryOne($query, 'text');
         $this->assertEquals('Foo%123', $value, "the value retrieved for field \"user_name\" doesn't match what was stored");
 
-        $query = 'SELECT user_name FROM users WHERE user_name LIKE '.$this->db->datatype->matchPattern(array(1 => '_', 'oo', '%'));
+        $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE user_name LIKE '.$this->db->datatype->matchPattern(array(1 => '_', 'oo', '%'));
         $value = $this->db->queryOne($query, 'text');
         $this->assertEquals('Foo', substr($value, 0, 3), "the value retrieved for field \"user_name\" doesn't match what was stored");
     }

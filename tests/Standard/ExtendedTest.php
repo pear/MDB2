@@ -55,13 +55,13 @@ class Standard_ExtendedTest extends Standard_Abstract
         $this->manualSetUp($ci);
 
         $data = $this->getSampleData();
-        $select_query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $select_query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
 
         $result = $this->db->loadModule('Extended');
         if (MDB2::isError($result)) {
             $this->fail('Error loading "Extended" module: '.$result->getMessage());
         }
-        $result = $this->db->extended->autoExecute('users', $data, MDB2_AUTOQUERY_INSERT, null, $this->fields);
+        $result = $this->db->extended->autoExecute($this->table_users, $data, MDB2_AUTOQUERY_INSERT, null, $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error auto executing insert: '.$result->getMessage());
         }
@@ -76,7 +76,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         $where = 'user_id = '.$this->db->quote($data['user_id'], 'integer');
-        $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_SELECT, $where, null, true, $this->fields);
+        $result = $this->db->extended->autoExecute($this->table_users, null, MDB2_AUTOQUERY_SELECT, $where, null, true, $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error auto executing select: '.$result->getMessage());
         } else {
@@ -85,7 +85,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         $where = 'user_id = '.$this->db->quote($data['user_id'], 'integer');
-        $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_SELECT, $where, null, true, MDB2_PREPARE_RESULT);
+        $result = $this->db->extended->autoExecute($this->table_users, null, MDB2_AUTOQUERY_SELECT, $where, null, true, MDB2_PREPARE_RESULT);
         if (MDB2::isError($result)) {
             $this->fail('Error auto executing select: '.$result->getMessage());
         } else {
@@ -98,7 +98,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $data['user_name'] = $update_data['user_name'] = 'foo';
 
         $where = 'user_id = '.$this->db->quote($data['user_id'], 'integer');
-        $result = $this->db->extended->autoExecute('users', $update_data, MDB2_AUTOQUERY_UPDATE, $where, $this->fields);
+        $result = $this->db->extended->autoExecute($this->table_users, $update_data, MDB2_AUTOQUERY_UPDATE, $where, $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error auto executing insert: '.$result->getMessage());
         }
@@ -113,7 +113,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         $where = array($where, 'user_name = '.$this->db->quote($data['user_name'], 'text'));
-        $result = $this->db->extended->autoExecute('users', null, MDB2_AUTOQUERY_DELETE, $where, null);
+        $result = $this->db->extended->autoExecute($this->table_users, null, MDB2_AUTOQUERY_DELETE, $where, null);
         if (MDB2::isError($result)) {
             $this->fail('Error auto executing insert: '.$result->getMessage());
         }
@@ -144,8 +144,9 @@ class Standard_ExtendedTest extends Standard_Abstract
 
         $data = $this->getSampleData(1234);
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
+        $this->checkResultForErrors($stmt, 'prepare');
         $result = $stmt->execute(array_values($data));
         $stmt->free();
 
@@ -154,7 +155,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         //test getAssoc() with query parameters
-        $query = 'SELECT user_id, user_name FROM users WHERE user_id=?';
+        $query = 'SELECT user_id, user_name FROM ' . $this->table_users . ' WHERE user_id=?';
         $result = $this->db->extended->getAssoc($query, array('integer', 'text'), array(1234), array('integer'));
         if (MDB2::isError($result)) {
             $this->fail('Error executing getAssoc(): '.$result->getMessage());
@@ -163,7 +164,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $this->assertEquals($data['user_name'], $result[$data['user_id']], 'Unexpected returned value');
 
         //test getAssoc() without query parameters
-        $query = 'SELECT user_id, user_name FROM users WHERE user_id=1234';
+        $query = 'SELECT user_id, user_name FROM ' . $this->table_users . ' WHERE user_id=1234';
         $result = $this->db->extended->getAssoc($query, array('integer', 'text'));
         if (MDB2::isError($result)) {
             $this->fail('Error executing getAssoc(): '.$result->getMessage());
@@ -174,13 +175,13 @@ class Standard_ExtendedTest extends Standard_Abstract
 
         //add another record to the db
         $data2 = $this->getSampleData(4321);
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data2));
         $stmt->free();
 
         //test getAssoc() with $force_array=true
-        $query = 'SELECT user_id, user_name FROM users ORDER BY user_id';
+        $query = 'SELECT user_id, user_name FROM ' . $this->table_users . ' ORDER BY user_id';
         $values = $this->db->extended->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, true);
         if (MDB2::isError($values)) {
             $this->fail('Error executing getAssoc(): '.$values->getMessage());
@@ -196,7 +197,7 @@ class Standard_ExtendedTest extends Standard_Abstract
 
 
         //test getAssoc() with $force_array=false and $group=true
-        $query = 'SELECT user_id, user_name FROM users ORDER BY user_id';
+        $query = 'SELECT user_id, user_name FROM ' . $this->table_users . ' ORDER BY user_id';
         $values = $this->db->extended->getAssoc($query, array('integer', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
         if (MDB2::isError($values)) {
             $this->fail('Error executing getAssoc(): '.$values->getMessage());
@@ -213,7 +214,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         //test $group=true with 3 fields
-        $query = 'SELECT user_password, user_id, user_name FROM users ORDER BY user_id';
+        $query = 'SELECT user_password, user_id, user_name FROM ' . $this->table_users . ' ORDER BY user_id';
         $values = $this->db->extended->getAssoc($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC, false, true);
         if (MDB2::isError($values)) {
             $this->fail('Error executing getAssoc(): '.$values->getMessage());
@@ -260,7 +261,7 @@ class Standard_ExtendedTest extends Standard_Abstract
 
         $data = $this->getSampleData(1234);
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
         $stmt->free();
@@ -270,7 +271,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         //test getOne() with query parameters
-        $query = 'SELECT user_name FROM users WHERE user_id=?';
+        $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE user_id=?';
         $result = $this->db->extended->getOne($query, 'text', array(1234), array('integer'));
         if (MDB2::isError($result)) {
             $this->fail('Error executing getOne(): '.$result->getMessage());
@@ -278,7 +279,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $this->assertEquals($data['user_name'], $result, 'Unexpected returned value');
 
         //test getOne() without query parameters
-        $query = 'SELECT user_name FROM users WHERE user_id=1234';
+        $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE user_id=1234';
         $result = $this->db->extended->getOne($query, 'text');
         if (MDB2::isError($result)) {
             $this->fail('Error executing getOne(): '.$result->getMessage());
@@ -286,7 +287,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $this->assertEquals($data['user_name'], $result, 'Unexpected returned value');
 
         //test getOne() with column number (resultset: 0-based array)
-        $query = 'SELECT user_id, user_name, approved FROM users WHERE user_id=1234';
+        $query = 'SELECT user_id, user_name, approved FROM ' . $this->table_users . ' WHERE user_id=1234';
         $result = $this->db->extended->getOne($query, 'text', null, null, 1); //get the 2nd column
         if (MDB2::isError($result)) {
             $this->fail('Error executing getOne(): '.$result->getMessage());
@@ -312,7 +313,7 @@ class Standard_ExtendedTest extends Standard_Abstract
             0 => $this->getSampleData(1234),
             1 => $this->getSampleData(4321),
         );
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data[0]));
         if (MDB2::isError($result)) {
@@ -325,7 +326,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $stmt->free();
 
         //test getCol() with query parameters
-        $query = 'SELECT user_name FROM users WHERE user_id>?';
+        $query = 'SELECT user_name FROM ' . $this->table_users . ' WHERE user_id>?';
         $result = $this->db->extended->getCol($query, 'text', array(1), array('integer'));
         if (MDB2::isError($result)) {
             $this->fail('Error executing getCol(): '.$result->getMessage());
@@ -337,7 +338,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $this->assertEquals($expected, $result, 'Unexpected returned value');
 
         //test getCol() without query parameters
-        $query = 'SELECT user_name FROM users';
+        $query = 'SELECT user_name FROM ' . $this->table_users;
         $result = $this->db->extended->getCol($query, 'text');
         if (MDB2::isError($result)) {
             $this->fail('Error executing getCol(): '.$result->getMessage());
@@ -345,7 +346,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $this->assertEquals($expected, $result, 'Unexpected returned value');
 
         //test getCol() with column number (resultset: 0-based array)
-        $query = 'SELECT user_id, user_name, approved FROM users';
+        $query = 'SELECT user_id, user_name, approved FROM ' . $this->table_users;
         $result = $this->db->extended->getCol($query, 'text', null, null, 1); //get the 2nd column
         if (MDB2::isError($result)) {
             $this->fail('Error executing getCol(): '.$result->getMessage());
@@ -368,7 +369,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         $data = $this->getSampleData(1234);
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
         $stmt = $this->db->prepare($query, array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
         if (MDB2::isError($result)) {
@@ -377,7 +378,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $stmt->free();
 
         //test getRow() with query parameters
-        $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id=?';
+        $query = 'SELECT user_id, user_name, user_password FROM ' . $this->table_users . ' WHERE user_id=?';
         $result = $this->db->extended->getRow($query, array('integer', 'text', 'text'), array(1234), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($result)) {
             $this->fail('Error executing getRow(): '.$result->getMessage());
@@ -387,7 +388,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $this->assertEquals($data['user_password'], $result['user_password'], 'Unexpected returned value');
 
         //test getRow() without query parameters
-        $query = 'SELECT user_id, user_name, user_password FROM users';
+        $query = 'SELECT user_id, user_name, user_password FROM ' . $this->table_users;
         $result = $this->db->extended->getRow($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($result)) {
             $this->fail('Error executing getRow(): '.$result->getMessage());
@@ -414,7 +415,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $stmt = $this->db->prepare('INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')', array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -426,7 +427,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $stmt->free();
 
         //test getAll() with query parameters
-        $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id > ? ORDER BY user_id';
+        $query = 'SELECT user_id, user_name, user_password FROM ' . $this->table_users . ' WHERE user_id > ? ORDER BY user_id';
         $values = $this->db->extended->getAll($query, array('integer', 'text', 'text'), array(2), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($values)) {
             $this->fail('Error fetching the result set: '.$values->getMessage());
@@ -440,7 +441,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         //test getAll() without query parameters
-        $query = 'SELECT user_id, user_name, user_password FROM users ORDER BY user_id';
+        $query = 'SELECT user_id, user_name, user_password FROM ' . $this->table_users . ' ORDER BY user_id';
         $values = $this->db->extended->getAll($query, array('integer', 'text', 'text'), null, null, MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($values)) {
             $this->fail('Error fetching the result set: '.$values->getMessage());
@@ -471,7 +472,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         $data = array();
         $total_rows = 5;
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')', array_values($this->fields), MDB2_PREPARE_MANIP);
+        $stmt = $this->db->prepare('INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')', array_values($this->fields), MDB2_PREPARE_MANIP);
 
         for ($row = 0; $row < $total_rows; $row++) {
             $data[$row] = $this->getSampleData($row);
@@ -482,7 +483,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
         $stmt->free();
 
-        $query = 'SELECT user_id, user_name, user_password FROM users ORDER BY user_id';
+        $query = 'SELECT user_id, user_name, user_password FROM ' . $this->table_users . ' ORDER BY user_id';
         $types = array('integer', 'text', 'text');
 
         //test limitQuery() with offset = 0
@@ -538,14 +539,14 @@ class Standard_ExtendedTest extends Standard_Abstract
 
         $data = $this->getSampleData(1234);
 
-        $query = 'INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
+        $query = 'INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')';
 
         $result = $this->db->extended->execParam($query, array_values($data), $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error executing execParam(): '.$result->getMessage());
         }
 
-        $query = 'SELECT user_id, user_name, user_password FROM users WHERE user_id=?';
+        $query = 'SELECT user_id, user_name, user_password FROM ' . $this->table_users . ' WHERE user_id=?';
         $result = $this->db->extended->getRow($query, array('integer', 'text', 'text'), array(1234), array('integer'), MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($result)) {
             $this->fail('Error executing getRow(): '.$result->getMessage());
@@ -576,14 +577,14 @@ class Standard_ExtendedTest extends Standard_Abstract
             $data[$row] = array_values($this->getSampleData($row));
         }
 
-        $stmt = $this->db->prepare('INSERT INTO users (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')');
+        $stmt = $this->db->prepare('INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES ('.implode(', ', array_fill(0, count($this->fields), '?')).')');
         $result = $this->db->extended->executeMultiple($stmt, $data);
         if (MDB2::isError($result)) {
             $this->fail('Error executing executeMultiple(): '.$result->getMessage().' :: '.$result->getUserInfo());
         }
         $stmt->free();
 
-        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM users';
+        $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
         $values = $this->db->queryAll($query, array_values($this->fields), MDB2_FETCHMODE_ORDERED);
 
         $n_fields = count($this->fields);

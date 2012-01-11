@@ -237,7 +237,7 @@ class Standard_ApiTest extends Standard_Abstract {
      * @return mixed  the query result on success, false on failure
      */
     public function standardQuery() {
-        $query = 'SELECT * FROM users';
+        $query = 'SELECT * FROM ' . $this->table_users;
         if (!MDB2::isError($this->db)) {
             return $this->db->query($query);
         }
@@ -267,7 +267,7 @@ class Standard_ApiTest extends Standard_Abstract {
         if (!$this->methodExists($this->db, 'exec')) {
             return;
         }
-        $result = $this->db->exec('UPDATE users SET user_name = user_name WHERE user_id = user_id');
+        $result = $this->db->exec('UPDATE ' . $this->table_users . ' SET user_name = user_name WHERE user_id = user_id');
         if (MDB2::isError($result)) {
             $this->fail('exec: $result returned is an error: '.$result->getMessage().' :: '.$result->getUserInfo());
         }
@@ -283,7 +283,7 @@ class Standard_ApiTest extends Standard_Abstract {
         if (!$this->methodExists($this->db, 'prepare')) {
             return;
         }
-        $stmt = $this->db->prepare('SELECT user_name FROM users WHERE user_id = ?', array('integer'), MDB2_PREPARE_RESULT);
+        $stmt = $this->db->prepare('SELECT user_name FROM ' . $this->table_users . ' WHERE user_id = ?', array('integer'), MDB2_PREPARE_RESULT);
         $this->assertTrue(MDB2::isStatement($stmt));
         $stmt->free();
     }
