@@ -95,7 +95,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
                 @odbc_free_result($result);
             }
         }
-        $native_msg = @odbc_get_last_message();
+        $native_msg = @odbc_errormsg();
         if (is_null($error)) {
             static $ecode_map;
             if (empty($ecode_map)) {
