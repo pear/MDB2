@@ -1547,5 +1547,29 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
         parent::free();
         return $result;
     }
+
+    /**
+     * drop an existing table
+     *
+     * @param string $name name of the table that should be dropped
+     * @return mixed MDB2_OK on success, a MDB2 error on failure
+     * @access public
+     */
+    function dropTable($name)
+    {
+        $db =& $this->getDBInstance();
+        if (PEAR::isError($db)) {
+            return $db;
+        }
+
+        $name = $db->quoteIdentifier($name, true);
+        $result = $db->exec("DROP TABLE $name");
+
+        if (PEAR::isError($result)) {
+            $result = $db->exec("DROP TABLE $name CASCADE");
+        }
+
+       return $result;
+    }
 }
 ?>
