@@ -222,7 +222,28 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         }
         return array($error, $native_code, $native_msg);
     }
+    // {{{ escape()
 
+    /**
+     * Quotes a string so it can be safely used in a query. It will quote
+     * the text so it can safely be used within a query.
+     *
+     * @param   string  the input string to quote
+     * @param   bool    escape wildcards
+     *
+     * @return  string  quoted string
+     *
+     * @access  public
+     */
+    function escape($text, $escape_wildcards = false)
+    {
+        //Remove a NULL-character (may break queries when inserted):
+        $text = str_replace("\x00", '', $text);
+        
+        return parent::escape($text, $escape_wildcards);
+    }
+
+    // }}}
     // }}}
     // {{{ quoteIdentifier()
 
