@@ -540,7 +540,7 @@ class MDB2
     }
 
     // }}}
-    // {{{ function raiseError($code = null, $mode = null, $options = null, $userinfo = null)
+    // {{{ function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
 
     /**
      * This method is used to communicate an error and invoke error
@@ -566,7 +566,7 @@ class MDB2
      * @access  private
      * @see     PEAR_Error
      */
-    static function raiseError($code = null,
+    function &raiseError($code = null,
                          $mode = null,
                          $options = null,
                          $userinfo = null,
@@ -574,7 +574,8 @@ class MDB2
                          $dummy2 = null,
                          $dummy3 = false)
     {
-        return PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        return $err;
     }
 
     // }}}
@@ -1421,7 +1422,7 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
-    // {{{ function raiseError($code = null, $mode = null, $options = null, $userinfo = null)
+    // {{{ function &raiseError($code = null, $mode = null, $options = null, $userinfo = null)
 
     /**
      * This method is used to communicate an error and invoke error
@@ -1448,7 +1449,7 @@ class MDB2_Driver_Common extends PEAR
      * @access public
      * @see    PEAR_Error
      */
-    static function raiseError($code = null,
+    function &raiseError($code = null,
                          $mode = null,
                          $options = null,
                          $userinfo = null,
@@ -1561,8 +1562,8 @@ class MDB2_Driver_Common extends PEAR
             $this->fetchmode = $fetchmode;
             break;
         default:
-            return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null,
-                null, 'invalid fetchmode mode', __FUNCTION__);
+            return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+                'invalid fetchmode mode', __FUNCTION__);
         }
 
         return MDB2_OK;
@@ -1587,7 +1588,7 @@ class MDB2_Driver_Common extends PEAR
             $this->options[$option] = $value;
             return MDB2_OK;
         }
-        return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             "unknown option $option", __FUNCTION__);
     }
 
@@ -1608,7 +1609,7 @@ class MDB2_Driver_Common extends PEAR
         if (array_key_exists($option, $this->options)) {
             return $this->options[$option];
         }
-        return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             "unknown option $option", __FUNCTION__);
     }
 
@@ -1930,7 +1931,7 @@ class MDB2_Driver_Common extends PEAR
             }
 
             if (!MDB2::classExists($class_name)) {
-                $err = MDB2_Driver_Common::raiseError(MDB2_ERROR_LOADMODULE, null, null,
+                $err = $this->raiseError(MDB2_ERROR_LOADMODULE, null, null,
                     "unable to load module '$module' into property '$property'", __FUNCTION__);
                 return $err;
             }
@@ -2002,7 +2003,7 @@ class MDB2_Driver_Common extends PEAR
     function beginTransaction($savepoint = null)
     {
         $this->debug('Starting transaction', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'transactions are not supported', __FUNCTION__);
     }
 
@@ -2023,7 +2024,7 @@ class MDB2_Driver_Common extends PEAR
     function commit($savepoint = null)
     {
         $this->debug('Committing transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'commiting transactions is not supported', __FUNCTION__);
     }
 
@@ -2044,7 +2045,7 @@ class MDB2_Driver_Common extends PEAR
     function rollback($savepoint = null)
     {
         $this->debug('Rolling back transaction/savepoint', __FUNCTION__, array('is_manip' => true, 'savepoint' => $savepoint));
-        return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'rolling back transactions is not supported', __FUNCTION__);
     }
 
@@ -2092,7 +2093,7 @@ class MDB2_Driver_Common extends PEAR
     function setTransactionIsolation($isolation, $options = array())
     {
         $this->debug('Setting transaction isolation level', __FUNCTION__, array('is_manip' => true));
-        return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'isolation level setting is not supported', __FUNCTION__);
     }
 
@@ -2230,7 +2231,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function connect()
     {
-        return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'method not implemented', __FUNCTION__);
     }
 
@@ -2247,7 +2248,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function databaseExists($name)
     {
-        return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'method not implemented', __FUNCTION__);
     }
 
@@ -2264,7 +2265,7 @@ class MDB2_Driver_Common extends PEAR
      */
     function setCharset($charset, $connection = null)
     {
-        return MDB2_Driver_Common::raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
+        return $this->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,
             'method not implemented', __FUNCTION__);
     }
 
