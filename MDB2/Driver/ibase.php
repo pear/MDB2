@@ -1093,7 +1093,9 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if ($fetchmode == MDB2_FETCHMODE_DEFAULT) {
             $fetchmode = $this->db->fetchmode;
         }
-        if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
+        if (   $fetchmode == MDB2_FETCHMODE_ASSOC
+            || $fetchmode == MDB2_FETCHMODE_OBJECT
+        ) {
             $row = @ibase_fetch_assoc($this->result);
             if (is_array($row)
                 && $this->db->options['portability'] & MDB2_PORTABILITY_FIX_CASE
@@ -1123,9 +1125,15 @@ class MDB2_Result_ibase extends MDB2_Result_Common
         if ($mode) {
             $this->db->_fixResultArrayValues($row, $mode);
         }
-        if (($fetchmode != MDB2_FETCHMODE_ASSOC) && !empty($this->types)) {
+        if (   (   $fetchmode != MDB2_FETCHMODE_ASSOC
+                && $fetchmode != MDB2_FETCHMODE_OBJECT)
+            && !empty($this->types)
+        ) {
              $row = $this->db->datatype->convertResultRow($this->types, $row, $rtrim);
-        } elseif (($fetchmode == MDB2_FETCHMODE_ASSOC) && !empty($this->types_assoc)) {
+        } elseif (($fetchmode == MDB2_FETCHMODE_ASSOC
+                || $fetchmode == MDB2_FETCHMODE_OBJECT)
+            && !empty($this->types_assoc)
+        ) {
             $row = $this->db->datatype->convertResultRow($this->types_assoc, $row, $rtrim);
         }
         if (!empty($this->values)) {
@@ -1330,7 +1338,9 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
             return null;
         }
         $row = $this->buffer[$target_rownum];
-        if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
+        if (   $fetchmode == MDB2_FETCHMODE_ASSOC
+            || $fetchmode == MDB2_FETCHMODE_OBJECT
+        ) {
             $column_names = $this->getColumnNames();
             foreach ($column_names as $name => $i) {
                 $column_names[$name] = $row[$i];
@@ -1349,9 +1359,15 @@ class MDB2_BufferedResult_ibase extends MDB2_Result_ibase
         if ($mode) {
             $this->db->_fixResultArrayValues($row, $mode);
         }
-        if (($fetchmode != MDB2_FETCHMODE_ASSOC) && !empty($this->types)) {
+        if (   (   $fetchmode != MDB2_FETCHMODE_ASSOC
+                && $fetchmode != MDB2_FETCHMODE_OBJECT)
+            && !empty($this->types)
+        ) {
             $row = $this->db->datatype->convertResultRow($this->types, $row, $rtrim);
-        } elseif (($fetchmode == MDB2_FETCHMODE_ASSOC) && !empty($this->types_assoc)) {
+        } elseif (($fetchmode == MDB2_FETCHMODE_ASSOC
+                || $fetchmode == MDB2_FETCHMODE_OBJECT)
+            && !empty($this->types_assoc)
+        ) {
             $row = $this->db->datatype->convertResultRow($this->types_assoc, $row, $rtrim);
         }
         if (!empty($this->values)) {

@@ -3665,7 +3665,9 @@ class MDB2_Result_Common extends MDB2_Result
                     $key = reset($arr);
                     unset($row->{$key});
                 } else {
-                    if ($fetchmode == MDB2_FETCHMODE_ASSOC) {
+                    if (   $fetchmode == MDB2_FETCHMODE_ASSOC
+                        || $fetchmode == MDB2_FETCHMODE_OBJECT
+                    ) {
                         $key = reset($row);
                         unset($row[key($row)]);
                     } else {
