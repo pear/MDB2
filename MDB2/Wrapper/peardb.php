@@ -145,11 +145,11 @@ class DB
      */
     function &factory($type)
     {
-        $db =& MDB2::factory($type);
+        $db = MDB2::factory($type);
         if (PEAR::isError($db)) {
             return $db;
         }
-        $obj =& new MDB2_PEARProxy($db);
+        $obj = new MDB2_PEARProxy($db);
         return $obj;
     }
 
@@ -161,11 +161,11 @@ class DB
         if (!is_array($options) && $options) {
             $options = array('persistent' => true);
         }
-        $db =& MDB2::connect($dsn, $options);
+        $db = MDB2::connect($dsn, $options);
         if (PEAR::isError($db)) {
             return $db;
         }
-        $obj =& new MDB2_PEARProxy($db);
+        $obj = new MDB2_PEARProxy($db);
         return $obj;
     }
 
@@ -898,7 +898,7 @@ class MDB2_PEARProxy extends PEAR
             $result_class = $this->db_object->getOption('result_buffering')
                 ? $this->db_object->getOption('buffered_result_class') : $$this->db_object->getOption('result_class');
             $class_name = sprintf($result_class, $this->db_object->phptype);
-            $result =& new $class_name($this->db_object, $result);
+            $result = new $class_name($this->db_object, $result);
         }
         return $result;
     }
