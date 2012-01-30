@@ -3436,16 +3436,16 @@ class MDB2_Result_Common extends MDB2_Result
 {
     // {{{ Variables (Properties)
 
-    protected $db;
-    protected $result;
-    protected $rownum = -1;
-    protected $types = array();
-    protected $types_assoc = array();
-    protected $values = array();
-    protected $offset;
-    protected $offset_count = 0;
-    protected $limit;
-    protected $column_names;
+    public $db;
+    public $result;
+    public $rownum = -1;
+    public $types = array();
+    public $types_assoc = array();
+    public $values = array();
+    public $offset;
+    public $offset_count = 0;
+    public $limit;
+    public $column_names;
 
     // }}}
     // {{{ constructor: function __construct($db, &$result, $limit = 0, $offset = 0)
