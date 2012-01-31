@@ -483,4 +483,17 @@ class Standard_BugsTest extends Standard_Abstract {
             $this->assertInstanceOf($expect, $res);
         }
     }
+
+    /**
+     * non-static functions called statically
+     * @see https://pear.php.net/bugs/bug.php?id=18398
+     */
+    public function testBug18398() {
+        $this->markTestSkipped('Fails in MDB2 2.5. Test is here for later.');
+        $oer = error_reporting(error_reporting() | E_STRICT);
+        $dsn = array('phptype' => 'x');
+        $db = new MDB2;
+        $db->connect($dsn);
+        error_reporting($oer);
+    }
 }
