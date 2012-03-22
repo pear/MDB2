@@ -52,12 +52,12 @@ can be used to construct portable SQL statements:
   <email>pgc@ucecom.com</email>
   <active>no</active>
  </contributor>
- <helper>
+ <lead>
   <name>Daniel Convissor</name>
   <user>danielc</user>
   <email>danielc@php.net</email>
   <active>yes</active>
- </helper>
+ </lead>
  <helper>
   <name>David Coallier</name>
   <user>davidc</user>
