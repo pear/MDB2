@@ -284,7 +284,7 @@ class MDB2
         if (is_array($options)) {
             foreach ($options as $option => $value) {
                 $test = $db->setOption($option, $value);
-                if (PEAR::isError($test)) {
+                if (MDB2::isError($test)) {
                     return $test;
                 }
             }
@@ -378,14 +378,14 @@ class MDB2
 
         $debug = (!empty($options['debug']));
         $err = MDB2::loadClass($class_name, $debug);
-        if (PEAR::isError($err)) {
+        if (MDB2::isError($err)) {
             return $err;
         }
 
         $db = new $class_name();
         $db->setDSN($dsninfo);
         $err = MDB2::setOptions($db, $options);
-        if (PEAR::isError($err)) {
+        if (MDB2::isError($err)) {
             return $err;
         }
 
@@ -415,12 +415,12 @@ class MDB2
     static function connect($dsn, $options = false)
     {
         $db = MDB2::factory($dsn, $options);
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
         $err = $db->connect();
-        if (PEAR::isError($err)) {
+        if (MDB2::isError($err)) {
             $dsn = $db->getDSN('string', 'xxx');
             $db->disconnect();
             $err->addUserInfo($dsn);
@@ -566,7 +566,7 @@ class MDB2
      * @access  private
      * @see     PEAR_Error
      */
-    function &raiseError($code = null,
+    public static function &raiseError($code = null,
                          $mode = null,
                          $options = null,
                          $userinfo = null,
@@ -574,7 +574,8 @@ class MDB2
                          $dummy2 = null,
                          $dummy3 = false)
     {
-        $err =& PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        $pear = new PEAR;
+        $err =& $pear->raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
         return $err;
     }
 
@@ -743,7 +744,7 @@ class MDB2
             return $errorMessages;
         }
 
-        if (PEAR::isError($value)) {
+        if (MDB2::isError($value)) {
             $value = $value->getCode();
         }
 
@@ -991,7 +992,7 @@ class MDB2_Error extends PEAR_Error
  * @category    Database
  * @author      Lukas Smith <smith@pooteeweet.org>
  */
-class MDB2_Driver_Common extends PEAR
+class MDB2_Driver_Common
 {
     // {{{ Variables (Properties)
 
@@ -1342,6 +1343,11 @@ class MDB2_Driver_Common extends PEAR
      */
     protected $destructor_registered = true;
 
+    /**
+     * @var PEAR 
+     */
+    protected $pear;
+
     // }}}
     // {{{ constructor: function __construct()
 
@@ -1354,6 +1360,7 @@ class MDB2_Driver_Common extends PEAR
         $db_index = key($GLOBALS['_MDB2_databases']) + 1;
         $GLOBALS['_MDB2_databases'][$db_index] = &$this;
         $this->db_index = $db_index;
+        $this->pear = new PEAR;
     }
 
     // }}}
@@ -1459,7 +1466,7 @@ class MDB2_Driver_Common extends PEAR
     ) {
         $userinfo = "[Error message: $userinfo]\n";
         // The error is yet a MDB2 error object
-        if (PEAR::isError($code)) {
+        if (MDB2::isError($code)) {
             // because we use the static PEAR::raiseError, our global
             // handler should be used if it is set
             if ((null === $mode) && !empty($this->_default_error_mode)) {
@@ -1490,7 +1497,7 @@ class MDB2_Driver_Common extends PEAR
             }
         }
 
-        $err = PEAR::raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        $err = $this->pear->raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
         if ($err->getMode() !== PEAR_ERROR_RETURN
             && isset($this->nested_transaction_counter) && !$this->has_transaction_error) {
             $this->has_transaction_error = $err;
@@ -1786,7 +1793,7 @@ class MDB2_Driver_Common extends PEAR
     function getConnection()
     {
         $result = $this->connect();
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         return $this->connection;
@@ -1912,7 +1919,7 @@ class MDB2_Driver_Common extends PEAR
             }
 
             $err = MDB2::loadClass($class_name, $this->getOption('debug'));
-            if (PEAR::isError($err)) {
+            if (MDB2::isError($err)) {
                 return $err;
             }
 
@@ -1923,7 +1930,7 @@ class MDB2_Driver_Common extends PEAR
                     if ($class_name != $class_name_new) {
                         $class_name = $class_name_new;
                         $err = MDB2::loadClass($class_name, $this->getOption('debug'));
-                        if (PEAR::isError($err)) {
+                        if (MDB2::isError($err)) {
                             return $err;
                         }
                     }
@@ -1969,7 +1976,7 @@ class MDB2_Driver_Common extends PEAR
             $method = strtolower($match[2]).$match[3];
             if (!isset($this->modules[$module]) || !is_object($this->modules[$module])) {
                 $result = $this->loadModule($module);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     return $result;
                 }
             }
@@ -2146,7 +2153,7 @@ class MDB2_Driver_Common extends PEAR
             if ($this->supports('savepoints') && $savepoint) {
                 if ($force_rollback || $this->has_transaction_error) {
                     $result = $this->rollback($savepoint);
-                    if (!PEAR::isError($result)) {
+                    if (!MDB2::isError($result)) {
                         $result = false;
                         $this->has_transaction_error = false;
                     }
@@ -2167,7 +2174,7 @@ class MDB2_Driver_Common extends PEAR
         if ($this->in_transaction) {
             if ($force_rollback || $this->has_transaction_error) {
                 $result = $this->rollback();
-                if (!PEAR::isError($result)) {
+                if (!MDB2::isError($result)) {
                     $result = false;
                 }
             } else {
@@ -2436,12 +2443,12 @@ class MDB2_Driver_Common extends PEAR
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
         $result = $this->_doQuery($query, $is_manip, $connection, false);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
 
@@ -2492,7 +2499,7 @@ class MDB2_Driver_Common extends PEAR
         $this->last_query = $query;
         $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $query = $result;
@@ -2541,12 +2548,12 @@ class MDB2_Driver_Common extends PEAR
         $query = $this->_modifyQuery($query, true, $limit, $offset);
 
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
         $result = $this->_doQuery($query, true, $connection, $this->database_name);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
 
@@ -2578,12 +2585,12 @@ class MDB2_Driver_Common extends PEAR
         $query = $this->_modifyQuery($query, false, $limit, $offset);
 
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
         $result = $this->_doQuery($query, false, $connection, $this->database_name);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
 
@@ -2616,7 +2623,7 @@ class MDB2_Driver_Common extends PEAR
             if ($this->supports('result_introspection')) {
                 $this->loadModule('Reverse', null, true);
                 $tableInfo = $this->reverse->tableInfo($result_resource);
-                if (PEAR::isError($tableInfo)) {
+                if (MDB2::isError($tableInfo)) {
                     return $tableInfo;
                 }
                 $types = array();
@@ -2651,14 +2658,14 @@ class MDB2_Driver_Common extends PEAR
 
             if (!empty($types)) {
                 $err = $result->setResultTypes($types);
-                if (PEAR::isError($err)) {
+                if (MDB2::isError($err)) {
                     $result->free();
                     return $err;
                 }
             }
             if (!empty($types_assoc)) {
                 $err = $result->setResultTypes($types_assoc);
-                if (PEAR::isError($err)) {
+                if (MDB2::isError($err)) {
                     $result->free();
                     return $err;
                 }
@@ -2763,7 +2770,7 @@ class MDB2_Driver_Common extends PEAR
         }
 
         $col = $this->queryCol($query, $type);
-        if (PEAR::isError($col)) {
+        if (MDB2::isError($col)) {
             return $col;
         }
         if (!is_array($col) || count($col) == 0) {
@@ -2873,19 +2880,19 @@ class MDB2_Driver_Common extends PEAR
 
         $result = null;
         $in_transaction = $this->in_transaction;
-        if (!$in_transaction && PEAR::isError($result = $this->beginTransaction())) {
+        if (!$in_transaction && MDB2::isError($result = $this->beginTransaction())) {
             return $result;
         }
 
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
         $condition = ' WHERE '.implode(' AND ', $condition);
         $query = 'DELETE FROM ' . $this->quoteIdentifier($table, true) . $condition;
         $result = $this->_doQuery($query, true, $connection);
-        if (!PEAR::isError($result)) {
+        if (!MDB2::isError($result)) {
             $affected_rows = $this->_affectedRows($connection, $result);
             $insert = '';
             foreach ($values as $key => $value) {
@@ -2894,20 +2901,20 @@ class MDB2_Driver_Common extends PEAR
             $values = implode(', ', $values);
             $query = 'INSERT INTO '. $this->quoteIdentifier($table, true) . "($insert) VALUES ($values)";
             $result = $this->_doQuery($query, true, $connection);
-            if (!PEAR::isError($result)) {
+            if (!MDB2::isError($result)) {
                 $affected_rows += $this->_affectedRows($connection, $result);;
             }
         }
 
         if (!$in_transaction) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->rollback();
             } else {
                 $result = $this->commit();
             }
         }
 
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
 
@@ -2948,7 +2955,7 @@ class MDB2_Driver_Common extends PEAR
         $this->offset = $this->limit = 0;
         $result = $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $query = $result;
@@ -2975,7 +2982,7 @@ class MDB2_Driver_Common extends PEAR
             }
 
             $new_pos = $this->_skipDelimitedStrings($query, $position, $p_position);
-            if (PEAR::isError($new_pos)) {
+            if (MDB2::isError($new_pos)) {
                 return $new_pos;
             }
             if ($new_pos != $position) {
@@ -3102,7 +3109,7 @@ class MDB2_Driver_Common extends PEAR
     function quote($value, $type = null, $quote = true, $escape_wildcards = false)
     {
         $result = $this->loadModule('Datatype', null, true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
 
@@ -3128,7 +3135,7 @@ class MDB2_Driver_Common extends PEAR
     function getDeclaration($type, $name, $field)
     {
         $result = $this->loadModule('Datatype', null, true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         return $this->datatype->getDeclaration($type, $name, $field);
@@ -3150,7 +3157,7 @@ class MDB2_Driver_Common extends PEAR
     function compareDefinition($current, $previous)
     {
         $result = $this->loadModule('Datatype', null, true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         return $this->datatype->compareDefinition($current, $previous);
@@ -3406,6 +3413,248 @@ class MDB2_Driver_Common extends PEAR
     }
 
     // }}}
+    // {{{ function delExpect($error_code)
+
+    /**
+     * This method deletes all occurences of the specified element from
+     * the expected error codes stack.
+     *
+     * @param  mixed $error_code error code that should be deleted
+     * @return mixed list of error codes that were deleted or error
+     *
+     * @uses PEAR::delExpect()
+     */
+    public function delExpect($error_code)
+    {
+        return $this->pear->delExpect($error_code);
+    }
+
+    // }}}
+    // {{{ function expectError($code)
+
+    /**
+     * This method is used to tell which errors you expect to get.
+     * Expected errors are always returned with error mode
+     * PEAR_ERROR_RETURN.  Expected error codes are stored in a stack,
+     * and this method pushes a new element onto it.  The list of
+     * expected errors are in effect until they are popped off the
+     * stack with the popExpect() method.
+     *
+     * Note that this method can not be called statically
+     *
+     * @param mixed $code a single error code or an array of error codes to expect
+     *
+     * @return int     the new depth of the "expected errors" stack
+     *
+     * @uses PEAR::expectError()
+     */
+    public function expectError($code = '*')
+    {
+        return $this->pear->expectError($code);
+    }
+
+    // }}}
+    // {{{ function getStaticProperty($class, $var)
+
+    /**
+     * If you have a class that's mostly/entirely static, and you need static
+     * properties, you can use this method to simulate them. Eg. in your method(s)
+     * do this: $myVar = &PEAR::getStaticProperty('myclass', 'myVar');
+     * You MUST use a reference, or they will not persist!
+     *
+     * @param  string $class  The calling classname, to prevent clashes
+     * @param  string $var    The variable to retrieve.
+     * @return mixed   A reference to the variable. If not set it will be
+     *                 auto initialised to NULL.
+     *
+     * @uses PEAR::getStaticProperty()
+     */
+    public function &getStaticProperty($class, $var)
+    {
+        $tmp =& $this->pear->getStaticProperty($class, $var);
+        return $tmp;
+    }
+
+    // }}}
+    // {{{ function loadExtension($ext)
+
+    /**
+     * OS independant PHP extension load. Remember to take care
+     * on the correct extension name for case sensitive OSes.
+     *
+     * @param string $ext The extension name
+     * @return bool Success or not on the dl() call
+     *
+     * @uses PEAR::loadExtension()
+     */
+    public function loadExtension($ext)
+    {
+        return $this->pear->loadExtension($ext);
+    }
+
+    // }}}
+    // {{{ function popErrorHandling()
+
+    /**
+     * Pop the last error handler used
+     *
+     * @return bool Always true
+     *
+     * @see PEAR::pushErrorHandling
+     * @uses PEAR::popErrorHandling()
+     */
+    public function popErrorHandling()
+    {
+        return $this->pear->popErrorHandling();
+    }
+
+    // }}}
+    // {{{ function popExpect()
+
+    /**
+     * This method pops one element off the expected error codes
+     * stack.
+     *
+     * @return array   the list of error codes that were popped
+     *
+     * @uses PEAR::popExpect()
+     */
+    public function popExpect()
+    {
+        return $this->pear->popExpect();
+    }
+
+    // }}}
+    // {{{ function pushErrorHandling($mode, $options = null)
+
+    /**
+     * Push a new error handler on top of the error handler options stack. With this
+     * you can easily override the actual error handler for some code and restore
+     * it later with popErrorHandling.
+     *
+     * @param mixed $mode (same as setErrorHandling)
+     * @param mixed $options (same as setErrorHandling)
+     *
+     * @return bool Always true
+     *
+     * @see PEAR::setErrorHandling
+     * @uses PEAR::pushErrorHandling()
+     */
+    public function pushErrorHandling($mode, $options = null)
+    {
+        return $this->pear->pushErrorHandling($mode, $options);
+    }
+
+    // }}}
+    // {{{ function registerShutdownFunc($func, $args = array())
+
+    /**
+     * Use this function to register a shutdown method for static
+     * classes.
+     *
+     * @param  mixed $func  The function name (or array of class/method) to call
+     * @param  mixed $args  The arguments to pass to the function
+     * @return void
+     *
+     * @uses PEAR::registerShutdownFunc()
+     */
+    public function registerShutdownFunc($func, $args = array())
+    {
+        return $this->pear->registerShutdownFunc($func, $args);
+    }
+
+    // }}}
+    // {{{ function setErrorHandling($mode = null, $options = null)
+
+    /**
+     * Sets how errors generated by this object should be handled.
+     * Can be invoked both in objects and statically.  If called
+     * statically, setErrorHandling sets the default behaviour for all
+     * PEAR objects.  If called in an object, setErrorHandling sets
+     * the default behaviour for that object.
+     *
+     * @param int $mode
+     *        One of PEAR_ERROR_RETURN, PEAR_ERROR_PRINT,
+     *        PEAR_ERROR_TRIGGER, PEAR_ERROR_DIE,
+     *        PEAR_ERROR_CALLBACK or PEAR_ERROR_EXCEPTION.
+     *
+     * @param mixed $options
+     *        When $mode is PEAR_ERROR_TRIGGER, this is the error level (one
+     *        of E_USER_NOTICE, E_USER_WARNING or E_USER_ERROR).
+     *
+     *        When $mode is PEAR_ERROR_CALLBACK, this parameter is expected
+     *        to be the callback function or method.  A callback
+     *        function is a string with the name of the function, a
+     *        callback method is an array of two elements: the element
+     *        at index 0 is the object, and the element at index 1 is
+     *        the name of the method to call in the object.
+     *
+     *        When $mode is PEAR_ERROR_PRINT or PEAR_ERROR_DIE, this is
+     *        a printf format string used when printing the error
+     *        message.
+     *
+     * @access public
+     * @return void
+     * @see PEAR_ERROR_RETURN
+     * @see PEAR_ERROR_PRINT
+     * @see PEAR_ERROR_TRIGGER
+     * @see PEAR_ERROR_DIE
+     * @see PEAR_ERROR_CALLBACK
+     * @see PEAR_ERROR_EXCEPTION
+     *
+     * @since PHP 4.0.5
+     * @uses PEAR::setErrorHandling($mode, $options)
+     */
+    public function setErrorHandling($mode = null, $options = null)
+    {
+        return $this->pear->setErrorHandling($mode, $options);
+    }
+
+    /**
+     * @uses PEAR::staticPopErrorHandling() 
+     */
+    public function staticPopErrorHandling()
+    {
+        return $this->pear->staticPopErrorHandling();
+    }
+
+    // }}}
+    // {{{ function staticPushErrorHandling($mode, $options = null)
+
+    /**
+     * @uses PEAR::staticPushErrorHandling($mode, $options)
+     */
+    public function staticPushErrorHandling($mode, $options = null)
+    {
+        return $this->pear->staticPushErrorHandling($mode, $options);
+    }
+
+    // }}}
+    // {{{ function &throwError($message = null, $code = null, $userinfo = null)
+
+    /**
+     * Simpler form of raiseError with fewer options.  In most cases
+     * message, code and userinfo are enough.
+     *
+     * @param mixed $message a text error message or a PEAR error object
+     *
+     * @param int $code      a numeric error code (it is up to your class
+     *                  to define these if you want to use codes)
+     *
+     * @param string $userinfo If you need to pass along for example debug
+     *                  information, this parameter is meant for that.
+     *
+     * @return object   a PEAR error object
+     * @see PEAR::raiseError
+     * @uses PEAR::&throwError()
+     */
+    public function &throwError($message = null, $code = null, $userinfo = null)
+    {
+        $tmp =& $this->pear->throwError($message, $code, $userinfo);
+        return $tmp;
+    }
+
+    // }}}
 }
 
 // }}}
@@ -3488,11 +3737,11 @@ class MDB2_Result_Common extends MDB2_Result
     function setResultTypes($types)
     {
         $load = $this->db->loadModule('Datatype', null, true);
-        if (PEAR::isError($load)) {
+        if (MDB2::isError($load)) {
             return $load;
         }
         $types = $this->db->datatype->checkResultTypes($types);
-        if (PEAR::isError($types)) {
+        if (MDB2::isError($types)) {
             return $types;
         }
         foreach ($types as $key => $value) {
@@ -3566,7 +3815,7 @@ class MDB2_Result_Common extends MDB2_Result
     {
         $fetchmode = is_numeric($colnum) ? MDB2_FETCHMODE_ORDERED : MDB2_FETCHMODE_ASSOC;
         $row = $this->fetchRow($fetchmode, $rownum);
-        if (!is_array($row) || PEAR::isError($row)) {
+        if (!is_array($row) || MDB2::isError($row)) {
             return $row;
         }
         if (!array_key_exists($colnum, $row)) {
@@ -3601,7 +3850,7 @@ class MDB2_Result_Common extends MDB2_Result
                 $column[] = $row[$colnum];
             } while (is_array($row = $this->fetchRow($fetchmode)));
         }
-        if (PEAR::isError($row)) {
+        if (MDB2::isError($row)) {
             return $row;
         }
         return $column;
@@ -3638,7 +3887,7 @@ class MDB2_Result_Common extends MDB2_Result
     {
         $all = array();
         $row = $this->fetchRow($fetchmode);
-        if (PEAR::isError($row)) {
+        if (MDB2::isError($row)) {
             return $row;
         } elseif (!$row) {
             return $all;
@@ -3763,7 +4012,7 @@ class MDB2_Result_Common extends MDB2_Result
     {
         if (!isset($this->column_names)) {
             $result = $this->_getColumnNames();
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $this->column_names = $result;
@@ -4031,7 +4280,7 @@ class MDB2_Statement_Common
         $this->db->expectError(MDB2_ERROR_NOT_FOUND);
         foreach ($parameters as $key => $parameter) {
             $err = $this->bindValue($parameter, $values[$parameter], $types[$key]);
-            if (PEAR::isError($err)) {
+            if (MDB2::isError($err)) {
                 if ($err->getCode() == MDB2_ERROR_NOT_FOUND) {
                     //ignore (extra value for missing placeholder)
                     continue;
@@ -4102,7 +4351,7 @@ class MDB2_Statement_Common
         $parameters = array_keys($values);
         foreach ($parameters as $key => $parameter) {
             $err = $this->bindParam($parameter, $values[$parameter], $types[$key]);
-            if (PEAR::isError($err)) {
+            if (MDB2::isError($err)) {
                 return $err;
             }
         }
@@ -4135,7 +4384,7 @@ class MDB2_Statement_Common
         $values = (array)$values;
         if (!empty($values)) {
             $err = $this->bindValueArray($values);
-            if (PEAR::isError($err)) {
+            if (MDB2::isError($err)) {
                 return MDB2::raiseError(MDB2_ERROR, null, null,
                                             'Binding Values failed with message: ' . $err->getMessage(), __FUNCTION__);
             }
@@ -4174,7 +4423,7 @@ class MDB2_Statement_Common
             } else {
                 $type = !empty($this->types[$parameter]) ? $this->types[$parameter] : null;
                 $value_quoted = $this->db->quote($value, $type);
-                if (PEAR::isError($value_quoted)) {
+                if (MDB2::isError($value_quoted)) {
                     return $value_quoted;
                 }
             }
