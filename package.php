@@ -7,6 +7,7 @@ $version_release = '2.5.0b4';
 $version_api = $version_release;
 $state = 'beta';
 $notes = <<<EOT
+- MDB2 is now E_STRICT compliant!
 - Fix Bug #9502: Strong typing query result misbehaves [danielc]
 - Fix Bug #16508: mdb2-2.5.0b1 not working with PHP 5.3.0 [quipo]
 - Fix Bug #17552: MDB2_Driver_Manager_ibase::listTableConstraints returns list of indices [quipo]
