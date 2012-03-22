@@ -7,8 +7,35 @@ $version_release = '2.5.0b4';
 $version_api = $version_release;
 $state = 'beta';
 $notes = <<<EOT
-- fixed bug #18203: Type introspection breaks with associative arrays if names are identical
-  (patch by Peter Bex)
+- Fix Bug #9502: Strong typing query result misbehaves [danielc]
+- Fix Bug #16508: mdb2-2.5.0b1 not working with PHP 5.3.0 [quipo]
+- Fix Bug #17552: MDB2_Driver_Manager_ibase::listTableConstraints returns list of indices [quipo]
+- Fix Bug #17890: Improper use of array_search in psgsql.php v1.173  prepare function [quipo]
+- Fix Bug #18050: Many &quot;Deprecated&quot; [quipo]
+- Fix Bug #18175: Using MDB2::factory raises fatal error [quipo]
+- Fix Bug #18203: Type introspection breaks with associative arrays if names are identical [danielc] (patch by Peter Bex)
+- Fix Bug #18398: non-static functions called statically [danielc]
+- Fix Bug #18427: Notices appear while debugging [quipo]
+- Fix Bug #18721: DSN URLs do not support &quot;@&quot; in database names [danielc]
+- Fix Bug #18826: Crash and security problem with is_a() in combination with value escaping [doconnor]
+- Fix Bug #18886: Deprecated code generates warnings [astembridge]
+- Fix Bug #18978: upgrade from alpha2 to beta3 breaks iterator.php [danielc]
+- Fix Bug #19008: remove error_reporting (for PEAR QA team) [danielc]
+- Fix Bug #19136: Infinite Recurcsion makes result object unuseable [danielc]
+- Fix Bug #19148: &quot;undefined variable result&quot; in MDB2_Driver_Common::_wrapQuery() [danielc]
+- Fix Bug #19191: Have dropSequence() return MDB2_OK on success, as documented [danielc]
+- Fix Bug #19192: Have createSequence() return MDB2_OK on success, as documented [danielc]
+- Fix Bug #19193: Have createConstraint() return MDB2_OK on success, as documented [danielc]
+- Fix Bug #19194: Have dropConstraint() return MDB2_OK on success, as documented [danielc]
+- Fix Bug #19195: Have createIndex() return MDB2_OK on success, as documented [danielc]
+- Fix Bug #19196: Have vacuum() return MDB2_OK on success, as documented [danielc]
+- Fix Bug #19199: Have dropTable() return MDB2_OK on success, as documented [danielc]
+- Fix Bug #19200: Have alterTable() return MDB2_OK on success, as documented [danielc]
+- Fix Bug #19201: Have truncateTable() return MDB2_OK on success, as documented [danielc]
+- Fix Bug #19202: sqlite foreign key violations produce generic MDB2_ERROR [danielc]
+- Fix Bug #19262: Fetchmode constants WERE bitwise [gauthierm]
+- Implement Feature #17367: Documentation Sync Drift [quipo]
+- Implement Feature #18759: User note that is a documentation problem [danielc]
 - small performance tweaks
 
 open todo items:
