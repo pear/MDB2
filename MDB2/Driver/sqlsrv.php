@@ -652,7 +652,7 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
             }
             return false;
         }
-        if (@sqlsrv_fetch($tableExits)) {
+        if (@sqlsrv_fetch($tableExists)) {
             return true;
         }
         return false;
