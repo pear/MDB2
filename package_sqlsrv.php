@@ -6,15 +6,17 @@ PEAR::setErrorHandling(PEAR_ERROR_DIE);
 $version = '1.5.0b4';
 $state = 'beta';
 $notes = <<<EOT
+QA release
 - Added SQLSRV_SQLTYPE_TIMESTAMP database attribute support [davidc] [genericbob]
 - Fixed bug #17413: Infinite loop on connection error
+- Bug #19314	typo in _checkSequence()
 EOT;
 
 $description = 'This is the SQL Server MDB2 driver.';
 $packagefile = './package_sqlsrv.xml';
 
 $options = array(
-    'filelistgenerator' => 'cvs',
+    'filelistgenerator' => 'svn',
     'changelogoldtonew' => false,
     'simpleoutput'      => true,
     'baseinstalldir'    => '/',
@@ -25,7 +27,7 @@ $options = array(
     'ignore'            => array('package_sqlsrv.php'),
 );
 
-$package = &PEAR_PackageFileManager2::importOptions($packagefile, $options);
+$package = PEAR_PackageFileManager2::importOptions($packagefile, $options);
 $package->setPackageType('php');
 
 $package->clearDeps();
