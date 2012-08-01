@@ -168,7 +168,7 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
         return MDB2_OK;
     }
 
-    // }}}	
+    // }}}
     // {{{ _getTemporaryTableQuery()
 
     /**
@@ -588,7 +588,7 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
         $db->loadModule('Reverse');
         $indexes = array();
         foreach ($index_names as $index_name) {
-        	$idx_def = $db->reverse->getTableIndexDefinition($table, $index_name);
+            $idx_def = $db->reverse->getTableIndexDefinition($table, $index_name);
             if (!PEAR::isError($idx_def)) {
                 $indexes[$index_name] = $idx_def;
             }
@@ -634,7 +634,7 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
         $db->loadModule('Reverse');
         $constraints = array();
         foreach ($constraint_names as $constraint_name) {
-        	$cons_def = $db->reverse->getTableConstraintDefinition($table, $constraint_name);
+            $cons_def = $db->reverse->getTableConstraintDefinition($table, $constraint_name);
             if (!PEAR::isError($cons_def)) {
                 $constraints[$constraint_name] = $cons_def;
             }
@@ -1086,7 +1086,7 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
             return $query_fields;
         }
         /*Removed since you can't get the PK name from Schema here, will result in a redefinition of PK index error
-		if (!empty($options['primary'])) {
+        if (!empty($options['primary'])) {
             $query_fields.= ', PRIMARY KEY ('.implode(', ', array_keys($options['primary'])).')';
         }*/
 
@@ -1248,12 +1248,12 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
         {
             return array();
         }
-		$result[0]['data_length'] = (isset($result[0]['data'])) ? $result[0]['data'] : 0;
-		$result[0]['data_free'] = (isset($result[0]['unused'])) ? $result[0]['unused'] : 0;
-		//data_length,rows,auto_increment,data_free
+        $result[0]['data_length'] = (isset($result[0]['data'])) ? $result[0]['data'] : 0;
+        $result[0]['data_free'] = (isset($result[0]['unused'])) ? $result[0]['unused'] : 0;
+        //data_length,rows,auto_increment,data_free
         $query      = "SELECT IDENT_CURRENT ('{$table}') + IDENT_INCR ('{$table}') AS auto_increment";
         $resultIdentity     = $db->queryAll($query, null, MDB2_FETCHMODE_ASSOC);
-		$result[0]['auto_increment'] = (isset($resultIdentity[0]['auto_increment'])) ? $resultIdentity[0]['auto_increment'] : 0;
+        $result[0]['auto_increment'] = (isset($resultIdentity[0]['auto_increment'])) ? $resultIdentity[0]['auto_increment'] : 0;
         return $result;
     }
 
@@ -1370,14 +1370,14 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
         $table = $db->quoteIdentifier($table, true);
         $name = $db->quoteIdentifier($db->getIndexName($name), true);
         if (!empty($definition['primary']) && empty($definition['unique'])) {
-	        $query = "ALTER TABLE $table ADD CONSTRAINT $name";
-	        if (!empty($definition['primary'])) {
-	            $query.= ' PRIMARY KEY';
-	        } elseif (!empty($definition['unique'])) {
-	            $query.= ' UNIQUE';
-	        }
+            $query = "ALTER TABLE $table ADD CONSTRAINT $name";
+            if (!empty($definition['primary'])) {
+                $query.= ' PRIMARY KEY';
+            } elseif (!empty($definition['unique'])) {
+                $query.= ' UNIQUE';
+            }
         } elseif (!empty($definition['unique'])) {
-	        $query = "CREATE UNIQUE NONCLUSTERED INDEX $name ON $table";
+            $query = "CREATE UNIQUE NONCLUSTERED INDEX $name ON $table";
         } elseif (!empty($definition['foreign'])) {
             $query = "ALTER TABLE $table ADD CONSTRAINT $name FOREIGN KEY";
         }
@@ -1386,12 +1386,12 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
             $fields[] = $db->quoteIdentifier($field, true);
         }
         $query .= ' ('. implode(', ', $fields) . ')';
-		//deals with NULL values and UNIQUE indexes, this solution is only available in SQL Server 2008
-		//https://connect.microsoft.com/SQLServer/feedback/ViewFeedback.aspx?FeedbackID=299229
-		if (!empty($definition['unique']) && empty($definition['primary'])) {
-			for($i=0;$i<count($fields);$i++) $fields[$i] .= ' is NOT NULL';
-			$query .= ' WHERE '. implode(' AND ', $fields);
-		}
+        //deals with NULL values and UNIQUE indexes, this solution is only available in SQL Server 2008
+        //https://connect.microsoft.com/SQLServer/feedback/ViewFeedback.aspx?FeedbackID=299229
+        if (!empty($definition['unique']) && empty($definition['primary'])) {
+            for($i=0;$i<count($fields);$i++) $fields[$i] .= ' is NOT NULL';
+            $query .= ' WHERE '. implode(' AND ', $fields);
+        }
         if (!empty($definition['foreign'])) {
             $query.= ' REFERENCES ' . $db->quoteIdentifier($definition['references']['table'], true);
             $referenced_fields = array();
@@ -1409,7 +1409,7 @@ class MDB2_Driver_Manager_sqlsrv extends MDB2_Driver_Manager_Common
     }
 
     // }}}
-	
+
 }
 
 // }}}
