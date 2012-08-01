@@ -72,7 +72,7 @@ class MDB2_Driver_Datatype_sqlsrv extends MDB2_Driver_Datatype_Common
         }
         switch ($type) {
         case 'boolean':
-            return $value == '1';
+            return ($value === 0)? false : !empty($value);
         case 'date':
             if (strlen($value) > 10) {
                 $value = substr($value,0,10);
