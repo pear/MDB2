@@ -73,7 +73,7 @@ class MDB2_Driver_Datatype_pgsql extends MDB2_Driver_Datatype_Common
         }
         switch ($type) {
         case 'boolean':
-            return $value == 't';
+            return ($value == 'f')? false : !empty($value);
         case 'float':
             return doubleval($value);
         case 'date':
