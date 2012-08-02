@@ -58,7 +58,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
 
     var $string_quoting = array('start' => "'", 'end' => "'", 'escape' => "'", 'escape_pattern' => '\\');
 
-    var $identifier_quoting = array('start' => '', 'end' => '', 'escape' => false);
+    var $identifier_quoting = array('start' => '"', 'end' => '"', 'escape' => false);
 
     var $transaction_id = 0;
 
@@ -96,7 +96,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         $this->supported['primary_key'] = true;
         $this->supported['result_introspection'] = true;
         $this->supported['prepared_statements'] = true;
-        $this->supported['identifier_quoting'] = false;
+        $this->supported['identifier_quoting'] = true;
         $this->supported['pattern_escaping'] = true;
         $this->supported['new_link'] = false;
 
@@ -262,7 +262,8 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
         if ($check_option && !$this->options['quote_identifier']) {
             return $str;
         }
-        return strtoupper($str);
+
+        return parent::quoteIdentifier(strtoupper($str), $check_option);
     }
 
     // }}}
