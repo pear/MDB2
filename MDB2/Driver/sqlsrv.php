@@ -160,6 +160,7 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
                     2627  => MDB2_ERROR_CONSTRAINT,
                     2714  => MDB2_ERROR_ALREADY_EXISTS,
                     3607  => MDB2_ERROR_DIVZERO,
+                    3621  => MDB2_ERROR_CONSTRAINT,
                     3701  => MDB2_ERROR_NOSUCHTABLE,
                     7630  => MDB2_ERROR_SYNTAX,
                     8134  => MDB2_ERROR_DIVZERO,
@@ -334,6 +335,9 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
         if ($this->dsn['port'] && $this->dsn['port'] != 1433) {
             $host .= ','.$this->dsn['port'];
         }
+        if (!empty($this->dsn['charset'])) {
+            $params['CharacterSet'] = $this->dsn['charset'];
+        }
 
         $connection = @sqlsrv_connect($host, $params);
         if (!$connection) {
@@ -342,13 +346,6 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
         }
         if (null !== $database) {
             $this->connected_database_name = $database;
-        }
-
-        if (!empty($this->dsn['charset'])) {
-            $result = $this->setCharset($this->dsn['charset'], $connection);
-            if (PEAR::isError($result)) {
-                return $result;
-            }
         }
 
        if (empty($this->dsn['disable_iso_date'])) {
@@ -784,11 +781,18 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
                     $this->offset_count++;
                     continue;
                 }
+                $i = 0;
                 foreach ($row as $k => $v) {
                     if (is_object($v) && method_exists($v, 'format')) {
-                        //DateTime Object
-                        $row[$k] = $v->format('Y-m-d H:i:s');
+                        if ($this->fieldMeta[$i]['Type'] === 91) {
+                            //DateTime Object to be transformed to date string
+                            $row[$k] = $v->format('Y-m-d');
+                        } else {
+                            //DateTime Object to be transformed to datetime string
+                            $row[$k] = $v->format('Y-m-d H:i:s');
+                        }
                     }
+                    ++$i;
                 }
                 $this->rows[] = $row; //read results into memory, cursors are not supported
             }
@@ -874,14 +878,11 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
         }
         switch($fetchmode) {
             case MDB2_FETCHMODE_ASSOC:
+            case MDB2_FETCHMODE_OBJECT:
                 $row = $this->rows[$this->cursor];
                 break;
             case MDB2_FETCHMODE_ORDERED:
                 $row = $arrNum;
-                break;
-            case MDB2_FETCHMODE_OBJECT:
-                $o = new $this->db->options['fetch_class'];
-                $row = $this->array_to_obj($this->rows[$this->cursor], $o);
                 break;
         }
         $this->cursor++;
@@ -944,6 +945,10 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
         }
         if (!empty($this->values)) {
             $this->_assignBindColumns($row);
+        }
+        if ($fetchmode == MDB2_FETCHMODE_OBJECT) {
+            $o = new $this->db->options['fetch_class'];
+            $row = $this->array_to_obj($row, $o);
         }
         ++$this->rownum;
         return $row;
@@ -1037,11 +1042,18 @@ class MDB2_Result_sqlsrv extends MDB2_Result_Common
                         $this->offset_count++;
                         continue;
                     }
+                    $i = 0;
                     foreach ($row as $k => $v) {
                         if (is_object($v) && method_exists($v, 'format')) {//DateTime Object
-                            //$v->setTimezone(new DateTimeZone('GMT'));//TS_ISO_8601 with a trailing 'Z' is GMT
-                            $row[$k] = $v->format("Y-m-d H:i:s");
+                             if ($this->fieldMeta[$i]['Type'] === 91) {
+                                 //DateTime Object to be transformed to date string
+                                 $row[$k] = $v->format('Y-m-d');
+                             } else {
+                                 //DateTime Object to be transformed to datetime string
+                                 $row[$k] = $v->format('Y-m-d H:i:s');
+                             }
                         }
+                        ++$i;
                     }
                     $this->rows[] = $row;//read results into memory, cursors are not supported
                 }
