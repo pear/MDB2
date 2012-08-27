@@ -342,9 +342,9 @@ class MDB2_Driver_mssql extends MDB2_Driver_Common
      */
     function _doConnect($username, $password, $persistent = false)
     {
-        if (   !PEAR::loadExtension($this->phptype)
-            && !PEAR::loadExtension('sybase_ct')
-            && !PEAR::loadExtension('odbtp')
+        if (   !extension_loaded($this->phptype)
+            && !extension_loaded('sybase_ct')
+            && !extension_loaded('odbtp')
             && !function_exists('mssql_connect')
         ) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,

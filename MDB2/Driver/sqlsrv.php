@@ -317,7 +317,7 @@ class MDB2_Driver_sqlsrv extends MDB2_Driver_Common
      */
     function _doConnect($username, $password, $database=null, $persistent = false)
     {
-        if (!PEAR::loadExtension($this->phptype)) {
+        if (!extension_loaded($this->phptype)) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'extension '.$this->phptype.' is not installed PHP', __FUNCTION__);
         }

@@ -365,7 +365,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             $this->disconnect(false);
         }
 
-        if (!PEAR::loadExtension($this->phptype)) {
+        if (!extension_loaded($this->phptype)) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }

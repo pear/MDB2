@@ -497,7 +497,7 @@ class MDB2_Driver_ibase extends MDB2_Driver_Common
      */
     function _doConnect($username, $password, $database_name, $persistent = false)
     {
-        if (!PEAR::loadExtension('interbase')) {
+        if (!extension_loaded('interbase')) {
             return $this->raiseError(MDB2_ERROR_NOT_FOUND, null, null,
                 'extension '.$this->phptype.' is not compiled into PHP', __FUNCTION__);
         }

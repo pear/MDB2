@@ -3476,23 +3476,6 @@ class MDB2_Driver_Common
     }
 
     // }}}
-    // {{{ function loadExtension($ext)
-
-    /**
-     * OS independant PHP extension load. Remember to take care
-     * on the correct extension name for case sensitive OSes.
-     *
-     * @param string $ext The extension name
-     * @return bool Success or not on the dl() call
-     *
-     * @uses PEAR::loadExtension()
-     */
-    public function loadExtension($ext)
-    {
-        return $this->pear->loadExtension($ext);
-    }
-
-    // }}}
     // {{{ function popErrorHandling()
 
     /**
