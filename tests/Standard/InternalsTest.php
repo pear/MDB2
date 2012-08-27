@@ -279,7 +279,7 @@ class Standard_InternalsTest extends Standard_Abstract {
         $this->string_quoting['escape'] = '\\';
         $this->string_quoting['end'] = '"';
         $text = 'xxx"z"xxx';
-        $this->assertEquals('xxx\"z\"xxx', MDB2_Driver_Common::escape($text), 'escape');
+        $this->assertEquals('xxx\"z\"xxx', $this->db->escape($text), 'escape');
         $this->db->string_quoting = $tmp;
     }
 
