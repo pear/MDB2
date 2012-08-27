@@ -992,7 +992,7 @@ class Standard_UsageTest extends Standard_Abstract {
         $dsn = MDB2::parseDSN($this->dsn);
         $dsn['new_link'] = true;
         $dsn['database'] = $this->database;
-        $db =& MDB2::connect($dsn, $this->options);
+        $db = MDB2::connect($dsn, $this->options);
 
         $next = $this->db->nextID($sequence_name);
         $next2 = $db->nextID($sequence_name);

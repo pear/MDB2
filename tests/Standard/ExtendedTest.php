@@ -67,7 +67,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
-        $result =& $this->db->query($select_query, $this->fields);
+        $result = $this->db->query($select_query, $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: '.$result->getMessage());
         } else {
@@ -104,7 +104,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
-        $result =& $this->db->query($select_query, $this->fields);
+        $result = $this->db->query($select_query, $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: '.$result->getMessage());
         } else {
@@ -119,7 +119,7 @@ class Standard_ExtendedTest extends Standard_Abstract
         }
 
         $this->db->setFetchMode(MDB2_FETCHMODE_ASSOC);
-        $result =& $this->db->query($select_query, $this->fields);
+        $result = $this->db->query($select_query, $this->fields);
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: '.$result->getMessage());
         } else {

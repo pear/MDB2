@@ -197,7 +197,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $query = 'INSERT INTO '.$this->db->quoteIdentifier($this->table, true);
         $query.= ' (somename, somedescription)';
         $query.= ' VALUES (:somename, :somedescription)';
-        $stmt =& $this->db->prepare($query, array('text', 'text'), MDB2_PREPARE_MANIP);
+        $stmt = $this->db->prepare($query, array('text', 'text'), MDB2_PREPARE_MANIP);
         $this->checkResultForErrors($stmt, 'prepare');
 
         $values = array(
@@ -736,7 +736,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $query = 'INSERT INTO '.$this->table;
         $query.= ' (id, somename, somedescription)';
         $query.= ' VALUES (:id, :somename, :somedescription)';
-        $stmt =& $this->db->prepare($query, array('integer', 'text', 'text'), MDB2_PREPARE_MANIP);
+        $stmt = $this->db->prepare($query, array('integer', 'text', 'text'), MDB2_PREPARE_MANIP);
         $this->checkResultForErrors($stmt, 'prepare');
 
         $rows = 5;

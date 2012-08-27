@@ -106,12 +106,12 @@ class Standard_InternalsTest extends Standard_Abstract {
     public function test_factory($ci) {
         $this->manualSetUp($ci);
 
-        $db =& MDB2::factory($this->dsn);
+        $db = MDB2::factory($this->dsn);
         $this->assertTrue(MDB2::isConnection($db), 'factory');
         // Suppress handling of PEAR errors while preparing the
         // next test case database connection
         PEAR::pushErrorHandling(null);
-        $db =& MDB2::factory(null);
+        $db = MDB2::factory(null);
         PEAR::popErrorHandling();
         $this->assertFalse(MDB2::isConnection($db), 'factory');
     }

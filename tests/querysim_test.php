@@ -14,7 +14,7 @@
 require_once __DIR__ . '/autoload.inc';
 
 $dsn = 'querysim';
-$conn =& MDB2::factory($dsn);
+$conn = MDB2::factory($dsn);
 
 if (MDB2::isError($conn)) {
     die ('Cannot connect: '.$conn->getMessage()."\n<br />\n<pre>".$conn->getUserInfo()."\n</pre>\n<br />");

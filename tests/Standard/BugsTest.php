@@ -75,7 +75,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $stmt->free();
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users . ' ORDER BY user_name';
-        $result =& $this->db->query($query);
+        $result = $this->db->query($query);
 
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: '.$result->getMessage());
@@ -86,7 +86,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $firstRow = $result->fetchRow();
         $this->assertEquals($firstRow['user_name'], $data['user_name'], 'The data returned does not match that expected');
 
-        $result =& $this->db->query('SELECT user_name, user_id, quota FROM ' . $this->table_users . ' ORDER BY user_name');
+        $result = $this->db->query('SELECT user_name, user_id, quota FROM ' . $this->table_users . ' ORDER BY user_name');
         if (MDB2::isError($result)) {
             $this->fail('Error selecting from users: '.$result->getMessage());
         }
@@ -104,7 +104,7 @@ class Standard_BugsTest extends Standard_Abstract {
     public function testBug22328($ci) {
         $this->manualSetUp($ci);
 
-        $result =& $this->db->query('SELECT * FROM ' . $this->table_users);
+        $result = $this->db->query('SELECT * FROM ' . $this->table_users);
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);
         $result2 = $this->db->query('SELECT * FROM foo');
 
@@ -133,7 +133,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $stmt = $this->db->prepare('INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
 
-        $result =& $this->db->query('SELECT user_name FROM ' . $this->table_users);
+        $result = $this->db->query('SELECT user_name FROM ' . $this->table_users);
         $col = $result->fetchCol('user_name');
         if (MDB2::isError($col)) {
             $this->fail('Error when fetching column first first row as NULL: '.$col->getMessage());
@@ -144,7 +144,7 @@ class Standard_BugsTest extends Standard_Abstract {
 
         $result = $stmt->execute(array_values($data));
 
-        $result =& $this->db->query('SELECT user_name FROM ' . $this->table_users);
+        $result = $this->db->query('SELECT user_name FROM ' . $this->table_users);
         $col = $result->fetchCol('user_name');
         if (MDB2::isError($col)) {
             $this->fail('Error when fetching column: '.$col->getMessage());
@@ -162,7 +162,7 @@ class Standard_BugsTest extends Standard_Abstract {
     public function testBug681($ci) {
         $this->manualSetUp($ci);
 
-        $result =& $this->db->query('SELECT * FROM ' . $this->table_users . ' WHERE 1=0');
+        $result = $this->db->query('SELECT * FROM ' . $this->table_users . ' WHERE 1=0');
 
         $numrows = $result->numRows();
         $this->assertEquals(0, $numrows, 'Numrows is not returning 0 for empty result sets');
@@ -172,7 +172,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $stmt = $this->db->prepare('INSERT INTO ' . $this->table_users . ' (' . implode(', ', array_keys($this->fields)) . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($this->fields), MDB2_PREPARE_MANIP);
         $result = $stmt->execute(array_values($data));
 
-        $result =& $this->db->query('SELECT * FROM ' . $this->table_users);
+        $result = $this->db->query('SELECT * FROM ' . $this->table_users);
         $numrows = $result->numRows();
         $this->assertEquals(1, $numrows, 'Numrows is not returning proper value');
 
@@ -223,7 +223,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users;
 
         $this->db->setLimit(3, 1);
-        $result =& $this->db->query($query);
+        $result = $this->db->query($query);
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
             if (MDB2::isError($row)) {
@@ -232,7 +232,7 @@ class Standard_BugsTest extends Standard_Abstract {
         }
         $result->free();
 
-        $result =& $this->db->query($query);
+        $result = $this->db->query($query);
         $numrows = $result->numRows();
         while ($row = $result->fetchRow()) {
             if (MDB2::isError($row)) {
@@ -266,7 +266,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $stmt->free();
 
         $query = 'SELECT ' . implode(', ', array_keys($this->fields)) . ' FROM ' . $this->table_users . ' ORDER BY user_id';
-        $result =& $this->db->query($query, $this->fields);
+        $result = $this->db->query($query, $this->fields);
 
         $numrows = $result->numRows($result);
 
@@ -299,7 +299,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $types['weight']     = $this->fields['weight'];
 
         $query = 'SELECT weight, user_name, user_id, quota, subscribed FROM ' . $this->table_users . ' WHERE user_id = '.$row;
-        $result =& $this->db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
+        $result = $this->db->queryRow($query, $types, MDB2_FETCHMODE_ASSOC);
         if (MDB2::isError($result)) {
             $this->fail('Error executing query: '.$result->getMessage() .' - '. $result->getUserInfo());
         } else {

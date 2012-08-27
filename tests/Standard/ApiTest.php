@@ -182,7 +182,7 @@ class Standard_ApiTest extends Standard_Abstract {
     public function testConnect($ci) {
         $this->manualSetUp($ci);
 
-        $db =& MDB2::factory($this->dsn, $this->options);
+        $db = MDB2::factory($this->dsn, $this->options);
         if (MDB2::isError($db)) {
             $this->fail('Connect failed bailing out - ' .$db->getMessage() . ' - ' .$db->getUserInfo());
         }
@@ -342,11 +342,11 @@ class Standard_ApiTest extends Standard_Abstract {
     public function testSingleton($ci) {
         $this->manualSetUp($ci);
 
-        $db =& MDB2::singleton();
+        $db = MDB2::singleton();
         $this->assertTrue(MDB2::isConnection($db));
 
         // should have a different database name set
-        $db =& MDB2::singleton($this->dsn, $this->options);
+        $db = MDB2::singleton($this->dsn, $this->options);
 
         $this->assertTrue($db->db_index != $this->db->db_index);
     }
