@@ -146,7 +146,7 @@ class DB
     function &factory($type)
     {
         $db = MDB2::factory($type);
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $obj = new MDB2_PEARProxy($db);
@@ -162,7 +162,7 @@ class DB
             $options = array('persistent' => true);
         }
         $db = MDB2::connect($dsn, $options);
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $obj = new MDB2_PEARProxy($db);
@@ -182,7 +182,7 @@ class DB
      */
     function isError($value)
     {
-        return PEAR::isError($value);
+        return MDB2::isError($value);
     }
 
     /**
@@ -345,7 +345,7 @@ class DB_result extends MDB2_Result_Common
     function free()
     {
         $err = $this->result->free();
-        if (PEAR::isError($err)) {
+        if (MDB2::isError($err)) {
             return $err;
         }
         $this->result = false;
@@ -602,7 +602,7 @@ class MDB2_PEARProxy extends PEAR
     {
         if (sizeof($params) > 0) {
             $sth = $this->db_object->prepare($query);
-            if (PEAR::isError($sth)) {
+            if (MDB2::isError($sth)) {
                 return $sth;
             }
             if (!is_array($params)) {
@@ -614,7 +614,7 @@ class MDB2_PEARProxy extends PEAR
         if (DB::isManip($query)) {
             // PEAR::DB return DB_OK on success or DB_Error object on failure
             $result =& $this->db_object->exec($query);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
            }
             return DB_OK;
@@ -631,7 +631,7 @@ class MDB2_PEARProxy extends PEAR
             return $this->db_object->exec($query);
         }
         $result = $this->db_object->query($query);
-        if (PEAR::isError($result) || $result === MDB2_OK) {
+        if (MDB2::isError($result) || $result === MDB2_OK) {
             return $result;
         } else {
             return $result->getResource();
@@ -655,7 +655,7 @@ class MDB2_PEARProxy extends PEAR
     function limitQuery($query, $from, $count, $params = array())
     {
         $result = $this->db_object->setLimit($count, $from); 
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $result =& $this->query($query, $params);
@@ -828,7 +828,7 @@ class MDB2_PEARProxy extends PEAR
     function commit()
     {
         $result = $this->db_object->commit();
-        if (!PEAR::isError($result) && !$this->autocommit) {
+        if (!MDB2::isError($result) && !$this->autocommit) {
             $result = $this->db_object->beginTransaction();
         }
         return $result;
@@ -840,7 +840,7 @@ class MDB2_PEARProxy extends PEAR
     function rollback()
     {
         $result = $this->db_object->rollback();
-        if (!PEAR::isError($result) && !$this->autocommit) {
+        if (!MDB2::isError($result) && !$this->autocommit) {
             $result = $this->db_object->beginTransaction();
         }
         return $result;

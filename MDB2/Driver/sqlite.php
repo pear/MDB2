@@ -208,7 +208,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
         $query = 'BEGIN TRANSACTION '.$this->options['base_transaction_name'];
         $result = $this->_doQuery($query, true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->in_transaction = true;
@@ -243,7 +243,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
         $query = 'COMMIT TRANSACTION '.$this->options['base_transaction_name'];
         $result = $this->_doQuery($query, true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -278,7 +278,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
         $query = 'ROLLBACK TRANSACTION '.$this->options['base_transaction_name'];
         $result = $this->_doQuery($query, true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -510,7 +510,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $this->last_query = $query;
         $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $query = $result;
@@ -522,7 +522,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
 
         if (null === $connection) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
         }
@@ -572,7 +572,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     {
         if (null === $connection) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
         }
@@ -738,7 +738,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
             } else {
                 $type = isset($fields[$name]['type']) ? $fields[$name]['type'] : null;
                 $value = $this->quote($fields[$name]['value'], $type);
-                if (PEAR::isError($value)) {
+                if (MDB2::isError($value)) {
                     return $value;
                 }
             }
@@ -757,14 +757,14 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         }
 
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
         $table = $this->quoteIdentifier($table, true);
         $query = "REPLACE INTO $table ($query) VALUES ($values)";
         $result = $this->_doQuery($query, true, $connection);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         return $this->_affectedRows($connection, $result);
@@ -794,11 +794,11 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         $result = $this->_doQuery($query, true);
         $this->popExpect();
         $this->popErrorHandling();
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('Manager', null, true);
                 $result = $this->manager->createSequence($seq_name);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     return $this->raiseError($result, null, null,
                         'on demand sequence '.$seq_name.' could not be created', __FUNCTION__);
                 } else {
@@ -811,7 +811,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
             $result = $this->_doQuery($query, true);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
             }
         }
@@ -833,7 +833,7 @@ class MDB2_Driver_sqlite extends MDB2_Driver_Common
     function lastInsertID($table = null, $field = null)
     {
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
         $value = @sqlite_last_insert_rowid($connection);
@@ -887,7 +887,7 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
     {
         if (null !== $rownum) {
             $seek = $this->seek($rownum);
-            if (PEAR::isError($seek)) {
+            if (MDB2::isError($seek)) {
                 return $seek;
             }
         }
@@ -969,7 +969,7 @@ class MDB2_Result_sqlite extends MDB2_Result_Common
     {
         $columns = array();
         $numcols = $this->numCols();
-        if (PEAR::isError($numcols)) {
+        if (MDB2::isError($numcols)) {
             return $numcols;
         }
         for ($column = 0; $column < $numcols; $column++) {
@@ -1057,7 +1057,7 @@ class MDB2_BufferedResult_sqlite extends MDB2_Result_sqlite
     function valid()
     {
         $numrows = $this->numRows();
-        if (PEAR::isError($numrows)) {
+        if (MDB2::isError($numrows)) {
             return $numrows;
         }
         return $this->rownum < ($numrows - 1);

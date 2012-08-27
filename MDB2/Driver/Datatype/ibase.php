@@ -75,10 +75,10 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             return null;
         }
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -88,7 +88,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             if (is_array($blob_info) && $blob_info['length'] > 0) {
                 //LOB => fetch into variable
                 $clob = $this->_baseConvertResult($value, 'clob', $rtrim);
-                if (!PEAR::isError($clob) && is_resource($clob)) {
+                if (!MDB2::isError($clob) && is_resource($clob)) {
                     $clob_value = '';
                     while (!feof($clob)) {
                         $clob_value .= fread($clob, 8192);
@@ -168,7 +168,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function getTypeDeclaration($field)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -219,12 +219,12 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function _quoteLOB($value, $quote, $escape_wildcards)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
         $connection = $db->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -264,17 +264,17 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     {
         if (empty($lob['handle'])) {
             $db = $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
             $connection = $db->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
             $lob['handle'] = @ibase_blob_open($connection, $lob['resource']);
             if (!$lob['handle']) {
                 $db = $this->getDBInstance();
-                if (PEAR::isError($db)) {
+                if (MDB2::isError($db)) {
                     return $db;
                 }
 
@@ -305,7 +305,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
         $data = @ibase_blob_get($lob['handle'], $length);
         if (!is_string($data)) {
             $db = $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
 
@@ -346,7 +346,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
     function patternEscapeString()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         return " ESCAPE '". $db->string_quoting['escape_pattern'] ."'";
@@ -436,7 +436,7 @@ class MDB2_Driver_Datatype_ibase extends MDB2_Driver_Datatype_Common
             break;
         default:
             $db = $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,

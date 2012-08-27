@@ -115,7 +115,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
     function getTypeDeclaration($field)
     {
         $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -331,7 +331,7 @@ class MDB2_Driver_Datatype_fbsql extends MDB2_Driver_Datatype_Common
             break;
         default:
             $db =& $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,

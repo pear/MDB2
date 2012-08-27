@@ -223,7 +223,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         if ($this->uncommitedqueries) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
             if (!@OCICommit($connection)) {
@@ -264,7 +264,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         if ($this->uncommitedqueries) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
             if (!@OCIRollback($connection)) {
@@ -393,7 +393,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
             if (!empty($this->dsn['charset'])) {
                 $result = $this->setCharset($this->dsn['charset'], $connection);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     return $result;
                 }
             }
@@ -407,7 +407,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         if (empty($this->dsn['disable_iso_date'])) {
             $query = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
             $err =& $this->_doQuery($query, true, $connection);
-            if (PEAR::isError($err)) {
+            if (MDB2::isError($err)) {
                 $this->disconnect(false);
                 return $err;
             }
@@ -415,7 +415,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         $query = "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='. '";
         $err =& $this->_doQuery($query, true, $connection);
-        if (PEAR::isError($err)) {
+        if (MDB2::isError($err)) {
             $this->disconnect(false);
             return $err;
         }
@@ -451,7 +451,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $connection = $this->_doConnect($this->dsn['username'],
                                         $this->dsn['password'],
                                         $this->options['persistent']);
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
         $this->connection = $connection;
@@ -464,7 +464,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             if ($this->database_name != $this->connected_database_name) {
                 $query = 'ALTER SESSION SET CURRENT_SCHEMA = "' .strtoupper($this->database_name) .'"';
                 $result = $this->_doQuery($query);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     $err = $this->raiseError($result, null, null,
                         'Could not select the database: '.$this->database_name, __FUNCTION__);
                     return $err;
@@ -499,13 +499,13 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $connection = $this->_doConnect($this->dsn['username'],
                                         $this->dsn['password'],
                                         $this->options['persistent']);
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
         $query = 'ALTER SESSION SET CURRENT_SCHEMA = "' .strtoupper($name) .'"';
         $result = $this->_doQuery($query, true, $connection, false);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             if (!MDB2::isError($result, MDB2_ERROR_NOT_FOUND)) {
                 return $result;
             }
@@ -579,7 +579,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $user = $this->options['DBA_username']? $this->options['DBA_username'] : $this->dsn['username'];
         $pass = $this->options['DBA_password']? $this->options['DBA_password'] : $this->dsn['password'];
         $connection = $this->_doConnect($user, $pass, $this->options['persistent']);
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -589,7 +589,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
         $result = $this->_doQuery($query, $is_manip, $connection, false);
-        if (!PEAR::isError($result)) {
+        if (!MDB2::isError($result)) {
             if ($is_manip) {
                 $result = $this->_affectedRows($connection, $result);
             } else {
@@ -651,7 +651,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->last_query = $query;
         $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $query = $result;
@@ -665,7 +665,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
 
         if (null === $connection) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
         }
@@ -708,7 +708,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     {
         if (null === $connection) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
         }
@@ -728,7 +728,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
     function getServerVersion($native = false)
     {
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
         if ($this->connected_server_info) {
@@ -793,7 +793,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $this->offset = $this->limit = 0;
         $result = $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $query = $result;
@@ -822,7 +822,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             }
 
             $new_pos = $this->_skipDelimitedStrings($query, $position, $p_position);
-            if (PEAR::isError($new_pos)) {
+            if (MDB2::isError($new_pos)) {
                 return $new_pos;
             }
             if ($new_pos != $position) {
@@ -874,7 +874,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
                         $lobs[$parameter] = $parameter;
                     }
                     $value = $this->quote(true, $types[$parameter]);
-                    if (PEAR::isError($value)) {
+                    if (MDB2::isError($value)) {
                         return $value;
                     }
                     $query = substr_replace($query, $value, $p_position, $length);
@@ -898,7 +898,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
             $query.= $columns.$variables;
         }
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
         $statement = @OCIParse($connection, $query);
@@ -936,11 +936,11 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $result = $this->queryOne($query, 'integer');
         $this->popExpect();
         $this->popErrorHandling();
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('Manager', null, true);
                 $result = $this->manager->createSequence($seq_name);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     return $result;
                 }
                 return $this->nextId($seq_name, false);
@@ -966,7 +966,7 @@ class MDB2_Driver_oci8 extends MDB2_Driver_Common
         $old_seq = $table.(empty($field) ? '' : '_'.$field);
         $sequence_name = $this->quoteIdentifier($this->getSequenceName($table), true);
         $result = $this->queryOne("SELECT $sequence_name.currval", 'integer');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $sequence_name = $this->quoteIdentifier($this->getSequenceName($old_seq), true);
             $result = $this->queryOne("SELECT $sequence_name.currval", 'integer');
         }
@@ -1018,7 +1018,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     {
         if (null !== $rownum) {
             $seek = $this->seek($rownum);
-            if (PEAR::isError($seek)) {
+            if (MDB2::isError($seek)) {
                 return $seek;
             }
         }
@@ -1104,7 +1104,7 @@ class MDB2_Result_oci8 extends MDB2_Result_Common
     {
         $columns = array();
         $numcols = $this->numCols();
-        if (PEAR::isError($numcols)) {
+        if (MDB2::isError($numcols)) {
             return $numcols;
         }
         for ($column = 0; $column < $numcols; $column++) {
@@ -1255,7 +1255,7 @@ class MDB2_BufferedResult_oci8 extends MDB2_Result_oci8
         }
         if (null !== $rownum) {
             $seek = $this->seek($rownum);
-            if (PEAR::isError($seek)) {
+            if (MDB2::isError($seek)) {
                 return $seek;
             }
         }
@@ -1467,7 +1467,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         $connection = $this->db->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -1568,7 +1568,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                 $maxlength = array_key_exists($parameter, $this->type_maxlengths) ? $this->type_maxlengths[$parameter] : -1;
                 $this->values[$parameter] = $this->db->quote($this->values[$parameter], $type, false);
                 $quoted_values[$i] =& $this->values[$parameter];
-                if (PEAR::isError($quoted_values[$i])) {
+                if (MDB2::isError($quoted_values[$i])) {
                     return $quoted_values[$i];
                 }
                 if (!@OCIBindByName($this->statement, ':'.$parameter, $quoted_values[$i], $maxlength)) {
@@ -1581,7 +1581,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
         }
 
         $lob_keys = array_keys($lobs);
-        if (!PEAR::isError($result)) {
+        if (!MDB2::isError($result)) {
             $mode = (!empty($lobs) || $this->db->in_transaction) ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS;
             if (!@OCIExecute($this->statement, $mode)) {
                 $err = $this->db->raiseError($this->statement, null, null,
@@ -1610,7 +1610,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
                     }
                 }
 
-                if (!PEAR::isError($result)) {
+                if (!MDB2::isError($result)) {
                     if (!$this->db->in_transaction) {
                         if (!@OCICommit($connection)) {
                             $result = $this->db->raiseError(null, null, null,
@@ -1623,7 +1623,7 @@ class MDB2_Statement_oci8 extends MDB2_Statement_Common
             }
         }
 
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
 

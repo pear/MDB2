@@ -69,7 +69,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     function createDatabase($name, $options = array())
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -80,15 +80,15 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
         $query = 'CREATE USER '.$username.' IDENTIFIED BY '.$password.$tablespace;
         $result = $db->standaloneQuery($query, null, true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $query = 'GRANT CREATE SESSION, CREATE TABLE, UNLIMITED TABLESPACE, CREATE SEQUENCE, CREATE TRIGGER TO '.$username;
         $result = $db->standaloneQuery($query, null, true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $query = 'DROP USER '.$username.' CASCADE';
             $result2 = $db->standaloneQuery($query, null, true);
-            if (PEAR::isError($result2)) {
+            if (MDB2::isError($result2)) {
                 return $db->raiseError($result2, null, null,
                     'could not setup the database user', __FUNCTION__);
             }
@@ -120,7 +120,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         //return parent::alterDatabase($name, $options);
 
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -128,7 +128,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $query = 'ALTER DATABASE ' . $db->quoteIdentifier($name, true)
                     .' RENAME GLOBAL_NAME TO ' . $db->quoteIdentifier($options['name'], true);
             $result = $db->standaloneQuery($query);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -147,7 +147,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
 
             foreach ($queries as $query) {
                 $result = $db->standaloneQuery($query);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     return $result;
                 }
             }
@@ -170,7 +170,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     function dropDatabase($name)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -194,7 +194,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
     function _makeAutoincrement($name, $table, $start = 1)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -208,7 +208,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         $db->setOption('idxname_format', '%s');
         $result = $this->createConstraint($table, $index_name, $definition);
         $db->setOption('idxname_format', $idxname_format);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $db->raiseError($result, null, null,
                 'primary key for autoincrement PK could not be created', __FUNCTION__);
         }
@@ -217,7 +217,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
             $db->beginTransaction();
             $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $db->quoteIdentifier($table, true);
             $start = $this->db->queryOne($query, 'integer');
-            if (PEAR::isError($start)) {
+            if (MDB2::isError($start)) {
                 return $start;
             }
             ++$start;
@@ -226,7 +226,7 @@ class MDB2_Driver_Manager_oci8 extends MDB2_Driver_Manager_Common
         } else {
             $result = $this->createSequence($table, $start);
         }
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $db->raiseError($result, null, null,
                 'sequence for autoincrement PK could not be created', __FUNCTION__);
         }
@@ -259,7 +259,7 @@ BEGIN
 END;
 ';
         $result = $db->exec($trigger_sql);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         return MDB2_OK;
@@ -278,7 +278,7 @@ END;
     function _dropAutoincrement($table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -288,7 +288,7 @@ END;
         $query = 'SELECT trigger_name FROM user_triggers';
         $query.= ' WHERE trigger_name='.$trigger_name_quoted.' OR trigger_name='.strtoupper($trigger_name_quoted);
         $trigger = $db->queryOne($query);
-        if (PEAR::isError($trigger)) {
+        if (MDB2::isError($trigger)) {
             return $trigger;
         }
 
@@ -296,13 +296,13 @@ END;
             $trigger_name  = $db->quoteIdentifier($table . '_AI_PK', true);
             $trigger_sql = 'DROP TRIGGER ' . $trigger_name;
             $result = $db->exec($trigger_sql);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $db->raiseError($result, null, null,
                     'trigger for autoincrement PK could not be dropped', __FUNCTION__);
             }
 
             $result = $this->dropSequence($table);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $db->raiseError($result, null, null,
                     'sequence for autoincrement PK could not be dropped', __FUNCTION__);
             }
@@ -313,7 +313,7 @@ END;
             $result1 = $this->dropConstraint($table, $index_name);
             $db->setOption('idxname_format', $idxname_format);
             $result2 = $this->dropConstraint($table, $index_name);
-            if (PEAR::isError($result1) && PEAR::isError($result2)) {
+            if (MDB2::isError($result1) && MDB2::isError($result2)) {
                 return $db->raiseError($result1, null, null,
                     'primary key for autoincrement PK could not be dropped', __FUNCTION__);
             }
@@ -408,12 +408,12 @@ END;
     function createTable($name, $fields, $options = array())
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $db->beginNestedTransaction();
         $result = parent::createTable($name, $fields, $options);
-        if (!PEAR::isError($result)) {
+        if (!MDB2::isError($result)) {
             foreach ($fields as $field_name => $field) {
                 if (!empty($field['autoincrement'])) {
                     $result = $this->_makeAutoincrement($field_name, $name);
@@ -437,12 +437,12 @@ END;
     function dropTable($name)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $db->beginNestedTransaction();
         $result = $this->_dropAutoincrement($name);
-        if (!PEAR::isError($result)) {
+        if (!MDB2::isError($result)) {
             $result = parent::dropTable($name);
             if (MDB2::isError($result)) {
                 return $result;
@@ -466,7 +466,7 @@ END;
     function truncateTable($name)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -597,7 +597,7 @@ END;
     function alterTable($name, $changes, $check)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -627,7 +627,7 @@ END;
                 $fields[] = $db->getDeclaration($field['type'], $field_name, $field);
             }
             $result = $db->exec("ALTER TABLE $name ADD (". implode(', ', $fields).')');
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -642,7 +642,7 @@ END;
                 $fields[] = $db->getDeclaration($field['definition']['type'], $field_name, $field['definition']);
             }
             $result = $db->exec("ALTER TABLE $name MODIFY (". implode(', ', $fields).')');
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -652,7 +652,7 @@ END;
                 $field_name = $db->quoteIdentifier($field_name, true);
                 $query = "ALTER TABLE $name RENAME COLUMN $field_name TO ".$db->quoteIdentifier($field['name']);
                 $result = $db->exec($query);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     return $result;
                 }
             }
@@ -664,7 +664,7 @@ END;
                 $fields[] = $db->quoteIdentifier($field_name, true);
             }
             $result = $db->exec("ALTER TABLE $name DROP COLUMN ". implode(', ', $fields));
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -672,7 +672,7 @@ END;
         if (!empty($changes['name'])) {
             $change_name = $db->quoteIdentifier($changes['name'], true);
             $result = $db->exec("ALTER TABLE $name RENAME TO ".$change_name);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -693,17 +693,17 @@ END;
      */
     function _fetchCol($result, $fixname = false)
     {
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $col = $result->fetchCol();
-        if (PEAR::isError($col)) {
+        if (MDB2::isError($col)) {
             return $col;
         }
         $result->free();
         
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         
@@ -733,7 +733,7 @@ END;
     function listDatabases()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -766,7 +766,7 @@ END;
     function listUsers()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -794,7 +794,7 @@ END;
     function listViews($owner = null)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         
@@ -806,7 +806,7 @@ END;
                     FROM sys.all_views
                    WHERE owner=? OR owner=?';
         $stmt = $db->prepare($query);
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             return $stmt;
         }
         $result = $stmt->execute(array($owner, strtoupper($owner)));
@@ -826,7 +826,7 @@ END;
     function listFunctions($owner = null)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -840,7 +840,7 @@ END;
                      AND type = 'FUNCTION'
                      AND (owner=? OR owner=?)";
         $stmt = $db->prepare($query);
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             return $stmt;
         }
         $result = $stmt->execute(array($owner, strtoupper($owner)));
@@ -860,7 +860,7 @@ END;
     function listTableTriggers($table = null)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -873,7 +873,7 @@ END;
                    WHERE (table_name=? OR table_name=?)
                      AND (owner=? OR owner=?)";
         $stmt = $db->prepare($query);
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             return $stmt;
         }
         $args = array(
@@ -899,7 +899,7 @@ END;
     function listTables($owner = null)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         
@@ -911,7 +911,7 @@ END;
                     FROM sys.all_tables
                    WHERE owner=? OR owner=?';
         $stmt = $db->prepare($query);
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             return $stmt;
         }
         $result = $stmt->execute(array($owner, strtoupper($owner)));
@@ -931,7 +931,7 @@ END;
     function listTableFields($table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         
@@ -946,7 +946,7 @@ END;
                      AND (owner=? OR owner=?)
                 ORDER BY column_id';
         $stmt = $db->prepare($query);
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             return $stmt;
         }
         $args = array(
@@ -972,7 +972,7 @@ END;
     function listTableIndexes($table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         
@@ -992,7 +992,7 @@ END;
                      AND c.index_name IS NULL
                      AND i.generated=' .$db->quote('N', 'text');
         $stmt = $db->prepare($query);
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             return $stmt;
         }
         $args = array(
@@ -1033,7 +1033,7 @@ END;
     function createConstraint($table, $name, $definition)
     {
         $result = parent::createConstraint($table, $name, $definition);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         if (!empty($definition['foreign'])) {
@@ -1057,17 +1057,17 @@ END;
     function dropConstraint($table, $name, $primary = false)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
         //is it a FK constraint? If so, also delete the associated triggers
         $db->loadModule('Reverse', null, true);
         $definition = $db->reverse->getTableConstraintDefinition($table, $name);
-        if (!PEAR::isError($definition) && !empty($definition['foreign'])) {
+        if (!MDB2::isError($definition) && !empty($definition['foreign'])) {
             //first drop the FK enforcing triggers
             $result = $this->_dropFKTriggers($table, $name, $definition['references']['table']);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -1090,7 +1090,7 @@ END;
     function _createFKTriggers($table, $foreign_keys)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         // create triggers to enforce FOREIGN KEY constraints
@@ -1136,7 +1136,7 @@ END;
                     $default_values = array();
                     foreach ($table_fields as $table_field) {
                         $field_definition = $db->reverse->getTableFieldDefinition($table, $field);
-                        if (PEAR::isError($field_definition)) {
+                        if (MDB2::isError($field_definition)) {
                             return $field_definition;
                         }
                         $default_values[] = $table_field .' = '. $field_definition[0]['default'];
@@ -1158,7 +1158,7 @@ END;
                 }
                 $sql_update .= ' END;';
                 $result = $db->exec($sql_update);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     if ($result->getCode() === MDB2_ERROR_ALREADY_EXISTS) {
                         return MDB2_OK;
                     }
@@ -1185,20 +1185,20 @@ END;
     function _dropFKTriggers($table, $fkname, $referenced_table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
         $triggers  = $this->listTableTriggers($table);
         $triggers2 = $this->listTableTriggers($referenced_table);
-        if (!PEAR::isError($triggers2) && !PEAR::isError($triggers)) {
+        if (!MDB2::isError($triggers2) && !MDB2::isError($triggers)) {
             $triggers = array_merge($triggers, $triggers2);
             $trigger_name = substr(strtolower($fkname.'_pk_upd_trg'), 0, $db->options['max_identifiers_length']);
             $pattern = '/^'.$trigger_name.'$/i';
             foreach ($triggers as $trigger) {
                 if (preg_match($pattern, $trigger)) {
                     $result = $db->exec('DROP TRIGGER '.$trigger);
-                    if (PEAR::isError($result)) {
+                    if (MDB2::isError($result)) {
                         return $result;
                     }
                 }
@@ -1220,7 +1220,7 @@ END;
     function listTableConstraints($table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -1234,7 +1234,7 @@ END;
                    WHERE (table_name=? OR table_name=?)
                      AND (owner=? OR owner=?)';
         $stmt = $db->prepare($query);
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             return $stmt;
         }
         $args = array(
@@ -1262,7 +1262,7 @@ END;
     function createSequence($seq_name, $start = 1)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -1290,7 +1290,7 @@ END;
     function dropSequence($seq_name)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -1315,7 +1315,7 @@ END;
     function listSequences($owner = null)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -1327,15 +1327,15 @@ END;
                     FROM sys.all_sequences
                    WHERE (sequence_owner=? OR sequence_owner=?)';
         $stmt = $db->prepare($query);
-        if (PEAR::isError($stmt)) {
+        if (MDB2::isError($stmt)) {
             return $stmt;
         }
         $result = $stmt->execute(array($owner, strtoupper($owner)));
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $col = $result->fetchCol();
-        if (PEAR::isError($col)) {
+        if (MDB2::isError($col)) {
             return $col;
         }
         $result->free();

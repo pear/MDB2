@@ -85,7 +85,7 @@ class MDB2_Driver_Datatype_querysim extends MDB2_Driver_Datatype_Common
     function getTypeDeclaration($field)
     {
         $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 

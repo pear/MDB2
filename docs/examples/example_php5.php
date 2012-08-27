@@ -21,7 +21,7 @@ $dsn = array(
 
 // create MDB2 instance
 $mdb2 = MDB2::factory($dsn);
-if (PEAR::isError($mdb2)) {
+if (MDB2::isError($mdb2)) {
     die($mdb2->getMessage());
 }
 
@@ -56,7 +56,7 @@ $query = "INSERT INTO $table (somename, somedate) VALUES (:name, :date)";
 // 2) types of the placeholders (either keyed numerically in order or by name)
 // 3) MDB2_PREPARE_MANIP denotes a DML statement
 $stmt = $mdb2->prepare($query, array('text', 'date'), MDB2_PREPARE_MANIP);
-if (PEAR::isError($stmt)) {
+if (MDB2::isError($stmt)) {
     die($stmt->getMessage());
 }
 

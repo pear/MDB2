@@ -148,7 +148,7 @@ class MDB2_Driver_Function_sqlite extends MDB2_Driver_Function_Common
     function replace($str, $from_str, $to_str)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 

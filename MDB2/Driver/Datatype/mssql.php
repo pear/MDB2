@@ -137,7 +137,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     function getTypeDeclaration($field)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -216,7 +216,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     function _getIntegerDeclaration($name, $field)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -270,7 +270,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     function _getCLOBDeclaration($name, $field)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -306,7 +306,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     function _getBLOBDeclaration($name, $field)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -356,7 +356,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
     function matchPattern($pattern, $operator = null, $field = null)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -478,7 +478,7 @@ class MDB2_Driver_Datatype_mssql extends MDB2_Driver_Datatype_Common
             break;
         default:
             $db = $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
             return $db->raiseError(MDB2_ERROR_UNSUPPORTED, null, null,

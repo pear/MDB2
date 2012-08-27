@@ -69,7 +69,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function createDatabase($name, $options = array())
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -92,7 +92,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function dropDatabase($name)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -111,7 +111,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function _silentCommit()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         if (!$db->in_transaction) {
@@ -135,7 +135,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function _makeAutoincrement($name, $table, $start = null)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -144,7 +144,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $db->beginTransaction();
             $query = 'SELECT MAX(' . $db->quoteIdentifier($name, true) . ') FROM ' . $table_quoted;
             $start = $this->db->queryOne($query, 'integer');
-            if (PEAR::isError($start)) {
+            if (MDB2::isError($start)) {
                 return $start;
             }
             ++$start;
@@ -153,7 +153,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         } else {
             $result = $db->manager->createSequence($table, $start);
         }
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $db->raiseError(null, null, null,
                 'sequence for autoincrement PK could not be created', __FUNCTION__);
         }
@@ -169,7 +169,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                             NEW.' . $name . ' = GEN_ID('.$sequence_name.', 1);
                         END';
         $result = $db->exec($trigger_sql);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->_silentCommit();
@@ -190,11 +190,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function _dropAutoincrement($table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $result = $db->manager->dropSequence($table);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $db->raiseError(null, null, null,
                 'sequence for autoincrement PK could not be dropped', __FUNCTION__);
         }
@@ -207,7 +207,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                      AND (UPPER(RDB\$TRIGGER_NAME)=$trigger_name
                       OR UPPER(RDB\$TRIGGER_NAME)=$trigger_name_old)";
         $result = $db->exec($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $db->raiseError(null, null, null,
                 'trigger for autoincrement PK could not be dropped', __FUNCTION__);
         }
@@ -255,11 +255,11 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function createTable($name, $fields, $options = array())
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $query = $this->_getCreateTableQuery($name, $fields, $options);
-        if (PEAR::isError($query)) {
+        if (MDB2::isError($query)) {
             return $query;
         }
 
@@ -274,7 +274,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         }
         
         $result = $db->exec($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->_silentCommit();
@@ -288,7 +288,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 //$pk_name = $name.'_PK';
                 $pk_name = null;
                 $result = $this->createConstraint($name, $pk_name, $pk_definition);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     return $result;
                 }
                 //create autoincrement sequence + trigger
@@ -312,7 +312,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function checkSupportedChanges(&$changes)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -395,7 +395,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function dropTable($name)
     {
         $result = $this->_dropAutoincrement($name);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $result = parent::dropTable($name);
@@ -525,7 +525,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function alterTable($name, $changes, $check)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -537,7 +537,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                 break;
             case 'change':
                 foreach ($changes['change'] as $field) {
-                    if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
+                    if (MDB2::isError($err = $this->checkSupportedChanges($field))) {
                         return $err;
                     }
                 }
@@ -583,7 +583,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         if (!empty($changes['change']) && is_array($changes['change'])) {
             // missing support to change DEFAULT and NULLability
             foreach ($changes['change'] as $field_name => $field) {
-                if (PEAR::isError($err = $this->checkSupportedChanges($field))) {
+                if (MDB2::isError($err = $this->checkSupportedChanges($field))) {
                     return $err;
                 }
                 if ($query) {
@@ -620,7 +620,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listTables()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $query = 'SELECT RDB$RELATION_NAME
@@ -629,7 +629,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                      AND RDB$VIEW_BLR IS NULL
                 ORDER BY RDB$RELATION_NAME';
         $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -652,7 +652,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listTableFields($table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $table = $db->quote(strtoupper($table), 'text');
@@ -661,7 +661,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                    WHERE UPPER(RDB\$RELATION_NAME)=$table
                      AND (RDB\$SYSTEM_FLAG=0 OR RDB\$SYSTEM_FLAG IS NULL)";
         $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -682,7 +682,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listUsers()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         return $db->queryCol('SELECT DISTINCT RDB$USER FROM RDB$USER_PRIVILEGES');
@@ -700,12 +700,12 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listViews()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
         $result = $db->queryCol('SELECT DISTINCT RDB$VIEW_NAME FROM RDB$VIEW_RELATIONS');
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -728,7 +728,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listTableViews($table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -736,7 +736,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
         $table = $db->quote(strtoupper($table), 'text');
         $query .= " WHERE UPPER(RDB\$RELATION_NAME)=$table";
         $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -757,7 +757,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listFunctions()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -765,7 +765,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                   UNION
                   SELECT RDB$PROCEDURE_NAME FROM RDB$PROCEDURES';
         $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -788,7 +788,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listTableTriggers($table = null)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -801,7 +801,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
             $query .= " AND UPPER(RDB\$RELATION_NAME)=$table";
         }
         $result = $db->queryCol($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         if ($db->options['portability'] & MDB2_PORTABILITY_FIX_CASE) {
@@ -849,7 +849,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function createIndex($table, $name, $definition)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $query = 'CREATE';
@@ -897,7 +897,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listTableIndexes($table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $table = $db->quote(strtoupper($table), 'text');
@@ -908,7 +908,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                      AND (RDB\$UNIQUE_FLAG IS NULL OR RDB\$UNIQUE_FLAG = 0)
                      AND RDB\$FOREIGN_KEY IS NULL";
         $indexes = $db->queryCol($query, 'text');
-        if (PEAR::isError($indexes)) {
+        if (MDB2::isError($indexes)) {
             return $indexes;
         }
 
@@ -955,7 +955,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function createConstraint($table, $name, $definition)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $table = $db->quoteIdentifier($table, true);
@@ -1012,7 +1012,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listTableConstraints($table)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         $table = $db->quote(strtoupper($table), 'text');
@@ -1024,7 +1024,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
                         OR RDB\$FOREIGN_KEY IS NOT NULL
                      )";
         $constraints = $db->queryCol($query);
-        if (PEAR::isError($constraints)) {
+        if (MDB2::isError($constraints)) {
             return $constraints;
         }
 
@@ -1057,16 +1057,16 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function createSequence($seq_name, $start = 1)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
         $sequence_name = $db->getSequenceName($seq_name);
-        if (PEAR::isError($result = $db->exec('CREATE GENERATOR '.$sequence_name))) {
+        if (MDB2::isError($result = $db->exec('CREATE GENERATOR '.$sequence_name))) {
             return $result;
         }
-        if (PEAR::isError($result = $db->exec('SET GENERATOR '.$sequence_name.' TO '.($start-1)))) {
-            if (PEAR::isError($err = $db->dropSequence($seq_name))) {
+        if (MDB2::isError($result = $db->exec('SET GENERATOR '.$sequence_name.' TO '.($start-1)))) {
+            if (MDB2::isError($err = $db->dropSequence($seq_name))) {
                 return $db->raiseError($result, null, null,
                     'Could not setup sequence start value and then it was not possible to drop it', __FUNCTION__);
             }
@@ -1088,7 +1088,7 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function dropSequence($seq_name)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -1114,13 +1114,13 @@ class MDB2_Driver_Manager_ibase extends MDB2_Driver_Manager_Common
     function listSequences()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
         $query = 'SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS WHERE (RDB$SYSTEM_FLAG IS NULL OR RDB$SYSTEM_FLAG = 0)';
         $table_names = $db->queryCol($query);
-        if (PEAR::isError($table_names)) {
+        if (MDB2::isError($table_names)) {
             return $table_names;
         }
         $result = array();

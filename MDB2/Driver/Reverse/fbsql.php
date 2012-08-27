@@ -81,7 +81,7 @@ class MDB2_Driver_Reverse_fbsql extends MDB2_Driver_Reverse_Common
         }
 
         $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 

@@ -211,7 +211,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $text = $this->escapePattern($text);
         }
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
         if (is_resource($connection) && version_compare(PHP_VERSION, '5.2.0RC5', '>=')) {
@@ -252,7 +252,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
         $result = $this->_doQuery('BEGIN', true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->in_transaction = true;
@@ -286,7 +286,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         }
 
         $result = $this->_doQuery('COMMIT', true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -321,7 +321,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         $query = 'ROLLBACK';
         $result = $this->_doQuery($query, true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -452,7 +452,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -510,7 +510,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                                             $this->dsn['password'],
                                             $this->database_name,
                                             $this->options['persistent']);
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
 
@@ -539,7 +539,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         if (null === $connection) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
         }
@@ -572,7 +572,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                                  $this->dsn['password'],
                                  $this->escape($name),
                                  $this->options['persistent']);
-        if (!PEAR::isError($res)) {
+        if (!MDB2::isError($res)) {
             return true;
         }
 
@@ -638,7 +638,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $user = $this->options['DBA_username']? $this->options['DBA_username'] : $this->dsn['username'];
         $pass = $this->options['DBA_password']? $this->options['DBA_password'] : $this->dsn['password'];
         $connection = $this->_doConnect($user, $pass, $this->database_name, $this->options['persistent']);
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -648,7 +648,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
         $result = $this->_doQuery($query, $is_manip, $connection, $this->database_name);
-        if (!PEAR::isError($result)) {
+        if (!MDB2::isError($result)) {
             if ($is_manip) {
                 $result =  $this->_affectedRows($connection, $result);
             } else {
@@ -677,7 +677,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->last_query = $query;
         $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $query = $result;
@@ -689,7 +689,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
 
         if (null === $connection) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
         }
@@ -727,7 +727,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
     {
         if (null === $connection) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
         }
@@ -813,13 +813,13 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             $server_info = $this->connected_server_info;
         } else {
             $server_info = $this->queryOne($query, 'text');
-            if (PEAR::isError($server_info)) {
+            if (MDB2::isError($server_info)) {
                 return $server_info;
             }
         }
         // cache server_info
         $this->connected_server_info = $server_info;
-        if (!$native && !PEAR::isError($server_info)) {
+        if (!$native && !MDB2::isError($server_info)) {
             $tmp = explode('.', $server_info, 3);
             if (empty($tmp[2])
                 && isset($tmp[1])
@@ -880,7 +880,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $this->offset = $this->limit = 0;
         $result = $this->debug($query, __FUNCTION__, array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $query = $result;
@@ -917,7 +917,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
 
             $new_pos = $this->_skipDelimitedStrings($query, $position, $p_position);
-            if (PEAR::isError($new_pos)) {
+            if (MDB2::isError($new_pos)) {
                 return $new_pos;
             }
             if ($new_pos != $position) {
@@ -980,7 +980,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
         }
         $connection = $this->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
         static $prep_statement_counter = 1;
@@ -1000,7 +1000,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             }
             $query = 'PREPARE '.$statement_name.$types_string.' AS '.$query;
             $statement = $this->_doQuery($query, true, $connection);
-            if (PEAR::isError($statement)) {
+            if (MDB2::isError($statement)) {
                 return $statement;
             }
         }
@@ -1030,7 +1030,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                 list($table, $field) = explode('_', $sqn, 2);
             }
             $schema_list = $this->queryOne("SELECT array_to_string(current_schemas(false), ',')");
-            if (PEAR::isError($schema_list) || empty($schema_list) || count($schema_list) < 2) {
+            if (MDB2::isError($schema_list) || empty($schema_list) || count($schema_list) < 2) {
                 $order_by = ' a.attnum';
                 $schema_clause = ' AND n.nspname=current_schema()';
             } else {
@@ -1065,7 +1065,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
                          AND pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval%'
                     ORDER BY ".$order_by;
             $seqname = $this->queryOne($query);
-            if (!PEAR::isError($seqname) && !empty($seqname) && is_string($seqname)) {
+            if (!MDB2::isError($seqname) && !empty($seqname) && is_string($seqname)) {
                 return $seqname;
             }
         }
@@ -1095,11 +1095,11 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
         $result = $this->queryOne($query, 'integer');
         $this->popExpect();
         $this->popErrorHandling();
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             if ($ondemand && $result->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 $this->loadModule('Manager', null, true);
                 $result = $this->manager->createSequence($seq_name);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     return $this->raiseError($result, null, null,
                         'on demand sequence could not be created', __FUNCTION__);
                 }
@@ -1172,7 +1172,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
     {
         if (null !== $rownum) {
             $seek = $this->seek($rownum);
-            if (PEAR::isError($seek)) {
+            if (MDB2::isError($seek)) {
                 return $seek;
             }
         }
@@ -1254,7 +1254,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
     {
         $columns = array();
         $numcols = $this->numCols();
-        if (PEAR::isError($numcols)) {
+        if (MDB2::isError($numcols)) {
             return $numcols;
         }
         for ($column = 0; $column < $numcols; $column++) {
@@ -1306,7 +1306,7 @@ class MDB2_Result_pgsql extends MDB2_Result_Common
     function nextResult()
     {
         $connection = $this->db->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -1386,7 +1386,7 @@ class MDB2_BufferedResult_pgsql extends MDB2_Result_pgsql
     function valid()
     {
         $numrows = $this->numRows();
-        if (PEAR::isError($numrows)) {
+        if (MDB2::isError($numrows)) {
             return $numrows;
         }
         return $this->rownum < ($numrows - 1);
@@ -1453,7 +1453,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
         }
 
         $connection = $this->db->getConnection();
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -1491,7 +1491,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
                     }
                 }
                 $quoted = $this->db->quote($value, $type, $query);
-                if (PEAR::isError($quoted)) {
+                if (MDB2::isError($quoted)) {
                     return $quoted;
                 }
                 $parameters[] = $quoted;
@@ -1510,7 +1510,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
             }
         } else {
             $result = $this->db->_doQuery($query, $this->is_manip, $connection);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -1545,7 +1545,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
 
         if (null !== $this->statement) {
             $connection = $this->db->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
             $query = 'DEALLOCATE PREPARE '.$this->statement;
@@ -1566,14 +1566,14 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
     function dropTable($name)
     {
         $db =& $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
         $name = $db->quoteIdentifier($name, true);
         $result = $db->exec("DROP TABLE $name");
 
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             $result = $db->exec("DROP TABLE $name CASCADE");
         }
 

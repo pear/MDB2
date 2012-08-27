@@ -117,7 +117,7 @@ class MDB2_Iterator implements Iterator
     {
         if (null === $this->row) {
             $row = $this->result->fetchRow($this->fetchmode);
-            if (PEAR::isError($row)) {
+            if (MDB2::isError($row)) {
                 $row = false;
             }
             $this->row = $row;

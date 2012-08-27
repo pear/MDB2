@@ -302,7 +302,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
 
         if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -357,7 +357,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $this->last_query = $query;
         $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $query = $result;
@@ -373,7 +373,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         }
 
         $result = $this->_buildResult($query);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
 
@@ -422,7 +422,7 @@ class MDB2_Driver_querysim extends MDB2_Driver_Common
         $buffer = '';
         if ($this->opened_persistent) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
             while (!feof($connection)) {
@@ -626,7 +626,7 @@ class MDB2_Result_querysim extends MDB2_Result_Common
         }
         if (null !== $rownum) {
             $seek = $this->seek($rownum);
-            if (PEAR::isError($seek)) {
+            if (MDB2::isError($seek)) {
                 return $seek;
             }
         }
@@ -780,7 +780,7 @@ class MDB2_BufferedResult_querysim extends MDB2_Result_querysim
     function valid()
     {
         $numrows = $this->numRows();
-        if (PEAR::isError($numrows)) {
+        if (MDB2::isError($numrows)) {
             return $numrows;
         }
         return $this->rownum < ($numrows - 1);

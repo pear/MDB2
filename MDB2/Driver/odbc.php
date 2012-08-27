@@ -203,7 +203,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
             register_shutdown_function('MDB2_closeOpenTransactions');
         }
         $result =& $this->_doQuery('BEGIN TRANSACTION', true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->in_transaction = true;
@@ -236,7 +236,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         }
 
         $result =& $this->_doQuery('COMMIT TRANSACTION', true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -270,7 +270,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         }
 
         $result =& $this->_doQuery('ROLLBACK TRANSACTION', true);
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             return $result;
         }
         $this->in_transaction = false;
@@ -327,7 +327,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         /*
         if (!empty($this->dsn['charset'])) {
             $result = $this->setCharset($this->dsn['charset'], $connection);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
         }
@@ -371,7 +371,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
             $this->dsn['password'],
             $this->options['persistent']
         );
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -413,7 +413,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         $connection = $this->_doConnect($this->dsn['username'],
                                         $this->dsn['password'],
                                         $this->options['persistent']);
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -491,7 +491,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         $user = $this->options['DBA_username']? $this->options['DBA_username'] : $this->dsn['username'];
         $pass = $this->options['DBA_password']? $this->options['DBA_password'] : $this->dsn['password'];
         $connection = $this->_doConnect($user, $pass, $this->options['persistent']);
-        if (PEAR::isError($connection)) {
+        if (MDB2::isError($connection)) {
             return $connection;
         }
 
@@ -501,7 +501,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         $query = $this->_modifyQuery($query, $is_manip, $limit, $offset);
 
         $result =& $this->_doQuery($query, $is_manip, $connection, $this->database_name);
-        if (!PEAR::isError($result)) {
+        if (!MDB2::isError($result)) {
             $result = $this->_affectedRows($connection, $result);
         }
 
@@ -527,7 +527,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         $this->last_query = $query;
         $result = $this->debug($query, 'query', array('is_manip' => $is_manip, 'when' => 'pre'));
         if ($result) {
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 return $result;
             }
             $query = $result;
@@ -539,7 +539,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
 
         if (is_null($connection)) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
         }
@@ -588,7 +588,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
     {
         if (is_null($connection)) {
             $connection = $this->getConnection();
-            if (PEAR::isError($connection)) {
+            if (MDB2::isError($connection)) {
                 return $connection;
             }
         }
@@ -637,13 +637,13 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         } else {
             $query = 'SELECT @@VERSION';
             $server_info = $this->queryOne($query, 'text');
-            if (PEAR::isError($server_info)) {
+            if (MDB2::isError($server_info)) {
                 return $server_info;
             }
         }
         // cache server_info
         $this->connected_server_info = $server_info;
-        if (!$native && !PEAR::isError($server_info)) {
+        if (!$native && !MDB2::isError($server_info)) {
             if (preg_match('/(\d+)\.(\d+)\.(\d+)/', $server_info, $tmp)) {
                 $server_info = array(
                     'major' => $tmp[1],
@@ -679,7 +679,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
     {
         $query = "SELECT * FROM $seq_name";
         $tableExists =& $this->_doQuery($query, true);
-        if (PEAR::isError($tableExists)) {
+        if (MDB2::isError($tableExists)) {
             if ($tableExists->getCode() == MDB2_ERROR_NOSUCHTABLE) {
                 return false;
             }
@@ -721,11 +721,11 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         $result =& $this->_doQuery($query, true);
         $this->popExpect();
         $this->popErrorHandling();
-        if (PEAR::isError($result)) {
+        if (MDB2::isError($result)) {
             if ($ondemand && !$this->_checkSequence($sequence_name)) {
                 $this->loadModule('Manager', null, true);
                 $result = $this->manager->createSequence($seq_name);
-                if (PEAR::isError($result)) {
+                if (MDB2::isError($result)) {
                     return $this->raiseError($result, null, null,
                         'on demand sequence '.$seq_name.' could not be created', __FUNCTION__);
                 } else {
@@ -753,7 +753,7 @@ class MDB2_Driver_odbc extends MDB2_Driver_Common
         if (is_numeric($value)) {
             $query = "DELETE FROM $sequence_name WHERE $seqcol_name < $value";
             $result =& $this->_doQuery($query, true);
-            if (PEAR::isError($result)) {
+            if (MDB2::isError($result)) {
                 $this->warnings[] = 'nextID: could not delete previous sequence table values from '.$seq_name;
             }
         }
@@ -853,7 +853,7 @@ class MDB2_Result_odbc extends MDB2_Result_Common
         }
         if (!is_null($rownum)) {
             $seek = $this->seek($rownum);
-            if (PEAR::isError($seek)) {
+            if (MDB2::isError($seek)) {
                 return $seek;
             }
         }
@@ -938,7 +938,7 @@ class MDB2_Result_odbc extends MDB2_Result_Common
     {
         $columns = array();
         $numcols = $this->numCols();
-        if (PEAR::isError($numcols)) {
+        if (MDB2::isError($numcols)) {
             return $numcols;
         }
         for ($column = 0; $column < $numcols; $column++) {
@@ -1071,7 +1071,7 @@ class MDB2_BufferedResult_odbc extends MDB2_Result_odbc
     function valid()
     {
         $numrows = $this->numRows();
-        if (PEAR::isError($numrows)) {
+        if (MDB2::isError($numrows)) {
             return $numrows;
         }
         return $this->rownum < ($numrows - 1);

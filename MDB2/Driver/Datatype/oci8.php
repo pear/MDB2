@@ -76,7 +76,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
             if (is_object($value) && is_a($value, 'OCI-Lob')) {
                 //LOB => fetch into variable
                 $clob = $this->_baseConvertResult($value, 'clob', $rtrim);
-                if (!PEAR::isError($clob) && is_resource($clob)) {
+                if (!MDB2::isError($clob) && is_resource($clob)) {
                     $clob_value = '';
                     while (!feof($clob)) {
                         $clob_value .= fread($clob, 8192);
@@ -126,7 +126,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function getTypeDeclaration($field)
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
 
@@ -289,7 +289,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         $this->lobs[$lob_index]['resource']->seek(0);
         if (!$result) {
             $db = $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
 
@@ -313,7 +313,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     {
         if (!is_object($lob['resource'])) {
             $db = $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
 
@@ -353,7 +353,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
 
         if (!is_object($lob['resource'])) {
             $db = $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
 
@@ -364,7 +364,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         $data = $lob['resource']->read($length);
         if (!is_string($data)) {
             $db = $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
 
@@ -388,7 +388,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
     function patternEscapeString()
     {
         $db = $this->getDBInstance();
-        if (PEAR::isError($db)) {
+        if (MDB2::isError($db)) {
             return $db;
         }
         return " ESCAPE '". $db->string_quoting['escape_pattern'] ."'";
@@ -480,7 +480,7 @@ class MDB2_Driver_Datatype_oci8 extends MDB2_Driver_Datatype_Common
         case 'urowid':
         default:
             $db = $this->getDBInstance();
-            if (PEAR::isError($db)) {
+            if (MDB2::isError($db)) {
                 return $db;
             }
 
