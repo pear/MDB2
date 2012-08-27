@@ -92,10 +92,10 @@ class Standard_InternalsTest extends Standard_Abstract {
 
         $this->assertTrue(MDB2::loadClass('MDB2', false), 'loadClass');
         // Suppress handling of PEAR errors while testing next case
-        PEAR::pushErrorHandling(null);
+        $this->db->pushErrorHandling(null);
         $result = MDB2::loadClass('null', false);
         $this->assertTrue(is_object($result) && is_a($result, 'pear_error'), 'loadClass');
-        PEAR::popErrorHandling();
+        $this->db->popErrorHandling();
     }
 
     /**
@@ -110,9 +110,9 @@ class Standard_InternalsTest extends Standard_Abstract {
         $this->assertTrue(MDB2::isConnection($db), 'factory');
         // Suppress handling of PEAR errors while preparing the
         // next test case database connection
-        PEAR::pushErrorHandling(null);
+        $this->db->pushErrorHandling(null);
         $db = MDB2::factory(null);
-        PEAR::popErrorHandling();
+        $this->db->popErrorHandling();
         $this->assertFalse(MDB2::isConnection($db), 'factory');
     }
 
