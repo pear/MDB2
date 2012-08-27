@@ -534,7 +534,7 @@ class MDB2
      *
      * @access  public
      */
-    function apiVersion()
+    static function apiVersion()
     {
         return '@package_version@';
     }
@@ -620,7 +620,7 @@ class MDB2
      * @return  bool    whether $value is a MDB2 connection
      * @access  public
      */
-    function isConnection($value)
+    static function isConnection($value)
     {
         return ($value instanceof MDB2_Driver_Common);
     }
@@ -637,7 +637,7 @@ class MDB2
      *
      * @access public
      */
-    function isResult($value)
+    static function isResult($value)
     {
         return ($value instanceof MDB2_Result);
     }
@@ -671,7 +671,7 @@ class MDB2
      *
      * @access  public
      */
-    function isStatement($value)
+    static function isStatement($value)
     {
         return ($value instanceof MDB2_Statement_Common);
     }
