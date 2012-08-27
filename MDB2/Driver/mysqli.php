@@ -1000,7 +1000,7 @@ class MDB2_Driver_mysqli extends MDB2_Driver_Common
                 }
 
                 if (!version_compare($server_version, '5.0.3', '<')) {
-                    $this->varchar_max_length = ($this->dsn['charset'] == 'utf8')? 21844 : 65532;
+                    $this->varchar_max_length = 65532;
                 }
 
                 if (!version_compare($server_version, '5.0.2', '<')) {
