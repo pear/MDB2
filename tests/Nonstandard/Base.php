@@ -59,7 +59,7 @@ class Nonstandard_Base {
      * @param MDB2_Driver_Common
      * @param Standard_Abstract
      */
-    public function factory($db, $test) {
+    public static function factory($db, $test) {
         $classname = 'Nonstandard_' . ucfirst($db->phptype) . 'Helper';
         if (class_exists($classname)) {
             $obj = new $classname;
