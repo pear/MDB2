@@ -274,13 +274,16 @@ class Standard_InternalsTest extends Standard_Abstract {
      */
     public function test_escape($ci) {
         $this->manualSetUp($ci);
-
-        $tmp = $this->db->string_quoting;
-        $this->string_quoting['escape'] = '\\';
-        $this->string_quoting['end'] = '"';
-        $text = 'xxx"z"xxx';
-        $this->assertEquals('xxx\"z\"xxx', $this->db->escape($text), 'escape');
-        $this->db->string_quoting = $tmp;
+        $text = "xxx'z'xxx";
+        switch ($this->db->phptype) {
+            case 'mysql':
+            case 'mysqli':
+                $expect = "xxx\'z\'xxx";
+                break;
+            default:
+                $expect = "xxx''z''xxx";
+        }
+        $this->assertEquals($expect, $this->db->escape($text), 'escape');
     }
 
     /**
