@@ -652,7 +652,7 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             if ($is_manip) {
                 $result =  $this->_affectedRows($connection, $result);
             } else {
-                $result =& $this->_wrapResult($result, $types, true, true, $limit, $offset);
+                $result = $this->_wrapResult($result, $types, true, true, $limit, $offset);
             }
         }
 
@@ -1565,7 +1565,7 @@ class MDB2_Statement_pgsql extends MDB2_Statement_Common
      */
     function dropTable($name)
     {
-        $db =& $this->getDBInstance();
+        $db = $this->getDBInstance();
         if (MDB2::isError($db)) {
             return $db;
         }
