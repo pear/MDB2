@@ -984,7 +984,8 @@ class MDB2_Driver_pgsql extends MDB2_Driver_Common
             return $connection;
         }
         static $prep_statement_counter = 1;
-        $statement_name = sprintf($this->options['statement_format'], $this->phptype, $prep_statement_counter++ . sha1(microtime() + mt_rand()));
+        $randomStr = sprintf('%d', $prep_statement_counter++) . sha1(microtime() . sprintf('%d', mt_rand()));
+        $statement_name = sprintf($this->options['statement_format'], $this->phptype, $randomStr);
         $statement_name = substr(strtolower($statement_name), 0, $this->options['max_identifiers_length']);
         if (false === $pgtypes) {
             $result = @pg_prepare($connection, $statement_name, $query);

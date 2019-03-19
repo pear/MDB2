@@ -575,7 +575,7 @@ class MDB2
                          $dummy3 = false)
     {
         $pear = new PEAR;
-        $err =& $pear->raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
+        $err = $pear->raiseError(null, $code, $mode, $options, $userinfo, 'MDB2_Error', true);
         return $err;
     }
 
@@ -823,7 +823,8 @@ class MDB2
             $parsed['dbsyntax'] = $str;
         }
 
-        if (!count($dsn)) {
+        $dsn = trim($dsn);
+        if (!strlen($dsn)) {
             return $parsed;
         }
 
