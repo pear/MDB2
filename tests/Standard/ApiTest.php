@@ -187,8 +187,10 @@ class Standard_ApiTest extends Standard_Abstract {
             $this->fail('Connect failed bailing out - ' .$db->getMessage() . ' - ' .$db->getUserInfo());
         }
         if (MDB2::isError($this->db)) {
+            $this->fail('Error testConnect: '.$err->getMessage().' - '.$err->getUserInfo());
             exit;
         }
+        $this->assertTrue(true);
     }
 
     /**
@@ -304,6 +306,7 @@ class Standard_ApiTest extends Standard_Abstract {
         if (MDB2::isError($err)) {
             $this->fail('Error testFetch: '.$err->getMessage().' - '.$err->getUserInfo());
         }
+        $this->assertTrue(true);
     }
 
     /**

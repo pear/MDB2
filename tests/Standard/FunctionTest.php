@@ -319,7 +319,20 @@ class Standard_FunctionTest extends Standard_Abstract
         }
 
         $datetime = '2008-01-01 00:00:00';
-        $expected = 1199163600;
+        $expected = 1199145600;
+        switch (PHP_MAJOR_VERSION) {
+            case 4:
+                $expected = 1199163600; // @ 5:00am (UTC)
+                break;
+            case 5:
+                $expected = 1199174400; // @ 8:00am (UTC)
+                break;
+            case 7:
+                if (PHP_MINOR_VERSION < 3) {
+                    $expected = 1199174400; // @ 8:00am (UTC)
+                    break;
+                }
+        }
 
         $quoted_dt = $this->db->quote($datetime, 'timestamp');
         $this->db->pushErrorHandling(PEAR_ERROR_RETURN);

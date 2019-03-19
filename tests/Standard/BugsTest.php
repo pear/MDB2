@@ -153,6 +153,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $data['user_name'] = null;
 
         $stmt->free();
+        $this->assertTrue(true);
     }
 
     /**
@@ -240,6 +241,7 @@ class Standard_BugsTest extends Standard_Abstract {
             }
         }
         $result->free();
+        $this->assertTrue(true);
     }
 
     /**
@@ -276,6 +278,7 @@ class Standard_BugsTest extends Standard_Abstract {
         $this->verifyFetchedValues($result, 1, $data[1]);
 
         $result->free();
+        $this->assertTrue(true);
     }
 
     /**
@@ -362,7 +365,13 @@ class Standard_BugsTest extends Standard_Abstract {
         $res->free();
 
         // Make sure constructor type checking works.
-        $this->setExpectedException('PHPUnit_Framework_Error', 'must be an instance of MDB2_Result_Common');
+        if (PHP_MAJOR_VERSION >= 7) {
+            $this->expectException(TypeError::class);
+        } else {
+            $this->expectException(\PHPUnit\Framework\Error\Error::class);
+        }
+        $this->expectExceptionMessage('must be an instance of MDB2_Result_Common');
+        //$this->setExpectedException('PHPUnit_Framework_Error', 'must be an instance of MDB2_Result_Common');
         $i = new MDB2_Iterator('foo');
     }
 
@@ -494,5 +503,6 @@ class Standard_BugsTest extends Standard_Abstract {
         $db = new MDB2;
         $db->connect($dsn);
         error_reporting($oer);
+        $this->assertTrue(true);
     }
 }

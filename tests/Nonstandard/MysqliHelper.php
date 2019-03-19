@@ -66,7 +66,7 @@ END';
     }
 
     public function createFunction($name) {
-        $query = 'CREATE FUNCTION '.$name.'(a INT, b INT) RETURNS INT
+        $query = 'CREATE FUNCTION '.$name.'(a INT, b INT) RETURNS INT DETERMINISTIC
 RETURN a + b;';
         return $this->db->exec($query);
     }

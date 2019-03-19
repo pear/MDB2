@@ -251,7 +251,9 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Error fetching the result set');
         }
         for ($i=0; $i<$total_rows; $i++) {
-            list($id, $name) = each($values);
+            $id = key($values);
+            $name = current($values);
+            next($values);
             $this->assertEquals($data[$i]['user_id'],   $id,   'Row #'.$i.' ["user_id"]');
             $this->assertEquals($data[$i]['user_name'], $name, 'Row #'.$i.' ["user_name"]');
         }
@@ -268,7 +270,9 @@ class Standard_UsageTest extends Standard_Abstract {
             $this->fail('Error fetching the result set');
         }
         for ($i=0; $i<$total_rows; $i++) {
-            list($id, $value) = each($values);
+            $id = key($values);
+            $value = current($values);
+            next($values);
             $this->assertEquals($data[$i]['user_id'],   $id,                 'Row #'.$i.' ["user_id"]');
             $this->assertEquals($data[$i]['user_name'], $value['user_name'], 'Row #'.$i.' ["user_name"]');
         }

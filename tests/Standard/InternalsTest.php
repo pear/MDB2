@@ -451,8 +451,7 @@ class Standard_InternalsTest extends Standard_Abstract {
     public function test_transaction($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->db->supports('transactions'))
-        {
+        if (!$this->db->supports('transactions')) {
             $this->assertTrue($this->db->beginTransaction(), 'transaction');
             $this->assertTrue($this->db->in_transaction, 'transaction');
             $this->assertTrue($this->db->rollback(), 'transaction');
@@ -463,6 +462,7 @@ class Standard_InternalsTest extends Standard_Abstract {
             $this->assertTrue($this->db->commit(), 'transaction');
             $this->assertFalse($this->db->in_transaction, 'transaction');
         }
+        $this->assertTrue(true);
     }
 
     // Nested transactions are not yet tested, due to a MySQL 5 problem with
@@ -598,14 +598,14 @@ class Standard_InternalsTest extends Standard_Abstract {
     public function test_setLimit($ci) {
         $this->manualSetUp($ci);
 
-        if (!$this->db->supports('limit_queries'))
-        {
+        if (!$this->db->supports('limit_queries')) {
             $this->db->limit = null;
             $this->db->offset = null;
             $this->db->setLimit(100, 50);
             $this->assertEquals(100, $this->db->limit , 'setLimit');
             $this->assertEquals( 50, $this->db->offset, 'setLimit');
         }
+        $this->assertTrue(true);
     }
 
     /**

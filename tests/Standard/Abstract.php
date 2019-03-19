@@ -44,7 +44,7 @@
 //
 // $Id$
 
-abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
+abstract class Standard_Abstract extends \PHPUnit\Framework\TestCase {
     /**
      * Should the tables be cleared in the setUp() and tearDown() methods?
      * @var bool
@@ -112,7 +112,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
      * Override PHPUnit's default behavior so authentication data doesn't
      * get broadcasted
      */
-    protected function getDataSetAsString($strict = true) {
+    public function getDataSetAsString(bool $includeData = true): string {
         return parent::getDataSetAsString(false);
     }
 
@@ -253,7 +253,7 @@ abstract class Standard_Abstract extends PHPUnit_Framework_TestCase {
         $data['user_password'] = 'somepass';
         $data['subscribed']    = $row % 2 ? true : false;
         $data['user_id']       = $row;
-        $data['quota']         = strval($row/100);
+        $data['quota']         = sprintf('%0.2f', $row/100.0); //strval($row/100);
         $data['weight']        = sqrt($row);
         $data['access_date']   = MDB2_Date::mdbToday();
         $data['access_time']   = MDB2_Date::mdbTime();
