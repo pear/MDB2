@@ -590,6 +590,7 @@ class Standard_DatatypeTest extends Standard_Abstract
 
         switch ($this->db->phptype) {
             case 'sqlite':
+            case 'sqlite3':
                 // LIKE and GLOB are not case sensitive for ASCII.
                 // http://www.sqlite.org/lang_expr.html#like
                 $case_sensitive_expect = 3;
@@ -645,6 +646,7 @@ class Standard_DatatypeTest extends Standard_Abstract
         $this->manualSetUp($ci);
 
         if (!$this->supported('pattern_escaping')) {
+            $this->markTestSkipped('Pattern escaping not supported');
             return;
         }
 
@@ -668,7 +670,7 @@ class Standard_DatatypeTest extends Standard_Abstract
         );
 
         $this->clearTables();
-        foreach($test_strings as $key => $string) {
+        foreach ($test_strings as $key => $string) {
             $value = $this->db->quote($string, 'text');
             $query = "INSERT INTO $this->table_users (user_name,user_id) VALUES ($value, $key)";
             $result = $this->db->exec($query);
@@ -770,7 +772,7 @@ class Standard_DatatypeTest extends Standard_Abstract
         $type = 'integer';
         $field = array('type' => 'integer');
         $result = $this->db->datatype->getDeclaration($type, $name, $field);
-        $actual_type = $this->db->phptype == 'sqlite' ? 'INTEGER' : 'INT';
+        $actual_type = in_array($this->db->phptype, array('sqlite', 'sqlite3')) ? 'INTEGER' : 'INT';
         $default = $this->db->phptype == 'mssql' ? ' NULL' : ' DEFAULT NULL';
 
         // Do this to avoid memory exhaustion by PHPUnit.
@@ -961,7 +963,7 @@ class Standard_DatatypeTest extends Standard_Abstract
             $field['type'] = 'integer';
         }
         $expected_length = 8;
-        if (in_array($this->db->phptype, array('mysql', 'mysqli', 'pgsql', 'sqlite', 'mssql'))) {
+        if (in_array($this->db->phptype, array('mysql', 'mysqli', 'pgsql', 'sqlite', 'sqlite3', 'mssql'))) {
             $expected_length = 4;
         }
         $result = $this->db->datatype->mapNativeDatatype($field);

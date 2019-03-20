@@ -19,6 +19,7 @@
  *   + OCI8
  *   + PGSQL
  *   + SQLITE
+ *   + SQLITE3
  *   + SQLSRV
  *
  * Examine this file to see exactly which settings are available for
@@ -48,6 +49,7 @@ $skip = array(
 //    'oci8',
 //    'pgsql',
 //    'sqlite',
+//    'sqlite3',
 //    'sqlsrv',
 );
 
@@ -266,6 +268,31 @@ if (!in_array('sqlite', $skip)
             'dsn' => array(
                 'phptype' => 'sqlite',
                 'database' => $_ENV['SQLITE_TEST_DB'],
+            ),
+            'options' => array(
+            ),
+        );
+    }
+}
+
+// SQLite3 is different.  Runs using :memory: table even if variable is not set.
+if (!in_array('sqlite3', $skip)
+    && is_driver_available('sqlite3') && extension_loaded('sqlite3'))
+{
+    if (empty($_ENV['SQLITE3_TEST_DB'])) {
+        $dsns['sqlite3'] = array(
+            'dsn' => array(
+                'phptype' => 'sqlite3',
+                'database' => ':memory:',
+            ),
+            'options' => array(
+            ),
+        );
+    } else {
+        $dsns['sqlite3'] = array(
+            'dsn' => array(
+                'phptype' => 'sqlite3',
+                'database' => $_ENV['SQLITE3_TEST_DB'],
             ),
             'options' => array(
             ),

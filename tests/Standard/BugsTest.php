@@ -350,7 +350,7 @@ class Standard_BugsTest extends Standard_Abstract {
         if (MDB2::isError($res)) {
             $this->fail($res->getUserInfo());
         }
-        foreach($res as $key => $row) {
+        foreach ($res as $key => $row) {
             $this->assertEquals($data[$key - 1]['user_name'], $row['user_name']);
         }
         $res->free();
@@ -390,6 +390,9 @@ class Standard_BugsTest extends Standard_Abstract {
         switch ($this->db->phptype) {
             case 'mysqli':
                 $expect = 'mysqli_result';
+                break;
+            case 'sqlite3':
+                $expect = 'SQLite3Result';
                 break;
             default:
                 $expect = 'resource';

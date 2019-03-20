@@ -532,6 +532,7 @@ class Standard_ReverseTest extends Standard_Abstract
             'mysql',
             'mysqli',
             'sqlite',
+            'sqlite3',
         );
 
 

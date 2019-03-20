@@ -241,6 +241,7 @@ class Standard_InternalsTest extends Standard_Abstract {
         $expected = "MDB2_Driver_{$this->dsn['phptype']}: (phptype = {$this->dsn['phptype']}, dbsyntax = {$this->db->dbsyntax})";
         switch ($this->db->phptype) {
             case 'sqlite':
+            case 'sqlite3':
                 $expected .= ' [connected]';
                 break;
         }

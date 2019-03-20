@@ -173,6 +173,24 @@ class Standard_ApiTest extends Standard_Abstract {
             'mode'     => '0666',
         );
         $this->assertEquals($expected, MDB2::parseDSN($original));
+
+        // ---------------------------------------------------------------------
+
+        //sqlite3 dbname+path on unix
+        $original = 'sqlite3:////full/unix/path/to/file.db?mode=0666';
+        $expected = array (
+            'phptype'  => 'sqlite3',
+            'dbsyntax' => 'sqlite3',
+            'username' => false,
+            'password' => false,
+            'protocol' => 'tcp',
+            'hostspec' => '',
+            'port'     => false,
+            'socket'   => false,
+            'database' => '/full/unix/path/to/file.db',
+            'mode'     => '0666',
+        );
+        $this->assertEquals($expected, MDB2::parseDSN($original));
     }
 
     //test stuff in common.php

@@ -980,6 +980,7 @@ class Standard_ManagerTest extends Standard_Abstract {
         $unlink = false;
         switch ($this->db->phptype) {
             case 'sqlite':
+            case 'sqlite3':
                 $name = tempnam(sys_get_temp_dir(), $name);
                 $rename = $name . '_renamed';
                 unlink($name);

@@ -1107,6 +1107,7 @@ class Standard_UsageTest extends Standard_Abstract {
         if ($this->db->supports('affected_rows')) {
             switch ($this->db->phptype) {
                 case 'sqlite':
+                case 'sqlite3':
                     $expect = 1;
                     break;
                 default:

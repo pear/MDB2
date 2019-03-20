@@ -282,6 +282,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $this->manualSetUp($ci);
 
         if (!$this->methodExists($this->db->function, 'replace')) {
+            $this->markTestSkipped('Replace not supported');
             return;
         }
 
@@ -294,6 +295,7 @@ class Standard_FunctionTest extends Standard_Abstract
         $this->db->popExpect();
         $this->db->popErrorHandling();
         if (MDB2::isError($replace_clause) && $replace_clause->getCode() == MDB2_ERROR_UNSUPPORTED) {
+            $this->markTestSkipped('Replace not supported');
             return;
         }
 
