@@ -3,7 +3,7 @@
   "description": "PEAR MDB2 is a merge of the PEAR DB and Metabase php database abstraction layers.",
   "type": "library",
   "keywords": [ "database", "orm", "dbal", "metabase" ],
-  "homepage": "https://github.com/silverorange/MDB2",
+  "homepage": "https://github.com/nanasess/MDB2",
   "license": "BSD-2-Clause",
   "authors": [
     {
@@ -16,17 +16,9 @@
     "ext-mbstring": "*",
     "pear/pear-core-minimal": "^1.9.0"
   },
-  "require-dev": {
-    "silverorange/coding-standard": "^1.0.0"
-  },
     "autoload": {
         "classmap": [
             ""
         ]
-  },
-  "scripts": {
-    "lint": "./vendor/bin/phpcs",
-    "post-install-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src",
-    "post-update-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src"
   }
 }
